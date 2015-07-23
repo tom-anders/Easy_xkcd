@@ -19,11 +19,11 @@
         <item
             android:id="@+id/nav_browser"
             android:checked="true"
-            android:title="@string/nw_comicbrowser"
+            android:title="@string/nv_comicbrowser"
             android:icon="@mipmap/ic_nav_browser"/>
         <item
             android:id="@+id/nav_favorites"
-            android:title="@string/nw_favorites"
+            android:title="@string/nv_favorites"
             android:icon="@drawable/ic_action_favorite"
             />
     </group>
@@ -36,12 +36,12 @@
             />
         <item
         android:id="@+id/nav_feedback"
-        android:title="@string/nav_feedback"
+        android:title="@string/nv_feedback"
         android:icon="@mipmap/ic_nav_feedback"
         />
         <item
             android:id="@+id/nav_about"
-            android:title="@string/nav_about"
+            android:title="@string/nv_about"
             android:icon="@mipmap/ic_nav_about"
             />
     </group>

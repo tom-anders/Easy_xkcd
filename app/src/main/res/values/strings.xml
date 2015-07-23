@@ -15,41 +15,44 @@
   -->
 <resources>
     <string name="app_name">Easy xkcd</string>
+    <string name="pref_title">Settings</string>
+    <string name="title_activity_about">About</string>
 
-    <string name="hello_world">Hello world!</string>
-    <string name="action_settings">Settings</string>
-    <string name="ed_Comic">Enter a Comic number</string>
-    <string name="bt_Comic">Get Comic</string>
-    <string name="search_title">Search</string>
-    <string name="search_hint">Search a Comic</string>
-    <string name="title_activity_search_results">SearchResultsActivity</string>
-    <string name="title_activity_searchable">SearchableActivity</string>
-    <string name="random_button">Random</string>
-    <string name="action_favorite">Add to Favorites</string>
-    <string name="action_latest">Latest comic</string>
+    <!-- dialog strings -->
     <string name="delete_favorites">Clear favorites</string>
     <string name="delete_favorites_dialog">Are you sure you want to delete all your Favorites?</string>
     <string name="favorites_cleared">Favorites cleared</string>
-    <string name="action_share">Share Comic</string>
-    <string name="action_random">Random Comic</string>
-    <string name="action_alt">View Alt Text</string>
-    <string name="action_alt_tip">Tip: You can also view the alt text by long pressing the comic image.</string>
+
+    <string name="share_url">Share url with&#8230;</string>
+    <string name="share_image">Share image with&#8230;</string>
+    <string name="dialog_cancel">Cancel</string>
+    <string name="dialog_yes">Yes</string>
+    <string name="loading_random">Loading Random Comic</string>
+    <string name="no_favorites">You didn\'t add any Favorites yet!</string>
+    <string name="loading_comics">Loading Comics</string>
+    <string name="no_connection">No connection&#8230;</string>
+    <string name="no_connection_retry">Try again</string>
+    <string name="no_connection_favorites">View Favorites</string>
+    <string name="comic_error">Comic not available</string>
+    <string name="loading_latest">Loading Latest Comic</string>
+
     <string name="snackbar_remove">Comic removed from favorites</string>
     <string name="snackbar_add">Comic added to favorites</string>
     <string name="snackbar_remove_all">Favorites cleared</string>
     <string name="snackbar_undo">Undo</string>
-    <string name="share_url">Share url with...</string>
-    <string name="share_image">Share image with...</string>
-    <string name="dialog_cancel">Cancel</string>
-    <string name="dialog_yes">Yes</string>
-    <string name="loading_random">Loading Random Comic</string>
 
-    <string name="no_favorites">You didn\'t add any Favorites yet!</string>
-    <string name="no_favorites_back">Ok</string>
-
+    <!-- ActionBar strings -->
+    <string name="action_settings">Settings</string>
+    <string name="action_favorite">Add to Favorites</string>
+    <string name="action_latest">Latest comic</string>
+    <string name="action_share">Share Comic</string>
+    <string name="action_random">Random Comic</string>
+    <string name="action_alt">View Alt Text</string>
+    <string name="action_alt_tip">Tip: You can also view the alt text by long pressing the comic image.</string>
+    <string name="search_title">Search</string>
+    <string name="search_hint">Search a Comic</string>
     <string name="drawer_open">Open navigation drawer</string>
     <string name="drawer_close">Close navigation drawer</string>
-    <string name="first_startup_alt">Long press the Image to make the alt text show up here!</string>
 
     <string-array
         name="share_dialog">
@@ -109,44 +112,23 @@
 
     <string name="title_interactive">(interactive)</string>
 
-    <string name="title_activity_no_internet">NoInternet</string>
+    <!-- navigation drawer -->
+    <string name="nv_comicbrowser">Comic Browser</string>
+    <string name="nv_favorites">Favorites</string>
+    <string name="nv_about">About</string>
+    <string name="nv_feedback">Feedback</string>
+    <string name="nav_feedback_send">Send email with&#8230;</string>
 
-    <string name="no_connection">No connection...</string>
-    <string name="no_connection_retry">Try again</string>
-    <string name="no_connection_favorites">View Favorites</string>
-    <string name="comic_error">Comic not available</string>
-    <string name="loading_latest">Loading Latest Comic</string>
-
-    <string name="nw_comicbrowser">Comic Browser</string>
-    <string name="nw_favorites">Favorites</string>
-    <string name="loading_comics">Loading Comics</string>
-
-    <string name="pref_title">Settings</string>
-    <string name="title_activity_test">test</string>
-
-    <string name="nav_about">About</string>
-
-    <string name="nav_feedback_send">Send email with...</string>
-
+    <!-- preference strings -->
     <string name="pref_alt">Alt Text haptic feedback</string>
     <string name="pref_alt_sum">Enables the haptic feedback when long pressing images</string>
-    
-    <string name="nav_feedback">Feedback</string>
     <string name="pref_toolbar">Toolbar color</string>
-
     <string name="pref_subtitle">Show Action Bar Subtitle</string>
     <string name="pref_subtitle_sum">Sets the current comic number as Action Bar Subtitle</string>
-
     <string name="pref_random_favorites">Hide FAB in Favorites Screen</string>
     <string name="pref_random_comics">Hide FAB in Comics Screen</string>
     <string name="pref_random_sum">Hides the Floating Action Button. When hidden, there will be a button in the overflow menu instead</string>
-
     <string name="pref_share">Always share comic image</string>
     <string name="pref_share_sum">Don\'t ask me to decide between sharing the comic\'s image and sharing its URL</string>
-
-    <string name="notices_title">Licenses</string>
-    <string name="notices_close">Close</string>
-    <string name="title_activity_about">About</string>
-
 
 </resources>
