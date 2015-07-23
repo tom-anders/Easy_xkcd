@@ -23,7 +23,6 @@
         android:id="@+id/toolbar"
         layout="@layout/tool_bar" />
 
-
     <FrameLayout
         android:id="@+id/content_frame"
         android:layout_below="@+id/toolbar"
