@@ -83,7 +83,7 @@ public class ComicBrowserFragment extends android.support.v4.app.Fragment {
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        View v = inflater.inflate(R.layout.comic_browser, container, false);
+        View v = inflater.inflate(R.layout.pager_layout, container, false);
         setHasOptionsMenu(true);
         mSharedPreferences = getActivity().getPreferences(Activity.MODE_PRIVATE);
 

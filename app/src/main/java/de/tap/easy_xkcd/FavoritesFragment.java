@@ -72,7 +72,7 @@ public class FavoritesFragment extends android.support.v4.app.Fragment {
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, final Bundle savedInstanceState) {
-        View v = inflater.inflate(R.layout.comic_browser, container, false);
+        View v = inflater.inflate(R.layout.pager_layout, container, false);
         //Get Favorites &&
         mFav = Favorites.getFavoriteList(this.getActivity());
         mSharedPreferences = getActivity().getPreferences(Activity.MODE_PRIVATE);
