@@ -348,7 +348,7 @@ public class ComicBrowserFragment extends android.support.v4.app.Fragment {
             return true;
         }
         //update pager
-        MainActivity.sProgress = ProgressDialog.show(getActivity(), this.getResources().getString(R.string.loading_latest), "", true);
+        MainActivity.sProgress = ProgressDialog.show(getActivity(), "", this.getResources().getString(R.string.loading_latest), true);
         sLastComicNumber = sNewestComicNumber;
         new pagerUpdate().execute(sNewestComicNumber);
         return true;
@@ -599,7 +599,7 @@ public class ComicBrowserFragment extends android.support.v4.app.Fragment {
 
     public boolean getRandomComic() {
         if (isOnline()) {
-            MainActivity.sProgress = ProgressDialog.show(getActivity(), this.getResources().getString(R.string.loading_random), "", true);
+            MainActivity.sProgress = ProgressDialog.show(getActivity(), "" ,this.getResources().getString(R.string.loading_random),  true);
             //get a random number and update the pager
             Random mRand = new Random();
             Integer mNumber = mRand.nextInt(sNewestComicNumber) + 1;

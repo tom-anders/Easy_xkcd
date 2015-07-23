@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
-    <PreferenceCategory android:title="Appereance">
+    <PreferenceCategory android:title="@string/pref_appearance">
         <CheckBoxPreference
             android:defaultValue="true"
             android:key="pref_subtitle"
@@ -22,7 +22,7 @@
     </PreferenceCategory>
 
     <PreferenceCategory
-        android:title="Behavior">
+        android:title="@string/pref_behavior">
         <CheckBoxPreference
             android:defaultValue="false"
             android:key="pref_share"

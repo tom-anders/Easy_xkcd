@@ -1,0 +1,135 @@
+<!--
+  ~ Copyright 2015, Tom Praschan
+  ~
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~ http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+  -->
+<resources>
+    <string name="app_name">Easy xkcd</string>
+    <string name="pref_title">Einstellungen</string>
+    <string name="title_activity_about">Über</string>
+
+    <!-- dialog strings -->
+    <string name="delete_favorites">Favoriten löschen</string>
+    <string name="delete_favorites_dialog">Möchtest du wirklich alle Favoriten löschen?</string>
+    <string name="favorites_cleared">Favoriten gelöscht</string>
+
+    <string name="share_url">Url teilen mit&#8230;</string>
+    <string name="share_image">Bild teilen mit&#8230;</string>
+    <string name="dialog_cancel">Abbrechen</string>
+    <string name="dialog_yes">Ja</string>
+    <string name="loading_random">Lade zufälligen Comic&#8230;</string>
+    <string name="no_favorites">Du hast noch keine Favoriten!</string>
+    <string name="loading_comics">Lade Comics&#8230;</string>
+    <string name="no_connection">Keine Verbindung&#8230;</string>
+    <string name="no_connection_retry">Nochmal</string>
+    <string name="no_connection_favorites">Favoriten anzeigen</string>
+    <string name="comic_error">Comic nicht verfügbar</string>
+    <string name="loading_latest">Lade neuesten Comic&#8230;</string>
+
+    <string name="snackbar_remove">Comic aus Favoriten entfernt</string>
+    <string name="snackbar_add">Comic zu Favoriten hinzugefügt</string>
+    <string name="snackbar_remove_all">Favoriten gelöscht</string>
+    <string name="snackbar_undo">Rückgängig</string>
+
+    <!-- ActionBar strings -->
+    <string name="action_settings">Einstellungen</string>
+    <string name="action_favorite">Neuer Favorit</string>
+    <string name="action_latest">Aktueller Comic</string>
+    <string name="action_share">Comic teilen</string>
+    <string name="action_random">Zufälliger Comic</string>
+    <string name="action_alt">Alt Text anzeigen</string>
+    <string name="action_alt_tip">Tip: Der alt text erscheint auch, wenn du lange auf das bild tippst</string>
+    <string name="search_title">Suchen</string>
+    <string name="search_hint">Suche einen Comic</string>
+    <string name="drawer_open">Navigation Drawer öffnen</string>
+    <string name="drawer_close">Navigation Drawer schließen</string>
+
+    <string-array
+        name="share_dialog">
+        <item>Bild teilen</item>
+        <item>URL teilen</item>
+    </string-array>
+
+    <integer-array
+        name="interactive_comics">
+        <item>826</item>
+        <item>1110</item>
+        <item>1350</item>
+        <item>1416</item>
+        <item>1506</item>
+        <item>1525</item>
+    </integer-array>
+
+    <integer-array
+        name="large_comics">
+        <item>256</item>
+        <item>482</item>
+        <item>657</item>
+        <item>681</item>
+        <item>802</item>
+        <item>1000</item>
+        <item>1040</item>
+        <item>1071</item>
+        <item>1079</item>
+        <item>1080</item>
+        <item>1196</item>
+        <item>1256</item>
+        <item>1298</item>
+        <item>1389</item>
+        <item>1392</item>
+        <item>1491</item>
+    </integer-array>
+
+    <string-array
+        name="large_comics_urls">
+        <item>http://imgs.xkcd.com/comics/online_communities.png</item>
+        <item>http://imgs.xkcd.com/comics/height.png</item>
+        <item>http://imgs.xkcd.com/comics/movie_narrative_charts_large.png</item>
+        <item>http://imgs.xkcd.com/comics/gravity_wells_large.png</item>
+        <item>http://imgs.xkcd.com/comics/online_communities_2_large.png</item>
+        <item>http://imgs.xkcd.com/comics/1000_comics_large.png</item>
+        <item>http://imgs.xkcd.com/comics/lakes_and_oceans_large.png</item>
+        <item>http://imgs.xkcd.com/comics/exoplanets_large.png</item>
+        <item>http://imgs.xkcd.com/comics/united_shapes_large.png</item>
+        <item>http://imgs.xkcd.com/comics/visual_field_large.png</item>
+        <item>http://imgs.xkcd.com/comics/subways_large.png</item>
+        <item>http://imgs.xkcd.com/comics/questions_large.png</item>
+        <item>http://imgs.xkcd.com/comics/exoplanet_neighborhood_large.png</item>
+        <item>http://imgs.xkcd.com/comics/surface_area_large.png</item>
+        <item>http://imgs.xkcd.com/comics/dominant_players_large.png</item>
+        <item>http://imgs.xkcd.com/comics/stories_of_the_past_and_future_large.png</item>
+    </string-array>
+
+    <string name="title_interactive">(interaktiv)</string>
+
+    <!-- navigation drawer -->
+    <string name="nv_comicbrowser">Comic Browser</string>
+    <string name="nv_favorites">Favoriten</string>
+    <string name="nv_about">Über</string>
+    <string name="nv_feedback">Feedback</string>
+    <string name="nav_feedback_send">Sende Email mit&#8230;</string>
+
+    <!-- preference strings -->
+    <string name="pref_alt">Alt Text haptisches Feedback</string>
+    <string name="pref_alt_sum">Aktiviert haptisches Feedback bei langem Berühren des Bilds</string>
+    <string name="pref_subtitle">Action Bar Untertitel anzeigen</string>
+    <string name="pref_subtitle_sum">Legt die Nummer des aktuellen Comics als Untertitel der Action Bar fest</string>
+    <string name="pref_random_favorites">Kein FAB im Favoriten Bildschirm</string>
+    <string name="pref_random_comics">Kein FAB im Comic Bildschirm</string>
+    <string name="pref_random_sum">Versteckt den Floating Action Button. Statdessen erscheint im Menü ein Button für zufällige Comics</string>
+    <string name="pref_share">Immer Bild teilen</string>
+    <string name="pref_share_sum">Deaktiviert den Dialog zur Entscheidung zwischen Bild und URL</string>
+    <string name="pref_behavior">Verhalten</string>
+    <string name="pref_appearance">Erscheinungsbild</string>
+
+</resources>
