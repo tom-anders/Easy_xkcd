@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
+    <PreferenceCategory android:title="Appereance">
+        <CheckBoxPreference
+            android:defaultValue="true"
+            android:key="pref_subtitle"
+            android:summary="@string/pref_subtitle_sum"
+            android:title="@string/pref_subtitle" />
+
+        <CheckBoxPreference
+            android:defaultValue="false"
+            android:key="pref_random_favorites"
+            android:summary="@string/pref_random_sum"
+            android:title="@string/pref_random_favorites" />
+
+        <CheckBoxPreference
+            android:defaultValue="false"
+            android:key="pref_random_comics"
+            android:summary=""
+            android:title="@string/pref_random_comics" />
+
+    </PreferenceCategory>
+
+    <PreferenceCategory
+        android:title="Behavior">
+        <CheckBoxPreference
+            android:defaultValue="false"
+            android:key="pref_share"
+            android:summary="@string/pref_share_sum"
+            android:title="@string/pref_share" />
+
+        <CheckBoxPreference
+            android:defaultValue="true"
+            android:key="pref_alt"
+            android:summary="@string/pref_alt_sum"
+            android:title="@string/pref_alt" />
+    </PreferenceCategory>
+
+</PreferenceScreen>

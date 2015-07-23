@@ -1,0 +1,36 @@
+# generated files
+bin/
+gen/
+out/
+build/
+
+# Local configuration file (sdk path, etc)
+local.properties
+
+# Windows thumbnail db
+.DS_Store
+
+# IDEA/Android Studio project files, because
+# the project can be imported from settings.gradle
+.idea
+*.iml
+
+# Gradle cache
+.gradle
+
+# Sandbox stuff
+_sandbox
+
+# Gradle Properties
+gradle.properties
+
+# Fabric API Stuff
+/app/fabric.properties
+
+# Apk Files
+*.apk
+
+# Windows Thumbs DB Files
+Thumbs.db
+
+build.gradle

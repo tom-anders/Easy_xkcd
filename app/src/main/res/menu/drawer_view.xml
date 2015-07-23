@@ -1,0 +1,34 @@
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+    <group android:checkableBehavior="single"
+        android:id="@+id/nav_items_main">
+        <item
+            android:id="@+id/nav_browser"
+            android:checked="true"
+            android:title="@string/nw_comicbrowser"
+            android:icon="@mipmap/ic_nav_browser"/>
+        <item
+            android:id="@+id/nav_favorites"
+            android:title="@string/nw_favorites"
+            android:icon="@drawable/ic_action_favorite"
+            />
+    </group>
+    <group android:checkableBehavior="single"
+        android:id="@+id/nav_items_extra">
+        <item
+            android:id="@+id/nav_settings"
+            android:title="@string/action_settings"
+            android:icon="@mipmap/ic_nav_settings"
+            />
+        <item
+        android:id="@+id/nav_feedback"
+        android:title="@string/nav_feedback"
+        android:icon="@mipmap/ic_nav_feedback"
+        />
+        <item
+            android:id="@+id/nav_about"
+            android:title="@string/nav_about"
+            android:icon="@mipmap/ic_nav_about"
+            />
+    </group>
+
+</menu>
