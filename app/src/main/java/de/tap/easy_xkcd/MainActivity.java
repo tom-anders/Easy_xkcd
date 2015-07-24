@@ -117,23 +117,26 @@ public class MainActivity extends AppCompatActivity {
             selectDrawerItem(item);
         } else if (sCurrentFragment != R.id.nav_favorites) { //Don't show the dialog if the user is currently browsing his favorites
             Log.d("test", "test");
-            new android.support.v7.app.AlertDialog.Builder(this)
-                    .setMessage(R.string.no_connection)
+            android.support.v7.app.AlertDialog.Builder mDialog = new android.support.v7.app.AlertDialog.Builder(this);
+            mDialog.setMessage(R.string.no_connection)
                     .setPositiveButton(R.string.no_connection_retry, new DialogInterface.OnClickListener() {
                         public void onClick(DialogInterface dialog, int which) {
                             finish();
                             startActivity(getIntent());
                         }
                     })
-                    .setNegativeButton(R.string.no_connection_favorites, new DialogInterface.OnClickListener() {
-                        @Override
-                        public void onClick(DialogInterface dialog, int which) {
-                            MenuItem m = sNavView.getMenu().findItem(R.id.nav_favorites);
-                            selectDrawerItem(m);
-                        }
-                    })
-                    .setCancelable(false)
-                    .show();
+                    .setCancelable(false);
+            if (Favorites.getFavoriteList(this).length != 0) {
+                mDialog.setNegativeButton(R.string.no_connection_favorites, new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+
+                        MenuItem m = sNavView.getMenu().findItem(R.id.nav_favorites);
+                        selectDrawerItem(m);
+                    }
+                });
+            }
+            mDialog.show();
         }
     }
 
