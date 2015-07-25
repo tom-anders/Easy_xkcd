@@ -198,7 +198,7 @@ public class MainActivity extends AppCompatActivity {
                     return;
                 }
                 //showFavoritesFragment
-                showFragment("pref_random_favorites", menuItem.getItemId(), "Favorites", "favorites", "browser");
+                showFragment("pref_random_favorites", menuItem.getItemId(), getResources().getString(R.string.nv_favorites), "favorites", "browser");
                 break;
 
             case R.id.nav_settings:

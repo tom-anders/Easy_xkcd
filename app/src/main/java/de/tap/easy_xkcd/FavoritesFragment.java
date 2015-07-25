@@ -380,7 +380,8 @@ public class FavoritesFragment extends android.support.v4.app.Fragment {
         MenuItem fav = menu.findItem(R.id.action_favorite);
         fav.setIcon(R.drawable.ic_action_favorite);
 
-        if (PreferenceManager.getDefaultSharedPreferences(getActivity()).getBoolean("pref_random_favorites", true)) {
+        //If the FAB is visible, hide the random comic menu item
+        if (((MainActivity) getActivity()).mFab.getVisibility() == View.GONE) {
             menu.findItem(R.id.action_random).setVisible(true);
         } else {
             menu.findItem(R.id.action_random).setVisible(false);
