@@ -395,12 +395,13 @@ public class FavoritesFragment extends android.support.v4.app.Fragment {
         @Override
         protected Void doInBackground(Integer... pos) {
             sFavorites = new int[mFav.length];
-            for (int i = 0; i < mFav.length; i++) {
-                sFavorites[i] = Integer.parseInt(mFav[i]);
-            }
+            /*for (int i = 0; i < mFav.length; i++) {
+
+            }*/
 
             try {
                 for (int i = 0; i < sFavorites.length; i++) {
+                    sFavorites[i] = Integer.parseInt(mFav[i]);
                     FileInputStream fis = getActivity().getApplicationContext().openFileInput(mFav[i]);
                     Bitmap mBitmap = BitmapFactory.decodeStream(fis);
                     fis.close();
