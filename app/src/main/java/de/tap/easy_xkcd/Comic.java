@@ -17,6 +17,7 @@
 package de.tap.easy_xkcd;
 
 import android.content.Context;
+import android.preference.PreferenceManager;
 
 import com.tap.xkcd_reader.R;
 
@@ -49,7 +50,7 @@ public class Comic {
         }
 
         int i = Arrays.binarySearch(mContext.getResources().getIntArray(R.array.large_comics), mComicNumber);
-        if (i>=0) {
+        if (i>=0 && PreferenceManager.getDefaultSharedPreferences(mContext).getBoolean("pref_large", true)) {
             mComicData[2] = mContext.getResources().getStringArray(R.array.large_comics_urls)[i];
         }
 

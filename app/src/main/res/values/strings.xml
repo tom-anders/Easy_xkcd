@@ -131,5 +131,7 @@
     <string name="pref_share_sum">Don\'t ask me to decide between sharing the comic\'s image and sharing its URL</string>
     <string name="pref_behavior">Behavior</string>
     <string name="pref_appearance">Appearance</string>
+    <string name="pref_large">Large comic images</string>
+    <string name="pref_large_sum">Load large images if available (e.g. #657). My decrease performance on older devices </string>
 
 </resources>

@@ -131,5 +131,7 @@
     <string name="pref_share_sum">Deaktiviert den Dialog zur Entscheidung zwischen Bild und URL</string>
     <string name="pref_behavior">Verhalten</string>
     <string name="pref_appearance">Erscheinungsbild</string>
+    <string name="pref_large">Große Bildateien</string>
+    <string name="pref_large_sum">Lade große Bilder wenn verfügbar (z.B. #657). Kann die Performance auf älteren Geräten beeinträchtigen </string>
 
 </resources>
