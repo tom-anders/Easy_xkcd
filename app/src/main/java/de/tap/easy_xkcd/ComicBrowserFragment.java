@@ -54,6 +54,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.bumptech.glide.Glide;
+import com.bumptech.glide.load.data.ExifOrientationStream;
 import com.bumptech.glide.request.animation.GlideAnimation;
 import com.bumptech.glide.request.target.SimpleTarget;
 import com.tap.xkcd_reader.R;
@@ -277,26 +278,37 @@ public class ComicBrowserFragment extends android.support.v4.app.Fragment {
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
-            case R.id.action_favorite: {
+            case R.id.action_favorite:
                 return ModifyFavorites(item);
-            }
-            case R.id.delete_favorites: {
+
+            case R.id.delete_favorites:
                 return deleteAllFavorites();
-            }
-            case R.id.action_share: {
+
+            case R.id.action_share:
                 return shareComic();
-            }
-            case R.id.action_alt: {
+
+            case R.id.action_alt:
                 return setAltText();
-            }
-            case R.id.action_latest: {
+
+            case R.id.action_latest:
                 return getLatestComic();
-            }
-            case R.id.action_random: {
+
+            case R.id.action_random:
                 return getRandomComic();
-            }
+
+            case R.id.action_explain:
+                return explainComic(sLastComicNumber);
+
         }
         return super.onOptionsItemSelected(item);
+    }
+
+    private boolean explainComic(int number) {
+        String url = "http://explainxkcd.com/"+String.valueOf(number);
+        Intent intent = new Intent(Intent.ACTION_VIEW);
+        intent.setData(Uri.parse(url));
+        startActivity(intent);
+        return true;
     }
 
     private Comic[] GetComic(Integer number) throws IOException {

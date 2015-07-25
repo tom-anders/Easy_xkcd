@@ -52,4 +52,8 @@
         android:title="@string/action_latest"
         app:showAsAction="never" />
 
+    <item android:id="@+id/action_explain"
+        android:title="@string/action_explain"
+        app:showAsAction="never" />
+
 </menu>

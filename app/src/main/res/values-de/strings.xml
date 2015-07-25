@@ -47,6 +47,7 @@
     <string name="action_latest">Aktueller Comic</string>
     <string name="action_share">Comic teilen</string>
     <string name="action_random">Zufälliger Comic</string>
+    <string name="action_explain">Comic erklären</string>
     <string name="action_alt">Alt Text anzeigen</string>
     <string name="action_alt_tip">Tip: Der alt text erscheint auch, wenn du lange auf das bild tippst</string>
     <string name="search_title">Suchen</string>

@@ -47,6 +47,7 @@
     <string name="action_latest">Latest comic</string>
     <string name="action_share">Share Comic</string>
     <string name="action_random">Random Comic</string>
+    <string name="action_explain">Explain Comic</string>
     <string name="action_alt">View Alt Text</string>
     <string name="action_alt_tip">Tip: You can also view the alt text by long pressing the comic image.</string>
     <string name="search_title">Search</string>
@@ -133,5 +134,8 @@
     <string name="pref_appearance">Appearance</string>
     <string name="pref_large">Large comic images</string>
     <string name="pref_large_sum">Load large images if available (e.g. #657). May decrease performance on older devices </string>
+    <string name="title_activity_explain">ExplainActivity</string>
+
+    <string name="hello_world">Hello world!</string>
 
 </resources>
