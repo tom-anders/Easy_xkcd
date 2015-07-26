@@ -34,6 +34,7 @@ import android.net.NetworkInfo;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.os.Handler;
 import android.os.Vibrator;
 import android.preference.PreferenceManager;
 import android.provider.MediaStore;
@@ -43,9 +44,11 @@ import android.support.v4.view.ViewPager;
 import android.support.v7.app.ActionBar;
 import android.util.Log;
 import android.util.SparseArray;
+import android.view.GestureDetector;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
@@ -90,7 +93,7 @@ public class ComicBrowserFragment extends android.support.v4.app.Fragment {
         if (savedInstanceState != null) {
             sLastComicNumber = savedInstanceState.getInt("Last Comic");
         }
-        mActionBar =  ((MainActivity) getActivity()).getSupportActionBar();
+        mActionBar = ((MainActivity) getActivity()).getSupportActionBar();
         assert mActionBar != null;
 
         //Setup ViewPager, alt TextView
@@ -199,6 +202,7 @@ public class ComicBrowserFragment extends android.support.v4.app.Fragment {
     private class ComicBrowserPagerAdapter extends PagerAdapter {
         Context mContext;
         LayoutInflater mLayoutInflater;
+        Boolean doubleTap = false;
 
         public ComicBrowserPagerAdapter(Context context) {
             mContext = context;
@@ -220,6 +224,31 @@ public class ComicBrowserFragment extends android.support.v4.app.Fragment {
             View itemView = mLayoutInflater.inflate(R.layout.pager_item, container, false);
             final PhotoView pvComic = (PhotoView) itemView.findViewById(R.id.ivComic);
             itemView.setTag(position);
+
+            //fix for issue #2
+            pvComic.setOnDoubleTapListener(new GestureDetector.OnDoubleTapListener() {
+                @Override
+                public boolean onDoubleTap(MotionEvent e) {
+                    if (pvComic.getScale()<0.5f*pvComic.getMaximumScale()) {
+                        pvComic.setScale(0.5f * pvComic.getMaximumScale(), true);
+                    } else if (pvComic.getScale()<pvComic.getMaximumScale()) {
+                        pvComic.setScale(pvComic.getMaximumScale(), true);
+                    } else {
+                        pvComic.setScale(1.0f, true);
+                    }
+                    doubleTap = true;
+                    new Handler().postDelayed(new Runnable() {
+                        @Override
+                        public void run() {
+                            doubleTap = false;
+                        }
+                    }, 500);
+                    return true;
+                }
+                @Override public boolean onSingleTapConfirmed(MotionEvent e) {return false;}
+                @Override public boolean onDoubleTapEvent(MotionEvent e) {return false;}
+            });
+
             //Setup alt text and LongClickListener
             pvComic.setOnLongClickListener(new View.OnLongClickListener() {
                 @Override
@@ -228,8 +257,10 @@ public class ComicBrowserFragment extends android.support.v4.app.Fragment {
                         Vibrator vi = (Vibrator) getActivity().getSystemService(MainActivity.VIBRATOR_SERVICE);
                         vi.vibrate(10);
                     }
-                    tvAlt.setText(sComicMap.get(sLastComicNumber).getComicData()[1]);
-                    toggleVisibility(tvAlt);
+                    if (!doubleTap) {
+                        tvAlt.setText(sComicMap.get(sLastComicNumber).getComicData()[1]);
+                        toggleVisibility(tvAlt);
+                    }
                     return true;
                 }
             });
@@ -250,7 +281,7 @@ public class ComicBrowserFragment extends android.support.v4.app.Fragment {
                             pvComic.setImageBitmap(resource);
                         }
                     });
-            if (Arrays.binarySearch(mContext.getResources().getIntArray(R.array.large_comics), sLastComicNumber)>=0) {
+            if (Arrays.binarySearch(mContext.getResources().getIntArray(R.array.large_comics), sLastComicNumber) >= 0) {
                 pvComic.setMaximumScale(7.0f);
             }
             //Disable ViewPager scrolling when the user zooms into an image
@@ -303,7 +334,7 @@ public class ComicBrowserFragment extends android.support.v4.app.Fragment {
     }
 
     private boolean explainComic(int number) {
-        String url = "http://explainxkcd.com/"+String.valueOf(number);
+        String url = "http://explainxkcd.com/" + String.valueOf(number);
         Intent intent = new Intent(Intent.ACTION_VIEW);
         intent.setData(Uri.parse(url));
         startActivity(intent);
@@ -610,7 +641,7 @@ public class ComicBrowserFragment extends android.support.v4.app.Fragment {
 
     public boolean getRandomComic() {
         if (isOnline()) {
-            MainActivity.sProgress = ProgressDialog.show(getActivity(), "" ,this.getResources().getString(R.string.loading_random),  true);
+            MainActivity.sProgress = ProgressDialog.show(getActivity(), "", this.getResources().getString(R.string.loading_random), true);
             //get a random number and update the pager
             Random mRand = new Random();
             Integer mNumber = mRand.nextInt(sNewestComicNumber) + 1;
