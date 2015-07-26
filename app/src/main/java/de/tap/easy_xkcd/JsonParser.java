@@ -13,7 +13,7 @@ import java.net.URL;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-public class json_parser {
+public class JsonParser {
 
     static JSONObject jObj = null;
 
