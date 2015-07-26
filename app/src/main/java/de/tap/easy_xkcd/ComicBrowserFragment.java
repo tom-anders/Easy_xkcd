@@ -245,12 +245,10 @@ public class ComicBrowserFragment extends android.support.v4.app.Fragment {
                     }, 500);
                     return true;
                 }
-
                 @Override
                 public boolean onSingleTapConfirmed(MotionEvent e) {
                     return false;
                 }
-
                 @Override
                 public boolean onDoubleTapEvent(MotionEvent e) {
                     return false;
