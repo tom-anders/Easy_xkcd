@@ -56,8 +56,9 @@ public class Comic {
 
     }
 
+
     private String[] loadComicData(String url) throws IOException, JSONException {
-        JSONObject json = json_parser.getJSONFromUrl(url);
+        JSONObject json = JsonParser.getJSONFromUrl(url);
         String[] result = new String[3];
         result[0] = json.getString("title");
         result[1] = json.getString("alt");
