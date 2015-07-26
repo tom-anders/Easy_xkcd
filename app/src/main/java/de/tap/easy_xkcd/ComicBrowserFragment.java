@@ -229,9 +229,9 @@ public class ComicBrowserFragment extends android.support.v4.app.Fragment {
             pvComic.setOnDoubleTapListener(new GestureDetector.OnDoubleTapListener() {
                 @Override
                 public boolean onDoubleTap(MotionEvent e) {
-                    if (pvComic.getScale()<0.5f*pvComic.getMaximumScale()) {
+                    if (pvComic.getScale() < 0.5f * pvComic.getMaximumScale()) {
                         pvComic.setScale(0.5f * pvComic.getMaximumScale(), true);
-                    } else if (pvComic.getScale()<pvComic.getMaximumScale()) {
+                    } else if (pvComic.getScale() < pvComic.getMaximumScale()) {
                         pvComic.setScale(pvComic.getMaximumScale(), true);
                     } else {
                         pvComic.setScale(1.0f, true);
@@ -245,19 +245,27 @@ public class ComicBrowserFragment extends android.support.v4.app.Fragment {
                     }, 500);
                     return true;
                 }
-                @Override public boolean onSingleTapConfirmed(MotionEvent e) {return false;}
-                @Override public boolean onDoubleTapEvent(MotionEvent e) {return false;}
+
+                @Override
+                public boolean onSingleTapConfirmed(MotionEvent e) {
+                    return false;
+                }
+
+                @Override
+                public boolean onDoubleTapEvent(MotionEvent e) {
+                    return false;
+                }
             });
 
             //Setup alt text and LongClickListener
             pvComic.setOnLongClickListener(new View.OnLongClickListener() {
                 @Override
                 public boolean onLongClick(View v) {
-                    if (PreferenceManager.getDefaultSharedPreferences(getActivity()).getBoolean("pref_alt", true)) {
-                        Vibrator vi = (Vibrator) getActivity().getSystemService(MainActivity.VIBRATOR_SERVICE);
-                        vi.vibrate(10);
-                    }
                     if (!doubleTap) {
+                        if (PreferenceManager.getDefaultSharedPreferences(getActivity()).getBoolean("pref_alt", true)) {
+                            Vibrator vi = (Vibrator) getActivity().getSystemService(MainActivity.VIBRATOR_SERVICE);
+                            vi.vibrate(10);
+                        }
                         tvAlt.setText(sComicMap.get(sLastComicNumber).getComicData()[1]);
                         toggleVisibility(tvAlt);
                     }

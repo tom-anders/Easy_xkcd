@@ -28,6 +28,7 @@ import android.graphics.RectF;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.os.Handler;
 import android.os.Vibrator;
 import android.preference.PreferenceManager;
 import android.provider.MediaStore;
@@ -37,9 +38,11 @@ import android.support.v4.view.PagerAdapter;
 import android.support.v4.view.ViewPager;
 import android.support.v7.app.ActionBar;
 import android.util.SparseArray;
+import android.view.GestureDetector;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.RelativeLayout;
@@ -129,9 +132,10 @@ public class FavoritesFragment extends android.support.v4.app.Fragment {
     }
 
     private class FavoritesPagerAdapter extends PagerAdapter {
-
         Context mContext;
         LayoutInflater mLayoutInflater;
+        Boolean doubleTap = false;
+
         public FavoritesPagerAdapter(Context context) {
             mContext = context;
             mLayoutInflater = (LayoutInflater) mContext.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
@@ -153,16 +157,51 @@ public class FavoritesFragment extends android.support.v4.app.Fragment {
             View itemView = mLayoutInflater.inflate(R.layout.pager_item, container, false);
             final PhotoView pvComic = (PhotoView) itemView.findViewById(R.id.ivComic);
             itemView.setTag(position);
+
+            //fix for issue #2
+            pvComic.setOnDoubleTapListener(new GestureDetector.OnDoubleTapListener() {
+                @Override
+                public boolean onDoubleTap(MotionEvent e) {
+                    if (pvComic.getScale() < 0.5f * pvComic.getMaximumScale()) {
+                        pvComic.setScale(0.5f * pvComic.getMaximumScale(), true);
+                    } else if (pvComic.getScale() < pvComic.getMaximumScale()) {
+                        pvComic.setScale(pvComic.getMaximumScale(), true);
+                    } else {
+                        pvComic.setScale(1.0f, true);
+                    }
+                    doubleTap = true;
+                    new Handler().postDelayed(new Runnable() {
+                        @Override
+                        public void run() {
+                            doubleTap = false;
+                        }
+                    }, 500);
+                    return true;
+                }
+
+                @Override
+                public boolean onSingleTapConfirmed(MotionEvent e) {
+                    return false;
+                }
+
+                @Override
+                public boolean onDoubleTapEvent(MotionEvent e) {
+                    return false;
+                }
+            });
+
             //Setup alt text and LongClickListener
             pvComic.setOnLongClickListener(new View.OnLongClickListener() {
                 @Override
                 public boolean onLongClick(View v) {
-                    if (PreferenceManager.getDefaultSharedPreferences(getActivity()).getBoolean("pref_alt", true)) {
-                        Vibrator vi = (Vibrator) getActivity().getSystemService(MainActivity.VIBRATOR_SERVICE);
-                        vi.vibrate(10);
+                    if(!doubleTap) {
+                        if (PreferenceManager.getDefaultSharedPreferences(getActivity()).getBoolean("pref_alt", true)) {
+                            Vibrator vi = (Vibrator) getActivity().getSystemService(MainActivity.VIBRATOR_SERVICE);
+                            vi.vibrate(10);
+                        }
+                        tvAlt.setText(mSharedPreferences.getString(("alt" + String.valueOf(sFavorites[sFavoriteIndex])), ""));
+                        toggleVisibility(tvAlt);
                     }
-                    tvAlt.setText(mSharedPreferences.getString(("alt" + String.valueOf(sFavorites[sFavoriteIndex])), ""));
-                    toggleVisibility(tvAlt);
                     return true;
                 }
             });
@@ -395,10 +434,6 @@ public class FavoritesFragment extends android.support.v4.app.Fragment {
         @Override
         protected Void doInBackground(Integer... pos) {
             sFavorites = new int[mFav.length];
-            /*for (int i = 0; i < mFav.length; i++) {
-
-            }*/
-
             try {
                 for (int i = 0; i < sFavorites.length; i++) {
                     sFavorites[i] = Integer.parseInt(mFav[i]);
