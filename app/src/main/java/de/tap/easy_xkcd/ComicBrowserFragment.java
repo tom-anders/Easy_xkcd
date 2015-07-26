@@ -54,7 +54,6 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.bumptech.glide.Glide;
-import com.bumptech.glide.load.data.ExifOrientationStream;
 import com.bumptech.glide.request.animation.GlideAnimation;
 import com.bumptech.glide.request.target.SimpleTarget;
 import com.tap.xkcd_reader.R;
@@ -165,7 +164,7 @@ public class ComicBrowserFragment extends android.support.v4.app.Fragment {
             //Get the most recent comic if the app is started for the first time
             if (pos[0] == 0) {
                 try {
-                    JSONObject json = json_parser.getJSONFromUrl("http://xkcd.com/info.0.json");
+                    JSONObject json = JsonParser.getJSONFromUrl("http://xkcd.com/info.0.json");
                     sNewestComicNumber = Integer.parseInt(json.getString("num"));
                     sLastComicNumber = sNewestComicNumber;
                     pos[0] = sNewestComicNumber;

@@ -21,6 +21,7 @@ package de.tap.easy_xkcd;
 import android.app.Activity;
 import android.app.ActivityManager;
 import android.app.ProgressDialog;
+import android.content.SharedPreferences;
 import android.content.res.Configuration;
 import android.content.res.Resources;
 import android.graphics.Bitmap;
@@ -28,6 +29,7 @@ import android.graphics.BitmapFactory;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.net.Uri;
+import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Handler;
 import android.preference.PreferenceManager;
@@ -56,6 +58,12 @@ import android.widget.Toast;
 
 import com.tap.xkcd_reader.R;
 
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.util.Arrays;
+
 
 public class MainActivity extends AppCompatActivity {
     public FloatingActionButton mFab;
@@ -72,6 +80,10 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+        if (isOnline() && savedInstanceState == null) {
+            new updateComicTitles().execute();
+        }
+
         if (getIntent().getAction().equals(Intent.ACTION_VIEW)) {
             ComicBrowserFragment.sLastComicNumber = (getNumberFromUrl(getIntent().getDataString()));
         }
@@ -85,11 +97,6 @@ public class MainActivity extends AppCompatActivity {
             Bitmap ic = BitmapFactory.decodeResource(getResources(), R.mipmap.ic_easy_xkcd_recents);
             ActivityManager.TaskDescription description = new ActivityManager.TaskDescription("Easy xkcd", ic, color);
             setTaskDescription(description);
-
-            if (PreferenceManager.getDefaultSharedPreferences(this).getBoolean("prev_navbar", false)) {
-                //getWindow().setNavigationBarColor(getResources().getColor(R.color.ColorPrimary));
-                Log.d("color set", "color set");
-            }
         }
         //Setup Toolbar, NavDrawer, FAB
         mToolbar = (Toolbar) findViewById(R.id.toolbar);
@@ -159,6 +166,70 @@ public class MainActivity extends AppCompatActivity {
                 }
             }
         });
+    }
+
+    private class updateComicTitles extends AsyncTask<Void, Void, Void> {
+        @Override
+        protected Void doInBackground(Void... params) {
+            Log.d("start", "task started");
+            SharedPreferences preferences = getPreferences(Activity.MODE_PRIVATE);
+            SharedPreferences.Editor editor = preferences.edit();
+            if (!preferences.getBoolean("titles_loaded", false)) {
+                InputStream is = getResources().openRawResource(R.raw.comic_titles);
+                BufferedReader br = new BufferedReader(new InputStreamReader(is));
+                StringBuilder sb = new StringBuilder();
+                String line;
+                try {
+                    while ((line = br.readLine()) != null) {
+                        sb.append(line);
+                    }
+                } catch (IOException e) {
+                    Log.e("error:", e.getMessage());
+                }
+                editor.putBoolean("titles_loaded", true);
+                editor.putString("comic_titles", sb.toString());
+                editor.putInt("highest_comic_title", 1551);
+                editor.commit();
+                Log.d("...", "comic titles updated first time");
+            }
+            try {
+                int newest = new Comic(0, getApplicationContext()).getComicNumber();
+                StringBuilder sb = new StringBuilder();
+                sb.append(preferences.getString("comic_titles", ""));
+                int n = preferences.getInt("highest_comic_title", 0);
+                while (n < newest) {
+                    String s = new Comic(n + 1, getApplicationContext()).getComicData()[0];
+                    sb.append("&&");
+                    sb.append(s);
+                    editor.putInt("highest_comic_title", n + 1);
+                    n++;
+                    Log.d("n", String.valueOf(n));
+                }
+                editor.putString("comic_titles", sb.toString());
+            } catch (IOException e) {
+                e.printStackTrace();
+                editor.putBoolean("titles_loaded", false);
+            }
+            editor.commit();
+            return null;
+        }
+
+        @Override
+        protected void onPostExecute(Void dummy) {
+            SharedPreferences preferences = getPreferences(Activity.MODE_PRIVATE);
+            Log.d("done", "Comic titles updated");
+            Log.d("boolean", String.valueOf(preferences.getBoolean("titles_loaded", false)));
+            Log.d("highest", String.valueOf(preferences.getInt("highest_comic_title", 0)));
+        }
+
+        @Override
+        protected void onCancelled() {
+            SharedPreferences preferences = getPreferences(Activity.MODE_PRIVATE);
+            SharedPreferences.Editor editor = preferences.edit();
+            editor.putString("comic_titles", "");
+            editor.putBoolean("titles_loaded", false);
+            editor.commit();
+        }
     }
 
     private void setupDrawerContent(NavigationView navigationView) {
@@ -250,16 +321,16 @@ public class MainActivity extends AppCompatActivity {
         RelativeLayout.LayoutParams params = (RelativeLayout.LayoutParams) tvAlt.getLayoutParams();
         int dpMargin = 5;
         float d = this.getResources().getDisplayMetrics().density;
-        int margin = (int)(dpMargin * d);
+        int margin = (int) (dpMargin * d);
 
         //Setup FAB
         if (PreferenceManager.getDefaultSharedPreferences(this).getBoolean(prefTag, false)) {
-            params.setMargins(margin,margin,margin,margin);
+            params.setMargins(margin, margin, margin, margin);
             mFab.setVisibility(View.GONE);
         } else {
             int dpMarginRight = 50;
-            int marginRight = (int)(dpMarginRight * d);
-            params.setMargins(margin,margin,marginRight,margin);
+            int marginRight = (int) (dpMarginRight * d);
+            params.setMargins(margin, margin, marginRight, margin);
             mFab.setVisibility(View.VISIBLE);
         }
 
@@ -284,13 +355,12 @@ public class MainActivity extends AppCompatActivity {
         } else {
             //if the fragment does not exist, add it to fragment manager.
             switch (itemId) {
-                case R.id.nav_favorites: {
+                case R.id.nav_favorites:
                     fragmentManager.beginTransaction().add(R.id.flContent, new FavoritesFragment(), fragmentTagShow).commitAllowingStateLoss();
                     break;
-                }
-                case R.id.nav_browser: {
+                case R.id.nav_browser:
                     fragmentManager.beginTransaction().add(R.id.flContent, new ComicBrowserFragment(), fragmentTagShow).commitAllowingStateLoss();
-                }
+                    break;
             }
         }
         //if the other fragment is visible, hide it.
@@ -305,29 +375,62 @@ public class MainActivity extends AppCompatActivity {
         handleIntent(intent);
     }
 
+    private void getComicByNumber (int number) {
+        if (number <= ComicBrowserFragment.sNewestComicNumber) {
+            android.support.v4.app.FragmentManager fm = getSupportFragmentManager();
+            ComicBrowserFragment.sComicMap.clear();
+            ComicBrowserFragment.sLastComicNumber = number;
+            ComicBrowserFragment fragment = (ComicBrowserFragment) fm.findFragmentByTag("browser");
+            fragment.new pagerUpdate().execute(number);
+            hideKeyboard(this);
+        } else {
+            Toast toast = Toast.makeText(this, R.string.comic_error, Toast.LENGTH_SHORT);
+            toast.show();
+            hideKeyboard(this);
+            sProgress.dismiss();
+        }
+    }
+
+    private void getComicByString (String query) {
+        android.support.v4.app.FragmentManager fm = getSupportFragmentManager();
+        SharedPreferences preferences = getPreferences(Activity.MODE_PRIVATE);
+        String s = preferences.getString("comic_titles", "");
+        String[] titles = s.split("&&");
+        Boolean found = false;
+        for (int i = 0; i < titles.length; i++) {
+            String l = titles[i].toLowerCase();
+            l = l +" ";
+            found = l.contains(query.toLowerCase());
+            if (found) {
+                ComicBrowserFragment.sComicMap.clear();
+                ComicBrowserFragment.sLastComicNumber = i+1;
+                ComicBrowserFragment fragment = (ComicBrowserFragment) fm.findFragmentByTag("browser");
+                fragment.new pagerUpdate().execute(i + 1);
+                hideKeyboard(this);
+                break;
+            }
+        }
+        if (!found) {
+            Toast.makeText(this, R.string.comic_error, Toast.LENGTH_SHORT).show();
+            sProgress.dismiss();
+        }
+    }
+
     private void handleIntent(Intent intent) {
         android.support.v4.app.FragmentManager fm = getSupportFragmentManager();
         //Called by the search bar
         if (Intent.ACTION_SEARCH.equals(intent.getAction())) {
             String query = intent.getStringExtra(SearchManager.QUERY);
-            if (isOnline() && Integer.parseInt(query) <= ComicBrowserFragment.sNewestComicNumber) {
-                //Get the ComicBrowserFragment and update it
+            if (isOnline()) {
                 sProgress = ProgressDialog.show(MainActivity.this, "", this.getResources().getString(R.string.loading_comics), true);
-                ComicBrowserFragment.sComicMap.clear();
-                ComicBrowserFragment.sLastComicNumber = Integer.parseInt(query);
-                ComicBrowserFragment fragment = (ComicBrowserFragment) fm.findFragmentByTag("browser");
-                fragment.new pagerUpdate().execute(Integer.parseInt(query));
-
-                hideKeyboard(this);
-            } else {
-                if (isOnline()) {
-                    Toast toast = Toast.makeText(this, R.string.comic_error, Toast.LENGTH_SHORT);
-                    toast.show();
+                if (checkInteger(query)) {
+                    getComicByNumber(Integer.parseInt(query));
                 } else {
-                    Toast toast = Toast.makeText(this, R.string.no_connection, Toast.LENGTH_SHORT);
-                    toast.show();
-                    hideKeyboard(this);
+                    getComicByString(query);
                 }
+            } else {
+                Toast toast = Toast.makeText(this, R.string.no_connection, Toast.LENGTH_SHORT);
+                toast.show();
             }
             return;
         }
@@ -338,6 +441,16 @@ public class MainActivity extends AppCompatActivity {
             ComicBrowserFragment.sLastComicNumber = getNumberFromUrl(intent.getDataString());
             fragment.new pagerUpdate().execute(ComicBrowserFragment.sLastComicNumber);
         }
+    }
+
+    private boolean checkInteger (String s) {
+        boolean isInteger = true;
+        try {
+            Integer.parseInt(s);
+        } catch (Exception e) {
+            isInteger = false;
+        }
+        return isInteger;
     }
 
     private int getNumberFromUrl(String url) {
@@ -364,7 +477,7 @@ public class MainActivity extends AppCompatActivity {
         final SearchView searchView = (SearchView) menu.findItem(R.id.action_search).getActionView();
         searchView.setSearchableInfo(searchManager.getSearchableInfo(getComponentName()));
         searchView.setIconifiedByDefault(false);
-        searchView.setInputType(InputType.TYPE_CLASS_NUMBER);
+        //searchView.setInputType(InputType.TYPE_CLASS_NUMBER);
         searchMenuItem = menu.findItem(R.id.action_search);
 
         searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
