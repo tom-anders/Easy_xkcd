@@ -370,6 +370,7 @@ public class SearchResultsActivity extends AppCompatActivity {
         adapter = null;
         setIntent(intent);
         String query = intent.getStringExtra(SearchManager.QUERY);
+        queryTrans = query;
         findViewById(R.id.pb).setVisibility(View.VISIBLE);
 
         task = new searchTask();
