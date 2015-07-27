@@ -17,7 +17,7 @@
     <string name="app_name">Easy xkcd</string>
     <string name="pref_title">Einstellungen</string>
     <string name="title_activity_about">Über</string>
-    <string name="title_activity_search_results">Suchergebnisse</string>
+    <string name="title_activity_search_results">Suchergebnisse für</string>
 
     <!-- dialog strings -->
     <string name="delete_favorites">Favoriten löschen</string>

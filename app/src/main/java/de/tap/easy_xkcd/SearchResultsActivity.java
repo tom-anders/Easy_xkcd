@@ -90,6 +90,7 @@ public class SearchResultsActivity extends AppCompatActivity {
         Intent intent = getIntent();
         String query = intent.getStringExtra(SearchManager.QUERY);
         queryTrans = query;
+        getSupportActionBar().setTitle(getResources().getString(R.string.title_activity_search_results)+" "+query);
 
         task = new searchTask();
         task.execute(query);
@@ -370,6 +371,7 @@ public class SearchResultsActivity extends AppCompatActivity {
         adapter = null;
         setIntent(intent);
         String query = intent.getStringExtra(SearchManager.QUERY);
+        getSupportActionBar().setTitle(getResources().getString(R.string.title_activity_search_results)+" "+query);
         queryTrans = query;
         findViewById(R.id.pb).setVisibility(View.VISIBLE);
 
