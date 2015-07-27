@@ -17,6 +17,7 @@
     <string name="app_name">Easy xkcd</string>
     <string name="pref_title">Settings</string>
     <string name="title_activity_about">About</string>
+    <string name="title_activity_search_results">Search Results</string>
 
     <!-- dialog strings -->
     <string name="delete_favorites">Clear favorites</string>
@@ -30,10 +31,12 @@
     <string name="loading_random">Loading Random Comic&#8230;</string>
     <string name="no_favorites">You didn\'t add any Favorites yet!</string>
     <string name="loading_comics">Loading Comics&#8230;</string>
+    <string name="loading_results">Loading Search Results&#8230;</string>
     <string name="no_connection">No connection&#8230;</string>
     <string name="no_connection_retry">Try again</string>
     <string name="no_connection_favorites">View Favorites</string>
     <string name="comic_error">Comic not available</string>
+    <string name="search_error">No comics found</string>
     <string name="loading_latest">Loading Latest Comic&#8230;</string>
 
     <string name="snackbar_remove">Comic removed from favorites</string>
@@ -134,5 +137,6 @@
     <string name="pref_appearance">Appearance</string>
     <string name="pref_large">Large comic images</string>
     <string name="pref_large_sum">Load large images if available (e.g. #657). May decrease performance on older devices </string>
+
 
 </resources>

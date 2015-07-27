@@ -25,15 +25,15 @@
         app:actionViewClass="android.widget.SearchView"
         app:showAsAction="always|collapseActionView" />
 
+    <item android:id="@+id/action_favorite"
+        android:title="@string/action_favorite"
+        app:showAsAction="ifRoom"
+        android:icon="@drawable/ic_favorite_outline"/>
+
     <item android:id="@+id/action_share"
         android:title="@string/action_share"
         android:icon="@drawable/ic_action_share"
         app:showAsAction="ifRoom" />
-
-    <item android:id="@+id/action_favorite"
-        android:title="@string/action_favorite"
-        app:showAsAction="always"
-        android:icon="@drawable/ic_favorite_outline"/>
 
     <item android:id="@+id/action_random"
         android:title="@string/action_random"

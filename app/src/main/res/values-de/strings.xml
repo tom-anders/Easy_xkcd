@@ -17,6 +17,7 @@
     <string name="app_name">Easy xkcd</string>
     <string name="pref_title">Einstellungen</string>
     <string name="title_activity_about">Über</string>
+    <string name="title_activity_search_results">Suchergebnisse</string>
 
     <!-- dialog strings -->
     <string name="delete_favorites">Favoriten löschen</string>
@@ -30,10 +31,12 @@
     <string name="loading_random">Lade zufälligen Comic&#8230;</string>
     <string name="no_favorites">Du hast noch keine Favoriten!</string>
     <string name="loading_comics">Lade Comics&#8230;</string>
+    <string name="loading_results">Lade Ergebnisse...&#8230;</string>
     <string name="no_connection">Keine Verbindung&#8230;</string>
     <string name="no_connection_retry">Nochmal</string>
     <string name="no_connection_favorites">Favoriten anzeigen</string>
     <string name="comic_error">Comic nicht verfügbar</string>
+    <string name="search_error">Keine Comics gefunden</string>
     <string name="loading_latest">Lade neuesten Comic&#8230;</string>
 
     <string name="snackbar_remove">Comic aus Favoriten entfernt</string>

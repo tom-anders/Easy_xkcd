@@ -44,7 +44,6 @@ import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
-import android.text.InputType;
 import android.util.Log;
 import android.util.TypedValue;
 import android.view.Menu;
@@ -62,7 +61,6 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.util.Arrays;
 
 
 public class MainActivity extends AppCompatActivity {
@@ -70,6 +68,8 @@ public class MainActivity extends AppCompatActivity {
     public static int sCurrentFragment;
     public static ProgressDialog sProgress;
     public static NavigationView sNavView;
+    public static String sComicTitles;
+    public static String sComicTrans;
     private Toolbar mToolbar;
     private static DrawerLayout sDrawer;
     public ActionBarDrawerToggle mDrawerToggle;
@@ -82,10 +82,14 @@ public class MainActivity extends AppCompatActivity {
 
         if (isOnline() && savedInstanceState == null) {
             new updateComicTitles().execute();
+            new updateComicTranscripts().execute();
         }
 
         if (getIntent().getAction().equals(Intent.ACTION_VIEW)) {
             ComicBrowserFragment.sLastComicNumber = (getNumberFromUrl(getIntent().getDataString()));
+        }
+        if (("de.tap.easy_xkcd.ACTION_COMIC").equals(getIntent().getAction())) {
+            ComicBrowserFragment.sLastComicNumber = getIntent().getIntExtra("number",0);
         }
         //On Lollipop, change the app's icon in the recents app screen
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP && !getIntent().getAction().equals(Intent.ACTION_VIEW)) {
@@ -166,70 +170,6 @@ public class MainActivity extends AppCompatActivity {
                 }
             }
         });
-    }
-
-    private class updateComicTitles extends AsyncTask<Void, Void, Void> {
-        @Override
-        protected Void doInBackground(Void... params) {
-            Log.d("start", "task started");
-            SharedPreferences preferences = getPreferences(Activity.MODE_PRIVATE);
-            SharedPreferences.Editor editor = preferences.edit();
-            if (!preferences.getBoolean("titles_loaded", false)) {
-                InputStream is = getResources().openRawResource(R.raw.comic_titles);
-                BufferedReader br = new BufferedReader(new InputStreamReader(is));
-                StringBuilder sb = new StringBuilder();
-                String line;
-                try {
-                    while ((line = br.readLine()) != null) {
-                        sb.append(line);
-                    }
-                } catch (IOException e) {
-                    Log.e("error:", e.getMessage());
-                }
-                editor.putBoolean("titles_loaded", true);
-                editor.putString("comic_titles", sb.toString());
-                editor.putInt("highest_comic_title", 1551);
-                editor.commit();
-                Log.d("...", "comic titles updated first time");
-            }
-            try {
-                int newest = new Comic(0, getApplicationContext()).getComicNumber();
-                StringBuilder sb = new StringBuilder();
-                sb.append(preferences.getString("comic_titles", ""));
-                int n = preferences.getInt("highest_comic_title", 0);
-                while (n < newest) {
-                    String s = new Comic(n + 1, getApplicationContext()).getComicData()[0];
-                    sb.append("&&");
-                    sb.append(s);
-                    editor.putInt("highest_comic_title", n + 1);
-                    n++;
-                    Log.d("n", String.valueOf(n));
-                }
-                editor.putString("comic_titles", sb.toString());
-            } catch (IOException e) {
-                e.printStackTrace();
-                editor.putBoolean("titles_loaded", false);
-            }
-            editor.commit();
-            return null;
-        }
-
-        @Override
-        protected void onPostExecute(Void dummy) {
-            SharedPreferences preferences = getPreferences(Activity.MODE_PRIVATE);
-            Log.d("done", "Comic titles updated");
-            Log.d("boolean", String.valueOf(preferences.getBoolean("titles_loaded", false)));
-            Log.d("highest", String.valueOf(preferences.getInt("highest_comic_title", 0)));
-        }
-
-        @Override
-        protected void onCancelled() {
-            SharedPreferences preferences = getPreferences(Activity.MODE_PRIVATE);
-            SharedPreferences.Editor editor = preferences.edit();
-            editor.putString("comic_titles", "");
-            editor.putBoolean("titles_loaded", false);
-            editor.commit();
-        }
     }
 
     private void setupDrawerContent(NavigationView navigationView) {
@@ -369,88 +309,155 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
+    private class updateComicTitles extends AsyncTask<Void, Void, Void> {
+        @Override
+        protected Void doInBackground(Void... params) {
+            Log.d("start", "task started");
+            SharedPreferences preferences = getPreferences(Activity.MODE_PRIVATE);
+            SharedPreferences.Editor editor = preferences.edit();
+            if (!preferences.getBoolean("titles_loaded", false)) {
+                InputStream is = getResources().openRawResource(R.raw.comic_titles);
+                BufferedReader br = new BufferedReader(new InputStreamReader(is));
+                StringBuilder sb = new StringBuilder();
+                String line;
+                try {
+                    while ((line = br.readLine()) != null) {
+                        sb.append(line);
+                    }
+                } catch (IOException e) {
+                    Log.e("error:", e.getMessage());
+                }
+                editor.putBoolean("titles_loaded", true);
+                editor.putString("comic_titles", sb.toString());
+                editor.putInt("highest_comic_title", 1551);
+                editor.commit();
+                Log.d("...", "comic titles updated first time");
+            }
+            try {
+                int newest = new Comic(0, getApplicationContext()).getComicNumber();
+                StringBuilder sb = new StringBuilder();
+                sb.append(preferences.getString("comic_titles", ""));
+                int n = preferences.getInt("highest_comic_title", 0);
+                while (n < newest) {
+                    String s = new Comic(n + 1, getApplicationContext()).getComicData()[0];
+                    sb.append("&&");
+                    sb.append(s);
+                    editor.putInt("highest_comic_title", n + 1);
+                    n++;
+                    Log.d("n", String.valueOf(n));
+                }
+                editor.putString("comic_titles", sb.toString());
+            } catch (IOException e) {
+                e.printStackTrace();
+                editor.putBoolean("titles_loaded", false);
+            }
+            editor.commit();
+            return null;
+        }
+
+        @Override
+        protected void onPostExecute(Void dummy) {
+            SharedPreferences preferences = getPreferences(Activity.MODE_PRIVATE);
+            Log.d("done", "Comic titles updated");
+            Log.d("boolean", String.valueOf(preferences.getBoolean("titles_loaded", false)));
+            Log.d("highest", String.valueOf(preferences.getInt("highest_comic_title", 0)));
+            sComicTitles = preferences.getString("comic_titles", "");
+        }
+
+        @Override
+        protected void onCancelled() {
+            SharedPreferences preferences = getPreferences(Activity.MODE_PRIVATE);
+            SharedPreferences.Editor editor = preferences.edit();
+            editor.putString("comic_titles", "");
+            editor.putBoolean("titles_loaded", false);
+            editor.commit();
+        }
+    }
+
+    private class updateComicTranscripts extends AsyncTask<Void, Void, Void> {
+        @Override
+        protected Void doInBackground(Void... params) {
+            Log.d("start", "task started");
+            SharedPreferences preferences = getPreferences(Activity.MODE_PRIVATE);
+            SharedPreferences.Editor editor = preferences.edit();
+            if (!preferences.getBoolean("trans_loaded", false)) {
+                InputStream is = getResources().openRawResource(R.raw.comic_trans);
+                BufferedReader br = new BufferedReader(new InputStreamReader(is));
+                StringBuilder sb = new StringBuilder();
+                String line;
+                try {
+                    while ((line = br.readLine()) != null) {
+                        sb.append(line);
+                    }
+                } catch (IOException e) {
+                    Log.e("error:", e.getMessage());
+                }
+                editor.putBoolean("trans_loaded", true);
+                editor.putString("comic_trans", sb.toString());
+                editor.putInt("highest_comic_trans", 1551);
+                editor.commit();
+                Log.d("...", "comic trans updated first time");
+            }
+            try {
+                int newest = new Comic(0, getApplicationContext()).getComicNumber();
+                StringBuilder sb = new StringBuilder();
+                sb.append(preferences.getString("comic_trans", ""));
+                int n = preferences.getInt("highest_comic_trans", 0);
+                while (n < newest) {
+                    String s = new Comic(n + 1).getTranscript();
+                    sb.append("&&");
+                    if (!s.equals("")) {
+                        sb.append(s);
+                    } else {
+                        sb.append("N.A.");
+                    }
+                    editor.putInt("highest_comic_trans", n + 1);
+                    n++;
+                    Log.d("n", String.valueOf(n));
+                }
+                editor.putString("comic_trans", sb.toString());
+            } catch (IOException e) {
+                e.printStackTrace();
+                editor.putBoolean("trans_loaded", false);
+            }
+            editor.commit();
+            return null;
+        }
+
+        @Override
+        protected void onPostExecute(Void dummy) {
+            SharedPreferences preferences = getPreferences(Activity.MODE_PRIVATE);
+            Log.d("done", "Comic trans updated");
+            Log.d("boolean", String.valueOf(preferences.getBoolean("trans_loaded", false)));
+            Log.d("highest", String.valueOf(preferences.getInt("highest_comic_trans", 0)));
+            sComicTrans = preferences.getString("comic_trans", "");
+        }
+
+        @Override
+        protected void onCancelled() {
+            SharedPreferences preferences = getPreferences(Activity.MODE_PRIVATE);
+            SharedPreferences.Editor editor = preferences.edit();
+            editor.putString("comic_trans", "");
+            editor.putBoolean("titles_trans", false);
+            editor.commit();
+        }
+    }
+
     @Override
     protected void onNewIntent(Intent intent) {
         setIntent(intent);
         handleIntent(intent);
     }
 
-    private void getComicByNumber (int number) {
-        if (number <= ComicBrowserFragment.sNewestComicNumber) {
-            android.support.v4.app.FragmentManager fm = getSupportFragmentManager();
-            ComicBrowserFragment.sComicMap.clear();
-            ComicBrowserFragment.sLastComicNumber = number;
-            ComicBrowserFragment fragment = (ComicBrowserFragment) fm.findFragmentByTag("browser");
-            fragment.new pagerUpdate().execute(number);
-            hideKeyboard(this);
-        } else {
-            Toast toast = Toast.makeText(this, R.string.comic_error, Toast.LENGTH_SHORT);
-            toast.show();
-            hideKeyboard(this);
-            sProgress.dismiss();
-        }
-    }
-
-    private void getComicByString (String query) {
-        android.support.v4.app.FragmentManager fm = getSupportFragmentManager();
-        SharedPreferences preferences = getPreferences(Activity.MODE_PRIVATE);
-        String s = preferences.getString("comic_titles", "");
-        String[] titles = s.split("&&");
-        Boolean found = false;
-        for (int i = 0; i < titles.length; i++) {
-            String l = titles[i].toLowerCase();
-            l = l +" ";
-            found = l.contains(query.toLowerCase());
-            if (found) {
-                ComicBrowserFragment.sComicMap.clear();
-                ComicBrowserFragment.sLastComicNumber = i+1;
-                ComicBrowserFragment fragment = (ComicBrowserFragment) fm.findFragmentByTag("browser");
-                fragment.new pagerUpdate().execute(i + 1);
-                hideKeyboard(this);
-                break;
-            }
-        }
-        if (!found) {
-            Toast.makeText(this, R.string.comic_error, Toast.LENGTH_SHORT).show();
-            sProgress.dismiss();
-        }
-    }
-
     private void handleIntent(Intent intent) {
-        android.support.v4.app.FragmentManager fm = getSupportFragmentManager();
-        //Called by the search bar
-        if (Intent.ACTION_SEARCH.equals(intent.getAction())) {
-            String query = intent.getStringExtra(SearchManager.QUERY);
-            if (isOnline()) {
-                sProgress = ProgressDialog.show(MainActivity.this, "", this.getResources().getString(R.string.loading_comics), true);
-                if (checkInteger(query)) {
-                    getComicByNumber(Integer.parseInt(query));
-                } else {
-                    getComicByString(query);
-                }
-            } else {
-                Toast toast = Toast.makeText(this, R.string.no_connection, Toast.LENGTH_SHORT);
-                toast.show();
-            }
-            return;
-        }
         //Called when users open xkcd.com or m.xkcd.com links
         if (Intent.ACTION_VIEW.equals(intent.getAction())) {
             //Get the ComicBrowserFragment and update it
+            android.support.v4.app.FragmentManager fm = getSupportFragmentManager();
             ComicBrowserFragment fragment = (ComicBrowserFragment) fm.findFragmentByTag("browser");
             ComicBrowserFragment.sLastComicNumber = getNumberFromUrl(intent.getDataString());
             fragment.new pagerUpdate().execute(ComicBrowserFragment.sLastComicNumber);
         }
-    }
-
-    private boolean checkInteger (String s) {
-        boolean isInteger = true;
-        try {
-            Integer.parseInt(s);
-        } catch (Exception e) {
-            isInteger = false;
-        }
-        return isInteger;
     }
 
     private int getNumberFromUrl(String url) {
@@ -477,16 +484,21 @@ public class MainActivity extends AppCompatActivity {
         final SearchView searchView = (SearchView) menu.findItem(R.id.action_search).getActionView();
         searchView.setSearchableInfo(searchManager.getSearchableInfo(getComponentName()));
         searchView.setIconifiedByDefault(false);
-        //searchView.setInputType(InputType.TYPE_CLASS_NUMBER);
         searchMenuItem = menu.findItem(R.id.action_search);
 
         searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
             @Override
             public boolean onQueryTextSubmit(String query) {
                 MenuItem searchMenuItem = getSearchMenuItem();
+                searchMenuItem.collapseActionView();
+                searchView.setQuery("", false);
+                //Hide Keyboard
                 if (searchMenuItem != null) {
-                    searchMenuItem.collapseActionView();
-                    searchView.setQuery("", false);
+                    View view = MainActivity.this.getCurrentFocus();
+                    if (view != null) {
+                        InputMethodManager imm = (InputMethodManager)getSystemService(Context.INPUT_METHOD_SERVICE);
+                        imm.hideSoftInputFromWindow(view.getWindowToken(), 0);
+                    }
                 }
                 return false;
             }
@@ -508,17 +520,6 @@ public class MainActivity extends AppCompatActivity {
 
     public MenuItem getSearchMenuItem() {
         return searchMenuItem;
-    }
-
-    public static void hideKeyboard(Activity activity) {
-        InputMethodManager inputMethodManager = (InputMethodManager) activity.getSystemService(Activity.INPUT_METHOD_SERVICE);
-        //Find the currently focused view, so we can grab the correct window token from it.
-        View view = activity.getCurrentFocus();
-        //If no view currently has focus, create a new one, just so we can grab a window token from it
-        if (view == null) {
-            view = new View(activity);
-        }
-        inputMethodManager.hideSoftInputFromWindow(view.getWindowToken(), 0);
     }
 
     private ActionBarDrawerToggle setupDrawerToggle() {
