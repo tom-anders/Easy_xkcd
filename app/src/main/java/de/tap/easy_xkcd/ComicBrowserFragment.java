@@ -85,7 +85,6 @@ public class ComicBrowserFragment extends android.support.v4.app.Fragment {
     private TextView tvAlt;
     private SharedPreferences mSharedPreferences;
     private ActionBar mActionBar;
-    private Boolean lastNumberRestored = false;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
@@ -95,11 +94,10 @@ public class ComicBrowserFragment extends android.support.v4.app.Fragment {
 
         if (savedInstanceState != null) {
             sLastComicNumber = savedInstanceState.getInt("Last Comic");
-        } else {
-            sLastComicNumber = mSharedPreferences.getInt("Last Comic",0);
+        } else if (sLastComicNumber==0) {
+            sLastComicNumber = mSharedPreferences.getInt("Last Comic", 0);
             Log.d("last", String.valueOf(sLastComicNumber));
         }
-
 
         mActionBar = ((MainActivity) getActivity()).getSupportActionBar();
         assert mActionBar != null;
