@@ -174,7 +174,6 @@ public class ComicBrowserFragment extends android.support.v4.app.Fragment {
             editor.putInt("Last Comic", sLastComicNumber);
             editor.commit();
             //Get the most recent comic if the app is started for the first time
-            //if (pos[0] == 0) { //newest!=0
             if (sNewestComicNumber==0) {
                 try {
                     JSONObject json = JsonParser.getJSONFromUrl("http://xkcd.com/info.0.json");
