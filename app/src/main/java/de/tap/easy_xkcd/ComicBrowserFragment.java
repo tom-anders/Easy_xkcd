@@ -85,6 +85,7 @@ public class ComicBrowserFragment extends android.support.v4.app.Fragment {
     private TextView tvAlt;
     private SharedPreferences mSharedPreferences;
     private ActionBar mActionBar;
+    private Boolean lastNumberRestored = false;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
@@ -94,7 +95,12 @@ public class ComicBrowserFragment extends android.support.v4.app.Fragment {
 
         if (savedInstanceState != null) {
             sLastComicNumber = savedInstanceState.getInt("Last Comic");
+        } else {
+            sLastComicNumber = mSharedPreferences.getInt("Last Comic",0);
+            Log.d("last", String.valueOf(sLastComicNumber));
         }
+
+
         mActionBar = ((MainActivity) getActivity()).getSupportActionBar();
         assert mActionBar != null;
 
@@ -166,13 +172,19 @@ public class ComicBrowserFragment extends android.support.v4.app.Fragment {
     public class pagerUpdate extends AsyncTask<Integer, Void, Void> {
         @Override
         protected Void doInBackground(Integer... pos) {
+            SharedPreferences.Editor editor = mSharedPreferences.edit();
+            editor.putInt("Last Comic", sLastComicNumber);
+            editor.commit();
             //Get the most recent comic if the app is started for the first time
-            if (pos[0] == 0) {
+            //if (pos[0] == 0) { //newest!=0
+            if (sNewestComicNumber==0) {
                 try {
                     JSONObject json = JsonParser.getJSONFromUrl("http://xkcd.com/info.0.json");
                     sNewestComicNumber = Integer.parseInt(json.getString("num"));
-                    sLastComicNumber = sNewestComicNumber;
-                    pos[0] = sNewestComicNumber;
+                    if (sLastComicNumber==0) {
+                        sLastComicNumber = sNewestComicNumber; //
+                        pos[0] = sNewestComicNumber; //
+                    }
                 } catch (Exception e) {
                     e.printStackTrace();
                 }
@@ -247,10 +259,12 @@ public class ComicBrowserFragment extends android.support.v4.app.Fragment {
                     }, 500);
                     return true;
                 }
+
                 @Override
                 public boolean onSingleTapConfirmed(MotionEvent e) {
                     return false;
                 }
+
                 @Override
                 public boolean onDoubleTapEvent(MotionEvent e) {
                     return false;
@@ -648,7 +662,7 @@ public class ComicBrowserFragment extends android.support.v4.app.Fragment {
     }
 
     public boolean getRandomComic() {
-        if (isOnline()) {
+        if (isOnline()&&sNewestComicNumber!=0) {
             MainActivity.sProgress = ProgressDialog.show(getActivity(), "", this.getResources().getString(R.string.loading_random), true);
             //get a random number and update the pager
             Random mRand = new Random();

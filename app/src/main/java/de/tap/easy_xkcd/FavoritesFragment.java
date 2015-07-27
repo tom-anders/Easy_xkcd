@@ -460,12 +460,14 @@ public class FavoritesFragment extends android.support.v4.app.Fragment {
 
     public boolean getRandomComic() {
         //get a random number and update the pager
-        Random rand = new Random();
-        Integer number = rand.nextInt(mFav.length);
-        while (number.equals(sFavoriteIndex)) {
-            number = rand.nextInt(mFav.length);
+        if (mFav.length>1) {
+            Random rand = new Random();
+            Integer number = rand.nextInt(mFav.length);
+            while (number.equals(sFavoriteIndex)) {
+                number = rand.nextInt(mFav.length);
+            }
+            mPager.setCurrentItem(number);
         }
-        mPager.setCurrentItem(number);
         return true;
     }
 
