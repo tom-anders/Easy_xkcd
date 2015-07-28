@@ -1,0 +1,142 @@
+<!--
+  ~ Copyright 2015, Tom Praschan
+  ~
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~ http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+  -->
+<resources>
+    <string name="app_name">Лагани xkcd</string>
+    <string name="pref_title">Поставке</string>
+    <string name="title_activity_about">О програму</string>
+    <string name="title_activity_search_results">Резултати за</string>
+
+    <!-- dialog strings -->
+    <string name="delete_favorites">Очисти омиљене</string>
+    <string name="delete_favorites_dialog">Желите ли заиста да обришете све ваше омиљене стрипове?</string>
+    <string name="favorites_cleared">Омиљени очишћени</string>
+
+    <string name="share_url">Подели УРЛ помоћу&#8230;</string>
+    <string name="share_image">Подели слику помоћу&#8230;</string>
+    <string name="dialog_cancel">Одустани</string>
+    <string name="dialog_yes">Да</string>
+    <string name="loading_random">Учитавам насумични стрип&#8230;</string>
+    <string name="no_favorites">Нисте додали ниједан омиљени!</string>
+    <string name="loading_comics">Учитавам стрипове&#8230;</string>
+    <string name="loading_results">Учитавам резултате претраге&#8230;</string>
+    <string name="no_connection">Нисте повезани&#8230;</string>
+    <string name="no_connection_retry">Покушај поново</string>
+    <string name="no_connection_favorites">Прикажи омиљене</string>
+    <string name="comic_error">Стрип није доступан</string>
+    <string name="search_error">Нема стрипова</string>
+    <string name="loading_latest">Учитавам најновији стрип&#8230;</string>
+
+    <string name="snackbar_remove">Стрип уклоњен из омиљених</string>
+    <string name="snackbar_add">Стрип додат у омиљене</string>
+    <string name="snackbar_remove_all">Омиљени очишћени</string>
+    <string name="snackbar_undo">Врати</string>
+
+    <!-- ActionBar strings -->
+    <string name="action_settings">Поставке</string>
+    <string name="action_favorite">Додај у омиљене</string>
+    <string name="action_latest">Најновији стрип</string>
+    <string name="action_share">Подели стрип</string>
+    <string name="action_random">Насумични стрип</string>
+    <string name="action_explain">Објасни стрип</string>
+    <string name="action_alt">Прикажи алт текст</string>
+    <string name="action_alt_tip">Савет: Такође можете да видите алтернативни текст дугим притиском на слику стрипа.</string>
+    <string name="search_title">Претрага</string>
+    <string name="search_hint">Тражите стрип</string>
+    <string name="drawer_open">Отвори навигациону фиоку</string>
+    <string name="drawer_close">Затвори навигациону фиоку</string>
+
+    <string-array
+        name="share_dialog">
+        <item>Подели слику</item>
+        <item>Подели УРЛ</item>
+    </string-array>
+
+    <integer-array
+        name="interactive_comics">
+        <item>826</item>
+        <item>1110</item>
+        <item>1350</item>
+        <item>1416</item>
+        <item>1506</item>
+        <item>1525</item>
+    </integer-array>
+
+    <integer-array
+        name="large_comics">
+        <item>256</item>
+        <item>482</item>
+        <item>657</item>
+        <item>681</item>
+        <item>802</item>
+        <item>1000</item>
+        <item>1040</item>
+        <item>1071</item>
+        <item>1079</item>
+        <item>1080</item>
+        <item>1196</item>
+        <item>1256</item>
+        <item>1298</item>
+        <item>1389</item>
+        <item>1392</item>
+        <item>1491</item>
+    </integer-array>
+
+    <string-array
+        name="large_comics_urls">
+        <item>http://imgs.xkcd.com/comics/online_communities.png</item>
+        <item>http://imgs.xkcd.com/comics/height.png</item>
+        <item>http://imgs.xkcd.com/comics/movie_narrative_charts_large.png</item>
+        <item>http://imgs.xkcd.com/comics/gravity_wells_large.png</item>
+        <item>http://imgs.xkcd.com/comics/online_communities_2_large.png</item>
+        <item>http://imgs.xkcd.com/comics/1000_comics_large.png</item>
+        <item>http://imgs.xkcd.com/comics/lakes_and_oceans_large.png</item>
+        <item>http://imgs.xkcd.com/comics/exoplanets_large.png</item>
+        <item>http://imgs.xkcd.com/comics/united_shapes_large.png</item>
+        <item>http://imgs.xkcd.com/comics/visual_field_large.png</item>
+        <item>http://imgs.xkcd.com/comics/subways_large.png</item>
+        <item>http://imgs.xkcd.com/comics/questions_large.png</item>
+        <item>http://imgs.xkcd.com/comics/exoplanet_neighborhood_large.png</item>
+        <item>http://imgs.xkcd.com/comics/surface_area_large.png</item>
+        <item>http://imgs.xkcd.com/comics/dominant_players_large.png</item>
+        <item>http://imgs.xkcd.com/comics/stories_of_the_past_and_future_large.png</item>
+    </string-array>
+
+    <string name="title_interactive">(интерактивно)</string>
+
+    <!-- navigation drawer -->
+    <string name="nv_comicbrowser">Стрипови</string>
+    <string name="nv_favorites">Омиљени</string>
+    <string name="nv_about">О програму</string>
+    <string name="nv_feedback">Feedback</string>
+    <string name="nav_feedback_send">Пошаљи е-пошту помоћу&#8230;</string>
+
+    <!-- preference strings -->
+    <string name="pref_alt">Хаптички одзив приказа алт текста</string>
+    <string name="pref_alt_sum">Дуги притисак на слику окида хаптички одзив</string>
+    <string name="pref_subtitle">Прикажи поднаслов на траци радње</string>
+    <string name="pref_subtitle_sum">Број текућег стрипа је поднаслов у траци радње</string>
+    <string name="pref_random_favorites">Сакриј ФАБ са екрана омиљених</string>
+    <string name="pref_random_comics">Сакриј ФАБ са екрана стрипова</string>
+    <string name="pref_random_sum">Сакрива ФАБ (плутајуће дугме радње). Ако је сакривено, дугме ће бити у менију</string>
+    <string name="pref_share">Увек дели слику стрипа</string>
+    <string name="pref_share_sum">Не питај да ли да се дели слика или УРЛ стрипа</string>
+    <string name="pref_behavior">Понашање</string>
+    <string name="pref_appearance">Изглед</string>
+    <string name="pref_large">Велике слике</string>
+    <string name="pref_large_sum">Учитавање великих слика ако их има (нпр. #657). Може да утиче на перформансе на старијим уређајима</string>
+
+
+</resources>
