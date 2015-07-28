@@ -89,7 +89,7 @@ public class MainActivity extends AppCompatActivity {
             ComicBrowserFragment.sLastComicNumber = (getNumberFromUrl(getIntent().getDataString()));
         }
         if (("de.tap.easy_xkcd.ACTION_COMIC").equals(getIntent().getAction())) {
-            ComicBrowserFragment.sLastComicNumber = getIntent().getIntExtra("number",0);
+            ComicBrowserFragment.sLastComicNumber = getIntent().getIntExtra("number", 0);
         }
         //On Lollipop, change the app's icon in the recents app screen
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP && !getIntent().getAction().equals(Intent.ACTION_VIEW)) {
@@ -493,13 +493,12 @@ public class MainActivity extends AppCompatActivity {
                 searchMenuItem.collapseActionView();
                 searchView.setQuery("", false);
                 //Hide Keyboard
-                if (searchMenuItem != null) {
-                    View view = MainActivity.this.getCurrentFocus();
-                    if (view != null) {
-                        InputMethodManager imm = (InputMethodManager)getSystemService(Context.INPUT_METHOD_SERVICE);
-                        imm.hideSoftInputFromWindow(view.getWindowToken(), 0);
-                    }
+                View view = MainActivity.this.getCurrentFocus();
+                if (view != null) {
+                    InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
+                    imm.hideSoftInputFromWindow(view.getWindowToken(), 0);
                 }
+
                 return false;
             }
 
