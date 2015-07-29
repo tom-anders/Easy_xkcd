@@ -68,8 +68,6 @@ public class SearchResultsActivity extends AppCompatActivity {
     private RVAdapter adapter = null;
     private String queryTrans;
 
-    //TODO images in offline mode
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);

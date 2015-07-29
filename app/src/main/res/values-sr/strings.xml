@@ -138,6 +138,19 @@
     <string name="pref_appearance">Изглед</string>
     <string name="pref_large">Велике слике</string>
     <string name="pref_large_sum">Учитавање великих слика ако их има (нпр. #657). Може да утиче на перформансе на старијим уређајима</string>
+    <string name="delete_offline">Deleting Comics&#8230;</string>
+    <string name="delete_offline_dialog">Are you sure you want to disable Offline Mode? This will deleted all saved images(except favorites)</string>
+    <string name="loading_offline">Downloading Comics&#8230;</string>
+    <string name="loading_offline_2">This might take some time, relax&#8230;</string>
+    <string name="loading_offline_20">Maybe you should get yourself a coffee or something&#8230;</string>
+    <string name="loading_offline_50">Only one more half to go!</string>
+    <string name="loading_offline_80">Almost there&#8230;</string>
+    <string name="loading_offline_95">An error occurred! Try again</string>
+    <string name="loading_offline_96">Just kidding.</string>
+    <string name="loading_offline_97">You should have seen your face!</string>
+    <string name="loading_offline_message">Do not close the app!</string>
+    <string name="pref_offline">Offline mode (beta)</string>
+    <string name="pref_offline_sum">Download all comics to internal storage. New comics will be added automatically</string>
 
 
 </resources>

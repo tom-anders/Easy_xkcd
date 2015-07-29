@@ -305,7 +305,6 @@ public class MainActivity extends AppCompatActivity {
                         break;
                     }
                     case R.id.nav_browser: {
-                        //TODO offline subtitle
                         if (isOnline()&&!fullOffline) {
                             getSupportActionBar().setSubtitle(String.valueOf(ComicBrowserFragment.sLastComicNumber));
                         } else {

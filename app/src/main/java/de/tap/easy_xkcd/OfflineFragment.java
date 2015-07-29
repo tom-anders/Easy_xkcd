@@ -82,8 +82,6 @@ public class OfflineFragment extends android.support.v4.app.Fragment {
     private ActionBar mActionBar;
     private Boolean randomSelected=false;
 
-    //TODO random, latest, etc.
-
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View v = inflater.inflate(R.layout.pager_layout, container, false);
