@@ -45,6 +45,8 @@ import android.view.MenuItem;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.animation.Animation;
+import android.view.animation.AnimationUtils;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -222,6 +224,7 @@ public class FavoritesFragment extends android.support.v4.app.Fragment {
                     }
                 }
             });
+
             container.addView(itemView);
             return itemView;
         }
@@ -283,8 +286,10 @@ public class FavoritesFragment extends android.support.v4.app.Fragment {
                         ((MainActivity) getActivity()).selectDrawerItem(mBrowser);
 
                         //Delete all saved images
-                        for (String i : fav) {
-                            getActivity().deleteFile(i);
+                        if (!((MainActivity) getActivity()).fullOffline) {
+                            for (String i : fav) {
+                                getActivity().deleteFile(i);
+                            }
                         }
 
                         Toast toast = Toast.makeText(getActivity(), R.string.favorites_cleared, Toast.LENGTH_SHORT);
@@ -306,7 +311,9 @@ public class FavoritesFragment extends android.support.v4.app.Fragment {
 
         @Override
         protected Void doInBackground(Integer... pos) {
-            getActivity().deleteFile(String.valueOf(pos[0]));
+            if (!MainActivity.fullOffline) {
+                getActivity().deleteFile(String.valueOf(pos[0]));
+            }
             Favorites.removeFavoriteItem(getActivity(), String.valueOf(pos[0]));
             return null;
         }

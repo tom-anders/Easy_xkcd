@@ -25,6 +25,11 @@
         android:title="@string/pref_behavior">
         <CheckBoxPreference
             android:defaultValue="false"
+            android:key="pref_offline"
+            android:summary="@string/pref_offline_sum"
+            android:title="@string/pref_offline" />
+        <CheckBoxPreference
+            android:defaultValue="false"
             android:key="pref_share"
             android:summary="@string/pref_share_sum"
             android:title="@string/pref_share" />

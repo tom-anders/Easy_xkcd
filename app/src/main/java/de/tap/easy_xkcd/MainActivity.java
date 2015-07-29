@@ -55,9 +55,11 @@ import android.widget.SearchView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.bumptech.glide.Glide;
 import com.tap.xkcd_reader.R;
 
 import java.io.BufferedReader;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -74,22 +76,35 @@ public class MainActivity extends AppCompatActivity {
     private static DrawerLayout sDrawer;
     public ActionBarDrawerToggle mDrawerToggle;
     private MenuItem searchMenuItem;
+    public static Boolean fullOffline = false;
+    private Boolean settingsOpened = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        if (isOnline() && savedInstanceState == null) {
+        fullOffline = PreferenceManager.getDefaultSharedPreferences(this).getBoolean("pref_offline", false);
+        if ((isOnline()) && savedInstanceState == null) {
             new updateComicTitles().execute();
             new updateComicTranscripts().execute();
+        } else {
+            SharedPreferences preferences = getPreferences(Activity.MODE_PRIVATE);
+            sComicTitles = preferences.getString("comic_titles", "");
+            sComicTrans = preferences.getString("comic_trans", "");
         }
 
         if (getIntent().getAction().equals(Intent.ACTION_VIEW)) {
             ComicBrowserFragment.sLastComicNumber = (getNumberFromUrl(getIntent().getDataString()));
+            OfflineFragment.sLastComicNumber = (getNumberFromUrl(getIntent().getDataString()));
         }
         if (("de.tap.easy_xkcd.ACTION_COMIC").equals(getIntent().getAction())) {
-            ComicBrowserFragment.sLastComicNumber = getIntent().getIntExtra("number", 0);
+            int number = getIntent().getIntExtra("number", 0);
+            if (isOnline()&&!fullOffline) {
+                ComicBrowserFragment.sLastComicNumber = number;
+            } else {
+                OfflineFragment.sLastComicNumber = number;
+            }
         }
         //On Lollipop, change the app's icon in the recents app screen
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP && !getIntent().getAction().equals(Intent.ACTION_VIEW)) {
@@ -116,7 +131,7 @@ public class MainActivity extends AppCompatActivity {
         setupFab(mFab);
 
         //Load fragment
-        if (isOnline()) {
+        if (isOnline() | fullOffline) {
             MenuItem item;
             if (savedInstanceState != null) {
                 //Get last loaded fragment
@@ -128,8 +143,7 @@ public class MainActivity extends AppCompatActivity {
                 item = sNavView.getMenu().findItem(R.id.nav_browser);
             }
             selectDrawerItem(item);
-        } else if (sCurrentFragment != R.id.nav_favorites) { //Don't show the dialog if the user is currently browsing his favorites
-            Log.d("test", "test");
+        } else if ((sCurrentFragment != R.id.nav_favorites)) { //Don't show the dialog if the user is currently browsing his favorites or full offline is enabled
             android.support.v7.app.AlertDialog.Builder mDialog = new android.support.v7.app.AlertDialog.Builder(this);
             mDialog.setMessage(R.string.no_connection)
                     .setPositiveButton(R.string.no_connection_retry, new DialogInterface.OnClickListener() {
@@ -143,7 +157,6 @@ public class MainActivity extends AppCompatActivity {
                 mDialog.setNegativeButton(R.string.no_connection_favorites, new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
-
                         MenuItem m = sNavView.getMenu().findItem(R.id.nav_favorites);
                         selectDrawerItem(m);
                     }
@@ -160,7 +173,11 @@ public class MainActivity extends AppCompatActivity {
                 android.support.v4.app.FragmentManager fragmentManager = getSupportFragmentManager();
                 switch (sCurrentFragment) {
                     case R.id.nav_browser: {
-                        ((ComicBrowserFragment) fragmentManager.findFragmentByTag("browser")).getRandomComic();
+                        if (!fullOffline) {
+                            ((ComicBrowserFragment) fragmentManager.findFragmentByTag("browser")).getRandomComic();
+                        } else {
+                            ((OfflineFragment) fragmentManager.findFragmentByTag("browser")).getRandomComic();
+                        }
                         break;
                     }
                     case R.id.nav_favorites: {
@@ -187,7 +204,7 @@ public class MainActivity extends AppCompatActivity {
         switch (menuItem.getItemId()) {
             case R.id.nav_browser:
                 //Check if the device is online
-                if (!isOnline()) {
+                if (!isOnline() && !fullOffline) {
                     Toast toast = Toast.makeText(this, R.string.no_connection, Toast.LENGTH_SHORT);
                     toast.show();
                     MenuItem m = sNavView.getMenu().findItem(R.id.nav_favorites);
@@ -213,6 +230,7 @@ public class MainActivity extends AppCompatActivity {
                 break;
 
             case R.id.nav_settings:
+                settingsOpened = true;
                 sDrawer.closeDrawer(sNavView);
                 //Add delay so that the Drawer is closed before the Settings Activity is launched
                 new Handler().postDelayed(new Runnable() {
@@ -287,7 +305,12 @@ public class MainActivity extends AppCompatActivity {
                         break;
                     }
                     case R.id.nav_browser: {
-                        getSupportActionBar().setSubtitle(String.valueOf(ComicBrowserFragment.sLastComicNumber));
+                        //TODO offline subtitle
+                        if (isOnline()&&!fullOffline) {
+                            getSupportActionBar().setSubtitle(String.valueOf(ComicBrowserFragment.sLastComicNumber));
+                        } else {
+                            getSupportActionBar().setSubtitle(String.valueOf(OfflineFragment.sLastComicNumber));
+                        }
                         break;
                     }
                 }
@@ -299,7 +322,11 @@ public class MainActivity extends AppCompatActivity {
                     fragmentManager.beginTransaction().add(R.id.flContent, new FavoritesFragment(), fragmentTagShow).commitAllowingStateLoss();
                     break;
                 case R.id.nav_browser:
-                    fragmentManager.beginTransaction().add(R.id.flContent, new ComicBrowserFragment(), fragmentTagShow).commitAllowingStateLoss();
+                    if (isOnline()&&!fullOffline) {
+                        fragmentManager.beginTransaction().add(R.id.flContent, new ComicBrowserFragment(), fragmentTagShow).commitAllowingStateLoss();
+                    } else {
+                        fragmentManager.beginTransaction().add(R.id.flContent, new OfflineFragment(), fragmentTagShow).commitAllowingStateLoss();
+                    }
                     break;
             }
         }
@@ -312,7 +339,6 @@ public class MainActivity extends AppCompatActivity {
     private class updateComicTitles extends AsyncTask<Void, Void, Void> {
         @Override
         protected Void doInBackground(Void... params) {
-            Log.d("start", "task started");
             SharedPreferences preferences = getPreferences(Activity.MODE_PRIVATE);
             SharedPreferences.Editor editor = preferences.edit();
             if (!preferences.getBoolean("titles_loaded", false)) {
@@ -358,8 +384,6 @@ public class MainActivity extends AppCompatActivity {
         @Override
         protected void onPostExecute(Void dummy) {
             SharedPreferences preferences = getPreferences(Activity.MODE_PRIVATE);
-            Log.d("done", "Comic titles updated");
-            Log.d("boolean", String.valueOf(preferences.getBoolean("titles_loaded", false)));
             Log.d("highest", String.valueOf(preferences.getInt("highest_comic_title", 0)));
             sComicTitles = preferences.getString("comic_titles", "");
         }
@@ -377,7 +401,6 @@ public class MainActivity extends AppCompatActivity {
     private class updateComicTranscripts extends AsyncTask<Void, Void, Void> {
         @Override
         protected Void doInBackground(Void... params) {
-            Log.d("start", "task started");
             SharedPreferences preferences = getPreferences(Activity.MODE_PRIVATE);
             SharedPreferences.Editor editor = preferences.edit();
             if (!preferences.getBoolean("trans_loaded", false)) {
@@ -413,7 +436,6 @@ public class MainActivity extends AppCompatActivity {
                     }
                     editor.putInt("highest_comic_trans", n + 1);
                     n++;
-                    Log.d("n", String.valueOf(n));
                 }
                 editor.putString("comic_trans", sb.toString());
             } catch (IOException e) {
@@ -428,7 +450,6 @@ public class MainActivity extends AppCompatActivity {
         protected void onPostExecute(Void dummy) {
             SharedPreferences preferences = getPreferences(Activity.MODE_PRIVATE);
             Log.d("done", "Comic trans updated");
-            Log.d("boolean", String.valueOf(preferences.getBoolean("trans_loaded", false)));
             Log.d("highest", String.valueOf(preferences.getInt("highest_comic_trans", 0)));
             sComicTrans = preferences.getString("comic_trans", "");
         }
@@ -454,9 +475,15 @@ public class MainActivity extends AppCompatActivity {
         if (Intent.ACTION_VIEW.equals(intent.getAction())) {
             //Get the ComicBrowserFragment and update it
             android.support.v4.app.FragmentManager fm = getSupportFragmentManager();
-            ComicBrowserFragment fragment = (ComicBrowserFragment) fm.findFragmentByTag("browser");
-            ComicBrowserFragment.sLastComicNumber = getNumberFromUrl(intent.getDataString());
-            fragment.new pagerUpdate().execute(ComicBrowserFragment.sLastComicNumber);
+            if (isOnline()) {
+                ComicBrowserFragment fragment = (ComicBrowserFragment) fm.findFragmentByTag("browser");
+                ComicBrowserFragment.sLastComicNumber = getNumberFromUrl(intent.getDataString());
+                fragment.new pagerUpdate().execute(ComicBrowserFragment.sLastComicNumber);
+            } else {
+                OfflineFragment fragment = (OfflineFragment) fm.findFragmentByTag("browser");
+                OfflineFragment.sLastComicNumber = getNumberFromUrl(intent.getDataString());
+                fragment.new pagerUpdate().execute(OfflineFragment.sLastComicNumber);
+            }
         }
     }
 
@@ -535,15 +562,188 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onResume() {
         super.onResume();
-        assert getSupportActionBar() != null;
-        //Check if ActionBar subtitle should be displayed
-        if (!PreferenceManager.getDefaultSharedPreferences(this).getBoolean("pref_subtitle", true)) {
-            getSupportActionBar().setSubtitle(null);
+        if (settingsOpened) {
+            settingsOpened = false;
+            assert getSupportActionBar() != null;
+            //Check if ActionBar subtitle should be displayed
+            if (!PreferenceManager.getDefaultSharedPreferences(this).getBoolean("pref_subtitle", true)) {
+                getSupportActionBar().setSubtitle(null);
+            }
+            //Reselect the current fragment in order to update action bar and floating action button
+            if (isOnline()) {
+                MenuItem m = sNavView.getMenu().findItem(sCurrentFragment);
+                selectDrawerItem(m);
+            }
+
+            if (!fullOffline && PreferenceManager.getDefaultSharedPreferences(this).getBoolean("pref_offline", false)) {
+                if (isOnline()) {
+                    new downloadComicsTask().execute();
+                } else {
+                    Toast.makeText(this, R.string.no_connection,Toast.LENGTH_SHORT);
+                    SharedPreferences pref = PreferenceManager.getDefaultSharedPreferences(MainActivity.this);
+                    SharedPreferences.Editor ed = pref.edit();
+                    ed.putBoolean("pref_offline", false);
+                    ed.commit();
+                    fullOffline=false;
+                }
+            }
+            if (fullOffline && !PreferenceManager.getDefaultSharedPreferences(this).getBoolean("pref_offline", false)) {
+                android.support.v7.app.AlertDialog.Builder mDialog = new android.support.v7.app.AlertDialog.Builder(this);
+                mDialog.setMessage(R.string.delete_offline_dialog)
+                        .setNegativeButton(R.string.dialog_cancel, new DialogInterface.OnClickListener() {
+                            public void onClick(DialogInterface dialog, int which) {
+                                SharedPreferences pref = PreferenceManager.getDefaultSharedPreferences(MainActivity.this);
+                                SharedPreferences.Editor ed = pref.edit();
+                                ed.putBoolean("pref_offline", true);
+                                ed.commit();
+
+                            }
+                        })
+                        .setPositiveButton(R.string.dialog_yes, new DialogInterface.OnClickListener() {
+                            public void onClick(DialogInterface dialog, int which) {
+                                new deleteComicsTask().execute();
+                            }
+                        })
+                        .setCancelable(false);
+                mDialog.show();
+
+            }
         }
-        //Reselect the current fragment in order to update action bar and floating action button
-        if (isOnline()) {
-            MenuItem m = sNavView.getMenu().findItem(sCurrentFragment);
-            selectDrawerItem(m);
+    }
+
+    public class downloadComicsTask extends AsyncTask<Void, Integer, Void> {
+        private ProgressDialog progress;
+
+        @Override
+        protected void onPreExecute() {
+            progress = new ProgressDialog(MainActivity.this);
+            progress.setTitle(getResources().getString(R.string.loading_offline));
+            progress.setMessage(getResources().getString(R.string.loading_offline_message));
+            progress.setIndeterminate(false);
+            progress.setProgressStyle(ProgressDialog.STYLE_HORIZONTAL);
+            progress.setCancelable(false);
+            progress.show();
+        }
+
+        @Override
+        protected Void doInBackground(Void... params) {
+            SharedPreferences preferences = getPreferences(Activity.MODE_PRIVATE);
+            SharedPreferences.Editor mEditor = preferences.edit();
+            for (int i = 1; i <= ComicBrowserFragment.sNewestComicNumber; i++) {
+            //for (int i = 1; i <= 20; i++) {
+                try {
+                    Comic comic = new Comic(i, MainActivity.this);
+                    String url = comic.getComicData()[2];
+                    Bitmap mBitmap = Glide.with(MainActivity.this)
+                            .load(url)
+                            .asBitmap()
+                            .into(-1, -1)
+                            .get();
+                    FileOutputStream fos = openFileOutput(String.valueOf(i), Context.MODE_PRIVATE);
+                    mBitmap.compress(Bitmap.CompressFormat.PNG, 100, fos);
+                    fos.close();
+
+                    mEditor.putString(("title" + String.valueOf(i)), comic.getComicData()[0]);
+                    mEditor.putString(("alt" + String.valueOf(i)), comic.getComicData()[1]);
+                    mEditor.apply();
+                    int p = (int) (i / ((float) ComicBrowserFragment.sNewestComicNumber) * 100);
+                    publishProgress(p);
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            }
+            mEditor.putInt("highest_offline", ComicBrowserFragment.sNewestComicNumber);
+            mEditor.apply();
+            return null;
+        }
+
+        protected void onProgressUpdate(Integer... pro) {
+            progress.setProgress(pro[0]);
+            switch (pro[0]) {
+                case 2:
+                    progress.setMessage(getResources().getString(R.string.loading_offline_2));
+                    break;
+                case 20:
+                    progress.setMessage(getResources().getString(R.string.loading_offline_20));
+                    break;
+                case 50:
+                    progress.setMessage(getResources().getString(R.string.loading_offline_50));
+                    break;
+                case 80:
+                    progress.setMessage(getResources().getString(R.string.loading_offline_80));
+                    break;
+                case 95:
+                    progress.setMessage(getResources().getString(R.string.loading_offline_95));
+                    new Handler().postDelayed(new Runnable() {
+                        @Override
+                        public void run() {
+                            progress.setMessage(getResources().getString(R.string.loading_offline_96));
+                        }
+                    }, 1000);
+                    break;
+                case 97:
+                    progress.setMessage(getResources().getString(R.string.loading_offline_97));
+                    break;
+            }
+        }
+
+        @Override
+        protected void onPostExecute(Void dummy) {
+            fullOffline = true;
+            progress.dismiss();
+            finish();
+            startActivity(getIntent());
+        }
+    }
+
+    public class deleteComicsTask extends AsyncTask<Void, Integer, Void> {
+        private ProgressDialog progress;
+
+        @Override
+        protected void onPreExecute() {
+            progress = new ProgressDialog(MainActivity.this);
+            progress.setTitle(getResources().getString(R.string.delete_offline));
+            progress.setMessage(getResources().getString(R.string.loading_offline_message));
+            progress.setIndeterminate(false);
+            progress.setProgressStyle(ProgressDialog.STYLE_HORIZONTAL);
+            progress.setCancelable(false);
+            progress.show();
+        }
+
+        @Override
+        protected Void doInBackground(Void... params) {
+            SharedPreferences preferences = getPreferences(Activity.MODE_PRIVATE);
+            SharedPreferences.Editor mEditor = preferences.edit();
+            int newest = preferences.getInt("Newest Comic",0);
+            for (int i = 1; i <=newest; i++) {
+                if (!Favorites.checkFavorite(MainActivity.this, i)) {
+                    deleteFile(String.valueOf(i));
+
+                    mEditor.putString("title" + String.valueOf(i), null);
+                    mEditor.putString("alt" + String.valueOf(i), null);
+                    mEditor.apply();
+
+                    int p = (int) (i / ((float) newest) * 100);
+                    publishProgress(p);
+                }
+            }
+
+            fullOffline = false;
+            mEditor.putInt("highest_offline",0);
+            mEditor.apply();
+
+            return null;
+        }
+
+        protected void onProgressUpdate(Integer... pro) {
+            progress.setProgress(pro[0]);
+        }
+
+        @Override
+        protected void onPostExecute(Void dummy) {
+            progress.dismiss();
+            finish();
+            startActivity(getIntent());
         }
     }
 

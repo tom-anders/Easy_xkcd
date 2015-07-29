@@ -38,6 +38,14 @@
     <string name="comic_error">Comic nicht verfügbar</string>
     <string name="search_error">Keine Comics gefunden</string>
     <string name="loading_latest">Lade neuesten Comic&#8230;</string>
+    <string name="loading_offline">Lädt Comics</string>
+    <string name="loading_offline_message">Beende nicht die App!</string>
+    <string name="loading_offline_20">Vielleicht solltest du dir in der Zwischenzeit einen Kaffee kochen oder so&#8230;</string>
+    <string name="loading_offline_2">Das könnte etwas dauern. Entspann dich&#8230;</string>
+    <string name="loading_offline_50">Bergfest!</string>
+    <string name="loading_offline_80">Fast geschafft&#8230;</string>
+    <string name="loading_offline_95">Es gab einen Fehler! Probiere es noch mal&#8230;</string>
+    <string name="loading_offline_96">War nur ein Scherz.</string>
 
     <string name="snackbar_remove">Comic aus Favoriten entfernt</string>
     <string name="snackbar_add">Comic zu Favoriten hinzugefügt</string>
@@ -68,6 +76,7 @@
         name="interactive_comics">
         <item>826</item>
         <item>1110</item>
+        <item>1264</item>
         <item>1350</item>
         <item>1416</item>
         <item>1506</item>
@@ -137,5 +146,10 @@
     <string name="pref_appearance">Erscheinungsbild</string>
     <string name="pref_large">Große Bildateien</string>
     <string name="pref_large_sum">Lade große Bilder wenn verfügbar (z.B. #657). Kann die Performance auf älteren Geräten beeinträchtigen </string>
+    <string name="pref_offline">Offline Modus (Beta)</string>
+    <string name="pref_offline_sum">Sichert alle Comics im internen Speicher. Neue Comics werden automatisch hinzugefügt.</string>
+    <string name="loading_offline_97">Du hättest dein Gesicht sehen sollen!</string>
+    <string name="delete_offline">Löscht Comics&#8230;</string>
+    <string name="delete_offline_dialog">Willst du wirklich den Offline Modus deaktivieren? Alle Bilder (außer Favoriten) werden gelöscht.</string>
 
 </resources>

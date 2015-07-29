@@ -22,6 +22,7 @@ import android.app.SearchManager;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
@@ -49,6 +50,7 @@ import com.bumptech.glide.request.animation.GlideAnimation;
 import com.bumptech.glide.request.target.SimpleTarget;
 import com.tap.xkcd_reader.R;
 
+import java.io.FileInputStream;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
@@ -65,6 +67,8 @@ public class SearchResultsActivity extends AppCompatActivity {
     private ProgressDialog mProgress;
     private RVAdapter adapter = null;
     private String queryTrans;
+
+    //TODO images in offline mode
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -112,7 +116,7 @@ public class SearchResultsActivity extends AppCompatActivity {
 
     private boolean getComicByNumber(int number) {
         Intent intent = new Intent("de.tap.easy_xkcd.ACTION_COMIC");
-        if (number > ComicBrowserFragment.sNewestComicNumber) {
+        if (number > ComicBrowserFragment.sNewestComicNumber && number > OfflineFragment.sNewestComicNumber) {
             intent.putExtra("number", ComicBrowserFragment.sNewestComicNumber);
         } else {
             intent.putExtra("number", number);
@@ -129,11 +133,15 @@ public class SearchResultsActivity extends AppCompatActivity {
         resultsTranscript.clear();
         String s = MainActivity.sComicTitles;
         String[] titles = s.split("&&");
-        Log.d("length", String.valueOf(titles.length));
         query = query.trim().toLowerCase();
         for (int i = 0; i < titles.length; i++) {
             String l = titles[i].toLowerCase();
-            Boolean found = l.matches(".*\\b" + query + "\\b.*");
+            Boolean found;
+            if (query.length()<5) {
+                found = l.matches(".*\\b" + query + "\\b.*");
+            } else {
+                found = l.contains(query);
+            }
             if (found) {
                 resultsTitle.put(i + 1, titles[i]);
             }
@@ -181,7 +189,9 @@ public class SearchResultsActivity extends AppCompatActivity {
         @Override
         protected Void doInBackground(Void... params) {
             searchTranscripts();
-            getTransUrls();
+            if (!MainActivity.fullOffline) {
+                getTransUrls();
+            }
             return null;
         }
 
@@ -202,16 +212,19 @@ public class SearchResultsActivity extends AppCompatActivity {
         String[] titles = t.split("&&");
         String s = MainActivity.sComicTrans;
         String[] trans = s.split("&&");
-        Log.d("length", String.valueOf(trans.length));
         queryTrans = queryTrans.trim().toLowerCase();
         for (int i = 0; i < trans.length; i++) {
             String l = trans[i].toLowerCase();
-            Boolean found = l.matches(".*\\b" + queryTrans + "\\b.*");
+            Boolean found;
+            if (queryTrans.length()<5) {
+                found = l.matches(".*\\b" + queryTrans + "\\b.*");
+            } else {
+                found = l.contains(queryTrans);
+            }
             if (found && resultsTitle.get(i + 1) == null) {
                 resultsTranscript.put(i + 1, titles[i]);
             }
         }
-
     }
 
     private void getTitleUrls() {
@@ -238,7 +251,7 @@ public class SearchResultsActivity extends AppCompatActivity {
 
         private SparseArray<String> comicsTitle = new SparseArray<>();
         private SparseArray<String> comicsTrans = new SparseArray<>();
-        private int lastPosition = -1;
+        private int lastPosition = 0;
 
         RVAdapter(SparseArray<String> comics1, SparseArray<String> comics2) {
             this.comicsTitle = comics1;
@@ -267,18 +280,34 @@ public class SearchResultsActivity extends AppCompatActivity {
                     comicViewHolder.comicTitle.setText(resultsTranscript.get(resultsTranscript.keyAt(i - resultsTitle.size())));
                     comicViewHolder.comicNumber.setText(String.valueOf(resultsTranscript.keyAt(i - resultsTitle.size())));
                 }
-                Glide.with(getApplicationContext())
-                        .load(urls.get(i))
-                        .asBitmap()
-                        .into(new SimpleTarget<Bitmap>() {
-                            @Override
-                            public void onResourceReady(Bitmap resource, GlideAnimation<? super Bitmap> glideAnimation) {
-                                comicViewHolder.thumbnail.setImageBitmap(resource);
-                            }
-                        });
-                //if (i >= comicsTitle.size()) {
-                    setAnimation(comicViewHolder.cv, i);
-                //}
+                if (!MainActivity.fullOffline) {
+                    Glide.with(getApplicationContext())
+                            .load(urls.get(i))
+                            .asBitmap()
+                            .into(new SimpleTarget<Bitmap>() {
+                                @Override
+                                public void onResourceReady(Bitmap resource, GlideAnimation<? super Bitmap> glideAnimation) {
+                                    comicViewHolder.thumbnail.setImageBitmap(resource);
+                                }
+                            });
+                } else {
+                    try {
+                        if (i < comicsTitle.size()) {
+                            FileInputStream fis = openFileInput(String.valueOf(resultsTitle.keyAt(i)));
+                            Bitmap mBitmap = BitmapFactory.decodeStream(fis);
+                            fis.close();
+                            comicViewHolder.thumbnail.setImageBitmap(mBitmap);
+                        } else {
+                            FileInputStream fis = openFileInput(String.valueOf(resultsTranscript.keyAt(i - resultsTitle.size())));
+                            Bitmap mBitmap = BitmapFactory.decodeStream(fis);
+                            fis.close();
+                            comicViewHolder.thumbnail.setImageBitmap(mBitmap);
+                        }
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+                }
+                setAnimation(comicViewHolder.cv, i);
             } catch (IndexOutOfBoundsException e) {
                 e.printStackTrace();
             }
