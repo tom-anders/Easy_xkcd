@@ -85,6 +85,7 @@ public class ComicBrowserFragment extends android.support.v4.app.Fragment {
     private TextView tvAlt;
     private SharedPreferences mSharedPreferences;
     private ActionBar mActionBar;
+    private int pagerState;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
@@ -114,7 +115,7 @@ public class ComicBrowserFragment extends android.support.v4.app.Fragment {
         return v;
     }
 
-    private void setupPager(ViewPager pager) {
+    private void setupPager(final ViewPager pager) {
         pager.addOnPageChangeListener(new ViewPager.OnPageChangeListener() {
             @Override
             public void onPageSelected(int position) {
@@ -159,6 +160,7 @@ public class ComicBrowserFragment extends android.support.v4.app.Fragment {
 
             @Override
             public void onPageScrollStateChanged(int state) {
+                pagerState=state;
             }
 
             @Override
@@ -192,6 +194,9 @@ public class ComicBrowserFragment extends android.support.v4.app.Fragment {
                 sComics = GetComic(pos[0]);
             } catch (IOException e) {
                 e.printStackTrace();
+            }
+            while(pagerState==ViewPager.SCROLL_STATE_SETTLING) {
+                //wait for view pager to finish animation
             }
             return null;
         }

@@ -42,6 +42,7 @@ import android.support.design.widget.Snackbar;
 import android.support.v4.view.PagerAdapter;
 import android.support.v4.view.ViewPager;
 import android.support.v7.app.ActionBar;
+import android.text.BoringLayout;
 import android.util.Log;
 import android.util.SparseArray;
 import android.view.GestureDetector;
@@ -81,6 +82,7 @@ public class OfflineFragment extends android.support.v4.app.Fragment {
     private SharedPreferences mSharedPreferences;
     private ActionBar mActionBar;
     private Boolean randomSelected=false;
+    private int pagerState;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
@@ -115,6 +117,7 @@ public class OfflineFragment extends android.support.v4.app.Fragment {
 
     private void setupPager(ViewPager pager) {
         pager.addOnPageChangeListener(new ViewPager.OnPageChangeListener() {
+            private int state;
             @Override
             public void onPageSelected(int position) {
                 tvAlt.setVisibility(View.GONE);
@@ -153,6 +156,7 @@ public class OfflineFragment extends android.support.v4.app.Fragment {
 
             @Override
             public void onPageScrollStateChanged(int state) {
+                pagerState=state;
             }
 
             @Override
@@ -175,6 +179,9 @@ public class OfflineFragment extends android.support.v4.app.Fragment {
             }
             //Update comic array
             sComics = GetComic(pos[0]);
+            while(pagerState==ViewPager.SCROLL_STATE_SETTLING) {
+                //wait for view pager to finish animation
+            }
             return null;
         }
 
@@ -196,7 +203,7 @@ public class OfflineFragment extends android.support.v4.app.Fragment {
         }
     }
 
-    private OfflineComic[] GetComic (int number) {
+    private OfflineComic[] GetComic(int number) {
         OfflineComic newComic = sComicMap.get(number);
         OfflineComic newComic0 = sComicMap.get(number - 1);
         OfflineComic newComic2 = sComicMap.get(number + 1);
