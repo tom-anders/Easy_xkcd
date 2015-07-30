@@ -195,8 +195,10 @@ public class ComicBrowserFragment extends android.support.v4.app.Fragment {
             } catch (IOException e) {
                 e.printStackTrace();
             }
-            while(pagerState==ViewPager.SCROLL_STATE_SETTLING) {
-                //wait for view pager to finish animation
+            if (sLastComicNumber!=1&&sLastComicNumber!=2&&sLastComicNumber!=sNewestComicNumber&&sLastComicNumber!=sNewestComicNumber-1) {
+                while (pagerState == ViewPager.SCROLL_STATE_SETTLING) {
+                    //wait for view pager to finish animation
+                }
             }
             return null;
         }
