@@ -172,7 +172,7 @@ public class OfflineFragment extends android.support.v4.app.Fragment {
             editor.putInt("Last Comic", sLastComicNumber);
             editor.commit();
 
-            sNewestComicNumber = mSharedPreferences.getInt("Newest Comic",0);
+            sNewestComicNumber = mSharedPreferences.getInt("highest_offline",0);
             if (sLastComicNumber==0) {
                 sLastComicNumber = sNewestComicNumber;
                 pos[0] = sNewestComicNumber;
