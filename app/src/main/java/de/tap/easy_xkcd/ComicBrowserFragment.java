@@ -315,7 +315,7 @@ public class ComicBrowserFragment extends android.support.v4.app.Fragment {
             pvComic.setOnMatrixChangeListener(new PhotoViewAttacher.OnMatrixChangedListener() {
                 @Override
                 public void onMatrixChanged(RectF rectF) {
-                    if (pvComic.getScale() > 1.5) {
+                    if (pvComic.getScale() > 1.4) {
                         sPager.setLocked(true);
                     } else {
                         sPager.setLocked(false);

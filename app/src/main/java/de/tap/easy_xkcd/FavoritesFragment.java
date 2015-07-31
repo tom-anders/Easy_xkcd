@@ -217,7 +217,7 @@ public class FavoritesFragment extends android.support.v4.app.Fragment {
             pvComic.setOnMatrixChangeListener(new PhotoViewAttacher.OnMatrixChangedListener() {
                 @Override
                 public void onMatrixChanged(RectF rectF) {
-                    if (pvComic.getScale() > 1.5) {
+                    if (pvComic.getScale() > 1.4) {
                         mPager.setLocked(true);
                     } else {
                         mPager.setLocked(false);

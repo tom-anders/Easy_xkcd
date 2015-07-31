@@ -55,6 +55,7 @@ import android.view.ViewGroup;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -83,6 +84,7 @@ public class OfflineFragment extends android.support.v4.app.Fragment {
     private ActionBar mActionBar;
     private Boolean randomSelected=false;
     private int pagerState;
+    private Boolean savedInstance=false;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
@@ -96,6 +98,7 @@ public class OfflineFragment extends android.support.v4.app.Fragment {
 
         if (savedInstanceState != null) {
             sLastComicNumber = savedInstanceState.getInt("Last Comic");
+            savedInstance=true;
         } else if (sLastComicNumber==0) {
             sLastComicNumber = mSharedPreferences.getInt("Last Comic", 0);
         }
@@ -111,6 +114,7 @@ public class OfflineFragment extends android.support.v4.app.Fragment {
         tvAlt.setVisibility(View.GONE);
         //Update the pager
         new updateImages().execute();
+
 
         return v;
     }
@@ -269,7 +273,7 @@ public class OfflineFragment extends android.support.v4.app.Fragment {
 
         @Override
         public Object instantiateItem(ViewGroup container, final int position) {
-            View itemView = mLayoutInflater.inflate(R.layout.pager_item, container, false);
+            final View itemView = mLayoutInflater.inflate(R.layout.pager_item, container, false);
             final PhotoView pvComic = (PhotoView) itemView.findViewById(R.id.ivComic);
             itemView.setTag(position);
 
@@ -332,7 +336,7 @@ public class OfflineFragment extends android.support.v4.app.Fragment {
             pvComic.setOnMatrixChangeListener(new PhotoViewAttacher.OnMatrixChangedListener() {
                 @Override
                 public void onMatrixChanged(RectF rectF) {
-                    if (pvComic.getScale() > 1.5) {
+                    if (pvComic.getScale() > 1.4) {
                         sPager.setLocked(true);
                     } else {
                         sPager.setLocked(false);
@@ -606,14 +610,17 @@ public class OfflineFragment extends android.support.v4.app.Fragment {
         private ProgressDialog progress;
         @Override
         protected void onPreExecute() {
-            progress = new ProgressDialog(getActivity());
-            progress.setTitle(getResources().getString(R.string.loading_comics));
-            progress.setCancelable(false);
-            progress.show();
+            if (!savedInstance) {
+                progress = new ProgressDialog(getActivity());
+                progress.setTitle(getResources().getString(R.string.loading_comics));
+                progress.setCancelable(false);
+                progress.show();
+                savedInstance=false;
+            }
         }
         @Override
         protected Void doInBackground(Void... pos) {
-            if (isOnline()) {
+            if (isOnline()&&!savedInstance) {
                 try {
                     sNewestComicNumber = new Comic(0).getComicNumber();
                     if (sNewestComicNumber > mSharedPreferences.getInt("highest_offline", sNewestComicNumber)) {
@@ -650,7 +657,9 @@ public class OfflineFragment extends android.support.v4.app.Fragment {
 
         @Override
         protected void onPostExecute(Void v) {
-            progress.dismiss();
+            if (!savedInstance) {
+                progress.dismiss();
+            }
             new pagerUpdate().execute(sLastComicNumber);
         }
     }
