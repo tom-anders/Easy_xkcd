@@ -448,7 +448,11 @@ public class OfflineFragment extends android.support.v4.app.Fragment {
         Intent share = new Intent(android.content.Intent.ACTION_SEND);
         share.setType("text/plain");
         share.putExtra(Intent.EXTRA_SUBJECT, sLoadedComic.getComicData()[0]);
-        share.putExtra(Intent.EXTRA_TEXT, "http://xkcd.com/" + String.valueOf(sLoadedComic.getComicNumber()));
+        if (PreferenceManager.getDefaultSharedPreferences(getActivity()).getBoolean("pref_mobile",false)) {
+            share.putExtra(Intent.EXTRA_TEXT, "http://m.xkcd.com/" + String.valueOf(sLoadedComic.getComicNumber()));
+        } else {
+            share.putExtra(Intent.EXTRA_TEXT, "http://xkcd.com/" + String.valueOf(sLoadedComic.getComicNumber()));
+        }
         startActivity(Intent.createChooser(share, this.getResources().getString(R.string.share_url)));
     }
 

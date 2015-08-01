@@ -151,6 +151,8 @@
     <string name="loading_offline_message">Do not close the app!</string>
     <string name="pref_offline">Offline mode (beta)</string>
     <string name="pref_offline_sum">Download all comics to internal storage. New comics will be added automatically</string>
+    <string name="pref_mobile">Share mobile links</string>
+    <string name="pref_mobile_sum">Share m.xkcd.com links instead of xkcd.com</string>
 
 
 </resources>

@@ -410,8 +410,11 @@ public class FavoritesFragment extends android.support.v4.app.Fragment {
         share.setType("text/plain");
 
         share.putExtra(Intent.EXTRA_SUBJECT, mSharedPreferences.getString(("title" + String.valueOf(sFavorites[sFavoriteIndex])), ""));
-        share.putExtra(Intent.EXTRA_TEXT, "http://xkcd.com/" + String.valueOf(mSharedPreferences.getString(("title" + String.valueOf(sFavorites[sFavoriteIndex])), "")));
-
+        if (PreferenceManager.getDefaultSharedPreferences(getActivity()).getBoolean("pref_mobile",false)) {
+            share.putExtra(Intent.EXTRA_TEXT, "http://m.xkcd.com/" + String.valueOf(sFavorites[sFavoriteIndex]));
+        } else {
+            share.putExtra(Intent.EXTRA_TEXT, "http://xkcd.com/" + String.valueOf(sFavorites[sFavoriteIndex]));
+        }
         startActivity(Intent.createChooser(share, this.getResources().getString(R.string.share_url)));
     }
 
