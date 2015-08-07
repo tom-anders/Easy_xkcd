@@ -29,6 +29,7 @@ import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
+import android.os.Looper;
 import android.os.Vibrator;
 import android.preference.PreferenceManager;
 import android.provider.MediaStore;
@@ -37,6 +38,7 @@ import android.support.design.widget.Snackbar;
 import android.support.v4.view.PagerAdapter;
 import android.support.v4.view.ViewPager;
 import android.support.v7.app.ActionBar;
+import android.util.Log;
 import android.util.SparseArray;
 import android.view.GestureDetector;
 import android.view.LayoutInflater;
@@ -47,6 +49,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
+import android.widget.ImageView;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -58,6 +61,7 @@ import java.io.FileOutputStream;
 import java.util.Arrays;
 import java.util.Random;
 
+import uk.co.senab.photoview.DefaultOnDoubleTapListener;
 import uk.co.senab.photoview.PhotoView;
 import uk.co.senab.photoview.PhotoViewAttacher;
 
@@ -136,7 +140,7 @@ public class FavoritesFragment extends android.support.v4.app.Fragment {
     private class FavoritesPagerAdapter extends PagerAdapter {
         Context mContext;
         LayoutInflater mLayoutInflater;
-        Boolean doubleTap = false;
+        Boolean fingerLifted = true;
 
         public FavoritesPagerAdapter(Context context) {
             mContext = context;
@@ -171,30 +175,32 @@ public class FavoritesFragment extends android.support.v4.app.Fragment {
                     } else {
                         pvComic.setScale(1.0f, true);
                     }
-                    doubleTap = true;
-                    new Handler().postDelayed(new Runnable() {
-                        @Override
-                        public void run() {
-                            doubleTap = false;
-                        }
-                    }, 500);
                     return true;
                 }
+
                 @Override
                 public boolean onSingleTapConfirmed(MotionEvent e) {
                     return false;
                 }
+
                 @Override
                 public boolean onDoubleTapEvent(MotionEvent e) {
+                    if (e.getAction()==MotionEvent.ACTION_UP) {
+                        fingerLifted = true;
+                    }
+                    if (e.getAction() == MotionEvent.ACTION_DOWN) {
+                        fingerLifted = false;
+                    }
                     return false;
                 }
             });
+
 
             //Setup alt text and LongClickListener
             pvComic.setOnLongClickListener(new View.OnLongClickListener() {
                 @Override
                 public boolean onLongClick(View v) {
-                    if(!doubleTap) {
+                    if (fingerLifted) {
                         if (PreferenceManager.getDefaultSharedPreferences(getActivity()).getBoolean("pref_alt", true)) {
                             Vibrator vi = (Vibrator) getActivity().getSystemService(MainActivity.VIBRATOR_SERVICE);
                             vi.vibrate(10);

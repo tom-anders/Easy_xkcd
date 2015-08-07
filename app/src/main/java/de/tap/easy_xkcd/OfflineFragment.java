@@ -254,7 +254,7 @@ public class OfflineFragment extends android.support.v4.app.Fragment {
     private class OfflineBrowserPagerAdapter extends PagerAdapter {
         Context mContext;
         LayoutInflater mLayoutInflater;
-        Boolean doubleTap = false;
+        Boolean fingerLifted = true;
 
         public OfflineBrowserPagerAdapter(Context context) {
             mContext = context;
@@ -288,13 +288,6 @@ public class OfflineFragment extends android.support.v4.app.Fragment {
                     } else {
                         pvComic.setScale(1.0f, true);
                     }
-                    doubleTap = true;
-                    new Handler().postDelayed(new Runnable() {
-                        @Override
-                        public void run() {
-                            doubleTap = false;
-                        }
-                    }, 500);
                     return true;
                 }
 
@@ -305,6 +298,12 @@ public class OfflineFragment extends android.support.v4.app.Fragment {
 
                 @Override
                 public boolean onDoubleTapEvent(MotionEvent e) {
+                    if (e.getAction()==MotionEvent.ACTION_UP) {
+                        fingerLifted = true;
+                    }
+                    if (e.getAction() == MotionEvent.ACTION_DOWN) {
+                        fingerLifted = false;
+                    }
                     return false;
                 }
             });
@@ -313,7 +312,7 @@ public class OfflineFragment extends android.support.v4.app.Fragment {
             pvComic.setOnLongClickListener(new View.OnLongClickListener() {
                 @Override
                 public boolean onLongClick(View v) {
-                    if (!doubleTap) {
+                    if (fingerLifted) {
                         if (PreferenceManager.getDefaultSharedPreferences(getActivity()).getBoolean("pref_alt", true)) {
                             Vibrator vi = (Vibrator) getActivity().getSystemService(MainActivity.VIBRATOR_SERVICE);
                             vi.vibrate(10);
