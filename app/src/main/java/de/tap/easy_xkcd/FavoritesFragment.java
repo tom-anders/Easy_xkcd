@@ -1,18 +1,20 @@
-/**********************************************************************************
+/**
+ * *******************************************************************************
  * Copyright 2015 Tom Praschan
- *
+ * <p/>
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- *
+ * <p/>
  * http://www.apache.org/licenses/LICENSE-2.0
- *
+ * <p/>
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- ********************************************************************************/
+ * ******************************************************************************
+ */
 
 package de.tap.easy_xkcd;
 
@@ -35,6 +37,7 @@ import android.preference.PreferenceManager;
 import android.provider.MediaStore;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
+import android.support.v4.content.FileProvider;
 import android.support.v4.view.PagerAdapter;
 import android.support.v4.view.ViewPager;
 import android.support.v7.app.ActionBar;
@@ -56,8 +59,11 @@ import android.widget.Toast;
 
 import com.tap.xkcd_reader.R;
 
+import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
+import java.io.IOException;
 import java.util.Arrays;
 import java.util.Random;
 
@@ -90,7 +96,7 @@ public class FavoritesFragment extends android.support.v4.app.Fragment {
             MainActivity.sProgress.dismiss();
             MainActivity.sProgress = null;
         }
-        mActionBar =  ((MainActivity) getActivity()).getSupportActionBar();
+        mActionBar = ((MainActivity) getActivity()).getSupportActionBar();
         assert mActionBar != null;
 
         //Setup ViewPager, alt TextView
@@ -185,7 +191,7 @@ public class FavoritesFragment extends android.support.v4.app.Fragment {
 
                 @Override
                 public boolean onDoubleTapEvent(MotionEvent e) {
-                    if (e.getAction()==MotionEvent.ACTION_UP) {
+                    if (e.getAction() == MotionEvent.ACTION_UP) {
                         fingerLifted = true;
                     }
                     if (e.getAction() == MotionEvent.ACTION_DOWN) {
@@ -216,7 +222,7 @@ public class FavoritesFragment extends android.support.v4.app.Fragment {
             tvTitle.setText(mSharedPreferences.getString(("title" + String.valueOf(sFavorites[position])), ""));
             //load the image
             pvComic.setImageBitmap(mComicMap.get(position));
-            if (Arrays.binarySearch(mContext.getResources().getIntArray(R.array.large_comics), sFavorites[sFavoriteIndex])>=0) {
+            if (Arrays.binarySearch(mContext.getResources().getIntArray(R.array.large_comics), sFavorites[sFavoriteIndex]) >= 0) {
                 pvComic.setMaximumScale(7.0f);
             }
             //Disable ViewPager scrolling when the user zooms into an image
@@ -263,7 +269,7 @@ public class FavoritesFragment extends android.support.v4.app.Fragment {
         return super.onOptionsItemSelected(item);
     }
 
-    private boolean setAltText(){
+    private boolean setAltText() {
         //If the user selected the menu item for the first time, show the toast
         if (mSharedPreferences.getBoolean("alt_tip", true)) {
             Toast toast = Toast.makeText(getActivity(), R.string.action_alt_tip, Toast.LENGTH_LONG);
@@ -277,7 +283,7 @@ public class FavoritesFragment extends android.support.v4.app.Fragment {
         return true;
     }
 
-    private boolean deleteAllFavorites(){
+    private boolean deleteAllFavorites() {
         new android.support.v7.app.AlertDialog.Builder(getActivity())
                 .setMessage(R.string.delete_favorites_dialog)
                 .setPositiveButton(R.string.dialog_yes, new DialogInterface.OnClickListener() {
@@ -327,7 +333,7 @@ public class FavoritesFragment extends android.support.v4.app.Fragment {
         @Override
         protected void onPostExecute(Void v) {
             String[] fav = Favorites.getFavoriteList(getActivity());
-            if (fav.length==0) {
+            if (fav.length == 0) {
                 //If there are no favorites left, show ComicBrowserFragment
                 MenuItem mBrowser = MainActivity.sNavView.getMenu().findItem(R.id.nav_browser);
                 ((MainActivity) getActivity()).selectDrawerItem(mBrowser);
@@ -337,7 +343,7 @@ public class FavoritesFragment extends android.support.v4.app.Fragment {
         }
     }
 
-    private boolean modifyFavorites(){
+    private boolean modifyFavorites() {
         final int mRemoved = sFavorites[sFavoriteIndex];
         final Bitmap mRemovedBitmap = mComicMap.get(sFavoriteIndex);
         final String mAlt = mSharedPreferences.getString(("alt" + String.valueOf(sFavorites[sFavoriteIndex])), "");
@@ -375,7 +381,7 @@ public class FavoritesFragment extends android.support.v4.app.Fragment {
         return true;
     }
 
-    private boolean shareComic(){
+    private boolean shareComic() {
 
         if (PreferenceManager.getDefaultSharedPreferences(getActivity()).getBoolean("pref_share", false)) {
             shareComicImage();
@@ -401,13 +407,31 @@ public class FavoritesFragment extends android.support.v4.app.Fragment {
         return true;
     }
 
-    private void shareComicImage(){
+    private void shareComicImage() {
         Intent share = new Intent(Intent.ACTION_SEND);
         share.setType("image/*");
         Bitmap mBitmap = mComicMap.get(sFavoriteIndex);
-        String path = MediaStore.Images.Media.insertImage(getActivity().getContentResolver(),
-                mBitmap, "Image Description", null);
-        share.putExtra(Intent.EXTRA_STREAM, Uri.parse(path));
+        try {
+            String path = MediaStore.Images.Media.insertImage(getActivity().getContentResolver(),
+                    mBitmap, "Image Description", null);
+            share.putExtra(Intent.EXTRA_STREAM, Uri.parse(path));
+        } catch (Exception e) {
+            try {
+                File cachePath = new File(getActivity().getCacheDir(), "images");
+                cachePath.mkdirs(); // don't forget to make the directory
+                FileOutputStream stream = new FileOutputStream(cachePath + "/image.png");
+                mBitmap.compress(Bitmap.CompressFormat.PNG, 100, stream);
+                stream.close();
+
+                File imagePath = new File(getActivity().getCacheDir(), "images");
+                File newFile = new File(imagePath, "image.png");
+                Uri contentUri = FileProvider.getUriForFile(getActivity(), "com.tap.easy_xkcd.fileprovider", newFile);
+
+                share.putExtra(Intent.EXTRA_STREAM, contentUri);
+            } catch (IOException e2) {
+                e.printStackTrace();
+            }
+        }
         startActivity(Intent.createChooser(share, this.getResources().getString(R.string.share_image)));
     }
 
@@ -416,7 +440,7 @@ public class FavoritesFragment extends android.support.v4.app.Fragment {
         share.setType("text/plain");
 
         share.putExtra(Intent.EXTRA_SUBJECT, mSharedPreferences.getString(("title" + String.valueOf(sFavorites[sFavoriteIndex])), ""));
-        if (PreferenceManager.getDefaultSharedPreferences(getActivity()).getBoolean("pref_mobile",false)) {
+        if (PreferenceManager.getDefaultSharedPreferences(getActivity()).getBoolean("pref_mobile", false)) {
             share.putExtra(Intent.EXTRA_TEXT, "http://m.xkcd.com/" + String.valueOf(sFavorites[sFavoriteIndex]));
         } else {
             share.putExtra(Intent.EXTRA_TEXT, "http://xkcd.com/" + String.valueOf(sFavorites[sFavoriteIndex]));
@@ -476,7 +500,7 @@ public class FavoritesFragment extends android.support.v4.app.Fragment {
 
     public boolean getRandomComic() {
         //get a random number and update the pager
-        if (mFav.length>1) {
+        if (mFav.length > 1) {
             Random rand = new Random();
             Integer number = rand.nextInt(mFav.length);
             while (number.equals(sFavoriteIndex)) {
@@ -512,7 +536,7 @@ public class FavoritesFragment extends android.support.v4.app.Fragment {
 
     private void toggleVisibility(View view) {
         // Switches a view's visibility between GONE and VISIBLE
-        if (view.getVisibility()==View.GONE) {
+        if (view.getVisibility() == View.GONE) {
             view.setVisibility(View.VISIBLE);
         } else {
             view.setVisibility(View.GONE);
