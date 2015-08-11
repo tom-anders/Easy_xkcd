@@ -75,11 +75,26 @@
         <item>Share URL</item>
     </string-array>
 
+    <string-array
+        name="pref_orientation">
+        <item>Default</item>
+        <item>Portrait</item>
+        <item>Landscape</item>
+    </string-array>
+
+    <string-array
+        name="pref_orientation_entries">
+        <item>1</item>
+        <item>2</item>
+        <item>3</item>
+    </string-array>
+
     <integer-array
         name="interactive_comics">
         <item>826</item>
         <item>1110</item>
         <item>1264</item>
+        <item>1331</item>
         <item>1350</item>
         <item>1416</item>
         <item>1506</item>
@@ -153,4 +168,6 @@
     <string name="pref_offline_sum">Download all comics to internal storage. New comics will be added automatically</string>
     <string name="pref_mobile">Share mobile links</string>
     <string name="pref_mobile_sum">Share m.xkcd.com links instead of xkcd.com</string>
+    <string name="pref_orientation">Screen Orientation</string>
+    <string name="pref_orientation_sum">Default, Portrait, Landscape</string>
 </resources>
