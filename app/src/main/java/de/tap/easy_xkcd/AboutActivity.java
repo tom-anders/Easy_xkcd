@@ -25,6 +25,8 @@ public class AboutActivity extends ActionBarActivity {
             getWindow().setStatusBarColor(getResources().getColor(R.color.ColorPrimaryDark));
         }
 
+        //TODO Changelog
+
         HtmlTextView tvAbout = (HtmlTextView) findViewById(R.id.tvAbout);
         tvAbout.setHtmlFromRawResource(this, R.raw.licenses, new HtmlTextView.RemoteImageGetter());
 
