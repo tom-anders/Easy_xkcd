@@ -100,7 +100,7 @@ public class MainActivity extends AppCompatActivity {
         }
         if (("de.tap.easy_xkcd.ACTION_COMIC").equals(getIntent().getAction())) {
             int number = getIntent().getIntExtra("number", 0);
-            if (isOnline()&&!fullOffline) {
+            if (isOnline() && !fullOffline) {
                 ComicBrowserFragment.sLastComicNumber = number;
             } else {
                 OfflineFragment.sLastComicNumber = number;
@@ -305,7 +305,7 @@ public class MainActivity extends AppCompatActivity {
                         break;
                     }
                     case R.id.nav_browser: {
-                        if (isOnline()&&!fullOffline) {
+                        if (isOnline() && !fullOffline) {
                             getSupportActionBar().setSubtitle(String.valueOf(ComicBrowserFragment.sLastComicNumber));
                         } else {
                             getSupportActionBar().setSubtitle(String.valueOf(OfflineFragment.sLastComicNumber));
@@ -321,7 +321,7 @@ public class MainActivity extends AppCompatActivity {
                     fragmentManager.beginTransaction().add(R.id.flContent, new FavoritesFragment(), fragmentTagShow).commitAllowingStateLoss();
                     break;
                 case R.id.nav_browser:
-                    if (isOnline()&&!fullOffline) {
+                    if (isOnline() && !fullOffline) {
                         fragmentManager.beginTransaction().add(R.id.flContent, new ComicBrowserFragment(), fragmentTagShow).commitAllowingStateLoss();
                     } else {
                         fragmentManager.beginTransaction().add(R.id.flContent, new OfflineFragment(), fragmentTagShow).commitAllowingStateLoss();
@@ -578,12 +578,12 @@ public class MainActivity extends AppCompatActivity {
                 if (isOnline()) {
                     new downloadComicsTask().execute();
                 } else {
-                    Toast.makeText(this, R.string.no_connection,Toast.LENGTH_SHORT);
+                    Toast.makeText(this, R.string.no_connection, Toast.LENGTH_SHORT);
                     SharedPreferences pref = PreferenceManager.getDefaultSharedPreferences(MainActivity.this);
                     SharedPreferences.Editor ed = pref.edit();
                     ed.putBoolean("pref_offline", false);
                     ed.commit();
-                    fullOffline=false;
+                    fullOffline = false;
                 }
             }
             if (fullOffline && !PreferenceManager.getDefaultSharedPreferences(this).getBoolean("pref_offline", false)) {
@@ -629,7 +629,7 @@ public class MainActivity extends AppCompatActivity {
             SharedPreferences preferences = getPreferences(Activity.MODE_PRIVATE);
             SharedPreferences.Editor mEditor = preferences.edit();
             for (int i = 1; i <= ComicBrowserFragment.sNewestComicNumber; i++) {
-            //for (int i = 1; i <= 20; i++) {
+                //for (int i = 1; i <= 20; i++) {
                 try {
                     Comic comic = new Comic(i, MainActivity.this);
                     String url = comic.getComicData()[2];
@@ -713,8 +713,8 @@ public class MainActivity extends AppCompatActivity {
         protected Void doInBackground(Void... params) {
             SharedPreferences preferences = getPreferences(Activity.MODE_PRIVATE);
             SharedPreferences.Editor mEditor = preferences.edit();
-            int newest = preferences.getInt("Newest Comic",0);
-            for (int i = 1; i <=newest; i++) {
+            int newest = preferences.getInt("Newest Comic", 0);
+            for (int i = 1; i <= newest; i++) {
                 if (!Favorites.checkFavorite(MainActivity.this, i)) {
                     deleteFile(String.valueOf(i));
 
@@ -728,7 +728,7 @@ public class MainActivity extends AppCompatActivity {
             }
 
             fullOffline = false;
-            mEditor.putInt("highest_offline",0);
+            mEditor.putInt("highest_offline", 0);
             mEditor.apply();
 
             return null;

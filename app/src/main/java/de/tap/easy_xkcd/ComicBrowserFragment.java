@@ -25,6 +25,7 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.content.pm.ActivityInfo;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.RectF;
@@ -86,12 +87,14 @@ public class ComicBrowserFragment extends android.support.v4.app.Fragment {
     private SharedPreferences mSharedPreferences;
     private ActionBar mActionBar;
     private int pagerState;
+    private Boolean savedInstance;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View v = inflater.inflate(R.layout.pager_layout, container, false);
         setHasOptionsMenu(true);
         mSharedPreferences = getActivity().getPreferences(Activity.MODE_PRIVATE);
+        savedInstance = (savedInstanceState != null);
 
         if (savedInstanceState != null) {
             sLastComicNumber = savedInstanceState.getInt("Last Comic");
@@ -160,7 +163,7 @@ public class ComicBrowserFragment extends android.support.v4.app.Fragment {
 
             @Override
             public void onPageScrollStateChanged(int state) {
-                pagerState=state;
+                pagerState = state;
             }
 
             @Override
@@ -195,7 +198,7 @@ public class ComicBrowserFragment extends android.support.v4.app.Fragment {
             } catch (IOException e) {
                 e.printStackTrace();
             }
-            if (sLastComicNumber!=1&&sLastComicNumber!=2&&sLastComicNumber!=sNewestComicNumber&&sLastComicNumber!=sNewestComicNumber-1) {
+            if (sLastComicNumber != 1 && sLastComicNumber != 2 && sLastComicNumber != sNewestComicNumber && sLastComicNumber != sNewestComicNumber - 1) {
                 while (pagerState == ViewPager.SCROLL_STATE_SETTLING) {
                     //wait for view pager to finish animation
                 }
@@ -305,6 +308,17 @@ public class ComicBrowserFragment extends android.support.v4.app.Fragment {
                                 MainActivity.sProgress.dismiss();
                             }
                             pvComic.setImageBitmap(resource);
+                            if (position == sPagerAdapter.getCount()-1) {
+                                String orientation = PreferenceManager.getDefaultSharedPreferences(getActivity()).getString("pref_orientation", "1");
+                                switch (Integer.parseInt(orientation)) {
+                                    case 1: getActivity().setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_USER);
+                                        break;
+                                    case 2: getActivity().setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
+                                        break;
+                                    case 3: getActivity().setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE);
+                                        break;
+                                }
+                            }
                         }
                     });
             if (Arrays.binarySearch(mContext.getResources().getIntArray(R.array.large_comics), sLastComicNumber) >= 0) {
@@ -469,7 +483,7 @@ public class ComicBrowserFragment extends android.support.v4.app.Fragment {
         Intent share = new Intent(android.content.Intent.ACTION_SEND);
         share.setType("text/plain");
         share.putExtra(Intent.EXTRA_SUBJECT, sLoadedComic.getComicData()[0]);
-        if (PreferenceManager.getDefaultSharedPreferences(getActivity()).getBoolean("pref_mobile",false)) {
+        if (PreferenceManager.getDefaultSharedPreferences(getActivity()).getBoolean("pref_mobile", false)) {
             share.putExtra(Intent.EXTRA_TEXT, "http://m.xkcd.com/" + String.valueOf(sLoadedComic.getComicNumber()));
         } else {
             share.putExtra(Intent.EXTRA_TEXT, "http://xkcd.com/" + String.valueOf(sLoadedComic.getComicNumber()));
@@ -667,6 +681,7 @@ public class ComicBrowserFragment extends android.support.v4.app.Fragment {
         } else {
             menu.findItem(R.id.action_random).setVisible(false);
         }
+
         super.onPrepareOptionsMenu(menu);
     }
 
@@ -690,6 +705,7 @@ public class ComicBrowserFragment extends android.support.v4.app.Fragment {
                 (ConnectivityManager) getActivity().getSystemService(Context.CONNECTIVITY_SERVICE);
         NetworkInfo netInfo = cm.getActiveNetworkInfo();
         return netInfo != null && netInfo.isConnectedOrConnecting();
+
     }
 
     private void toggleVisibility(View view) {

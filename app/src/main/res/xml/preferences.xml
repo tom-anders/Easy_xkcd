@@ -19,6 +19,15 @@
             android:summary=""
             android:title="@string/pref_random_comics" />
 
+        <ListPreference
+            android:key="pref_orientation"
+            android:title="@string/pref_orientation"
+            android:entries="@array/pref_orientation"
+            android:entryValues="@array/pref_orientation_entries"
+            android:defaultValue="1"
+            android:summary="@string/pref_orientation_sum"
+            />
+
     </PreferenceCategory>
 
     <PreferenceCategory

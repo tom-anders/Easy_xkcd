@@ -24,6 +24,7 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.content.pm.ActivityInfo;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.RectF;
@@ -236,6 +237,18 @@ public class FavoritesFragment extends android.support.v4.app.Fragment {
                     }
                 }
             });
+
+            if (position == mPagerAdapter.getCount()-1) {
+                String orientation = PreferenceManager.getDefaultSharedPreferences(getActivity()).getString("pref_orientation", "1");
+                switch (Integer.parseInt(orientation)) {
+                    case 1: getActivity().setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_USER);
+                        break;
+                    case 2: getActivity().setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
+                        break;
+                    case 3: getActivity().setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE);
+                        break;
+                }
+            }
 
             container.addView(itemView);
             return itemView;
