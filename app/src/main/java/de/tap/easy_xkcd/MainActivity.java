@@ -63,6 +63,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.security.Permission;
 
 
 public class MainActivity extends AppCompatActivity {
@@ -84,14 +85,20 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        fullOffline = PreferenceManager.getDefaultSharedPreferences(this).getBoolean("pref_offline", false);
+        PrefHelper.getPrefs(this);
+
+        //fullOffline = PreferenceManager.getDefaultSharedPreferences(this).getBoolean("pref_offline", false);
+        fullOffline = PrefHelper.fullOfflineEnabled();
         if ((isOnline()) && savedInstanceState == null) {
             new updateComicTitles().execute();
             new updateComicTranscripts().execute();
         } else {
-            SharedPreferences preferences = getPreferences(Activity.MODE_PRIVATE);
+            /*SharedPreferences preferences = getPreferences(Activity.MODE_PRIVATE);
             sComicTitles = preferences.getString("comic_titles", "");
-            sComicTrans = preferences.getString("comic_trans", "");
+            sComicTrans = preferences.getString("comic_trans", "");*/
+
+            sComicTitles = PrefHelper.getComicTitles();
+            sComicTrans = PrefHelper.getComicTrans();
         }
 
         if (getIntent().getAction().equals(Intent.ACTION_VIEW)) {
@@ -282,7 +289,7 @@ public class MainActivity extends AppCompatActivity {
         int margin = (int) (dpMargin * d);
 
         //Setup FAB
-        if (PreferenceManager.getDefaultSharedPreferences(this).getBoolean(prefTag, false)) {
+        if (PrefHelper.fabEnabled(prefTag)) {
             params.setMargins(margin, margin, margin, margin);
             mFab.setVisibility(View.GONE);
         } else {
@@ -297,7 +304,7 @@ public class MainActivity extends AppCompatActivity {
             //if the fragment exists, show it.
             fragmentManager.beginTransaction().show(fragmentManager.findFragmentByTag(fragmentTagShow)).commitAllowingStateLoss();
             //Update action bar
-            if (PreferenceManager.getDefaultSharedPreferences(this).getBoolean("pref_subtitle", true)) {
+            if (PrefHelper.subtitleEnabled()) {
                 switch (itemId) {
                     //Update Action Bar title
                     case R.id.nav_favorites: {
@@ -333,14 +340,17 @@ public class MainActivity extends AppCompatActivity {
         if (fragmentManager.findFragmentByTag(fragmentTagHide) != null) {
             fragmentManager.beginTransaction().hide(fragmentManager.findFragmentByTag(fragmentTagHide)).commitAllowingStateLoss();
         }
+        if (!PrefHelper.subtitleEnabled()) {
+            getSupportActionBar().setSubtitle("");
+        }
+
+        //TODO animation
     }
 
     private class updateComicTitles extends AsyncTask<Void, Void, Void> {
         @Override
         protected Void doInBackground(Void... params) {
-            SharedPreferences preferences = getPreferences(Activity.MODE_PRIVATE);
-            SharedPreferences.Editor editor = preferences.edit();
-            if (!preferences.getBoolean("titles_loaded", false)) {
+            if (!PrefHelper.titlesLoaded()) {
                 InputStream is = getResources().openRawResource(R.raw.comic_titles);
                 BufferedReader br = new BufferedReader(new InputStreamReader(is));
                 StringBuilder sb = new StringBuilder();
@@ -352,57 +362,34 @@ public class MainActivity extends AppCompatActivity {
                 } catch (IOException e) {
                     Log.e("error:", e.getMessage());
                 }
-                editor.putBoolean("titles_loaded", true);
-                editor.putString("comic_titles", sb.toString());
-                editor.putInt("highest_comic_title", 1551);
-                editor.commit();
+                PrefHelper.setTitles(sb.toString(), true, 1551);
                 Log.d("...", "comic titles updated first time");
             }
-            try {
-                int newest = new Comic(0, getApplicationContext()).getComicNumber();
-                StringBuilder sb = new StringBuilder();
-                sb.append(preferences.getString("comic_titles", ""));
-                int n = preferences.getInt("highest_comic_title", 0);
-                while (n < newest) {
-                    String s = new Comic(n + 1, getApplicationContext()).getComicData()[0];
-                    sb.append("&&");
-                    sb.append(s);
-                    editor.putInt("highest_comic_title", n + 1);
-                    n++;
-                    Log.d("n", String.valueOf(n));
-                }
-                editor.putString("comic_titles", sb.toString());
-            } catch (IOException e) {
-                e.printStackTrace();
-                editor.putBoolean("titles_loaded", false);
-            }
-            editor.commit();
+            PrefHelper.setHighestTitle(getApplicationContext());
             return null;
         }
 
         @Override
         protected void onPostExecute(Void dummy) {
-            SharedPreferences preferences = getPreferences(Activity.MODE_PRIVATE);
-            Log.d("highest", String.valueOf(preferences.getInt("highest_comic_title", 0)));
-            sComicTitles = preferences.getString("comic_titles", "");
+            //SharedPreferences preferences = getPreferences(Activity.MODE_PRIVATE);
+            sComicTitles = PrefHelper.getComicTitles();
         }
 
         @Override
         protected void onCancelled() {
-            SharedPreferences preferences = getPreferences(Activity.MODE_PRIVATE);
+            /*SharedPreferences preferences = getPreferences(Activity.MODE_PRIVATE);
             SharedPreferences.Editor editor = preferences.edit();
             editor.putString("comic_titles", "");
             editor.putBoolean("titles_loaded", false);
-            editor.commit();
+            editor.commit();*/
+            PrefHelper.setTitles("", false, 0);
         }
     }
 
     private class updateComicTranscripts extends AsyncTask<Void, Void, Void> {
         @Override
         protected Void doInBackground(Void... params) {
-            SharedPreferences preferences = getPreferences(Activity.MODE_PRIVATE);
-            SharedPreferences.Editor editor = preferences.edit();
-            if (!preferences.getBoolean("trans_loaded", false)) {
+            if (!PrefHelper.transLoaded()) {
                 InputStream is = getResources().openRawResource(R.raw.comic_trans);
                 BufferedReader br = new BufferedReader(new InputStreamReader(is));
                 StringBuilder sb = new StringBuilder();
@@ -414,52 +401,28 @@ public class MainActivity extends AppCompatActivity {
                 } catch (IOException e) {
                     Log.e("error:", e.getMessage());
                 }
-                editor.putBoolean("trans_loaded", true);
-                editor.putString("comic_trans", sb.toString());
-                editor.putInt("highest_comic_trans", 1551);
-                editor.commit();
+                PrefHelper.setTrans(sb.toString(), true, 1551);
                 Log.d("...", "comic trans updated first time");
             }
-            try {
-                int newest = new Comic(0, getApplicationContext()).getComicNumber();
-                StringBuilder sb = new StringBuilder();
-                sb.append(preferences.getString("comic_trans", ""));
-                int n = preferences.getInt("highest_comic_trans", 0);
-                while (n < newest) {
-                    String s = new Comic(n + 1).getTranscript();
-                    sb.append("&&");
-                    if (!s.equals("")) {
-                        sb.append(s);
-                    } else {
-                        sb.append("N.A.");
-                    }
-                    editor.putInt("highest_comic_trans", n + 1);
-                    n++;
-                }
-                editor.putString("comic_trans", sb.toString());
-            } catch (IOException e) {
-                e.printStackTrace();
-                editor.putBoolean("trans_loaded", false);
-            }
-            editor.commit();
+            PrefHelper.setHighestTrans(getApplicationContext());
             return null;
         }
 
         @Override
         protected void onPostExecute(Void dummy) {
-            SharedPreferences preferences = getPreferences(Activity.MODE_PRIVATE);
             Log.d("done", "Comic trans updated");
-            Log.d("highest", String.valueOf(preferences.getInt("highest_comic_trans", 0)));
-            sComicTrans = preferences.getString("comic_trans", "");
+            //sComicTrans = preferences.getString("comic_trans", "");
+            sComicTrans = PrefHelper.getComicTrans();
         }
 
         @Override
         protected void onCancelled() {
-            SharedPreferences preferences = getPreferences(Activity.MODE_PRIVATE);
+            /*SharedPreferences preferences = getPreferences(Activity.MODE_PRIVATE);
             SharedPreferences.Editor editor = preferences.edit();
             editor.putString("comic_trans", "");
             editor.putBoolean("titles_trans", false);
-            editor.commit();
+            editor.commit();*/
+            PrefHelper.setTrans("", false, 0);
         }
     }
 
@@ -564,38 +527,35 @@ public class MainActivity extends AppCompatActivity {
         if (settingsOpened) {
             settingsOpened = false;
             assert getSupportActionBar() != null;
-            //Check if ActionBar subtitle should be displayed
-            if (!PreferenceManager.getDefaultSharedPreferences(this).getBoolean("pref_subtitle", true)) {
-                getSupportActionBar().setSubtitle(null);
-            }
             //Reselect the current fragment in order to update action bar and floating action button
             if (isOnline()) {
                 MenuItem m = sNavView.getMenu().findItem(sCurrentFragment);
                 selectDrawerItem(m);
             }
 
-            if (!fullOffline && PreferenceManager.getDefaultSharedPreferences(this).getBoolean("pref_offline", false)) {
+            if (!fullOffline && PrefHelper.fullOfflineEnabled()) {
                 if (isOnline()) {
                     new downloadComicsTask().execute();
                 } else {
-                    Toast.makeText(this, R.string.no_connection, Toast.LENGTH_SHORT);
-                    SharedPreferences pref = PreferenceManager.getDefaultSharedPreferences(MainActivity.this);
+                    Toast.makeText(this, R.string.no_connection, Toast.LENGTH_SHORT).show();
+                    /*SharedPreferences pref = PreferenceManager.getDefaultSharedPreferences(MainActivity.this);
                     SharedPreferences.Editor ed = pref.edit();
                     ed.putBoolean("pref_offline", false);
-                    ed.commit();
+                    ed.commit();*/
+                    PrefHelper.setFullOffline(false);
                     fullOffline = false;
                 }
             }
-            if (fullOffline && !PreferenceManager.getDefaultSharedPreferences(this).getBoolean("pref_offline", false)) {
+            if (fullOffline && !PrefHelper.fullOfflineEnabled()) {
                 android.support.v7.app.AlertDialog.Builder mDialog = new android.support.v7.app.AlertDialog.Builder(this);
                 mDialog.setMessage(R.string.delete_offline_dialog)
                         .setNegativeButton(R.string.dialog_cancel, new DialogInterface.OnClickListener() {
                             public void onClick(DialogInterface dialog, int which) {
-                                SharedPreferences pref = PreferenceManager.getDefaultSharedPreferences(MainActivity.this);
+                                /*SharedPreferences pref = PreferenceManager.getDefaultSharedPreferences(MainActivity.this);
                                 SharedPreferences.Editor ed = pref.edit();
                                 ed.putBoolean("pref_offline", true);
-                                ed.commit();
-
+                                ed.commit();*/
+                                PrefHelper.setFullOffline(true);
                             }
                         })
                         .setPositiveButton(R.string.dialog_yes, new DialogInterface.OnClickListener() {
@@ -626,10 +586,7 @@ public class MainActivity extends AppCompatActivity {
 
         @Override
         protected Void doInBackground(Void... params) {
-            SharedPreferences preferences = getPreferences(Activity.MODE_PRIVATE);
-            SharedPreferences.Editor mEditor = preferences.edit();
             for (int i = 1; i <= ComicBrowserFragment.sNewestComicNumber; i++) {
-                //for (int i = 1; i <= 20; i++) {
                 try {
                     Comic comic = new Comic(i, MainActivity.this);
                     String url = comic.getComicData()[2];
@@ -642,17 +599,20 @@ public class MainActivity extends AppCompatActivity {
                     mBitmap.compress(Bitmap.CompressFormat.PNG, 100, fos);
                     fos.close();
 
-                    mEditor.putString(("title" + String.valueOf(i)), comic.getComicData()[0]);
+                    /*mEditor.putString(("title" + String.valueOf(i)), comic.getComicData()[0]);
                     mEditor.putString(("alt" + String.valueOf(i)), comic.getComicData()[1]);
-                    mEditor.apply();
+                    mEditor.apply();*/
+                    PrefHelper.addTitle(comic.getComicData()[0], i);
+                    PrefHelper.addAlt(comic.getComicData()[1], i);
                     int p = (int) (i / ((float) ComicBrowserFragment.sNewestComicNumber) * 100);
                     publishProgress(p);
                 } catch (Exception e) {
                     e.printStackTrace();
                 }
             }
-            mEditor.putInt("highest_offline", ComicBrowserFragment.sNewestComicNumber);
-            mEditor.apply();
+            /*mEditor.putInt("highest_offline", ComicBrowserFragment.sNewestComicNumber);
+            mEditor.apply();*/
+            PrefHelper.setHighestOffline(ComicBrowserFragment.sNewestComicNumber);
             return null;
         }
 
@@ -713,23 +673,26 @@ public class MainActivity extends AppCompatActivity {
         protected Void doInBackground(Void... params) {
             SharedPreferences preferences = getPreferences(Activity.MODE_PRIVATE);
             SharedPreferences.Editor mEditor = preferences.edit();
-            int newest = preferences.getInt("Newest Comic", 0);
+            //int newest = preferences.getInt("Newest Comic", 0);
+            int newest = PrefHelper.getNewest();
             for (int i = 1; i <= newest; i++) {
                 if (!Favorites.checkFavorite(MainActivity.this, i)) {
                     deleteFile(String.valueOf(i));
 
-                    mEditor.putString("title" + String.valueOf(i), null);
+                    /*mEditor.putString("title" + String.valueOf(i), null);
                     mEditor.putString("alt" + String.valueOf(i), null);
-                    mEditor.apply();
+                    mEditor.apply();*/
 
                     int p = (int) (i / ((float) newest) * 100);
                     publishProgress(p);
                 }
             }
+            PrefHelper.deleteTitleAndAlt(newest, MainActivity.this);
 
             fullOffline = false;
-            mEditor.putInt("highest_offline", 0);
-            mEditor.apply();
+            /*mEditor.putInt("highest_offline", 0);
+            mEditor.apply();*/
+            PrefHelper.setHighestOffline(0);
 
             return null;
         }

@@ -52,8 +52,6 @@ import android.view.MenuItem;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.animation.Animation;
-import android.view.animation.AnimationUtils;
 import android.widget.ImageView;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
@@ -84,23 +82,21 @@ public class ComicBrowserFragment extends android.support.v4.app.Fragment {
     private HackyViewPager sPager;
     private ComicBrowserPagerAdapter sPagerAdapter;
     private TextView tvAlt;
-    private SharedPreferences mSharedPreferences;
+    //private SharedPreferences mSharedPreferences;
     private ActionBar mActionBar;
     private int pagerState;
-    private Boolean savedInstance;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View v = inflater.inflate(R.layout.pager_layout, container, false);
         setHasOptionsMenu(true);
-        mSharedPreferences = getActivity().getPreferences(Activity.MODE_PRIVATE);
-        savedInstance = (savedInstanceState != null);
+        //mSharedPreferences = getActivity().getPreferences(Activity.MODE_PRIVATE);
 
         if (savedInstanceState != null) {
             sLastComicNumber = savedInstanceState.getInt("Last Comic");
         } else if (sLastComicNumber == 0) {
-            sLastComicNumber = mSharedPreferences.getInt("Last Comic", 0);
-            Log.d("last", String.valueOf(sLastComicNumber));
+            //sLastComicNumber = mSharedPreferences.getInt("Last Comic", 0);
+            sLastComicNumber = PrefHelper.getLastComic();
         }
 
         mActionBar = ((MainActivity) getActivity()).getSupportActionBar();
@@ -156,7 +152,7 @@ public class ComicBrowserFragment extends android.support.v4.app.Fragment {
                     }
                 }
                 //Update ActionBar Subtitle
-                if (PreferenceManager.getDefaultSharedPreferences(getActivity()).getBoolean("pref_subtitle", true)) {
+                if (PrefHelper.subtitleEnabled()) {
                     mActionBar.setSubtitle(String.valueOf(sLastComicNumber));
                 }
             }
@@ -175,23 +171,22 @@ public class ComicBrowserFragment extends android.support.v4.app.Fragment {
     public class pagerUpdate extends AsyncTask<Integer, Void, Void> {
         @Override
         protected Void doInBackground(Integer... pos) {
-            SharedPreferences.Editor editor = mSharedPreferences.edit();
-            editor.putInt("Last Comic", sLastComicNumber);
+            PrefHelper.setLastComic(sLastComicNumber);
             //Get the most recent comic if the app is started for the first time
             if (sNewestComicNumber == 0) {
                 try {
                     JSONObject json = JsonParser.getJSONFromUrl("http://xkcd.com/info.0.json");
                     sNewestComicNumber = Integer.parseInt(json.getString("num"));
                     if (sLastComicNumber == 0) {
-                        sLastComicNumber = sNewestComicNumber; //
-                        pos[0] = sNewestComicNumber; //
+                        sLastComicNumber = sNewestComicNumber;
+                        pos[0] = sNewestComicNumber;
                     }
                 } catch (Exception e) {
                     e.printStackTrace();
                 }
             }
-            editor.putInt("Newest Comic", sNewestComicNumber);
-            editor.commit();
+            PrefHelper.setNewestComic(sNewestComicNumber);
+
             //Update comic array
             try {
                 sComics = GetComic(pos[0]);
@@ -283,7 +278,7 @@ public class ComicBrowserFragment extends android.support.v4.app.Fragment {
                 @Override
                 public boolean onLongClick(View v) {
                     if (fingerLifted) {
-                        if (PreferenceManager.getDefaultSharedPreferences(getActivity()).getBoolean("pref_alt", true)) {
+                        if (PrefHelper.altVibration()) {
                             Vibrator vi = (Vibrator) getActivity().getSystemService(MainActivity.VIBRATOR_SERVICE);
                             vi.vibrate(10);
                         }
@@ -309,8 +304,7 @@ public class ComicBrowserFragment extends android.support.v4.app.Fragment {
                             }
                             pvComic.setImageBitmap(resource);
                             if (position == sPagerAdapter.getCount()-1) {
-                                String orientation = PreferenceManager.getDefaultSharedPreferences(getActivity()).getString("pref_orientation", "1");
-                                switch (Integer.parseInt(orientation)) {
+                                switch (Integer.parseInt(PrefHelper.getOrientation())) {
                                     case 1: getActivity().setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_USER);
                                         break;
                                     case 2: getActivity().setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
@@ -439,12 +433,10 @@ public class ComicBrowserFragment extends android.support.v4.app.Fragment {
 
     private boolean setAltText() {
         //If the user selected the menu item for the first time, show the toast
-        if (mSharedPreferences.getBoolean("alt_tip", true)) {
+        if (PrefHelper.showAltTip()) {
             Toast toast = Toast.makeText(getActivity(), R.string.action_alt_tip, Toast.LENGTH_LONG);
             toast.show();
-            SharedPreferences.Editor mEditor = mSharedPreferences.edit();
-            mEditor.putBoolean("alt_tip", false);
-            mEditor.apply();
+            PrefHelper.setAltTip(false);
         }
         //Show alt text
         tvAlt.setText(sComicMap.get(sLastComicNumber).getComicData()[1]);
@@ -453,7 +445,7 @@ public class ComicBrowserFragment extends android.support.v4.app.Fragment {
     }
 
     private boolean shareComic() {
-        if (PreferenceManager.getDefaultSharedPreferences(getActivity()).getBoolean("pref_share", false)) {
+        if (PrefHelper.shareImage()) {
             shareComicImage();
             return true;
         }
@@ -483,7 +475,7 @@ public class ComicBrowserFragment extends android.support.v4.app.Fragment {
         Intent share = new Intent(android.content.Intent.ACTION_SEND);
         share.setType("text/plain");
         share.putExtra(Intent.EXTRA_SUBJECT, sLoadedComic.getComicData()[0]);
-        if (PreferenceManager.getDefaultSharedPreferences(getActivity()).getBoolean("pref_mobile", false)) {
+        if (PrefHelper.shareMobile()) {
             share.putExtra(Intent.EXTRA_TEXT, "http://m.xkcd.com/" + String.valueOf(sLoadedComic.getComicNumber()));
         } else {
             share.putExtra(Intent.EXTRA_TEXT, "http://xkcd.com/" + String.valueOf(sLoadedComic.getComicNumber()));
@@ -591,10 +583,12 @@ public class ComicBrowserFragment extends android.support.v4.app.Fragment {
                 Log.e("Saving Image failed!", e.toString());
             }
             //save title and alt text
-            SharedPreferences.Editor mEditor = mSharedPreferences.edit();
+            /*SharedPreferences.Editor mEditor = mSharedPreferences.edit();
             mEditor.putString(("title" + String.valueOf(mAddedNumber)), mAddedComic.getComicData()[0]);
             mEditor.putString(("alt" + String.valueOf(mAddedNumber)), mAddedComic.getComicData()[1]);
-            mEditor.apply();
+            mEditor.apply();*/
+            PrefHelper.addTitle(mAddedComic.getComicData()[0], mAddedNumber);
+            PrefHelper.addAlt(mAddedComic.getComicData()[1], mAddedNumber);
             return null;
         }
 
@@ -630,10 +624,13 @@ public class ComicBrowserFragment extends android.support.v4.app.Fragment {
             //remove the number from the favorites list
             Favorites.removeFavoriteItem(getActivity(), String.valueOf(mRemovedNumber));
             //clear alt text and title
-            SharedPreferences.Editor mEditor = mSharedPreferences.edit();
+            /*SharedPreferences.Editor mEditor = mSharedPreferences.edit();
             mEditor.putString("title" + String.valueOf(mRemovedNumber), null);
             mEditor.putString("alt" + String.valueOf(mRemovedNumber), null);
-            mEditor.apply();
+            mEditor.apply();*/
+            PrefHelper.addTitle("", mRemovedNumber);
+            PrefHelper.addAlt("", mRemovedNumber);
+
 
             //Setup the listener for the snackbar
             oc = new View.OnClickListener() {

@@ -81,7 +81,7 @@ public class OfflineFragment extends android.support.v4.app.Fragment {
     private HackyViewPager sPager;
     private OfflineBrowserPagerAdapter sPagerAdapter;
     private TextView tvAlt;
-    private SharedPreferences mSharedPreferences;
+    //private SharedPreferences mSharedPreferences;
     private ActionBar mActionBar;
     private Boolean randomSelected=false;
     private int pagerState;
@@ -91,17 +91,19 @@ public class OfflineFragment extends android.support.v4.app.Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View v = inflater.inflate(R.layout.pager_layout, container, false);
         setHasOptionsMenu(true);
-        mSharedPreferences = getActivity().getPreferences(Activity.MODE_PRIVATE);
+        //mSharedPreferences = getActivity().getPreferences(Activity.MODE_PRIVATE);
 
         if (MainActivity.sProgress!=null) {
             MainActivity.sProgress.dismiss();
         }
 
+
         if (savedInstanceState != null) {
             sLastComicNumber = savedInstanceState.getInt("Last Comic");
             savedInstance=true;
         } else if (sLastComicNumber==0) {
-            sLastComicNumber = mSharedPreferences.getInt("Last Comic", 0);
+            //sLastComicNumber = mSharedPreferences.getInt("Last Comic", 0);
+            sLastComicNumber = PrefHelper.getLastComic();
         }
 
         mActionBar = ((MainActivity) getActivity()).getSupportActionBar();
@@ -154,7 +156,7 @@ public class OfflineFragment extends android.support.v4.app.Fragment {
                     }
                 }
                 //Update ActionBar Subtitle
-                if (PreferenceManager.getDefaultSharedPreferences(getActivity()).getBoolean("pref_subtitle", true)) {
+                if (PrefHelper.subtitleEnabled()) {
                     mActionBar.setSubtitle(String.valueOf(sLastComicNumber));
                 }
             }
@@ -173,11 +175,13 @@ public class OfflineFragment extends android.support.v4.app.Fragment {
     public class pagerUpdate extends AsyncTask<Integer, Void, Void> {
         @Override
         protected Void doInBackground(Integer... pos) {
-            SharedPreferences.Editor editor = mSharedPreferences.edit();
+            /*SharedPreferences.Editor editor = mSharedPreferences.edit();
             editor.putInt("Last Comic", sLastComicNumber);
-            editor.commit();
+            editor.commit();*/
+            PrefHelper.setLastComic(sLastComicNumber);
 
-            sNewestComicNumber = mSharedPreferences.getInt("highest_offline",0);
+            //sNewestComicNumber = mSharedPreferences.getInt("highest_offline",0);
+            sNewestComicNumber = PrefHelper.getHighestOffline();
             if (sLastComicNumber==0) {
                 sLastComicNumber = sNewestComicNumber;
                 pos[0] = sNewestComicNumber;
@@ -314,7 +318,7 @@ public class OfflineFragment extends android.support.v4.app.Fragment {
                 @Override
                 public boolean onLongClick(View v) {
                     if (fingerLifted) {
-                        if (PreferenceManager.getDefaultSharedPreferences(getActivity()).getBoolean("pref_alt", true)) {
+                        if (PrefHelper.altVibration()) {
                             Vibrator vi = (Vibrator) getActivity().getSystemService(MainActivity.VIBRATOR_SERVICE);
                             vi.vibrate(10);
                         }
@@ -406,12 +410,10 @@ public class OfflineFragment extends android.support.v4.app.Fragment {
 
     private boolean setAltText() {
         //If the user selected the menu item for the first time, show the toast
-        if (mSharedPreferences.getBoolean("alt_tip", true)) {
+        if (PrefHelper.showAltTip()) {
             Toast toast = Toast.makeText(getActivity(), R.string.action_alt_tip, Toast.LENGTH_LONG);
             toast.show();
-            SharedPreferences.Editor mEditor = mSharedPreferences.edit();
-            mEditor.putBoolean("alt_tip", false);
-            mEditor.apply();
+            PrefHelper.setAltTip(false);
         }
         //Show alt text
         tvAlt.setText(sComicMap.get(sLastComicNumber).getComicData()[1]);
@@ -420,7 +422,7 @@ public class OfflineFragment extends android.support.v4.app.Fragment {
     }
 
     private boolean shareComic() {
-        if (PreferenceManager.getDefaultSharedPreferences(getActivity()).getBoolean("pref_share", false)) {
+        if (PrefHelper.shareImage()) {
             shareComicImage();
             return true;
         }
@@ -450,7 +452,7 @@ public class OfflineFragment extends android.support.v4.app.Fragment {
         Intent share = new Intent(android.content.Intent.ACTION_SEND);
         share.setType("text/plain");
         share.putExtra(Intent.EXTRA_SUBJECT, sLoadedComic.getComicData()[0]);
-        if (PreferenceManager.getDefaultSharedPreferences(getActivity()).getBoolean("pref_mobile",false)) {
+        if (PrefHelper.shareMobile()) {
             share.putExtra(Intent.EXTRA_TEXT, "http://m.xkcd.com/" + String.valueOf(sLoadedComic.getComicNumber()));
         } else {
             share.putExtra(Intent.EXTRA_TEXT, "http://xkcd.com/" + String.valueOf(sLoadedComic.getComicNumber()));
@@ -629,9 +631,8 @@ public class OfflineFragment extends android.support.v4.app.Fragment {
             if (isOnline()&&!savedInstance) {
                 try {
                     sNewestComicNumber = new Comic(0).getComicNumber();
-                    if (sNewestComicNumber > mSharedPreferences.getInt("highest_offline", sNewestComicNumber)) {
-                        for (int i = mSharedPreferences.getInt("highest_offline", sNewestComicNumber);
-                             i <= sNewestComicNumber; i++) {
+                    if (sNewestComicNumber > PrefHelper.getHighestOffline()) {
+                        for (int i = PrefHelper.getHighestOffline(); i <= sNewestComicNumber; i++) {
                             Log.d("comic added", String.valueOf(i));
                             Comic comic = new Comic(i,getActivity());
                             String url = comic.getComicData()[2];
@@ -644,11 +645,13 @@ public class OfflineFragment extends android.support.v4.app.Fragment {
                             mBitmap.compress(Bitmap.CompressFormat.PNG, 100, fos);
                             fos.close();
 
-                            SharedPreferences.Editor mEditor = mSharedPreferences.edit();
+                            /*SharedPreferences.Editor mEditor = mSharedPreferences.edit();
                             mEditor.putString(("title" + String.valueOf(i)), comic.getComicData()[0]);
                             mEditor.putString(("alt" + String.valueOf(i)), comic.getComicData()[1]);
                             mEditor.putInt("highest_offline", i);
-                            mEditor.apply();
+                            mEditor.apply();*/
+                            PrefHelper.addTitle(comic.getComicData()[0], i);
+                            PrefHelper.addAlt(comic.getComicData()[1], i);
                         }
                     }
                 } catch (Exception e) {
@@ -656,7 +659,8 @@ public class OfflineFragment extends android.support.v4.app.Fragment {
                 }
             }
             else {
-                sNewestComicNumber = mSharedPreferences.getInt("highest_offline", 0);
+                //sNewestComicNumber = mSharedPreferences.getInt("highest_offline", 0);
+                sNewestComicNumber = PrefHelper.getHighestOffline();
             }
             return null;
         }

@@ -328,7 +328,6 @@ public class SearchResultsActivity extends AppCompatActivity {
                 comicTitle = (TextView) itemView.findViewById(R.id.comic_title);
                 comicNumber = (TextView) itemView.findViewById(R.id.comic_number);
                 thumbnail = (ImageView) itemView.findViewById(R.id.thumbnail);
-                thumbnail.setTag("thumbnail");
             }
         }
 
@@ -404,6 +403,14 @@ public class SearchResultsActivity extends AppCompatActivity {
 
         task = new searchTask();
         task.execute(query);
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        if (mProgress!=null) {
+            mProgress.dismiss();
+        }
     }
 
     public MenuItem getSearchMenuItem() {

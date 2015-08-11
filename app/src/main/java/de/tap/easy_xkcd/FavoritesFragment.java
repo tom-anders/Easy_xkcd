@@ -82,7 +82,7 @@ public class FavoritesFragment extends android.support.v4.app.Fragment {
     private FavoritesPagerAdapter mPagerAdapter = null;
     private String[] mFav;
     public static int[] sFavorites;
-    private SharedPreferences mSharedPreferences;
+    //private SharedPreferences mSharedPreferences;
     private TextView tvAlt;
     private ActionBar mActionBar;
 
@@ -91,7 +91,7 @@ public class FavoritesFragment extends android.support.v4.app.Fragment {
         View v = inflater.inflate(R.layout.pager_layout, container, false);
         //Get Favorites &&
         mFav = Favorites.getFavoriteList(this.getActivity());
-        mSharedPreferences = getActivity().getPreferences(Activity.MODE_PRIVATE);
+        //mSharedPreferences = getActivity().getPreferences(Activity.MODE_PRIVATE);
         setHasOptionsMenu(true);
         if (MainActivity.sProgress != null) {
             MainActivity.sProgress.dismiss();
@@ -124,7 +124,7 @@ public class FavoritesFragment extends android.support.v4.app.Fragment {
                 try {
                     tvAlt.setVisibility(View.GONE);
                     //Update the ActionBar Subtitle
-                    if (PreferenceManager.getDefaultSharedPreferences(getActivity()).getBoolean("pref_subtitle", true) && MainActivity.sCurrentFragment == R.id.nav_favorites) {
+                    if (PrefHelper.subtitleEnabled() && MainActivity.sCurrentFragment == R.id.nav_favorites) {
                         mActionBar.setSubtitle(String.valueOf(sFavorites[position]));
                     }
                     //This updates the favorite icon
@@ -132,8 +132,7 @@ public class FavoritesFragment extends android.support.v4.app.Fragment {
                 } catch (NullPointerException e) {
                     e.printStackTrace();
                 }
-                String orientation = PreferenceManager.getDefaultSharedPreferences(getActivity()).getString("pref_orientation", "1");
-                switch (Integer.parseInt(orientation)) {
+                switch (Integer.parseInt(PrefHelper.getOrientation())) {
                     case 1: getActivity().setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_USER);
                         break;
                     case 2: getActivity().setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
@@ -217,11 +216,12 @@ public class FavoritesFragment extends android.support.v4.app.Fragment {
                 @Override
                 public boolean onLongClick(View v) {
                     if (fingerLifted) {
-                        if (PreferenceManager.getDefaultSharedPreferences(getActivity()).getBoolean("pref_alt", true)) {
+                        if (PrefHelper.altVibration()) {
                             Vibrator vi = (Vibrator) getActivity().getSystemService(MainActivity.VIBRATOR_SERVICE);
                             vi.vibrate(10);
                         }
-                        tvAlt.setText(mSharedPreferences.getString(("alt" + String.valueOf(sFavorites[sFavoriteIndex])), ""));
+                        //tvAlt.setText(mSharedPreferences.getString(("alt" + String.valueOf(sFavorites[sFavoriteIndex])), ""));
+                        tvAlt.setText(PrefHelper.getAlt(sFavorites[sFavoriteIndex]));
                         toggleVisibility(tvAlt);
                     }
                     return true;
@@ -229,7 +229,8 @@ public class FavoritesFragment extends android.support.v4.app.Fragment {
             });
             //setup the title text view
             TextView tvTitle = (TextView) itemView.findViewById(R.id.tvTitle);
-            tvTitle.setText(mSharedPreferences.getString(("title" + String.valueOf(sFavorites[position])), ""));
+            //tvTitle.setText(mSharedPreferences.getString(("title" + String.valueOf(sFavorites[position])), ""));
+            tvTitle.setText(PrefHelper.getTitle(sFavorites[position]));
             //load the image
             pvComic.setImageBitmap(mComicMap.get(position));
             if (Arrays.binarySearch(mContext.getResources().getIntArray(R.array.large_comics), sFavorites[sFavoriteIndex]) >= 0) {
@@ -281,14 +282,16 @@ public class FavoritesFragment extends android.support.v4.app.Fragment {
 
     private boolean setAltText() {
         //If the user selected the menu item for the first time, show the toast
-        if (mSharedPreferences.getBoolean("alt_tip", true)) {
+        if (PrefHelper.showAltTip()) {
             Toast toast = Toast.makeText(getActivity(), R.string.action_alt_tip, Toast.LENGTH_LONG);
             toast.show();
-            SharedPreferences.Editor mEditor = mSharedPreferences.edit();
+            /*SharedPreferences.Editor mEditor = mSharedPreferences.edit();
             mEditor.putBoolean("alt_tip", false);
-            mEditor.apply();
+            mEditor.apply();*/
+            PrefHelper.setAltTip(false);
         }
-        tvAlt.setText(mSharedPreferences.getString(("alt" + String.valueOf(sFavorites[sFavoriteIndex])), ""));
+        //tvAlt.setText(mSharedPreferences.getString(("alt" + String.valueOf(sFavorites[sFavoriteIndex])), ""));
+        tvAlt.setText(PrefHelper.getAlt(sFavorites[sFavoriteIndex]));
         toggleVisibility(tvAlt);
         return true;
     }
@@ -356,8 +359,11 @@ public class FavoritesFragment extends android.support.v4.app.Fragment {
     private boolean modifyFavorites() {
         final int mRemoved = sFavorites[sFavoriteIndex];
         final Bitmap mRemovedBitmap = mComicMap.get(sFavoriteIndex);
-        final String mAlt = mSharedPreferences.getString(("alt" + String.valueOf(sFavorites[sFavoriteIndex])), "");
-        final String mTitle = mSharedPreferences.getString(("title" + String.valueOf(sFavorites[sFavoriteIndex])), "");
+        //final String mAlt = mSharedPreferences.getString(("alt" + String.valueOf(sFavorites[sFavoriteIndex])), "");
+        //final String mTitle = mSharedPreferences.getString(("title" + String.valueOf(sFavorites[sFavoriteIndex])), "");
+
+        final String mAlt = PrefHelper.getAlt(sFavorites[sFavoriteIndex]);
+        final String mTitle = PrefHelper.getTitle(sFavorites[sFavoriteIndex]);
 
         new DeleteImageTask().execute(mRemoved);
 
@@ -373,12 +379,15 @@ public class FavoritesFragment extends android.support.v4.app.Fragment {
                 } catch (Exception e) {
                     e.printStackTrace();
                 }
-                SharedPreferences sharedPreferences = getActivity().getPreferences(Activity.MODE_PRIVATE);
+                /*SharedPreferences sharedPreferences = getActivity().getPreferences(Activity.MODE_PRIVATE);
                 SharedPreferences.Editor mEditor = sharedPreferences.edit();
 
                 mEditor.putString(("title" + String.valueOf(mRemoved)), mTitle);
                 mEditor.putString(("alt" + String.valueOf(mRemoved)), mAlt);
-                mEditor.apply();
+                mEditor.apply();*/
+
+                PrefHelper.addTitle(mTitle, mRemoved);
+                PrefHelper.addAlt(mAlt, mRemoved);
 
                 refresh();
             }
@@ -393,7 +402,7 @@ public class FavoritesFragment extends android.support.v4.app.Fragment {
 
     private boolean shareComic() {
 
-        if (PreferenceManager.getDefaultSharedPreferences(getActivity()).getBoolean("pref_share", false)) {
+        if (PrefHelper.shareImage()) {
             shareComicImage();
             return true;
         }
@@ -449,8 +458,9 @@ public class FavoritesFragment extends android.support.v4.app.Fragment {
         Intent share = new Intent(android.content.Intent.ACTION_SEND);
         share.setType("text/plain");
 
-        share.putExtra(Intent.EXTRA_SUBJECT, mSharedPreferences.getString(("title" + String.valueOf(sFavorites[sFavoriteIndex])), ""));
-        if (PreferenceManager.getDefaultSharedPreferences(getActivity()).getBoolean("pref_mobile", false)) {
+        //share.putExtra(Intent.EXTRA_SUBJECT, mSharedPreferences.getString(("title" + String.valueOf(sFavorites[sFavoriteIndex])), ""));
+        share.putExtra(Intent.EXTRA_SUBJECT, PrefHelper.getTitle(sFavorites[sFavoriteIndex]));
+        if (PrefHelper.shareMobile()) {
             share.putExtra(Intent.EXTRA_TEXT, "http://m.xkcd.com/" + String.valueOf(sFavorites[sFavoriteIndex]));
         } else {
             share.putExtra(Intent.EXTRA_TEXT, "http://xkcd.com/" + String.valueOf(sFavorites[sFavoriteIndex]));
@@ -502,7 +512,7 @@ public class FavoritesFragment extends android.support.v4.app.Fragment {
             mPagerAdapter.notifyDataSetChanged();
             mPager.setCurrentItem(sFavoriteIndex);
 
-            if (PreferenceManager.getDefaultSharedPreferences(getActivity()).getBoolean("pref_subtitle", true) && MainActivity.sCurrentFragment == R.id.nav_favorites) {
+            if (PrefHelper.subtitleEnabled() && MainActivity.sCurrentFragment == R.id.nav_favorites) {
                 mActionBar.setSubtitle(String.valueOf(sFavorites[sFavoriteIndex]));
             }
         }
@@ -531,7 +541,8 @@ public class FavoritesFragment extends android.support.v4.app.Fragment {
             }
             new pagerUpdate().execute();
         }
-        tvAlt.setText(mSharedPreferences.getString(("title" + String.valueOf(sFavorites[sFavoriteIndex])), ""));
+        //tvAlt.setText(mSharedPreferences.getString(("title" + String.valueOf(sFavorites[sFavoriteIndex])), ""));
+        tvAlt.setText(PrefHelper.getAlt(sFavorites[sFavoriteIndex]));
     }
 
     @Override
