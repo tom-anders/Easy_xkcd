@@ -64,11 +64,19 @@
         <item>Подели УРЛ</item>
     </string-array>
 
+    <string-array
+        name="pref_orientation">
+        <item>Default</item>
+        <item>Portrait</item>
+        <item>Landscape</item>
+    </string-array>
+
     <integer-array
         name="interactive_comics">
         <item>826</item>
         <item>1110</item>
         <item>1264</item>
+        <item>1331</item>
         <item>1350</item>
         <item>1416</item>
         <item>1506</item>
