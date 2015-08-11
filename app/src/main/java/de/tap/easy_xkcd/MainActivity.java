@@ -303,8 +303,15 @@ public class MainActivity extends AppCompatActivity {
         getSupportActionBar().setTitle(actionBarTitle);
         if (fragmentManager.findFragmentByTag(fragmentTagShow) != null) {
             //if the fragment exists, show it.
-            fragmentManager.beginTransaction().show(fragmentManager.findFragmentByTag(fragmentTagShow)).commitAllowingStateLoss();
-
+            //fragmentManager.beginTransaction().show(fragmentManager.findFragmentByTag(fragmentTagShow)).commitAllowingStateLoss();
+            android.support.v4.app.FragmentTransaction ft = fragmentManager.beginTransaction();
+            if (fragmentTagShow.equals("browser")) {
+                ft.setCustomAnimations(R.anim.abc_slide_in_top, R.anim.abc_slide_in_top);
+            } else {
+                ft.setCustomAnimations(R.anim.abc_slide_in_bottom, R.anim.abc_slide_in_bottom);
+            }
+            ft.show(fragmentManager.findFragmentByTag(fragmentTagShow));
+            ft.commitAllowingStateLoss();
             //Update action bar
             if (PrefHelper.subtitleEnabled()) {
                 switch (itemId) {
@@ -327,11 +334,7 @@ public class MainActivity extends AppCompatActivity {
             //if the fragment does not exist, add it to fragment manager.
             switch (itemId) {
                 case R.id.nav_favorites:
-                    //fragmentManager.beginTransaction().add(R.id.flContent, new FavoritesFragment(), fragmentTagShow).commitAllowingStateLoss();
-                    android.support.v4.app.FragmentTransaction ft = fragmentManager.beginTransaction();
-                    ft.setCustomAnimations(R.anim.abc_slide_in_top, R.anim.abc_slide_in_top);
-                    ft.add(R.id.flContent, new FavoritesFragment(), fragmentTagShow);
-                    ft.commitAllowingStateLoss();
+                    fragmentManager.beginTransaction().setCustomAnimations(R.anim.abc_slide_in_bottom, R.anim.abc_slide_in_bottom).add(R.id.flContent, new FavoritesFragment(), fragmentTagShow).commitAllowingStateLoss();
                     break;
                 case R.id.nav_browser:
                     if (isOnline() && !fullOffline) {
@@ -342,15 +345,14 @@ public class MainActivity extends AppCompatActivity {
                     break;
             }
         }
-        //if the other fragment is visible, hide it.
-        if (fragmentManager.findFragmentByTag(fragmentTagHide) != null) {
-            fragmentManager.beginTransaction().hide(fragmentManager.findFragmentByTag(fragmentTagHide)).commitAllowingStateLoss();
-        }
         if (!PrefHelper.subtitleEnabled()) {
             getSupportActionBar().setSubtitle("");
         }
 
-        //TODO animation
+        //if the other fragment is visible, hide it.
+        if (fragmentManager.findFragmentByTag(fragmentTagHide) != null) {
+            fragmentManager.beginTransaction().hide(fragmentManager.findFragmentByTag(fragmentTagHide)).commitAllowingStateLoss();
+        }
     }
 
     private class updateComicTitles extends AsyncTask<Void, Void, Void> {
