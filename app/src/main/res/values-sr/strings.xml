@@ -71,6 +71,13 @@
         <item>Landscape</item>
     </string-array>
 
+    <string-array
+        name="pref_orientation_entries">
+        <item>1</item>
+        <item>2</item>
+        <item>3</item>
+    </string-array>
+
     <integer-array
         name="interactive_comics">
         <item>826</item>
