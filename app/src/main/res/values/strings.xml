@@ -169,5 +169,5 @@
     <string name="pref_mobile">Share mobile links</string>
     <string name="pref_mobile_sum">Share m.xkcd.com links instead of xkcd.com</string>
     <string name="pref_orientation">Screen Orientation</string>
-    <string name="pref_orientation_sum">Default, Portrait, Landscape</string>
+    <string name="pref_orientation_sum">Default, Portrait or Landscape</string>
 </resources>
