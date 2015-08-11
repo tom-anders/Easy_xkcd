@@ -20,6 +20,7 @@ package de.tap.easy_xkcd;
 
 import android.app.Activity;
 import android.app.ActivityManager;
+import android.app.FragmentTransaction;
 import android.app.ProgressDialog;
 import android.content.SharedPreferences;
 import android.content.res.Configuration;
@@ -303,6 +304,7 @@ public class MainActivity extends AppCompatActivity {
         if (fragmentManager.findFragmentByTag(fragmentTagShow) != null) {
             //if the fragment exists, show it.
             fragmentManager.beginTransaction().show(fragmentManager.findFragmentByTag(fragmentTagShow)).commitAllowingStateLoss();
+
             //Update action bar
             if (PrefHelper.subtitleEnabled()) {
                 switch (itemId) {
@@ -325,7 +327,11 @@ public class MainActivity extends AppCompatActivity {
             //if the fragment does not exist, add it to fragment manager.
             switch (itemId) {
                 case R.id.nav_favorites:
-                    fragmentManager.beginTransaction().add(R.id.flContent, new FavoritesFragment(), fragmentTagShow).commitAllowingStateLoss();
+                    //fragmentManager.beginTransaction().add(R.id.flContent, new FavoritesFragment(), fragmentTagShow).commitAllowingStateLoss();
+                    android.support.v4.app.FragmentTransaction ft = fragmentManager.beginTransaction();
+                    ft.setCustomAnimations(R.anim.abc_slide_in_top, R.anim.abc_slide_in_top);
+                    ft.add(R.id.flContent, new FavoritesFragment(), fragmentTagShow);
+                    ft.commitAllowingStateLoss();
                     break;
                 case R.id.nav_browser:
                     if (isOnline() && !fullOffline) {
