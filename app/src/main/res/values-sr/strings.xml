@@ -153,6 +153,8 @@
     <string name="pref_offline_sum">Download all comics to internal storage. New comics will be added automatically</string>
     <string name="pref_mobile">Share mobile links</string>
     <string name="pref_mobile_sum">Share m.xkcd.com links instead of xkcd.com</string>
+    <string name="pref_orientation">Screen Orientation</string>
+    <string name="pref_orientation_sum">Default, Portrait or Landscape</string>
 
 
 </resources>

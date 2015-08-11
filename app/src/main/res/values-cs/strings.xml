@@ -153,4 +153,6 @@
     <string name="pref_offline_sum">Stahovat všechny komiksy do interního úložiště. Nové komiksy budou přidány automaticky</string>
     <string name="pref_mobile">Sdílet mobilní odkazy</string>
     <string name="pref_mobile_sum">Sdílet m.xkcd.com odkazy místo xkcd.com</string>
+    <string name="pref_orientation">Screen Orientation</string>
+    <string name="pref_orientation_sum">Default, Portrait or Landscape</string>
 </resources>

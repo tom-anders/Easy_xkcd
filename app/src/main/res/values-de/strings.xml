@@ -153,5 +153,7 @@
     <string name="delete_offline_dialog">Willst du wirklich den Offline Modus deaktivieren? Alle Bilder (außer Favoriten) werden gelöscht.</string>
     <string name="pref_mobile">Teile mobile Links</string>
     <string name="pref_mobile_sum">Teilt m.xkcd.com Links statt xkcd.com</string>
+    <string name="pref_orientation">Bildschirm Ausrichtung</string>
+    <string name="pref_orientation_sum">Standard, Portrait oder Landscape</string>
 
 </resources>
