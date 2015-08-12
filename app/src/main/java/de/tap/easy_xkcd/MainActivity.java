@@ -20,7 +20,6 @@ package de.tap.easy_xkcd;
 
 import android.app.Activity;
 import android.app.ActivityManager;
-import android.app.FragmentTransaction;
 import android.app.ProgressDialog;
 import android.content.SharedPreferences;
 import android.content.res.Configuration;
@@ -33,7 +32,6 @@ import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Handler;
-import android.preference.PreferenceManager;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.NavigationView;
 import android.app.SearchManager;
@@ -50,6 +48,7 @@ import android.util.TypedValue;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.animation.AccelerateInterpolator;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.RelativeLayout;
 import android.widget.SearchView;
@@ -64,7 +63,6 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.security.Permission;
 
 
 public class MainActivity extends AppCompatActivity {
@@ -74,7 +72,7 @@ public class MainActivity extends AppCompatActivity {
     public static NavigationView sNavView;
     public static String sComicTitles;
     public static String sComicTrans;
-    private Toolbar mToolbar;
+    public Toolbar toolbar;
     private static DrawerLayout sDrawer;
     public ActionBarDrawerToggle mDrawerToggle;
     private MenuItem searchMenuItem;
@@ -126,8 +124,11 @@ public class MainActivity extends AppCompatActivity {
             setTaskDescription(description);
         }
         //Setup Toolbar, NavDrawer, FAB
-        mToolbar = (Toolbar) findViewById(R.id.toolbar);
-        setSupportActionBar(mToolbar);
+        toolbar = (Toolbar) findViewById(R.id.toolbar);
+        setSupportActionBar(toolbar);
+        if (savedInstanceState == null) {
+            toolbar.setAlpha(0);
+        }
 
         sDrawer = (DrawerLayout) findViewById(R.id.drawer_layout);
         sDrawer.setDrawerListener(mDrawerToggle);
@@ -221,6 +222,19 @@ public class MainActivity extends AppCompatActivity {
                     return;
                 }
                 //showComicBrowserFragment
+                if (sProgress == null) {
+                    /*toolbar.setAlpha(0);
+                    toolbar.setTranslationY(-300);
+                    toolbar.animate().setDuration(300).translationY(0).alpha(1);*/
+                    View view;
+                    for (int i = 2; i < toolbar.getChildCount(); i++) {
+                        view = toolbar.getChildAt(i);
+                        view.setTranslationY(-300);
+                        view.animate().setStartDelay(50 * (i + 1)).setDuration(70 * (i + 1)).translationY(0);
+                    }
+                    toolbar.getChildAt(0).setAlpha(0);
+                    toolbar.getChildAt(0).animate().alpha(1).setDuration(200).setInterpolator(new AccelerateInterpolator());
+                }
                 showFragment("pref_random_comics", menuItem.getItemId(), "Comics", "browser", "favorites");
                 break;
             case R.id.nav_favorites:
@@ -234,6 +248,17 @@ public class MainActivity extends AppCompatActivity {
                     return;
                 }
                 //showFavoritesFragment
+                /*toolbar.setAlpha(0);
+                toolbar.setTranslationY(-300);
+                toolbar.animate().setDuration(300).translationY(0).alpha(1);*/
+                View view;
+                for (int i = 2; i < toolbar.getChildCount(); i++) {
+                    view = toolbar.getChildAt(i);
+                    view.setTranslationY(300);
+                    view.animate().setStartDelay(50 * (i + 1)).setDuration(70 * (i + 1)).translationY(0);
+                }
+                toolbar.getChildAt(0).setAlpha(0);
+                toolbar.getChildAt(0).animate().alpha(1).setDuration(200).setInterpolator(new AccelerateInterpolator());
                 showFragment("pref_random_favorites", menuItem.getItemId(), getResources().getString(R.string.nv_favorites), "favorites", "browser");
                 break;
 
@@ -519,7 +544,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private ActionBarDrawerToggle setupDrawerToggle() {
-        return new ActionBarDrawerToggle(this, sDrawer, mToolbar, R.string.drawer_open, R.string.drawer_close);
+        return new ActionBarDrawerToggle(this, sDrawer, toolbar, R.string.drawer_open, R.string.drawer_close);
     }
 
     private boolean isOnline() {

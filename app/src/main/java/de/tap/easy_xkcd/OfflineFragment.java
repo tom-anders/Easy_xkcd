@@ -43,6 +43,7 @@ import android.support.design.widget.Snackbar;
 import android.support.v4.view.PagerAdapter;
 import android.support.v4.view.ViewPager;
 import android.support.v7.app.ActionBar;
+import android.support.v7.widget.Toolbar;
 import android.text.BoringLayout;
 import android.util.Log;
 import android.util.SparseArray;
@@ -354,6 +355,19 @@ public class OfflineFragment extends android.support.v4.app.Fragment {
                 randomSelected=false;
             }
 
+            if (position==1) {
+                Toolbar toolbar = ((MainActivity)getActivity()).toolbar;
+                if (toolbar.getAlpha()==0) {
+                    toolbar.setTranslationY(-300);
+                    toolbar.animate().setDuration(300).translationY(0).alpha(1);
+                    View view;
+                    for (int i = 0; i<toolbar.getChildCount(); i++) {
+                        view = toolbar.getChildAt(i);
+                        view.setTranslationY(-300);
+                        view.animate().setStartDelay(50*(i+1)).setDuration(70*(i+1)).translationY(0);
+                    }
+                }
+            }
 
             container.addView(itemView);
             return itemView;

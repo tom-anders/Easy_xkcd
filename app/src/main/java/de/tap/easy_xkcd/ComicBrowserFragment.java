@@ -43,6 +43,7 @@ import android.support.design.widget.Snackbar;
 import android.support.v4.view.PagerAdapter;
 import android.support.v4.view.ViewPager;
 import android.support.v7.app.ActionBar;
+import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.util.SparseArray;
 import android.view.GestureDetector;
@@ -52,6 +53,7 @@ import android.view.MenuItem;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.animation.AccelerateInterpolator;
 import android.widget.ImageView;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
@@ -301,6 +303,17 @@ public class ComicBrowserFragment extends android.support.v4.app.Fragment {
                             //dismiss the progress dialog if the last image finished loading
                             if (position == 1 && MainActivity.sProgress != null) {
                                 MainActivity.sProgress.dismiss();
+                                Toolbar toolbar = ((MainActivity)getActivity()).toolbar;
+                                if (toolbar.getAlpha()==0) {
+                                    toolbar.setTranslationY(-300);
+                                    toolbar.animate().setDuration(300).translationY(0).alpha(1);
+                                    View view;
+                                    for (int i = 0; i<toolbar.getChildCount(); i++) {
+                                        view = toolbar.getChildAt(i);
+                                        view.setTranslationY(-300);
+                                        view.animate().setStartDelay(50*(i+1)).setDuration(70*(i+1)).translationY(0);
+                                    }
+                                }
                             }
                             pvComic.setImageBitmap(resource);
                             if (position == sPagerAdapter.getCount()-1) {
