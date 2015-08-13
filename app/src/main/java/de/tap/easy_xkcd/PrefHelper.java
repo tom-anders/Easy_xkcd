@@ -78,7 +78,7 @@ public class PrefHelper {
     }
 
     public static boolean subtitleEnabled() {
-        return prefs.getBoolean(SUBTITLE_ENABLED, false);
+        return prefs.getBoolean(SUBTITLE_ENABLED, true);
     }
 
     public static boolean titlesLoaded() {
