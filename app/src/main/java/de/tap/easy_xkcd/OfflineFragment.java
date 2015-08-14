@@ -659,6 +659,7 @@ public class OfflineFragment extends android.support.v4.app.Fragment {
             if (isOnline()&&!savedInstance) {
                 try {
                     sNewestComicNumber = new Comic(0).getComicNumber();
+                    Log.d("test", String.valueOf(sNewestComicNumber)+" "+String.valueOf(PrefHelper.getHighestOffline()));
                     if (sNewestComicNumber > PrefHelper.getHighestOffline()) {
                         for (int i = PrefHelper.getHighestOffline(); i <= sNewestComicNumber; i++) {
                             Log.d("comic added", String.valueOf(i));
@@ -692,8 +693,8 @@ public class OfflineFragment extends android.support.v4.app.Fragment {
                             /*SharedPreferences.Editor mEditor = mSharedPreferences.edit();
                             mEditor.putString(("title" + String.valueOf(i)), comic.getComicData()[0]);
                             mEditor.putString(("alt" + String.valueOf(i)), comic.getComicData()[1]);
-                            mEditor.putInt("highest_offline", i);
                             mEditor.apply();*/
+                            PrefHelper.setHighestOffline(i);
                             PrefHelper.addTitle(comic.getComicData()[0], i);
                             PrefHelper.addAlt(comic.getComicData()[1], i);
                         }
