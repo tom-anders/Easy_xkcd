@@ -35,6 +35,7 @@ import android.net.NetworkInfo;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.os.Environment;
 import android.os.Handler;
 import android.os.Vibrator;
 import android.preference.PreferenceManager;
@@ -65,7 +66,9 @@ import android.widget.Toast;
 import com.bumptech.glide.Glide;
 import com.tap.xkcd_reader.R;
 
+import java.io.File;
 import java.io.FileOutputStream;
+import java.io.IOException;
 import java.util.Arrays;
 import java.util.Random;
 
@@ -655,9 +658,25 @@ public class OfflineFragment extends android.support.v4.app.Fragment {
                                     .asBitmap()
                                     .into(-1, -1)
                                     .get();
-                            FileOutputStream fos = getActivity().openFileOutput(String.valueOf(i), Context.MODE_PRIVATE);
-                            mBitmap.compress(Bitmap.CompressFormat.PNG, 100, fos);
-                            fos.close();
+                            try {
+                                File sdCard = Environment.getExternalStorageDirectory();
+                                File dir = new File (sdCard.getAbsolutePath() + "/easy xkcd");
+                                dir.mkdirs();
+                                File file = new File(dir, String.valueOf(i)+".png");
+                                FileOutputStream fos = new FileOutputStream(file);
+                                mBitmap.compress(Bitmap.CompressFormat.PNG, 100, fos);
+                                fos.flush();
+                                fos.close();
+                            } catch (Exception e) {
+                                Log.e("Error", "Saving to external storage failed");
+                                try {
+                                    FileOutputStream fos = getActivity().openFileOutput(String.valueOf(i), Context.MODE_PRIVATE);
+                                    mBitmap.compress(Bitmap.CompressFormat.PNG, 100, fos);
+                                    fos.close();
+                                } catch (Exception e2) {
+                                    e2.printStackTrace();
+                                }
+                            }
 
                             /*SharedPreferences.Editor mEditor = mSharedPreferences.edit();
                             mEditor.putString(("title" + String.valueOf(i)), comic.getComicData()[0]);

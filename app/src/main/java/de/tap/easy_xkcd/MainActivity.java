@@ -31,6 +31,7 @@ import android.net.NetworkInfo;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Build;
+import android.os.Environment;
 import android.os.Handler;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.NavigationView;
@@ -59,6 +60,7 @@ import com.bumptech.glide.Glide;
 import com.tap.xkcd_reader.R;
 
 import java.io.BufferedReader;
+import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -628,9 +630,25 @@ public class MainActivity extends AppCompatActivity {
                             .asBitmap()
                             .into(-1, -1)
                             .get();
-                    FileOutputStream fos = openFileOutput(String.valueOf(i), Context.MODE_PRIVATE);
-                    mBitmap.compress(Bitmap.CompressFormat.PNG, 100, fos);
-                    fos.close();
+                    try {
+                        File sdCard = Environment.getExternalStorageDirectory();
+                        File dir = new File (sdCard.getAbsolutePath() + "/easy xkcd");
+                        dir.mkdirs();
+                        File file = new File(dir, String.valueOf(i)+".png");
+                        FileOutputStream fos = new FileOutputStream(file);
+                        mBitmap.compress(Bitmap.CompressFormat.PNG, 100, fos);
+                        fos.flush();
+                        fos.close();
+                    } catch (Exception e) {
+                        Log.e("Error", "Saving to external storage failed");
+                        try {
+                            FileOutputStream fos = openFileOutput(String.valueOf(i), Context.MODE_PRIVATE);
+                            mBitmap.compress(Bitmap.CompressFormat.PNG, 100, fos);
+                            fos.close();
+                        } catch (Exception e2) {
+                            e2.printStackTrace();
+                        }
+                    }
 
                     /*mEditor.putString(("title" + String.valueOf(i)), comic.getComicData()[0]);
                     mEditor.putString(("alt" + String.valueOf(i)), comic.getComicData()[1]);
@@ -710,7 +728,13 @@ public class MainActivity extends AppCompatActivity {
             int newest = PrefHelper.getNewest();
             for (int i = 1; i <= newest; i++) {
                 if (!Favorites.checkFavorite(MainActivity.this, i)) {
+                    //delete from internal storage
                     deleteFile(String.valueOf(i));
+                    //delete from external storage
+                    File sdCard = Environment.getExternalStorageDirectory();
+                    File dir = new File(sdCard.getAbsolutePath() + "/easy xkcd");
+                    File file = new File(dir, String.valueOf(i) + ".png");
+                    file.delete();
 
                     /*mEditor.putString("title" + String.valueOf(i), null);
                     mEditor.putString("alt" + String.valueOf(i), null);

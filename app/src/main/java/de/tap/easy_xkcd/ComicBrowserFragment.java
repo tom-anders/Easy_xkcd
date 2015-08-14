@@ -35,6 +35,7 @@ import android.net.NetworkInfo;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.os.Environment;
 import android.os.Handler;
 import android.os.Vibrator;
 import android.preference.PreferenceManager;
@@ -66,6 +67,8 @@ import com.tap.xkcd_reader.R;
 
 import org.json.JSONObject;
 
+import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.Arrays;
@@ -609,13 +612,26 @@ public class ComicBrowserFragment extends android.support.v4.app.Fragment {
         protected void onPostExecute(Void dummy) {
             //the full bitmap should be available here
             try {
-                FileOutputStream fos = getActivity().openFileOutput(String.valueOf(mAddedNumber), Context.MODE_PRIVATE);
+                File sdCard = Environment.getExternalStorageDirectory();
+                File dir = new File (sdCard.getAbsolutePath() + "/easy xkcd");
+                dir.mkdirs();
+                File file = new File(dir, String.valueOf(mAddedNumber)+".png");
+                FileOutputStream fos = new FileOutputStream(file);
                 mBitmap.compress(Bitmap.CompressFormat.PNG, 100, fos);
+                fos.flush();
                 fos.close();
             } catch (Exception e) {
-                e.printStackTrace();
+                Log.e("Error", "Saving to external storage failed");
+                try {
+                    FileOutputStream fos = getActivity().openFileOutput(String.valueOf(mAddedNumber), Context.MODE_PRIVATE);
+                    mBitmap.compress(Bitmap.CompressFormat.PNG, 100, fos);
+                    fos.close();
+                } catch (Exception e2) {
+                    e2.printStackTrace();
+                }
             }
-            //refresh the FavoritesFragment
+
+            //refresh the FavoritesFragmentco
             FavoritesFragment f = (FavoritesFragment) getActivity().getSupportFragmentManager().findFragmentByTag("favorites");
             if (f != null) {
                 f.refresh();
@@ -632,8 +648,14 @@ public class ComicBrowserFragment extends android.support.v4.app.Fragment {
 
         @Override
         protected Void doInBackground(Integer... pos) {
-            //delete the image
+            //delete the image from internal storage
             getActivity().deleteFile(String.valueOf(mRemovedNumber));
+            //delete from external storage
+            File sdCard = Environment.getExternalStorageDirectory();
+            File dir = new File(sdCard.getAbsolutePath() + "/easy xkcd");
+            File file = new File(dir, String.valueOf(mRemovedNumber) + ".png");
+            file.delete();
+
             //remove the number from the favorites list
             Favorites.removeFavoriteItem(getActivity(), String.valueOf(mRemovedNumber));
             //clear alt text and title

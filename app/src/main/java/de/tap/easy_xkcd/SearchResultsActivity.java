@@ -26,6 +26,7 @@ import android.graphics.BitmapFactory;
 import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.Environment;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.CardView;
 import android.support.v7.widget.LinearLayoutManager;
@@ -50,6 +51,7 @@ import com.bumptech.glide.request.animation.GlideAnimation;
 import com.bumptech.glide.request.target.SimpleTarget;
 import com.tap.xkcd_reader.R;
 
+import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -301,8 +303,29 @@ public class SearchResultsActivity extends AppCompatActivity {
                             fis.close();
                             comicViewHolder.thumbnail.setImageBitmap(mBitmap);
                         }
-                    } catch (IOException e) {
-                        e.printStackTrace();
+                    } catch (Exception e) {
+                        Log.e("Error", "loading from internal storage failed");
+                        try {
+                            if (i < comicsTitle.size()) {
+                                File sdCard = Environment.getExternalStorageDirectory();
+                                File dir = new File(sdCard.getAbsolutePath() + "/easy xkcd");
+                                File file = new File(dir, String.valueOf(resultsTitle.keyAt(i)) + ".png");
+                                FileInputStream fis = new FileInputStream(file);
+                                Bitmap mBitmap = BitmapFactory.decodeStream(fis);
+                                fis.close();
+                                comicViewHolder.thumbnail.setImageBitmap(mBitmap);
+                            } else {
+                                File sdCard = Environment.getExternalStorageDirectory();
+                                File dir = new File(sdCard.getAbsolutePath() + "/easy xkcd");
+                                File file = new File(dir, String.valueOf(resultsTranscript.keyAt(i - resultsTitle.size())) + ".png");
+                                FileInputStream fis = new FileInputStream(file);
+                                Bitmap mBitmap = BitmapFactory.decodeStream(fis);
+                                fis.close();
+                                comicViewHolder.thumbnail.setImageBitmap(mBitmap);
+                            }
+                        } catch (Exception e2) {
+                            e2.printStackTrace();
+                        }
                     }
                 }
                 setAnimation(comicViewHolder.cv, i);

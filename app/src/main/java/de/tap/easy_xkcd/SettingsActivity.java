@@ -35,11 +35,6 @@ public class SettingsActivity extends AppCompatActivity {
         setSupportActionBar(toolbar);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
-        toolbar.setAlpha(0);
-        toolbar.setTranslationY(-300);
-        toolbar.animate().setDuration(500).translationY(0).alpha(1);
-
-
         if (Build.VERSION.SDK_INT >= 21) {
             getWindow().setStatusBarColor(getResources().getColor(R.color.ColorPrimaryDark));
         }

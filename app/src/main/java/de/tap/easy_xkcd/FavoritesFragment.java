@@ -31,6 +31,7 @@ import android.graphics.RectF;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.os.Environment;
 import android.os.Handler;
 import android.os.Looper;
 import android.os.Vibrator;
@@ -133,11 +134,14 @@ public class FavoritesFragment extends android.support.v4.app.Fragment {
                     e.printStackTrace();
                 }
                 switch (Integer.parseInt(PrefHelper.getOrientation())) {
-                    case 1: getActivity().setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_USER);
+                    case 1:
+                        getActivity().setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_USER);
                         break;
-                    case 2: getActivity().setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
+                    case 2:
+                        getActivity().setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
                         break;
-                    case 3: getActivity().setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE);
+                    case 3:
+                        getActivity().setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE);
                         break;
                 }
             }
@@ -492,17 +496,30 @@ public class FavoritesFragment extends android.support.v4.app.Fragment {
         @Override
         protected Void doInBackground(Integer... pos) {
             sFavorites = new int[mFav.length];
-            try {
-                for (int i = 0; i < sFavorites.length; i++) {
-                    sFavorites[i] = Integer.parseInt(mFav[i]);
+
+            for (int i = 0; i < sFavorites.length; i++) {
+                sFavorites[i] = Integer.parseInt(mFav[i]);
+                try {
                     FileInputStream fis = getActivity().getApplicationContext().openFileInput(mFav[i]);
                     Bitmap mBitmap = BitmapFactory.decodeStream(fis);
                     fis.close();
                     mComicMap.put(i, mBitmap);
+                } catch (Exception e) {
+                    Log.e("Error", "Image not found, looking in external storage");
+                    try {
+                        File sdCard = Environment.getExternalStorageDirectory();
+                        File dir = new File(sdCard.getAbsolutePath() + "/easy xkcd");
+                        File file = new File(dir, mFav[i] + ".png");
+                        FileInputStream fis = new FileInputStream(file);
+                        Bitmap mBitmap = BitmapFactory.decodeStream(fis);
+                        fis.close();
+                        mComicMap.put(i, mBitmap);
+                    } catch (Exception e2) {
+                        e2.printStackTrace();
+                    }
                 }
-            } catch (Exception e) {
-                e.printStackTrace();
             }
+
             return null;
         }
 
@@ -516,6 +533,7 @@ public class FavoritesFragment extends android.support.v4.app.Fragment {
                 mActionBar.setSubtitle(String.valueOf(sFavorites[sFavoriteIndex]));
             }
         }
+
     }
 
     public boolean getRandomComic() {
