@@ -17,6 +17,7 @@
  */
 package de.tap.easy_xkcd;
 
+import android.app.Application;
 import android.app.ProgressDialog;
 import android.app.SearchManager;
 import android.content.Context;
@@ -310,18 +311,28 @@ public class SearchResultsActivity extends AppCompatActivity {
                                 File sdCard = Environment.getExternalStorageDirectory();
                                 File dir = new File(sdCard.getAbsolutePath() + "/easy xkcd");
                                 File file = new File(dir, String.valueOf(resultsTitle.keyAt(i)) + ".png");
-                                FileInputStream fis = new FileInputStream(file);
-                                Bitmap mBitmap = BitmapFactory.decodeStream(fis);
-                                fis.close();
-                                comicViewHolder.thumbnail.setImageBitmap(mBitmap);
+                                Glide.with(getApplicationContext())
+                                        .load(file)
+                                        .asBitmap()
+                                        .into(new SimpleTarget<Bitmap>() {
+                                            @Override
+                                            public void onResourceReady(Bitmap resource, GlideAnimation<? super Bitmap> glideAnimation) {
+                                                comicViewHolder.thumbnail.setImageBitmap(resource);
+                                            }
+                                        });
                             } else {
                                 File sdCard = Environment.getExternalStorageDirectory();
                                 File dir = new File(sdCard.getAbsolutePath() + "/easy xkcd");
                                 File file = new File(dir, String.valueOf(resultsTranscript.keyAt(i - resultsTitle.size())) + ".png");
-                                FileInputStream fis = new FileInputStream(file);
-                                Bitmap mBitmap = BitmapFactory.decodeStream(fis);
-                                fis.close();
-                                comicViewHolder.thumbnail.setImageBitmap(mBitmap);
+                                Glide.with(getApplicationContext())
+                                        .load(file)
+                                        .asBitmap()
+                                        .into(new SimpleTarget<Bitmap>() {
+                                            @Override
+                                            public void onResourceReady(Bitmap resource, GlideAnimation<? super Bitmap> glideAnimation) {
+                                                comicViewHolder.thumbnail.setImageBitmap(resource);
+                                            }
+                                        });
                             }
                         } catch (Exception e2) {
                             e2.printStackTrace();
