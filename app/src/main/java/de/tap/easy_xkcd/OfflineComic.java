@@ -21,13 +21,16 @@ import android.content.Context;
 import android.content.SharedPreferences;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.os.Environment;
 import android.preference.PreferenceManager;
+import android.util.Log;
 
 import com.tap.xkcd_reader.R;
 
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.util.Arrays;
@@ -49,7 +52,18 @@ public class OfflineComic {
             mBitmap = BitmapFactory.decodeStream(fis);
             fis.close();
         } catch (IOException e) {
-            e.printStackTrace();
+            Log.e("Error", "Image not found, looking in external storage");
+            try {
+                File sdCard = Environment.getExternalStorageDirectory();
+                File dir = new File(sdCard.getAbsolutePath() + "/easy xkcd");
+                File file = new File(dir, String.valueOf(number) + ".png");
+                FileInputStream fis = new FileInputStream(file);
+                mBitmap = BitmapFactory.decodeStream(fis);
+                fis.close();
+            } catch (Exception e2) {
+                e2.printStackTrace();
+            }
+
         }
     }
 
