@@ -215,6 +215,17 @@ public class OfflineFragment extends android.support.v4.app.Fragment {
             if (MainActivity.sProgress!=null) {
                 MainActivity.sProgress.dismiss();
             }
+            switch (Integer.parseInt(PrefHelper.getOrientation())) {
+                case 1:
+                    getActivity().setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_USER);
+                    break;
+                case 2:
+                    getActivity().setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
+                    break;
+                case 3:
+                    getActivity().setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE);
+                    break;
+            }
         }
     }
 
