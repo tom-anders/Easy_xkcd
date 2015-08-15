@@ -75,6 +75,9 @@ public class Comic {
         result[1] = json.getString("alt");
         result[2] = json.getString("img");
         mComicNumber = Integer.parseInt(json.getString("num"));
+        if (mComicNumber==712) { //fix for é and û
+            result[1] = "Using a ring to bind someone you covet into your dark and twisted world? Wow, just got the subtext there. Also, the apparently eager Beyoncé would've made one badass Nazgȗl.";
+        }
         return result;
     }
 
