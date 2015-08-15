@@ -231,6 +231,7 @@ public class PrefHelper {
     public static void setAltTip(boolean value) {
         SharedPreferences.Editor editor = sharedPrefs.edit();
         editor.putBoolean(ALT_TIP, value);
+        editor.apply();
     }
 
     public static boolean shareImage() {
