@@ -17,7 +17,6 @@
  */
 package de.tap.easy_xkcd;
 
-import android.app.Application;
 import android.app.ProgressDialog;
 import android.app.SearchManager;
 import android.content.Context;
@@ -41,7 +40,6 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
-import android.view.inputmethod.InputMethodManager;
 import android.widget.ImageView;
 import android.widget.SearchView;
 import android.widget.TextView;
@@ -381,7 +379,8 @@ public class SearchResultsActivity extends AppCompatActivity {
     class CustomOnClickListener implements View.OnClickListener {
         @Override
         public void onClick(View v) {
-            int pos = rv.getChildPosition(v);
+            //int pos = rv.getChildPosition(v);
+            int pos = rv.getChildAdapterPosition(v);
             Intent intent = new Intent("de.tap.easy_xkcd.ACTION_COMIC");
             if (pos < resultsTitle.size()) {
                 intent.putExtra("number", resultsTitle.keyAt(pos));
