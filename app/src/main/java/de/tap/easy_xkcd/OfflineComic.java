@@ -22,18 +22,13 @@ import android.content.SharedPreferences;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.os.Environment;
-import android.preference.PreferenceManager;
 import android.util.Log;
-
-import com.tap.xkcd_reader.R;
-
-import org.json.JSONException;
-import org.json.JSONObject;
 
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
-import java.util.Arrays;
+
+import de.tap.easy_xkcd.MainActivity;
 
 
 public class OfflineComic {

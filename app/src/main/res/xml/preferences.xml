@@ -1,37 +1,15 @@
 <?xml version="1.0" encoding="utf-8"?>
 <PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
-    <PreferenceCategory android:title="@string/pref_appearance">
-        <CheckBoxPreference
-            android:defaultValue="true"
-            android:key="pref_subtitle"
-            android:summary="@string/pref_subtitle_sum"
-            android:title="@string/pref_subtitle" />
-
-        <CheckBoxPreference
-            android:defaultValue="false"
-            android:key="pref_random_favorites"
-            android:summary="@string/pref_random_sum"
-            android:title="@string/pref_random_favorites" />
-
-        <CheckBoxPreference
-            android:defaultValue="false"
-            android:key="pref_random_comics"
-            android:summary=""
-            android:title="@string/pref_random_comics" />
-
-        <ListPreference
-            android:key="pref_orientation"
-            android:title="@string/pref_orientation"
-            android:entries="@array/pref_orientation"
-            android:entryValues="@array/pref_orientation_entries"
-            android:defaultValue="1"
-            android:summary="@string/pref_orientation_sum"
-            />
-
-    </PreferenceCategory>
-
     <PreferenceCategory
         android:title="@string/pref_behavior">
+        <ListPreference
+            android:key="pref_notifications"
+            android:title="@string/pref_notifications"
+            android:entries="@array/pref_notifications"
+            android:entryValues="@array/pref_notifications_entries"
+            android:defaultValue="0"
+            android:summary="@string/pref_notifications_sum"
+            />
         <CheckBoxPreference
             android:defaultValue="false"
             android:key="pref_offline"
@@ -57,6 +35,36 @@
             android:key="pref_alt"
             android:summary="@string/pref_alt_sum"
             android:title="@string/pref_alt" />
+    </PreferenceCategory>
+
+    <PreferenceCategory android:title="@string/pref_appearance">
+        <ListPreference
+            android:key="pref_orientation"
+            android:title="@string/pref_orientation"
+            android:entries="@array/pref_orientation"
+            android:entryValues="@array/pref_orientation_entries"
+            android:defaultValue="1"
+            android:summary="@string/pref_orientation_sum"
+            />
+
+        <CheckBoxPreference
+            android:defaultValue="true"
+            android:key="pref_subtitle"
+            android:summary="@string/pref_subtitle_sum"
+            android:title="@string/pref_subtitle" />
+
+        <CheckBoxPreference
+            android:defaultValue="false"
+            android:key="pref_random_favorites"
+            android:summary="@string/pref_random_sum"
+            android:title="@string/pref_random_favorites" />
+
+        <CheckBoxPreference
+            android:defaultValue="false"
+            android:key="pref_random_comics"
+            android:summary=""
+            android:title="@string/pref_random_comics" />
+
     </PreferenceCategory>
 
 </PreferenceScreen>

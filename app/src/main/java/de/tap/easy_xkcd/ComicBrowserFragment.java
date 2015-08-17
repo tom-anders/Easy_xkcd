@@ -18,13 +18,11 @@
 
 package de.tap.easy_xkcd;
 
-import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.content.SharedPreferences;
 import android.content.pm.ActivityInfo;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
@@ -36,9 +34,7 @@ import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Environment;
-import android.os.Handler;
 import android.os.Vibrator;
-import android.preference.PreferenceManager;
 import android.provider.MediaStore;
 import android.support.design.widget.Snackbar;
 import android.support.v4.view.PagerAdapter;
@@ -54,7 +50,6 @@ import android.view.MenuItem;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.animation.AccelerateInterpolator;
 import android.widget.ImageView;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
@@ -68,7 +63,6 @@ import com.tap.xkcd_reader.R;
 import org.json.JSONObject;
 
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.Arrays;
@@ -373,6 +367,10 @@ public class ComicBrowserFragment extends android.support.v4.app.Fragment {
 
             case R.id.action_latest:
                 return getLatestComic();
+                /*PrefHelper.setNewestComic(1564);
+                PrefHelper.setHighestOffline(1564);
+                sNewestComicNumber = 1564;
+                return true;*/
 
             case R.id.action_random:
                 return getRandomComic();

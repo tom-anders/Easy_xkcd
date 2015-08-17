@@ -57,6 +57,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.bumptech.glide.Glide;
+import com.commonsware.cwac.wakeful.WakefulIntentService;
 import com.tap.xkcd_reader.R;
 
 import java.io.BufferedReader;
@@ -85,19 +86,21 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-
         PrefHelper.getPrefs(this);
 
-        //fullOffline = PreferenceManager.getDefaultSharedPreferences(this).getBoolean("pref_offline", false);
+        if (savedInstanceState==null) {
+            if (PrefHelper.getNotificationInterval() != 0) {
+                WakefulIntentService.scheduleAlarms(new ComicListener(), this, true);
+            } else {
+                WakefulIntentService.cancelAlarms(this);
+            }
+        }
+
         fullOffline = PrefHelper.fullOfflineEnabled();
         if ((isOnline()) && savedInstanceState == null) {
             new updateComicTitles().execute();
             new updateComicTranscripts().execute();
         } else {
-            /*SharedPreferences preferences = getPreferences(Activity.MODE_PRIVATE);
-            sComicTitles = preferences.getString("comic_titles", "");
-            sComicTrans = preferences.getString("comic_trans", "");*/
-
             sComicTitles = PrefHelper.getComicTitles();
             sComicTrans = PrefHelper.getComicTrans();
         }
@@ -250,9 +253,6 @@ public class MainActivity extends AppCompatActivity {
                     return;
                 }
                 //showFavoritesFragment
-                /*toolbar.setAlpha(0);
-                toolbar.setTranslationY(-300);
-                toolbar.animate().setDuration(300).translationY(0).alpha(1);*/
                 View view;
                 for (int i = 2; i < toolbar.getChildCount(); i++) {
                     view = toolbar.getChildAt(i);
@@ -330,7 +330,6 @@ public class MainActivity extends AppCompatActivity {
         getSupportActionBar().setTitle(actionBarTitle);
         if (fragmentManager.findFragmentByTag(fragmentTagShow) != null) {
             //if the fragment exists, show it.
-            //fragmentManager.beginTransaction().show(fragmentManager.findFragmentByTag(fragmentTagShow)).commitAllowingStateLoss();
             android.support.v4.app.FragmentTransaction ft = fragmentManager.beginTransaction();
             if (fragmentTagShow.equals("browser")) {
                 ft.setCustomAnimations(R.anim.abc_slide_in_top, R.anim.abc_slide_in_top);
@@ -406,17 +405,11 @@ public class MainActivity extends AppCompatActivity {
 
         @Override
         protected void onPostExecute(Void dummy) {
-            //SharedPreferences preferences = getPreferences(Activity.MODE_PRIVATE);
             sComicTitles = PrefHelper.getComicTitles();
         }
 
         @Override
         protected void onCancelled() {
-            /*SharedPreferences preferences = getPreferences(Activity.MODE_PRIVATE);
-            SharedPreferences.Editor editor = preferences.edit();
-            editor.putString("comic_titles", "");
-            editor.putBoolean("titles_loaded", false);
-            editor.commit();*/
             PrefHelper.setTitles("", false, 0);
         }
     }
@@ -446,17 +439,11 @@ public class MainActivity extends AppCompatActivity {
         @Override
         protected void onPostExecute(Void dummy) {
             Log.d("done", "Comic trans updated");
-            //sComicTrans = preferences.getString("comic_trans", "");
             sComicTrans = PrefHelper.getComicTrans();
         }
 
         @Override
         protected void onCancelled() {
-            /*SharedPreferences preferences = getPreferences(Activity.MODE_PRIVATE);
-            SharedPreferences.Editor editor = preferences.edit();
-            editor.putString("comic_trans", "");
-            editor.putBoolean("titles_trans", false);
-            editor.commit();*/
             PrefHelper.setTrans("", false, 0);
         }
     }
@@ -469,9 +456,9 @@ public class MainActivity extends AppCompatActivity {
 
     private void handleIntent(Intent intent) {
         //Called when users open xkcd.com or m.xkcd.com links
+        android.support.v4.app.FragmentManager fm = getSupportFragmentManager();
         if (Intent.ACTION_VIEW.equals(intent.getAction())) {
             //Get the ComicBrowserFragment and update it
-            android.support.v4.app.FragmentManager fm = getSupportFragmentManager();
             if (isOnline()) {
                 ComicBrowserFragment fragment = (ComicBrowserFragment) fm.findFragmentByTag("browser");
                 ComicBrowserFragment.sLastComicNumber = getNumberFromUrl(intent.getDataString());
@@ -482,6 +469,22 @@ public class MainActivity extends AppCompatActivity {
                 fragment.new pagerUpdate().execute(OfflineFragment.sLastComicNumber);
             }
         }
+        if (("de.tap.easy_xkcd.ACTION_COMIC").equals(getIntent().getAction())) {
+            int number = getIntent().getIntExtra("number", 0);
+            if (isOnline() && !fullOffline) {
+                ComicBrowserFragment.sLastComicNumber = number;
+                ComicBrowserFragment.sNewestComicNumber = 0;
+                sProgress = ProgressDialog.show(this, "", this.getResources().getString(R.string.loading_comics), true);
+                ComicBrowserFragment fragment = (ComicBrowserFragment) fm.findFragmentByTag("browser");
+                fragment.new pagerUpdate().execute(ComicBrowserFragment.sLastComicNumber);
+            } else {
+                OfflineFragment.sLastComicNumber = number;
+                OfflineFragment fragment = (OfflineFragment) fm.findFragmentByTag("browser");
+                //fragment.new pagerUpdate().execute(OfflineFragment.sLastComicNumber);
+                fragment.new updateImages().execute();
+            }
+        }
+
     }
 
     private int getNumberFromUrl(String url) {
@@ -568,15 +571,18 @@ public class MainActivity extends AppCompatActivity {
                 selectDrawerItem(m);
             }
 
+            if (PrefHelper.getNotificationInterval() != 0) {
+                WakefulIntentService.scheduleAlarms(new ComicListener(), this, true);
+            } else {
+                WakefulIntentService.cancelAlarms(this);
+            }
+            Log.d("Info", "Update interval: "+ String.valueOf(PrefHelper.getNotificationInterval()));
+
             if (!fullOffline && PrefHelper.fullOfflineEnabled()) {
                 if (isOnline()) {
                     new downloadComicsTask().execute();
                 } else {
                     Toast.makeText(this, R.string.no_connection, Toast.LENGTH_SHORT).show();
-                    /*SharedPreferences pref = PreferenceManager.getDefaultSharedPreferences(MainActivity.this);
-                    SharedPreferences.Editor ed = pref.edit();
-                    ed.putBoolean("pref_offline", false);
-                    ed.commit();*/
                     PrefHelper.setFullOffline(false);
                     fullOffline = false;
                 }
@@ -586,10 +592,6 @@ public class MainActivity extends AppCompatActivity {
                 mDialog.setMessage(R.string.delete_offline_dialog)
                         .setNegativeButton(R.string.dialog_cancel, new DialogInterface.OnClickListener() {
                             public void onClick(DialogInterface dialog, int which) {
-                                /*SharedPreferences pref = PreferenceManager.getDefaultSharedPreferences(MainActivity.this);
-                                SharedPreferences.Editor ed = pref.edit();
-                                ed.putBoolean("pref_offline", true);
-                                ed.commit();*/
                                 PrefHelper.setFullOffline(true);
                             }
                         })
@@ -650,9 +652,6 @@ public class MainActivity extends AppCompatActivity {
                         }
                     }
 
-                    /*mEditor.putString(("title" + String.valueOf(i)), comic.getComicData()[0]);
-                    mEditor.putString(("alt" + String.valueOf(i)), comic.getComicData()[1]);
-                    mEditor.apply();*/
                     PrefHelper.addTitle(comic.getComicData()[0], i);
                     PrefHelper.addAlt(comic.getComicData()[1], i);
                     int p = (int) (i / ((float) ComicBrowserFragment.sNewestComicNumber) * 100);
@@ -661,8 +660,6 @@ public class MainActivity extends AppCompatActivity {
                     e.printStackTrace();
                 }
             }
-            /*mEditor.putInt("highest_offline", ComicBrowserFragment.sNewestComicNumber);
-            mEditor.apply();*/
             PrefHelper.setHighestOffline(ComicBrowserFragment.sNewestComicNumber);
             return null;
         }
@@ -736,10 +733,6 @@ public class MainActivity extends AppCompatActivity {
                     File file = new File(dir, String.valueOf(i) + ".png");
                     file.delete();
 
-                    /*mEditor.putString("title" + String.valueOf(i), null);
-                    mEditor.putString("alt" + String.valueOf(i), null);
-                    mEditor.apply();*/
-
                     int p = (int) (i / ((float) newest) * 100);
                     publishProgress(p);
                 }
@@ -747,8 +740,6 @@ public class MainActivity extends AppCompatActivity {
             PrefHelper.deleteTitleAndAlt(newest, MainActivity.this);
 
             fullOffline = false;
-            /*mEditor.putInt("highest_offline", 0);
-            mEditor.apply();*/
             PrefHelper.setHighestOffline(0);
 
             return null;

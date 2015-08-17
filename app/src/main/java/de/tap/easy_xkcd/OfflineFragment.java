@@ -18,13 +18,11 @@
 
 package de.tap.easy_xkcd;
 
-import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.content.SharedPreferences;
 import android.content.pm.ActivityInfo;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
@@ -36,16 +34,13 @@ import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Environment;
-import android.os.Handler;
 import android.os.Vibrator;
-import android.preference.PreferenceManager;
 import android.provider.MediaStore;
 import android.support.design.widget.Snackbar;
 import android.support.v4.view.PagerAdapter;
 import android.support.v4.view.ViewPager;
 import android.support.v7.app.ActionBar;
 import android.support.v7.widget.Toolbar;
-import android.text.BoringLayout;
 import android.util.Log;
 import android.util.SparseArray;
 import android.view.GestureDetector;
@@ -58,7 +53,6 @@ import android.view.ViewGroup;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
 import android.widget.ImageView;
-import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -68,7 +62,6 @@ import com.tap.xkcd_reader.R;
 
 import java.io.File;
 import java.io.FileOutputStream;
-import java.io.IOException;
 import java.util.Arrays;
 import java.util.Random;
 
@@ -85,7 +78,6 @@ public class OfflineFragment extends android.support.v4.app.Fragment {
     private HackyViewPager sPager;
     private OfflineBrowserPagerAdapter sPagerAdapter;
     private TextView tvAlt;
-    //private SharedPreferences mSharedPreferences;
     private ActionBar mActionBar;
     private Boolean randomSelected=false;
     private int pagerState;
@@ -95,18 +87,15 @@ public class OfflineFragment extends android.support.v4.app.Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View v = inflater.inflate(R.layout.pager_layout, container, false);
         setHasOptionsMenu(true);
-        //mSharedPreferences = getActivity().getPreferences(Activity.MODE_PRIVATE);
 
         if (MainActivity.sProgress!=null) {
             MainActivity.sProgress.dismiss();
         }
 
-
         if (savedInstanceState != null) {
             sLastComicNumber = savedInstanceState.getInt("Last Comic");
             savedInstance=true;
         } else if (sLastComicNumber==0) {
-            //sLastComicNumber = mSharedPreferences.getInt("Last Comic", 0);
             sLastComicNumber = PrefHelper.getLastComic();
         }
 
@@ -179,9 +168,6 @@ public class OfflineFragment extends android.support.v4.app.Fragment {
     public class pagerUpdate extends AsyncTask<Integer, Void, Void> {
         @Override
         protected Void doInBackground(Integer... pos) {
-            /*SharedPreferences.Editor editor = mSharedPreferences.edit();
-            editor.putInt("Last Comic", sLastComicNumber);
-            editor.commit();*/
             PrefHelper.setLastComic(sLastComicNumber);
 
             //sNewestComicNumber = mSharedPreferences.getInt("highest_offline",0);
@@ -410,6 +396,15 @@ public class OfflineFragment extends android.support.v4.app.Fragment {
 
             case R.id.action_latest:
                 return getLatestComic();
+                /*PrefHelper.setNewestComic(1564);
+                PrefHelper.setHighestOffline(1564);
+                File sdCard = Environment.getExternalStorageDirectory();
+                File dir = new File(sdCard.getAbsolutePath() + "/easy xkcd");
+                File file = new File(dir, String.valueOf(1564) + ".png");
+                file.delete();
+                PrefHelper.addAlt("", 1565);
+                PrefHelper.addTitle("", 1565);
+                return true;*/
 
             case R.id.action_random:
                 return getRandomComic();
@@ -513,7 +508,6 @@ public class OfflineFragment extends android.support.v4.app.Fragment {
 
     public boolean getRandomComic() {
         if (sNewestComicNumber != 0) {
-            //MainActivity.sProgress = ProgressDialog.show(getActivity(), "", this.getResources().getString(R.string.loading_random), true);
             //get a random number and update the pager
             Random mRand = new Random();
             final Integer mNumber = mRand.nextInt(sNewestComicNumber) + 1;
@@ -690,10 +684,6 @@ public class OfflineFragment extends android.support.v4.app.Fragment {
                                 }
                             }
 
-                            /*SharedPreferences.Editor mEditor = mSharedPreferences.edit();
-                            mEditor.putString(("title" + String.valueOf(i)), comic.getComicData()[0]);
-                            mEditor.putString(("alt" + String.valueOf(i)), comic.getComicData()[1]);
-                            mEditor.apply();*/
                             PrefHelper.setHighestOffline(i);
                             PrefHelper.addTitle(comic.getComicData()[0], i);
                             PrefHelper.addAlt(comic.getComicData()[1], i);
@@ -704,7 +694,6 @@ public class OfflineFragment extends android.support.v4.app.Fragment {
                 }
             }
             else {
-                //sNewestComicNumber = mSharedPreferences.getInt("highest_offline", 0);
                 sNewestComicNumber = PrefHelper.getHighestOffline();
             }
             return null;

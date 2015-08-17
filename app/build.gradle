@@ -15,8 +15,8 @@ android {
         applicationId "de.tap.easy_xkcd"
         minSdkVersion 16
         targetSdkVersion 22
-        versionCode 23
-        versionName "1.6.2"
+        versionCode 25
+        versionName "1.7.1"
     }
     buildTypes {
         release {
@@ -29,6 +29,9 @@ android {
     repositories {
         mavenCentral()
         jcenter()
+        maven {
+            url "https://repo.commonsware.com.s3.amazonaws.com"
+        }
     }
 }
 dependencies {
@@ -40,4 +43,5 @@ dependencies {
     compile 'org.sufficientlysecure:html-textview:1.2'
     compile 'com.android.support:recyclerview-v7:22.2.0'
     compile 'com.android.support:cardview-v7:22.2.0'
+    compile 'com.commonsware.cwac:wakeful:1.0.+'
 }

@@ -72,6 +72,24 @@
     </string-array>
 
     <string-array
+        name="pref_notifications">
+        <item>1 hour</item>
+        <item>3 hours</item>
+        <item>6 hours</item>
+        <item>12 hours</item>
+        <item>never</item>
+    </string-array>
+
+    <string-array
+        name="pref_notifications_entries">
+        <item>1</item>
+        <item>3</item>
+        <item>6</item>
+        <item>12</item>
+        <item>0</item>
+    </string-array>
+
+    <string-array
         name="pref_orientation_entries">
         <item>1</item>
         <item>2</item>
@@ -170,6 +188,8 @@
     <string name="pref_mobile_sum">Share m.xkcd.com links instead of xkcd.com</string>
     <string name="pref_orientation">Screen Orientation</string>
     <string name="pref_orientation_sum">Default, Portrait or Landscape</string>
+    <string name="pref_notifications">Notification update interval</string>
+    <string name="pref_notifications_sum">Increase to save battery</string>
 
 
 </resources>

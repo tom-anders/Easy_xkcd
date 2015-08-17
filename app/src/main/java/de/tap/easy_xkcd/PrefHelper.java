@@ -24,6 +24,7 @@ import android.preference.PreferenceManager;
 import android.util.Log;
 
 import java.io.IOException;
+import java.util.Calendar;
 
 public class PrefHelper {
     private static SharedPreferences sharedPrefs;
@@ -47,11 +48,14 @@ public class PrefHelper {
     private static final String ALT_TIP = "alt_tip";
     private static final String SHARE_IMAGE = "pref_share";
     private static final String SHARE_MOBILE = "pref_mobile";
-    //private static final String
-    //private static final String
+    private static final String NOTIFICATIONS_INTERVAL = "pref_notifications";
+    private static final String MONDAY_UPDATE = "monday_update";
+    private static final String WEDNESDAY_UPDATE = "wednesday_update";
+    private static final String FRIDAY_UPDATE = "friday_update";
 
     public static void getPrefs(Context context) {
-        sharedPrefs = ((MainActivity) context).getPreferences(Activity.MODE_PRIVATE);
+        //sharedPrefs = ((MainActivity) context).getPreferences(Activity.MODE_PRIVATE);
+        sharedPrefs = context.getSharedPreferences("MainActivity", Activity.MODE_PRIVATE);
         prefs = PreferenceManager.getDefaultSharedPreferences(context);
     }
 
@@ -97,6 +101,10 @@ public class PrefHelper {
         return sharedPrefs.getInt(HIGHEST_COMIC_TITLE, 0);
     }
 
+    public static int getHighestTrans() {
+        return sharedPrefs.getInt(HIGHEST_COMIC_TRANS, 0);
+    }
+
     public static void setHighestTitle(Context context) {
         SharedPreferences.Editor editor = sharedPrefs.edit();
         try {
@@ -136,11 +144,11 @@ public class PrefHelper {
         SharedPreferences.Editor editor = sharedPrefs.edit();
         try {
             int newest = new Comic(0, context).getComicNumber();
-            int n = getHighestTitle();
+            int n = getHighestTrans();
             StringBuilder sb = new StringBuilder();
             sb.append(PrefHelper.getComicTrans());
             while (n < newest) {
-                String s = new Comic(n + 1, context).getComicData()[0];
+                String s = new Comic(n + 1, context).getTranscript();
                 sb.append("&&");
                 sb.append(s);
                 editor.putInt(HIGHEST_COMIC_TRANS, n + 1);
@@ -242,6 +250,37 @@ public class PrefHelper {
         return prefs.getBoolean(SHARE_MOBILE, false);
     }
 
+    public static int getNotificationInterval() {
+        String hours = prefs.getString(NOTIFICATIONS_INTERVAL, "0");
+        return Integer.parseInt(hours)*60*60*1000;
+    }
+
+    public static boolean checkUpdated (int day) {
+        switch (day) {
+            case Calendar.MONDAY: return sharedPrefs.getBoolean(MONDAY_UPDATE, false);
+            case Calendar.WEDNESDAY: return sharedPrefs.getBoolean(WEDNESDAY_UPDATE, false);
+            case Calendar.FRIDAY: return sharedPrefs.getBoolean(FRIDAY_UPDATE, false);
+        }
+        return true;
+    }
+
+    public static void setUpdated (int day) {
+        SharedPreferences.Editor editor = sharedPrefs.edit();
+        switch (day) {
+            case Calendar.MONDAY:
+                editor.putBoolean(MONDAY_UPDATE, true);
+                editor.putBoolean(WEDNESDAY_UPDATE, false);
+                break;
+            case Calendar.WEDNESDAY:
+                editor.putBoolean(WEDNESDAY_UPDATE, true);
+                editor.putBoolean(FRIDAY_UPDATE, false);
+                break;
+            case Calendar.FRIDAY:
+                editor.putBoolean(FRIDAY_UPDATE, true);
+                editor.putBoolean(MONDAY_UPDATE, false);
+        }
+        editor.apply();
+    }
 }
 
 
