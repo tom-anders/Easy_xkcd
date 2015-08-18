@@ -689,8 +689,8 @@ public class OfflineFragment extends android.support.v4.app.Fragment {
                                     e2.printStackTrace();
                                 }
                             }
-
-                            PrefHelper.setHighestOffline(i);
+                            PrefHelper.setHighestOffline(sNewestComicNumber);
+                            PrefHelper.setNewestComic(i);
                             PrefHelper.addTitle(comic.getComicData()[0], i);
                             PrefHelper.addAlt(comic.getComicData()[1], i);
                         }
