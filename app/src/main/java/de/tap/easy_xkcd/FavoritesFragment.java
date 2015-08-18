@@ -73,8 +73,6 @@ public class FavoritesFragment extends android.support.v4.app.Fragment {
     private FavoritesPagerAdapter mPagerAdapter = null;
     private String[] mFav;
     public static int[] sFavorites;
-    //private SharedPreferences mSharedPreferences;
-    private TextView tvAlt;
     private ActionBar mActionBar;
 
     @Override
@@ -92,7 +90,6 @@ public class FavoritesFragment extends android.support.v4.app.Fragment {
         assert mActionBar != null;
 
         //Setup ViewPager, alt TextView
-        tvAlt = (TextView) getActivity().findViewById(R.id.tvAlt);
         mPagerAdapter = new FavoritesPagerAdapter(getActivity());
         mPager = (HackyViewPager) v.findViewById(R.id.pager);
         setupPager(mPager);
@@ -113,7 +110,6 @@ public class FavoritesFragment extends android.support.v4.app.Fragment {
             public void onPageSelected(int position) {
                 sFavoriteIndex = position;
                 try {
-                    tvAlt.setVisibility(View.GONE);
                     //Update the ActionBar Subtitle
                     if (PrefHelper.subtitleEnabled() && MainActivity.sCurrentFragment == R.id.nav_favorites) {
                         mActionBar.setSubtitle(String.valueOf(sFavorites[position]));
@@ -173,6 +169,13 @@ public class FavoritesFragment extends android.support.v4.app.Fragment {
             final PhotoView pvComic = (PhotoView) itemView.findViewById(R.id.ivComic);
             itemView.setTag(position);
 
+            final TextView tvAlt = (TextView) itemView.findViewById(R.id.tvAlt);
+
+            if (PrefHelper.altByDefault()) {
+                tvAlt.setVisibility(View.VISIBLE);
+            }
+            tvAlt.setText(PrefHelper.getAlt(sFavorites[position]));
+
             //fix for issue #2
             pvComic.setOnDoubleTapListener(new GestureDetector.OnDoubleTapListener() {
                 @Override
@@ -214,8 +217,7 @@ public class FavoritesFragment extends android.support.v4.app.Fragment {
                             Vibrator vi = (Vibrator) getActivity().getSystemService(MainActivity.VIBRATOR_SERVICE);
                             vi.vibrate(10);
                         }
-                        //tvAlt.setText(mSharedPreferences.getString(("alt" + String.valueOf(sFavorites[sFavoriteIndex])), ""));
-                        tvAlt.setText(PrefHelper.getAlt(sFavorites[sFavoriteIndex]));
+                        //tvAlt.setText(PrefHelper.getAlt(sFavorites[sFavoriteIndex]));
                         toggleVisibility(tvAlt);
                     }
                     return true;
@@ -284,7 +286,7 @@ public class FavoritesFragment extends android.support.v4.app.Fragment {
             mEditor.apply();*/
             PrefHelper.setAltTip(false);
         }
-        //tvAlt.setText(mSharedPreferences.getString(("alt" + String.valueOf(sFavorites[sFavoriteIndex])), ""));
+        TextView tvAlt = (TextView) mPager.getChildAt(sFavoriteIndex).findViewById(R.id.tvAlt);
         tvAlt.setText(PrefHelper.getAlt(sFavorites[sFavoriteIndex]));
         toggleVisibility(tvAlt);
         return true;
@@ -550,7 +552,8 @@ public class FavoritesFragment extends android.support.v4.app.Fragment {
             new pagerUpdate().execute();
         }
         //tvAlt.setText(mSharedPreferences.getString(("title" + String.valueOf(sFavorites[sFavoriteIndex])), ""));
-        tvAlt.setText(PrefHelper.getAlt(sFavorites[sFavoriteIndex]));
+        //TextView tvAlt = (TextView) mPager.getChildAt(sFavoriteIndex).findViewById(R.id.tvAlt);
+        //tvAlt.setText(PrefHelper.getAlt(sFavorites[sFavoriteIndex]));
     }
 
     @Override

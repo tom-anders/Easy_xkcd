@@ -77,7 +77,6 @@ public class OfflineFragment extends android.support.v4.app.Fragment {
     private OfflineComic[] sComics;
     private HackyViewPager sPager;
     private OfflineBrowserPagerAdapter sPagerAdapter;
-    private TextView tvAlt;
     private ActionBar mActionBar;
     private Boolean randomSelected=false;
     private int pagerState;
@@ -106,8 +105,8 @@ public class OfflineFragment extends android.support.v4.app.Fragment {
         sPagerAdapter = new OfflineBrowserPagerAdapter(getActivity());
         sPager = (HackyViewPager) v.findViewById(R.id.pager);
         setupPager(sPager);
-        tvAlt = (TextView) getActivity().findViewById(R.id.tvAlt);
-        tvAlt.setVisibility(View.GONE);
+        /*tvAlt = (TextView) getActivity().findViewById(R.id.tvAlt);
+        tvAlt.setVisibility(View.GONE);*/
         //Update the pager
         new updateImages().execute();
 
@@ -120,7 +119,7 @@ public class OfflineFragment extends android.support.v4.app.Fragment {
             private int state;
             @Override
             public void onPageSelected(int position) {
-                tvAlt.setVisibility(View.GONE);
+                //tvAlt.setVisibility(View.GONE);
                 try {
                     //This updates the favorite icon
                     getActivity().invalidateOptionsMenu();
@@ -283,6 +282,12 @@ public class OfflineFragment extends android.support.v4.app.Fragment {
             final PhotoView pvComic = (PhotoView) itemView.findViewById(R.id.ivComic);
             itemView.setTag(position);
 
+            final TextView tvAlt = (TextView) itemView.findViewById(R.id.tvAlt);
+            if (PrefHelper.altByDefault()) {
+                tvAlt.setVisibility(View.VISIBLE);
+            }
+            tvAlt.setText(sComicMap.get(sLastComicNumber - 1 + position).getComicData()[1]);
+
             //fix for issue #2
             pvComic.setOnDoubleTapListener(new GestureDetector.OnDoubleTapListener() {
                 @Override
@@ -323,7 +328,7 @@ public class OfflineFragment extends android.support.v4.app.Fragment {
                             Vibrator vi = (Vibrator) getActivity().getSystemService(MainActivity.VIBRATOR_SERVICE);
                             vi.vibrate(10);
                         }
-                        tvAlt.setText(sComicMap.get(sLastComicNumber).getComicData()[1]);
+                        //tvAlt.setText(sComicMap.get(sLastComicNumber).getComicData()[1]);
                         toggleVisibility(tvAlt);
                     }
                     return true;
@@ -439,6 +444,7 @@ public class OfflineFragment extends android.support.v4.app.Fragment {
             PrefHelper.setAltTip(false);
         }
         //Show alt text
+        TextView tvAlt = (TextView) sPager.getChildAt(1).findViewById(R.id.tvAlt);
         tvAlt.setText(sComicMap.get(sLastComicNumber).getComicData()[1]);
         toggleVisibility(tvAlt);
         return true;

@@ -52,6 +52,7 @@ public class PrefHelper {
     private static final String MONDAY_UPDATE = "monday_update";
     private static final String WEDNESDAY_UPDATE = "wednesday_update";
     private static final String FRIDAY_UPDATE = "friday_update";
+    private static final String ALT_DEFAULT = "pref_show_alt";
 
     public static void getPrefs(Context context) {
         //sharedPrefs = ((MainActivity) context).getPreferences(Activity.MODE_PRIVATE);
@@ -280,6 +281,10 @@ public class PrefHelper {
                 editor.putBoolean(MONDAY_UPDATE, false);
         }
         editor.apply();
+    }
+
+    public static boolean altByDefault() {
+        return prefs.getBoolean(ALT_DEFAULT, false);
     }
 }
 

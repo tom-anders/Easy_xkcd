@@ -191,4 +191,5 @@
     <string name="pref_notifications">Update interval for notifications (beta)</string>
     <string name="pref_notifications_sum">Increase to save battery</string>
     <string name="new_comic">New Comic!</string>
+    <string name="pref_show_alt">Show alt text by default</string>
 </resources>

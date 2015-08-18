@@ -61,6 +61,7 @@ import com.bumptech.glide.request.target.SimpleTarget;
 import com.tap.xkcd_reader.R;
 
 import org.json.JSONObject;
+import org.w3c.dom.Text;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -80,8 +81,6 @@ public class ComicBrowserFragment extends android.support.v4.app.Fragment {
     private Comic[] sComics;
     private HackyViewPager sPager;
     private ComicBrowserPagerAdapter sPagerAdapter;
-    private TextView tvAlt;
-    //private SharedPreferences mSharedPreferences;
     private ActionBar mActionBar;
     private int pagerState;
 
@@ -105,8 +104,8 @@ public class ComicBrowserFragment extends android.support.v4.app.Fragment {
         sPagerAdapter = new ComicBrowserPagerAdapter(getActivity());
         sPager = (HackyViewPager) v.findViewById(R.id.pager);
         setupPager(sPager);
-        tvAlt = (TextView) getActivity().findViewById(R.id.tvAlt);
-        tvAlt.setVisibility(View.GONE);
+        /*tvAlt = (TextView) getActivity().findViewById(R.id.tvAlt);
+        tvAlt.setVisibility(View.GONE);*/
         //Update the pager
         new pagerUpdate().execute(sLastComicNumber);
 
@@ -117,7 +116,7 @@ public class ComicBrowserFragment extends android.support.v4.app.Fragment {
         pager.addOnPageChangeListener(new ViewPager.OnPageChangeListener() {
             @Override
             public void onPageSelected(int position) {
-                tvAlt.setVisibility(View.GONE);
+                //tvAlt.setVisibility(View.GONE);
                 try {
                     //This updates the favorite icon
                     getActivity().invalidateOptionsMenu();
@@ -240,6 +239,12 @@ public class ComicBrowserFragment extends android.support.v4.app.Fragment {
             View itemView = mLayoutInflater.inflate(R.layout.pager_item, container, false);
             final PhotoView pvComic = (PhotoView) itemView.findViewById(R.id.ivComic);
             itemView.setTag(position);
+            final TextView tvAlt = (TextView) itemView.findViewById(R.id.tvAlt);
+
+            if (PrefHelper.altByDefault()) {
+                tvAlt.setVisibility(View.VISIBLE);
+            }
+            tvAlt.setText(sComicMap.get(sLastComicNumber - 1 + position).getComicData()[1]);
 
             //fix for issue #2
             pvComic.setOnDoubleTapListener(new GestureDetector.OnDoubleTapListener() {
@@ -281,7 +286,7 @@ public class ComicBrowserFragment extends android.support.v4.app.Fragment {
                             Vibrator vi = (Vibrator) getActivity().getSystemService(MainActivity.VIBRATOR_SERVICE);
                             vi.vibrate(10);
                         }
-                        tvAlt.setText(sComicMap.get(sLastComicNumber).getComicData()[1]);
+                        //tvAlt.setText(sComicMap.get(sLastComicNumber).getComicData()[1]);
                         toggleVisibility(tvAlt);
                     }
                     return true;
@@ -453,6 +458,7 @@ public class ComicBrowserFragment extends android.support.v4.app.Fragment {
             PrefHelper.setAltTip(false);
         }
         //Show alt text
+        TextView tvAlt = (TextView) sPager.getChildAt(1).findViewById(R.id.tvAlt);
         tvAlt.setText(sComicMap.get(sLastComicNumber).getComicData()[1]);
         toggleVisibility(tvAlt);
         return true;

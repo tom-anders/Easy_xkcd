@@ -309,21 +309,22 @@ public class MainActivity extends AppCompatActivity {
         android.support.v4.app.FragmentManager fragmentManager = getSupportFragmentManager();
         assert getSupportActionBar() != null;  //We always have an ActionBar available, so this stops Android Studio from complaining about possible NullPointerExceptions
         //Setup alt text view
-        TextView tvAlt = (TextView) findViewById(R.id.tvAlt);
+
+        /*TextView tvAlt = (TextView) findViewById(R.id.tvAlt);
         tvAlt.setVisibility(View.GONE);
         RelativeLayout.LayoutParams params = (RelativeLayout.LayoutParams) tvAlt.getLayoutParams();
         int dpMargin = 5;
         float d = this.getResources().getDisplayMetrics().density;
-        int margin = (int) (dpMargin * d);
+        int margin = (int) (dpMargin * d);*/
 
         //Setup FAB
         if (PrefHelper.fabEnabled(prefTag)) {
-            params.setMargins(margin, margin, margin, margin);
+            //params.setMargins(margin, margin, margin, margin);
             mFab.setVisibility(View.GONE);
         } else {
-            int dpMarginRight = 50;
+            /*int dpMarginRight = 50;
             int marginRight = (int) (dpMarginRight * d);
-            params.setMargins(margin, margin, marginRight, margin);
+            params.setMargins(margin, margin, marginRight, margin);*/
             mFab.setVisibility(View.VISIBLE);
         }
 
