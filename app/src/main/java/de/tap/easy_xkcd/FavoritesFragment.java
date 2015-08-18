@@ -552,8 +552,6 @@ public class FavoritesFragment extends android.support.v4.app.Fragment {
             new pagerUpdate().execute();
         }
         //tvAlt.setText(mSharedPreferences.getString(("title" + String.valueOf(sFavorites[sFavoriteIndex])), ""));
-        //TextView tvAlt = (TextView) mPager.getChildAt(sFavoriteIndex).findViewById(R.id.tvAlt);
-        //tvAlt.setText(PrefHelper.getAlt(sFavorites[sFavoriteIndex]));
     }
 
     @Override
