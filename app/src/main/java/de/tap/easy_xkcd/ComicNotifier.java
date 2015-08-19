@@ -58,7 +58,7 @@ public class ComicNotifier extends WakefulIntentService {
                                 .setSmallIcon(R.drawable.ic_notification)
                                 .setContentTitle(getResources().getString(R.string.new_comic))
                                 .setContentText(String.valueOf(comic.getComicNumber()) + ": " + comic.getComicData()[0])
-                                .setAutoCancel(false);
+                                .setAutoCancel(true);
 
                 Intent intent = new Intent("de.tap.easy_xkcd.ACTION_COMIC");
                 intent.putExtra("number", comic.getComicNumber());
