@@ -240,7 +240,7 @@ public class MainActivity extends AppCompatActivity {
                     toolbar.getChildAt(0).setAlpha(0);
                     toolbar.getChildAt(0).animate().alpha(1).setDuration(200).setInterpolator(new AccelerateInterpolator());
                 }
-                showFragment("pref_random_comics", menuItem.getItemId(), "Comics", "browser", "favorites");
+                showFragment("pref_random_comics", menuItem.getItemId(), "Comics", "browser", "favorites", "whatif");
                 break;
             case R.id.nav_favorites:
                 //Check if there are any Favorites
@@ -261,7 +261,26 @@ public class MainActivity extends AppCompatActivity {
                 }
                 toolbar.getChildAt(0).setAlpha(0);
                 toolbar.getChildAt(0).animate().alpha(1).setDuration(200).setInterpolator(new AccelerateInterpolator());
-                showFragment("pref_random_favorites", menuItem.getItemId(), getResources().getString(R.string.nv_favorites), "favorites", "browser");
+                showFragment("pref_random_favorites", menuItem.getItemId(), getResources().getString(R.string.nv_favorites), "favorites", "browser", "whatif");
+                break;
+
+            case R.id.nav_whatif:
+                if (!isOnline()) {
+                    Toast toast = Toast.makeText(this, R.string.no_connection, Toast.LENGTH_SHORT);
+                    toast.show();
+                    MenuItem m = sNavView.getMenu().findItem(sCurrentFragment);
+                    m.setChecked(true);
+                    sDrawer.closeDrawers();
+                    return;
+                }
+                for (int i = 2; i < toolbar.getChildCount(); i++) {
+                    view = toolbar.getChildAt(i);
+                    view.setTranslationY(300);
+                    view.animate().setStartDelay(50 * (i + 1)).setDuration(70 * (i + 1)).translationY(0);
+                }
+                toolbar.getChildAt(0).setAlpha(0);
+                toolbar.getChildAt(0).animate().alpha(1).setDuration(200).setInterpolator(new AccelerateInterpolator());
+                showFragment("", menuItem.getItemId(), "What if?", "whatif", "favorites", "browser");
                 break;
 
             case R.id.nav_settings:
@@ -305,7 +324,7 @@ public class MainActivity extends AppCompatActivity {
         invalidateOptionsMenu();
     }
 
-    private void showFragment(String prefTag, int itemId, String actionBarTitle, String fragmentTagShow, String fragmentTagHide) {
+    private void showFragment(String prefTag, int itemId, String actionBarTitle, String fragmentTagShow, String fragmentTagHide, String fragmentTagHide2) {
         android.support.v4.app.FragmentManager fragmentManager = getSupportFragmentManager();
         assert getSupportActionBar() != null;  //We always have an ActionBar available, so this stops Android Studio from complaining about possible NullPointerExceptions
         //Setup alt text view
@@ -321,11 +340,13 @@ public class MainActivity extends AppCompatActivity {
         if (PrefHelper.fabEnabled(prefTag)) {
             //params.setMargins(margin, margin, margin, margin);
             mFab.setVisibility(View.GONE);
-        } else {
+        } else if (!fragmentTagShow.equals("whatif")){
             /*int dpMarginRight = 50;
             int marginRight = (int) (dpMarginRight * d);
             params.setMargins(margin, margin, marginRight, margin);*/
             mFab.setVisibility(View.VISIBLE);
+        } else {
+            mFab.setVisibility(View.GONE);
         }
 
         getSupportActionBar().setTitle(actionBarTitle);
@@ -370,9 +391,12 @@ public class MainActivity extends AppCompatActivity {
                         fragmentManager.beginTransaction().add(R.id.flContent, new OfflineFragment(), fragmentTagShow).commitAllowingStateLoss();
                     }
                     break;
+                case R.id.nav_whatif:
+                    fragmentManager.beginTransaction().setCustomAnimations(R.anim.abc_slide_in_bottom, R.anim.abc_slide_in_bottom).add(R.id.flContent, new WhatIfFragment(), fragmentTagShow).commitAllowingStateLoss();
+                    break;
             }
         }
-        if (!PrefHelper.subtitleEnabled()) {
+        if (!PrefHelper.subtitleEnabled() | itemId == R.id.nav_whatif) {
             getSupportActionBar().setSubtitle("");
         }
 
@@ -380,6 +404,10 @@ public class MainActivity extends AppCompatActivity {
         if (fragmentManager.findFragmentByTag(fragmentTagHide) != null) {
             fragmentManager.beginTransaction().hide(fragmentManager.findFragmentByTag(fragmentTagHide)).commitAllowingStateLoss();
         }
+        if (fragmentManager.findFragmentByTag(fragmentTagHide2) != null) {
+            fragmentManager.beginTransaction().hide(fragmentManager.findFragmentByTag(fragmentTagHide2)).commitAllowingStateLoss();
+        }
+
     }
 
     private class updateComicTitles extends AsyncTask<Void, Void, Void> {
@@ -535,6 +563,7 @@ public class MainActivity extends AppCompatActivity {
                 return false;
             }
         });
+
         return true;
     }
 
