@@ -33,7 +33,6 @@ import java.io.IOException;
 
 import de.tap.easy_xkcd.MainActivity;
 
-
 public class OfflineComic {
     private String[] mComicData;
     private int mComicNumber;
