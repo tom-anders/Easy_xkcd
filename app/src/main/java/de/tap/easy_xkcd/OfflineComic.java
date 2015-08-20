@@ -22,7 +22,10 @@ import android.content.SharedPreferences;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.os.Environment;
+import android.support.v4.content.ContextCompat;
 import android.util.Log;
+
+import com.tap.xkcd_reader.R;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -34,16 +37,25 @@ import de.tap.easy_xkcd.MainActivity;
 public class OfflineComic {
     private String[] mComicData;
     private int mComicNumber;
-    private Bitmap mBitmap;
+    private Context mContext;
 
     public OfflineComic(Integer number, Context context){
+        mContext = context;
         mComicNumber = number;
         SharedPreferences preferences = ((MainActivity) context).getPreferences(Activity.MODE_PRIVATE);
         mComicData = new String[2];
         mComicData[0] = preferences.getString("title"+String.valueOf(number),"");
         mComicData[1] = preferences.getString("alt"+String.valueOf(number),"");
+    }
+
+    public String[] getComicData() {
+        return mComicData;
+    }
+
+    public Bitmap getBitmap() {
+        Bitmap mBitmap = null;
         try {
-            FileInputStream fis = context.openFileInput(String.valueOf(number));
+            FileInputStream fis = mContext.openFileInput(String.valueOf(mComicNumber));
             mBitmap = BitmapFactory.decodeStream(fis);
             fis.close();
         } catch (IOException e) {
@@ -51,21 +63,14 @@ public class OfflineComic {
             try {
                 File sdCard = Environment.getExternalStorageDirectory();
                 File dir = new File(sdCard.getAbsolutePath() + "/easy xkcd");
-                File file = new File(dir, String.valueOf(number) + ".png");
+                File file = new File(dir, String.valueOf(mComicNumber) + ".png");
                 FileInputStream fis = new FileInputStream(file);
                 mBitmap = BitmapFactory.decodeStream(fis);
                 fis.close();
             } catch (Exception e2) {
                 e2.printStackTrace();
             }
-
         }
-    }
-
-    public String[] getComicData() {
-        return mComicData;
-    }
-    public Bitmap getBitmap() {
         return mBitmap;
     }
     public int getComicNumber() { return mComicNumber;}
