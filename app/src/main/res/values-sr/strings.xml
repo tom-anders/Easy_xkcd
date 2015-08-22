@@ -23,6 +23,7 @@
     <string name="delete_favorites">Очисти омиљене</string>
     <string name="delete_favorites_dialog">Желите ли заиста да обришете све ваше омиљене стрипове?</string>
     <string name="favorites_cleared">Омиљени очишћени</string>
+    <string name="delete_offline_dialog">Желите ли заиста да онемогућите режим ван везе? Ово ће да обрише све сачуване слике (осим омиљених)</string>
 
     <string name="share_url">Подели УРЛ помоћу&#8230;</string>
     <string name="share_image">Подели слику помоћу&#8230;</string>
@@ -31,6 +32,7 @@
     <string name="loading_random">Учитавам насумични стрип&#8230;</string>
     <string name="no_favorites">Нисте додали ниједан омиљени!</string>
     <string name="loading_comics">Учитавам стрипове&#8230;</string>
+    <string name="loading_articles">Учитавам чланке&#8230;</string>
     <string name="loading_results">Учитавам резултате претраге&#8230;</string>
     <string name="no_connection">Нисте повезани&#8230;</string>
     <string name="no_connection_retry">Покушај поново</string>
@@ -38,6 +40,16 @@
     <string name="comic_error">Стрип није доступан</string>
     <string name="search_error">Нема стрипова</string>
     <string name="loading_latest">Учитавам најновији стрип&#8230;</string>
+    <string name="loading_offline">Преузимам стрипове&#8230;</string>
+    <string name="loading_offline_message">Не затварајте апликацију!</string>
+    <string name="loading_offline_2">Ово би могло да потраје, опустите се&#8230;</string>
+    <string name="loading_offline_20">Попијте кафу или нешто&#8230;</string>
+    <string name="loading_offline_50">Само још пола преостало!</string>
+    <string name="loading_offline_80">Скоро па готово&#8230;</string>
+    <string name="loading_offline_95">Дошло је до грешке! Покушајте поново</string>
+    <string name="loading_offline_96">Шала мала.</string>
+    <string name="loading_offline_97">Да сте само видели ваше лице!</string>
+    <string name="delete_offline">Бришем стрипове&#8230;</string>
 
     <string name="snackbar_remove">Стрип уклоњен из омиљених</string>
     <string name="snackbar_add">Стрип додат у омиљене</string>
@@ -46,17 +58,23 @@
 
     <!-- ActionBar strings -->
     <string name="action_settings">Поставке</string>
+    <string name="action_unread">Означи све као прочитано</string>
+    <string name="action_hide_read">Сакриј прочитане чланке</string>
     <string name="action_favorite">Додај у омиљене</string>
     <string name="action_latest">Најновији стрип</string>
     <string name="action_share">Подели стрип</string>
+    <string name="action_share_article">Подели чланак</string>
     <string name="action_random">Насумични стрип</string>
     <string name="action_explain">Објасни стрип</string>
     <string name="action_alt">Прикажи алт текст</string>
+    <string name="action_night_mode">Ноћни режим</string>
+    <string name="action_browser">Отвори у прегледачу</string>
     <string name="action_alt_tip">Савет: Такође можете да видите алтернативни текст дугим притиском на слику стрипа.</string>
     <string name="search_title">Претрага</string>
     <string name="search_hint">Тражите стрип</string>
     <string name="drawer_open">Отвори навигациону фиоку</string>
     <string name="drawer_close">Затвори навигациону фиоку</string>
+    <string name="new_comic">Нови стрип!</string>
 
     <string-array
         name="share_dialog">
@@ -66,92 +84,24 @@
 
     <string-array
         name="card_long_click">
-        <item>Share</item>
-        <item>Open in Browser</item>
+        <item>Подели</item>
+        <item>Отвори у прегледачу</item>
     </string-array>
 
     <string-array
         name="pref_orientation">
-        <item>Default</item>
-        <item>Portrait</item>
-        <item>Landscape</item>
+        <item>Подразумевана</item>
+        <item>Усправна</item>
+        <item>Положена</item>
     </string-array>
 
     <string-array
         name="pref_notifications">
-        <item>1 hour</item>
-        <item>3 hours</item>
-        <item>6 hours</item>
-        <item>12 hours</item>
-        <item>never</item>
-    </string-array>
-
-    <string-array
-        name="pref_notifications_entries">
-        <item>1</item>
-        <item>3</item>
-        <item>6</item>
-        <item>12</item>
-        <item>0</item>
-    </string-array>
-
-    <string-array
-        name="pref_orientation_entries">
-        <item>1</item>
-        <item>2</item>
-        <item>3</item>
-    </string-array>
-
-    <integer-array
-        name="interactive_comics">
-        <item>826</item>
-        <item>1110</item>
-        <item>1264</item>
-        <item>1331</item>
-        <item>1350</item>
-        <item>1416</item>
-        <item>1506</item>
-        <item>1525</item>
-    </integer-array>
-
-    <integer-array
-        name="large_comics">
-        <item>256</item>
-        <item>482</item>
-        <item>657</item>
-        <item>681</item>
-        <item>802</item>
-        <item>1000</item>
-        <item>1040</item>
-        <item>1071</item>
-        <item>1079</item>
-        <item>1080</item>
-        <item>1196</item>
-        <item>1256</item>
-        <item>1298</item>
-        <item>1389</item>
-        <item>1392</item>
-        <item>1491</item>
-    </integer-array>
-
-    <string-array
-        name="large_comics_urls">
-        <item>http://imgs.xkcd.com/comics/online_communities.png</item>
-        <item>http://imgs.xkcd.com/comics/height.png</item>
-        <item>http://imgs.xkcd.com/comics/movie_narrative_charts_large.png</item>
-        <item>http://imgs.xkcd.com/comics/gravity_wells_large.png</item>
-        <item>http://imgs.xkcd.com/comics/online_communities_2_large.png</item>
-        <item>http://imgs.xkcd.com/comics/1000_comics_large.png</item>
-        <item>http://imgs.xkcd.com/comics/lakes_and_oceans_large.png</item>
-        <item>http://imgs.xkcd.com/comics/exoplanets_large.png</item>
-        <item>http://imgs.xkcd.com/comics/united_shapes_large.png</item>
-        <item>http://imgs.xkcd.com/comics/visual_field_large.png</item>
-        <item>http://imgs.xkcd.com/comics/subways_large.png</item>
-        <item>http://imgs.xkcd.com/comics/questions_large.png</item>
-        <item>http://imgs.xkcd.com/comics/exoplanet_neighborhood_large.png</item>
-        <item>http://imgs.xkcd.com/comics/surface_area_large.png</item>
-        <item>http://imgs.xkcd.com/comics/dominant_players_large.png</item>
-        <item>http://imgs.xkcd.com/comics/stories_of_the_past_and_future_large.png</item>
+        <item>1 сат</item>
+        <item>3 сата</item>
+        <item>6 сати</item>
+        <item>12 сати</item>
+        <item>никад</item>
     </string-array>
 
     <string name="title_interactive">(интерактивно)</string>
@@ -160,8 +110,9 @@
     <string name="nv_comicbrowser">Стрипови</string>
     <string name="nv_favorites">Омиљени</string>
     <string name="nv_about">О програму</string>
-    <string name="nv_feedback">Feedback</string>
+    <string name="nv_feedback">Повратне информације</string>
     <string name="nav_feedback_send">Пошаљи е-пошту помоћу&#8230;</string>
+    <string name="nv_whatif" translatable="false">What if?</string>
 
     <!-- preference strings -->
     <string name="pref_alt">Хаптички одзив приказа алт текста</string>
@@ -172,38 +123,20 @@
     <string name="pref_random_comics">Сакриј ФАБ са екрана стрипова</string>
     <string name="pref_random_sum">Сакрива ФАБ (плутајуће дугме радње). Ако је сакривено, дугме ће бити у менију</string>
     <string name="pref_share">Увек дели слику стрипа</string>
-    <string name="pref_share_sum">Не питај да ли да се дели слика или УРЛ стрипа</string>
+    <string name="pref_share_sum">Без упита шта да се дели</string>
     <string name="pref_behavior">Понашање</string>
     <string name="pref_appearance">Изглед</string>
     <string name="pref_large">Велике слике</string>
     <string name="pref_large_sum">Учитавање великих слика ако их има (нпр. #657). Може да утиче на перформансе на старијим уређајима</string>
-    <string name="delete_offline">Deleting Comics&#8230;</string>
-    <string name="delete_offline_dialog">Are you sure you want to disable Offline Mode? This will deleted all saved images(except favorites)</string>
-    <string name="loading_offline">Downloading Comics&#8230;</string>
-    <string name="loading_offline_2">This might take some time, relax&#8230;</string>
-    <string name="loading_offline_20">Maybe you should get yourself a coffee or something&#8230;</string>
-    <string name="loading_offline_50">Only one more half to go!</string>
-    <string name="loading_offline_80">Almost there&#8230;</string>
-    <string name="loading_offline_95">An error occurred! Try again</string>
-    <string name="loading_offline_96">Just kidding.</string>
-    <string name="loading_offline_97">You should have seen your face!</string>
-    <string name="loading_offline_message">Do not close the app!</string>
-    <string name="pref_offline">Offline mode (beta)</string>
-    <string name="pref_offline_sum">Download all comics to internal storage. New comics will be added automatically</string>
-    <string name="pref_mobile">Share mobile links</string>
-    <string name="pref_mobile_sum">Share m.xkcd.com links instead of xkcd.com</string>
-    <string name="pref_orientation">Screen Orientation</string>
-    <string name="pref_orientation_sum">Default, Portrait or Landscape</string>
-    <string name="pref_notifications">Update interval for notifications (beta)</string>
-    <string name="pref_notifications_sum">Increase to save battery</string>
-    <string name="new_comic">New Comic!</string>
-    <string name="pref_show_alt">Show alt text by default</string>
-    <string name="loading_articles">Loading articles&#8230;</string>
-    <string name="action_night_mode">Night Mode</string>
-    <string name="action_browser">Open in browser</string>
-    <string name="action_hide_read">Hide read articles</string>
-    <string name="action_share_article">Share article</string>
-    <string name="action_unread">Mark all as unread</string>
-
+    <string name="pref_offline">Режим ван везе (бета)</string>
+    <string name="pref_offline_sum">Преузимање свих стрипова на унутрашње складиште. Нови стрипови ће бити додавани аутоматски</string>
+    <string name="pref_mobile">Дели мобилне везе</string>
+    <string name="pref_mobile_sum">Дељење m.xkcd.com уместо xkcd.com</string>
+    <string name="pref_orientation">Орјентација екрана</string>
+    <string name="pref_orientation_sum">Подразумевана, усправна или положена</string>
+    <string name="pref_notifications">Интервал ажурирања за обавештења (бета)</string>
+    <string name="pref_notifications_sum">Повећајте да бисте поштедели батерију</string>
+    <string name="pref_show_alt">Подразумевано прикажи алт текст</string>
+    <string name="title_activity_what_if" translatable="false">What if?</string>
 
 </resources>
