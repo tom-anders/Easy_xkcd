@@ -201,4 +201,7 @@
     <string name="loading_articles">Loading articles&#8230;</string>
     <string name="action_night_mode">Night Mode</string>
     <string name="action_browser">Open in browser</string>
+    <string name="action_hide_read">Hide read articles</string>
+    <string name="action_share_article">Share article</string>
+    <string name="action_unread">Mark all as unread</string>
 </resources>

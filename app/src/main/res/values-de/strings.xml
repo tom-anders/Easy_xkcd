@@ -201,5 +201,8 @@
     <string name="loading_articles">Lade Artikel&#8230;</string>
     <string name="action_night_mode">Nacht Modus</string>
     <string name="action_browser">Im Browser öffnen</string>
+    <string name="action_hide_read">Verstecke gelesene</string>
+    <string name="action_share_article">Artikel teilen</string>
+    <string name="action_unread">Alle ungelesen</string>
 
 </resources>
