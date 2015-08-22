@@ -15,8 +15,8 @@
   ~ limitations under the License.
 -->
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    android:installLocation="auto"
-    package="com.tap.xkcd_reader" >
+    package="com.tap.xkcd_reader"
+    android:installLocation="auto" >
 
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
@@ -42,6 +42,7 @@
             </intent-filter>
             <intent-filter>
                 <action android:name="de.tap.easy_xkcd.ACTION_COMIC" />
+
                 <category android:name="android.intent.category.DEFAULT" />
             </intent-filter>
             <intent-filter>
@@ -57,7 +58,19 @@
                     android:host="m.xkcd.com"
                     android:scheme="http" />
             </intent-filter>
-            <meta-data android:name="android.app.default_searchable"
+            <intent-filter>
+                <action android:name="android.intent.action.VIEW" />
+
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
+
+                <data
+                    android:host="what-if.xkcd.com"
+                    android:scheme="http" />
+            </intent-filter>
+
+            <meta-data
+                android:name="android.app.default_searchable"
                 android:value=".SearchResultsActivity" />
             <meta-data
                 android:name="de.tap.easy_xkcd.GlideConfiguration"
@@ -87,10 +100,12 @@
             <intent-filter>
                 <action android:name="android.intent.action.SEARCH" />
             </intent-filter>
+
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value="de.tap.easy_xkcd.MainActivity" />
-            <meta-data android:name="android.app.default_searchable"
+            <meta-data
+                android:name="android.app.default_searchable"
                 android:value=".SearchResultsActivity" />
             <meta-data
                 android:name="android.app.searchable"
@@ -98,6 +113,7 @@
         </activity>
 
         <service android:name="de.tap.easy_xkcd.ComicNotifier" />
+
         <receiver android:name="com.commonsware.cwac.wakeful.AlarmReceiver" >
             <intent-filter>
                 <action android:name="android.intent.action.BOOT_COMPLETED" />
@@ -114,6 +130,16 @@
                 <action android:name="android.net.conn.CONNECTIVITY_CHANGE" />
             </intent-filter>
         </receiver>
+
+        <activity
+            android:name="de.tap.easy_xkcd.WhatIfActivity"
+            android:label="@string/title_activity_what_if"
+            android:launchMode="singleTop"
+            android:parentActivityName="de.tap.easy_xkcd.MainActivity" >
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value="de.tap.easy_xkcd.MainActivity" />
+        </activity>
     </application>
 
 </manifest>

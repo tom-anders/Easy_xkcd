@@ -38,7 +38,7 @@
     <string name="comic_error">Comic nicht verfügbar</string>
     <string name="search_error">Keine Comics gefunden</string>
     <string name="loading_latest">Lade neuesten Comic&#8230;</string>
-    <string name="loading_offline">Lädt Comics</string>
+    <string name="loading_offline">Lädt Comics&#8230;</string>
     <string name="loading_offline_message">Beende nicht die App!</string>
     <string name="loading_offline_20">Vielleicht solltest du dir in der Zwischenzeit einen Kaffee kochen oder so&#8230;</string>
     <string name="loading_offline_2">Das könnte etwas dauern. Entspann dich&#8230;</string>
@@ -70,6 +70,12 @@
         name="share_dialog">
         <item>Bild teilen</item>
         <item>URL teilen</item>
+    </string-array>
+
+    <string-array
+        name="card_long_click">
+        <item>Teilen</item>
+        <item>Im Browser öffnen</item>
     </string-array>
 
     <string-array
@@ -192,5 +198,8 @@
     <string name="pref_notifications_sum">Erhöhen um Akku zu sparen</string>
     <string name="new_comic">Neuer Comic!</string>
     <string name="pref_show_alt">Alt Text immer anzeigen</string>
+    <string name="loading_articles">Lade Artikel&#8230;</string>
+    <string name="action_night_mode">Nacht Modus</string>
+    <string name="action_browser">Im Browser öffnen</string>
 
 </resources>

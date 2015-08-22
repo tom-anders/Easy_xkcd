@@ -56,4 +56,15 @@
         android:title="@string/action_explain"
         app:showAsAction="never" />
 
+    <item android:id="@+id/action_unread"
+        android:title="@string/action_unread"
+        android:visible="false"
+        app:showAsAction="never" />
+
+    <item android:id="@+id/action_hide_read"
+        android:title="@string/action_hide_read"
+        android:visible="false"
+        android:checkable="true"
+        app:showAsAction="never" />
+
 </menu>

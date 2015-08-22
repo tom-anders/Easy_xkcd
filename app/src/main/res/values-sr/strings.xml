@@ -65,6 +65,12 @@
     </string-array>
 
     <string-array
+        name="card_long_click">
+        <item>Share</item>
+        <item>Open in Browser</item>
+    </string-array>
+
+    <string-array
         name="pref_orientation">
         <item>Default</item>
         <item>Portrait</item>
@@ -192,6 +198,9 @@
     <string name="pref_notifications_sum">Increase to save battery</string>
     <string name="new_comic">New Comic!</string>
     <string name="pref_show_alt">Show alt text by default</string>
+    <string name="loading_articles">Loading articles&#8230;</string>
+    <string name="action_night_mode">Night Mode</string>
+    <string name="action_browser">Open in browser</string>
 
 
 </resources>

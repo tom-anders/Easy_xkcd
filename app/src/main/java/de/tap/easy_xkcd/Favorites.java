@@ -67,11 +67,11 @@ public class Favorites {
 
     public static String[] getFavoriteList(Activity activity) {
         String favoriteList = getStringFromPreferences(activity, null, "favorites");
-        return sortFavorites(convertStringToArray(favoriteList));
+        return sortArray(convertStringToArray(favoriteList));
     }
 
     public static boolean checkFavorite(Activity activity, int number) {
-        String[] favoriteList = sortFavorites(getFavoriteList(activity));
+        String[] favoriteList = sortArray(getFavoriteList(activity));
         int[] favoriteListInt = new int[favoriteList.length];
         for (int i = 0; i < favoriteList.length; i++) {
             favoriteListInt[i] = Integer.parseInt(favoriteList[i]);
@@ -80,7 +80,7 @@ public class Favorites {
         return (a >= 0);
     }
 
-    public static String[] sortFavorites(String[] array) {
+    public static String[] sortArray(String[] array) {
         int temp;
         for (int i = 1; i < array.length; i++) {
             temp = Integer.parseInt(array[i]);

@@ -26,6 +26,12 @@
             android:title="@string/nv_favorites"
             android:icon="@drawable/ic_action_favorite"
             />
+        <item
+            android:id="@+id/nav_whatif"
+            android:title="@string/nv_whatif"
+            android:icon="@mipmap/ic_nav_whatif"
+            android:visible="true"
+            />
     </group>
     <group android:checkableBehavior="single"
         android:id="@+id/nav_items_extra">

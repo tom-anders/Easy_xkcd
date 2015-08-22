@@ -68,7 +68,6 @@ public class SearchResultsActivity extends AppCompatActivity {
     private ProgressDialog mProgress;
     private RVAdapter adapter = null;
     private String queryTrans;
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -405,16 +404,12 @@ public class SearchResultsActivity extends AppCompatActivity {
         searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
             @Override
             public boolean onQueryTextSubmit(String query) {
-                MenuItem searchMenuItem = getSearchMenuItem();
-                if (searchMenuItem != null) {
-                    searchMenuItem.collapseActionView();
-                    searchView.setQuery("", false);
-                }
                 return false;
             }
 
             @Override
             public boolean onQueryTextChange(String newText) {
+
                 return false;
             }
         });

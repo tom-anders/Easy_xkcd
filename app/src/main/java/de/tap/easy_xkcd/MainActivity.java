@@ -89,7 +89,7 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
         PrefHelper.getPrefs(this);
 
-        if (savedInstanceState==null) {
+        if (savedInstanceState == null) {
             if (PrefHelper.getNotificationInterval() != 0) {
                 WakefulIntentService.scheduleAlarms(new ComicListener(), this, true);
             } else {
@@ -106,9 +106,17 @@ public class MainActivity extends AppCompatActivity {
             sComicTrans = PrefHelper.getComicTrans();
         }
 
+        boolean whatIfIntent = false;
         if (getIntent().getAction().equals(Intent.ACTION_VIEW)) {
-            ComicBrowserFragment.sLastComicNumber = (getNumberFromUrl(getIntent().getDataString()));
-            OfflineFragment.sLastComicNumber = (getNumberFromUrl(getIntent().getDataString()));
+            if (getIntent().getDataString().contains("what")) {
+                WhatIfActivity.WhatIfIndex = (getNumberFromUrl(getIntent().getDataString()));
+                PrefHelper.setLastWhatIf(WhatIfActivity.WhatIfIndex);
+                whatIfIntent = true;
+                WhatIfFragment.newIntent = true;
+            } else {
+                ComicBrowserFragment.sLastComicNumber = (getNumberFromUrl(getIntent().getDataString()));
+                OfflineFragment.sLastComicNumber = (getNumberFromUrl(getIntent().getDataString()));
+            }
         }
         if (("de.tap.easy_xkcd.ACTION_COMIC").equals(getIntent().getAction())) {
             int number = getIntent().getIntExtra("number", 0);
@@ -153,9 +161,13 @@ public class MainActivity extends AppCompatActivity {
                 sCurrentFragment = savedInstanceState.getInt("CurrentFragment");
                 item = sNavView.getMenu().findItem(sCurrentFragment);
             } else {
-                //Load ComicBrowserFragment by default
-                sProgress = ProgressDialog.show(this, "", this.getResources().getString(R.string.loading_comics), true);
-                item = sNavView.getMenu().findItem(R.id.nav_browser);
+                if (!whatIfIntent) {
+                    //Load ComicBrowserFragment by default
+                    sProgress = ProgressDialog.show(this, "", this.getResources().getString(R.string.loading_comics), true);
+                    item = sNavView.getMenu().findItem(R.id.nav_browser);
+                } else {
+                    item = sNavView.getMenu().findItem(R.id.nav_whatif);
+                }
             }
             selectDrawerItem(item);
         } else if ((sCurrentFragment != R.id.nav_favorites)) { //Don't show the dialog if the user is currently browsing his favorites or full offline is enabled
@@ -341,7 +353,7 @@ public class MainActivity extends AppCompatActivity {
         if (PrefHelper.fabEnabled(prefTag)) {
             //params.setMargins(margin, margin, margin, margin);
             mFab.setVisibility(View.GONE);
-        } else if (!fragmentTagShow.equals("whatif")){
+        } else if (!fragmentTagShow.equals("whatif")) {
             /*int dpMarginRight = 50;
             int marginRight = (int) (dpMarginRight * d);
             params.setMargins(margin, margin, marginRight, margin);*/
@@ -489,7 +501,15 @@ public class MainActivity extends AppCompatActivity {
         android.support.v4.app.FragmentManager fm = getSupportFragmentManager();
         if (Intent.ACTION_VIEW.equals(intent.getAction())) {
             //Get the ComicBrowserFragment and update it
-            if (isOnline()) {
+            if (intent.getDataString().contains("what")) {
+                MenuItem item = sNavView.getMenu().findItem(R.id.nav_whatif);
+                selectDrawerItem(item);
+                WhatIfActivity.WhatIfIndex = getNumberFromUrl(getIntent().getDataString());
+                Intent whatIf = new Intent(MainActivity.this, WhatIfActivity.class);
+                PrefHelper.setLastWhatIf(WhatIfActivity.WhatIfIndex);
+                startActivity(whatIf);
+            }
+            if (isOnline() && !fullOffline) {
                 ComicBrowserFragment fragment = (ComicBrowserFragment) fm.findFragmentByTag("browser");
                 ComicBrowserFragment.sLastComicNumber = getNumberFromUrl(intent.getDataString());
                 fragment.new pagerUpdate().execute(ComicBrowserFragment.sLastComicNumber);
@@ -630,7 +650,7 @@ public class MainActivity extends AppCompatActivity {
             } else {
                 WakefulIntentService.cancelAlarms(this);
             }
-            Log.d("Info", "Update interval: "+ String.valueOf(PrefHelper.getNotificationInterval()));
+            Log.d("Info", "Update interval: " + String.valueOf(PrefHelper.getNotificationInterval()));
 
             if (!fullOffline && PrefHelper.fullOfflineEnabled()) {
                 if (isOnline()) {
@@ -688,9 +708,9 @@ public class MainActivity extends AppCompatActivity {
                             .get();
                     try {
                         File sdCard = Environment.getExternalStorageDirectory();
-                        File dir = new File (sdCard.getAbsolutePath() + "/easy xkcd");
+                        File dir = new File(sdCard.getAbsolutePath() + "/easy xkcd");
                         dir.mkdirs();
-                        File file = new File(dir, String.valueOf(i)+".png");
+                        File file = new File(dir, String.valueOf(i) + ".png");
                         FileOutputStream fos = new FileOutputStream(file);
                         mBitmap.compress(Bitmap.CompressFormat.PNG, 100, fos);
                         fos.flush();

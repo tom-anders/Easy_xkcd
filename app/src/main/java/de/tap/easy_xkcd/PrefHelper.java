@@ -24,6 +24,7 @@ import android.preference.PreferenceManager;
 import android.util.Log;
 
 import java.io.IOException;
+import java.util.Arrays;
 import java.util.Calendar;
 
 public class PrefHelper {
@@ -53,6 +54,10 @@ public class PrefHelper {
     private static final String WEDNESDAY_UPDATE = "wednesday_update";
     private static final String FRIDAY_UPDATE = "friday_update";
     private static final String ALT_DEFAULT = "pref_show_alt";
+    private static final String LAST_WHATIF = "last_whatif";
+    private static final String NIGHT_MODE = "night_mode";
+    private static final String WHATIF_READ = "whatif_read";
+    private static final String HIDE_READ = "hide_read";
 
     public static void getPrefs(Context context) {
         //sharedPrefs = ((MainActivity) context).getPreferences(Activity.MODE_PRIVATE);
@@ -285,6 +290,68 @@ public class PrefHelper {
 
     public static boolean altByDefault() {
         return prefs.getBoolean(ALT_DEFAULT, false);
+    }
+
+    public static int getLastWhatIf() {
+        return sharedPrefs.getInt(LAST_WHATIF, 0);
+    }
+
+    public static void setLastWhatIf(int number) {
+        SharedPreferences.Editor editor = sharedPrefs.edit();
+        editor.putInt(LAST_WHATIF, number);
+        editor.apply();
+    }
+
+    public static boolean nightModeEnabled() {
+        return sharedPrefs.getBoolean(NIGHT_MODE, false);
+    }
+
+    public static void setNightMode(boolean value) {
+        SharedPreferences.Editor editor = sharedPrefs.edit();
+        editor.putBoolean(NIGHT_MODE, value);
+        editor.commit();
+    }
+
+    public static void setWhatifRead (String added) {
+        String read = sharedPrefs.getString(WHATIF_READ, "");
+        if (!read.equals("")) {
+            read = read + "," + added;
+        } else {
+            read = added;
+        }
+        SharedPreferences.Editor editor = sharedPrefs.edit();
+        editor.putString(WHATIF_READ, read);
+        editor.commit();
+    }
+
+    public static boolean checkRead (int number) {
+        String read = sharedPrefs.getString(WHATIF_READ, "");
+        if (read.equals("")) {
+            return false;
+        }
+        String[] readList = Favorites.sortArray(read.split(","));
+        int[] readInt = new int[readList.length];
+        for (int i=0; i<readInt.length; i++) {
+            readInt[i] = Integer.parseInt(readList[i]);
+        }
+        int a = Arrays.binarySearch(readInt, number);
+        return (a>=0);
+    }
+
+    public static void setAllUnread() {
+        SharedPreferences.Editor editor = sharedPrefs.edit();
+        editor.putString(WHATIF_READ, "");
+        editor.commit();
+    }
+
+    public static boolean hideRead() {
+        return sharedPrefs.getBoolean(HIDE_READ, false);
+    }
+
+    public static void setHideRead(boolean value) {
+        SharedPreferences.Editor editor = sharedPrefs.edit();
+        editor.putBoolean(HIDE_READ, value);
+        editor.apply();
     }
 }
 
