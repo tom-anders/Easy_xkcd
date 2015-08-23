@@ -438,7 +438,7 @@ public class MainActivity extends AppCompatActivity {
                 } catch (IOException e) {
                     Log.e("error:", e.getMessage());
                 }
-                PrefHelper.setTitles(sb.toString(), true, 1551);
+                PrefHelper.setTitles(sb.toString(), true, 1567);
                 Log.d("...", "comic titles updated first time");
             }
             PrefHelper.setHighestTitle(getApplicationContext());
@@ -471,7 +471,7 @@ public class MainActivity extends AppCompatActivity {
                 } catch (IOException e) {
                     Log.e("error:", e.getMessage());
                 }
-                PrefHelper.setTrans(sb.toString(), true, 1551);
+                PrefHelper.setTrans(sb.toString(), true, 1567);
                 Log.d("...", "comic trans updated first time");
             }
             PrefHelper.setHighestTrans(getApplicationContext());

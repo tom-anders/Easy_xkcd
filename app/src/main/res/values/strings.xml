@@ -203,7 +203,7 @@
     <string name="pref_orientation">Screen Orientation</string>
     <string name="pref_orientation_sum">Default, Portrait or Landscape</string>
     <string name="pref_notifications">Update interval for notifications (beta)</string>
-    <string name="pref_notifications_sum">Increase to save battery</string>
+    <string name="pref_notifications_sum">Only checks on Monday, Wednesday and Friday. Increase to save battery.</string>
     <string name="pref_show_alt">Show alt text by default</string>
     <string name="title_activity_what_if" translatable="false">What if?</string>
 

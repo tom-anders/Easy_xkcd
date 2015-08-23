@@ -131,7 +131,7 @@ public class PrefHelper {
             e.printStackTrace();
             editor.putBoolean(TITLES_LOADED, false);
         }
-        editor.commit();
+        editor.apply();
     }
 
     public static boolean transLoaded() {
@@ -166,7 +166,7 @@ public class PrefHelper {
             e.printStackTrace();
             editor.putBoolean(TRANS_LOADED, false);
         }
-        editor.commit();
+        editor.apply();
     }
 
     public static void addTitle (String title, int i) {

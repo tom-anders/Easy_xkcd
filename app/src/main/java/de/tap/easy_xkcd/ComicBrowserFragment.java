@@ -372,10 +372,6 @@ public class ComicBrowserFragment extends android.support.v4.app.Fragment {
 
             case R.id.action_latest:
                 return getLatestComic();
-                /*PrefHelper.setNewestComic(1564);
-                PrefHelper.setHighestOffline(1564);
-                sNewestComicNumber = 1564;
-                return true;*/
 
             case R.id.action_random:
                 return getRandomComic();
