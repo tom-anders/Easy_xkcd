@@ -51,6 +51,8 @@
                 android:layout_alignParentRight="true"
                 android:layout_gravity="bottom|right"
                 android:layout_margin="8dp"
+                app:elevation="4dp"
+                app:borderWidth="0dp"
                 android:src="@mipmap/ic_shuffle"
                 app:fabSize="mini" />
         </android.support.design.widget.CoordinatorLayout>
