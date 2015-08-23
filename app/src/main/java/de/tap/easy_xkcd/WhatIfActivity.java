@@ -16,6 +16,7 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.inputmethod.InputMethodManager;
+import android.webkit.JavascriptInterface;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
 import android.widget.Button;
@@ -41,6 +42,9 @@ public class WhatIfActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_what_if);
 
+        //TODO alt text
+        //TODO footnotes too narrow
+
         PrefHelper.getPrefs(getApplicationContext());
 
         android.support.v7.widget.Toolbar toolbar = (android.support.v7.widget.Toolbar) findViewById(R.id.toolbar);
@@ -52,6 +56,13 @@ public class WhatIfActivity extends AppCompatActivity {
         }
 
         web = (WebView) findViewById(R.id.wv);
+        web.addJavascriptInterface(new Object()
+        {
+            @JavascriptInterface
+            public void performClick(String alt) {
+                Log.e("image clicked", alt);
+            }
+        }, "ok");
 
         web.getSettings().setBuiltInZoomControls(true);
         web.getSettings().setUseWideViewPort(true);
@@ -64,7 +75,7 @@ public class WhatIfActivity extends AppCompatActivity {
     }
 
     private class LoadWhatIf extends AsyncTask<Void, Void, Void> {
-
+        @JavascriptInterface
         @Override
         protected Void doInBackground(Void... dummy) {
             try {
@@ -81,7 +92,7 @@ public class WhatIfActivity extends AppCompatActivity {
                 for (org.jsoup.nodes.Element e : doc.select("img")) {
                     String src = e.attr("src");
                     e.attr("src", "http://what-if.xkcd.com" + src);
-                    e.attr("onclick", "bt.performClick();");
+                    e.attr("onclick", "ok.performClick(title);");
                 }
 
                 //fix footnotes and math scripts

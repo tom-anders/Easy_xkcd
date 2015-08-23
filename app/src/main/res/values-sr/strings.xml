@@ -83,6 +83,42 @@
     </string-array>
 
     <string-array
+        name="pref_notifications_entries">
+        <item>1</item>
+        <item>3</item>
+        <item>6</item>
+        <item>12</item>
+        <item>0</item>
+    </string-array>
+
+    <string-array
+        name="pref_orientation_entries">
+        <item>1</item>
+        <item>2</item>
+        <item>3</item>
+    </string-array>
+
+    <string-array
+        name="large_comics_urls">
+        <item>http://imgs.xkcd.com/comics/online_communities.png</item>
+        <item>http://imgs.xkcd.com/comics/height.png</item>
+        <item>http://imgs.xkcd.com/comics/movie_narrative_charts_large.png</item>
+        <item>http://imgs.xkcd.com/comics/gravity_wells_large.png</item>
+        <item>http://imgs.xkcd.com/comics/online_communities_2_large.png</item>
+        <item>http://imgs.xkcd.com/comics/1000_comics_large.png</item>
+        <item>http://imgs.xkcd.com/comics/lakes_and_oceans_large.png</item>
+        <item>http://imgs.xkcd.com/comics/exoplanets_large.png</item>
+        <item>http://imgs.xkcd.com/comics/united_shapes_large.png</item>
+        <item>http://imgs.xkcd.com/comics/visual_field_large.png</item>
+        <item>http://imgs.xkcd.com/comics/subways_large.png</item>
+        <item>http://imgs.xkcd.com/comics/questions_large.png</item>
+        <item>http://imgs.xkcd.com/comics/exoplanet_neighborhood_large.png</item>
+        <item>http://imgs.xkcd.com/comics/surface_area_large.png</item>
+        <item>http://imgs.xkcd.com/comics/dominant_players_large.png</item>
+        <item>http://imgs.xkcd.com/comics/stories_of_the_past_and_future_large.png</item>
+    </string-array>
+
+    <string-array
         name="card_long_click">
         <item>Подели</item>
         <item>Отвори у прегледачу</item>
@@ -112,7 +148,6 @@
     <string name="nv_about">О програму</string>
     <string name="nv_feedback">Повратне информације</string>
     <string name="nav_feedback_send">Пошаљи е-пошту помоћу&#8230;</string>
-    <string name="nv_whatif" translatable="false">What if?</string>
 
     <!-- preference strings -->
     <string name="pref_alt">Хаптички одзив приказа алт текста</string>
@@ -137,6 +172,5 @@
     <string name="pref_notifications">Интервал ажурирања за обавештења (бета)</string>
     <string name="pref_notifications_sum">Повећајте да бисте поштедели батерију</string>
     <string name="pref_show_alt">Подразумевано прикажи алт текст</string>
-    <string name="title_activity_what_if" translatable="false">What if?</string>
 
 </resources>
