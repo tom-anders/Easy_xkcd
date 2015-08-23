@@ -9,6 +9,7 @@ import android.content.pm.ActivityInfo;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Build;
+import android.os.Vibrator;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
@@ -66,7 +67,7 @@ public class WhatIfActivity extends AppCompatActivity {
         }, "ok");
 
         web.getSettings().setBuiltInZoomControls(true);
-        web.getSettings().setUseWideViewPort(true);
+        web.getSettings().setUseWideViewPort(Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT);
         web.getSettings().setJavaScriptEnabled(true);
         web.getSettings().setDisplayZoomControls(false);
         web.getSettings().setLoadWithOverviewMode(true);
