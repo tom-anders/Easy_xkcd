@@ -42,7 +42,6 @@ public class WhatIfActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_what_if);
 
-        //TODO alt text
         //TODO footnotes too narrow
 
         PrefHelper.getPrefs(getApplicationContext());
@@ -60,7 +59,9 @@ public class WhatIfActivity extends AppCompatActivity {
         {
             @JavascriptInterface
             public void performClick(String alt) {
-                Log.e("image clicked", alt);
+                android.support.v7.app.AlertDialog.Builder mDialog = new android.support.v7.app.AlertDialog.Builder(WhatIfActivity.this);
+                mDialog.setMessage(alt);
+                mDialog.show();
             }
         }, "ok");
 
