@@ -23,6 +23,20 @@
         <item name="android:windowDrawsSystemBarBackgrounds">true</item>
         <item name="android:statusBarColor">@android:color/transparent</item>
         <item name="android:navigationBarColor">@color/ColorPrimary</item>
+
+        <item name="android:dialogTheme">@style/SettingsDialog</item>
+        <item name="android:alertDialogTheme">@style/SettingsDialog</item>
+
+    </style>
+
+    <style name="SettingsDialog" parent="android:Theme.Material.Light.Dialog.Alert">
+        <item name="android:colorPrimary">@color/ColorPrimary</item>
+        <item name="android:colorPrimaryDark">@color/ColorPrimaryDark</item>
+        <item name="android:colorAccent">@color/AccentDefault</item>
+    </style>
+
+    <style name="AlertDialog" parent="Theme.AppCompat.Light.Dialog.Alert">
+        <item name="colorAccent">@color/AccentDefault</item>
     </style>
 
 </resources>

@@ -20,6 +20,13 @@
         <item name="colorPrimary">@color/ColorPrimary</item>
         <item name="colorPrimaryDark">@color/ColorPrimaryDark</item>
         <item name="colorAccent">@color/AccentDefault</item>
+
+        <item name="android:dialogTheme">@style/AlertDialog</item>
+        <item name="android:alertDialogTheme">@style/AlertDialog</item>
+    </style>
+
+    <style name="AlertDialog" parent="Theme.AppCompat.Light.Dialog.Alert">
+        <item name="colorAccent">@color/AccentDefault</item>
     </style>
 
 </resources>

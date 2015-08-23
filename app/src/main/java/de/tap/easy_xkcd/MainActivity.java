@@ -171,7 +171,7 @@ public class MainActivity extends AppCompatActivity {
             }
             selectDrawerItem(item);
         } else if ((sCurrentFragment != R.id.nav_favorites)) { //Don't show the dialog if the user is currently browsing his favorites or full offline is enabled
-            android.support.v7.app.AlertDialog.Builder mDialog = new android.support.v7.app.AlertDialog.Builder(this);
+            android.support.v7.app.AlertDialog.Builder mDialog = new android.support.v7.app.AlertDialog.Builder(this, R.style.AlertDialog);
             mDialog.setMessage(R.string.no_connection)
                     .setPositiveButton(R.string.no_connection_retry, new DialogInterface.OnClickListener() {
                         public void onClick(DialogInterface dialog, int which) {
@@ -662,7 +662,7 @@ public class MainActivity extends AppCompatActivity {
                 }
             }
             if (fullOffline && !PrefHelper.fullOfflineEnabled()) {
-                android.support.v7.app.AlertDialog.Builder mDialog = new android.support.v7.app.AlertDialog.Builder(this);
+                android.support.v7.app.AlertDialog.Builder mDialog = new android.support.v7.app.AlertDialog.Builder(this, R.style.AlertDialog);
                 mDialog.setMessage(R.string.delete_offline_dialog)
                         .setNegativeButton(R.string.dialog_cancel, new DialogInterface.OnClickListener() {
                             public void onClick(DialogInterface dialog, int which) {
