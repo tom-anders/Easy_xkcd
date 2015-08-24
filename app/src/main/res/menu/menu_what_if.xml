@@ -26,4 +26,9 @@
         android:checkable="true"
         app:showAsAction="never" />
 
+    <item android:id="@+id/action_swipe"
+        android:title="@string/action_swipe"
+        android:checkable="true"
+        app:showAsAction="never" />
+
 </menu>

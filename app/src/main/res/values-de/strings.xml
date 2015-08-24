@@ -204,5 +204,6 @@
     <string name="action_hide_read">Verstecke gelesene</string>
     <string name="action_share_article">Artikel teilen</string>
     <string name="action_unread">Alle ungelesen</string>
+    <string name="action_swipe">Gesten zum navigieren</string>
 
 </resources>

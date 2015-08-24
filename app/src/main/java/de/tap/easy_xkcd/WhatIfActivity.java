@@ -16,6 +16,8 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.animation.Animation;
+import android.view.animation.AnimationUtils;
 import android.view.inputmethod.InputMethodManager;
 import android.webkit.JavascriptInterface;
 import android.webkit.WebView;
@@ -37,6 +39,8 @@ public class WhatIfActivity extends AppCompatActivity {
     private ProgressDialog mProgress;
     private String title;
     private Document doc;
+    private boolean leftSwipe = false;
+    private boolean rightSwipe = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -56,8 +60,7 @@ public class WhatIfActivity extends AppCompatActivity {
         }
 
         web = (WebView) findViewById(R.id.wv);
-        web.addJavascriptInterface(new Object()
-        {
+        web.addJavascriptInterface(new Object() {
             @JavascriptInterface
             public void performClick(String alt) {
                 android.support.v7.app.AlertDialog.Builder mDialog = new android.support.v7.app.AlertDialog.Builder(WhatIfActivity.this);
@@ -131,15 +134,50 @@ public class WhatIfActivity extends AppCompatActivity {
                 public void onPageFinished(WebView view, String url) {
                     WhatIfFragment.getInstance().updateRv();
 
-                    mProgress.dismiss();
+                    if (mProgress != null) {
+                        mProgress.dismiss();
+                    }
+
                     switch (Integer.parseInt(PrefHelper.getOrientation())) {
-                        case 1: setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_USER);
+                        case 1:
+                            setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_USER);
                             break;
-                        case 2: setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
+                        case 2:
+                            setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
                             break;
-                        case 3: setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE);
+                        case 3:
+                            setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE);
                             break;
                     }
+
+                    if (leftSwipe) {
+                        leftSwipe = false;
+                        Animation animation = AnimationUtils.loadAnimation(WhatIfActivity.this, R.anim.slide_in_left);
+                        web.startAnimation(animation);
+                        web.setVisibility(View.VISIBLE);
+                    } else if (rightSwipe) {
+                        rightSwipe = false;
+                        Animation animation = AnimationUtils.loadAnimation(WhatIfActivity.this, R.anim.slide_in_right);
+                        web.startAnimation(animation);
+                        web.setVisibility(View.VISIBLE);
+                    }
+
+                    web.setOnTouchListener(new OnSwipeTouchListener(WhatIfActivity.this) {
+                        @Override
+                        public void onSwipeRight() {
+                            if (WhatIfIndex != 1 && PrefHelper.swipeEnabled()) {
+                                nextWhatIf(true);
+                            }
+                        }
+
+                        @Override
+                        public void onSwipeLeft() {
+                            if (WhatIfIndex != WhatIfFragment.mTitles.size() && PrefHelper.swipeEnabled()) {
+                                nextWhatIf(false);
+                            }
+                        }
+                    });
+
                 }
             });
             getSupportActionBar().setSubtitle(title);
@@ -153,6 +191,7 @@ public class WhatIfActivity extends AppCompatActivity {
         getMenuInflater().inflate(R.menu.menu_what_if, menu);
 
         menu.findItem(R.id.action_night_mode).setChecked(PrefHelper.nightModeEnabled());
+        menu.findItem(R.id.action_swipe).setChecked(PrefHelper.swipeEnabled());
 
         return true;
     }
@@ -162,34 +201,25 @@ public class WhatIfActivity extends AppCompatActivity {
         switch (item.getItemId()) {
             case R.id.action_next:
                 if (WhatIfIndex != WhatIfFragment.mTitles.size()) {
-                    mProgress = ProgressDialog.show(this, "", getResources().getString(R.string.loading_articles), true);
-                    WhatIfIndex++;
-                    PrefHelper.setLastWhatIf(WhatIfIndex);
-                    new LoadWhatIf().execute();
-                    invalidateOptionsMenu();
-                    WhatIfFragment.rv.scrollToPosition(WhatIfFragment.mTitles.size() - WhatIfIndex);
-                    PrefHelper.setWhatifRead(String.valueOf(WhatIfIndex));
+                    return nextWhatIf(false);
                 }
-                return true;
             case R.id.action_back:
                 if (WhatIfIndex != 1) {
-                    mProgress = ProgressDialog.show(this, "", getResources().getString(R.string.loading_articles), true);
-                    WhatIfIndex--;
-                    PrefHelper.setLastWhatIf(WhatIfIndex);
-                    new LoadWhatIf().execute();
-                    invalidateOptionsMenu();
-                    WhatIfFragment.rv.scrollToPosition(WhatIfFragment.mTitles.size() - WhatIfIndex);
-                    PrefHelper.setWhatifRead(String.valueOf(WhatIfIndex));
+                    return nextWhatIf(true);
                 }
-                return true;
             case R.id.action_night_mode:
                 item.setChecked(!item.isChecked());
                 PrefHelper.setNightMode(item.isChecked());
                 new LoadWhatIf().execute();
                 return true;
 
+            case R.id.action_swipe:
+                item.setChecked(!item.isChecked());
+                PrefHelper.setSwipeEnabled(item.isChecked());
+                return true;
+
             case R.id.action_browser:
-                Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse("http://what-if.xkcd.com/"+String.valueOf(WhatIfIndex)));
+                Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse("http://what-if.xkcd.com/" + String.valueOf(WhatIfIndex)));
                 startActivity(intent);
                 return true;
 
@@ -203,14 +233,38 @@ public class WhatIfActivity extends AppCompatActivity {
         return super.onOptionsItemSelected(item);
     }
 
+    private boolean nextWhatIf(boolean left) {
+        mProgress = ProgressDialog.show(this, "", getResources().getString(R.string.loading_articles), true);
+        Animation animation;
+        if (left) {
+            WhatIfIndex--;
+            leftSwipe = true;
+            animation = AnimationUtils.loadAnimation(this, R.anim.slide_out_right);
+            web.startAnimation(animation);
+            web.setVisibility(View.INVISIBLE);
+        } else {
+            WhatIfIndex++;
+            rightSwipe = true;
+            animation = AnimationUtils.loadAnimation(this, R.anim.slide_out_left);
+            web.startAnimation(animation);
+            web.setVisibility(View.INVISIBLE);
+        }
+        PrefHelper.setLastWhatIf(WhatIfIndex);
+        new LoadWhatIf().execute();
+        invalidateOptionsMenu();
+        WhatIfFragment.rv.scrollToPosition(WhatIfFragment.mTitles.size() - WhatIfIndex);
+        PrefHelper.setWhatifRead(String.valueOf(WhatIfIndex));
+        return true;
+    }
+
     @Override
     public boolean onPrepareOptionsMenu(Menu menu) {
-        if (WhatIfIndex==1) {
+        if (WhatIfIndex == 1) {
             menu.findItem(R.id.action_back).setVisible(false);
         } else {
             menu.findItem(R.id.action_back).setVisible(true);
         }
-        if (WhatIfIndex==WhatIfFragment.mTitles.size()) {
+        if (WhatIfIndex == WhatIfFragment.mTitles.size()) {
             menu.findItem(R.id.action_next).setVisible(false);
         } else {
             menu.findItem(R.id.action_next).setVisible(true);

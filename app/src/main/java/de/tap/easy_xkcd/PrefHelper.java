@@ -58,6 +58,7 @@ public class PrefHelper {
     private static final String NIGHT_MODE = "night_mode";
     private static final String WHATIF_READ = "whatif_read";
     private static final String HIDE_READ = "hide_read";
+    private static final String SWIPE_ENABLED = "whatif_swipe";
 
     public static void getPrefs(Context context) {
         //sharedPrefs = ((MainActivity) context).getPreferences(Activity.MODE_PRIVATE);
@@ -351,6 +352,16 @@ public class PrefHelper {
     public static void setHideRead(boolean value) {
         SharedPreferences.Editor editor = sharedPrefs.edit();
         editor.putBoolean(HIDE_READ, value);
+        editor.apply();
+    }
+
+    public static boolean swipeEnabled() {
+        return sharedPrefs.getBoolean(SWIPE_ENABLED, false);
+    }
+
+    public static void setSwipeEnabled(boolean value) {
+        SharedPreferences.Editor editor = sharedPrefs.edit();
+        editor.putBoolean(SWIPE_ENABLED, value);
         editor.apply();
     }
 }
