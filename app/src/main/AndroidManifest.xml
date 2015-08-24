@@ -50,7 +50,9 @@
 
                 <category android:name="android.intent.category.DEFAULT" />
                 <category android:name="android.intent.category.BROWSABLE" />
-
+                <data
+                    android:host="www.xkcd.com"
+                    android:scheme="http" />
                 <data
                     android:host="xkcd.com"
                     android:scheme="http" />
