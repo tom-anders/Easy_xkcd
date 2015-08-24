@@ -110,7 +110,6 @@ public class OfflineFragment extends android.support.v4.app.Fragment {
         //Update the pager
         new updateImages().execute();
 
-
         return v;
     }
 
@@ -688,11 +687,10 @@ public class OfflineFragment extends android.support.v4.app.Fragment {
                                 } catch (Exception e2) {
                                     e2.printStackTrace();
                                 }
-                            }
+                            }PrefHelper.addTitle(comic.getComicData()[0], i);
+                            PrefHelper.addAlt(comic.getComicData()[1], i);
                             PrefHelper.setHighestOffline(sNewestComicNumber);
                             PrefHelper.setNewestComic(i);
-                            PrefHelper.addTitle(comic.getComicData()[0], i);
-                            PrefHelper.addAlt(comic.getComicData()[1], i);
                         }
                     }
                 } catch (Exception e) {

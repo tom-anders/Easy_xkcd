@@ -192,7 +192,7 @@ public class PrefHelper {
     public static void setHighestOffline(int number) {
         SharedPreferences.Editor editor = sharedPrefs.edit();
         editor.putInt(OFFLINE_HIGHEST, number);
-        editor.apply();
+        editor.commit();
     }
 
     public static int getHighestOffline() {

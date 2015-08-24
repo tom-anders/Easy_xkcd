@@ -218,20 +218,4 @@ public class WhatIfActivity extends AppCompatActivity {
         return super.onPrepareOptionsMenu(menu);
     }
 
-    private int getNumberFromUrl(String url) {
-        //Extracts the comic number from xkcd urls
-        StringBuilder sb = new StringBuilder();
-        for (int i = 0; i < url.length(); i++) {
-            char c = url.charAt(i);
-            if (c >= '0' && c <= '9') {
-                sb.append(c);
-            }
-        }
-        try {
-            return Integer.parseInt(sb.toString());
-        } catch (NumberFormatException e) {
-            return 0;
-        }
-    }
-
 }
