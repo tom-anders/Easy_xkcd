@@ -34,21 +34,24 @@ import java.io.IOException;
 import de.tap.easy_xkcd.MainActivity;
 
 public class OfflineComic {
-    private String[] mComicData;
+    //private String[] mComicData;
     private int mComicNumber;
     private Context mContext;
 
     public OfflineComic(Integer number, Context context){
         mContext = context;
         mComicNumber = number;
-        SharedPreferences preferences = ((MainActivity) context).getPreferences(Activity.MODE_PRIVATE);
-        mComicData = new String[2];
-        mComicData[0] = preferences.getString("title"+String.valueOf(number),"");
-        mComicData[1] = preferences.getString("alt"+String.valueOf(number),"");
+        //SharedPreferences preferences = ((MainActivity) context).getPreferences(Activity.MODE_PRIVATE);
+        //mComicData = new String[2];
+        //mComicData[0] = preferences.getString("title"+String.valueOf(number),"");
+        //mComicData[1] = preferences.getString("alt"+String.valueOf(number),"");
     }
 
     public String[] getComicData() {
-        return mComicData;
+        String[] result = new String[2];
+        result[0] = PrefHelper.getTitle(mComicNumber);
+        result[1] = PrefHelper.getAlt(mComicNumber);
+        return result;
     }
 
     public Bitmap getBitmap() {
