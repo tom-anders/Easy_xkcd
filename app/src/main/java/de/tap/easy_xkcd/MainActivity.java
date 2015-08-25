@@ -21,6 +21,7 @@ package de.tap.easy_xkcd;
 import android.app.Activity;
 import android.app.ActivityManager;
 import android.app.ProgressDialog;
+import android.content.ActivityNotFoundException;
 import android.content.SharedPreferences;
 import android.content.res.Configuration;
 import android.content.res.Resources;
@@ -40,6 +41,7 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
+import android.support.design.widget.Snackbar;
 import android.support.v4.view.MenuItemCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
@@ -152,6 +154,9 @@ public class MainActivity extends AppCompatActivity {
 
         mFab = (FloatingActionButton) findViewById(R.id.fab);
         setupFab(mFab);
+        if (savedInstanceState == null) {
+            showRateSnackbar();
+        }
 
         //Load fragment
         if (isOnline() | fullOffline) {
@@ -214,6 +219,28 @@ public class MainActivity extends AppCompatActivity {
                 }
             }
         });
+    }
+
+    private void showRateSnackbar() {
+        // Thanks to /u/underhound for this great idea! https://www.reddit.com/r/Android/comments/3i6uw0/dev_i_think_ive_mastered_the_art_of_asking_for/
+        if(PrefHelper.showRateDialog()) {
+            View.OnClickListener oc = new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    Uri uri = Uri.parse("market://details?id=" + MainActivity.this.getPackageName());
+                    Intent intent = new Intent(Intent.ACTION_VIEW, uri);
+                    intent.addFlags(Intent.FLAG_ACTIVITY_NO_HISTORY | Intent.FLAG_ACTIVITY_MULTIPLE_TASK);
+                    try {
+                        startActivity(intent);
+                    } catch (ActivityNotFoundException e) {
+                        startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse("http://play.google.com/store/apps/details?id=" + MainActivity.this.getPackageName())));
+                    }
+                }
+            };
+            Snackbar.make(mFab, R.string.snackbar_rate, Snackbar.LENGTH_LONG)
+                    .setAction(R.string.snackbar_rate_action, oc)
+                    .show();
+        }
     }
 
     private void setupDrawerContent(NavigationView navigationView) {

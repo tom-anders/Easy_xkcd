@@ -55,6 +55,8 @@
     <string name="snackbar_add">Comic added to favorites</string>
     <string name="snackbar_remove_all">Favorites cleared</string>
     <string name="snackbar_undo">Undo</string>
+    <string name="snackbar_rate">So you like Easy xkcd?</string>
+    <string name="snackbar_rate_action">Rate</string>
 
     <!-- ActionBar strings -->
     <string name="action_settings">Settings</string>

@@ -59,6 +59,7 @@ public class PrefHelper {
     private static final String WHATIF_READ = "whatif_read";
     private static final String HIDE_READ = "hide_read";
     private static final String SWIPE_ENABLED = "whatif_swipe";
+    private static final String RATE_SNACKBAR = "rate_snackbar";
 
     public static void getPrefs(Context context) {
         //sharedPrefs = ((MainActivity) context).getPreferences(Activity.MODE_PRIVATE);
@@ -170,24 +171,24 @@ public class PrefHelper {
         editor.apply();
     }
 
-    public static void addTitle (String title, int i) {
+    public static void addTitle(String title, int i) {
         SharedPreferences.Editor editor = sharedPrefs.edit();
         editor.putString(OFFLINE_TITLE + String.valueOf(i), title);
         editor.commit();
     }
 
-    public static String getTitle (int number) {
-        return sharedPrefs.getString(OFFLINE_TITLE+String.valueOf(number), "");
+    public static String getTitle(int number) {
+        return sharedPrefs.getString(OFFLINE_TITLE + String.valueOf(number), "");
     }
 
-    public static void addAlt (String alt, int i) {
+    public static void addAlt(String alt, int i) {
         SharedPreferences.Editor editor = sharedPrefs.edit();
         editor.putString(OFFLINE_ALT + String.valueOf(i), alt);
         editor.commit();
     }
 
-    public static String getAlt (int number) {
-        return sharedPrefs.getString(OFFLINE_ALT+String.valueOf(number), "");
+    public static String getAlt(int number) {
+        return sharedPrefs.getString(OFFLINE_ALT + String.valueOf(number), "");
     }
 
     public static void setHighestOffline(int number) {
@@ -204,9 +205,9 @@ public class PrefHelper {
         return sharedPrefs.getInt(NEWEST_COMIC, 0);
     }
 
-    public static void deleteTitleAndAlt (int newest, Activity activity) {
+    public static void deleteTitleAndAlt(int newest, Activity activity) {
         SharedPreferences.Editor editor = sharedPrefs.edit();
-        for (int i = 1; i<=newest; i++) {
+        for (int i = 1; i <= newest; i++) {
             if (!Favorites.checkFavorite(activity, i)) {
                 editor.putString(OFFLINE_TITLE, "");
                 editor.putString(OFFLINE_ALT, "");
@@ -259,19 +260,22 @@ public class PrefHelper {
 
     public static int getNotificationInterval() {
         String hours = prefs.getString(NOTIFICATIONS_INTERVAL, "0");
-        return Integer.parseInt(hours)*60*60*1000;
+        return Integer.parseInt(hours) * 60 * 60 * 1000;
     }
 
-    public static boolean checkUpdated (int day) {
+    public static boolean checkUpdated(int day) {
         switch (day) {
-            case Calendar.MONDAY: return sharedPrefs.getBoolean(MONDAY_UPDATE, false);
-            case Calendar.WEDNESDAY: return sharedPrefs.getBoolean(WEDNESDAY_UPDATE, false);
-            case Calendar.FRIDAY: return sharedPrefs.getBoolean(FRIDAY_UPDATE, false);
+            case Calendar.MONDAY:
+                return sharedPrefs.getBoolean(MONDAY_UPDATE, false);
+            case Calendar.WEDNESDAY:
+                return sharedPrefs.getBoolean(WEDNESDAY_UPDATE, false);
+            case Calendar.FRIDAY:
+                return sharedPrefs.getBoolean(FRIDAY_UPDATE, false);
         }
         return true;
     }
 
-    public static void setUpdated (int day) {
+    public static void setUpdated(int day) {
         SharedPreferences.Editor editor = sharedPrefs.edit();
         switch (day) {
             case Calendar.MONDAY:
@@ -313,7 +317,7 @@ public class PrefHelper {
         editor.commit();
     }
 
-    public static void setWhatifRead (String added) {
+    public static void setWhatifRead(String added) {
         String read = sharedPrefs.getString(WHATIF_READ, "");
         if (!read.equals("")) {
             read = read + "," + added;
@@ -325,18 +329,18 @@ public class PrefHelper {
         editor.commit();
     }
 
-    public static boolean checkRead (int number) {
+    public static boolean checkRead(int number) {
         String read = sharedPrefs.getString(WHATIF_READ, "");
         if (read.equals("")) {
             return false;
         }
         String[] readList = Favorites.sortArray(read.split(","));
         int[] readInt = new int[readList.length];
-        for (int i=0; i<readInt.length; i++) {
+        for (int i = 0; i < readInt.length; i++) {
             readInt[i] = Integer.parseInt(readList[i]);
         }
         int a = Arrays.binarySearch(readInt, number);
-        return (a>=0);
+        return (a >= 0);
     }
 
     public static void setAllUnread() {
@@ -364,6 +368,17 @@ public class PrefHelper {
         editor.putBoolean(SWIPE_ENABLED, value);
         editor.apply();
     }
+
+    public static boolean showRateDialog() {
+        int n = sharedPrefs.getInt(RATE_SNACKBAR, 0);
+        if (n < 30) {
+            SharedPreferences.Editor editor = sharedPrefs.edit();
+            editor.putInt(RATE_SNACKBAR, n + 1);
+            editor.apply();
+        }
+        return (n == 12 | n == 30);
+    }
+
 }
 
 

@@ -173,5 +173,7 @@
     <string name="pref_notifications_sum">Повећајте да бисте поштедели батерију</string>
     <string name="pref_show_alt">Подразумевано прикажи алт текст</string>
     <string name="action_swipe">Swipe to navigate</string>
+    <string name="snackbar_rate">So you like Easy xkcd?</string>
+    <string name="snackbar_rate_action">Rate</string>
 
 </resources>

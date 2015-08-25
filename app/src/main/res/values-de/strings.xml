@@ -205,5 +205,7 @@
     <string name="action_share_article">Artikel teilen</string>
     <string name="action_unread">Alle ungelesen</string>
     <string name="action_swipe">Gesten zum navigieren</string>
+    <string name="snackbar_rate">Du magst Easy xkcd?</string>
+    <string name="snackbar_rate_action">Bewerten</string>
 
 </resources>

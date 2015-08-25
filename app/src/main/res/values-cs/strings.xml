@@ -205,4 +205,6 @@
     <string name="action_share_article">Share article</string>
     <string name="action_unread">Mark all as unread</string>
     <string name="action_swipe">Swipe to navigate</string>
+    <string name="snackbar_rate">So you like Easy xkcd?</string>
+    <string name="snackbar_rate_action">Rate</string>
 </resources>
