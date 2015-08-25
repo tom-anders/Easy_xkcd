@@ -371,7 +371,7 @@ public class PrefHelper {
 
     public static boolean showRateDialog() {
         int n = sharedPrefs.getInt(RATE_SNACKBAR, 0);
-        if (n < 30) {
+        if (n < 31) {
             SharedPreferences.Editor editor = sharedPrefs.edit();
             editor.putInt(RATE_SNACKBAR, n + 1);
             editor.apply();
