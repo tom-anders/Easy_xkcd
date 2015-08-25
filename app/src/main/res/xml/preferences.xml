@@ -39,6 +39,15 @@
 
     <PreferenceCategory android:title="@string/pref_appearance">
         <ListPreference
+            android:key="pref_theme"
+            android:title="@string/pref_theme"
+            android:entries="@array/pref_theme"
+            android:entryValues="@array/pref_theme_entries"
+            android:defaultValue="1"
+            android:summary="@string/pref_theme_sum"
+            />
+
+        <ListPreference
             android:key="pref_orientation"
             android:title="@string/pref_orientation"
             android:entries="@array/pref_orientation"

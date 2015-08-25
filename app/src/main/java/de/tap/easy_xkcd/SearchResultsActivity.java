@@ -33,6 +33,7 @@ import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.util.SparseArray;
+import android.util.TypedValue;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -70,6 +71,7 @@ public class SearchResultsActivity extends AppCompatActivity {
     private String queryTrans;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+        setTheme(PrefHelper.getTheme());
         super.onCreate(savedInstanceState);
         mProgress = ProgressDialog.show(this, "", this.getResources().getString(R.string.loading_results), true);
 
@@ -79,9 +81,15 @@ public class SearchResultsActivity extends AppCompatActivity {
         android.support.v7.widget.Toolbar toolbar = (android.support.v7.widget.Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-
-        if (Build.VERSION.SDK_INT >= 21) {
-            getWindow().setStatusBarColor(getResources().getColor(R.color.ColorPrimaryDark));
+        if (savedInstanceState==null) {
+            TypedValue typedValue = new TypedValue();
+            getTheme().resolveAttribute(R.attr.colorPrimaryDark, typedValue, true);
+            TypedValue typedValue2 = new TypedValue();
+            getTheme().resolveAttribute(R.attr.colorPrimary, typedValue2, true);
+            toolbar.setBackgroundColor(typedValue2.data);
+            if (Build.VERSION.SDK_INT >= 21) {
+                getWindow().setStatusBarColor(typedValue.data);
+            }
         }
 
         rv = (RecyclerView) findViewById(R.id.rv);

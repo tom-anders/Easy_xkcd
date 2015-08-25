@@ -87,9 +87,10 @@ public class MainActivity extends AppCompatActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+        PrefHelper.getPrefs(this);
+        setTheme(PrefHelper.getTheme());
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        PrefHelper.getPrefs(this);
 
         if (savedInstanceState == null) {
             if (PrefHelper.getNotificationInterval() != 0) {
@@ -144,6 +145,9 @@ public class MainActivity extends AppCompatActivity {
         setSupportActionBar(toolbar);
         if (savedInstanceState == null) {
             toolbar.setAlpha(0);
+            TypedValue typedValue2 = new TypedValue();
+            getTheme().resolveAttribute(R.attr.colorPrimary, typedValue2, true);
+            toolbar.setBackgroundColor(typedValue2.data);
         }
 
         sDrawer = (DrawerLayout) findViewById(R.id.drawer_layout);

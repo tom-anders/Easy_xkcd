@@ -23,6 +23,8 @@ import android.content.SharedPreferences;
 import android.preference.PreferenceManager;
 import android.util.Log;
 
+import com.tap.xkcd_reader.R;
+
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.Calendar;
@@ -60,6 +62,7 @@ public class PrefHelper {
     private static final String HIDE_READ = "hide_read";
     private static final String SWIPE_ENABLED = "whatif_swipe";
     private static final String RATE_SNACKBAR = "rate_snackbar";
+    private static final String THEME = "pref_theme";
 
     public static void getPrefs(Context context) {
         //sharedPrefs = ((MainActivity) context).getPreferences(Activity.MODE_PRIVATE);
@@ -377,6 +380,19 @@ public class PrefHelper {
             editor.apply();
         }
         return (n == 12 | n == 30);
+    }
+
+    public static int getTheme() {
+        int n = Integer.parseInt(prefs.getString(THEME, "1"));
+        switch (n) {
+            case 1: return R.style.DefaultTheme;
+            case 2: return R.style.RedTheme;
+            case 3: return R.style.BlueTheme;
+            case 4: return R.style.BlackTheme;
+            case 5: return R.style.PurpleTheme;
+            case 6: return R.style.LimeTheme;
+            default: return R.style.DefaultTheme;
+        }
     }
 
 }

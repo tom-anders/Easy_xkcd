@@ -1,5 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
-<!--
+<?xml version="1.0" encoding="utf-8"?><!--
   ~ Copyright 2015, Tom Praschan
   ~
   ~ Licensed under the Apache License, Version 2.0 (the "License");
@@ -38,5 +37,122 @@
     <style name="AlertDialog" parent="Theme.AppCompat.Light.Dialog.Alert">
         <item name="colorAccent">@color/AccentDefault</item>
     </style>
+
+    <style name="RedTheme" parent="Theme.AppCompat.Light.NoActionBar">
+        <item name="colorPrimary">@color/ColorPrimaryRed</item>
+        <item name="colorPrimaryDark">@color/ColorPrimaryDarkRed</item>
+        <item name="colorAccent">@color/AccentRed</item>
+        <item name="android:windowDrawsSystemBarBackgrounds">true</item>
+        <item name="android:statusBarColor">@android:color/transparent</item>
+        <item name="android:navigationBarColor">@color/ColorPrimaryRed</item>
+
+        <item name="android:dialogTheme">@style/SettingsDialogRed</item>
+        <item name="android:alertDialogTheme">@style/SettingsDialogRed</item>
+
+    </style>
+
+    <style name="SettingsDialogRed" parent="android:Theme.Material.Light.Dialog.Alert">
+        <item name="android:colorPrimary">@color/ColorPrimaryRed</item>
+        <item name="android:colorPrimaryDark">@color/ColorPrimaryDarkRed</item>
+        <item name="android:colorAccent">@color/AccentRed</item>
+    </style>
+
+    <style name="AlertDialogRed" parent="Theme.AppCompat.Light.Dialog.Alert">
+        <item name="colorAccent">@color/AccentRed</item>
+    </style>
+
+
+    <style name="BlueTheme" parent="Theme.AppCompat.Light.NoActionBar">
+        <item name="colorPrimary">@color/ColorPrimaryBlue</item>
+        <item name="colorPrimaryDark">@color/ColorPrimaryDarkBlue</item>
+        <item name="colorAccent">@color/AccentBlue</item>
+        <item name="android:windowDrawsSystemBarBackgrounds">true</item>
+        <item name="android:statusBarColor">@android:color/transparent</item>
+        <item name="android:navigationBarColor">@color/ColorPrimaryBlue</item>
+
+        <item name="android:dialogTheme">@style/SettingsDialogBlue</item>
+        <item name="android:alertDialogTheme">@style/SettingsDialogBlue</item>
+
+    </style>
+
+    <style name="SettingsDialogBlue" parent="android:Theme.Material.Light.Dialog.Alert">
+        <item name="android:colorPrimary">@color/ColorPrimaryBlue</item>
+        <item name="android:colorPrimaryDark">@color/ColorPrimaryDarkBlue</item>
+        <item name="android:colorAccent">@color/AccentBlue</item>
+    </style>
+
+    <style name="AlertDialogBlue" parent="Theme.AppCompat.Light.Dialog.Alert">
+        <item name="colorAccent">@color/AccentBlue</item>
+    </style>
+
+    <style name="BlackTheme" parent="Theme.AppCompat.Light.NoActionBar">
+        <item name="colorPrimary">@color/ColorPrimaryBlack</item>
+        <item name="colorPrimaryDark">@color/ColorPrimaryDarkBlack</item>
+        <item name="colorAccent">@color/AccentBlack</item>
+        <item name="android:windowDrawsSystemBarBackgrounds">true</item>
+        <item name="android:statusBarColor">@android:color/transparent</item>
+        <item name="android:navigationBarColor">@color/ColorPrimaryBlack</item>
+
+        <item name="android:dialogTheme">@style/SettingsDialogBlack</item>
+        <item name="android:alertDialogTheme">@style/SettingsDialogBlack</item>
+
+    </style>
+
+    <style name="SettingsDialogBlack" parent="android:Theme.Material.Light.Dialog.Alert">
+        <item name="android:colorPrimary">@color/ColorPrimaryBlack</item>
+        <item name="android:colorPrimaryDark">@color/ColorPrimaryDarkBlack</item>
+        <item name="android:colorAccent">@color/AccentBlack</item>
+    </style>
+
+    <style name="AlertDialogBlack" parent="Theme.AppCompat.Light.Dialog.Alert">
+        <item name="colorAccent">@color/AccentBlack</item>
+    </style>
+
+    <style name="PurpleTheme" parent="Theme.AppCompat.Light.NoActionBar">
+        <item name="colorPrimary">@color/ColorPrimaryPurple</item>
+        <item name="colorPrimaryDark">@color/ColorPrimaryDarkPurple</item>
+        <item name="colorAccent">@color/AccentPurple</item>
+        <item name="android:windowDrawsSystemBarBackgrounds">true</item>
+        <item name="android:statusBarColor">@android:color/transparent</item>
+        <item name="android:navigationBarColor">@color/ColorPrimaryPurple</item>
+
+        <item name="android:dialogTheme">@style/SettingsDialogPurple</item>
+        <item name="android:alertDialogTheme">@style/SettingsDialogPurple</item>
+
+    </style>
+
+    <style name="SettingsDialogPurple" parent="android:Theme.Material.Light.Dialog.Alert">
+        <item name="android:colorPrimary">@color/ColorPrimaryPurple</item>
+        <item name="android:colorPrimaryDark">@color/ColorPrimaryDarkPurple</item>
+        <item name="android:colorAccent">@color/AccentPurple</item>
+    </style>
+
+    <style name="AlertDialogPurple" parent="Theme.AppCompat.Light.Dialog.Alert">
+        <item name="colorAccent">@color/AccentPurple</item>
+    </style>
+
+    <style name="LimeTheme" parent="Theme.AppCompat.Light.NoActionBar">
+        <item name="colorPrimary">@color/ColorPrimaryLime</item>
+        <item name="colorPrimaryDark">@color/ColorPrimaryDarkLime</item>
+        <item name="colorAccent">@color/AccentLime</item>
+        <item name="android:windowDrawsSystemBarBackgrounds">true</item>
+        <item name="android:statusBarColor">@android:color/transparent</item>
+        <item name="android:navigationBarColor">@color/ColorPrimaryLime</item>
+
+        <item name="android:dialogTheme">@style/SettingsDialogLime</item>
+        <item name="android:alertDialogTheme">@style/SettingsDialogLime</item>
+
+    </style>
+
+    <style name="SettingsDialogLime" parent="android:Theme.Material.Light.Dialog.Alert">
+        <item name="android:colorPrimary">@color/ColorPrimaryLime</item>
+        <item name="android:colorPrimaryDark">@color/ColorPrimaryDarkLime</item>
+        <item name="android:colorAccent">@color/AccentLime</item>
+    </style>
+
+    <style name="AlertDialogLime" parent="Theme.AppCompat.Light.Dialog.Alert">
+        <item name="colorAccent">@color/AccentLime</item>
+    </style>
+
 
 </resources>

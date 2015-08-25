@@ -99,6 +99,26 @@
     </string-array>
 
     <string-array
+        name="pref_theme">
+        <item>Blue/Grey (Default)</item>
+        <item>Red</item>
+        <item>Bright Blue</item>
+        <item>Black</item>
+        <item>Purple</item>
+        <item>Lime</item>
+    </string-array>
+
+    <string-array
+        name="pref_theme_entries">
+        <item>1</item>
+        <item>2</item>
+        <item>3</item>
+        <item>4</item>
+        <item>5</item>
+        <item>6</item>
+    </string-array>
+
+    <string-array
         name="large_comics_urls">
         <item>http://imgs.xkcd.com/comics/online_communities.png</item>
         <item>http://imgs.xkcd.com/comics/height.png</item>
@@ -175,5 +195,7 @@
     <string name="action_swipe">Swipe to navigate</string>
     <string name="snackbar_rate">So you like Easy xkcd?</string>
     <string name="snackbar_rate_action">Rate</string>
+    <string name="pref_theme">Theme</string>
+    <string name="pref_theme_sum">You need to restart the app in order for the theme to be applied</string>
 
 </resources>

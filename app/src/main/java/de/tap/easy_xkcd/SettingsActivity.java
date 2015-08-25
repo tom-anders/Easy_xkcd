@@ -20,6 +20,7 @@ import android.os.Build;
 import android.preference.PreferenceFragment;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
+import android.util.TypedValue;
 
 import com.tap.xkcd_reader.R;
 
@@ -27,6 +28,7 @@ public class SettingsActivity extends AppCompatActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+        setTheme(PrefHelper.getTheme());
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_settings);
 
@@ -35,8 +37,15 @@ public class SettingsActivity extends AppCompatActivity {
         setSupportActionBar(toolbar);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
-        if (Build.VERSION.SDK_INT >= 21) {
-            getWindow().setStatusBarColor(getResources().getColor(R.color.ColorPrimaryDark));
+        if (savedInstanceState==null) {
+            TypedValue typedValue = new TypedValue();
+            getTheme().resolveAttribute(R.attr.colorPrimaryDark, typedValue, true);
+            TypedValue typedValue2 = new TypedValue();
+            getTheme().resolveAttribute(R.attr.colorPrimary, typedValue2, true);
+            toolbar.setBackgroundColor(typedValue2.data);
+            if (Build.VERSION.SDK_INT >= 21) {
+                getWindow().setStatusBarColor(typedValue.data);
+            }
         }
 
         //load the settings fragment

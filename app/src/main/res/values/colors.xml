@@ -4,4 +4,27 @@
     <color name="ColorPrimaryDark">#455A64</color>
     <color name="AccentDefault">#CDDC39</color>
     <color name="Read">#BDBDBD</color>
+
+    <color name="ColorPrimaryRed">#F44336</color>
+    <color name="ColorPrimaryDarkRed">#D32F2F</color>
+    <color name="AccentRed">#536DFE</color>
+
+    <color name="ColorPrimaryBlue">#2196F3</color>
+    <color name="ColorPrimaryDarkBlue">#1976D2</color>
+    <color name="AccentBlue">#FF9800</color>
+
+    <color name="ColorPrimaryBlack">#000</color>
+    <color name="ColorPrimaryDarkBlack">#000</color>
+    <color name="AccentBlack">#FF9800</color>
+
+    <color name="ColorPrimaryPurple">#673AB7</color>
+    <color name="ColorPrimaryDarkPurple">#512DA8</color>
+    <color name="AccentPurple">#FF5252</color>
+
+    <color name="ColorPrimaryLime">#CDDC39</color>
+    <color name="ColorPrimaryDarkLime">#AFB42B</color>
+    <color name="AccentLime">#9E9E9E</color>
+
+
+
 </resources>

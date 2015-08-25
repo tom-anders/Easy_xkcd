@@ -97,6 +97,26 @@
     </string-array>
 
     <string-array
+        name="pref_theme">
+        <item>Blau/Grau (Default)</item>
+        <item>Rot</item>
+        <item>Hellblau</item>
+        <item>Schwarz</item>
+        <item>Violett</item>
+        <item>Gelb</item>
+    </string-array>
+
+    <string-array
+        name="pref_theme_entries">
+        <item>1</item>
+        <item>2</item>
+        <item>3</item>
+        <item>4</item>
+        <item>5</item>
+        <item>6</item>
+    </string-array>
+
+    <string-array
         name="pref_orientation">
         <item>Standard</item>
         <item>Portrait</item>
@@ -207,5 +227,7 @@
     <string name="action_swipe">Gesten zum navigieren</string>
     <string name="snackbar_rate">Du magst Easy xkcd?</string>
     <string name="snackbar_rate_action">Bewerten</string>
+    <string name="pref_theme">Theme</string>
+    <string name="pref_theme_sum">Starte die App neu, um das neue Theme anzuwenden.</string>
 
 </resources>

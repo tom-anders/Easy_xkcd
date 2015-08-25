@@ -15,13 +15,40 @@
   ~ limitations under the License.
   -->
 <resources>
-    <!-- Base application theme. -->
     <style name="DefaultTheme" parent="Theme.AppCompat.Light.NoActionBar">
-        <!-- Customize your theme here. -->
         <item name="colorPrimary">@color/ColorPrimary</item>
         <item name="colorPrimaryDark">@color/ColorPrimaryDark</item>
         <item name="colorAccent">@color/AccentDefault</item>
 
     </style>
 
+    <style name="RedTheme" parent="Theme.AppCompat.Light.NoActionBar">
+        <item name="colorPrimary">@color/ColorPrimaryRed</item>
+        <item name="colorPrimaryDark">@color/ColorPrimaryDarkRed</item>
+        <item name="colorAccent">@color/AccentRed</item>
+    </style>
+
+    <style name="BlueTheme" parent="Theme.AppCompat.Light.NoActionBar">
+        <item name="colorPrimary">@color/ColorPrimaryBlue</item>
+        <item name="colorPrimaryDark">@color/ColorPrimaryDarkBlue</item>
+        <item name="colorAccent">@color/AccentBlue</item>
+    </style>
+
+    <style name="BlackTheme" parent="Theme.AppCompat.Light.NoActionBar">
+        <item name="colorPrimary">@color/ColorPrimaryBlack</item>
+        <item name="colorPrimaryDark">@color/ColorPrimaryDarkBlack</item>
+        <item name="colorAccent">@color/AccentBlack</item>
+    </style>
+
+    <style name="PurpleTheme" parent="Theme.AppCompat.Light.NoActionBar">
+        <item name="colorPrimary">@color/ColorPrimaryPurple</item>
+        <item name="colorPrimaryDark">@color/ColorPrimaryDarkPurple</item>
+        <item name="colorAccent">@color/AccentPurple</item>
+    </style>
+
+    <style name="LimeTheme" parent="Theme.AppCompat.Light.NoActionBar">
+        <item name="colorPrimary">@color/ColorPrimaryLime</item>
+        <item name="colorPrimaryDark">@color/ColorPrimaryDarkLime</item>
+        <item name="colorAccent">@color/AccentLime</item>
+    </style>
 </resources>

@@ -108,6 +108,26 @@
     </string-array>
 
     <string-array
+        name="pref_theme">
+        <item>Blue/Grey (Default)</item>
+        <item>Red</item>
+        <item>Bright Blue</item>
+        <item>Black</item>
+        <item>Purple</item>
+        <item>Lime</item>
+    </string-array>
+
+    <string-array
+        name="pref_theme_entries">
+        <item>1</item>
+        <item>2</item>
+        <item>3</item>
+        <item>4</item>
+        <item>5</item>
+        <item>6</item>
+    </string-array>
+
+    <string-array
         name="pref_notifications_entries">
         <item>1</item>
         <item>3</item>
@@ -208,6 +228,8 @@
     <string name="pref_notifications">Update interval for notifications (beta)</string>
     <string name="pref_notifications_sum">Only checks on Monday, Wednesday and Friday. Increase to save battery.</string>
     <string name="pref_show_alt">Show alt text by default</string>
+    <string name="pref_theme">Theme</string>
+    <string name="pref_theme_sum">You need to restart the app in order for the theme to be applied</string>
     <string name="title_activity_what_if" translatable="false">What if?</string>
 
 </resources>

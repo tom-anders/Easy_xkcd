@@ -20,6 +20,7 @@ package de.tap.easy_xkcd;
 import android.os.Build;
 import android.support.v7.app.ActionBarActivity;
 import android.os.Bundle;
+import android.util.TypedValue;
 
 import com.tap.xkcd_reader.R;
 
@@ -30,6 +31,7 @@ public class AboutActivity extends ActionBarActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+        setTheme(PrefHelper.getTheme());
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_about);
 
@@ -38,8 +40,13 @@ public class AboutActivity extends ActionBarActivity {
         setSupportActionBar(toolbar);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
+        TypedValue typedValue = new TypedValue();
+        getTheme().resolveAttribute(R.attr.colorPrimaryDark, typedValue, true);
+        TypedValue typedValue2 = new TypedValue();
+        getTheme().resolveAttribute(R.attr.colorPrimary, typedValue2, true);
+        toolbar.setBackgroundColor(typedValue2.data);
         if (Build.VERSION.SDK_INT >= 21) {
-            getWindow().setStatusBarColor(getResources().getColor(R.color.ColorPrimaryDark));
+            getWindow().setStatusBarColor(typedValue.data);
         }
 
         HtmlTextView tvAbout = (HtmlTextView) findViewById(R.id.tvAbout);
