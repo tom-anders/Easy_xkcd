@@ -229,4 +229,5 @@
     <string name="snackbar_rate_action">Rate</string>
     <string name="pref_theme">Theme</string>
     <string name="pref_theme_sum">You need to restart the app in order for the theme to be applied</string>
+    <string name="apply_theme">Restart now to apply new theme?</string>
 </resources>

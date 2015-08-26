@@ -78,6 +78,7 @@
     <string name="drawer_open">Open navigation drawer</string>
     <string name="drawer_close">Close navigation drawer</string>
     <string name="new_comic">New Comic!</string>
+    <string name="apply_theme">Restart now to apply new theme?</string>
 
     <string-array
         name="share_dialog">

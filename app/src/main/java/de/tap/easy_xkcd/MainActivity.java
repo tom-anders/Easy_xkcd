@@ -681,7 +681,6 @@ public class MainActivity extends AppCompatActivity {
             } else {
                 WakefulIntentService.cancelAlarms(this);
             }
-            Log.d("Info", "Update interval: " + String.valueOf(PrefHelper.getNotificationInterval()));
 
             if (!fullOffline && PrefHelper.fullOfflineEnabled()) {
                 if (isOnline()) {
@@ -691,8 +690,7 @@ public class MainActivity extends AppCompatActivity {
                     PrefHelper.setFullOffline(false);
                     fullOffline = false;
                 }
-            }
-            if (fullOffline && !PrefHelper.fullOfflineEnabled()) {
+            } else if (fullOffline && !PrefHelper.fullOfflineEnabled()) {
                 android.support.v7.app.AlertDialog.Builder mDialog = new android.support.v7.app.AlertDialog.Builder(this, R.style.AlertDialog);
                 mDialog.setMessage(R.string.delete_offline_dialog)
                         .setNegativeButton(R.string.dialog_cancel, new DialogInterface.OnClickListener() {
@@ -707,7 +705,21 @@ public class MainActivity extends AppCompatActivity {
                         })
                         .setCancelable(false);
                 mDialog.show();
-
+            } else if (PrefHelper.getTheme() != getTheme().hashCode()) {
+                android.support.v7.app.AlertDialog.Builder mDialog = new android.support.v7.app.AlertDialog.Builder(this, R.style.AlertDialog);
+                mDialog.setMessage(R.string.apply_theme)
+                        .setNegativeButton(R.string.dialog_cancel, new DialogInterface.OnClickListener() {
+                            public void onClick(DialogInterface dialog, int which) {
+                            }
+                        })
+                        .setPositiveButton(R.string.dialog_yes, new DialogInterface.OnClickListener() {
+                            public void onClick(DialogInterface dialog, int which) {
+                                finish();
+                                startActivity(getIntent());
+                            }
+                        })
+                        .setCancelable(false);
+                mDialog.show();
             }
         }
     }
