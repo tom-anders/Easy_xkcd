@@ -55,16 +55,16 @@ public class WhatIfActivity extends AppCompatActivity {
         setSupportActionBar(toolbar);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
-        if (savedInstanceState == null) {
-            TypedValue typedValue = new TypedValue();
-            getTheme().resolveAttribute(R.attr.colorPrimaryDark, typedValue, true);
-            TypedValue typedValue2 = new TypedValue();
-            getTheme().resolveAttribute(R.attr.colorPrimary, typedValue2, true);
-            toolbar.setBackgroundColor(typedValue2.data);
-            if (Build.VERSION.SDK_INT >= 21) {
-                getWindow().setStatusBarColor(typedValue.data);
-            }
+
+        TypedValue typedValue = new TypedValue();
+        getTheme().resolveAttribute(R.attr.colorPrimaryDark, typedValue, true);
+        TypedValue typedValue2 = new TypedValue();
+        getTheme().resolveAttribute(R.attr.colorPrimary, typedValue2, true);
+        toolbar.setBackgroundColor(typedValue2.data);
+        if (Build.VERSION.SDK_INT >= 21) {
+            getWindow().setStatusBarColor(typedValue.data);
         }
+
 
         web = (WebView) findViewById(R.id.wv);
         web.addJavascriptInterface(new Object() {

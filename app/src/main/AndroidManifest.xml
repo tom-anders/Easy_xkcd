@@ -81,7 +81,8 @@
         <activity
             android:name="de.tap.easy_xkcd.SettingsActivity"
             android:label="@string/pref_title"
-            android:parentActivityName="de.tap.easy_xkcd.MainActivity" >
+            android:parentActivityName="de.tap.easy_xkcd.MainActivity"
+            android:launchMode="singleTop" >
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value="de.tap.easy_xkcd.MainActivity" />

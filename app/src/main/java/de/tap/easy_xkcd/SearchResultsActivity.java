@@ -69,6 +69,7 @@ public class SearchResultsActivity extends AppCompatActivity {
     private ProgressDialog mProgress;
     private RVAdapter adapter = null;
     private String queryTrans;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         setTheme(PrefHelper.getTheme());
@@ -81,16 +82,16 @@ public class SearchResultsActivity extends AppCompatActivity {
         android.support.v7.widget.Toolbar toolbar = (android.support.v7.widget.Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-        if (savedInstanceState==null) {
-            TypedValue typedValue = new TypedValue();
-            getTheme().resolveAttribute(R.attr.colorPrimaryDark, typedValue, true);
-            TypedValue typedValue2 = new TypedValue();
-            getTheme().resolveAttribute(R.attr.colorPrimary, typedValue2, true);
-            toolbar.setBackgroundColor(typedValue2.data);
-            if (Build.VERSION.SDK_INT >= 21) {
-                getWindow().setStatusBarColor(typedValue.data);
-            }
+
+        TypedValue typedValue = new TypedValue();
+        getTheme().resolveAttribute(R.attr.colorPrimaryDark, typedValue, true);
+        TypedValue typedValue2 = new TypedValue();
+        getTheme().resolveAttribute(R.attr.colorPrimary, typedValue2, true);
+        toolbar.setBackgroundColor(typedValue2.data);
+        if (Build.VERSION.SDK_INT >= 21) {
+            getWindow().setStatusBarColor(typedValue.data);
         }
+
 
         rv = (RecyclerView) findViewById(R.id.rv);
         setupRecyclerView(rv);
@@ -100,7 +101,7 @@ public class SearchResultsActivity extends AppCompatActivity {
         Intent intent = getIntent();
         String query = intent.getStringExtra(SearchManager.QUERY);
         queryTrans = query;
-        getSupportActionBar().setTitle(getResources().getString(R.string.title_activity_search_results)+" "+query);
+        getSupportActionBar().setTitle(getResources().getString(R.string.title_activity_search_results) + " " + query);
 
         task = new searchTask();
         task.execute(query);
@@ -143,7 +144,7 @@ public class SearchResultsActivity extends AppCompatActivity {
         for (int i = 0; i < titles.length; i++) {
             String l = titles[i].toLowerCase();
             Boolean found;
-            if (query.length()<5) {
+            if (query.length() < 5) {
                 found = l.matches(".*\\b" + query + "\\b.*");
             } else {
                 found = l.contains(query);
@@ -157,6 +158,7 @@ public class SearchResultsActivity extends AppCompatActivity {
 
     private class searchTask extends AsyncTask<String, Void, Void> {
         private Boolean done;
+
         @Override
         protected Void doInBackground(String... params) {
             done = performSearch(params[0]);
@@ -207,7 +209,7 @@ public class SearchResultsActivity extends AppCompatActivity {
             findViewById(R.id.pb).setAnimation(animation);
             findViewById(R.id.pb).setVisibility(View.INVISIBLE);
             adapter.notifyDataSetChanged();
-            if (resultsTitle.size()+resultsTranscript.size()==0) {
+            if (resultsTitle.size() + resultsTranscript.size() == 0) {
                 Toast.makeText(getApplicationContext(), R.string.search_error, Toast.LENGTH_SHORT).show();
             }
         }
@@ -222,7 +224,7 @@ public class SearchResultsActivity extends AppCompatActivity {
         for (int i = 0; i < trans.length; i++) {
             String l = trans[i].toLowerCase();
             Boolean found;
-            if (queryTrans.length()<5) {
+            if (queryTrans.length() < 5) {
                 found = l.matches(".*\\b" + queryTrans + "\\b.*");
             } else {
                 found = l.contains(queryTrans);
@@ -244,9 +246,9 @@ public class SearchResultsActivity extends AppCompatActivity {
     }
 
     private void getTransUrls() {
-        for (int i = 0; i <resultsTranscript.size(); i++) {
+        for (int i = 0; i < resultsTranscript.size(); i++) {
             try {
-                urls.add(i+resultsTitle.size(), new Comic(resultsTranscript.keyAt(i)).getComicData()[2]);
+                urls.add(i + resultsTitle.size(), new Comic(resultsTranscript.keyAt(i)).getComicData()[2]);
             } catch (IOException e) {
                 e.printStackTrace();
             }
@@ -370,11 +372,9 @@ public class SearchResultsActivity extends AppCompatActivity {
             }
         }
 
-        private void setAnimation(View viewToAnimate, int position)
-        {
+        private void setAnimation(View viewToAnimate, int position) {
             // If the bound view wasn't previously displayed on screen, it's animated
-            if (position > lastPosition)
-            {
+            if (position > lastPosition) {
                 Animation animation = AnimationUtils.loadAnimation(getBaseContext(), android.R.anim.slide_in_left);
                 viewToAnimate.startAnimation(animation);
                 lastPosition = position;
@@ -433,7 +433,7 @@ public class SearchResultsActivity extends AppCompatActivity {
         adapter = null;
         setIntent(intent);
         String query = intent.getStringExtra(SearchManager.QUERY);
-        getSupportActionBar().setTitle(getResources().getString(R.string.title_activity_search_results)+" "+query);
+        getSupportActionBar().setTitle(getResources().getString(R.string.title_activity_search_results) + " " + query);
         queryTrans = query;
         findViewById(R.id.pb).setVisibility(View.VISIBLE);
 
@@ -444,7 +444,7 @@ public class SearchResultsActivity extends AppCompatActivity {
     @Override
     protected void onPause() {
         super.onPause();
-        if (mProgress!=null) {
+        if (mProgress != null) {
             mProgress.dismiss();
         }
     }

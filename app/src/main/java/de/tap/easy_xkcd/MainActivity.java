@@ -84,6 +84,7 @@ public class MainActivity extends AppCompatActivity {
     private MenuItem searchMenuItem;
     public static Boolean fullOffline = false;
     private Boolean settingsOpened = false;
+    private static MainActivity instance;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -91,6 +92,8 @@ public class MainActivity extends AppCompatActivity {
         setTheme(PrefHelper.getTheme());
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+        instance = this;
 
         if (savedInstanceState == null) {
             if (PrefHelper.getNotificationInterval() != 0) {
@@ -200,6 +203,10 @@ public class MainActivity extends AppCompatActivity {
             }
             mDialog.show();
         }
+    }
+
+    public static MainActivity getInstance() {
+        return instance;
     }
 
     private void setupFab(FloatingActionButton fab) {
@@ -682,7 +689,7 @@ public class MainActivity extends AppCompatActivity {
                 WakefulIntentService.cancelAlarms(this);
             }
 
-            if (!fullOffline && PrefHelper.fullOfflineEnabled()) {
+            /*if (!fullOffline && PrefHelper.fullOfflineEnabled()) {
                 if (isOnline()) {
                     new downloadComicsTask().execute();
                 } else {
@@ -720,7 +727,7 @@ public class MainActivity extends AppCompatActivity {
                         })
                         .setCancelable(false);
                 mDialog.show();
-            }
+            }*/
         }
     }
 

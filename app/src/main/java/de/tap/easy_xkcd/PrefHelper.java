@@ -63,6 +63,7 @@ public class PrefHelper {
     private static final String SWIPE_ENABLED = "whatif_swipe";
     private static final String RATE_SNACKBAR = "rate_snackbar";
     private static final String THEME = "pref_theme";
+    private static final String FIRST_INSTALL = "first_install";
 
     public static void getPrefs(Context context) {
         //sharedPrefs = ((MainActivity) context).getPreferences(Activity.MODE_PRIVATE);
@@ -394,6 +395,18 @@ public class PrefHelper {
             default: return R.style.DefaultTheme;
         }
     }
+
+    public static boolean isFirstInstall() {
+        if (sharedPrefs.getBoolean(FIRST_INSTALL, true)) {
+            SharedPreferences.Editor editor = sharedPrefs.edit();
+            editor.putBoolean(FIRST_INSTALL, false);
+            editor.apply();
+            return true;
+        } else {
+            return false;
+        }
+    }
+
 
 }
 
