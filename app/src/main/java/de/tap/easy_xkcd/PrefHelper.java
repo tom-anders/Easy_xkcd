@@ -26,6 +26,7 @@ import android.util.Log;
 import com.tap.xkcd_reader.R;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
 
@@ -59,11 +60,15 @@ public class PrefHelper {
     private static final String LAST_WHATIF = "last_whatif";
     private static final String NIGHT_MODE = "night_mode";
     private static final String WHATIF_READ = "whatif_read";
+    private static final String NEWEST_WHATIF = "whatif_newest";
     private static final String HIDE_READ = "hide_read";
     private static final String SWIPE_ENABLED = "whatif_swipe";
     private static final String RATE_SNACKBAR = "rate_snackbar";
     private static final String THEME = "pref_theme";
     private static final String FIRST_INSTALL = "first_install";
+    private static final String WHATIF_OFFLINE = "pref_offline_whatif";
+    private static final String WHATIF_TITLES = "whatif_titles";
+
 
     public static void getPrefs(Context context) {
         //sharedPrefs = ((MainActivity) context).getPreferences(Activity.MODE_PRIVATE);
@@ -396,15 +401,48 @@ public class PrefHelper {
         }
     }
 
-    public static boolean isFirstInstall() {
-        if (sharedPrefs.getBoolean(FIRST_INSTALL, true)) {
-            SharedPreferences.Editor editor = sharedPrefs.edit();
-            editor.putBoolean(FIRST_INSTALL, false);
-            editor.apply();
-            return true;
-        } else {
-            return false;
+    public static int getDialogTheme() {
+        int n = Integer.parseInt(prefs.getString(THEME, "1"));
+        switch (n) {
+            case 1: return R.style.AlertDialog;
+            case 2: return R.style.AlertDialogRed;
+            case 3: return R.style.AlertDialogBlue;
+            case 4: return R.style.AlertDialogBlack;
+            case 5: return R.style.AlertDialogPurple;
+            case 6: return R.style.AlertDialogLime;
+            default: return R.style.AlertDialog;
         }
+    }
+
+    public static int getNewestWhatIf() {
+        return sharedPrefs.getInt(NEWEST_WHATIF, 1);
+    }
+
+    public static void setNewestWhatif(int number) {
+        SharedPreferences.Editor editor = sharedPrefs.edit();
+        editor.putInt(NEWEST_WHATIF, number);
+        editor.apply();
+    }
+
+    public static void setFullOfflineWhatIf(boolean value) {
+        SharedPreferences.Editor editor = prefs.edit();
+        editor.putBoolean(WHATIF_OFFLINE, value);
+        editor.commit();
+    }
+
+    public static boolean fullOfflineWhatIf() {
+        return prefs.getBoolean(WHATIF_OFFLINE, false);
+    }
+
+    public static void setWhatIfTitles(String titles) {
+        SharedPreferences.Editor editor = sharedPrefs.edit();
+        editor.putString(WHATIF_TITLES, titles);
+        editor.commit();
+    }
+
+    public static ArrayList<String> getWhatIfTitles() {
+        String titles = sharedPrefs.getString(WHATIF_TITLES, "");
+        return new ArrayList<>(Arrays.asList(titles.split("&&")));
     }
 
 

@@ -82,8 +82,9 @@ public class MainActivity extends AppCompatActivity {
     private static DrawerLayout sDrawer;
     public ActionBarDrawerToggle mDrawerToggle;
     private MenuItem searchMenuItem;
-    public static Boolean fullOffline = false;
-    private Boolean settingsOpened = false;
+    public static boolean fullOffline = false;
+    public static boolean fullOfflineWhatIf = false;
+    private boolean settingsOpened = false;
     private static MainActivity instance;
 
     @Override
@@ -104,6 +105,7 @@ public class MainActivity extends AppCompatActivity {
         }
 
         fullOffline = PrefHelper.fullOfflineEnabled();
+        fullOfflineWhatIf = PrefHelper.fullOfflineWhatIf();
         if ((isOnline()) && savedInstanceState == null) {
             new updateComicTitles().execute();
             new updateComicTranscripts().execute();
@@ -146,11 +148,11 @@ public class MainActivity extends AppCompatActivity {
         //Setup Toolbar, NavDrawer, FAB
         toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
+        TypedValue typedValue2 = new TypedValue();
+        getTheme().resolveAttribute(R.attr.colorPrimary, typedValue2, true);
+        toolbar.setBackgroundColor(typedValue2.data);
         if (savedInstanceState == null) {
             toolbar.setAlpha(0);
-            TypedValue typedValue2 = new TypedValue();
-            getTheme().resolveAttribute(R.attr.colorPrimary, typedValue2, true);
-            toolbar.setBackgroundColor(typedValue2.data);
         }
 
         sDrawer = (DrawerLayout) findViewById(R.id.drawer_layout);
@@ -166,14 +168,14 @@ public class MainActivity extends AppCompatActivity {
         }
 
         //Load fragment
-        if (isOnline() | fullOffline) {
+        if (isOnline() | fullOffline | fullOfflineWhatIf) {
             MenuItem item;
             if (savedInstanceState != null) {
                 //Get last loaded fragment
                 sCurrentFragment = savedInstanceState.getInt("CurrentFragment");
                 item = sNavView.getMenu().findItem(sCurrentFragment);
             } else {
-                if (!whatIfIntent) {
+                if (!whatIfIntent && fullOffline | isOnline()) {
                     //Load ComicBrowserFragment by default
                     sProgress = ProgressDialog.show(this, "", this.getResources().getString(R.string.loading_comics), true);
                     item = sNavView.getMenu().findItem(R.id.nav_browser);
@@ -183,7 +185,7 @@ public class MainActivity extends AppCompatActivity {
             }
             selectDrawerItem(item);
         } else if ((sCurrentFragment != R.id.nav_favorites)) { //Don't show the dialog if the user is currently browsing his favorites or full offline is enabled
-            android.support.v7.app.AlertDialog.Builder mDialog = new android.support.v7.app.AlertDialog.Builder(this, R.style.AlertDialog);
+            android.support.v7.app.AlertDialog.Builder mDialog = new android.support.v7.app.AlertDialog.Builder(this, PrefHelper.getDialogTheme());
             mDialog.setMessage(R.string.no_connection)
                     .setPositiveButton(R.string.no_connection_retry, new DialogInterface.OnClickListener() {
                         public void onClick(DialogInterface dialog, int which) {
@@ -272,7 +274,7 @@ public class MainActivity extends AppCompatActivity {
                 if (!isOnline() && !fullOffline) {
                     Toast toast = Toast.makeText(this, R.string.no_connection, Toast.LENGTH_SHORT);
                     toast.show();
-                    MenuItem m = sNavView.getMenu().findItem(R.id.nav_favorites);
+                    MenuItem m = sNavView.getMenu().findItem(sCurrentFragment);
                     m.setChecked(true);
                     sDrawer.closeDrawers();
                     return;
@@ -316,7 +318,7 @@ public class MainActivity extends AppCompatActivity {
                 break;
 
             case R.id.nav_whatif:
-                if (!isOnline()) {
+                if (!isOnline()&&!fullOfflineWhatIf) {
                     Toast toast = Toast.makeText(this, R.string.no_connection, Toast.LENGTH_SHORT);
                     toast.show();
                     MenuItem m = sNavView.getMenu().findItem(sCurrentFragment);
@@ -443,7 +445,11 @@ public class MainActivity extends AppCompatActivity {
                     }
                     break;
                 case R.id.nav_whatif:
-                    fragmentManager.beginTransaction().setCustomAnimations(R.anim.abc_slide_in_bottom, R.anim.abc_slide_in_bottom).add(R.id.flContent, new WhatIfFragment(), fragmentTagShow).commitAllowingStateLoss();
+                    if (isOnline() && !fullOfflineWhatIf) {
+                        fragmentManager.beginTransaction().setCustomAnimations(R.anim.abc_slide_in_bottom, R.anim.abc_slide_in_bottom).add(R.id.flContent, new WhatIfFragment(), fragmentTagShow).commitAllowingStateLoss();
+                    } else {
+                        fragmentManager.beginTransaction().setCustomAnimations(R.anim.abc_slide_in_bottom, R.anim.abc_slide_in_bottom).add(R.id.flContent, new OfflineWhatIfFragment(), fragmentTagShow).commitAllowingStateLoss();
+                    }
                     break;
             }
         }
@@ -688,196 +694,6 @@ public class MainActivity extends AppCompatActivity {
             } else {
                 WakefulIntentService.cancelAlarms(this);
             }
-
-            /*if (!fullOffline && PrefHelper.fullOfflineEnabled()) {
-                if (isOnline()) {
-                    new downloadComicsTask().execute();
-                } else {
-                    Toast.makeText(this, R.string.no_connection, Toast.LENGTH_SHORT).show();
-                    PrefHelper.setFullOffline(false);
-                    fullOffline = false;
-                }
-            } else if (fullOffline && !PrefHelper.fullOfflineEnabled()) {
-                android.support.v7.app.AlertDialog.Builder mDialog = new android.support.v7.app.AlertDialog.Builder(this, R.style.AlertDialog);
-                mDialog.setMessage(R.string.delete_offline_dialog)
-                        .setNegativeButton(R.string.dialog_cancel, new DialogInterface.OnClickListener() {
-                            public void onClick(DialogInterface dialog, int which) {
-                                PrefHelper.setFullOffline(true);
-                            }
-                        })
-                        .setPositiveButton(R.string.dialog_yes, new DialogInterface.OnClickListener() {
-                            public void onClick(DialogInterface dialog, int which) {
-                                new deleteComicsTask().execute();
-                            }
-                        })
-                        .setCancelable(false);
-                mDialog.show();
-            } else if (PrefHelper.getTheme() != getTheme().hashCode()) {
-                android.support.v7.app.AlertDialog.Builder mDialog = new android.support.v7.app.AlertDialog.Builder(this, R.style.AlertDialog);
-                mDialog.setMessage(R.string.apply_theme)
-                        .setNegativeButton(R.string.dialog_cancel, new DialogInterface.OnClickListener() {
-                            public void onClick(DialogInterface dialog, int which) {
-                            }
-                        })
-                        .setPositiveButton(R.string.dialog_yes, new DialogInterface.OnClickListener() {
-                            public void onClick(DialogInterface dialog, int which) {
-                                finish();
-                                startActivity(getIntent());
-                            }
-                        })
-                        .setCancelable(false);
-                mDialog.show();
-            }*/
-        }
-    }
-
-    public class downloadComicsTask extends AsyncTask<Void, Integer, Void> {
-        private ProgressDialog progress;
-
-        @Override
-        protected void onPreExecute() {
-            progress = new ProgressDialog(MainActivity.this);
-            progress.setTitle(getResources().getString(R.string.loading_offline));
-            progress.setMessage(getResources().getString(R.string.loading_offline_message));
-            progress.setIndeterminate(false);
-            progress.setProgressStyle(ProgressDialog.STYLE_HORIZONTAL);
-            progress.setCancelable(false);
-            progress.show();
-        }
-
-        @Override
-        protected Void doInBackground(Void... params) {
-            for (int i = 1; i <= ComicBrowserFragment.sNewestComicNumber; i++) {
-                try {
-                    Comic comic = new Comic(i, MainActivity.this);
-                    String url = comic.getComicData()[2];
-                    Bitmap mBitmap = Glide.with(MainActivity.this)
-                            .load(url)
-                            .asBitmap()
-                            .into(-1, -1)
-                            .get();
-                    try {
-                        File sdCard = Environment.getExternalStorageDirectory();
-                        File dir = new File(sdCard.getAbsolutePath() + "/easy xkcd");
-                        dir.mkdirs();
-                        File file = new File(dir, String.valueOf(i) + ".png");
-                        FileOutputStream fos = new FileOutputStream(file);
-                        mBitmap.compress(Bitmap.CompressFormat.PNG, 100, fos);
-                        fos.flush();
-                        fos.close();
-                    } catch (Exception e) {
-                        Log.e("Error", "Saving to external storage failed");
-                        try {
-                            FileOutputStream fos = openFileOutput(String.valueOf(i), Context.MODE_PRIVATE);
-                            mBitmap.compress(Bitmap.CompressFormat.PNG, 100, fos);
-                            fos.close();
-                        } catch (Exception e2) {
-                            e2.printStackTrace();
-                        }
-                    }
-
-                    PrefHelper.addTitle(comic.getComicData()[0], i);
-                    PrefHelper.addAlt(comic.getComicData()[1], i);
-                    int p = (int) (i / ((float) ComicBrowserFragment.sNewestComicNumber) * 100);
-                    publishProgress(p);
-                } catch (Exception e) {
-                    e.printStackTrace();
-                }
-            }
-            PrefHelper.setHighestOffline(ComicBrowserFragment.sNewestComicNumber);
-            return null;
-        }
-
-        protected void onProgressUpdate(Integer... pro) {
-            progress.setProgress(pro[0]);
-            switch (pro[0]) {
-                case 2:
-                    progress.setMessage(getResources().getString(R.string.loading_offline_2));
-                    break;
-                case 20:
-                    progress.setMessage(getResources().getString(R.string.loading_offline_20));
-                    break;
-                case 50:
-                    progress.setMessage(getResources().getString(R.string.loading_offline_50));
-                    break;
-                case 80:
-                    progress.setMessage(getResources().getString(R.string.loading_offline_80));
-                    break;
-                case 95:
-                    progress.setMessage(getResources().getString(R.string.loading_offline_95));
-                    new Handler().postDelayed(new Runnable() {
-                        @Override
-                        public void run() {
-                            progress.setMessage(getResources().getString(R.string.loading_offline_96));
-                        }
-                    }, 1000);
-                    break;
-                case 97:
-                    progress.setMessage(getResources().getString(R.string.loading_offline_97));
-                    break;
-            }
-        }
-
-        @Override
-        protected void onPostExecute(Void dummy) {
-            fullOffline = true;
-            progress.dismiss();
-            finish();
-            startActivity(getIntent());
-        }
-    }
-
-    public class deleteComicsTask extends AsyncTask<Void, Integer, Void> {
-        private ProgressDialog progress;
-
-        @Override
-        protected void onPreExecute() {
-            progress = new ProgressDialog(MainActivity.this);
-            progress.setTitle(getResources().getString(R.string.delete_offline));
-            progress.setMessage(getResources().getString(R.string.loading_offline_message));
-            progress.setIndeterminate(false);
-            progress.setProgressStyle(ProgressDialog.STYLE_HORIZONTAL);
-            progress.setCancelable(false);
-            progress.show();
-        }
-
-        @Override
-        protected Void doInBackground(Void... params) {
-            SharedPreferences preferences = getPreferences(Activity.MODE_PRIVATE);
-            SharedPreferences.Editor mEditor = preferences.edit();
-            //int newest = preferences.getInt("Newest Comic", 0);
-            int newest = PrefHelper.getNewest();
-            for (int i = 1; i <= newest; i++) {
-                if (!Favorites.checkFavorite(MainActivity.this, i)) {
-                    //delete from internal storage
-                    deleteFile(String.valueOf(i));
-                    //delete from external storage
-                    File sdCard = Environment.getExternalStorageDirectory();
-                    File dir = new File(sdCard.getAbsolutePath() + "/easy xkcd");
-                    File file = new File(dir, String.valueOf(i) + ".png");
-                    file.delete();
-
-                    int p = (int) (i / ((float) newest) * 100);
-                    publishProgress(p);
-                }
-            }
-            PrefHelper.deleteTitleAndAlt(newest, MainActivity.this);
-
-            fullOffline = false;
-            PrefHelper.setHighestOffline(0);
-
-            return null;
-        }
-
-        protected void onProgressUpdate(Integer... pro) {
-            progress.setProgress(pro[0]);
-        }
-
-        @Override
-        protected void onPostExecute(Void dummy) {
-            progress.dismiss();
-            finish();
-            startActivity(getIntent());
         }
     }
 

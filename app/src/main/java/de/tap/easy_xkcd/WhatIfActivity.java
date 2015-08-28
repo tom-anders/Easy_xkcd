@@ -9,6 +9,7 @@ import android.content.pm.ActivityInfo;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Build;
+import android.os.Environment;
 import android.os.Vibrator;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -31,6 +32,7 @@ import com.tap.xkcd_reader.R;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 
+import java.io.File;
 import java.util.ArrayList;
 
 public class WhatIfActivity extends AppCompatActivity {
@@ -42,6 +44,7 @@ public class WhatIfActivity extends AppCompatActivity {
     private Document doc;
     private boolean leftSwipe = false;
     private boolean rightSwipe = false;
+    private boolean fullOffline = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -50,6 +53,7 @@ public class WhatIfActivity extends AppCompatActivity {
         setContentView(R.layout.activity_what_if);
 
         PrefHelper.getPrefs(getApplicationContext());
+        fullOffline = PrefHelper.fullOfflineWhatIf();
 
         android.support.v7.widget.Toolbar toolbar = (android.support.v7.widget.Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
@@ -91,7 +95,14 @@ public class WhatIfActivity extends AppCompatActivity {
         @Override
         protected Void doInBackground(Void... dummy) {
             try {
-                doc = Jsoup.connect("http://what-if.xkcd.com/" + String.valueOf(WhatIfIndex)).get();
+                if (!fullOffline) {
+                    doc = Jsoup.connect("http://what-if.xkcd.com/" + String.valueOf(WhatIfIndex)).get();
+                } else {
+                    File sdCard = Environment.getExternalStorageDirectory();
+                    File dir = new File(sdCard.getAbsolutePath() + "/easy xkcd/what if/"+String.valueOf(WhatIfIndex));
+                    File file = new File(dir, String.valueOf(WhatIfIndex) + ".html");
+                    doc = Jsoup.parse(file, "UTF-8");
+                }
                 //append custom css
                 doc.head().getElementsByTag("link").remove();
                 if (!PrefHelper.nightModeEnabled()) {
@@ -101,16 +112,31 @@ public class WhatIfActivity extends AppCompatActivity {
                 }
 
                 //fix the image links
-                for (org.jsoup.nodes.Element e : doc.select("img")) {
-                    String src = e.attr("src");
-                    e.attr("src", "http://what-if.xkcd.com" + src);
+
+                int count = 1;
+                String base = Environment.getExternalStorageDirectory().getAbsolutePath();
+                for (org.jsoup.nodes.Element e : doc.select(".illustration")) {
+                    if (!fullOffline) {
+                        String src = e.attr("src");
+                        e.attr("src", "http://what-if.xkcd.com" + src);
+                    } else {
+                        String path = "file://"+base+"/easy xkcd/what if/"+String.valueOf(WhatIfIndex)+"/"+String.valueOf(count)+".png";
+                        e.attr("src", path);
+                        e.attr("onclick", "ok.performClick(title);");
+                    }
                     e.attr("onclick", "ok.performClick(title);");
+                    count++;
                 }
 
                 //fix footnotes and math scripts
+                if (!PrefHelper.fullOfflineWhatIf()) {
                 doc.select("script[src]").last().attr("src", "http://aja" +
                         "x.googleapis.com/ajax/libs/jquery/1.10.1/jquery.min.js");
-                doc.select("script[src]").first().attr("src", "http://cdn.mathjax.org/mathjax/latest/MathJax.js");
+                    doc.select("script[src]").first().attr("src", "http://cdn.mathjax.org/mathjax/latest/MathJax.js");
+                } else {
+                    doc.select("script[src]").last().attr("src", "footnotes.js");
+                    doc.select("script[src]").first().attr("src", "MathJax.js");
+                }
 
                 //remove header, footer, nav buttons
                 doc.getElementById("header-wrapper").remove();
@@ -139,7 +165,11 @@ public class WhatIfActivity extends AppCompatActivity {
                 }
 
                 public void onPageFinished(WebView view, String url) {
-                    WhatIfFragment.getInstance().updateRv();
+                    if (!fullOffline) {
+                        WhatIfFragment.getInstance().updateRv();
+                    } else {
+                        OfflineWhatIfFragment.getInstance().updateRv();
+                    }
 
                     if (mProgress != null) {
                         mProgress.dismiss();
@@ -179,8 +209,14 @@ public class WhatIfActivity extends AppCompatActivity {
 
                         @Override
                         public void onSwipeLeft() {
-                            if (WhatIfIndex != WhatIfFragment.mTitles.size() && PrefHelper.swipeEnabled()) {
-                                nextWhatIf(false);
+                            if (!fullOffline) {
+                                if (WhatIfIndex != WhatIfFragment.mTitles.size() && PrefHelper.swipeEnabled()) {
+                                    nextWhatIf(false);
+                                }
+                            } else {
+                                if (WhatIfIndex != OfflineWhatIfFragment.mTitles.size() && PrefHelper.swipeEnabled()) {
+                                    nextWhatIf(false);
+                                }
                             }
                         }
                     });
@@ -207,8 +243,14 @@ public class WhatIfActivity extends AppCompatActivity {
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
             case R.id.action_next:
-                if (WhatIfIndex != WhatIfFragment.mTitles.size()) {
-                    return nextWhatIf(false);
+                if (!fullOffline) {
+                    if (WhatIfIndex != WhatIfFragment.mTitles.size()) {
+                        return nextWhatIf(false);
+                    }
+                } else {
+                    if (WhatIfIndex != OfflineWhatIfFragment.mTitles.size()) {
+                        return nextWhatIf(false);
+                    }
                 }
             case R.id.action_back:
                 if (WhatIfIndex != 1) {
@@ -259,7 +301,11 @@ public class WhatIfActivity extends AppCompatActivity {
         PrefHelper.setLastWhatIf(WhatIfIndex);
         new LoadWhatIf().execute();
         invalidateOptionsMenu();
-        WhatIfFragment.rv.scrollToPosition(WhatIfFragment.mTitles.size() - WhatIfIndex);
+        if (!fullOffline) {
+            WhatIfFragment.rv.scrollToPosition(WhatIfFragment.mTitles.size() - WhatIfIndex);
+        } else {
+            OfflineWhatIfFragment.rv.scrollToPosition(OfflineWhatIfFragment.mTitles.size() - WhatIfIndex);
+        }
         PrefHelper.setWhatifRead(String.valueOf(WhatIfIndex));
         return true;
     }
@@ -271,10 +317,18 @@ public class WhatIfActivity extends AppCompatActivity {
         } else {
             menu.findItem(R.id.action_back).setVisible(true);
         }
-        if (WhatIfIndex == WhatIfFragment.mTitles.size()) {
-            menu.findItem(R.id.action_next).setVisible(false);
+        if (!fullOffline) {
+            if (WhatIfIndex == WhatIfFragment.mTitles.size()) {
+                menu.findItem(R.id.action_next).setVisible(false);
+            } else {
+                menu.findItem(R.id.action_next).setVisible(true);
+            }
         } else {
-            menu.findItem(R.id.action_next).setVisible(true);
+            if (WhatIfIndex == OfflineWhatIfFragment.mTitles.size()) {
+                menu.findItem(R.id.action_next).setVisible(false);
+            } else {
+                menu.findItem(R.id.action_next).setVisible(true);
+            }
         }
         return super.onPrepareOptionsMenu(menu);
     }

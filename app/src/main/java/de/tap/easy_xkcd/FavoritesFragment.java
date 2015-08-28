@@ -38,6 +38,7 @@ import android.support.v4.content.FileProvider;
 import android.support.v4.view.PagerAdapter;
 import android.support.v4.view.ViewPager;
 import android.support.v7.app.ActionBar;
+import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.util.SparseArray;
 import android.view.GestureDetector;
@@ -523,6 +524,18 @@ public class FavoritesFragment extends android.support.v4.app.Fragment {
 
             if (PrefHelper.subtitleEnabled() && MainActivity.sCurrentFragment == R.id.nav_favorites) {
                 mActionBar.setSubtitle(String.valueOf(sFavorites[sFavoriteIndex]));
+            }
+
+            Toolbar toolbar = ((MainActivity)getActivity()).toolbar;
+            if (toolbar.getAlpha()==0) {
+                toolbar.setTranslationY(-300);
+                toolbar.animate().setDuration(300).translationY(0).alpha(1);
+                View view;
+                for (int i = 0; i<toolbar.getChildCount(); i++) {
+                    view = toolbar.getChildAt(i);
+                    view.setTranslationY(-300);
+                    view.animate().setStartDelay(50*(i+1)).setDuration(70*(i+1)).translationY(0);
+                }
             }
         }
 

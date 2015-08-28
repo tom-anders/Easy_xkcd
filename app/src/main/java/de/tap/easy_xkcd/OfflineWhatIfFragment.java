@@ -1,5 +1,6 @@
 package de.tap.easy_xkcd;
 
+
 import android.app.AlertDialog;
 import android.app.ProgressDialog;
 import android.app.SearchManager;
@@ -13,6 +14,7 @@ import android.net.NetworkInfo;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.os.Environment;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.view.MenuItemCompat;
@@ -36,7 +38,6 @@ import android.view.inputmethod.InputMethodManager;
 import android.widget.ImageView;
 import android.widget.SearchView;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.request.animation.GlideAnimation;
@@ -48,19 +49,19 @@ import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 
+import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Random;
 
-public class WhatIfFragment extends android.support.v4.app.Fragment {
-
+public class OfflineWhatIfFragment extends android.support.v4.app.Fragment {
     public static ArrayList<String> mTitles = new ArrayList<>();
-    private static ArrayList<String> mImgs = new ArrayList<>();
     public static RecyclerView rv;
     private MenuItem searchMenuItem;
     public static RVAdapter adapter;
-    private static WhatIfFragment instance;
+    private static OfflineWhatIfFragment instance;
     public static boolean newIntent;
     private FloatingActionButton fab;
 
@@ -87,7 +88,7 @@ public class WhatIfFragment extends android.support.v4.app.Fragment {
 
         ((MainActivity) getActivity()).mFab.setVisibility(View.GONE);
 
-        new DisplayOverview().execute();
+        new UpdateArticles().execute();
 
         return v;
     }
@@ -107,62 +108,39 @@ public class WhatIfFragment extends android.support.v4.app.Fragment {
         @Override
         protected Void doInBackground(Void... dummy) {
             mTitles.clear();
-            mImgs.clear();
-            try {
-                Document doc = Jsoup.connect("https://what-if.xkcd.com/archive/")
-                        .userAgent("Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/32.0.1700.19 Safari/537.36")
-                        .get();
-                Log.e("Info", "doc loaded");
-                Elements titles = doc.select("h1");
-                Elements imagelinks = doc.select("img.archive-image");
 
-                for (Element title : titles) {
-                    mTitles.add(title.text());
-                }
-                Log.e("Info", "titles");
-                for (Element image : imagelinks) {
-                    mImgs.add(image.absUrl("src"));
-                }
-                Log.e("Info", "imgs");
-
-                Collections.reverse(mTitles);
-                Collections.reverse(mImgs);
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
+            mTitles = PrefHelper.getWhatIfTitles();
+            Collections.reverse(mTitles);
             return null;
         }
 
         @Override
         protected void onPostExecute(Void dummy) {
-            PrefHelper.setNewestWhatif(mTitles.size());
             if (PrefHelper.hideRead()) {
                 ArrayList<String> titleUnread = new ArrayList<>();
-                ArrayList<String> imgUnread = new ArrayList<>();
                 for (int i = 0; i < mTitles.size(); i++) {
                     if (!PrefHelper.checkRead(mTitles.size() - i)) {
                         titleUnread.add(mTitles.get(i));
-                        imgUnread.add(mImgs.get(i));
                     }
                 }
-                adapter = new RVAdapter(titleUnread, imgUnread);
+                adapter = new RVAdapter(titleUnread);
                 rv.setAdapter(adapter);
                 rv.scrollToPosition(titleUnread.size() - PrefHelper.getLastWhatIf());
             } else {
-                adapter = new RVAdapter(mTitles, mImgs);
+                adapter = new RVAdapter(mTitles);
                 rv.setAdapter(adapter);
                 rv.scrollToPosition(mTitles.size() - PrefHelper.getLastWhatIf());
             }
             progress.dismiss();
-            Toolbar toolbar = ((MainActivity)getActivity()).toolbar;
-            if (toolbar.getAlpha()==0) {
+            Toolbar toolbar = ((MainActivity) getActivity()).toolbar;
+            if (toolbar.getAlpha() == 0) {
                 toolbar.setTranslationY(-300);
                 toolbar.animate().setDuration(300).translationY(0).alpha(1);
                 View view;
-                for (int i = 0; i<toolbar.getChildCount(); i++) {
+                for (int i = 0; i < toolbar.getChildCount(); i++) {
                     view = toolbar.getChildAt(i);
                     view.setTranslationY(-300);
-                    view.animate().setStartDelay(50*(i+1)).setDuration(70*(i+1)).translationY(0);
+                    view.animate().setStartDelay(50 * (i + 1)).setDuration(70 * (i + 1)).translationY(0);
                 }
             }
 
@@ -175,19 +153,88 @@ public class WhatIfFragment extends android.support.v4.app.Fragment {
 
     }
 
+    private class UpdateArticles extends AsyncTask<Void, Void, Void> {
+        private ProgressDialog progress;
+
+        @Override
+        protected void onPreExecute() {
+            progress = new ProgressDialog(getActivity());
+            progress.setMessage(getResources().getString(R.string.loading_articles));
+            progress.setIndeterminate(true);
+            progress.setCancelable(false);
+            progress.show();
+        }
+
+        @Override
+        protected Void doInBackground(Void... dummy) {
+            if (isOnline()) {
+                try {
+                    Document doc = Jsoup.connect("https://what-if.xkcd.com/archive/")
+                            .userAgent("Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/32.0.1700.19 Safari/537.36")
+                            .get();
+                    Elements titles = doc.select("h1");
+                    Elements img = doc.select("img.archive-image");
+                    if (titles.size() > PrefHelper.getNewestWhatIf()) {
+                        StringBuilder sb = new StringBuilder();
+                        sb.append(titles.first().text());
+                        titles.remove(0);
+                        for (Element title : titles) {
+                            sb.append("&&");
+                            sb.append(title.text());
+                        }
+                        PrefHelper.setWhatIfTitles(sb.toString());
+
+                        Bitmap mBitmap;
+                        for (int i = PrefHelper.getNewestWhatIf(); i<titles.size()+1; i++) {
+                            String url = img.get(i).absUrl("src");
+                            try {
+                                mBitmap = Glide.with(getActivity())
+                                        .load(url)
+                                        .asBitmap()
+                                        .into(-1, -1)
+                                        .get();
+                                File sdCard = Environment.getExternalStorageDirectory();
+                                File dir = new File(sdCard.getAbsolutePath() + "/easy xkcd/what if/overview");
+                                dir.mkdirs();
+                                File file = new File(dir, String.valueOf(i+1) + ".png");
+                                FileOutputStream fos = new FileOutputStream(file);
+                                mBitmap.compress(Bitmap.CompressFormat.PNG, 100, fos);
+                                fos.flush();
+                                fos.close();
+                            } catch (IOException e) {
+                                e.printStackTrace();
+                            }
+                        }
+
+                    }
+                    PrefHelper.setNewestWhatif(titles.size());
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+
+            }
+            return null;
+        }
+
+        @Override
+        protected void onPostExecute(Void dummy) {
+            progress.dismiss();
+            new DisplayOverview().execute();
+        }
+
+    }
+
     public class RVAdapter extends RecyclerView.Adapter<RVAdapter.ComicViewHolder> {
         private int lastPosition = 0;
         public ArrayList<String> titles;
-        private ArrayList<String> imgs;
 
         @Override
         public int getItemCount() {
             return titles.size();
         }
 
-        public RVAdapter(ArrayList<String> t, ArrayList<String> i) {
+        public RVAdapter(ArrayList<String> t) {
             this.titles = t;
-            this.imgs = i;
         }
 
         @Override
@@ -223,23 +270,18 @@ public class WhatIfFragment extends android.support.v4.app.Fragment {
                 comicViewHolder.thumbnail.setImageDrawable(ContextCompat.getDrawable(getActivity(), R.mipmap.new_horizons));
                 return;
             }
-            /*Glide.with(getActivity())
-                    .load(imgs.get(i))
-                    .asBitmap()
-                    .into(new SimpleTarget<Bitmap>() {
-                        @Override
-                        public void onResourceReady(Bitmap resource, GlideAnimation<? super Bitmap> glideAnimation) {
-                            comicViewHolder.thumbnail.setImageBitmap(resource);
-                        }
-                    });*/
+
+            File sdCard = Environment.getExternalStorageDirectory();
+            File dir = new File(sdCard.getAbsolutePath() + "/easy xkcd/what if/overview");
+            File file = new File(dir, String.valueOf(titles.size()-i) + ".png");
 
             Glide.with(getActivity())
-                    .load(mImgs.get(i))
+                    .load(file)
                     .into(comicViewHolder.thumbnail);
 
-            /*if (mTitles.size() == titles.size()) {
+            if (mTitles.size() == titles.size()) {
                 setAnimation(comicViewHolder.cv, i);
-            }*/
+            }
         }
 
         @Override
@@ -273,10 +315,6 @@ public class WhatIfFragment extends android.support.v4.app.Fragment {
     class CustomOnClickListener implements View.OnClickListener {
         @Override
         public void onClick(View v) {
-            if (!isOnline()) {
-                Toast.makeText(getActivity(), R.string.no_connection, Toast.LENGTH_SHORT).show();
-                return;
-            }
             int pos = rv.getChildAdapterPosition(v);
             Intent intent = new Intent(getActivity(), WhatIfActivity.class);
             String title = adapter.titles.get(pos);
@@ -295,22 +333,20 @@ public class WhatIfFragment extends android.support.v4.app.Fragment {
     }
 
     private void openRandomWhatIf() {
-        if (isOnline()) {
-            Random mRand = new Random();
-            int number = mRand.nextInt(adapter.titles.size());
-            Intent intent = new Intent(getActivity(), WhatIfActivity.class);
-            String title = adapter.titles.get(number);
-            int n = mTitles.size() - mTitles.indexOf(title);
-            WhatIfActivity.WhatIfIndex = n;
-            startActivity(intent);
-            PrefHelper.setLastWhatIf(n);
-            PrefHelper.setWhatifRead(String.valueOf(n));
-        } else {
-            Toast.makeText(getActivity(), R.string.no_connection, Toast.LENGTH_SHORT).show();
-        }
+
+        Random mRand = new Random();
+        int number = mRand.nextInt(adapter.titles.size());
+        Intent intent = new Intent(getActivity(), WhatIfActivity.class);
+        String title = adapter.titles.get(number);
+        int n = mTitles.size() - mTitles.indexOf(title);
+        WhatIfActivity.WhatIfIndex = n;
+        startActivity(intent);
+        PrefHelper.setLastWhatIf(n);
+        PrefHelper.setWhatifRead(String.valueOf(n));
+
     }
 
-    class CustomOnLongClickListener implements  View.OnLongClickListener {
+    class CustomOnLongClickListener implements View.OnLongClickListener {
         @Override
         public boolean onLongClick(View v) {
             final View view = v;
@@ -344,7 +380,7 @@ public class WhatIfFragment extends android.support.v4.app.Fragment {
             });
             AlertDialog alert = builder.create();
             alert.show();
-           return true;
+            return true;
         }
     }
 
@@ -352,17 +388,17 @@ public class WhatIfFragment extends android.support.v4.app.Fragment {
         int scrollDist = 0;
         boolean isVisible = true;
         static final float MINIMUM = 25;
+
         @Override
         public void onScrolled(RecyclerView recyclerView, int dx, int dy) {
             super.onScrolled(recyclerView, dx, dy);
             if (isVisible && scrollDist > MINIMUM) {
                 Resources r = getActivity().getResources();
                 float px = TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 16, r.getDisplayMetrics());
-                fab.animate().translationY(fab.getHeight() + px ).setInterpolator(new AccelerateInterpolator(2)).start();
+                fab.animate().translationY(fab.getHeight() + px).setInterpolator(new AccelerateInterpolator(2)).start();
                 scrollDist = 0;
                 isVisible = false;
-            }
-            else if (!isVisible && scrollDist < -MINIMUM) {
+            } else if (!isVisible && scrollDist < -MINIMUM) {
                 fab.animate().translationY(0).setInterpolator(new DecelerateInterpolator(2)).start();
                 scrollDist = 0;
                 isVisible = true;
@@ -385,18 +421,16 @@ public class WhatIfFragment extends android.support.v4.app.Fragment {
                 PrefHelper.setHideRead(item.isChecked());
                 if (item.isChecked()) {
                     ArrayList<String> titleUnread = new ArrayList<>();
-                    ArrayList<String> imgUnread = new ArrayList<>();
                     for (int i = 0; i < mTitles.size(); i++) {
                         if (!PrefHelper.checkRead(mTitles.size() - i)) {
                             titleUnread.add(mTitles.get(i));
-                            imgUnread.add(mImgs.get(i));
                         }
                     }
-                    adapter = new RVAdapter(titleUnread, imgUnread);
+                    adapter = new RVAdapter(titleUnread);
                     rv.setAdapter(adapter);
                     rv.scrollToPosition(titleUnread.size() - PrefHelper.getLastWhatIf());
                 } else {
-                    adapter = new RVAdapter(mTitles, mImgs);
+                    adapter = new RVAdapter(mTitles);
                     rv.setAdapter(adapter);
                     rv.scrollToPosition(mTitles.size() - PrefHelper.getLastWhatIf());
                 }
@@ -408,30 +442,28 @@ public class WhatIfFragment extends android.support.v4.app.Fragment {
     public void updateRv() {
         if (PrefHelper.hideRead()) {
             ArrayList<String> titleUnread = new ArrayList<>();
-            ArrayList<String> imgUnread = new ArrayList<>();
             for (int i = 0; i < mTitles.size(); i++) {
                 if (!PrefHelper.checkRead(mTitles.size() - i)) {
                     titleUnread.add(mTitles.get(i));
-                    imgUnread.add(mImgs.get(i));
                 }
             }
-            adapter = new RVAdapter(titleUnread, imgUnread);
+            adapter = new RVAdapter(titleUnread);
             rv.setAdapter(adapter);
             rv.scrollToPosition(titleUnread.size() - PrefHelper.getLastWhatIf());
         } else {
-            adapter = new RVAdapter(mTitles, mImgs);
+            adapter = new RVAdapter(mTitles);
             rv.setAdapter(adapter);
             rv.scrollToPosition(mTitles.size() - PrefHelper.getLastWhatIf());
         }
     }
 
-    public static WhatIfFragment getInstance() {
+    public static OfflineWhatIfFragment getInstance() {
         return instance;
     }
 
     @Override
     public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
-        for (int i = 0; i < menu.size()-2; i++) {
+        for (int i = 0; i < menu.size() - 2; i++) {
             menu.getItem(i).setVisible(false);
         }
 
@@ -456,14 +488,12 @@ public class WhatIfFragment extends android.support.v4.app.Fragment {
             @Override
             public boolean onQueryTextChange(String newText) {
                 ArrayList<String> titleResults = new ArrayList<>();
-                ArrayList<String> imgResults = new ArrayList<>();
                 for (int i = 0; i < mTitles.size(); i++) {
                     if (mTitles.get(i).toLowerCase().contains(newText.toLowerCase().trim())) {
                         titleResults.add(mTitles.get(i));
-                        imgResults.add(mImgs.get(i));
                     }
                 }
-                adapter = new RVAdapter(titleResults, imgResults);
+                adapter = new RVAdapter(titleResults);
                 rv.setAdapter(adapter);
                 return false;
             }
@@ -491,7 +521,7 @@ public class WhatIfFragment extends android.support.v4.app.Fragment {
                     InputMethodManager imm = (InputMethodManager) getActivity().getSystemService(Context.INPUT_METHOD_SERVICE);
                     imm.hideSoftInputFromWindow(view.getWindowToken(), 0);
                 }
-                adapter = new RVAdapter(mTitles, mImgs);
+                adapter = new RVAdapter(mTitles);
                 rv.setAdapter(adapter);
 
                 fab.setVisibility(View.VISIBLE);
@@ -504,11 +534,9 @@ public class WhatIfFragment extends android.support.v4.app.Fragment {
     }
 
     private boolean isOnline() {
-        //Checks if the device is currently online
         ConnectivityManager cm =
                 (ConnectivityManager) getActivity().getSystemService(Context.CONNECTIVITY_SERVICE);
         NetworkInfo netInfo = cm.getActiveNetworkInfo();
         return netInfo != null && netInfo.isConnectedOrConnecting();
-
     }
 }

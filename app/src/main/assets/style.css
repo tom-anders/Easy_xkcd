@@ -151,7 +151,7 @@ header img {
     border: 1px solid #005994;
     /*margin: .5em 0;*/
     margin: 0em 0;
-    background: url('http://whatif.xkcd.com/imgs/graph-tile.png');
+    background: url('graph-tile.png');
     /*border-radius: 1em;*/
     border-radius: 0em;
 }
