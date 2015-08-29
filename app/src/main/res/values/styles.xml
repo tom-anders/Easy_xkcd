@@ -51,6 +51,12 @@
         <item name="colorAccent">@color/AccentLime</item>
     </style>
 
+    <style name="GreenTheme" parent="Theme.AppCompat.Light.NoActionBar">
+        <item name="colorPrimary">@color/ColorPrimaryGreen</item>
+        <item name="colorPrimaryDark">@color/ColorPrimaryDarkGreen</item>
+        <item name="colorAccent">@color/AccentGreen</item>
+    </style>
+
 
 </resources>
 

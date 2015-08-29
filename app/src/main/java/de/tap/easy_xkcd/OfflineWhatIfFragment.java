@@ -285,9 +285,9 @@ public class OfflineWhatIfFragment extends android.support.v4.app.Fragment {
                     .load(file)
                     .into(comicViewHolder.thumbnail);
 
-            if (mTitles.size() == titles.size()) {
+            /*if (mTitles.size() == titles.size()) {
                 setAnimation(comicViewHolder.cv, i);
-            }
+            }*/
         }
 
         @Override

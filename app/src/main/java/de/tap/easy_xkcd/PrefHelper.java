@@ -397,6 +397,7 @@ public class PrefHelper {
             case 4: return R.style.BlackTheme;
             case 5: return R.style.PurpleTheme;
             case 6: return R.style.LimeTheme;
+            case 7: return R.style.GreenTheme;
             default: return R.style.DefaultTheme;
         }
     }
@@ -410,6 +411,7 @@ public class PrefHelper {
             case 4: return R.style.AlertDialogBlack;
             case 5: return R.style.AlertDialogPurple;
             case 6: return R.style.AlertDialogLime;
+            case 7: return R.style.AlertDialogGreen;
             default: return R.style.AlertDialog;
         }
     }

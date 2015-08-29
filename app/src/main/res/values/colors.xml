@@ -25,6 +25,10 @@
     <color name="ColorPrimaryDarkLime">#AFB42B</color>
     <color name="AccentLime">#9E9E9E</color>
 
+    <color name="ColorPrimaryGreen">#4CAF50</color>
+    <color name="ColorPrimaryDarkGreen">#388E3C</color>
+    <color name="AccentGreen">#FF5252</color>
+
 
 
 </resources>

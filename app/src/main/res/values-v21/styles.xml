@@ -154,5 +154,28 @@
         <item name="colorAccent">@color/AccentLime</item>
     </style>
 
+    <style name="GreenTheme" parent="Theme.AppCompat.Light.NoActionBar">
+        <item name="colorPrimary">@color/ColorPrimaryGreen</item>
+        <item name="colorPrimaryDark">@color/ColorPrimaryDarkGreen</item>
+        <item name="colorAccent">@color/AccentGreen</item>
+        <item name="android:windowDrawsSystemBarBackgrounds">true</item>
+        <item name="android:statusBarColor">@android:color/transparent</item>
+        <item name="android:navigationBarColor">@color/ColorPrimaryGreen</item>
+
+        <item name="android:dialogTheme">@style/SettingsDialogGreen</item>
+        <item name="android:alertDialogTheme">@style/SettingsDialogGreen</item>
+
+    </style>
+
+    <style name="SettingsDialogGreen" parent="android:Theme.Material.Light.Dialog.Alert">
+        <item name="android:colorPrimary">@color/ColorPrimaryGreen</item>
+        <item name="android:colorPrimaryDark">@color/ColorPrimaryDarkGreen</item>
+        <item name="android:colorAccent">@color/AccentGreen</item>
+    </style>
+
+    <style name="AlertDialogGreen" parent="Theme.AppCompat.Light.Dialog.Alert">
+        <item name="colorAccent">@color/AccentGreen</item>
+    </style>
+
 
 </resources>

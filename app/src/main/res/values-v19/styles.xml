@@ -1,4 +1,3 @@
-<?xml version="1.0" encoding="utf-8"?>
 <!--
   ~ Copyright 2015, Tom Praschan
   ~
@@ -51,4 +50,12 @@
         <item name="colorPrimaryDark">@color/ColorPrimaryDarkLime</item>
         <item name="colorAccent">@color/AccentLime</item>
     </style>
+
+    <style name="GreenTheme" parent="Theme.AppCompat.Light.NoActionBar">
+        <item name="colorPrimary">@color/ColorPrimaryGreen</item>
+        <item name="colorPrimaryDark">@color/ColorPrimaryDarkGreen</item>
+        <item name="colorAccent">@color/AccentGreen</item>
+    </style>
+
+
 </resources>

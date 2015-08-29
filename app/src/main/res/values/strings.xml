@@ -119,6 +119,7 @@
         <item>Black</item>
         <item>Purple</item>
         <item>Lime</item>
+        <item>Green</item>
     </string-array>
 
     <string-array
@@ -129,6 +130,7 @@
         <item>4</item>
         <item>5</item>
         <item>6</item>
+        <item>7</item>
     </string-array>
 
     <string-array
