@@ -56,6 +56,8 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Random;
 
+import jp.wasabeef.recyclerview.animators.adapters.SlideInBottomAnimationAdapter;
+
 public class OfflineWhatIfFragment extends android.support.v4.app.Fragment {
     public static ArrayList<String> mTitles = new ArrayList<>();
     public static RecyclerView rv;
@@ -124,11 +126,15 @@ public class OfflineWhatIfFragment extends android.support.v4.app.Fragment {
                     }
                 }
                 adapter = new RVAdapter(titleUnread);
-                rv.setAdapter(adapter);
+                SlideInBottomAnimationAdapter slideAdapter = new SlideInBottomAnimationAdapter(adapter);
+                slideAdapter.setInterpolator(new DecelerateInterpolator());
+                rv.setAdapter(slideAdapter);
                 rv.scrollToPosition(titleUnread.size() - PrefHelper.getLastWhatIf());
             } else {
                 adapter = new RVAdapter(mTitles);
-                rv.setAdapter(adapter);
+                SlideInBottomAnimationAdapter slideAdapter = new SlideInBottomAnimationAdapter(adapter);
+                slideAdapter.setInterpolator(new DecelerateInterpolator());
+                rv.setAdapter(slideAdapter);
                 rv.scrollToPosition(mTitles.size() - PrefHelper.getLastWhatIf());
             }
             progress.dismiss();
@@ -427,11 +433,15 @@ public class OfflineWhatIfFragment extends android.support.v4.app.Fragment {
                         }
                     }
                     adapter = new RVAdapter(titleUnread);
-                    rv.setAdapter(adapter);
+                    SlideInBottomAnimationAdapter slideAdapter = new SlideInBottomAnimationAdapter(adapter);
+                    slideAdapter.setInterpolator(new DecelerateInterpolator());
+                    rv.setAdapter(slideAdapter);
                     rv.scrollToPosition(titleUnread.size() - PrefHelper.getLastWhatIf());
                 } else {
                     adapter = new RVAdapter(mTitles);
-                    rv.setAdapter(adapter);
+                    SlideInBottomAnimationAdapter slideAdapter = new SlideInBottomAnimationAdapter(adapter);
+                    slideAdapter.setInterpolator(new DecelerateInterpolator());
+                    rv.setAdapter(slideAdapter);
                     rv.scrollToPosition(mTitles.size() - PrefHelper.getLastWhatIf());
                 }
                 return true;
@@ -448,11 +458,15 @@ public class OfflineWhatIfFragment extends android.support.v4.app.Fragment {
                 }
             }
             adapter = new RVAdapter(titleUnread);
-            rv.setAdapter(adapter);
+            SlideInBottomAnimationAdapter slideAdapter = new SlideInBottomAnimationAdapter(adapter);
+            slideAdapter.setInterpolator(new DecelerateInterpolator());
+            rv.setAdapter(slideAdapter);
             rv.scrollToPosition(titleUnread.size() - PrefHelper.getLastWhatIf());
         } else {
             adapter = new RVAdapter(mTitles);
-            rv.setAdapter(adapter);
+            SlideInBottomAnimationAdapter slideAdapter = new SlideInBottomAnimationAdapter(adapter);
+            slideAdapter.setInterpolator(new DecelerateInterpolator());
+            rv.setAdapter(slideAdapter);
             rv.scrollToPosition(mTitles.size() - PrefHelper.getLastWhatIf());
         }
     }
@@ -494,7 +508,9 @@ public class OfflineWhatIfFragment extends android.support.v4.app.Fragment {
                     }
                 }
                 adapter = new RVAdapter(titleResults);
-                rv.setAdapter(adapter);
+                SlideInBottomAnimationAdapter slideAdapter = new SlideInBottomAnimationAdapter(adapter);
+                slideAdapter.setInterpolator(new DecelerateInterpolator());
+                rv.setAdapter(slideAdapter);
                 return false;
             }
         });
@@ -522,7 +538,10 @@ public class OfflineWhatIfFragment extends android.support.v4.app.Fragment {
                     imm.hideSoftInputFromWindow(view.getWindowToken(), 0);
                 }
                 adapter = new RVAdapter(mTitles);
-                rv.setAdapter(adapter);
+                SlideInBottomAnimationAdapter slideAdapter = new SlideInBottomAnimationAdapter(adapter);
+                slideAdapter.setInterpolator(new DecelerateInterpolator());
+                rv.setAdapter(slideAdapter);
+                searchView.setQuery("", false);
 
                 fab.setVisibility(View.VISIBLE);
                 fab.startAnimation(AnimationUtils.loadAnimation(getActivity(), R.anim.grow));

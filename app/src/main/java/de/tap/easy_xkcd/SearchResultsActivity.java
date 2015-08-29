@@ -27,6 +27,7 @@ import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
+import android.support.v4.view.MenuItemCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.CardView;
 import android.support.v7.widget.LinearLayoutManager;
@@ -41,6 +42,8 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
+import android.view.animation.DecelerateInterpolator;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.ImageView;
 import android.widget.SearchView;
 import android.widget.TextView;
@@ -57,6 +60,9 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
+import jp.wasabeef.recyclerview.animators.SlideInUpAnimator;
+import jp.wasabeef.recyclerview.animators.adapters.SlideInBottomAnimationAdapter;
+
 
 public class SearchResultsActivity extends AppCompatActivity {
 
@@ -68,6 +74,7 @@ public class SearchResultsActivity extends AppCompatActivity {
     private MenuItem searchMenuItem;
     private ProgressDialog mProgress;
     private RVAdapter adapter = null;
+    private SlideInBottomAnimationAdapter slideAdapter;
     private String queryTrans;
 
     @Override
@@ -186,7 +193,9 @@ public class SearchResultsActivity extends AppCompatActivity {
 
         @Override
         protected void onPostExecute(Void dummy) {
-            rv.setAdapter(adapter);
+            slideAdapter = new SlideInBottomAnimationAdapter(adapter);
+            slideAdapter.setInterpolator(new DecelerateInterpolator());
+            rv.setAdapter(slideAdapter);
             mProgress.dismiss();
             new displayTransResultsTask().execute();
         }
@@ -208,7 +217,8 @@ public class SearchResultsActivity extends AppCompatActivity {
             Animation animation = AnimationUtils.loadAnimation(getBaseContext(), android.R.anim.fade_out);
             findViewById(R.id.pb).setAnimation(animation);
             findViewById(R.id.pb).setVisibility(View.INVISIBLE);
-            adapter.notifyDataSetChanged();
+            //adapter.notifyDataSetChanged();
+            slideAdapter.notifyDataSetChanged();
             if (resultsTitle.size() + resultsTranscript.size() == 0) {
                 Toast.makeText(getApplicationContext(), R.string.search_error, Toast.LENGTH_SHORT).show();
             }
@@ -346,7 +356,7 @@ public class SearchResultsActivity extends AppCompatActivity {
                         }
                     }
                 }
-                setAnimation(comicViewHolder.cv, i);
+                //setAnimation(comicViewHolder.cv, i);
             } catch (IndexOutOfBoundsException e) {
                 e.printStackTrace();
             }
@@ -412,6 +422,15 @@ public class SearchResultsActivity extends AppCompatActivity {
         searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
             @Override
             public boolean onQueryTextSubmit(String query) {
+                MenuItem searchMenuItem = getSearchMenuItem();
+                searchMenuItem.collapseActionView();
+                searchView.setQuery("", false);
+                //Hide Keyboard
+                View view = SearchResultsActivity.this.getCurrentFocus();
+                if (view != null) {
+                    InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
+                    imm.hideSoftInputFromWindow(view.getWindowToken(), 0);
+                }
                 return false;
             }
 
@@ -419,6 +438,29 @@ public class SearchResultsActivity extends AppCompatActivity {
             public boolean onQueryTextChange(String newText) {
 
                 return false;
+            }
+        });
+
+        MenuItemCompat.setOnActionExpandListener(searchMenuItem, new MenuItemCompat.OnActionExpandListener() {
+            @Override
+            public boolean onMenuItemActionExpand(MenuItem item) {
+                View view = getCurrentFocus();
+                if (view != null) {
+                    InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
+                    imm.showSoftInput(view, 0);
+                }
+                searchView.requestFocus();
+                return true;
+            }
+
+            @Override
+            public boolean onMenuItemActionCollapse(MenuItem item) {
+                View view = getCurrentFocus();
+                if (view != null) {
+                    InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
+                    imm.hideSoftInputFromWindow(view.getWindowToken(), 0);
+                }
+                return true;
             }
         });
         return true;
