@@ -56,6 +56,7 @@ public class PrefHelper {
     private static final String MONDAY_UPDATE = "monday_update";
     private static final String WEDNESDAY_UPDATE = "wednesday_update";
     private static final String FRIDAY_UPDATE = "friday_update";
+    private static final String TUESDAY_UPDATE = "tuesday_update";
     private static final String ALT_DEFAULT = "pref_show_alt";
     private static final String LAST_WHATIF = "last_whatif";
     private static final String NIGHT_MODE = "night_mode";
@@ -65,7 +66,6 @@ public class PrefHelper {
     private static final String SWIPE_ENABLED = "whatif_swipe";
     private static final String RATE_SNACKBAR = "rate_snackbar";
     private static final String THEME = "pref_theme";
-    private static final String FIRST_INSTALL = "first_install";
     private static final String WHATIF_OFFLINE = "pref_offline_whatif";
     private static final String WHATIF_TITLES = "whatif_titles";
 
@@ -280,6 +280,9 @@ public class PrefHelper {
                 return sharedPrefs.getBoolean(WEDNESDAY_UPDATE, false);
             case Calendar.FRIDAY:
                 return sharedPrefs.getBoolean(FRIDAY_UPDATE, false);
+
+            case Calendar.TUESDAY:
+                sharedPrefs.getBoolean(TUESDAY_UPDATE, false);
         }
         return true;
     }
@@ -294,10 +297,15 @@ public class PrefHelper {
             case Calendar.WEDNESDAY:
                 editor.putBoolean(WEDNESDAY_UPDATE, true);
                 editor.putBoolean(FRIDAY_UPDATE, false);
+                editor.putBoolean(TUESDAY_UPDATE, false);
                 break;
             case Calendar.FRIDAY:
                 editor.putBoolean(FRIDAY_UPDATE, true);
                 editor.putBoolean(MONDAY_UPDATE, false);
+                editor.putBoolean(TUESDAY_UPDATE, false);
+                break;
+            case Calendar.TUESDAY:
+                editor.putBoolean(TUESDAY_UPDATE, true);
         }
         editor.apply();
     }

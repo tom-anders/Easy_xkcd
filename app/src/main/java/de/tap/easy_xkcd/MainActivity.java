@@ -121,6 +121,7 @@ public class MainActivity extends AppCompatActivity {
                 PrefHelper.setLastWhatIf(WhatIfActivity.WhatIfIndex);
                 whatIfIntent = true;
                 WhatIfFragment.newIntent = true;
+                OfflineWhatIfFragment.newIntent = true;
             } else {
                 ComicBrowserFragment.sLastComicNumber = (getNumberFromUrl(getIntent().getDataString()));
                 OfflineFragment.sLastComicNumber = (getNumberFromUrl(getIntent().getDataString()));
@@ -134,6 +135,15 @@ public class MainActivity extends AppCompatActivity {
                 OfflineFragment.sLastComicNumber = number;
             }
         }
+        if (("de.tap.easy_xkcd.ACTION_WHAT_IF").equals(getIntent().getAction())) {
+            int number = getIntent().getIntExtra("number", 0);
+            WhatIfActivity.WhatIfIndex = number;
+            PrefHelper.setLastWhatIf(WhatIfActivity.WhatIfIndex);
+            whatIfIntent = true;
+            WhatIfFragment.newIntent = true;
+            OfflineWhatIfFragment.newIntent = true;
+        }
+
         //On Lollipop, change the app's icon in the recents app screen
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP && !getIntent().getAction().equals(Intent.ACTION_VIEW)) {
             TypedValue typedValue = new TypedValue();
@@ -577,6 +587,15 @@ public class MainActivity extends AppCompatActivity {
                 //fragment.new pagerUpdate().execute(OfflineFragment.sLastComicNumber);
                 fragment.new updateImages().execute();
             }
+        }
+
+        if (("de.tap.easy_xkcd.ACTION_WHAT_IF").equals(getIntent().getAction())) {
+            MenuItem item = sNavView.getMenu().findItem(R.id.nav_whatif);
+            selectDrawerItem(item);
+            WhatIfActivity.WhatIfIndex = intent.getIntExtra("number",1);
+            Intent whatIf = new Intent(MainActivity.this, WhatIfActivity.class);
+            PrefHelper.setLastWhatIf(WhatIfActivity.WhatIfIndex);
+            startActivity(whatIf);
         }
 
     }

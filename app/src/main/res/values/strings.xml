@@ -81,6 +81,7 @@
     <string name="drawer_open">Open navigation drawer</string>
     <string name="drawer_close">Close navigation drawer</string>
     <string name="new_comic">New Comic!</string>
+    <string name="new_whatif">New What If!</string>
     <string name="apply_theme">Restart now to apply new theme?</string>
 
     <string-array
@@ -233,7 +234,7 @@
     <string name="pref_orientation">Screen Orientation</string>
     <string name="pref_orientation_sum">Default, Portrait or Landscape</string>
     <string name="pref_notifications">Update interval for notifications (beta)</string>
-    <string name="pref_notifications_sum">Only checks on Monday, Wednesday and Friday. Increase to save battery.</string>
+    <string name="pref_notifications_sum">Checks on Monday, Wednesday and Friday for new comics, checks on Tuesday for new What If.</string>
     <string name="pref_show_alt">Show alt text by default</string>
     <string name="pref_theme">Theme</string>
     <string name="pref_theme_sum">You need to restart the app in order for the theme to be applied</string>

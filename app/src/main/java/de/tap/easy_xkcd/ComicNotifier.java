@@ -4,12 +4,17 @@ import android.app.Notification;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.content.Intent;
+import android.net.Uri;
 import android.os.AsyncTask;
 import android.support.v4.app.NotificationCompat;
 import android.util.Log;
 
 import com.commonsware.cwac.wakeful.WakefulIntentService;
 import com.tap.xkcd_reader.R;
+
+import org.jsoup.Jsoup;
+import org.jsoup.nodes.Document;
+import org.jsoup.select.Elements;
 
 import java.io.IOException;
 import java.util.Calendar;
@@ -23,14 +28,67 @@ public class ComicNotifier extends WakefulIntentService {
     @Override
     public void doWakefulWork(Intent intent) {
         int day = Calendar.getInstance().get(Calendar.DAY_OF_WEEK);
-        //int day = Calendar.FRIDAY;
         PrefHelper.getPrefs(getApplicationContext());
         if (!PrefHelper.checkUpdated(day)) {
-            new updateComicTitles().execute();
+            if (day == Calendar.TUESDAY) {
+                new updateWhatIfTitles().execute();
+            } else {
+                new updateComicTitles().execute();
+            }
             Log.e("Info", "task executed");
         } else {
            Log.e("Info", "notification already sent or wrong day");
         }
+    }
+
+    private class updateWhatIfTitles extends AsyncTask<Void, Void, Void> {
+        private boolean found = false;
+        private String title;
+        private int number;
+
+        @Override
+        protected Void doInBackground(Void... params) {
+            try {
+                Document doc = Jsoup.connect("https://what-if.xkcd.com/archive/")
+                        .userAgent("Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/32.0.1700.19 Safari/537.36")
+                        .get();
+                Elements titles = doc.select("h1");
+                if (titles.size()>PrefHelper.getNewestWhatIf()); {
+                    found = true;
+                    title = titles.first().text();
+                    number = titles.size();
+                }
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+            return null;
+        }
+
+        @Override
+        protected void onPostExecute(Void dummy) {
+            if (found) {
+                NotificationCompat.Builder mBuilder =
+                        new NotificationCompat.Builder(getApplicationContext())
+                                .setSmallIcon(R.drawable.ic_notification)
+                                .setContentTitle(getResources().getString(R.string.new_whatif))
+                                .setContentText(title)
+                                .setAutoCancel(true);
+
+                Intent intent = new Intent("de.tap.easy_xkcd.ACTION_WHAT_IF");
+                intent.putExtra("number", number);
+                PendingIntent pendingIntent = PendingIntent.getActivity(getApplicationContext(), 1, intent, PendingIntent.FLAG_UPDATE_CURRENT);
+
+                mBuilder.setContentIntent(pendingIntent);
+                mBuilder.setDefaults(Notification.DEFAULT_SOUND | Notification.DEFAULT_LIGHTS | Notification.DEFAULT_VIBRATE);
+
+                NotificationManager mNotificationManager =
+                        (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
+                mNotificationManager.notify(0, mBuilder.build());
+
+                PrefHelper.setUpdated(Calendar.TUESDAY);
+            }
+        }
+
     }
 
     private class updateComicTitles extends AsyncTask<Void, Void, Void> {
@@ -72,21 +130,7 @@ public class ComicNotifier extends WakefulIntentService {
                 mNotificationManager.notify(0, mBuilder.build());
 
                 PrefHelper.setUpdated(Calendar.getInstance().get(Calendar.DAY_OF_WEEK));
-                //PrefHelper.setUpdated(Calendar.FRIDAY);
-            } /*else {
-                NotificationCompat.Builder mBuilder =
-                        new NotificationCompat.Builder(getApplicationContext())
-                                .setSmallIcon(R.drawable.ic_notification)
-                                .setContentTitle("No comic found")
-                                .setContentText(String.valueOf(Calendar.getInstance().get(Calendar.HOUR))+":"+String.valueOf(Calendar.getInstance().get(Calendar.MINUTE)))
-                                .setAutoCancel(true);
-
-                mBuilder.setDefaults(Notification.DEFAULT_SOUND|Notification.DEFAULT_LIGHTS| Notification.DEFAULT_VIBRATE);
-
-                NotificationManager mNotificationManager =
-                        (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
-                mNotificationManager.notify(Calendar.getInstance().get(Calendar.HOUR) + Calendar.getInstance().get(Calendar.MINUTE), mBuilder.build());
-            }*/
+            }
         }
 
     }
