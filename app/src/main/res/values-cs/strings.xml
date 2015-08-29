@@ -232,4 +232,9 @@
     <string name="pref_theme">Theme</string>
     <string name="pref_theme_sum">You need to restart the app in order for the theme to be applied</string>
     <string name="apply_theme">Restart now to apply new theme?</string>
+    <string name="pref_offline_whatif">"What if?" offline mode (beta)</string>
+    <string name="loading_offline_whatif">Downloading articles&#8230;</string>
+    <string name="new_whatif">New What If!</string>
+    <string name="delete_offline_articles">Deleting articles&#8230;</string>
+    <string name="delete_offline_whatif_dialog">Are you sure you want to disable Offline Mode? This will delete all saved articles</string>
 </resources>
