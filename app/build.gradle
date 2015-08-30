@@ -13,10 +13,10 @@ android {
     buildToolsVersion "22.0.1"
     defaultConfig {
         applicationId "de.tap.easy_xkcd"
-        minSdkVersion 16
+        minSdkVersion 14
         targetSdkVersion 22
         versionCode 39
-        versionName "2.3"
+        versionName "2.3.1"
     }
     buildTypes {
         release {
