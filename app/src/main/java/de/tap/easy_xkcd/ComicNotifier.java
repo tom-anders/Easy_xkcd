@@ -53,7 +53,7 @@ public class ComicNotifier extends WakefulIntentService {
                         .userAgent("Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/32.0.1700.19 Safari/537.36")
                         .get();
                 Elements titles = doc.select("h1");
-                if (titles.size()>PrefHelper.getNewestWhatIf()); {
+                if (titles.size()>PrefHelper.getNewestWhatIf()) {
                     found = true;
                     title = titles.first().text();
                     number = titles.size();
