@@ -31,7 +31,7 @@
     <string name="loading_random">Lade zufälligen Comic&#8230;</string>
     <string name="no_favorites">Du hast noch keine Favoriten!</string>
     <string name="loading_comics">Lade Comics&#8230;</string>
-    <string name="loading_results">Lade Ergebnisse...&#8230;</string>
+    <string name="loading_results">Lade Ergebnisse&#8230;</string>
     <string name="no_connection">Keine Verbindung&#8230;</string>
     <string name="no_connection_retry">Nochmal</string>
     <string name="no_connection_favorites">Favoriten anzeigen</string>
