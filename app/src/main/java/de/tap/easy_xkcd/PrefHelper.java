@@ -68,6 +68,7 @@ public class PrefHelper {
     private static final String THEME = "pref_theme";
     private static final String WHATIF_OFFLINE = "pref_offline_whatif";
     private static final String WHATIF_TITLES = "whatif_titles";
+    private static final String NOMEDIA_CREATED = "nomedia_created";
 
 
     public static void getPrefs(Context context) {
@@ -455,7 +456,13 @@ public class PrefHelper {
         return new ArrayList<>(Arrays.asList(titles.split("&&")));
     }
 
-
+    public static boolean nomediaCreated() {
+        SharedPreferences.Editor editor = sharedPrefs.edit();
+        boolean created = sharedPrefs.getBoolean(NOMEDIA_CREATED, false);
+        editor.putBoolean(NOMEDIA_CREATED, true);
+        editor.apply();
+        return created;
+    }
 }
 
 

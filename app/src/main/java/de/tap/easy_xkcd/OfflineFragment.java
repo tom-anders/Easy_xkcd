@@ -63,6 +63,7 @@ import com.tap.xkcd_reader.R;
 
 import java.io.File;
 import java.io.FileOutputStream;
+import java.io.IOException;
 import java.util.Arrays;
 import java.util.Random;
 
@@ -700,6 +701,17 @@ public class OfflineFragment extends android.support.v4.app.Fragment {
             }
             else {
                 sNewestComicNumber = PrefHelper.getHighestOffline();
+            }
+            if (!PrefHelper.nomediaCreated()) {
+                File sdCard = Environment.getExternalStorageDirectory();
+                File dir = new File (sdCard.getAbsolutePath() + "/easy xkcd");
+                File nomedia = new File(dir, ".nomedia");
+                try {
+                    boolean created = nomedia.createNewFile();
+                    Log.d("created", String.valueOf(created));
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
             }
             return null;
         }

@@ -219,6 +219,17 @@ public class OfflineWhatIfFragment extends android.support.v4.app.Fragment {
                 }
 
             }
+            if (!PrefHelper.nomediaCreated()) {
+                File sdCard = Environment.getExternalStorageDirectory();
+                File dir = new File (sdCard.getAbsolutePath() + "/easy xkcd");
+                File nomedia = new File(dir, ".nomedia");
+                try {
+                    boolean created = nomedia.createNewFile();
+                    Log.d("created", String.valueOf(created));
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
             return null;
         }
 
