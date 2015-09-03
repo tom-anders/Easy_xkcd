@@ -69,6 +69,7 @@ public class PrefHelper {
     private static final String WHATIF_OFFLINE = "pref_offline_whatif";
     private static final String WHATIF_TITLES = "whatif_titles";
     private static final String NOMEDIA_CREATED = "nomedia_created";
+    private static final String SHARE_ALT = "pref_share_alt";
 
 
     public static void getPrefs(Context context) {
@@ -462,6 +463,10 @@ public class PrefHelper {
         editor.putBoolean(NOMEDIA_CREATED, true);
         editor.apply();
         return created;
+    }
+
+    public static boolean shareAlt() {
+        return prefs.getBoolean(SHARE_ALT, false);
     }
 }
 

@@ -448,6 +448,9 @@ public class FavoritesFragment extends android.support.v4.app.Fragment {
                 e.printStackTrace();
             }
         }
+        if (PrefHelper.shareAlt()) {
+            share.putExtra(Intent.EXTRA_TEXT, PrefHelper.getAlt(sFavorites[sFavoriteIndex]));
+        }
         startActivity(Intent.createChooser(share, this.getResources().getString(R.string.share_image)));
     }
 

@@ -67,6 +67,8 @@ public class SettingsActivity extends AppCompatActivity {
         setContentView(R.layout.activity_settings);
         instance = this;
 
+        //TODO share at text when sharing image option
+
         //Setup toolbar and status bar color
         android.support.v7.widget.Toolbar toolbar = (android.support.v7.widget.Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);

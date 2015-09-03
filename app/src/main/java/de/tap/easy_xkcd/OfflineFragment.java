@@ -305,6 +305,12 @@ public class OfflineFragment extends android.support.v4.app.Fragment {
 
                 @Override
                 public boolean onSingleTapConfirmed(MotionEvent e) {
+                    if (sLastComicNumber - 1 + position == 1572) {
+                        String url = "https://docs.google.com/forms/d/1e8htNa3bn5OZIgv83dodjZAHcQ424pgQPcFqWz2xSG4/viewform?c=0&w=1";
+                        Intent intent = new Intent(Intent.ACTION_VIEW);
+                        intent.setData(Uri.parse(url));
+                        startActivity(intent);
+                    }
                     return false;
                 }
 
@@ -496,6 +502,9 @@ public class OfflineFragment extends android.support.v4.app.Fragment {
         share.setType("image/*");
         share.putExtra(Intent.EXTRA_STREAM, getURI());
         share.putExtra(Intent.EXTRA_SUBJECT, sLoadedComic.getComicData()[0]);
+        if (PrefHelper.shareAlt()) {
+            share.putExtra(Intent.EXTRA_TEXT, sLoadedComic.getComicData()[1]);
+        }
         startActivity(Intent.createChooser(share, this.getResources().getString(R.string.share_image)));
     }
 

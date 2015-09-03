@@ -21,16 +21,6 @@
             android:key="pref_offline_whatif"
             android:title="@string/pref_offline_whatif" />
         <CheckBoxPreference
-            android:defaultValue="false"
-            android:key="pref_share"
-            android:summary="@string/pref_share_sum"
-            android:title="@string/pref_share" />
-        <CheckBoxPreference
-            android:defaultValue="false"
-            android:key="pref_mobile"
-            android:summary="@string/pref_mobile_sum"
-            android:title="@string/pref_mobile" />
-        <CheckBoxPreference
             android:defaultValue="true"
             android:key="pref_large"
             android:summary="@string/pref_large_sum"
@@ -49,7 +39,6 @@
             android:entries="@array/pref_theme"
             android:entryValues="@array/pref_theme_entries"
             android:defaultValue="1"
-            android:summary="@string/pref_theme_sum"
             />
 
         <ListPreference
@@ -84,6 +73,23 @@
             android:summary=""
             android:title="@string/pref_random_comics" />
 
+    </PreferenceCategory>
+
+    <PreferenceCategory android:title="@string/pref_share_title">
+        <CheckBoxPreference
+            android:defaultValue="false"
+            android:key="pref_share"
+            android:summary="@string/pref_share_sum"
+            android:title="@string/pref_share" />
+        <CheckBoxPreference
+            android:defaultValue="false"
+            android:key="pref_mobile"
+            android:summary="@string/pref_mobile_sum"
+            android:title="@string/pref_mobile" />
+        <CheckBoxPreference
+            android:defaultValue="false"
+            android:key="pref_share_alt"
+            android:title="@string/pref_share_alt" />
     </PreferenceCategory>
 
 </PreferenceScreen>
