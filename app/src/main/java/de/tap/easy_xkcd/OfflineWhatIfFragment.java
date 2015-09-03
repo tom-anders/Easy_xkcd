@@ -290,7 +290,8 @@ public class OfflineWhatIfFragment extends android.support.v4.app.Fragment {
 
             File sdCard = Environment.getExternalStorageDirectory();
             File dir = new File(sdCard.getAbsolutePath() + "/easy xkcd/what if/overview");
-            File file = new File(dir, String.valueOf(titles.size()-i) + ".png");
+            //File file = new File(dir, String.valueOf(titles.size()-i) + ".png");
+            File file = new File(dir, String.valueOf(n) + ".png");
 
             Glide.with(getActivity())
                     .load(file)
