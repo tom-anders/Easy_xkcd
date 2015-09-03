@@ -237,5 +237,7 @@
     <string name="new_whatif">Neues What If!</string>
     <string name="delete_offline_articles">Lösche Artikel&#8230;</string>
     <string name="delete_offline_whatif_dialog">Willst du wirklich den Offline Modus deaktivieren? Alle Artikel werden gelöscht.</string>
+    <string name="pref_share_title">Teilen</string>
+    <string name="pref_share_alt">Alt text zusammen mit Bild teilen</string>
 
 </resources>

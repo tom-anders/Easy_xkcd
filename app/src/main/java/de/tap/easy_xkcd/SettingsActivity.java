@@ -56,8 +56,6 @@ import java.util.Set;
 import java.util.SimpleTimeZone;
 
 public class SettingsActivity extends AppCompatActivity {
-    private SharedPreferences prefs;
-    private SharedPreferences.OnSharedPreferenceChangeListener listener;
     private static SettingsActivity instance;
 
     @Override
@@ -66,8 +64,6 @@ public class SettingsActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_settings);
         instance = this;
-
-        //TODO share at text when sharing image option
 
         //Setup toolbar and status bar color
         android.support.v7.widget.Toolbar toolbar = (android.support.v7.widget.Toolbar) findViewById(R.id.toolbar);

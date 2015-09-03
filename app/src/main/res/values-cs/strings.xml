@@ -237,4 +237,6 @@
     <string name="new_whatif">New What If!</string>
     <string name="delete_offline_articles">Deleting articles&#8230;</string>
     <string name="delete_offline_whatif_dialog">Are you sure you want to disable Offline Mode? This will delete all saved articles</string>
+    <string name="pref_share_title">Sharing</string>
+    <string name="pref_share_alt">Include alt text when sharing</string>
 </resources>
