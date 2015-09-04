@@ -67,7 +67,7 @@ import uk.co.senab.photoview.PhotoViewAttacher;
 
 public class FavoritesFragment extends android.support.v4.app.Fragment {
 
-    public SparseArray<Bitmap> mComicMap = new SparseArray<>();
+    public SparseArray<OfflineComic> mComicMap = new SparseArray<>();
     static final String LAST_FAV = "last fav";
     public static Integer sFavoriteIndex = 0;
     private HackyViewPager mPager = null;
@@ -229,7 +229,7 @@ public class FavoritesFragment extends android.support.v4.app.Fragment {
             //tvTitle.setText(mSharedPreferences.getString(("title" + String.valueOf(sFavorites[position])), ""));
             tvTitle.setText(PrefHelper.getTitle(sFavorites[position]));
             //load the image
-            pvComic.setImageBitmap(mComicMap.get(position));
+            pvComic.setImageBitmap(mComicMap.get(position).getBitmap());
             if (Arrays.binarySearch(mContext.getResources().getIntArray(R.array.large_comics), sFavorites[sFavoriteIndex]) >= 0) {
                 pvComic.setMaximumScale(7.0f);
             }
@@ -355,7 +355,7 @@ public class FavoritesFragment extends android.support.v4.app.Fragment {
 
     private boolean modifyFavorites() {
         final int mRemoved = sFavorites[sFavoriteIndex];
-        final Bitmap mRemovedBitmap = mComicMap.get(sFavoriteIndex);
+        final Bitmap mRemovedBitmap = mComicMap.get(sFavoriteIndex).getBitmap();
         //final String mAlt = mSharedPreferences.getString(("alt" + String.valueOf(sFavorites[sFavoriteIndex])), "");
         //final String mTitle = mSharedPreferences.getString(("title" + String.valueOf(sFavorites[sFavoriteIndex])), "");
 
@@ -426,7 +426,7 @@ public class FavoritesFragment extends android.support.v4.app.Fragment {
     private void shareComicImage() {
         Intent share = new Intent(Intent.ACTION_SEND);
         share.setType("image/*");
-        Bitmap mBitmap = mComicMap.get(sFavoriteIndex);
+        Bitmap mBitmap = mComicMap.get(sFavoriteIndex).getBitmap();
         try {
             String path = MediaStore.Images.Media.insertImage(getActivity().getContentResolver(),
                     mBitmap, "Image Description", null);
@@ -495,7 +495,8 @@ public class FavoritesFragment extends android.support.v4.app.Fragment {
 
             for (int i = 0; i < sFavorites.length; i++) {
                 sFavorites[i] = Integer.parseInt(mFav[i]);
-                try {
+                mComicMap.put(i, new OfflineComic(i, getActivity()));
+                /*try {
                     FileInputStream fis = getActivity().getApplicationContext().openFileInput(mFav[i]);
                     Bitmap mBitmap = BitmapFactory.decodeStream(fis);
                     fis.close();
@@ -513,7 +514,7 @@ public class FavoritesFragment extends android.support.v4.app.Fragment {
                     } catch (Exception e2) {
                         e2.printStackTrace();
                     }
-                }
+                }*/
             }
 
             return null;
