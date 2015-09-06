@@ -94,33 +94,6 @@
     </string-array>
 
     <string-array
-        name="pref_zoom_entries">
-        <item>40</item>
-        <item>70</item>
-        <item>100</item>
-        <item>130</item>
-        <item>170</item>
-        <item>200</item>
-        <item>default</item>
-    </string-array>
-
-    <string-array
-        name="pref_notifications_entries">
-        <item>1</item>
-        <item>3</item>
-        <item>6</item>
-        <item>12</item>
-        <item>0</item>
-    </string-array>
-
-    <string-array
-        name="pref_orientation_entries">
-        <item>1</item>
-        <item>2</item>
-        <item>3</item>
-    </string-array>
-
-    <string-array
         name="pref_theme">
         <item>Blue/Grey (Default)</item>
         <item>Red</item>
@@ -129,37 +102,6 @@
         <item>Purple</item>
         <item>Lime</item>
         <item>Green</item>
-    </string-array>
-
-    <string-array
-        name="pref_theme_entries">
-        <item>1</item>
-        <item>2</item>
-        <item>3</item>
-        <item>4</item>
-        <item>5</item>
-        <item>6</item>
-        <item>7</item>
-    </string-array>
-
-    <string-array
-        name="large_comics_urls">
-        <item>http://imgs.xkcd.com/comics/online_communities.png</item>
-        <item>http://imgs.xkcd.com/comics/height.png</item>
-        <item>http://imgs.xkcd.com/comics/movie_narrative_charts_large.png</item>
-        <item>http://imgs.xkcd.com/comics/gravity_wells_large.png</item>
-        <item>http://imgs.xkcd.com/comics/online_communities_2_large.png</item>
-        <item>http://imgs.xkcd.com/comics/1000_comics_large.png</item>
-        <item>http://imgs.xkcd.com/comics/lakes_and_oceans_large.png</item>
-        <item>http://imgs.xkcd.com/comics/exoplanets_large.png</item>
-        <item>http://imgs.xkcd.com/comics/united_shapes_large.png</item>
-        <item>http://imgs.xkcd.com/comics/visual_field_large.png</item>
-        <item>http://imgs.xkcd.com/comics/subways_large.png</item>
-        <item>http://imgs.xkcd.com/comics/questions_large.png</item>
-        <item>http://imgs.xkcd.com/comics/exoplanet_neighborhood_large.png</item>
-        <item>http://imgs.xkcd.com/comics/surface_area_large.png</item>
-        <item>http://imgs.xkcd.com/comics/dominant_players_large.png</item>
-        <item>http://imgs.xkcd.com/comics/stories_of_the_past_and_future_large.png</item>
     </string-array>
 
     <string-array

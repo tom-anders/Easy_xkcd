@@ -93,17 +93,6 @@
     </string-array>
 
     <string-array
-        name="pref_theme_entries">
-        <item>1</item>
-        <item>2</item>
-        <item>3</item>
-        <item>4</item>
-        <item>5</item>
-        <item>6</item>
-        <item>7</item>
-    </string-array>
-
-    <string-array
         name="pref_zoom">
         <item>40%</item>
         <item>70%</item>
@@ -115,17 +104,6 @@
     </string-array>
 
     <string-array
-        name="pref_zoom_entries">
-        <item>40</item>
-        <item>70</item>
-        <item>100</item>
-        <item>130</item>
-        <item>170</item>
-        <item>200</item>
-        <item>default</item>
-    </string-array>
-
-    <string-array
         name="pref_notifications">
         <item>1 hour</item>
         <item>3 hours</item>
@@ -134,79 +112,12 @@
         <item>never</item>
     </string-array>
 
-    <string-array
-        name="pref_notifications_entries">
-        <item>1</item>
-        <item>3</item>
-        <item>6</item>
-        <item>12</item>
-        <item>0</item>
-    </string-array>
 
     <string-array
         name="pref_orientation">
         <item>Default</item>
         <item>Portrait</item>
         <item>Landscape</item>
-    </string-array>
-
-    <string-array
-        name="pref_orientation_entries">
-        <item>1</item>
-        <item>2</item>
-        <item>3</item>
-    </string-array>
-
-    <integer-array
-        name="interactive_comics">
-        <item>826</item>
-        <item>1110</item>
-        <item>1264</item>
-        <item>1331</item>
-        <item>1350</item>
-        <item>1416</item>
-        <item>1506</item>
-        <item>1525</item>
-    </integer-array>
-
-    <integer-array
-        name="large_comics">
-        <item>256</item>
-        <item>482</item>
-        <item>657</item>
-        <item>681</item>
-        <item>802</item>
-        <item>1000</item>
-        <item>1040</item>
-        <item>1071</item>
-        <item>1079</item>
-        <item>1080</item>
-        <item>1196</item>
-        <item>1256</item>
-        <item>1298</item>
-        <item>1389</item>
-        <item>1392</item>
-        <item>1491</item>
-    </integer-array>
-
-    <string-array
-        name="large_comics_urls">
-        <item>http://imgs.xkcd.com/comics/online_communities.png</item>
-        <item>http://imgs.xkcd.com/comics/height.png</item>
-        <item>http://imgs.xkcd.com/comics/movie_narrative_charts_large.png</item>
-        <item>http://imgs.xkcd.com/comics/gravity_wells_large.png</item>
-        <item>http://imgs.xkcd.com/comics/online_communities_2_large.png</item>
-        <item>http://imgs.xkcd.com/comics/1000_comics_large.png</item>
-        <item>http://imgs.xkcd.com/comics/lakes_and_oceans_large.png</item>
-        <item>http://imgs.xkcd.com/comics/exoplanets_large.png</item>
-        <item>http://imgs.xkcd.com/comics/united_shapes_large.png</item>
-        <item>http://imgs.xkcd.com/comics/visual_field_large.png</item>
-        <item>http://imgs.xkcd.com/comics/subways_large.png</item>
-        <item>http://imgs.xkcd.com/comics/questions_large.png</item>
-        <item>http://imgs.xkcd.com/comics/exoplanet_neighborhood_large.png</item>
-        <item>http://imgs.xkcd.com/comics/surface_area_large.png</item>
-        <item>http://imgs.xkcd.com/comics/dominant_players_large.png</item>
-        <item>http://imgs.xkcd.com/comics/stories_of_the_past_and_future_large.png</item>
     </string-array>
 
     <string name="title_interactive">(interaktivní)</string>
