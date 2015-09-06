@@ -135,6 +135,28 @@
     </string-array>
 
     <string-array
+        name="pref_zoom">
+        <item>40%</item>
+        <item>70%</item>
+        <item>100%</item>
+        <item>130%</item>
+        <item>170%</item>
+        <item>200%</item>
+        <item>WebView default</item>
+    </string-array>
+
+    <string-array
+        name="pref_zoom_entries">
+        <item>40</item>
+        <item>70</item>
+        <item>100</item>
+        <item>130</item>
+        <item>170</item>
+        <item>200</item>
+        <item>default</item>
+    </string-array>
+
+    <string-array
         name="pref_notifications_entries">
         <item>1</item>
         <item>3</item>
@@ -240,6 +262,9 @@
     <string name="pref_show_alt">Show alt text by default</string>
     <string name="pref_theme">Theme</string>
     <string name="pref_theme_sum">You need to restart the app in order for the theme to be applied</string>
+    <string name="pref_zoom">What If? Text Zoom</string>
+    <string name="pref_zoom_sum">May fix layout issues on some devices</string>
+    <string name="pref_advanced">Advanced</string>
     <string name="title_activity_what_if" translatable="false">What if?</string>
 
 </resources>

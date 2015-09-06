@@ -85,6 +85,7 @@ public class WhatIfActivity extends AppCompatActivity {
         web.getSettings().setJavaScriptEnabled(true);
         web.getSettings().setDisplayZoomControls(false);
         web.getSettings().setLoadWithOverviewMode(true);
+        web.getSettings().setTextZoom(PrefHelper.getZoom(web.getSettings().getTextZoom()));
 
         mProgress = ProgressDialog.show(this, "", getResources().getString(R.string.loading_articles), true);
         new LoadWhatIf().execute();

@@ -119,6 +119,28 @@
     </string-array>
 
     <string-array
+        name="pref_zoom">
+        <item>40%</item>
+        <item>70%</item>
+        <item>100%</item>
+        <item>130%</item>
+        <item>170%</item>
+        <item>200%</item>
+        <item>WebView default</item>
+    </string-array>
+
+    <string-array
+        name="pref_zoom_entries">
+        <item>40</item>
+        <item>70</item>
+        <item>100</item>
+        <item>130</item>
+        <item>170</item>
+        <item>200</item>
+        <item>default</item>
+    </string-array>
+
+    <string-array
         name="pref_orientation">
         <item>Standard</item>
         <item>Portrait</item>
@@ -239,5 +261,8 @@
     <string name="delete_offline_whatif_dialog">Willst du wirklich den Offline Modus deaktivieren? Alle Artikel werden gelöscht.</string>
     <string name="pref_share_title">Teilen</string>
     <string name="pref_share_alt">Alt text zusammen mit Bild teilen</string>
+    <string name="pref_advanced">Erweitert</string>
+    <string name="pref_zoom">What If? Text Zoom</string>
+    <string name="pref_zoom_sum">Kann Layout Probleme bei manchen Geräten beseitigen</string>
 
 </resources>

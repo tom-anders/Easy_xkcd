@@ -83,6 +83,28 @@
     </string-array>
 
     <string-array
+        name="pref_zoom">
+        <item>40%</item>
+        <item>70%</item>
+        <item>100%</item>
+        <item>130%</item>
+        <item>170%</item>
+        <item>200%</item>
+        <item>WebView default</item>
+    </string-array>
+
+    <string-array
+        name="pref_zoom_entries">
+        <item>40</item>
+        <item>70</item>
+        <item>100</item>
+        <item>130</item>
+        <item>170</item>
+        <item>200</item>
+        <item>default</item>
+    </string-array>
+
+    <string-array
         name="pref_notifications_entries">
         <item>1</item>
         <item>3</item>
@@ -207,5 +229,8 @@
     <string name="delete_offline_whatif_dialog">Are you sure you want to disable Offline Mode? This will delete all saved articles</string>
     <string name="pref_share_title">Sharing</string>
     <string name="pref_share_alt">Include alt text when sharing</string>
+    <string name="pref_advanced">Advanced</string>
+    <string name="pref_zoom">What If? Text Zoom</string>
+    <string name="pref_zoom_sum">May fix layout issues on some devices</string>
 
 </resources>

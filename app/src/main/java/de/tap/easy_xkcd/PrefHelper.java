@@ -70,6 +70,7 @@ public class PrefHelper {
     private static final String WHATIF_TITLES = "whatif_titles";
     private static final String NOMEDIA_CREATED = "nomedia_created";
     private static final String SHARE_ALT = "pref_share_alt";
+    private static final String PREF_ZOOM = "pref_zoom";
 
 
     public static void getPrefs(Context context) {
@@ -401,28 +402,44 @@ public class PrefHelper {
     public static int getTheme() {
         int n = Integer.parseInt(prefs.getString(THEME, "1"));
         switch (n) {
-            case 1: return R.style.DefaultTheme;
-            case 2: return R.style.RedTheme;
-            case 3: return R.style.BlueTheme;
-            case 4: return R.style.BlackTheme;
-            case 5: return R.style.PurpleTheme;
-            case 6: return R.style.LimeTheme;
-            case 7: return R.style.GreenTheme;
-            default: return R.style.DefaultTheme;
+            case 1:
+                return R.style.DefaultTheme;
+            case 2:
+                return R.style.RedTheme;
+            case 3:
+                return R.style.BlueTheme;
+            case 4:
+                return R.style.BlackTheme;
+            case 5:
+                return R.style.PurpleTheme;
+            case 6:
+                return R.style.LimeTheme;
+            case 7:
+                return R.style.GreenTheme;
+            default:
+                return R.style.DefaultTheme;
         }
     }
 
     public static int getDialogTheme() {
         int n = Integer.parseInt(prefs.getString(THEME, "1"));
         switch (n) {
-            case 1: return R.style.AlertDialog;
-            case 2: return R.style.AlertDialogRed;
-            case 3: return R.style.AlertDialogBlue;
-            case 4: return R.style.AlertDialogBlack;
-            case 5: return R.style.AlertDialogPurple;
-            case 6: return R.style.AlertDialogLime;
-            case 7: return R.style.AlertDialogGreen;
-            default: return R.style.AlertDialog;
+            case 1:
+                return R.style.AlertDialog;
+            case 2:
+                return R.style.AlertDialogRed;
+            case 3:
+                return R.style.AlertDialogBlue;
+            case 4:
+                return R.style.AlertDialogBlack;
+            case 5:
+                return R.style.AlertDialogPurple;
+            case 6:
+                return R.style.AlertDialogLime;
+            case 7:
+                return R.style.AlertDialogGreen;
+            default:
+                return R.style.AlertDialog;
         }
     }
 
@@ -467,6 +484,16 @@ public class PrefHelper {
 
     public static boolean shareAlt() {
         return prefs.getBoolean(SHARE_ALT, false);
+    }
+
+    public static int getZoom(int webDefault) {
+        int i;
+        try {
+            i = Integer.parseInt(prefs.getString(PREF_ZOOM, String.valueOf(webDefault)));
+        } catch (Exception e) {
+            i = webDefault;
+        }
+        return i;
     }
 }
 
