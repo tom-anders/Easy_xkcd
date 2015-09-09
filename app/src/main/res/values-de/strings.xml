@@ -174,5 +174,7 @@
     <string name="pref_advanced">Erweitert</string>
     <string name="pref_zoom">What If? Text Zoom</string>
     <string name="pref_zoom_sum">Kann Layout Probleme bei manchen Geräten beseitigen</string>
+    <string name="pref_repair">Offline Comics reparieren</string>
+    <string name="pref_repair_sum">Wenn du einige leere Comics siehst, benutze diese Option um sie neu herunterzuladen</string>
 
 </resources>

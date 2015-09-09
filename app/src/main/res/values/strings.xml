@@ -272,6 +272,8 @@
     <string name="pref_zoom">What If? Text Zoom</string>
     <string name="pref_zoom_sum">May fix layout issues on some devices</string>
     <string name="pref_advanced">Advanced</string>
+    <string name="pref_repair">Repair offline comics</string>
+    <string name="pref_repair_sum">If you see some blank comics, this option should fix it by re-downloading them</string>
     <string name="title_activity_what_if" translatable="false">What if?</string>
 
 </resources>

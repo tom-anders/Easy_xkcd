@@ -23,6 +23,7 @@ import android.content.DialogInterface;
 import android.content.SharedPreferences;
 import android.content.pm.ActivityInfo;
 import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.os.AsyncTask;
@@ -48,6 +49,7 @@ import org.jsoup.select.Elements;
 
 import java.io.BufferedWriter;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.FileWriter;
 import java.io.IOException;
@@ -98,6 +100,22 @@ public class SettingsActivity extends AppCompatActivity {
         public void onCreate(final Bundle savedInstanceState) {
             super.onCreate(savedInstanceState);
             addPreferencesFromResource(R.xml.preferences);
+
+            if (!MainActivity.fullOffline) {
+                findPreference("pref_repair").setEnabled(false);
+            }
+
+            findPreference("pref_repair").setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
+                @Override
+                public boolean onPreferenceClick(Preference preference) {
+                    if (((SettingsActivity) getActivity()).isOnline()) {
+                        new repairComicsTask().execute();
+                    } else {
+                        Toast.makeText(getActivity(), R.string.no_connection, Toast.LENGTH_SHORT).show();
+                    }
+                    return true;
+                }
+            });
 
             findPreference("pref_theme").setOnPreferenceChangeListener(new Preference.OnPreferenceChangeListener() {
                 @Override
@@ -195,6 +213,105 @@ public class SettingsActivity extends AppCompatActivity {
                 }
             });
 
+        }
+
+        public class repairComicsTask extends AsyncTask<Void, Integer, Void> {
+            private ProgressDialog progress;
+
+            @Override
+            protected void onPreExecute() {
+                progress = new ProgressDialog(getActivity());
+                progress.setTitle(getResources().getString(R.string.loading_offline));
+                progress.setMessage(getResources().getString(R.string.loading_offline_message));
+                progress.setIndeterminate(false);
+                progress.setProgressStyle(ProgressDialog.STYLE_HORIZONTAL);
+                progress.setCancelable(false);
+                progress.show();
+            }
+
+            @Override
+            protected Void doInBackground(Void... params) {
+                int newest;
+                try {
+                    newest = new Comic(0).getComicNumber();
+                    PrefHelper.setNewestComic(newest);
+                } catch (Exception e) {
+                    newest = PrefHelper.getNewest();
+                }
+                Bitmap mBitmap = null;
+                for (int i = 1; i <= newest; i++) {
+                    Log.d("i", String.valueOf(i));
+                    try {
+                        FileInputStream fis = getActivity().openFileInput(String.valueOf(i));
+                        mBitmap = BitmapFactory.decodeStream(fis);
+                        fis.close();
+                    } catch (Exception e) {
+                        Log.e("error", "not found in internal");
+                        try {
+                            File sdCard = Environment.getExternalStorageDirectory();
+                            File dir = new File(sdCard.getAbsolutePath() + "/easy xkcd");
+                            File file = new File(dir, String.valueOf(i) + ".png");
+                            FileInputStream fis = new FileInputStream(file);
+                            mBitmap = BitmapFactory.decodeStream(fis);
+                            fis.close();
+                        } catch (Exception e2) {
+                            Log.e("error", "not found in external");
+                            redownloadComic(i);
+                        }
+                    }
+                    int p = (int) (i / ((float) newest) * 100);
+                    publishProgress(p);
+                }
+
+                return null;
+            }
+
+            private void redownloadComic(int i) {
+                try {
+                    Comic comic = new Comic(i, getActivity());
+                    String url = comic.getComicData()[2];
+                    Bitmap mBitmap = Glide.with(getActivity())
+                            .load(url)
+                            .asBitmap()
+                            .into(-1, -1)
+                            .get();
+                    try {
+                        File sdCard = Environment.getExternalStorageDirectory();
+                        File dir = new File(sdCard.getAbsolutePath() + "/easy xkcd");
+                        dir.mkdirs();
+                        File file = new File(dir, String.valueOf(i) + ".png");
+                        FileOutputStream fos = new FileOutputStream(file);
+                        mBitmap.compress(Bitmap.CompressFormat.PNG, 100, fos);
+                        fos.flush();
+                        fos.close();
+                    } catch (Exception e) {
+                        Log.e("Error", "Saving to external storage failed");
+                        try {
+                            FileOutputStream fos = getActivity().openFileOutput(String.valueOf(i), Context.MODE_PRIVATE);
+                            mBitmap.compress(Bitmap.CompressFormat.PNG, 100, fos);
+                            fos.close();
+                        } catch (Exception e2) {
+                            e2.printStackTrace();
+                        }
+                    }
+                    PrefHelper.addTitle(comic.getComicData()[0], i);
+                    PrefHelper.addAlt(comic.getComicData()[1], i);
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            }
+
+            protected void onProgressUpdate(Integer... pro) {
+                progress.setProgress(pro[0]);
+            }
+
+            @Override
+            protected void onPostExecute(Void dummy) {
+                progress.dismiss();
+                MainActivity.getInstance().finish();
+                getActivity().finish();
+                startActivity(MainActivity.getInstance().getIntent());
+            }
         }
 
         public class downloadComicsTask extends AsyncTask<Void, Integer, Void> {
