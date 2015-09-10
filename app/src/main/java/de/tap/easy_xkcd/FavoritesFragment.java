@@ -495,7 +495,7 @@ public class FavoritesFragment extends android.support.v4.app.Fragment {
 
             for (int i = 0; i < sFavorites.length; i++) {
                 sFavorites[i] = Integer.parseInt(mFav[i]);
-                mComicMap.put(i, new OfflineComic(i, getActivity()));
+                mComicMap.put(i, new OfflineComic(sFavorites[i], getActivity()));
                 /*try {
                     FileInputStream fis = getActivity().getApplicationContext().openFileInput(mFav[i]);
                     Bitmap mBitmap = BitmapFactory.decodeStream(fis);
