@@ -62,8 +62,17 @@
                     android:host="xkcd.com"
                     android:scheme="http" />
                 <data
+                    android:host="xkcd.com"
+                    android:scheme="https" />
+                <data
+                    android:host="xkcd.com"
+                    android:scheme="https" />
+                <data
                     android:host="m.xkcd.com"
                     android:scheme="http" />
+                <data
+                    android:host="m.xkcd.com"
+                    android:scheme="https" />
             </intent-filter>
             <intent-filter>
                 <action android:name="android.intent.action.VIEW" />
@@ -74,6 +83,9 @@
                 <data
                     android:host="what-if.xkcd.com"
                     android:scheme="http" />
+                <data
+                    android:host="what-if.xkcd.com"
+                    android:scheme="https" />
             </intent-filter>
 
             <meta-data
