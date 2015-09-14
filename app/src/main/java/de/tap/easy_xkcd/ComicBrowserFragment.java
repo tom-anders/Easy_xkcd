@@ -37,6 +37,7 @@ import android.os.Bundle;
 import android.os.Environment;
 import android.os.Vibrator;
 import android.provider.MediaStore;
+import android.support.customtabs.CustomTabsIntent;
 import android.support.design.widget.Snackbar;
 import android.support.v4.view.PagerAdapter;
 import android.support.v4.view.ViewPager;
@@ -44,6 +45,7 @@ import android.support.v7.app.ActionBar;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.util.SparseArray;
+import android.util.TypedValue;
 import android.view.GestureDetector;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -70,6 +72,8 @@ import java.io.IOException;
 import java.util.Arrays;
 import java.util.Random;
 
+import de.tap.easy_xkcd.CustomTabHelpers.BrowserFallback;
+import de.tap.easy_xkcd.CustomTabHelpers.CustomTabActivityHelper;
 import uk.co.senab.photoview.PhotoView;
 import uk.co.senab.photoview.PhotoViewAttacher;
 
@@ -391,9 +395,14 @@ public class ComicBrowserFragment extends android.support.v4.app.Fragment {
 
     private boolean explainComic(int number) {
         String url = "http://explainxkcd.com/" + String.valueOf(number);
-        Intent intent = new Intent(Intent.ACTION_VIEW);
+        /*Intent intent = new Intent(Intent.ACTION_VIEW);
         intent.setData(Uri.parse(url));
-        startActivity(intent);
+        startActivity(intent);*/
+        CustomTabsIntent.Builder intentBuilder = new CustomTabsIntent.Builder();
+        TypedValue typedValue = new TypedValue();
+        getActivity().getTheme().resolveAttribute(R.attr.colorPrimary, typedValue, true);
+        intentBuilder.setToolbarColor(typedValue.data);
+        CustomTabActivityHelper.openCustomTab(getActivity(), intentBuilder.build(), Uri.parse(url), new BrowserFallback());
         return true;
     }
 

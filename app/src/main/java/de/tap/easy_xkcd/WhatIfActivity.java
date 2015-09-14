@@ -35,6 +35,8 @@ import org.jsoup.nodes.Document;
 import java.io.File;
 import java.util.ArrayList;
 
+import de.tap.easy_xkcd.CustomTabHelpers.CustomTabActivityHelper;
+
 public class WhatIfActivity extends AppCompatActivity {
 
     private WebView web;

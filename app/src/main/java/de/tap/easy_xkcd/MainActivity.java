@@ -70,6 +70,8 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 
+import de.tap.easy_xkcd.CustomTabHelpers.CustomTabActivityHelper;
+
 
 public class MainActivity extends AppCompatActivity {
     public FloatingActionButton mFab;
@@ -86,6 +88,7 @@ public class MainActivity extends AppCompatActivity {
     public static boolean fullOfflineWhatIf = false;
     private boolean settingsOpened = false;
     private static MainActivity instance;
+    private CustomTabActivityHelper customTabActivityHelper;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -95,6 +98,7 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
 
         instance = this;
+        customTabActivityHelper = new CustomTabActivityHelper();
 
         if (savedInstanceState == null) {
             if (PrefHelper.getNotificationInterval() != 0) {
@@ -215,6 +219,18 @@ public class MainActivity extends AppCompatActivity {
             }
             mDialog.show();
         }
+    }
+
+    @Override
+    protected void onStart() {
+        super.onStart();
+        customTabActivityHelper.bindCustomTabsService(this);
+    }
+
+    @Override
+    protected void onStop() {
+        super.onStop();
+        customTabActivityHelper.unbindCustomTabsService(this);
     }
 
     public static MainActivity getInstance() {
