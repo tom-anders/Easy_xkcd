@@ -290,28 +290,28 @@ public class PrefHelper {
         return true;
     }
 
-    public static void setUpdated(int day) {
+    public static void setUpdated(int day, boolean found) {
         SharedPreferences.Editor editor = sharedPrefs.edit();
         switch (day) {
             case Calendar.MONDAY:
-                editor.putBoolean(MONDAY_UPDATE, true);
+                editor.putBoolean(MONDAY_UPDATE, found);
                 editor.putBoolean(WEDNESDAY_UPDATE, false);
                 editor.putBoolean(FRIDAY_UPDATE,false);
                 break;
             case Calendar.WEDNESDAY:
-                editor.putBoolean(WEDNESDAY_UPDATE, true);
+                editor.putBoolean(WEDNESDAY_UPDATE, found);
                 editor.putBoolean(FRIDAY_UPDATE, false);
                 editor.putBoolean(MONDAY_UPDATE,false);
                 editor.putBoolean(TUESDAY_UPDATE, false);
                 break;
             case Calendar.FRIDAY:
-                editor.putBoolean(FRIDAY_UPDATE, true);
+                editor.putBoolean(FRIDAY_UPDATE, found);
                 editor.putBoolean(MONDAY_UPDATE, false);
                 editor.putBoolean(WEDNESDAY_UPDATE, false);
                 editor.putBoolean(TUESDAY_UPDATE, false);
                 break;
             case Calendar.TUESDAY:
-                editor.putBoolean(TUESDAY_UPDATE, true);
+                editor.putBoolean(TUESDAY_UPDATE, found);
         }
         editor.apply();
     }

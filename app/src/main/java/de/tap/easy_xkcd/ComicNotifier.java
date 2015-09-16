@@ -85,9 +85,8 @@ public class ComicNotifier extends WakefulIntentService {
                 NotificationManager mNotificationManager =
                         (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
                 mNotificationManager.notify(0, mBuilder.build());
-
-                PrefHelper.setUpdated(Calendar.TUESDAY);
             }
+            PrefHelper.setUpdated(Calendar.TUESDAY, found);
         }
 
     }
@@ -129,9 +128,8 @@ public class ComicNotifier extends WakefulIntentService {
                 NotificationManager mNotificationManager =
                         (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
                 mNotificationManager.notify(0, mBuilder.build());
-
-                PrefHelper.setUpdated(Calendar.getInstance().get(Calendar.DAY_OF_WEEK));
             }
+            PrefHelper.setUpdated(Calendar.getInstance().get(Calendar.DAY_OF_WEEK), found);
         }
 
     }
