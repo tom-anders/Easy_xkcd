@@ -314,6 +314,10 @@ public class PrefHelper {
                 editor.putBoolean(TUESDAY_UPDATE, found);
         }
         editor.apply();
+        Log.d("Update Status:", String.valueOf(sharedPrefs.getBoolean(MONDAY_UPDATE,false))
+                +String.valueOf(sharedPrefs.getBoolean(TUESDAY_UPDATE,false))
+                +String.valueOf(sharedPrefs.getBoolean(WEDNESDAY_UPDATE,false))
+                +String.valueOf(sharedPrefs.getBoolean(FRIDAY_UPDATE,false)));
     }
 
     public static boolean altByDefault() {
