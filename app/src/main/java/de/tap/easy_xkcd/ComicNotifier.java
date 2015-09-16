@@ -32,10 +32,11 @@ public class ComicNotifier extends WakefulIntentService {
         if (!PrefHelper.checkUpdated(day)) {
             if (day == Calendar.TUESDAY) {
                 new updateWhatIfTitles().execute();
+                Log.e("Info", "What if task executed");
             } else {
                 new updateComicTitles().execute();
+                Log.e("Info", "Comic task executed");
             }
-            Log.e("Info", "task executed");
         } else {
            Log.e("Info", "notification already sent or wrong day");
         }

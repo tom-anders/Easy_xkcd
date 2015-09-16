@@ -296,15 +296,18 @@ public class PrefHelper {
             case Calendar.MONDAY:
                 editor.putBoolean(MONDAY_UPDATE, true);
                 editor.putBoolean(WEDNESDAY_UPDATE, false);
+                editor.putBoolean(FRIDAY_UPDATE,false);
                 break;
             case Calendar.WEDNESDAY:
                 editor.putBoolean(WEDNESDAY_UPDATE, true);
                 editor.putBoolean(FRIDAY_UPDATE, false);
+                editor.putBoolean(MONDAY_UPDATE,false);
                 editor.putBoolean(TUESDAY_UPDATE, false);
                 break;
             case Calendar.FRIDAY:
                 editor.putBoolean(FRIDAY_UPDATE, true);
                 editor.putBoolean(MONDAY_UPDATE, false);
+                editor.putBoolean(WEDNESDAY_UPDATE, false);
                 editor.putBoolean(TUESDAY_UPDATE, false);
                 break;
             case Calendar.TUESDAY:
