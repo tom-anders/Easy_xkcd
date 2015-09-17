@@ -77,6 +77,8 @@ public class Comic {
         mComicNumber = Integer.parseInt(json.getString("num"));
         if (mComicNumber==712) { //fix for é and û
             result[1] = "Using a ring to bind someone you covet into your dark and twisted world? Wow, just got the subtext there. Also, the apparently eager Beyoncé would've made one badass Nazgȗl.";
+        } else if (mComicNumber == 847) {
+            result[1] = "Eärendil will patrol the walls of night only until the sun reaches red giant stage, engulfing the Morning Star on his brow. Light and high beauty are passing things as well.";
         }
         return result;
     }
