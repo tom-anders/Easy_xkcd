@@ -23,6 +23,7 @@
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
     <uses-permission android:name="android.permission.VIBRATE" />
+    <uses-permission android:name="android.vending.BILLING" />
 
     <application
         android:allowBackup="true"
@@ -55,6 +56,7 @@
 
                 <category android:name="android.intent.category.DEFAULT" />
                 <category android:name="android.intent.category.BROWSABLE" />
+
                 <data
                     android:host="www.xkcd.com"
                     android:scheme="http" />
@@ -98,8 +100,8 @@
         <activity
             android:name="de.tap.easy_xkcd.SettingsActivity"
             android:label="@string/pref_title"
-            android:parentActivityName="de.tap.easy_xkcd.MainActivity"
-            android:launchMode="singleTop" >
+            android:launchMode="singleTop"
+            android:parentActivityName="de.tap.easy_xkcd.MainActivity" >
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value="de.tap.easy_xkcd.MainActivity" />
@@ -155,6 +157,15 @@
             android:name="de.tap.easy_xkcd.WhatIfActivity"
             android:label="@string/title_activity_what_if"
             android:launchMode="singleTop"
+            android:parentActivityName="de.tap.easy_xkcd.MainActivity" >
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value="de.tap.easy_xkcd.MainActivity" />
+        </activity>
+        <activity
+            android:name="de.tap.easy_xkcd.DonateActivity"
+            android:label="@string/title_activity_donate"
+            android:launchMode="singleInstance"
             android:parentActivityName="de.tap.easy_xkcd.MainActivity" >
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"

@@ -450,6 +450,9 @@ public class WhatIfFragment extends android.support.v4.app.Fragment {
         for (int i = 0; i < menu.size()-2; i++) {
             menu.getItem(i).setVisible(false);
         }
+        if (PrefHelper.hideDonate()) {
+            menu.findItem(R.id.action_donate).setVisible(false);
+        }
 
         menu.findItem(R.id.action_unread).setVisible(true);
         menu.findItem(R.id.action_hide_read).setVisible(true);

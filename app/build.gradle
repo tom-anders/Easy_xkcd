@@ -15,8 +15,8 @@ android {
         applicationId "de.tap.easy_xkcd"
         minSdkVersion 15
         targetSdkVersion 22
-        versionCode 50
-        versionName "2.4.1"
+        versionCode 51
+        versionName "2.4.2"
     }
     buildTypes {
         release {
@@ -47,4 +47,5 @@ dependencies {
     compile 'org.jsoup:jsoup:1.8.3'
     compile 'jp.wasabeef:recyclerview-animators:1.2.2'
     compile "com.android.support:customtabs:23.0.1"
+    compile 'com.anjlab.android.iab.v3:library:1.0.+@aar'
 }

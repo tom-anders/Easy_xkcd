@@ -71,6 +71,8 @@ public class PrefHelper {
     private static final String NOMEDIA_CREATED = "nomedia_created";
     private static final String SHARE_ALT = "pref_share_alt";
     private static final String PREF_ZOOM = "pref_zoom";
+    private static final String PREF_DONATE = "pref_hide_donate";
+
 
 
     public static void getPrefs(Context context) {
@@ -501,6 +503,16 @@ public class PrefHelper {
             i = webDefault;
         }
         return i;
+    }
+
+    public static boolean hideDonate() {
+        return prefs.getBoolean(PREF_DONATE, false);
+    }
+
+    public static void setHideDonate(boolean value) {
+        SharedPreferences.Editor editor = prefs.edit();
+        editor.putBoolean(PREF_DONATE, value);
+        editor.apply();
     }
 }
 

@@ -75,6 +75,7 @@
     <string name="action_night_mode">Night mode</string>
     <string name="action_browser">Open in browser</string>
     <string name="action_swipe">Swipe to navigate</string>
+    <string name="action_donate">Donate</string>
     <string name="action_alt_tip">Tip: You can also view the alt text by long pressing the comic image.</string>
     <string name="search_title">Search</string>
     <string name="search_hint">Search a Comic</string>
@@ -274,6 +275,10 @@
     <string name="pref_advanced">Advanced</string>
     <string name="pref_repair">Repair offline comics</string>
     <string name="pref_repair_sum">If you see some blank comics, this option should fix it by re-downloading them</string>
+    <string name="pref_hide_donate">Hide donation button</string>
     <string name="title_activity_what_if" translatable="false">What if?</string>
+    <string name="title_activity_donate">Donate</string>
+
+    <string name="dialog_donate">How much would you like to donate?</string>
 
 </resources>

@@ -67,4 +67,8 @@
         android:checkable="true"
         app:showAsAction="never" />
 
+    <item android:id="@+id/action_donate"
+        android:title="@string/action_donate"
+        app:showAsAction="never" />
+
 </menu>

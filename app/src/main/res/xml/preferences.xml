@@ -73,6 +73,11 @@
             android:summary=""
             android:title="@string/pref_random_comics" />
 
+        <CheckBoxPreference
+            android:defaultValue="false"
+            android:key="pref_hide_donate"
+            android:title="@string/pref_hide_donate" />
+
     </PreferenceCategory>
 
     <PreferenceCategory android:title="@string/pref_share_title">
