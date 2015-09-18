@@ -751,5 +751,15 @@ public class MainActivity extends AppCompatActivity {
         // Pass any configuration change to the drawer toggles
         mDrawerToggle.onConfigurationChanged(newConfig);
     }
+
+    @Override
+    public void onBackPressed() {
+        if (getSearchMenuItem().isActionViewExpanded()) {
+            getSearchMenuItem().collapseActionView();
+        } else {
+            super.onBackPressed();
+        }
+    }
+
 }
 
