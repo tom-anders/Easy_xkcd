@@ -149,13 +149,13 @@
     <string name="pref_appearance">Изглед</string>
     <string name="pref_large">Велике слике</string>
     <string name="pref_large_sum">Учитавање великих слика ако их има (нпр. #657). Може да утиче на перформансе на старијим уређајима</string>
-    <string name="pref_offline">Режим ван везе (бета)</string>
+    <string name="pref_offline">Режим ван везе</string>
     <string name="pref_offline_sum">Преузимање свих стрипова на унутрашње складиште. Нови стрипови ће бити додавани аутоматски</string>
     <string name="pref_mobile">Дели мобилне везе</string>
     <string name="pref_mobile_sum">Дељење m.xkcd.com уместо xkcd.com</string>
     <string name="pref_orientation">Орјентација екрана</string>
     <string name="pref_orientation_sum">Подразумевана, усправна или положена</string>
-    <string name="pref_notifications">Интервал ажурирања за обавештења (бета)</string>
+    <string name="pref_notifications">Интервал ажурирања за обавештења</string>
     <string name="pref_notifications_sum">Checks on Monday, Wednesday and Friday for new comics, checks on Tuesday for new What If.</string>
     <string name="pref_show_alt">Подразумевано прикажи алт текст</string>
     <string name="action_swipe">Swipe to navigate</string>
@@ -164,7 +164,7 @@
     <string name="pref_theme">Theme</string>
     <string name="pref_theme_sum">You need to restart the app in order for the theme to be applied</string>
     <string name="apply_theme">Restart now to apply new theme?</string>
-    <string name="pref_offline_whatif">"What if?" offline mode (beta)</string>
+    <string name="pref_offline_whatif">"What if?" offline mode </string>
     <string name="loading_offline_whatif">Downloading articles&#8230;</string>
     <string name="new_whatif">New What If!</string>
     <string name="delete_offline_articles">Deleting articles&#8230;</string>

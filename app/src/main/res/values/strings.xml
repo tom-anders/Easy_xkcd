@@ -260,12 +260,12 @@
     <string name="pref_large_sum">Load large images if available (e.g. #657). May decrease performance on older devices </string>
     <string name="pref_offline">Offline mode</string>
     <string name="pref_offline_sum">Download all comics to external storage. New comics will be added automatically</string>
-    <string name="pref_offline_whatif">"What if?" offline mode (beta)</string>
+    <string name="pref_offline_whatif">"What if?" offline mode</string>
     <string name="pref_mobile">Share mobile links</string>
     <string name="pref_mobile_sum">Share m.xkcd.com links instead of xkcd.com</string>
     <string name="pref_orientation">Screen Orientation</string>
     <string name="pref_orientation_sum">Default, Portrait or Landscape</string>
-    <string name="pref_notifications">Update interval for notifications (beta)</string>
+    <string name="pref_notifications">Update interval for notifications</string>
     <string name="pref_notifications_sum">Checks on Monday, Wednesday and Friday for new comics, checks on Tuesday for new What If.</string>
     <string name="pref_show_alt">Show alt text by default</string>
     <string name="pref_theme">Theme</string>

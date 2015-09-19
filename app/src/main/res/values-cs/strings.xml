@@ -143,13 +143,13 @@
     <string name="pref_appearance">Vzhled</string>
     <string name="pref_large">Velké obrázky komiksu</string>
     <string name="pref_large_sum">Načítat velké obrázky, pokud jsou dostupné (e.g. #657). Může zhoršit výkon na starších přístrojích </string>
-    <string name="pref_offline">Offline mód (beta)</string>
+    <string name="pref_offline">Offline mód</string>
     <string name="pref_offline_sum">Stahovat všechny komiksy do interního úložiště. Nové komiksy budou přidány automaticky</string>
     <string name="pref_mobile">Sdílet mobilní odkazy</string>
     <string name="pref_mobile_sum">Sdílet m.xkcd.com odkazy místo xkcd.com</string>
     <string name="pref_orientation">Screen Orientation</string>
     <string name="pref_orientation_sum">Default, Portrait or Landscape</string>
-    <string name="pref_notifications">Update interval for notifications (beta)</string>
+    <string name="pref_notifications">Update interval for notifications)</string>
     <string name="pref_notifications_sum">Checks on Monday, Wednesday and Friday for new comics, checks on Tuesday for new What If.</string>
     <string name="new_comic">New Comic!</string>
     <string name="pref_show_alt">Show alt text by default</string>
@@ -165,7 +165,7 @@
     <string name="pref_theme">Theme</string>
     <string name="pref_theme_sum">You need to restart the app in order for the theme to be applied</string>
     <string name="apply_theme">Restart now to apply new theme?</string>
-    <string name="pref_offline_whatif">"What if?" offline mode (beta)</string>
+    <string name="pref_offline_whatif">"What if?" offline mode</string>
     <string name="loading_offline_whatif">Downloading articles&#8230;</string>
     <string name="new_whatif">New What If!</string>
     <string name="delete_offline_articles">Deleting articles&#8230;</string>

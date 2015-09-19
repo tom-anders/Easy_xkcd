@@ -139,7 +139,7 @@
     <string name="pref_appearance">Erscheinungsbild</string>
     <string name="pref_large">Große Bildateien</string>
     <string name="pref_large_sum">Lade große Bilder wenn verfügbar (z.B. #657). Kann die Performance auf älteren Geräten beeinträchtigen </string>
-    <string name="pref_offline">Offline Modus (Beta)</string>
+    <string name="pref_offline">Offline Modus </string>
     <string name="pref_offline_sum">Sichert alle Comics im externen Speicher. Neue Comics werden automatisch hinzugefügt.</string>
     <string name="loading_offline_97">Du hättest dein Gesicht sehen sollen!</string>
     <string name="delete_offline">Löscht Comics&#8230;</string>
@@ -148,7 +148,7 @@
     <string name="pref_mobile_sum">Teilt m.xkcd.com Links statt xkcd.com</string>
     <string name="pref_orientation">Bildschirm Ausrichtung</string>
     <string name="pref_orientation_sum">Standard, Portrait oder Landscape</string>
-    <string name="pref_notifications">Update Intervall für Benachrichtigungen (Beta)</string>
+    <string name="pref_notifications">Update Intervall für Benachrichtigungen)</string>
     <string name="pref_notifications_sum">Sucht Montags, Mittwochs und Freitags nach neuen Comics, sucht Dienstags nach neuem What If</string>
     <string name="new_comic">Neuer Comic!</string>
     <string name="pref_show_alt">Alt Text immer anzeigen</string>
@@ -164,7 +164,7 @@
     <string name="pref_theme">Theme</string>
     <string name="pref_theme_sum">Starte die App neu, um das neue Theme anzuwenden.</string>
     <string name="apply_theme">Jetzt neustarten, um das neue Theme anzuwenden?</string>
-    <string name="pref_offline_whatif">"What if?" Offline Modus (Beta)</string>
+    <string name="pref_offline_whatif">"What if?" Offline Modus</string>
     <string name="loading_offline_whatif">Lade Artikel&#8230;</string>
     <string name="new_whatif">Neues What If!</string>
     <string name="delete_offline_articles">Lösche Artikel&#8230;</string>
