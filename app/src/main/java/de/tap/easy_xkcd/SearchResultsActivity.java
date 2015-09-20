@@ -145,7 +145,7 @@ public class SearchResultsActivity extends AppCompatActivity {
 
         @Override
         protected Void doInBackground(Void... params) {
-            if (!PrefHelper.titlesLoaded()) {
+            if (!PrefHelper.databaseLoaded()) {
                 InputStream is = getResources().openRawResource(R.raw.comic_titles);
                 BufferedReader br = new BufferedReader(new InputStreamReader(is));
                 StringBuilder sb = new StringBuilder();
@@ -158,13 +158,11 @@ public class SearchResultsActivity extends AppCompatActivity {
                     Log.e("error:", e.getMessage());
                 }
                 PrefHelper.setTitles(sb.toString(), true, 1579);
-            }
-            publishProgress(15);
-            if (!PrefHelper.transLoaded()) {
-                InputStream is = getResources().openRawResource(R.raw.comic_trans);
-                BufferedReader br = new BufferedReader(new InputStreamReader(is));
-                StringBuilder sb = new StringBuilder();
-                String line;
+                publishProgress(15);
+
+                is = getResources().openRawResource(R.raw.comic_trans);
+                br = new BufferedReader(new InputStreamReader(is));
+                sb = new StringBuilder();
                 try {
                     while ((line = br.readLine()) != null) {
                         sb.append(line);
@@ -173,13 +171,11 @@ public class SearchResultsActivity extends AppCompatActivity {
                     Log.e("error:", e.getMessage());
                 }
                 PrefHelper.setTrans(sb.toString(), true, 1579);
-            }
-            publishProgress(30);
-            if (!PrefHelper.urlsLoaded()) {
-                InputStream is = getResources().openRawResource(R.raw.comic_urls);
-                BufferedReader br = new BufferedReader(new InputStreamReader(is));
-                StringBuilder sb = new StringBuilder();
-                String line;
+                publishProgress(30);
+
+                is = getResources().openRawResource(R.raw.comic_urls);
+                br = new BufferedReader(new InputStreamReader(is));
+                sb = new StringBuilder();
                 try {
                     while ((line = br.readLine()) != null) {
                         sb.append(line);
