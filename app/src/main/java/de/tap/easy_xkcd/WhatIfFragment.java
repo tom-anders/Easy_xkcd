@@ -157,7 +157,6 @@ public class WhatIfFragment extends android.support.v4.app.Fragment {
                 adapter = new RVAdapter(mTitles, mImgs);
                 SlideInBottomAnimationAdapter slideAdapter = new SlideInBottomAnimationAdapter(adapter);
                 slideAdapter.setInterpolator(new DecelerateInterpolator());
-                //slideAdapter.setDuration(400);
                 rv.setAdapter(slideAdapter);
                 rv.scrollToPosition(mTitles.size() - PrefHelper.getLastWhatIf());
             }
@@ -231,23 +230,10 @@ public class WhatIfFragment extends android.support.v4.app.Fragment {
                 comicViewHolder.thumbnail.setImageDrawable(ContextCompat.getDrawable(getActivity(), R.mipmap.new_horizons));
                 return;
             }
-            /*Glide.with(getActivity())
-                    .load(imgs.get(i))
-                    .asBitmap()
-                    .into(new SimpleTarget<Bitmap>() {
-                        @Override
-                        public void onResourceReady(Bitmap resource, GlideAnimation<? super Bitmap> glideAnimation) {
-                            comicViewHolder.thumbnail.setImageBitmap(resource);
-                        }
-                    });*/
 
             Glide.with(getActivity())
                     .load(imgs.get(i))
                     .into(comicViewHolder.thumbnail);
-
-            /*if (mTitles.size() == titles.size()) {
-                setAnimation(comicViewHolder.cv, i);
-            }*/
         }
 
         @Override
@@ -265,15 +251,6 @@ public class WhatIfFragment extends android.support.v4.app.Fragment {
                 cv = (CardView) itemView.findViewById(R.id.cv);
                 articleTitle = (TextView) itemView.findViewById(R.id.article_title);
                 thumbnail = (ImageView) itemView.findViewById(R.id.thumbnail);
-            }
-        }
-
-        private void setAnimation(View viewToAnimate, int position) {
-            // If the bound view wasn't previously displayed on screen, it's animated
-            if (position > lastPosition) {
-                Animation animation = AnimationUtils.loadAnimation(getActivity(), android.R.anim.slide_in_left);
-                viewToAnimate.startAnimation(animation);
-                lastPosition = position;
             }
         }
     }
