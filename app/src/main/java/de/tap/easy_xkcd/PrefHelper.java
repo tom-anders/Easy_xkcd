@@ -75,6 +75,7 @@ public class PrefHelper {
     private static final String SHARE_ALT = "pref_share_alt";
     private static final String PREF_ZOOM = "pref_zoom";
     private static final String PREF_DONATE = "pref_hide_donate";
+    private static final String DATABSE_LOADED = "database_loaded";
 
 
 
@@ -114,6 +115,10 @@ public class PrefHelper {
         return prefs.getBoolean(SUBTITLE_ENABLED, true);
     }
 
+    public static boolean databaseLoaded() {
+        return  sharedPrefs.getBoolean(DATABSE_LOADED, false);
+    }
+
     public static boolean titlesLoaded() {
         return sharedPrefs.getBoolean(TITLES_LOADED, false);
     }
@@ -138,6 +143,14 @@ public class PrefHelper {
         editor.commit();
     }
 
+    public static void setTrans(String trans, Boolean value, int highest) {
+        SharedPreferences.Editor editor = sharedPrefs.edit();
+        editor.putBoolean(TRANS_LOADED, value);
+        editor.putString(COMIC_TRANS, trans);
+        editor.putInt(HIGHEST_COMIC_TRANS, highest);
+        editor.commit();
+    }
+
     public static int getHighestTitle() {
         return sharedPrefs.getInt(HIGHEST_COMIC_TITLE, 0);
     }
@@ -150,62 +163,8 @@ public class PrefHelper {
         return sharedPrefs.getInt(HIGHEST_COMIC_URL, 0);
     }
 
-    public static void setHighestTitle(Context context) {
-        SharedPreferences.Editor editor = sharedPrefs.edit();
-        try {
-            int newest = new Comic(0, context).getComicNumber();
-            int n = getHighestTitle();
-            StringBuilder sb = new StringBuilder();
-            sb.append(PrefHelper.getComicTitles());
-            while (n < newest) {
-                String s = new Comic(n + 1, context).getComicData()[0];
-                sb.append("&&");
-                sb.append(s);
-                editor.putInt(HIGHEST_COMIC_TITLE, n + 1);
-                n++;
-                Log.d("n", String.valueOf(n));
-            }
-            editor.putString(COMIC_TITLES, sb.toString());
-        } catch (IOException e) {
-            e.printStackTrace();
-            editor.putBoolean(TITLES_LOADED, false);
-        }
-        editor.apply();
-    }
-
     public static boolean transLoaded() {
         return sharedPrefs.getBoolean(TRANS_LOADED, false);
-    }
-
-    public static void setTrans(String trans, Boolean value, int highest) {
-        SharedPreferences.Editor editor = sharedPrefs.edit();
-        editor.putBoolean(TRANS_LOADED, value);
-        editor.putString(COMIC_TRANS, trans);
-        editor.putInt(HIGHEST_COMIC_TRANS, highest);
-        editor.commit();
-    }
-
-    public static void setHighestTrans(Context context) {
-        SharedPreferences.Editor editor = sharedPrefs.edit();
-        try {
-            int newest = new Comic(0, context).getComicNumber();
-            int n = getHighestTrans();
-            StringBuilder sb = new StringBuilder();
-            sb.append(PrefHelper.getComicTrans());
-            while (n < newest) {
-                String s = new Comic(n + 1, context).getTranscript();
-                sb.append("&&");
-                sb.append(s);
-                editor.putInt(HIGHEST_COMIC_TRANS, n + 1);
-                n++;
-                Log.d("n", String.valueOf(n));
-            }
-            editor.putString(COMIC_TRANS, sb.toString());
-        } catch (IOException e) {
-            e.printStackTrace();
-            editor.putBoolean(TRANS_LOADED, false);
-        }
-        editor.apply();
     }
 
     public static void addTitle(String title, int i) {

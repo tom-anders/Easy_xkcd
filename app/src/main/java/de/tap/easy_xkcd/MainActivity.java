@@ -485,72 +485,7 @@ public class MainActivity extends AppCompatActivity {
 
     }
 
-    private class updateComicTitles extends AsyncTask<Void, Void, Void> {
-        @Override
-        protected Void doInBackground(Void... params) {
-            if (!PrefHelper.titlesLoaded()) {
-                InputStream is = getResources().openRawResource(R.raw.comic_titles);
-                BufferedReader br = new BufferedReader(new InputStreamReader(is));
-                StringBuilder sb = new StringBuilder();
-                String line;
-                try {
-                    while ((line = br.readLine()) != null) {
-                        sb.append(line);
-                    }
-                } catch (IOException e) {
-                    Log.e("error:", e.getMessage());
-                }
-                PrefHelper.setTitles(sb.toString(), true, 1567);
-                Log.d("...", "comic titles updated first time");
-            }
-            PrefHelper.setHighestTitle(getApplicationContext());
-            return null;
-        }
 
-        @Override
-        protected void onPostExecute(Void dummy) {
-            sComicTitles = PrefHelper.getComicTitles();
-        }
-
-        @Override
-        protected void onCancelled() {
-            PrefHelper.setTitles("", false, 0);
-        }
-    }
-
-    private class updateComicTranscripts extends AsyncTask<Void, Void, Void> {
-        @Override
-        protected Void doInBackground(Void... params) {
-            if (!PrefHelper.transLoaded()) {
-                InputStream is = getResources().openRawResource(R.raw.comic_trans);
-                BufferedReader br = new BufferedReader(new InputStreamReader(is));
-                StringBuilder sb = new StringBuilder();
-                String line;
-                try {
-                    while ((line = br.readLine()) != null) {
-                        sb.append(line);
-                    }
-                } catch (IOException e) {
-                    Log.e("error:", e.getMessage());
-                }
-                PrefHelper.setTrans(sb.toString(), true, 1567);
-                Log.d("...", "comic trans updated first time");
-            }
-            PrefHelper.setHighestTrans(getApplicationContext());
-            return null;
-        }
-
-        @Override
-        protected void onPostExecute(Void dummy) {
-            Log.d("done", "Comic trans updated");
-            sComicTrans = PrefHelper.getComicTrans();
-        }
-
-        @Override
-        protected void onCancelled() {
-            PrefHelper.setTrans("", false, 0);
-        }
-    }
 
     @Override
     protected void onNewIntent(Intent intent) {
