@@ -183,7 +183,6 @@ public class WhatIfFragment extends android.support.v4.app.Fragment {
     }
 
     public class RVAdapter extends RecyclerView.Adapter<RVAdapter.ComicViewHolder> {
-        private int lastPosition = 0;
         public ArrayList<String> titles;
         private ArrayList<String> imgs;
 
