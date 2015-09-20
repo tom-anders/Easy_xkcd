@@ -102,13 +102,13 @@ public class MainActivity extends AppCompatActivity {
 
         fullOffline = PrefHelper.fullOfflineEnabled();
         fullOfflineWhatIf = PrefHelper.fullOfflineWhatIf();
-        if ((isOnline()) && savedInstanceState == null) {
+        /*if ((isOnline()) && savedInstanceState == null) {
             new updateComicTitles().execute();
             new updateComicTranscripts().execute();
         } else {
             sComicTitles = PrefHelper.getComicTitles();
             sComicTrans = PrefHelper.getComicTrans();
-        }
+        } */
 
         boolean whatIfIntent = false;
         if (getIntent().getAction().equals(Intent.ACTION_VIEW)) {

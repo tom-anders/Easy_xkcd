@@ -23,6 +23,8 @@ import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
@@ -32,6 +34,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.CardView;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.text.Html;
 import android.util.Log;
 import android.util.SparseArray;
 import android.util.TypedValue;
@@ -45,6 +48,7 @@ import android.view.animation.AnimationUtils;
 import android.view.animation.DecelerateInterpolator;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.ImageView;
+import android.widget.ProgressBar;
 import android.widget.SearchView;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -54,13 +58,18 @@ import com.bumptech.glide.request.animation.GlideAnimation;
 import com.bumptech.glide.request.target.SimpleTarget;
 import com.tap.xkcd_reader.R;
 
+import org.jsoup.helper.StringUtil;
+
+import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
-import jp.wasabeef.recyclerview.animators.SlideInUpAnimator;
 import jp.wasabeef.recyclerview.animators.adapters.SlideInBottomAnimationAdapter;
 
 
@@ -68,20 +77,21 @@ public class SearchResultsActivity extends AppCompatActivity {
 
     private SparseArray<String> resultsTitle = new SparseArray<>();
     private SparseArray<String> resultsTranscript = new SparseArray<>();
-    private List<String> urls = new ArrayList<>();
+    private SparseArray<String> resultsUrls = new SparseArray<>();
+    private SparseArray<String> resultsPreview = new SparseArray<>();
     private RecyclerView rv;
     private searchTask task;
     private MenuItem searchMenuItem;
     private ProgressDialog mProgress;
-    private RVAdapter adapter = null;
-    private SlideInBottomAnimationAdapter slideAdapter;
-    private String queryTrans;
+    private String query;
+    private static String sComicTitles;
+    private static String sComicTrans;
+    private static String sComicUrls;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         setTheme(PrefHelper.getTheme());
         super.onCreate(savedInstanceState);
-        mProgress = ProgressDialog.show(this, "", this.getResources().getString(R.string.loading_results), true);
 
         setContentView(R.layout.activity_search_results);
 
@@ -103,16 +113,150 @@ public class SearchResultsActivity extends AppCompatActivity {
         rv = (RecyclerView) findViewById(R.id.rv);
         setupRecyclerView(rv);
 
-        findViewById(R.id.pb).setVisibility(View.VISIBLE);
-
         Intent intent = getIntent();
-        String query = intent.getStringExtra(SearchManager.QUERY);
-        queryTrans = query;
+        if (savedInstanceState==null) {
+            query = intent.getStringExtra(SearchManager.QUERY);
+        } else {
+            query = savedInstanceState.getString("query");
+        }
         getSupportActionBar().setTitle(getResources().getString(R.string.title_activity_search_results) + " " + query);
 
-        task = new searchTask();
-        task.execute(query);
+        mProgress = ProgressDialog.show(SearchResultsActivity.this, "", SearchResultsActivity.this.getResources().getString(R.string.loading_results), true);
+
+        if (savedInstanceState==null) {
+            new updateDatabase().execute();
+        } else {
+            new searchTask().execute(query);
+        }
     }
+
+    private class updateDatabase extends AsyncTask<Void, Integer, Void> {
+        private ProgressDialog progress;
+
+        @Override
+        protected void onPreExecute() {
+            progress = new ProgressDialog(SearchResultsActivity.this);
+            progress.setTitle(getResources().getString(R.string.update_database));
+            progress.setIndeterminate(false);
+            progress.setProgressStyle(ProgressDialog.STYLE_HORIZONTAL);
+            progress.setCancelable(false);
+            progress.show();
+        }
+
+        @Override
+        protected Void doInBackground(Void... params) {
+            if (!PrefHelper.titlesLoaded()) {
+                InputStream is = getResources().openRawResource(R.raw.comic_titles);
+                BufferedReader br = new BufferedReader(new InputStreamReader(is));
+                StringBuilder sb = new StringBuilder();
+                String line;
+                try {
+                    while ((line = br.readLine()) != null) {
+                        sb.append(line);
+                    }
+                } catch (IOException e) {
+                    Log.e("error:", e.getMessage());
+                }
+                PrefHelper.setTitles(sb.toString(), true, 1579);
+            }
+            publishProgress(15);
+            if (!PrefHelper.transLoaded()) {
+                InputStream is = getResources().openRawResource(R.raw.comic_trans);
+                BufferedReader br = new BufferedReader(new InputStreamReader(is));
+                StringBuilder sb = new StringBuilder();
+                String line;
+                try {
+                    while ((line = br.readLine()) != null) {
+                        sb.append(line);
+                    }
+                } catch (IOException e) {
+                    Log.e("error:", e.getMessage());
+                }
+                PrefHelper.setTrans(sb.toString(), true, 1579);
+            }
+            publishProgress(30);
+            if (!PrefHelper.urlsLoaded()) {
+                InputStream is = getResources().openRawResource(R.raw.comic_urls);
+                BufferedReader br = new BufferedReader(new InputStreamReader(is));
+                StringBuilder sb = new StringBuilder();
+                String line;
+                try {
+                    while ((line = br.readLine()) != null) {
+                        sb.append(line);
+                    }
+                } catch (IOException e) {
+                    Log.e("error:", e.getMessage());
+                }
+                PrefHelper.setUrls(sb.toString(), true, 1579);
+            }
+            publishProgress(50);
+            if (isOnline()) {
+                int newest;
+                try {
+                    newest = new Comic(0).getComicNumber();
+                } catch (IOException e) {
+                    newest = PrefHelper.getNewest();
+                }
+                StringBuilder sbTitle = new StringBuilder();
+                sbTitle.append(PrefHelper.getComicTitles());
+                StringBuilder sbTrans = new StringBuilder();
+                sbTrans.append(PrefHelper.getComicTrans());
+                StringBuilder sbUrl = new StringBuilder();
+                sbUrl.append(PrefHelper.getComicUrls());
+                String title;
+                String trans;
+                String url;
+                Comic comic;
+                for (int i = PrefHelper.getHighestUrls(); i < newest; i++) {
+                    try {
+                        comic = new Comic(i + 1);
+                        title = comic.getComicData()[0];
+                        trans = comic.getTranscript();
+                        url = comic.getComicData()[2];
+                    } catch (IOException e) {
+                        title = "";
+                        trans = "";
+                        url = "";
+                    }
+                    sbTitle.append("&&");
+                    sbTitle.append(title);
+                    sbUrl.append("&&");
+                    sbUrl.append(url);
+                    sbTrans.append("&&");
+                    if (!trans.equals("")) {
+                        sbTrans.append(trans);
+                    } else {
+                        sbTrans.append("n.a.");
+                    }
+                    float x = newest - PrefHelper.getHighestTitle();
+                    int y = i - PrefHelper.getHighestTitle();
+                    int p = (int) ((y / x) * 50);
+                    publishProgress(p + 50);
+                }
+                PrefHelper.setTitles(sbTitle.toString(), true, newest);
+                PrefHelper.setTrans(sbTrans.toString(), true, newest);
+                PrefHelper.setUrls(sbUrl.toString(), true, newest);
+            }
+            return null;
+        }
+
+        protected void onProgressUpdate(Integer... pro) {
+            progress.setProgress(pro[0]);
+        }
+
+        @Override
+        protected void onPostExecute(Void dummy) {
+            sComicTitles = PrefHelper.getComicTitles();
+            sComicTrans = PrefHelper.getComicTrans();
+            sComicUrls = PrefHelper.getComicUrls();
+            if (mProgress!=null) {
+                progress.dismiss();
+            }
+            task = new searchTask();
+            task.execute(query);
+        }
+    }
+
 
     private void setupRecyclerView(RecyclerView recyclerView) {
         LinearLayoutManager llm = new LinearLayoutManager(this);
@@ -130,7 +274,7 @@ public class SearchResultsActivity extends AppCompatActivity {
 
     private boolean getComicByNumber(int number) {
         Intent intent = new Intent("de.tap.easy_xkcd.ACTION_COMIC");
-        if (number > ComicBrowserFragment.sNewestComicNumber && number > OfflineFragment.sNewestComicNumber) {
+        if ((number > ComicBrowserFragment.sNewestComicNumber && number > OfflineFragment.sNewestComicNumber) | number<1) {
             intent.putExtra("number", ComicBrowserFragment.sNewestComicNumber);
         } else {
             intent.putExtra("number", number);
@@ -145,122 +289,71 @@ public class SearchResultsActivity extends AppCompatActivity {
     private boolean searchComicTitle(String query) {
         resultsTitle.clear();
         resultsTranscript.clear();
-        String s = MainActivity.sComicTitles;
-        String[] titles = s.split("&&");
+        resultsUrls.clear();
+        resultsPreview.clear();
+        String[] titles = sComicTitles.split("&&");
+        String[] trans = sComicTrans.split("&&");
+        String[] urls = sComicUrls.split("&&");
         query = query.trim().toLowerCase();
         for (int i = 0; i < titles.length; i++) {
-            String l = titles[i].toLowerCase();
+            String ti = titles[i].toLowerCase();
             Boolean found;
             if (query.length() < 5) {
-                found = l.matches(".*\\b" + query + "\\b.*");
+                found = ti.matches(".*\\b" + query + "\\b.*");
             } else {
-                found = l.contains(query);
+                found = ti.contains(query);
             }
             if (found) {
                 resultsTitle.put(i + 1, titles[i]);
+                resultsUrls.put(i + 1, urls[i]);
+            } else {
+                String tr = trans[i].toLowerCase();
+                if (query.length() < 5) {
+                    found = tr.matches(".*\\b" + query + "\\b.*");
+                } else {
+                    found = tr.contains(query);
+                }
+                if (found) {
+                    resultsTranscript.put(i + 1, titles[i]);
+                    resultsUrls.put(i + 1, urls[i]);
+                    resultsPreview.put(i+1, getPreview(query, trans[i]));
+                }
             }
         }
-        return false;
+        return (resultsTranscript.size() + resultsTitle.size() == 0);
     }
 
     private class searchTask extends AsyncTask<String, Void, Void> {
         private Boolean done;
+        private ProgressBar pb;
+
+
+        @Override
+        protected void onPreExecute() {
+            pb = (ProgressBar) findViewById(R.id.pb);
+            pb.setVisibility(View.VISIBLE);
+        }
 
         @Override
         protected Void doInBackground(String... params) {
+            query = params[0];
             done = performSearch(params[0]);
             return null;
         }
 
         @Override
         protected void onPostExecute(Void dummy) {
+            pb.setVisibility(View.VISIBLE);
             if (!done) {
-                new displayTitleResultsTask().execute();
+                RVAdapter adapter = new RVAdapter(resultsTitle, resultsTranscript, resultsUrls, resultsPreview);
+                SlideInBottomAnimationAdapter slideAdapter = new SlideInBottomAnimationAdapter(adapter);
+                slideAdapter.setInterpolator(new DecelerateInterpolator());
+                rv.setAdapter(slideAdapter);
+                mProgress.dismiss();
+                getSupportActionBar().setTitle(getResources().getString(R.string.title_activity_search_results) + " " + query);
             } else {
                 mProgress.dismiss();
                 Toast.makeText(getApplicationContext(), R.string.search_error, Toast.LENGTH_SHORT).show();
-            }
-        }
-    }
-
-    private class displayTitleResultsTask extends AsyncTask<Void, Void, Void> {
-        @Override
-        protected Void doInBackground(Void... params) {
-            getTitleUrls();
-            adapter = new RVAdapter(resultsTitle, resultsTranscript);
-            return null;
-        }
-
-        @Override
-        protected void onPostExecute(Void dummy) {
-            slideAdapter = new SlideInBottomAnimationAdapter(adapter);
-            slideAdapter.setInterpolator(new DecelerateInterpolator());
-            rv.setAdapter(slideAdapter);
-            mProgress.dismiss();
-            new displayTransResultsTask().execute();
-        }
-    }
-
-    private class displayTransResultsTask extends AsyncTask<Void, Void, Void> {
-
-        @Override
-        protected Void doInBackground(Void... params) {
-            searchTranscripts();
-            if (!MainActivity.fullOffline) {
-                getTransUrls();
-            }
-            return null;
-        }
-
-        @Override
-        protected void onPostExecute(Void dummy) {
-            Animation animation = AnimationUtils.loadAnimation(getBaseContext(), android.R.anim.fade_out);
-            findViewById(R.id.pb).setAnimation(animation);
-            findViewById(R.id.pb).setVisibility(View.INVISIBLE);
-            //adapter.notifyDataSetChanged();
-            slideAdapter.notifyDataSetChanged();
-            if (resultsTitle.size() + resultsTranscript.size() == 0) {
-                Toast.makeText(getApplicationContext(), R.string.search_error, Toast.LENGTH_SHORT).show();
-            }
-        }
-    }
-
-    private void searchTranscripts() {
-        String t = MainActivity.sComicTitles;
-        String[] titles = t.split("&&");
-        String s = MainActivity.sComicTrans;
-        String[] trans = s.split("&&");
-        queryTrans = queryTrans.trim().toLowerCase();
-        for (int i = 0; i < trans.length; i++) {
-            String l = trans[i].toLowerCase();
-            Boolean found;
-            if (queryTrans.length() < 5) {
-                found = l.matches(".*\\b" + queryTrans + "\\b.*");
-            } else {
-                found = l.contains(queryTrans);
-            }
-            if (found && resultsTitle.get(i + 1) == null) {
-                resultsTranscript.put(i + 1, titles[i]);
-            }
-        }
-    }
-
-    private void getTitleUrls() {
-        for (int i = 0; i < resultsTitle.size(); i++) {
-            try {
-                urls.add(i, new Comic(resultsTitle.keyAt(i)).getComicData()[2]);
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-        }
-    }
-
-    private void getTransUrls() {
-        for (int i = 0; i < resultsTranscript.size(); i++) {
-            try {
-                urls.add(i + resultsTitle.size(), new Comic(resultsTranscript.keyAt(i)).getComicData()[2]);
-            } catch (IOException e) {
-                e.printStackTrace();
             }
         }
     }
@@ -269,11 +362,14 @@ public class SearchResultsActivity extends AppCompatActivity {
 
         private SparseArray<String> comicsTitle = new SparseArray<>();
         private SparseArray<String> comicsTrans = new SparseArray<>();
-        private int lastPosition = 0;
+        private SparseArray<String> comicsUrls = new SparseArray<>();
+        private SparseArray<String> comicsPreviews = new SparseArray<>();
 
-        RVAdapter(SparseArray<String> comics1, SparseArray<String> comics2) {
+        RVAdapter(SparseArray<String> comics1, SparseArray<String> comics2, SparseArray<String> comics3, SparseArray<String> comics4) {
             this.comicsTitle = comics1;
             this.comicsTrans = comics2;
+            this.comicsUrls = comics3;
+            this.comicsPreviews = comics4;
         }
 
         @Override
@@ -290,76 +386,49 @@ public class SearchResultsActivity extends AppCompatActivity {
 
         @Override
         public void onBindViewHolder(final ComicViewHolder comicViewHolder, int i) {
-            try {
-                if (i < comicsTitle.size()) {
-                    comicViewHolder.comicTitle.setText(resultsTitle.get(resultsTitle.keyAt(i)));
-                    comicViewHolder.comicNumber.setText(String.valueOf(resultsTitle.keyAt(i)));
-                } else {
-                    comicViewHolder.comicTitle.setText(resultsTranscript.get(resultsTranscript.keyAt(i - resultsTitle.size())));
-                    comicViewHolder.comicNumber.setText(String.valueOf(resultsTranscript.keyAt(i - resultsTitle.size())));
-                }
-                if (!MainActivity.fullOffline) {
-                    Glide.with(getApplicationContext())
-                            .load(urls.get(i))
-                            .asBitmap()
-                            .into(new SimpleTarget<Bitmap>() {
-                                @Override
-                                public void onResourceReady(Bitmap resource, GlideAnimation<? super Bitmap> glideAnimation) {
-                                    comicViewHolder.thumbnail.setImageBitmap(resource);
-                                }
-                            });
-                } else {
+            int number;
+            String title;
+            String preview;
+            if (i < comicsTitle.size()) {
+                number = comicsTitle.keyAt(i);
+                title = comicsTitle.get(number);
+                comicViewHolder.comicInfo.setText(String.valueOf(number));
+            } else {
+                number = comicsTrans.keyAt(i - comicsTitle.size());
+                title = comicsTrans.get(number);
+                preview = comicsPreviews.get(number);
+                comicViewHolder.comicInfo.setText(Html.fromHtml(preview));
+            }
+
+            comicViewHolder.comicTitle.setText(title);
+
+            if (!MainActivity.fullOffline) {
+                Glide.with(getApplicationContext())
+                        .load(comicsUrls.get(number))
+                        .asBitmap()
+                        .into(comicViewHolder.thumbnail);
+            } else {
+                try {
+                    FileInputStream fis = openFileInput(String.valueOf(number));
+                    Bitmap mBitmap = BitmapFactory.decodeStream(fis);
+                    fis.close();
+                    comicViewHolder.thumbnail.setImageBitmap(mBitmap);
+                } catch (Exception e) {
+                    Log.e("Error", "loading from internal storage failed");
                     try {
-                        if (i < comicsTitle.size()) {
-                            FileInputStream fis = openFileInput(String.valueOf(resultsTitle.keyAt(i)));
-                            Bitmap mBitmap = BitmapFactory.decodeStream(fis);
-                            fis.close();
-                            comicViewHolder.thumbnail.setImageBitmap(mBitmap);
-                        } else {
-                            FileInputStream fis = openFileInput(String.valueOf(resultsTranscript.keyAt(i - resultsTitle.size())));
-                            Bitmap mBitmap = BitmapFactory.decodeStream(fis);
-                            fis.close();
-                            comicViewHolder.thumbnail.setImageBitmap(mBitmap);
-                        }
-                    } catch (Exception e) {
-                        Log.e("Error", "loading from internal storage failed");
-                        try {
-                            if (i < comicsTitle.size()) {
-                                File sdCard = Environment.getExternalStorageDirectory();
-                                File dir = new File(sdCard.getAbsolutePath() + "/easy xkcd");
-                                File file = new File(dir, String.valueOf(resultsTitle.keyAt(i)) + ".png");
-                                Glide.with(getApplicationContext())
-                                        .load(file)
-                                        .asBitmap()
-                                        .into(new SimpleTarget<Bitmap>() {
-                                            @Override
-                                            public void onResourceReady(Bitmap resource, GlideAnimation<? super Bitmap> glideAnimation) {
-                                                comicViewHolder.thumbnail.setImageBitmap(resource);
-                                            }
-                                        });
-                            } else {
-                                File sdCard = Environment.getExternalStorageDirectory();
-                                File dir = new File(sdCard.getAbsolutePath() + "/easy xkcd");
-                                File file = new File(dir, String.valueOf(resultsTranscript.keyAt(i - resultsTitle.size())) + ".png");
-                                Glide.with(getApplicationContext())
-                                        .load(file)
-                                        .asBitmap()
-                                        .into(new SimpleTarget<Bitmap>() {
-                                            @Override
-                                            public void onResourceReady(Bitmap resource, GlideAnimation<? super Bitmap> glideAnimation) {
-                                                comicViewHolder.thumbnail.setImageBitmap(resource);
-                                            }
-                                        });
-                            }
-                        } catch (Exception e2) {
-                            e2.printStackTrace();
-                        }
+                        File sdCard = Environment.getExternalStorageDirectory();
+                        File dir = new File(sdCard.getAbsolutePath() + "/easy xkcd");
+                        File file = new File(dir, String.valueOf(number) + ".png");
+                        Glide.with(getApplicationContext())
+                                .load(file)
+                                .asBitmap()
+                                .into(comicViewHolder.thumbnail);
+                    } catch (Exception e2) {
+                        e2.printStackTrace();
                     }
                 }
-                //setAnimation(comicViewHolder.cv, i);
-            } catch (IndexOutOfBoundsException e) {
-                e.printStackTrace();
             }
+
         }
 
         @Override
@@ -370,27 +439,51 @@ public class SearchResultsActivity extends AppCompatActivity {
         public class ComicViewHolder extends RecyclerView.ViewHolder {
             CardView cv;
             TextView comicTitle;
-            TextView comicNumber;
+            TextView comicInfo;
+
             ImageView thumbnail;
 
             ComicViewHolder(View itemView) {
                 super(itemView);
                 cv = (CardView) itemView.findViewById(R.id.cv);
                 comicTitle = (TextView) itemView.findViewById(R.id.comic_title);
-                comicNumber = (TextView) itemView.findViewById(R.id.comic_number);
+                comicInfo = (TextView) itemView.findViewById(R.id.comic_info);
                 thumbnail = (ImageView) itemView.findViewById(R.id.thumbnail);
             }
         }
 
-        private void setAnimation(View viewToAnimate, int position) {
-            // If the bound view wasn't previously displayed on screen, it's animated
-            if (position > lastPosition) {
-                Animation animation = AnimationUtils.loadAnimation(getBaseContext(), android.R.anim.slide_in_left);
-                viewToAnimate.startAnimation(animation);
-                lastPosition = position;
-            }
-        }
+    }
 
+    private String getPreview(String query, String transcript) {
+        String firstWord = query.split(" ")[0].toLowerCase();
+
+        transcript = transcript.replace(".", ". ").replace("?", "? ").replace("]]"," ").replace("[["," ").replace("{{", " ").replace("}}", " ");
+
+        ArrayList<String> words = new ArrayList<>(Arrays.asList(transcript.toLowerCase().split(" ")));
+        int i = 0;
+        boolean found = false;
+        while (!found&&i<words.size()) {
+            if (query.length() < 5) {
+                found = words.get(i).matches(".*\\b" + firstWord + "\\b.*");
+            } else {
+                found = words.get(i).contains(firstWord);
+            }
+            if (!found) i++;
+        }
+        int start=i-4;
+        int end=i+4;
+
+        if (i<4) start = 0;
+        if (words.size()-i<4) end = words.size();
+
+        StringBuilder sb = new StringBuilder();
+        for (String s: words.subList(start, end)) {
+            sb.append(s);
+            sb.append(" ");
+        }
+        String[] s = sb.toString().split(query);
+
+        return "..."+s[0]+"<b>"+query+"</b>"+s[1]+"...";
     }
 
     class CustomOnClickListener implements View.OnClickListener {
@@ -422,7 +515,7 @@ public class SearchResultsActivity extends AppCompatActivity {
         searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
             @Override
             public boolean onQueryTextSubmit(String query) {
-                MenuItem searchMenuItem = getSearchMenuItem();
+                /*MenuItem searchMenuItem = getSearchMenuItem();
                 searchMenuItem.collapseActionView();
                 searchView.setQuery("", false);
                 //Hide Keyboard
@@ -430,13 +523,17 @@ public class SearchResultsActivity extends AppCompatActivity {
                 if (view != null) {
                     InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
                     imm.hideSoftInputFromWindow(view.getWindowToken(), 0);
-                }
+                }*/
                 return false;
             }
 
             @Override
             public boolean onQueryTextChange(String newText) {
-
+                if (task!=null) {
+                    task.cancel(true);
+                }
+                task = new searchTask();
+                task.execute(newText);
                 return false;
             }
         });
@@ -467,34 +564,12 @@ public class SearchResultsActivity extends AppCompatActivity {
     }
 
     @Override
-    protected void onNewIntent(Intent intent) {
-        mProgress = ProgressDialog.show(this, "", this.getResources().getString(R.string.loading_results), true);
-        resultsTitle.clear();
-        resultsTranscript.clear();
-        urls.clear();
-        adapter = null;
-        setIntent(intent);
-        String query = intent.getStringExtra(SearchManager.QUERY);
-        getSupportActionBar().setTitle(getResources().getString(R.string.title_activity_search_results) + " " + query);
-        queryTrans = query;
-        findViewById(R.id.pb).setVisibility(View.VISIBLE);
-
-        task = new searchTask();
-        task.execute(query);
-    }
-
-    @Override
     protected void onPause() {
         super.onPause();
         if (mProgress != null) {
             mProgress.dismiss();
         }
     }
-
-    public MenuItem getSearchMenuItem() {
-        return searchMenuItem;
-    }
-
     private boolean checkInteger(String s) {
         boolean isInteger = true;
         try {
@@ -503,5 +578,18 @@ public class SearchResultsActivity extends AppCompatActivity {
             isInteger = false;
         }
         return isInteger;
+    }
+
+    @Override
+    public void onSaveInstanceState(Bundle savedInstanceState) {
+        savedInstanceState.putString("query", query);
+        super.onSaveInstanceState(savedInstanceState);
+    }
+
+    private boolean isOnline() {
+        ConnectivityManager cm =
+                (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
+        NetworkInfo netInfo = cm.getActiveNetworkInfo();
+        return netInfo != null && netInfo.isConnectedOrConnecting();
     }
 }

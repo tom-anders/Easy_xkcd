@@ -37,9 +37,12 @@ public class PrefHelper {
     private static final String FULL_OFFLINE = "pref_offline";
     private static final String COMIC_TITLES = "comic_titles";
     private static final String COMIC_TRANS = "comic_trans";
+    private static final String COMIC_URLS = "comic_urls";
     private static final String SUBTITLE_ENABLED = "pref_subtitle";
     private static final String TITLES_LOADED = "titles_loaded";
+    private static final String URLS_LOADED = "urls_loaded";
     private static final String HIGHEST_COMIC_TITLE = "highest_comic_title";
+    private static final String HIGHEST_COMIC_URL = "highest_comic_url";
     private static final String TRANS_LOADED = "trans_loaded";
     private static final String HIGHEST_COMIC_TRANS = "highest_comic_trans";
     private static final String OFFLINE_TITLE = "title";
@@ -99,6 +102,10 @@ public class PrefHelper {
         return sharedPrefs.getString(COMIC_TRANS, "");
     }
 
+    public static String getComicUrls() {
+        return sharedPrefs.getString(COMIC_URLS, "");
+    }
+
     public static boolean fabEnabled(String prefTag) {
         return prefs.getBoolean(prefTag, false);
     }
@@ -111,11 +118,23 @@ public class PrefHelper {
         return sharedPrefs.getBoolean(TITLES_LOADED, false);
     }
 
+    public static boolean urlsLoaded() {
+        return sharedPrefs.getBoolean(URLS_LOADED, false);
+    }
+
     public static void setTitles(String titles, Boolean value, int highest) {
         SharedPreferences.Editor editor = sharedPrefs.edit();
         editor.putBoolean(TITLES_LOADED, value);
         editor.putString(COMIC_TITLES, titles);
         editor.putInt(HIGHEST_COMIC_TITLE, highest);
+        editor.commit();
+    }
+
+    public static void setUrls(String urls, Boolean value, int highest) {
+        SharedPreferences.Editor editor = sharedPrefs.edit();
+        editor.putBoolean(URLS_LOADED, value);
+        editor.putString(COMIC_URLS, urls);
+        editor.putInt(HIGHEST_COMIC_URL, highest);
         editor.commit();
     }
 
@@ -125,6 +144,10 @@ public class PrefHelper {
 
     public static int getHighestTrans() {
         return sharedPrefs.getInt(HIGHEST_COMIC_TRANS, 0);
+    }
+
+    public static int getHighestUrls() {
+        return sharedPrefs.getInt(HIGHEST_COMIC_URL, 0);
     }
 
     public static void setHighestTitle(Context context) {

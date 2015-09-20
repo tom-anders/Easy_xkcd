@@ -181,4 +181,5 @@
     <string name="dialog_donate">How much would you like to donate</string>
     <string name="pref_hide_donate">Hide donation button</string>
     <string name="title_activity_donate">Donate</string>
+    <string name="update_database">Updating database&#8230;</string>
 </resources>
