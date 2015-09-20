@@ -157,8 +157,9 @@ public class SearchResultsActivity extends AppCompatActivity {
                 } catch (IOException e) {
                     Log.e("error:", e.getMessage());
                 }
-                PrefHelper.setTitles(sb.toString(), true, 1579);
+                PrefHelper.setTitles(sb.toString());
                 publishProgress(15);
+                Log.d("info", "titles loaded");
 
                 is = getResources().openRawResource(R.raw.comic_trans);
                 br = new BufferedReader(new InputStreamReader(is));
@@ -170,8 +171,9 @@ public class SearchResultsActivity extends AppCompatActivity {
                 } catch (IOException e) {
                     Log.e("error:", e.getMessage());
                 }
-                PrefHelper.setTrans(sb.toString(), true, 1579);
+                PrefHelper.setTrans(sb.toString());
                 publishProgress(30);
+                Log.d("info", "trans loaded");
 
                 is = getResources().openRawResource(R.raw.comic_urls);
                 br = new BufferedReader(new InputStreamReader(is));
@@ -183,7 +185,9 @@ public class SearchResultsActivity extends AppCompatActivity {
                 } catch (IOException e) {
                     Log.e("error:", e.getMessage());
                 }
-                PrefHelper.setUrls(sb.toString(), true, 1579);
+                PrefHelper.setUrls(sb.toString(), 1579);
+                Log.d("info", "urls loaded");
+                PrefHelper.setDatabseLoaded();
             }
             publishProgress(50);
             if (isOnline()) {
@@ -224,14 +228,14 @@ public class SearchResultsActivity extends AppCompatActivity {
                     } else {
                         sbTrans.append("n.a.");
                     }
-                    float x = newest - PrefHelper.getHighestTitle();
-                    int y = i - PrefHelper.getHighestTitle();
+                    float x = newest - PrefHelper.getHighestUrls();
+                    int y = i - PrefHelper.getHighestUrls();
                     int p = (int) ((y / x) * 50);
                     publishProgress(p + 50);
                 }
-                PrefHelper.setTitles(sbTitle.toString(), true, newest);
-                PrefHelper.setTrans(sbTrans.toString(), true, newest);
-                PrefHelper.setUrls(sbUrl.toString(), true, newest);
+                PrefHelper.setTitles(sbTitle.toString());
+                PrefHelper.setTrans(sbTrans.toString());
+                PrefHelper.setUrls(sbUrl.toString(), newest);
             }
             return null;
         }
@@ -466,20 +470,21 @@ public class SearchResultsActivity extends AppCompatActivity {
             }
             if (!found) i++;
         }
-        int start=i-4;
-        int end=i+4;
+        int start=i-6;
+        int end=i+6;
 
-        if (i<4) start = 0;
-        if (words.size()-i<4) end = words.size();
+        if (i<6) start = 0;
+        if (words.size()-i<6) end = words.size();
 
         StringBuilder sb = new StringBuilder();
         for (String s: words.subList(start, end)) {
             sb.append(s);
             sb.append(" ");
         }
-        String[] s = sb.toString().split(query);
-
-        return "..."+s[0]+"<b>"+query+"</b>"+s[1]+"...";
+        //String[] s = sb.toString().split(query.toLowerCase());
+        String s = sb.toString();
+        return "..." + s.replace(query, "<b>"+query+"</b>") + "...";
+        //return "..."+s[0]+"<b>"+query+"</b>"+s[1]+"...";
     }
 
     class CustomOnClickListener implements View.OnClickListener {

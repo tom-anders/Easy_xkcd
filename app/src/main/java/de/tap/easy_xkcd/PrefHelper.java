@@ -116,55 +116,36 @@ public class PrefHelper {
     }
 
     public static boolean databaseLoaded() {
-        return  sharedPrefs.getBoolean(DATABSE_LOADED, false);
+        return sharedPrefs.getBoolean(DATABSE_LOADED, false);
     }
 
-    public static boolean titlesLoaded() {
-        return sharedPrefs.getBoolean(TITLES_LOADED, false);
-    }
-
-    public static boolean urlsLoaded() {
-        return sharedPrefs.getBoolean(URLS_LOADED, false);
-    }
-
-    public static void setTitles(String titles, Boolean value, int highest) {
+    public static void setDatabseLoaded() {
         SharedPreferences.Editor editor = sharedPrefs.edit();
-        editor.putBoolean(TITLES_LOADED, value);
+        editor.putBoolean(DATABSE_LOADED, true);
+        editor.apply();
+    }
+
+    public static void setTitles(String titles) {
+        SharedPreferences.Editor editor = sharedPrefs.edit();
         editor.putString(COMIC_TITLES, titles);
-        editor.putInt(HIGHEST_COMIC_TITLE, highest);
         editor.commit();
     }
 
-    public static void setUrls(String urls, Boolean value, int highest) {
+    public static void setUrls(String urls, int highest) {
         SharedPreferences.Editor editor = sharedPrefs.edit();
-        editor.putBoolean(URLS_LOADED, value);
         editor.putString(COMIC_URLS, urls);
         editor.putInt(HIGHEST_COMIC_URL, highest);
         editor.commit();
     }
 
-    public static void setTrans(String trans, Boolean value, int highest) {
+    public static void setTrans(String trans) {
         SharedPreferences.Editor editor = sharedPrefs.edit();
-        editor.putBoolean(TRANS_LOADED, value);
         editor.putString(COMIC_TRANS, trans);
-        editor.putInt(HIGHEST_COMIC_TRANS, highest);
         editor.commit();
-    }
-
-    public static int getHighestTitle() {
-        return sharedPrefs.getInt(HIGHEST_COMIC_TITLE, 0);
-    }
-
-    public static int getHighestTrans() {
-        return sharedPrefs.getInt(HIGHEST_COMIC_TRANS, 0);
     }
 
     public static int getHighestUrls() {
         return sharedPrefs.getInt(HIGHEST_COMIC_URL, 0);
-    }
-
-    public static boolean transLoaded() {
-        return sharedPrefs.getBoolean(TRANS_LOADED, false);
     }
 
     public static void addTitle(String title, int i) {
