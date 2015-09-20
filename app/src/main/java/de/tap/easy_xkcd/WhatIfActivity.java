@@ -22,6 +22,7 @@ import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
 import android.view.inputmethod.InputMethodManager;
 import android.webkit.JavascriptInterface;
+import android.webkit.WebChromeClient;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
 import android.widget.Button;
@@ -89,12 +90,22 @@ public class WhatIfActivity extends AppCompatActivity {
         web.getSettings().setLoadWithOverviewMode(true);
         web.getSettings().setTextZoom(PrefHelper.getZoom(web.getSettings().getTextZoom()));
 
-        mProgress = ProgressDialog.show(this, "", getResources().getString(R.string.loading_articles), true);
         new LoadWhatIf().execute();
     }
 
     private class LoadWhatIf extends AsyncTask<Void, Void, Void> {
         @JavascriptInterface
+
+        @Override
+        protected void onPreExecute() {
+            mProgress = new ProgressDialog(WhatIfActivity.this);
+            mProgress.setTitle(getResources().getString(R.string.loading_articles));
+            mProgress.setIndeterminate(false);
+            mProgress.setProgressStyle(ProgressDialog.STYLE_HORIZONTAL);
+            mProgress.setCancelable(false);
+            mProgress.show();
+        }
+
         @Override
         protected Void doInBackground(Void... dummy) {
             try {
@@ -159,6 +170,11 @@ public class WhatIfActivity extends AppCompatActivity {
         @Override
         protected void onPostExecute(Void dummy) {
             web.loadDataWithBaseURL("file:///android_asset/.", doc.html(), "text/html", "UTF-8", null);
+            web.setWebChromeClient(new WebChromeClient(){
+                public void onProgressChanged(WebView view, int progress) {
+                    mProgress.setProgress(progress);
+                }
+            });
             web.setWebViewClient(new WebViewClient() {
                 @Override
                 public boolean shouldOverrideUrlLoading(WebView view, String url) {
@@ -286,7 +302,6 @@ public class WhatIfActivity extends AppCompatActivity {
     }
 
     private boolean nextWhatIf(boolean left) {
-        mProgress = ProgressDialog.show(this, "", getResources().getString(R.string.loading_articles), true);
         Animation animation;
         if (left) {
             WhatIfIndex--;
