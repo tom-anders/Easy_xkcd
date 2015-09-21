@@ -148,7 +148,7 @@
     <string name="pref_mobile_sum">Teilt m.xkcd.com Links statt xkcd.com</string>
     <string name="pref_orientation">Bildschirm Ausrichtung</string>
     <string name="pref_orientation_sum">Standard, Portrait oder Landscape</string>
-    <string name="pref_notifications">Update Intervall für Benachrichtigungen)</string>
+    <string name="pref_notifications">Update Intervall für Benachrichtigungen</string>
     <string name="pref_notifications_sum">Sucht Montags, Mittwochs und Freitags nach neuen Comics, sucht Dienstags nach neuem What If</string>
     <string name="new_comic">Neuer Comic!</string>
     <string name="pref_show_alt">Alt Text immer anzeigen</string>
