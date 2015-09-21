@@ -287,6 +287,10 @@ public class OfflineWhatIfFragment extends android.support.v4.app.Fragment {
                 comicViewHolder.thumbnail.setImageDrawable(ContextCompat.getDrawable(getActivity(), R.mipmap.new_horizons));
                 return;
             }
+            if (titles.get(i).equals("Proton Earth, Electron Moon")) {
+                comicViewHolder.thumbnail.setImageDrawable(ContextCompat.getDrawable(getActivity(), R.mipmap.proton_earth));
+                return;
+            }
 
             File sdCard = Environment.getExternalStorageDirectory();
             File dir = new File(sdCard.getAbsolutePath() + "/easy xkcd/what if/overview");
@@ -297,9 +301,6 @@ public class OfflineWhatIfFragment extends android.support.v4.app.Fragment {
                     .load(file)
                     .into(comicViewHolder.thumbnail);
 
-            /*if (mTitles.size() == titles.size()) {
-                setAnimation(comicViewHolder.cv, i);
-            }*/
         }
 
         @Override

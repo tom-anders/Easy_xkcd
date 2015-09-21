@@ -229,6 +229,10 @@ public class WhatIfFragment extends android.support.v4.app.Fragment {
                 comicViewHolder.thumbnail.setImageDrawable(ContextCompat.getDrawable(getActivity(), R.mipmap.new_horizons));
                 return;
             }
+            if (titles.get(i).equals("Proton Earth, Electron Moon")) {
+                comicViewHolder.thumbnail.setImageDrawable(ContextCompat.getDrawable(getActivity(), R.mipmap.proton_earth));
+                return;
+            }
 
             Glide.with(getActivity())
                     .load(imgs.get(i))
