@@ -70,6 +70,7 @@
     <string name="action_share">Share Comic</string>
     <string name="action_share_article">Share article</string>
     <string name="action_random">Random Comic</string>
+    <string name="action_random_article">Random article</string>
     <string name="action_explain">Explain Comic</string>
     <string name="action_alt">View Alt Text</string>
     <string name="action_night_mode">Night mode</string>
@@ -245,6 +246,8 @@
     <!-- preference strings -->
     <string name="pref_random">Hide Floating Action Button</string>
     <string name="pref_random_title">Hide FAB in&#8230;</string>
+    <string name="pref_alt_style">Alt Text Style</string>
+    <string name="pref_alt_style_title">Select your preferred style</string>
     <string name="pref_alt">Alt Text haptic feedback</string>
     <string name="pref_alt_sum">Enables the haptic feedback when long pressing images</string>
     <string name="pref_subtitle">Show Action Bar Subtitle</string>
@@ -296,6 +299,16 @@
 
     <string-array name="random_default" translatable="false">
         <item>pref_random_whatif</item>
+    </string-array>
+
+    <string-array name="alt_style_entries">
+        <item>Classic</item>
+        <item>Pop-up</item>
+    </string-array>
+
+    <string-array name="alt_style_values" translatable="false">
+        <item>0</item>
+        <item>1</item>
     </string-array>
 
 

@@ -125,6 +125,11 @@
         <item>Favorites</item>
     </string-array>
 
+    <string-array name="alt_style_entries">
+        <item>Classic</item>
+        <item>Pop-up</item>
+    </string-array>
+
     <string name="title_interactive">(interaktivní)</string>
 
     <!-- navigation drawer -->
@@ -189,4 +194,5 @@
     <string name="update_database">Updating database&#8230;</string>
     <string name="pref_random">Hide Floating Action Button</string>
     <string name="pref_random_title">Hide FAB in&#8230;</string>
+    <string name="action_random_article">Random article</string>
 </resources>

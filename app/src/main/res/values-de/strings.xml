@@ -121,6 +121,11 @@
         <item>Favoriten</item>
     </string-array>
 
+    <string-array name="alt_style_entries">
+        <item>Klassisch</item>
+        <item>Pop-up</item>
+    </string-array>
+
     <string name="title_interactive">(interaktiv)</string>
 
     <!-- navigation drawer -->
@@ -188,5 +193,6 @@
     <string name="update_database">Aktualisiere Daten&#8230;</string>
     <string name="pref_random">Verstecke Floating Action Button</string>
     <string name="pref_random_title">Verstecke FAB in&#8230;</string>
+    <string name="action_random_article">Zufälliger Artikel</string>
 
 </resources>

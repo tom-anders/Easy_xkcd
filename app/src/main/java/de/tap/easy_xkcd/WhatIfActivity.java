@@ -35,6 +35,7 @@ import org.jsoup.nodes.Document;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.Random;
 
 import de.tap.easy_xkcd.CustomTabHelpers.CustomTabActivityHelper;
 
@@ -297,6 +298,19 @@ public class WhatIfActivity extends AppCompatActivity {
                 share.putExtra(Intent.EXTRA_SUBJECT, "What if: " + title);
                 share.putExtra(Intent.EXTRA_TEXT, "http://what-if.xkcd.com/" + String.valueOf(WhatIfIndex));
                 startActivity(share);
+                return true;
+
+            case R.id.action_random:
+                Random mRand = new Random();
+                WhatIfIndex = mRand.nextInt(PrefHelper.getNewestWhatIf());
+                PrefHelper.setLastWhatIf(WhatIfIndex);
+                if (!fullOffline) {
+                    WhatIfFragment.rv.scrollToPosition(WhatIfFragment.mTitles.size() - WhatIfIndex);
+                } else {
+                    OfflineWhatIfFragment.rv.scrollToPosition(OfflineWhatIfFragment.mTitles.size() - WhatIfIndex);
+                }
+                PrefHelper.setWhatifRead(String.valueOf(WhatIfIndex));
+                new LoadWhatIf().execute();
         }
         return super.onOptionsItemSelected(item);
     }

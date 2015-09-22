@@ -31,4 +31,8 @@
         android:checkable="true"
         app:showAsAction="never" />
 
+    <item android:id="@+id/action_random"
+        android:title="@string/action_random"
+        app:showAsAction="never" />
+
 </menu>
