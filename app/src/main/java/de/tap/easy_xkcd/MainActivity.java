@@ -170,8 +170,13 @@ public class MainActivity extends AppCompatActivity {
         mFab = (FloatingActionButton) findViewById(R.id.fab);
         setupFab(mFab);
         if (savedInstanceState == null) {
-            showRateSnackbar();
-            PrefHelper.showSurveySnackbar(this, mFab);
+            new Handler().postDelayed(new Runnable() {
+                @Override
+                public void run() {
+                    showRateSnackbar();
+                    PrefHelper.showSurveySnackbar(MainActivity.this, mFab);
+                }
+            }, 1500);
         }
 
         //Load fragment
