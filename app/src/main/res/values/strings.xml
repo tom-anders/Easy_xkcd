@@ -244,9 +244,13 @@
     <string name="nv_whatif" translatable="false">What if?</string>
 
     <!-- preference strings -->
+    <string name="pref_alt_activation">Activation</string>
+    <string name="pref_alt_activation_sum">Long tap or single tap</string>
+    <string name="pref_alt_options">General Options</string>
+    <string name="pref_alt_options_sum">Always show alt text, share alt text, haptic feedback</string>
     <string name="pref_random">Hide Floating Action Button</string>
     <string name="pref_random_title">Hide FAB in&#8230;</string>
-    <string name="pref_alt_style">Alt Text Style</string>
+    <string name="pref_alt_style_sum">Classic or pop-up</string>
     <string name="pref_alt_style_title">Select your preferred style</string>
     <string name="pref_alt">Alt Text haptic feedback</string>
     <string name="pref_alt_sum">Enables the haptic feedback when long pressing images</string>
@@ -283,6 +287,8 @@
     <string name="pref_hide_donate">Hide donation button</string>
     <string name="title_activity_what_if" translatable="false">What if?</string>
     <string name="title_activity_donate">Donate</string>
+    <string name="pref_alt_title">Alt text</string>
+    <string name="pref_alt_style">Style</string>
 
     <string name="dialog_donate">How much would you like to donate?</string>
     <string name="update_database">Updating database&#8230;</string>
@@ -311,5 +317,30 @@
         <item>1</item>
     </string-array>
 
+    <string-array name="alt_options_entries">
+        <item>Always show alt text</item>
+        <item>Include alt text when sharing</item>
+        <item>Haptic feedback</item>
+    </string-array>
+
+    <string-array name="alt_options_values" translatable="false">
+        <item>pref_show_alt</item>
+        <item>pref_share_alt</item>
+        <item>pref_alt</item>
+    </string-array>
+
+    <string-array name="alt_options_default" translatable="false">
+        <item>pref_alt</item>
+    </string-array>
+
+    <string-array name="alt_activation">
+        <item>Single Tap</item>
+        <item>Long tap</item>
+    </string-array>
+
+    <string-array name="alt_activation_values" translatable="false">
+        <item>0</item>
+        <item>1</item>
+    </string-array>
 
 </resources>

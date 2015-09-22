@@ -130,6 +130,17 @@
         <item>Pop-up</item>
     </string-array>
 
+    <string-array name="alt_options_entries">
+        <item>Always show alt text</item>
+        <item>Include alt text when sharing</item>
+        <item>Haptic feedback</item>
+    </string-array>
+
+    <string-array name="alt_activation">
+        <item>Single Tap</item>
+        <item>Long tap</item>
+    </string-array>
+
     <string name="title_interactive">(interaktivní)</string>
 
     <!-- navigation drawer -->
@@ -195,4 +206,12 @@
     <string name="pref_random">Hide Floating Action Button</string>
     <string name="pref_random_title">Hide FAB in&#8230;</string>
     <string name="action_random_article">Random article</string>
+    <string name="pref_alt_activation">Activation</string>
+    <string name="pref_alt_activation_sum">Long tap or single tap</string>
+    <string name="pref_alt_options">General Options</string>
+    <string name="pref_alt_options_sum">Always show alt text, share alt text, haptic feedback</string>
+    <string name="pref_alt_style">Style</string>
+    <string name="pref_alt_style_sum">Classic or pop-up</string>
+    <string name="pref_alt_style_title">Select your preferred style</string>
+    <string name="pref_alt_title">Alt text</string>
 </resources>

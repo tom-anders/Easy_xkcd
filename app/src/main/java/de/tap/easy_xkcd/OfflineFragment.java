@@ -317,6 +317,15 @@ public class OfflineFragment extends android.support.v4.app.Fragment {
                         intent.setData(Uri.parse(url));
                         startActivity(intent);
                     }
+                    if (!PrefHelper.altLongTap()) {
+                        if (PrefHelper.classicAltStyle()) {
+                            toggleVisibility(tvAlt);
+                        } else {
+                            android.support.v7.app.AlertDialog.Builder mDialog = new android.support.v7.app.AlertDialog.Builder(getActivity());
+                            mDialog.setMessage(tvAlt.getText());
+                            mDialog.show();
+                        }
+                    }
                     return false;
                 }
 
@@ -336,7 +345,7 @@ public class OfflineFragment extends android.support.v4.app.Fragment {
             pvComic.setOnLongClickListener(new View.OnLongClickListener() {
                 @Override
                 public boolean onLongClick(View v) {
-                    if (fingerLifted) {
+                    if (fingerLifted && PrefHelper.altLongTap()) {
                         if (PrefHelper.altVibration()) {
                             Vibrator vi = (Vibrator) getActivity().getSystemService(MainActivity.VIBRATOR_SERVICE);
                             vi.vibrate(10);

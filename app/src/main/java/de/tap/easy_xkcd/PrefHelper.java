@@ -78,6 +78,8 @@ public class PrefHelper {
     private static final String PREF_DONATE = "pref_hide_donate";
     private static final String DATABSE_LOADED = "database_loaded";
     private static final String ALT_STYLE = "pref_alt_style";
+    private static final String ALT_OPTIONS = "pref_alt_options";
+    private static final String ALT_ACTIVATION = "pref_alt_activation";
 
 
 
@@ -216,7 +218,7 @@ public class PrefHelper {
     }
 
     public static boolean altVibration() {
-        return prefs.getBoolean(ALT_VIBRATION, true);
+        return prefs.getStringSet(ALT_OPTIONS, new HashSet<String>()).contains(ALT_VIBRATION);
     }
 
     public static String getOrientation() {
@@ -292,7 +294,7 @@ public class PrefHelper {
     }
 
     public static boolean altByDefault() {
-        return prefs.getBoolean(ALT_DEFAULT, false);
+        return prefs.getStringSet(ALT_OPTIONS, new HashSet<String>()).contains(ALT_DEFAULT);
     }
 
     public static int getLastWhatIf() {
@@ -461,7 +463,7 @@ public class PrefHelper {
     }
 
     public static boolean shareAlt() {
-        return prefs.getBoolean(SHARE_ALT, false);
+        return prefs.getStringSet(ALT_OPTIONS, new HashSet<String>()).contains(SHARE_ALT);
     }
 
     public static int getZoom(int webDefault) {
@@ -482,6 +484,10 @@ public class PrefHelper {
         SharedPreferences.Editor editor = prefs.edit();
         editor.putBoolean(PREF_DONATE, value);
         editor.apply();
+    }
+
+    public static boolean altLongTap() {
+        return Integer.parseInt(prefs.getString(ALT_ACTIVATION, "1"))==1;
     }
 }
 

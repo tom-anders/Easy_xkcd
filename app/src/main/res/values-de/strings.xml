@@ -126,6 +126,17 @@
         <item>Pop-up</item>
     </string-array>
 
+    <string-array name="alt_options_entries">
+        <item>Alt Text immer anzeigen</item>
+        <item>Alt Text beim Teilen hinzufügen</item>
+        <item>Haptisches Feedback</item>
+    </string-array>
+
+    <string-array name="alt_activation">
+        <item>Kurz Tippen</item>
+        <item>Lang tippen</item>
+    </string-array>
+
     <string name="title_interactive">(interaktiv)</string>
 
     <!-- navigation drawer -->
@@ -194,5 +205,13 @@
     <string name="pref_random">Verstecke Floating Action Button</string>
     <string name="pref_random_title">Verstecke FAB in&#8230;</string>
     <string name="action_random_article">Zufälliger Artikel</string>
+    <string name="pref_alt_title">Alt text</string>
+    <string name="pref_alt_activation_sum">Lang oder kurz tippen</string>
+    <string name="pref_alt_activation">Aktivierung</string>
+    <string name="pref_alt_options">Allgemeine Optionen</string>
+    <string name="pref_alt_options_sum">Alt Text immer anzeigen, Alt Text teilen, haptisches Feedback</string>
+    <string name="pref_alt_style">Stil</string>
+    <string name="pref_alt_style_sum">Klassich oder Pop-Up</string>
+    <string name="pref_alt_style_title">Wähle deinen bevorzugten Stil</string>
 
 </resources>
