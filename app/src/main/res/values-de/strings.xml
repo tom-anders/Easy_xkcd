@@ -213,5 +213,7 @@
     <string name="pref_alt_style">Stil</string>
     <string name="pref_alt_style_sum">Klassich oder Pop-Up</string>
     <string name="pref_alt_style_title">Wähle deinen bevorzugten Stil</string>
+    <string name="snackbar_survey">Hast du ein paar Minuten übrig und möchtest die App verbessern?</string>
+    <string name="snackbar_survey_oc">Umfrage starten</string>
 
 </resources>

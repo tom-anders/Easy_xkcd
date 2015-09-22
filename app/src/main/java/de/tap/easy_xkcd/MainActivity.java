@@ -171,6 +171,7 @@ public class MainActivity extends AppCompatActivity {
         setupFab(mFab);
         if (savedInstanceState == null) {
             showRateSnackbar();
+            PrefHelper.showSurveySnackbar(this, mFab);
         }
 
         //Load fragment

@@ -213,5 +213,7 @@
     <string name="pref_alt_style_sum">Classic or pop-up</string>
     <string name="pref_alt_style_title">Select your preferred style</string>
     <string name="pref_alt_title">Alt text</string>
+    <string name="snackbar_survey">Got a few minutes and want to help improve this app?</string>
+    <string name="snackbar_survey_oc">Take survey</string>
 
 </resources>

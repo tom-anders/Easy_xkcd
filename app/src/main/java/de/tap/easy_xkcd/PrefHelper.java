@@ -18,10 +18,16 @@
 package de.tap.easy_xkcd;
 
 import android.app.Activity;
+import android.content.ActivityNotFoundException;
 import android.content.Context;
+import android.content.Intent;
 import android.content.SharedPreferences;
+import android.net.Uri;
 import android.preference.PreferenceManager;
+import android.support.design.widget.FloatingActionButton;
+import android.support.design.widget.Snackbar;
 import android.util.Log;
+import android.view.View;
 
 import com.tap.xkcd_reader.R;
 
@@ -80,6 +86,8 @@ public class PrefHelper {
     private static final String ALT_STYLE = "pref_alt_style";
     private static final String ALT_OPTIONS = "pref_alt_options";
     private static final String ALT_ACTIVATION = "pref_alt_activation";
+    private static final String SURVEY_SNACKBAR = "survey_snackbar";
+
 
 
 
@@ -488,6 +496,25 @@ public class PrefHelper {
 
     public static boolean altLongTap() {
         return Integer.parseInt(prefs.getString(ALT_ACTIVATION, "1"))==1;
+    }
+
+    public static void showSurveySnackbar(final Context context, FloatingActionButton fab) {
+        if (!sharedPrefs.getBoolean(SURVEY_SNACKBAR, false)) {
+            View.OnClickListener oc = new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    Uri uri = Uri.parse("https://docs.google.com/forms/d/1c9hb80NU67CImMKAlOH4p9-F63_duC7qAL30FhJv9Xg/viewform?usp=send_form");
+                    Intent intent = new Intent(Intent.ACTION_VIEW, uri);
+                     context.startActivity(intent);
+                }
+            };
+            SharedPreferences.Editor editor = sharedPrefs.edit();
+            editor.putBoolean(SURVEY_SNACKBAR, true);
+            editor.apply();
+            Snackbar.make(fab, R.string.snackbar_survey, Snackbar.LENGTH_LONG)
+                    .setAction(R.string.snackbar_survey_oc, oc)
+                    .show();
+        }
     }
 }
 
