@@ -90,7 +90,11 @@ public class OfflineWhatIfFragment extends android.support.v4.app.Fragment {
 
         ((MainActivity) getActivity()).mFab.setVisibility(View.GONE);
 
-        new UpdateArticles().execute();
+        if (isOnline() && isWifi()) {
+            new UpdateArticles().execute();
+        } else {
+            new DisplayOverview().execute();
+        }
 
         return v;
     }
@@ -173,55 +177,53 @@ public class OfflineWhatIfFragment extends android.support.v4.app.Fragment {
 
         @Override
         protected Void doInBackground(Void... dummy) {
-            if (isOnline()) {
-                try {
-                    Document doc = Jsoup.connect("https://what-if.xkcd.com/archive/")
-                            .userAgent("Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/32.0.1700.19 Safari/537.36")
-                            .get();
-                    Elements titles = doc.select("h1");
-                    Elements img = doc.select("img.archive-image");
-                    if (titles.size() > PrefHelper.getNewestWhatIf()) {
-                        StringBuilder sb = new StringBuilder();
-                        sb.append(titles.first().text());
-                        titles.remove(0);
-                        for (Element title : titles) {
-                            sb.append("&&");
-                            sb.append(title.text());
-                        }
-                        PrefHelper.setWhatIfTitles(sb.toString());
-
-                        Bitmap mBitmap;
-                        for (int i = PrefHelper.getNewestWhatIf(); i<titles.size()+1; i++) {
-                            String url = img.get(i).absUrl("src");
-                            try {
-                                mBitmap = Glide.with(getActivity())
-                                        .load(url)
-                                        .asBitmap()
-                                        .into(-1, -1)
-                                        .get();
-                                File sdCard = Environment.getExternalStorageDirectory();
-                                File dir = new File(sdCard.getAbsolutePath() + "/easy xkcd/what if/overview");
-                                dir.mkdirs();
-                                File file = new File(dir, String.valueOf(i+1) + ".png");
-                                FileOutputStream fos = new FileOutputStream(file);
-                                mBitmap.compress(Bitmap.CompressFormat.PNG, 100, fos);
-                                fos.flush();
-                                fos.close();
-                            } catch (IOException e) {
-                                e.printStackTrace();
-                            }
-                        }
-
+            try {
+                Document doc = Jsoup.connect("https://what-if.xkcd.com/archive/")
+                        .userAgent("Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/32.0.1700.19 Safari/537.36")
+                        .get();
+                Elements titles = doc.select("h1");
+                Elements img = doc.select("img.archive-image");
+                if (titles.size() > PrefHelper.getNewestWhatIf()) {
+                    StringBuilder sb = new StringBuilder();
+                    sb.append(titles.first().text());
+                    titles.remove(0);
+                    for (Element title : titles) {
+                        sb.append("&&");
+                        sb.append(title.text());
                     }
-                    PrefHelper.setNewestWhatif(titles.size());
-                } catch (Exception e) {
-                    e.printStackTrace();
-                }
+                    PrefHelper.setWhatIfTitles(sb.toString());
 
+                    Bitmap mBitmap;
+                    for (int i = PrefHelper.getNewestWhatIf(); i < titles.size() + 1; i++) {
+                        String url = img.get(i).absUrl("src");
+                        try {
+                            mBitmap = Glide.with(getActivity())
+                                    .load(url)
+                                    .asBitmap()
+                                    .into(-1, -1)
+                                    .get();
+                            File sdCard = Environment.getExternalStorageDirectory();
+                            File dir = new File(sdCard.getAbsolutePath() + "/easy xkcd/what if/overview");
+                            dir.mkdirs();
+                            File file = new File(dir, String.valueOf(i + 1) + ".png");
+                            FileOutputStream fos = new FileOutputStream(file);
+                            mBitmap.compress(Bitmap.CompressFormat.PNG, 100, fos);
+                            fos.flush();
+                            fos.close();
+                        } catch (IOException e) {
+                            e.printStackTrace();
+                        }
+                    }
+
+                }
+                PrefHelper.setNewestWhatif(titles.size());
+            } catch (Exception e) {
+                e.printStackTrace();
             }
+
             if (!PrefHelper.nomediaCreated()) {
                 File sdCard = Environment.getExternalStorageDirectory();
-                File dir = new File (sdCard.getAbsolutePath() + "/easy xkcd");
+                File dir = new File(sdCard.getAbsolutePath() + "/easy xkcd");
                 File nomedia = new File(dir, ".nomedia");
                 try {
                     boolean created = nomedia.createNewFile();
@@ -570,5 +572,11 @@ public class OfflineWhatIfFragment extends android.support.v4.app.Fragment {
                 (ConnectivityManager) getActivity().getSystemService(Context.CONNECTIVITY_SERVICE);
         NetworkInfo netInfo = cm.getActiveNetworkInfo();
         return netInfo != null && netInfo.isConnectedOrConnecting();
+    }
+
+    private boolean isWifi() {
+        ConnectivityManager cm = (ConnectivityManager) getActivity().getSystemService(Context.CONNECTIVITY_SERVICE);
+        NetworkInfo info = cm.getActiveNetworkInfo();
+        return (info != null && info.isConnected() && info.getType() == ConnectivityManager.TYPE_WIFI);
     }
 }

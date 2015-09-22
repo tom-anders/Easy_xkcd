@@ -84,23 +84,21 @@ public class OfflineFragment extends android.support.v4.app.Fragment {
     private HackyViewPager sPager;
     private OfflineBrowserPagerAdapter sPagerAdapter;
     private ActionBar mActionBar;
-    private Boolean randomSelected=false;
+    private Boolean randomSelected = false;
     private int pagerState;
-    private Boolean savedInstance=false;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View v = inflater.inflate(R.layout.pager_layout, container, false);
         setHasOptionsMenu(true);
 
-        if (MainActivity.sProgress!=null) {
+        if (MainActivity.sProgress != null) {
             MainActivity.sProgress.dismiss();
         }
 
         if (savedInstanceState != null) {
             sLastComicNumber = savedInstanceState.getInt("Last Comic");
-            savedInstance=true;
-        } else if (sLastComicNumber==0) {
+        } else if (sLastComicNumber == 0) {
             sLastComicNumber = PrefHelper.getLastComic();
         }
 
@@ -111,10 +109,13 @@ public class OfflineFragment extends android.support.v4.app.Fragment {
         sPagerAdapter = new OfflineBrowserPagerAdapter(getActivity());
         sPager = (HackyViewPager) v.findViewById(R.id.pager);
         setupPager(sPager);
-        /*tvAlt = (TextView) getActivity().findViewById(R.id.tvAlt);
-        tvAlt.setVisibility(View.GONE);*/
-        //Update the pager
-        new updateImages().execute();
+
+        if (savedInstanceState == null && isOnline() && isWifi()) {
+            new updateImages().execute();
+        } else {
+            sNewestComicNumber = PrefHelper.getHighestOffline();
+            new pagerUpdate().execute(sLastComicNumber);
+        }
 
         return v;
     }
@@ -122,6 +123,7 @@ public class OfflineFragment extends android.support.v4.app.Fragment {
     private void setupPager(ViewPager pager) {
         pager.addOnPageChangeListener(new ViewPager.OnPageChangeListener() {
             private int state;
+
             @Override
             public void onPageSelected(int position) {
                 //tvAlt.setVisibility(View.GONE);
@@ -160,7 +162,7 @@ public class OfflineFragment extends android.support.v4.app.Fragment {
 
             @Override
             public void onPageScrollStateChanged(int state) {
-                pagerState=state;
+                pagerState = state;
             }
 
             @Override
@@ -176,13 +178,13 @@ public class OfflineFragment extends android.support.v4.app.Fragment {
 
             //sNewestComicNumber = mSharedPreferences.getInt("highest_offline",0);
             sNewestComicNumber = PrefHelper.getHighestOffline();
-            if (sLastComicNumber==0) {
+            if (sLastComicNumber == 0) {
                 sLastComicNumber = sNewestComicNumber;
                 pos[0] = sNewestComicNumber;
             }
             //Update comic array
             sComics = GetComic(pos[0]);
-            if (sLastComicNumber!=1&&sLastComicNumber!=2&&sLastComicNumber!=sNewestComicNumber&&sLastComicNumber!=sNewestComicNumber-1) {
+            if (sLastComicNumber != 1 && sLastComicNumber != 2 && sLastComicNumber != sNewestComicNumber && sLastComicNumber != sNewestComicNumber - 1) {
                 while (pagerState == ViewPager.SCROLL_STATE_SETTLING) {
                     //wait for view pager to finish animation
                 }
@@ -202,7 +204,7 @@ public class OfflineFragment extends android.support.v4.app.Fragment {
                 //this only true if the user reached comic 1
                 sPager.setCurrentItem(0, true);
             }
-            if (MainActivity.sProgress!=null) {
+            if (MainActivity.sProgress != null) {
                 MainActivity.sProgress.dismiss();
             }
             switch (Integer.parseInt(PrefHelper.getOrientation())) {
@@ -320,7 +322,7 @@ public class OfflineFragment extends android.support.v4.app.Fragment {
 
                 @Override
                 public boolean onDoubleTapEvent(MotionEvent e) {
-                    if (e.getAction()==MotionEvent.ACTION_UP) {
+                    if (e.getAction() == MotionEvent.ACTION_UP) {
                         fingerLifted = true;
                     }
                     if (e.getAction() == MotionEvent.ACTION_DOWN) {
@@ -365,22 +367,22 @@ public class OfflineFragment extends android.support.v4.app.Fragment {
                 }
             });
 
-            if(randomSelected && position==1) {
+            if (randomSelected && position == 1) {
                 Animation animation = AnimationUtils.loadAnimation(getActivity().getApplicationContext(), android.R.anim.fade_in);
                 itemView.setAnimation(animation);
-                randomSelected=false;
+                randomSelected = false;
             }
 
-            if (position==1) {
-                Toolbar toolbar = ((MainActivity)getActivity()).toolbar;
-                if (toolbar.getAlpha()==0) {
+            if (position == 1) {
+                Toolbar toolbar = ((MainActivity) getActivity()).toolbar;
+                if (toolbar.getAlpha() == 0) {
                     toolbar.setTranslationY(-300);
                     toolbar.animate().setDuration(300).translationY(0).alpha(1);
                     View view;
-                    for (int i = 0; i<toolbar.getChildCount(); i++) {
+                    for (int i = 0; i < toolbar.getChildCount(); i++) {
                         view = toolbar.getChildAt(i);
                         view.setTranslationY(-300);
-                        view.animate().setStartDelay(50*(i+1)).setDuration(70*(i+1)).translationY(0);
+                        view.animate().setStartDelay(50 * (i + 1)).setDuration(70 * (i + 1)).translationY(0);
                     }
                 }
             }
@@ -537,7 +539,7 @@ public class OfflineFragment extends android.support.v4.app.Fragment {
             Random mRand = new Random();
             final Integer mNumber = mRand.nextInt(sNewestComicNumber) + 1;
             sLastComicNumber = mNumber;
-            randomSelected=true;
+            randomSelected = true;
             new pagerUpdate().execute(mNumber);
         }
         return true;
@@ -663,66 +665,62 @@ public class OfflineFragment extends android.support.v4.app.Fragment {
 
     public class updateImages extends AsyncTask<Void, Void, Void> {
         private ProgressDialog progress;
+
         @Override
         protected void onPreExecute() {
-            if (!savedInstance) {
-                progress = new ProgressDialog(getActivity());
-                progress.setTitle(getResources().getString(R.string.loading_comics));
-                progress.setCancelable(false);
-                progress.show();
-                savedInstance=false;
-            }
+            progress = new ProgressDialog(getActivity());
+            progress.setTitle(getResources().getString(R.string.loading_comics));
+            progress.setCancelable(false);
+            progress.show();
         }
+
         @Override
         protected Void doInBackground(Void... pos) {
-            if (isOnline()&&!savedInstance) {
-                try {
-                    sNewestComicNumber = new Comic(0).getComicNumber();
-                    Log.d("test", String.valueOf(sNewestComicNumber)+" "+String.valueOf(PrefHelper.getHighestOffline()));
-                    if (sNewestComicNumber > PrefHelper.getHighestOffline()) {
-                        for (int i = PrefHelper.getHighestOffline(); i <= sNewestComicNumber; i++) {
-                            Log.d("comic added", String.valueOf(i));
-                            Comic comic = new Comic(i,getActivity());
-                            String url = comic.getComicData()[2];
-                            Bitmap mBitmap = Glide.with(getActivity())
-                                    .load(url)
-                                    .asBitmap()
-                                    .into(-1, -1)
-                                    .get();
+            try {
+                sNewestComicNumber = new Comic(0).getComicNumber();
+                Log.d("test", String.valueOf(sNewestComicNumber) + " " + String.valueOf(PrefHelper.getHighestOffline()));
+                if (sNewestComicNumber > PrefHelper.getHighestOffline()) {
+                    for (int i = PrefHelper.getHighestOffline(); i <= sNewestComicNumber; i++) {
+                        Log.d("comic added", String.valueOf(i));
+                        Comic comic = new Comic(i, getActivity());
+                        String url = comic.getComicData()[2];
+                        Bitmap mBitmap = Glide.with(getActivity())
+                                .load(url)
+                                .asBitmap()
+                                .into(-1, -1)
+                                .get();
+                        try {
+                            File sdCard = Environment.getExternalStorageDirectory();
+                            File dir = new File(sdCard.getAbsolutePath() + "/easy xkcd");
+                            dir.mkdirs();
+                            File file = new File(dir, String.valueOf(i) + ".png");
+                            FileOutputStream fos = new FileOutputStream(file);
+                            mBitmap.compress(Bitmap.CompressFormat.PNG, 100, fos);
+                            fos.flush();
+                            fos.close();
+                        } catch (Exception e) {
+                            Log.e("Error", "Saving to external storage failed");
                             try {
-                                File sdCard = Environment.getExternalStorageDirectory();
-                                File dir = new File (sdCard.getAbsolutePath() + "/easy xkcd");
-                                dir.mkdirs();
-                                File file = new File(dir, String.valueOf(i)+".png");
-                                FileOutputStream fos = new FileOutputStream(file);
+                                FileOutputStream fos = getActivity().openFileOutput(String.valueOf(i), Context.MODE_PRIVATE);
                                 mBitmap.compress(Bitmap.CompressFormat.PNG, 100, fos);
-                                fos.flush();
                                 fos.close();
-                            } catch (Exception e) {
-                                Log.e("Error", "Saving to external storage failed");
-                                try {
-                                    FileOutputStream fos = getActivity().openFileOutput(String.valueOf(i), Context.MODE_PRIVATE);
-                                    mBitmap.compress(Bitmap.CompressFormat.PNG, 100, fos);
-                                    fos.close();
-                                } catch (Exception e2) {
-                                    e2.printStackTrace();
-                                }
-                            }PrefHelper.addTitle(comic.getComicData()[0], i);
-                            PrefHelper.addAlt(comic.getComicData()[1], i);
-                            PrefHelper.setHighestOffline(sNewestComicNumber);
-                            PrefHelper.setNewestComic(i);
+                            } catch (Exception e2) {
+                                e2.printStackTrace();
+                            }
                         }
+                        PrefHelper.addTitle(comic.getComicData()[0], i);
+                        PrefHelper.addAlt(comic.getComicData()[1], i);
+                        PrefHelper.setHighestOffline(sNewestComicNumber);
+                        PrefHelper.setNewestComic(i);
                     }
-                } catch (Exception e) {
-                    e.printStackTrace();
                 }
+            } catch (Exception e) {
+                e.printStackTrace();
             }
-            else {
-                sNewestComicNumber = PrefHelper.getHighestOffline();
-            }
+
             if (!PrefHelper.nomediaCreated()) {
                 File sdCard = Environment.getExternalStorageDirectory();
-                File dir = new File (sdCard.getAbsolutePath() + "/easy xkcd");
+                File dir = new File(sdCard.getAbsolutePath() + "/easy xkcd");
                 File nomedia = new File(dir, ".nomedia");
                 try {
                     boolean created = nomedia.createNewFile();
@@ -736,9 +734,7 @@ public class OfflineFragment extends android.support.v4.app.Fragment {
 
         @Override
         protected void onPostExecute(Void v) {
-            if (!savedInstance) {
-                progress.dismiss();
-            }
+            progress.dismiss();
             new pagerUpdate().execute(sLastComicNumber);
         }
     }
@@ -763,6 +759,12 @@ public class OfflineFragment extends android.support.v4.app.Fragment {
                 (ConnectivityManager) getActivity().getSystemService(Context.CONNECTIVITY_SERVICE);
         NetworkInfo netInfo = cm.getActiveNetworkInfo();
         return netInfo != null && netInfo.isConnectedOrConnecting();
+    }
+
+    private boolean isWifi() {
+        ConnectivityManager cm = (ConnectivityManager) getActivity().getSystemService(Context.CONNECTIVITY_SERVICE);
+        NetworkInfo info = cm.getActiveNetworkInfo();
+        return (info != null && info.isConnected() && info.getType() == ConnectivityManager.TYPE_WIFI);
     }
 
 }
