@@ -297,7 +297,13 @@ public class ComicBrowserFragment extends android.support.v4.app.Fragment {
                             vi.vibrate(10);
                         }
                         //tvAlt.setText(sComicMap.get(sLastComicNumber).getComicData()[1]);
-                        toggleVisibility(tvAlt);
+                        if (PrefHelper.classicAltStyle()) {
+                            toggleVisibility(tvAlt);
+                        } else {
+                            android.support.v7.app.AlertDialog.Builder mDialog = new android.support.v7.app.AlertDialog.Builder(getActivity());
+                            mDialog.setMessage(tvAlt.getText());
+                            mDialog.show();
+                        }
                     }
                     return true;
                 }

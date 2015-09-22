@@ -77,6 +77,7 @@ public class PrefHelper {
     private static final String PREF_ZOOM = "pref_zoom";
     private static final String PREF_DONATE = "pref_hide_donate";
     private static final String DATABSE_LOADED = "database_loaded";
+    private static final String ALT_STYLE = "pref_alt_style";
 
 
 
@@ -116,6 +117,9 @@ public class PrefHelper {
         return prefs.getBoolean(SUBTITLE_ENABLED, true);
     }
 
+    public static boolean classicAltStyle() {
+        return Integer.parseInt(prefs.getString(ALT_STYLE, "0"))==0;
+    }
 
     public static boolean databaseLoaded() {
         return sharedPrefs.getBoolean(DATABSE_LOADED, false);

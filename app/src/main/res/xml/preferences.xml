@@ -26,6 +26,14 @@
             android:key="pref_alt"
             android:summary="@string/pref_alt_sum"
             android:title="@string/pref_alt" />
+
+        <ListPreference
+            android:dialogTitle="@string/pref_alt_style_title"
+            android:title="@string/pref_alt_style"
+            android:key="pref_alt_style"
+            android:entries="@array/alt_style_entries"
+            android:entryValues="@array/alt_style_values"
+            android:defaultValue="0" />
     </PreferenceCategory>
 
     <PreferenceCategory android:title="@string/pref_appearance">
