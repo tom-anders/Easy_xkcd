@@ -15,8 +15,8 @@ android {
         applicationId "de.tap.easy_xkcd"
         minSdkVersion 15
         targetSdkVersion 22
-        versionCode 55
-        versionName "2.5.2"
+        versionCode 56
+        versionName "2.5.3"
     }
     buildTypes {
         release {
