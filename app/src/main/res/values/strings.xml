@@ -243,6 +243,8 @@
     <string name="nv_whatif" translatable="false">What if?</string>
 
     <!-- preference strings -->
+    <string name="pref_random">Hide Floating Action Button</string>
+    <string name="pref_random_title">Hide FAB in&#8230;</string>
     <string name="pref_alt">Alt Text haptic feedback</string>
     <string name="pref_alt_sum">Enables the haptic feedback when long pressing images</string>
     <string name="pref_subtitle">Show Action Bar Subtitle</string>
@@ -281,5 +283,20 @@
 
     <string name="dialog_donate">How much would you like to donate?</string>
     <string name="update_database">Updating database&#8230;</string>
+
+    <string-array name="random_entries">
+        <item>Comic Browser</item>
+        <item>Favorites</item>
+    </string-array>
+
+    <string-array name="random_values" translatable="false">
+        <item>pref_random_favorites</item>
+        <item>pref_random_comics</item>
+    </string-array>
+
+    <string-array name="random_default" translatable="false">
+        <item>pref_random_whatif</item>
+    </string-array>
+
 
 </resources>

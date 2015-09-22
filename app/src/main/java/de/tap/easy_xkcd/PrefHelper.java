@@ -29,6 +29,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
+import java.util.HashSet;
 
 public class PrefHelper {
     private static SharedPreferences sharedPrefs;
@@ -108,18 +109,19 @@ public class PrefHelper {
     }
 
     public static boolean fabEnabled(String prefTag) {
-        return prefs.getBoolean(prefTag, false);
+        return prefs.getStringSet("pref_random", new HashSet<String>()).contains(prefTag);
     }
 
     public static boolean subtitleEnabled() {
         return prefs.getBoolean(SUBTITLE_ENABLED, true);
     }
 
+
     public static boolean databaseLoaded() {
         return sharedPrefs.getBoolean(DATABSE_LOADED, false);
     }
 
-    public static void setDatabseLoaded() {
+    public static void setDatabaseLoaded() {
         SharedPreferences.Editor editor = sharedPrefs.edit();
         editor.putBoolean(DATABSE_LOADED, true);
         editor.apply();

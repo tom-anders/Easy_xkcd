@@ -3,6 +3,7 @@
 
     <PreferenceCategory
         android:title="@string/pref_behavior">
+
         <ListPreference
             android:key="pref_notifications"
             android:title="@string/pref_notifications"
@@ -20,11 +21,6 @@
             android:defaultValue="false"
             android:key="pref_offline_whatif"
             android:title="@string/pref_offline_whatif" />
-        <CheckBoxPreference
-            android:defaultValue="true"
-            android:key="pref_large"
-            android:summary="@string/pref_large_sum"
-            android:title="@string/pref_large" />
         <CheckBoxPreference
             android:defaultValue="true"
             android:key="pref_alt"
@@ -61,7 +57,7 @@
             android:summary="@string/pref_subtitle_sum"
             android:title="@string/pref_subtitle" />
 
-        <CheckBoxPreference
+        <!--<CheckBoxPreference
             android:defaultValue="false"
             android:key="pref_random_favorites"
             android:summary="@string/pref_random_sum"
@@ -71,7 +67,16 @@
             android:defaultValue="false"
             android:key="pref_random_comics"
             android:summary=""
-            android:title="@string/pref_random_comics" />
+            android:title="@string/pref_random_comics" /> -->
+
+        <MultiSelectListPreference
+            android:dialogTitle="@string/pref_random_title"
+            android:title="@string/pref_random"
+            android:hint="@string/pref_random_sum"
+            android:key="pref_random"
+            android:entries="@array/random_entries"
+            android:entryValues="@array/random_values"
+            android:defaultValue="@array/random_default" />
 
         <CheckBoxPreference
             android:defaultValue="false"
@@ -112,6 +117,12 @@
             android:title="@string/pref_repair"
             android:summary="@string/pref_repair_sum"
             />
+
+        <CheckBoxPreference
+            android:defaultValue="true"
+            android:key="pref_large"
+            android:summary="@string/pref_large_sum"
+            android:title="@string/pref_large" />
 
     </PreferenceCategory>
 

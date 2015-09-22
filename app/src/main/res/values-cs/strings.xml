@@ -120,6 +120,11 @@
         <item>Landscape</item>
     </string-array>
 
+    <string-array name="random_entries">
+        <item>Comic Browser</item>
+        <item>Favorites</item>
+    </string-array>
+
     <string name="title_interactive">(interaktivní)</string>
 
     <!-- navigation drawer -->
@@ -182,4 +187,6 @@
     <string name="pref_hide_donate">Hide donation button</string>
     <string name="title_activity_donate">Donate</string>
     <string name="update_database">Updating database&#8230;</string>
+    <string name="pref_random">Hide Floating Action Button</string>
+    <string name="pref_random_title">Hide FAB in&#8230;</string>
 </resources>

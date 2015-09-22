@@ -30,6 +30,7 @@ import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Environment;
 import android.os.Handler;
+import android.preference.MultiSelectListPreference;
 import android.preference.Preference;
 import android.preference.PreferenceFragment;
 import android.os.Bundle;
@@ -54,6 +55,7 @@ import java.io.FileOutputStream;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Objects;
 import java.util.Set;
 import java.util.SimpleTimeZone;
 
@@ -212,7 +214,6 @@ public class SettingsActivity extends AppCompatActivity {
                     }
                 }
             });
-
         }
 
         public class repairComicsTask extends AsyncTask<Void, Integer, Void> {

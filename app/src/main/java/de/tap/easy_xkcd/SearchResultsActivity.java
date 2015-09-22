@@ -43,8 +43,6 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.animation.Animation;
-import android.view.animation.AnimationUtils;
 import android.view.animation.DecelerateInterpolator;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.ImageView;
@@ -54,11 +52,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.bumptech.glide.Glide;
-import com.bumptech.glide.request.animation.GlideAnimation;
-import com.bumptech.glide.request.target.SimpleTarget;
 import com.tap.xkcd_reader.R;
-
-import org.jsoup.helper.StringUtil;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -68,7 +62,6 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.List;
 
 import jp.wasabeef.recyclerview.animators.adapters.SlideInBottomAnimationAdapter;
 
@@ -187,7 +180,7 @@ public class SearchResultsActivity extends AppCompatActivity {
                 }
                 PrefHelper.setUrls(sb.toString(), 1579);
                 Log.d("info", "urls loaded");
-                PrefHelper.setDatabseLoaded();
+                PrefHelper.setDatabaseLoaded();
             }
             publishProgress(50);
             if (isOnline()) {
