@@ -563,13 +563,21 @@ public class OfflineFragment extends android.support.v4.app.Fragment {
     public boolean getRandomComic() {
         if (sNewestComicNumber != 0) {
             //get a random number and update the pager
-            Random mRand = new Random();
-            final Integer mNumber = mRand.nextInt(sNewestComicNumber) + 1;
+            int mNumber = PrefHelper.getRandomNumber(sLastComicNumber);
             sLastComicNumber = mNumber;
             randomSelected = true;
             new pagerUpdate().execute(mNumber);
         }
         return true;
+    }
+
+    public void getPreviousRandom() {
+        if (sNewestComicNumber != 0) {
+            int mNumber = PrefHelper.getPreviousRandom(sLastComicNumber);
+            sLastComicNumber = mNumber;
+            randomSelected = true;
+            new pagerUpdate().execute(mNumber);
+        }
     }
 
     @Override

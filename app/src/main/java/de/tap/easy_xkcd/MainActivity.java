@@ -260,11 +260,26 @@ public class MainActivity extends AppCompatActivity {
                 }
             }
         });
+
+        fab.setOnLongClickListener(new View.OnLongClickListener() {
+            @Override
+            public boolean onLongClick(View v) {
+                android.support.v4.app.FragmentManager fragmentManager = getSupportFragmentManager();
+                if (sCurrentFragment == R.id.nav_browser) {
+                    if (!fullOffline) {
+                        ((ComicBrowserFragment) fragmentManager.findFragmentByTag("browser")).getPreviousRandom();
+                    } else {
+                        ((OfflineFragment) fragmentManager.findFragmentByTag("browser")).getPreviousRandom();
+                    }
+                }
+                return true;
+            }
+        });
     }
 
     private void showRateSnackbar() {
         // Thanks to /u/underhound for this great idea! https://www.reddit.com/r/Android/comments/3i6uw0/dev_i_think_ive_mastered_the_art_of_asking_for/
-        if(PrefHelper.showRateDialog()) {
+        if (PrefHelper.showRateDialog()) {
             View.OnClickListener oc = new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
@@ -346,7 +361,7 @@ public class MainActivity extends AppCompatActivity {
                 break;
 
             case R.id.nav_whatif:
-                if (!isOnline()&&!fullOfflineWhatIf) {
+                if (!isOnline() && !fullOfflineWhatIf) {
                     Toast toast = Toast.makeText(this, R.string.no_connection, Toast.LENGTH_SHORT);
                     toast.show();
                     MenuItem m = sNavView.getMenu().findItem(sCurrentFragment);
@@ -496,7 +511,6 @@ public class MainActivity extends AppCompatActivity {
     }
 
 
-
     @Override
     protected void onNewIntent(Intent intent) {
         setIntent(intent);
@@ -545,7 +559,7 @@ public class MainActivity extends AppCompatActivity {
         if (("de.tap.easy_xkcd.ACTION_WHAT_IF").equals(getIntent().getAction())) {
             MenuItem item = sNavView.getMenu().findItem(R.id.nav_whatif);
             selectDrawerItem(item);
-            WhatIfActivity.WhatIfIndex = intent.getIntExtra("number",1);
+            WhatIfActivity.WhatIfIndex = intent.getIntExtra("number", 1);
             Intent whatIf = new Intent(MainActivity.this, WhatIfActivity.class);
             PrefHelper.setLastWhatIf(WhatIfActivity.WhatIfIndex);
             startActivity(whatIf);

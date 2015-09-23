@@ -35,11 +35,15 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
+import java.util.Collections;
 import java.util.HashSet;
+import java.util.List;
 
 public class PrefHelper {
     private static SharedPreferences sharedPrefs;
     private static SharedPreferences prefs;
+    private static List<Integer> randList;
+    private static int randIndex = 0;
 
     private static final String FULL_OFFLINE = "pref_offline";
     private static final String COMIC_TITLES = "comic_titles";
@@ -528,6 +532,37 @@ public class PrefHelper {
 
     public static boolean invertColors() {
         return prefs.getBoolean(INVERT_COLORS, true)&&nightThemeEnabled();
+    }
+
+    public static int getRandomNumber(int current) {
+        if (randList==null) {
+            randList = new ArrayList<>();
+            for (int i=1; i<getNewest(); i++) {
+                if (i!=current)
+                    randList.add(i);
+            }
+            Collections.shuffle(randList);
+            randList.add(0, current);
+        }
+        int result;
+        if (randIndex==0) {
+            result = randList.get(randIndex+1);
+            randIndex++;
+        } else {
+            randIndex++;
+            result = randList.get(randIndex);
+        }
+        return result;
+    }
+
+    public static int getPreviousRandom(int i) {
+        if (randList!=null && randIndex>0) {
+            randIndex --;
+                if (randIndex == 0)
+                    return randList.get(randIndex);
+            return randList.get(randIndex-1);
+        }
+        return i;
     }
 
 }
