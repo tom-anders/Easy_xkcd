@@ -27,6 +27,8 @@ import android.content.Intent;
 import android.content.pm.ActivityInfo;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
+import android.graphics.ColorFilter;
+import android.graphics.ColorMatrixColorFilter;
 import android.graphics.RectF;
 import android.graphics.drawable.Drawable;
 import android.net.ConnectivityManager;
@@ -369,6 +371,16 @@ public class OfflineFragment extends android.support.v4.app.Fragment {
             pvComic.setImageBitmap(sComics[position].getBitmap());
             if (Arrays.binarySearch(mContext.getResources().getIntArray(R.array.large_comics), sLastComicNumber) >= 0) {
                 pvComic.setMaximumScale(7.0f);
+            }
+            if (PrefHelper.invertColors()) {
+                float[] colorMatrix_Negative = {
+                        -1.0f, 0, 0, 0, 255, //red
+                        0, -1.0f, 0, 0, 255, //green
+                        0, 0, -1.0f, 0, 255, //blue
+                        0, 0, 0, 1.0f, 0 //alpha
+                };
+                ColorFilter cf = new ColorMatrixColorFilter(colorMatrix_Negative);
+                pvComic.setColorFilter(cf);
             }
             //Disable ViewPager scrolling when the user zooms into an image
             pvComic.setOnMatrixChangeListener(new PhotoViewAttacher.OnMatrixChangedListener() {

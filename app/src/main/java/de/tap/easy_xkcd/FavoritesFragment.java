@@ -25,6 +25,8 @@ import android.content.Intent;
 import android.content.pm.ActivityInfo;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.graphics.ColorFilter;
+import android.graphics.ColorMatrixColorFilter;
 import android.graphics.RectF;
 import android.net.Uri;
 import android.os.AsyncTask;
@@ -241,8 +243,19 @@ public class FavoritesFragment extends android.support.v4.app.Fragment {
             });
             //setup the title text view
             TextView tvTitle = (TextView) itemView.findViewById(R.id.tvTitle);
-            //tvTitle.setText(mSharedPreferences.getString(("title" + String.valueOf(sFavorites[position])), ""));
             tvTitle.setText(PrefHelper.getTitle(sFavorites[position]));
+
+            if (PrefHelper.invertColors()) {
+                float[] colorMatrix_Negative = {
+                        -1.0f, 0, 0, 0, 255, //red
+                        0, -1.0f, 0, 0, 255, //green
+                        0, 0, -1.0f, 0, 255, //blue
+                        0, 0, 0, 1.0f, 0 //alpha
+                };
+                ColorFilter cf = new ColorMatrixColorFilter(colorMatrix_Negative);
+                pvComic.setColorFilter(cf);
+            }
+
             //load the image
             pvComic.setImageBitmap(mComicMap.get(position).getBitmap());
             if (Arrays.binarySearch(mContext.getResources().getIntArray(R.array.large_comics), sFavorites[sFavoriteIndex]) >= 0) {

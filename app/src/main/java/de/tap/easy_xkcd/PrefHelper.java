@@ -87,8 +87,8 @@ public class PrefHelper {
     private static final String ALT_OPTIONS = "pref_alt_options";
     private static final String ALT_ACTIVATION = "pref_alt_activation";
     private static final String SURVEY_SNACKBAR = "survey_snackbar";
-
-
+    private static final String NIGHT_THEME = "pref_night";
+    private static final String INVERT_COLORS = "pref_invert";
 
 
     public static void getPrefs(Context context) {
@@ -388,6 +388,9 @@ public class PrefHelper {
     }
 
     public static int getTheme() {
+        if (nightThemeEnabled())
+            return R.style.NightTheme;
+
         int n = Integer.parseInt(prefs.getString(THEME, "1"));
         switch (n) {
             case 1:
@@ -410,6 +413,8 @@ public class PrefHelper {
     }
 
     public static int getDialogTheme() {
+        if (nightThemeEnabled())
+            return R.style.AlertDialogNight;
         int n = Integer.parseInt(prefs.getString(THEME, "1"));
         switch (n) {
             case 1:
@@ -516,6 +521,15 @@ public class PrefHelper {
                     .show();
         }
     }
+
+    public static boolean nightThemeEnabled() {
+        return prefs.getBoolean(NIGHT_THEME, false);
+    }
+
+    public static boolean invertColors() {
+        return prefs.getBoolean(INVERT_COLORS, true)&&nightThemeEnabled();
+    }
+
 }
 
 

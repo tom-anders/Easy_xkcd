@@ -177,5 +177,26 @@
         <item name="colorAccent">@color/AccentGreen</item>
     </style>
 
+    <style name="NightTheme" parent="Theme.AppCompat.NoActionBar">
+        <item name="colorPrimary">@color/ColorPrimaryBlack</item>
+        <item name="colorPrimaryDark">@color/ColorPrimaryDarkBlack</item>
+        <item name="colorAccent">@color/AccentBlack</item>
+        <item name="android:windowDrawsSystemBarBackgrounds">true</item>
+        <item name="android:statusBarColor">@android:color/transparent</item>
+        <item name="android:navigationBarColor">@color/ColorPrimaryBlack</item>
+
+        <item name="android:dialogTheme">@style/SettingsDialogNight</item>
+        <item name="android:alertDialogTheme">@style/SettingsDialogNight</item>
+    </style>
+
+    <style name="SettingsDialogNight" parent="android:Theme.Material.Dialog.Alert">
+        <item name="android:colorPrimary">@color/ColorPrimaryBlack</item>
+        <item name="android:colorPrimaryDark">@color/ColorPrimaryDarkBlack</item>
+        <item name="android:colorAccent">@color/AccentBlack</item>
+    </style>
+
+    <style name="AlertDialogNight" parent="Theme.AppCompat.Dialog.Alert">
+        <item name="colorAccent">@color/AccentBlack</item>
+    </style>
 
 </resources>

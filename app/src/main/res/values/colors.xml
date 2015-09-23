@@ -29,6 +29,8 @@
     <color name="ColorPrimaryDarkGreen">#388E3C</color>
     <color name="AccentGreen">#FF5252</color>
 
+    <color name="DarkBackground">#727272</color>
+
 
 
 </resources>

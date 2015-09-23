@@ -165,6 +165,10 @@ public class MainActivity extends AppCompatActivity {
         sDrawer.setDrawerListener(mDrawerToggle);
         mDrawerToggle = setupDrawerToggle();
         sNavView = (NavigationView) findViewById(R.id.nvView);
+        if (PrefHelper.nightThemeEnabled()) {
+            sNavView.setBackgroundColor(getResources().getColor(R.color.background_material_dark));
+            toolbar.setPopupTheme(R.style.ThemeOverlay_AppCompat);
+        }
         setupDrawerContent(sNavView);
 
         mFab = (FloatingActionButton) findViewById(R.id.fab);

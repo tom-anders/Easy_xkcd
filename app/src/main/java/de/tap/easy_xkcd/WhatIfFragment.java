@@ -8,6 +8,8 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.res.Resources;
 import android.graphics.Bitmap;
+import android.graphics.ColorFilter;
+import android.graphics.ColorMatrixColorFilter;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.net.Uri;
@@ -237,6 +239,17 @@ public class WhatIfFragment extends android.support.v4.app.Fragment {
             Glide.with(getActivity())
                     .load(imgs.get(i))
                     .into(comicViewHolder.thumbnail);
+
+            if (PrefHelper.invertColors()) {
+                float[] colorMatrix_Negative = {
+                        -1.0f, 0, 0, 0, 255, //red
+                        0, -1.0f, 0, 0, 255, //green
+                        0, 0, -1.0f, 0, 255, //blue
+                        0, 0, 0, 1.0f, 0 //alpha
+                };
+                ColorFilter cf = new ColorMatrixColorFilter(colorMatrix_Negative);
+                comicViewHolder.thumbnail.setColorFilter(cf);
+            }
         }
 
         @Override
@@ -252,6 +265,8 @@ public class WhatIfFragment extends android.support.v4.app.Fragment {
             ComicViewHolder(View itemView) {
                 super(itemView);
                 cv = (CardView) itemView.findViewById(R.id.cv);
+                if (PrefHelper.nightThemeEnabled())
+                    cv.setBackgroundColor(getResources().getColor(R.color.background_material_dark));
                 articleTitle = (TextView) itemView.findViewById(R.id.article_title);
                 thumbnail = (ImageView) itemView.findViewById(R.id.thumbnail);
             }

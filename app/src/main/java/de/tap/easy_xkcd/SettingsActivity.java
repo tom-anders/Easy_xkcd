@@ -129,6 +129,17 @@ public class SettingsActivity extends AppCompatActivity {
                 }
             });
 
+            findPreference("pref_night").setOnPreferenceChangeListener(new Preference.OnPreferenceChangeListener() {
+                @Override
+                public boolean onPreferenceChange(Preference preference, Object newValue) {
+                    PrefHelper.setNightMode(Boolean.valueOf(newValue.toString()));
+                    getActivity().finish();
+                    MainActivity.getInstance().finish();
+                    startActivity(MainActivity.getInstance().getIntent());
+                    return true;
+                }
+            });
+
             findPreference("pref_orientation").setOnPreferenceChangeListener(new Preference.OnPreferenceChangeListener() {
                 @Override
                 public boolean onPreferenceChange(Preference preference, Object newValue) {

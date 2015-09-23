@@ -21,10 +21,6 @@
             android:defaultValue="false"
             android:key="pref_offline_whatif"
             android:title="@string/pref_offline_whatif" />
-        <!--<CheckBoxPreference
-            android:defaultValue="true"
-            android:key="pref_alt"
-            android:title="@string/pref_alt" />-->
     </PreferenceCategory>
 
     <PreferenceCategory android:title="@string/pref_appearance">
@@ -37,6 +33,17 @@
             android:defaultValue="1"
             />
 
+        <CheckBoxPreference
+            android:key="pref_night"
+            android:title="@string/pref_night"
+            android:defaultValue="false" />
+
+        <CheckBoxPreference
+            android:key="pref_invert"
+            android:title="@string/pref_invert"
+            android:defaultValue="true"
+            android:dependency="pref_night" />
+
         <ListPreference
             android:key="pref_orientation"
             android:title="@string/pref_orientation"
@@ -45,11 +52,6 @@
             android:defaultValue="1"
             android:summary="@string/pref_orientation_sum"
             />
-
-       <!-- <CheckBoxPreference
-            android:defaultValue="false"
-            android:key="pref_show_alt"
-            android:title="@string/pref_show_alt" /> -->
 
         <CheckBoxPreference
             android:defaultValue="true"

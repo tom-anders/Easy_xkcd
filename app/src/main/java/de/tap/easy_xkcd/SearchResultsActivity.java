@@ -23,6 +23,8 @@ import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.graphics.ColorFilter;
+import android.graphics.ColorMatrixColorFilter;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.os.AsyncTask;
@@ -422,6 +424,17 @@ public class SearchResultsActivity extends AppCompatActivity {
                 }
             }
 
+            if (PrefHelper.invertColors()) {
+                float[] colorMatrix_Negative = {
+                        -1.0f, 0, 0, 0, 255, //red
+                        0, -1.0f, 0, 0, 255, //green
+                        0, 0, -1.0f, 0, 255, //blue
+                        0, 0, 0, 1.0f, 0 //alpha
+                };
+                ColorFilter cf = new ColorMatrixColorFilter(colorMatrix_Negative);
+                comicViewHolder.thumbnail.setColorFilter(cf);
+            }
+
         }
 
         @Override
@@ -439,6 +452,8 @@ public class SearchResultsActivity extends AppCompatActivity {
             ComicViewHolder(View itemView) {
                 super(itemView);
                 cv = (CardView) itemView.findViewById(R.id.cv);
+                if (PrefHelper.nightThemeEnabled())
+                    cv.setBackgroundColor(getResources().getColor(R.color.background_material_dark));
                 comicTitle = (TextView) itemView.findViewById(R.id.comic_title);
                 comicInfo = (TextView) itemView.findViewById(R.id.comic_info);
                 thumbnail = (ImageView) itemView.findViewById(R.id.thumbnail);

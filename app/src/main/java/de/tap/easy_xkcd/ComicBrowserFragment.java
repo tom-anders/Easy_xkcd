@@ -27,6 +27,8 @@ import android.content.Intent;
 import android.content.pm.ActivityInfo;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
+import android.graphics.ColorFilter;
+import android.graphics.ColorMatrixColorFilter;
 import android.graphics.RectF;
 import android.graphics.drawable.Drawable;
 import android.net.ConnectivityManager;
@@ -320,6 +322,18 @@ public class ComicBrowserFragment extends android.support.v4.app.Fragment {
             //Setup the title text view
             TextView tvTitle = (TextView) itemView.findViewById(R.id.tvTitle);
             tvTitle.setText(sComics[position].getComicData()[0]);
+
+            if (PrefHelper.invertColors()) {
+                float[] colorMatrix_Negative = {
+                        -1.0f, 0, 0, 0, 255, //red
+                        0, -1.0f, 0, 0, 255, //green
+                        0, 0, -1.0f, 0, 255, //blue
+                        0, 0, 0, 1.0f, 0 //alpha
+                };
+                ColorFilter cf = new ColorMatrixColorFilter(colorMatrix_Negative);
+                pvComic.setColorFilter(cf);
+            }
+
             //load the image
             Glide.with(mContext)
                     .load(sComics[position].getComicData()[2])

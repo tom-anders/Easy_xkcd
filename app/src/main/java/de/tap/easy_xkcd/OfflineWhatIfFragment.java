@@ -9,6 +9,8 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.res.Resources;
 import android.graphics.Bitmap;
+import android.graphics.ColorFilter;
+import android.graphics.ColorMatrixColorFilter;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.net.Uri;
@@ -303,6 +305,17 @@ public class OfflineWhatIfFragment extends android.support.v4.app.Fragment {
                     .load(file)
                     .into(comicViewHolder.thumbnail);
 
+            if (PrefHelper.invertColors()) {
+                float[] colorMatrix_Negative = {
+                        -1.0f, 0, 0, 0, 255, //red
+                        0, -1.0f, 0, 0, 255, //green
+                        0, 0, -1.0f, 0, 255, //blue
+                        0, 0, 0, 1.0f, 0 //alpha
+                };
+                ColorFilter cf = new ColorMatrixColorFilter(colorMatrix_Negative);
+                comicViewHolder.thumbnail.setColorFilter(cf);
+            }
+
         }
 
         @Override
@@ -318,17 +331,10 @@ public class OfflineWhatIfFragment extends android.support.v4.app.Fragment {
             ComicViewHolder(View itemView) {
                 super(itemView);
                 cv = (CardView) itemView.findViewById(R.id.cv);
+                if (PrefHelper.nightThemeEnabled())
+                    cv.setBackgroundColor(getResources().getColor(R.color.background_material_dark));
                 articleTitle = (TextView) itemView.findViewById(R.id.article_title);
                 thumbnail = (ImageView) itemView.findViewById(R.id.thumbnail);
-            }
-        }
-
-        private void setAnimation(View viewToAnimate, int position) {
-            // If the bound view wasn't previously displayed on screen, it's animated
-            if (position > lastPosition) {
-                Animation animation = AnimationUtils.loadAnimation(getActivity(), android.R.anim.slide_in_left);
-                viewToAnimate.startAnimation(animation);
-                lastPosition = position;
             }
         }
     }
