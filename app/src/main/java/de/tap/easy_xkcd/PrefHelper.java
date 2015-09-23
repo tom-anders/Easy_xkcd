@@ -557,10 +557,15 @@ public class PrefHelper {
 
     public static int getPreviousRandom(int i) {
         if (randList!=null && randIndex>0) {
-            randIndex --;
-                if (randIndex == 0)
-                    return randList.get(randIndex);
-            return randList.get(randIndex-1);
+            int result;
+            if (randIndex == 1) {
+                randIndex--;
+                result = randList.get(randIndex);
+            } else {
+                result = randList.get(randIndex-1);
+                randIndex--;
+            }
+            return result;
         }
         return i;
     }
