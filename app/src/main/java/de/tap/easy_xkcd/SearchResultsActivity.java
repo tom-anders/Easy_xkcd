@@ -336,7 +336,7 @@ public class SearchResultsActivity extends AppCompatActivity {
 
         @Override
         protected void onPostExecute(Void dummy) {
-            pb.setVisibility(View.VISIBLE);
+            pb.setVisibility(View.INVISIBLE);
             if (!done) {
                 RVAdapter adapter = new RVAdapter(resultsTitle, resultsTranscript, resultsUrls, resultsPreview);
                 SlideInBottomAnimationAdapter slideAdapter = new SlideInBottomAnimationAdapter(adapter);
