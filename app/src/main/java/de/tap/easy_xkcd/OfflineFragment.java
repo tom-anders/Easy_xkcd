@@ -71,6 +71,7 @@ import java.io.IOException;
 import java.util.Arrays;
 import java.util.Random;
 
+import butterknife.ButterKnife;
 import de.tap.easy_xkcd.CustomTabHelpers.BrowserFallback;
 import de.tap.easy_xkcd.CustomTabHelpers.CustomTabActivityHelper;
 import uk.co.senab.photoview.PhotoView;
@@ -800,6 +801,11 @@ public class OfflineFragment extends android.support.v4.app.Fragment {
         ConnectivityManager cm = (ConnectivityManager) getActivity().getSystemService(Context.CONNECTIVITY_SERVICE);
         NetworkInfo info = cm.getActiveNetworkInfo();
         return (info != null && info.isConnected() && info.getType() == ConnectivityManager.TYPE_WIFI);
+    }
+
+    @Override public void onDestroyView() {
+        super.onDestroyView();
+        ButterKnife.unbind(this);
     }
 
 }

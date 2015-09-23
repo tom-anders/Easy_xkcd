@@ -24,14 +24,12 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.ActivityInfo;
 import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.graphics.ColorFilter;
 import android.graphics.ColorMatrixColorFilter;
 import android.graphics.RectF;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
-import android.os.Environment;
 import android.os.Vibrator;
 import android.provider.MediaStore;
 import android.support.design.widget.FloatingActionButton;
@@ -41,7 +39,6 @@ import android.support.v4.view.PagerAdapter;
 import android.support.v4.view.ViewPager;
 import android.support.v7.app.ActionBar;
 import android.support.v7.widget.Toolbar;
-import android.util.Log;
 import android.util.SparseArray;
 import android.view.GestureDetector;
 import android.view.LayoutInflater;
@@ -57,12 +54,12 @@ import android.widget.Toast;
 import com.tap.xkcd_reader.R;
 
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.Random;
 
+import butterknife.ButterKnife;
 import uk.co.senab.photoview.PhotoView;
 import uk.co.senab.photoview.PhotoViewAttacher;
 
@@ -332,7 +329,7 @@ public class FavoritesFragment extends android.support.v4.app.Fragment {
                         Favorites.putStringInPreferences(getActivity(), null, "favorites");
 
                         //Show ComicBrowserFragment
-                        MenuItem mBrowser = MainActivity.sNavView.getMenu().findItem(R.id.nav_browser);
+                        MenuItem mBrowser = ((MainActivity) getActivity()).mNavView.getMenu().findItem(R.id.nav_browser);
                         ((MainActivity) getActivity()).selectDrawerItem(mBrowser);
 
                         //Delete all saved images
@@ -373,7 +370,7 @@ public class FavoritesFragment extends android.support.v4.app.Fragment {
             String[] fav = Favorites.getFavoriteList(getActivity());
             if (fav.length == 0) {
                 //If there are no favorites left, show ComicBrowserFragment
-                MenuItem mBrowser = MainActivity.sNavView.getMenu().findItem(R.id.nav_browser);
+                MenuItem mBrowser = ((MainActivity) getActivity()).mNavView.getMenu().findItem(R.id.nav_browser);
                 ((MainActivity) getActivity()).selectDrawerItem(mBrowser);
                 return;
             }
@@ -617,6 +614,5 @@ public class FavoritesFragment extends android.support.v4.app.Fragment {
             view.setVisibility(View.GONE);
         }
     }
-
 
 }

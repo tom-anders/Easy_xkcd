@@ -132,7 +132,7 @@ public class PrefHelper {
     }
 
     public static boolean classicAltStyle() {
-        return Integer.parseInt(prefs.getString(ALT_STYLE, "0"))==0;
+        return Integer.parseInt(prefs.getString(ALT_STYLE, "0")) == 0;
     }
 
     public static boolean databaseLoaded() {
@@ -281,12 +281,12 @@ public class PrefHelper {
             case Calendar.MONDAY:
                 editor.putBoolean(MONDAY_UPDATE, found);
                 editor.putBoolean(WEDNESDAY_UPDATE, false);
-                editor.putBoolean(FRIDAY_UPDATE,false);
+                editor.putBoolean(FRIDAY_UPDATE, false);
                 break;
             case Calendar.WEDNESDAY:
                 editor.putBoolean(WEDNESDAY_UPDATE, found);
                 editor.putBoolean(FRIDAY_UPDATE, false);
-                editor.putBoolean(MONDAY_UPDATE,false);
+                editor.putBoolean(MONDAY_UPDATE, false);
                 editor.putBoolean(TUESDAY_UPDATE, false);
                 break;
             case Calendar.FRIDAY:
@@ -299,10 +299,10 @@ public class PrefHelper {
                 editor.putBoolean(TUESDAY_UPDATE, found);
         }
         editor.apply();
-        Log.d("Update Status:", String.valueOf(sharedPrefs.getBoolean(MONDAY_UPDATE,false))
-                +String.valueOf(sharedPrefs.getBoolean(TUESDAY_UPDATE,false))
-                +String.valueOf(sharedPrefs.getBoolean(WEDNESDAY_UPDATE,false))
-                +String.valueOf(sharedPrefs.getBoolean(FRIDAY_UPDATE,false)));
+        Log.d("Update Status:", String.valueOf(sharedPrefs.getBoolean(MONDAY_UPDATE, false))
+                + String.valueOf(sharedPrefs.getBoolean(TUESDAY_UPDATE, false))
+                + String.valueOf(sharedPrefs.getBoolean(WEDNESDAY_UPDATE, false))
+                + String.valueOf(sharedPrefs.getBoolean(FRIDAY_UPDATE, false)));
     }
 
     public static boolean altByDefault() {
@@ -504,17 +504,18 @@ public class PrefHelper {
     }
 
     public static boolean altLongTap() {
-        return Integer.parseInt(prefs.getString(ALT_ACTIVATION, "1"))==1;
+        return Integer.parseInt(prefs.getString(ALT_ACTIVATION, "1")) == 1;
     }
 
     public static void showSurveySnackbar(final Context context, FloatingActionButton fab) {
-        if (!sharedPrefs.getBoolean(SURVEY_SNACKBAR, false)&&sharedPrefs.getInt("survey count", 0)==10) {
+        int n = sharedPrefs.getInt("survey count", 0);
+        if (!sharedPrefs.getBoolean(SURVEY_SNACKBAR, false) && n == 4) {
             View.OnClickListener oc = new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
                     Uri uri = Uri.parse("https://docs.google.com/forms/d/1c9hb80NU67CImMKAlOH4p9-F63_duC7qAL30FhJv9Xg/viewform?usp=send_form");
                     Intent intent = new Intent(Intent.ACTION_VIEW, uri);
-                     context.startActivity(intent);
+                    context.startActivity(intent);
                 }
             };
             SharedPreferences.Editor editor = sharedPrefs.edit();
@@ -523,10 +524,9 @@ public class PrefHelper {
             Snackbar.make(fab, R.string.snackbar_survey, Snackbar.LENGTH_LONG)
                     .setAction(R.string.snackbar_survey_oc, oc)
                     .show();
-        } else {
+        } else if (n < 4) {
             SharedPreferences.Editor editor = sharedPrefs.edit();
-            int n = sharedPrefs.getInt("survey count", 0);
-            editor.putInt("survey count", n+1);
+            editor.putInt("survey count", n + 1);
             editor.apply();
         }
     }
@@ -536,22 +536,22 @@ public class PrefHelper {
     }
 
     public static boolean invertColors() {
-        return prefs.getBoolean(INVERT_COLORS, true)&&nightThemeEnabled();
+        return prefs.getBoolean(INVERT_COLORS, true) && nightThemeEnabled();
     }
 
     public static int getRandomNumber(int current) {
-        if (randList==null) {
+        if (randList == null) {
             randList = new ArrayList<>();
-            for (int i=1; i<getNewest(); i++) {
-                if (i!=current)
+            for (int i = 1; i < getNewest(); i++) {
+                if (i != current)
                     randList.add(i);
             }
             Collections.shuffle(randList);
             randList.add(0, current);
         }
         int result;
-        if (randIndex==0) {
-            result = randList.get(randIndex+1);
+        if (randIndex == 0) {
+            result = randList.get(randIndex + 1);
             randIndex++;
         } else {
             randIndex++;
@@ -561,13 +561,13 @@ public class PrefHelper {
     }
 
     public static int getPreviousRandom(int i) {
-        if (randList!=null && randIndex>0) {
+        if (randList != null && randIndex > 0) {
             int result;
             if (randIndex == 1) {
                 randIndex--;
                 result = randList.get(randIndex);
             } else {
-                result = randList.get(randIndex-1);
+                result = randList.get(randIndex - 1);
                 randIndex--;
             }
             return result;

@@ -58,6 +58,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Random;
 
+import butterknife.ButterKnife;
 import jp.wasabeef.recyclerview.animators.adapters.SlideInBottomAnimationAdapter;
 
 public class OfflineWhatIfFragment extends android.support.v4.app.Fragment {
@@ -72,7 +73,7 @@ public class OfflineWhatIfFragment extends android.support.v4.app.Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View v = inflater.inflate(R.layout.whatif_recycler, container, false);
-
+        ButterKnife.bind(this, v);
         setHasOptionsMenu(true);
 
         fab = (FloatingActionButton) v.findViewById(R.id.fab);
@@ -584,5 +585,10 @@ public class OfflineWhatIfFragment extends android.support.v4.app.Fragment {
         ConnectivityManager cm = (ConnectivityManager) getActivity().getSystemService(Context.CONNECTIVITY_SERVICE);
         NetworkInfo info = cm.getActiveNetworkInfo();
         return (info != null && info.isConnected() && info.getType() == ConnectivityManager.TYPE_WIFI);
+    }
+
+    @Override public void onDestroyView() {
+        super.onDestroyView();
+        ButterKnife.unbind(this);
     }
 }

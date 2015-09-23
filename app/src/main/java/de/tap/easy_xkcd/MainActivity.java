@@ -28,7 +28,6 @@ import android.graphics.BitmapFactory;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.net.Uri;
-import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Handler;
 import android.support.design.widget.FloatingActionButton;
@@ -44,7 +43,6 @@ import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
-import android.util.Log;
 import android.util.TypedValue;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -57,22 +55,23 @@ import android.widget.Toast;
 import com.commonsware.cwac.wakeful.WakefulIntentService;
 import com.tap.xkcd_reader.R;
 
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-
+import butterknife.Bind;
+import butterknife.ButterKnife;
+import butterknife.OnCheckedChanged;
+import butterknife.OnClick;
+import butterknife.OnLongClick;
 import de.tap.easy_xkcd.CustomTabHelpers.CustomTabActivityHelper;
 
 
 public class MainActivity extends AppCompatActivity {
-    public FloatingActionButton mFab;
+    //public FloatingActionButton mFab;
+    @Bind(R.id.fab) FloatingActionButton mFab;
+    @Bind(R.id.nvView) NavigationView mNavView;
+    @Bind(R.id.toolbar) Toolbar toolbar;
     public static int sCurrentFragment;
     public static ProgressDialog sProgress;
-    public static NavigationView sNavView;
-    public static String sComicTitles;
-    public static String sComicTrans;
-    public Toolbar toolbar;
+    //public static NavigationView mNavView;
+    //public Toolbar toolbar;
     private static DrawerLayout sDrawer;
     public ActionBarDrawerToggle mDrawerToggle;
     private MenuItem searchMenuItem;
@@ -88,6 +87,7 @@ public class MainActivity extends AppCompatActivity {
         setTheme(PrefHelper.getTheme());
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+        ButterKnife.bind(this);
 
         instance = this;
         customTabActivityHelper = new CustomTabActivityHelper();
@@ -102,13 +102,6 @@ public class MainActivity extends AppCompatActivity {
 
         fullOffline = PrefHelper.fullOfflineEnabled();
         fullOfflineWhatIf = PrefHelper.fullOfflineWhatIf();
-        /*if ((isOnline()) && savedInstanceState == null) {
-            new updateComicTitles().execute();
-            new updateComicTranscripts().execute();
-        } else {
-            sComicTitles = PrefHelper.getComicTitles();
-            sComicTrans = PrefHelper.getComicTrans();
-        } */
 
         boolean whatIfIntent = false;
         if (getIntent().getAction().equals(Intent.ACTION_VIEW)) {
@@ -152,7 +145,7 @@ public class MainActivity extends AppCompatActivity {
             setTaskDescription(description);
         }
         //Setup Toolbar, NavDrawer, FAB
-        toolbar = (Toolbar) findViewById(R.id.toolbar);
+        //toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
         TypedValue typedValue2 = new TypedValue();
         getTheme().resolveAttribute(R.attr.colorPrimary, typedValue2, true);
@@ -164,15 +157,15 @@ public class MainActivity extends AppCompatActivity {
         sDrawer = (DrawerLayout) findViewById(R.id.drawer_layout);
         sDrawer.setDrawerListener(mDrawerToggle);
         mDrawerToggle = setupDrawerToggle();
-        sNavView = (NavigationView) findViewById(R.id.nvView);
+        //mNavView = (NavigationView) findViewById(R.id.nvView);
         if (PrefHelper.nightThemeEnabled()) {
-            sNavView.setBackgroundColor(getResources().getColor(R.color.background_material_dark));
+            mNavView.setBackgroundColor(getResources().getColor(R.color.background_material_dark));
             toolbar.setPopupTheme(R.style.ThemeOverlay_AppCompat);
         }
-        setupDrawerContent(sNavView);
+        setupDrawerContent(mNavView);
 
-        mFab = (FloatingActionButton) findViewById(R.id.fab);
-        setupFab(mFab);
+        //mFab = (FloatingActionButton) findViewById(R.id.fab);
+        //setupFab(mFab);
         if (savedInstanceState == null) {
             new Handler().postDelayed(new Runnable() {
                 @Override
@@ -189,14 +182,14 @@ public class MainActivity extends AppCompatActivity {
             if (savedInstanceState != null) {
                 //Get last loaded fragment
                 sCurrentFragment = savedInstanceState.getInt("CurrentFragment");
-                item = sNavView.getMenu().findItem(sCurrentFragment);
+                item = mNavView.getMenu().findItem(sCurrentFragment);
             } else {
                 if (!whatIfIntent && fullOffline | isOnline()) {
                     //Load ComicBrowserFragment by default
                     sProgress = ProgressDialog.show(this, "", this.getResources().getString(R.string.loading_comics), true);
-                    item = sNavView.getMenu().findItem(R.id.nav_browser);
+                    item = mNavView.getMenu().findItem(R.id.nav_browser);
                 } else {
-                    item = sNavView.getMenu().findItem(R.id.nav_whatif);
+                    item = mNavView.getMenu().findItem(R.id.nav_whatif);
                 }
             }
             selectDrawerItem(item);
@@ -214,7 +207,7 @@ public class MainActivity extends AppCompatActivity {
                 mDialog.setNegativeButton(R.string.no_connection_favorites, new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
-                        MenuItem m = sNavView.getMenu().findItem(R.id.nav_favorites);
+                        MenuItem m = mNavView.getMenu().findItem(R.id.nav_favorites);
                         selectDrawerItem(m);
                     }
                 });
@@ -239,7 +232,7 @@ public class MainActivity extends AppCompatActivity {
         return instance;
     }
 
-    private void setupFab(FloatingActionButton fab) {
+    /*private void setupFab(FloatingActionButton fab) {
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -275,6 +268,35 @@ public class MainActivity extends AppCompatActivity {
                 return true;
             }
         });
+    }*/
+    @OnClick(R.id.fab) void onClick() {
+        android.support.v4.app.FragmentManager fragmentManager = getSupportFragmentManager();
+        switch (sCurrentFragment) {
+            case R.id.nav_browser: {
+                if (!fullOffline) {
+                    ((ComicBrowserFragment) fragmentManager.findFragmentByTag("browser")).getRandomComic();
+                } else {
+                    ((OfflineFragment) fragmentManager.findFragmentByTag("browser")).getRandomComic();
+                }
+                break;
+            }
+            case R.id.nav_favorites: {
+                ((FavoritesFragment) fragmentManager.findFragmentByTag("favorites")).getRandomComic();
+                break;
+            }
+        }
+    }
+
+    @OnLongClick(R.id.fab) boolean onLongClick() {
+        android.support.v4.app.FragmentManager fragmentManager = getSupportFragmentManager();
+        if (sCurrentFragment == R.id.nav_browser) {
+            if (!fullOffline) {
+                ((ComicBrowserFragment) fragmentManager.findFragmentByTag("browser")).getPreviousRandom();
+            } else {
+                ((OfflineFragment) fragmentManager.findFragmentByTag("browser")).getPreviousRandom();
+            }
+        }
+        return true;
     }
 
     private void showRateSnackbar() {
@@ -317,7 +339,7 @@ public class MainActivity extends AppCompatActivity {
                 if (!isOnline() && !fullOffline) {
                     Toast toast = Toast.makeText(this, R.string.no_connection, Toast.LENGTH_SHORT);
                     toast.show();
-                    MenuItem m = sNavView.getMenu().findItem(sCurrentFragment);
+                    MenuItem m = mNavView.getMenu().findItem(sCurrentFragment);
                     m.setChecked(true);
                     sDrawer.closeDrawers();
                     return;
@@ -343,7 +365,7 @@ public class MainActivity extends AppCompatActivity {
                 if (Favorites.getFavoriteList(this).length == 0) {
                     Toast toast = Toast.makeText(this, R.string.no_favorites, Toast.LENGTH_SHORT);
                     toast.show();
-                    MenuItem m = sNavView.getMenu().findItem(R.id.nav_browser);
+                    MenuItem m = mNavView.getMenu().findItem(R.id.nav_browser);
                     m.setChecked(true);
                     sDrawer.closeDrawers();
                     return;
@@ -364,7 +386,7 @@ public class MainActivity extends AppCompatActivity {
                 if (!isOnline() && !fullOfflineWhatIf) {
                     Toast toast = Toast.makeText(this, R.string.no_connection, Toast.LENGTH_SHORT);
                     toast.show();
-                    MenuItem m = sNavView.getMenu().findItem(sCurrentFragment);
+                    MenuItem m = mNavView.getMenu().findItem(sCurrentFragment);
                     m.setChecked(true);
                     sDrawer.closeDrawers();
                     return;
@@ -381,7 +403,7 @@ public class MainActivity extends AppCompatActivity {
 
             case R.id.nav_settings:
                 settingsOpened = true;
-                sDrawer.closeDrawer(sNavView);
+                sDrawer.closeDrawer(mNavView);
                 //Add delay so that the Drawer is closed before the Settings Activity is launched
                 new Handler().postDelayed(new Runnable() {
                     @Override
@@ -393,7 +415,7 @@ public class MainActivity extends AppCompatActivity {
                 return;
 
             case R.id.nav_feedback:
-                sDrawer.closeDrawer(sNavView);
+                sDrawer.closeDrawer(mNavView);
                 new Handler().postDelayed(new Runnable() {
                     @Override
                     public void run() {
@@ -404,7 +426,7 @@ public class MainActivity extends AppCompatActivity {
                 return;
 
             case R.id.nav_about:
-                sDrawer.closeDrawer(sNavView);
+                sDrawer.closeDrawer(mNavView);
                 new Handler().postDelayed(new Runnable() {
                     @Override
                     public void run() {
@@ -523,7 +545,7 @@ public class MainActivity extends AppCompatActivity {
         if (Intent.ACTION_VIEW.equals(intent.getAction())) {
             //Get the ComicBrowserFragment and update it
             if (intent.getDataString().contains("what")) {
-                MenuItem item = sNavView.getMenu().findItem(R.id.nav_whatif);
+                MenuItem item = mNavView.getMenu().findItem(R.id.nav_whatif);
                 selectDrawerItem(item);
                 WhatIfActivity.WhatIfIndex = getNumberFromUrl(getIntent().getDataString());
                 Intent whatIf = new Intent(MainActivity.this, WhatIfActivity.class);
@@ -557,7 +579,7 @@ public class MainActivity extends AppCompatActivity {
         }
 
         if (("de.tap.easy_xkcd.ACTION_WHAT_IF").equals(getIntent().getAction())) {
-            MenuItem item = sNavView.getMenu().findItem(R.id.nav_whatif);
+            MenuItem item = mNavView.getMenu().findItem(R.id.nav_whatif);
             selectDrawerItem(item);
             WhatIfActivity.WhatIfIndex = intent.getIntExtra("number", 1);
             Intent whatIf = new Intent(MainActivity.this, WhatIfActivity.class);
@@ -685,7 +707,7 @@ public class MainActivity extends AppCompatActivity {
             assert getSupportActionBar() != null;
             //Reselect the current fragment in order to update action bar and floating action button
             if (isOnline()) {
-                MenuItem m = sNavView.getMenu().findItem(sCurrentFragment);
+                MenuItem m = mNavView.getMenu().findItem(sCurrentFragment);
                 selectDrawerItem(m);
             }
 

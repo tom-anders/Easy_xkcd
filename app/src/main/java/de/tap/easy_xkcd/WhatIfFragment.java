@@ -56,6 +56,7 @@ import java.util.Collections;
 import java.util.Random;
 
 
+import butterknife.ButterKnife;
 import jp.wasabeef.recyclerview.animators.adapters.SlideInBottomAnimationAdapter;
 
 public class WhatIfFragment extends android.support.v4.app.Fragment {
@@ -72,7 +73,7 @@ public class WhatIfFragment extends android.support.v4.app.Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View v = inflater.inflate(R.layout.whatif_recycler, container, false);
-
+        ButterKnife.bind(this, v);
         setHasOptionsMenu(true);
 
         fab = (FloatingActionButton) v.findViewById(R.id.fab);
@@ -528,6 +529,10 @@ public class WhatIfFragment extends android.support.v4.app.Fragment {
                 (ConnectivityManager) getActivity().getSystemService(Context.CONNECTIVITY_SERVICE);
         NetworkInfo netInfo = cm.getActiveNetworkInfo();
         return netInfo != null && netInfo.isConnectedOrConnecting();
+    }
 
+    @Override public void onDestroyView() {
+        super.onDestroyView();
+        ButterKnife.unbind(this);
     }
 }
