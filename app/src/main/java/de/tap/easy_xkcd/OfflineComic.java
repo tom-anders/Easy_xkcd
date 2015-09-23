@@ -57,16 +57,16 @@ public class OfflineComic {
     public Bitmap getBitmap() {
         Bitmap mBitmap = null;
         try {
-            FileInputStream fis = mContext.openFileInput(String.valueOf(mComicNumber));
+            File sdCard = Environment.getExternalStorageDirectory();
+            File dir = new File(sdCard.getAbsolutePath() + "/easy xkcd");
+            File file = new File(dir, String.valueOf(mComicNumber) + ".png");
+            FileInputStream fis = new FileInputStream(file);
             mBitmap = BitmapFactory.decodeStream(fis);
             fis.close();
         } catch (IOException e) {
-            Log.e("Error", "Image not found, looking in external storage");
+            Log.e("Error", "Image not found, looking in internal storage");
             try {
-                File sdCard = Environment.getExternalStorageDirectory();
-                File dir = new File(sdCard.getAbsolutePath() + "/easy xkcd");
-                File file = new File(dir, String.valueOf(mComicNumber) + ".png");
-                FileInputStream fis = new FileInputStream(file);
+                FileInputStream fis = mContext.openFileInput(String.valueOf(mComicNumber));
                 mBitmap = BitmapFactory.decodeStream(fis);
                 fis.close();
             } catch (Exception e2) {
