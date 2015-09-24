@@ -52,4 +52,5 @@ dependencies {
     compile "com.android.support:customtabs:23.0.1"
     compile 'com.anjlab.android.iab.v3:library:1.0.28'
     compile 'com.jakewharton:butterknife:7.0.1'
+
 }
