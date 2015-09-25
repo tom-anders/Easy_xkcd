@@ -56,19 +56,23 @@ import java.util.Collections;
 import java.util.Random;
 
 
+import butterknife.Bind;
 import butterknife.ButterKnife;
+import butterknife.OnClick;
 import jp.wasabeef.recyclerview.animators.adapters.SlideInBottomAnimationAdapter;
 
 public class WhatIfFragment extends android.support.v4.app.Fragment {
 
     public static ArrayList<String> mTitles = new ArrayList<>();
     private static ArrayList<String> mImgs = new ArrayList<>();
-    public static RecyclerView rv;
+    //public static RecyclerView rv;
+    @Bind(R.id.rv) RecyclerView rv;
     private MenuItem searchMenuItem;
     public static RVAdapter adapter;
     private static WhatIfFragment instance;
     public static boolean newIntent;
-    private FloatingActionButton fab;
+    //private FloatingActionButton fab;
+    @Bind(R.id.fab) FloatingActionButton fab;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
@@ -76,14 +80,14 @@ public class WhatIfFragment extends android.support.v4.app.Fragment {
         ButterKnife.bind(this, v);
         setHasOptionsMenu(true);
 
-        fab = (FloatingActionButton) v.findViewById(R.id.fab);
-        fab.setOnClickListener(new View.OnClickListener() {
+        //fab = (FloatingActionButton) v.findViewById(R.id.fab);
+        /*fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 openRandomWhatIf();
             }
-        });
-        rv = (RecyclerView) v.findViewById(R.id.rv);
+        });*/
+        //rv = (RecyclerView) v.findViewById(R.id.rv);
         LinearLayoutManager llm = new LinearLayoutManager(getActivity());
         rv.setLayoutManager(llm);
         rv.setHasFixedSize(false);
@@ -298,7 +302,7 @@ public class WhatIfFragment extends android.support.v4.app.Fragment {
         }
     }
 
-    private void openRandomWhatIf() {
+    @OnClick(R.id.fab) void onClick() {
         if (isOnline()) {
             Random mRand = new Random();
             int number = mRand.nextInt(adapter.titles.size());
@@ -313,6 +317,22 @@ public class WhatIfFragment extends android.support.v4.app.Fragment {
             Toast.makeText(getActivity(), R.string.no_connection, Toast.LENGTH_SHORT).show();
         }
     }
+
+    /*private void openRandomWhatIf() {
+        if (isOnline()) {
+            Random mRand = new Random();
+            int number = mRand.nextInt(adapter.titles.size());
+            Intent intent = new Intent(getActivity(), WhatIfActivity.class);
+            String title = adapter.titles.get(number);
+            int n = mTitles.size() - mTitles.indexOf(title);
+            WhatIfActivity.WhatIfIndex = n;
+            startActivity(intent);
+            PrefHelper.setLastWhatIf(n);
+            PrefHelper.setWhatifRead(String.valueOf(n));
+        } else {
+            Toast.makeText(getActivity(), R.string.no_connection, Toast.LENGTH_SHORT).show();
+        }
+    }*/
 
     class CustomOnLongClickListener implements  View.OnLongClickListener {
         @Override

@@ -305,9 +305,9 @@ public class WhatIfActivity extends AppCompatActivity {
                 WhatIfIndex = mRand.nextInt(PrefHelper.getNewestWhatIf());
                 PrefHelper.setLastWhatIf(WhatIfIndex);
                 if (!fullOffline) {
-                    WhatIfFragment.rv.scrollToPosition(WhatIfFragment.mTitles.size() - WhatIfIndex);
+                    WhatIfFragment.getInstance().rv.scrollToPosition(WhatIfFragment.mTitles.size() - WhatIfIndex);
                 } else {
-                    OfflineWhatIfFragment.rv.scrollToPosition(OfflineWhatIfFragment.mTitles.size() - WhatIfIndex);
+                    OfflineWhatIfFragment.getInstance().rv.scrollToPosition(OfflineWhatIfFragment.mTitles.size() - WhatIfIndex);
                 }
                 PrefHelper.setWhatifRead(String.valueOf(WhatIfIndex));
                 new LoadWhatIf().execute();
@@ -334,9 +334,9 @@ public class WhatIfActivity extends AppCompatActivity {
         new LoadWhatIf().execute();
         invalidateOptionsMenu();
         if (!fullOffline) {
-            WhatIfFragment.rv.scrollToPosition(WhatIfFragment.mTitles.size() - WhatIfIndex);
+            WhatIfFragment.getInstance().rv.scrollToPosition(WhatIfFragment.mTitles.size() - WhatIfIndex);
         } else {
-            OfflineWhatIfFragment.rv.scrollToPosition(OfflineWhatIfFragment.mTitles.size() - WhatIfIndex);
+            OfflineWhatIfFragment.getInstance().rv.scrollToPosition(OfflineWhatIfFragment.mTitles.size() - WhatIfIndex);
         }
         PrefHelper.setWhatifRead(String.valueOf(WhatIfIndex));
         return true;
