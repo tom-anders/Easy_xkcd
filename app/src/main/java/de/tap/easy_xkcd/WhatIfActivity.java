@@ -162,6 +162,7 @@ public class WhatIfActivity extends AppCompatActivity {
                 }
 
                 count = 0;
+                ref.clear();
                 for (Element e : doc.select(".ref")) {
                     ref.add((e.select(".refbody").html()));
                     String n = "\"" + String.valueOf(count) + "\"" ;
