@@ -11,8 +11,13 @@ import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Environment;
 import android.os.Vibrator;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.text.Html;
+import android.text.SpannableString;
+import android.text.method.LinkMovementMethod;
+import android.text.util.Linkify;
 import android.util.Log;
 import android.util.TypedValue;
 import android.view.Menu;
@@ -27,11 +32,13 @@ import android.webkit.WebView;
 import android.webkit.WebViewClient;
 import android.widget.Button;
 import android.widget.SearchView;
+import android.widget.TextView;
 
 import com.tap.xkcd_reader.R;
 
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
+import org.jsoup.nodes.Element;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -49,6 +56,7 @@ public class WhatIfActivity extends AppCompatActivity {
     private boolean leftSwipe = false;
     private boolean rightSwipe = false;
     private boolean fullOffline = false;
+    private ArrayList<String> ref = new ArrayList<>();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -82,7 +90,18 @@ public class WhatIfActivity extends AppCompatActivity {
                 mDialog.setMessage(alt);
                 mDialog.show();
             }
-        }, "ok");
+        }, "img");
+
+        web.addJavascriptInterface(new Object() {
+            @JavascriptInterface
+            public void performClick(String n) {
+                ((TextView) new android.support.v7.app.AlertDialog.Builder(WhatIfActivity.this)
+                        .setMessage(Html.fromHtml(ref.get(Integer.parseInt(n))))
+                        .show()
+                        .findViewById(android.R.id.message))
+                        .setMovementMethod(LinkMovementMethod.getInstance());
+            }
+        }, "ref");
 
         web.getSettings().setBuiltInZoomControls(true);
         web.getSettings().setUseWideViewPort(Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT);
@@ -137,19 +156,28 @@ public class WhatIfActivity extends AppCompatActivity {
                     } else {
                         String path = "file://"+base+"/easy xkcd/what if/"+String.valueOf(WhatIfIndex)+"/"+String.valueOf(count)+".png";
                         e.attr("src", path);
-                        e.attr("onclick", "ok.performClick(title);");
                     }
-                    e.attr("onclick", "ok.performClick(title);");
+                    e.attr("onclick", "img.performClick(title);");
                     count++;
                 }
 
+                count = 0;
+                for (Element e : doc.select(".ref")) {
+                    ref.add((e.select(".refbody").html()));
+                    String n = "\"" + String.valueOf(count) + "\"" ;
+                    e.select(".refnum").attr("onclick", "ref.performClick(" + n + ")");
+                    e.select(".refbody").remove();
+                    count++;
+                }
+
+
                 //fix footnotes and math scripts
                 if (!PrefHelper.fullOfflineWhatIf()) {
-                doc.select("script[src]").last().attr("src", "http://aja" +
-                        "x.googleapis.com/ajax/libs/jquery/1.10.1/jquery.min.js");
+                //doc.select("script[src]").last().attr("src", "http://aja" +
+                        //"x.googleapis.com/ajax/libs/jquery/1.10.1/jquery.min.js");
                     doc.select("script[src]").first().attr("src", "http://cdn.mathjax.org/mathjax/latest/MathJax.js");
                 } else {
-                    doc.select("script[src]").last().attr("src", "footnotes.js");
+                    //doc.select("script[src]").last().attr("src", "footnotes.js");
                     doc.select("script[src]").first().attr("src", "MathJax.js");
                 }
 
