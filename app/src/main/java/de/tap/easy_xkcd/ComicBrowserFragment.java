@@ -499,8 +499,13 @@ public class ComicBrowserFragment extends android.support.v4.app.Fragment {
         }
         //Show alt text
         TextView tvAlt = (TextView) sPager.getChildAt(1).findViewById(R.id.tvAlt);
-        tvAlt.setText(sComicMap.get(sLastComicNumber).getComicData()[1]);
-        toggleVisibility(tvAlt);
+        if (PrefHelper.classicAltStyle()) {
+            toggleVisibility(tvAlt);
+        } else {
+            android.support.v7.app.AlertDialog.Builder mDialog = new android.support.v7.app.AlertDialog.Builder(getActivity());
+            mDialog.setMessage(tvAlt.getText());
+            mDialog.show();
+        }
         return true;
     }
 

@@ -313,8 +313,13 @@ public class FavoritesFragment extends android.support.v4.app.Fragment {
             PrefHelper.setAltTip(false);
         }
         TextView tvAlt = (TextView) mPager.getChildAt(sFavoriteIndex).findViewById(R.id.tvAlt);
-        tvAlt.setText(PrefHelper.getAlt(sFavorites[sFavoriteIndex]));
-        toggleVisibility(tvAlt);
+        if (PrefHelper.classicAltStyle()) {
+            toggleVisibility(tvAlt);
+        } else {
+            android.support.v7.app.AlertDialog.Builder mDialog = new android.support.v7.app.AlertDialog.Builder(getActivity());
+            mDialog.setMessage(tvAlt.getText());
+            mDialog.show();
+        }
         return true;
     }
 
