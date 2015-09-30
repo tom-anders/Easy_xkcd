@@ -34,6 +34,11 @@
             />
 
         <CheckBoxPreference
+            android:key="pref_navbar"
+            android:title="@string/pref_navbar"
+            android:defaultValue="true" />
+
+        <CheckBoxPreference
             android:key="pref_night"
             android:title="@string/pref_night"
             android:defaultValue="false" />

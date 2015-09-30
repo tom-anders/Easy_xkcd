@@ -217,5 +217,6 @@
     <string name="snackbar_survey_oc">Umfrage starten</string>
     <string name="pref_invert">Comic Farben umkehren</string>
     <string name="pref_night">Nacht Theme</string>
+    <string name="pref_navbar">Farbige Navigationsleiste</string>
 
 </resources>

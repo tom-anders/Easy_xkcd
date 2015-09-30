@@ -80,6 +80,9 @@ public class WhatIfActivity extends AppCompatActivity {
         if (Build.VERSION.SDK_INT >= 21) {
             getWindow().setStatusBarColor(typedValue.data);
         }
+        if (!PrefHelper.colorNavbar() && Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+            getWindow().setNavigationBarColor(getResources().getColor(R.color.ColorPrimaryBlack));
+        }
 
 
         web = (WebView) findViewById(R.id.wv);

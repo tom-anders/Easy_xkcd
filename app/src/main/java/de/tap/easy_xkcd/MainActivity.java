@@ -143,6 +143,9 @@ public class MainActivity extends AppCompatActivity {
             Bitmap ic = BitmapFactory.decodeResource(getResources(), R.mipmap.ic_easy_xkcd_recents);
             ActivityManager.TaskDescription description = new ActivityManager.TaskDescription("Easy xkcd", ic, color);
             setTaskDescription(description);
+            if (!PrefHelper.colorNavbar()) {
+                getWindow().setNavigationBarColor(getResources().getColor(R.color.ColorPrimaryBlack));
+            }
         }
         //Setup Toolbar, NavDrawer, FAB
         //toolbar = (Toolbar) findViewById(R.id.toolbar);

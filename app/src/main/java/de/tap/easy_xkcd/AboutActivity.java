@@ -48,6 +48,9 @@ public class AboutActivity extends ActionBarActivity {
         if (Build.VERSION.SDK_INT >= 21) {
             getWindow().setStatusBarColor(typedValue.data);
         }
+        if (!PrefHelper.colorNavbar() && Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+            getWindow().setNavigationBarColor(getResources().getColor(R.color.ColorPrimaryBlack));
+        }
 
         HtmlTextView tvAbout = (HtmlTextView) findViewById(R.id.tvAbout);
         tvAbout.setHtmlFromRawResource(this, R.raw.licenses, new HtmlTextView.RemoteImageGetter());

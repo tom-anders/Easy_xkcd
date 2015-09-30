@@ -93,6 +93,7 @@ public class PrefHelper {
     private static final String SURVEY_SNACKBAR = "survey_snackbar";
     private static final String NIGHT_THEME = "pref_night";
     private static final String INVERT_COLORS = "pref_invert";
+    private static final String COLORED_NAVBAR = "pref_navbar";
 
 
     public static void getPrefs(Context context) {
@@ -573,6 +574,10 @@ public class PrefHelper {
             return result;
         }
         return i;
+    }
+
+    public static boolean colorNavbar() {
+        return prefs.getBoolean(COLORED_NAVBAR, true);
     }
 
 }

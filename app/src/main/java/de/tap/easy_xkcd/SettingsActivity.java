@@ -83,6 +83,9 @@ public class SettingsActivity extends AppCompatActivity {
         if (Build.VERSION.SDK_INT >= 21) {
             getWindow().setStatusBarColor(typedValue.data);
         }
+        if (!PrefHelper.colorNavbar() && Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+            getWindow().setNavigationBarColor(getResources().getColor(R.color.ColorPrimaryBlack));
+        }
 
         getFragmentManager().beginTransaction().replace(R.id.content_frame, new CustomPreferenceFragment()).commit();
     }
@@ -106,6 +109,18 @@ public class SettingsActivity extends AppCompatActivity {
             if (!MainActivity.fullOffline) {
                 findPreference("pref_repair").setEnabled(false);
             }
+
+            findPreference("pref_navbar").setEnabled(Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP);
+
+            findPreference("pref_navbar").setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
+                @Override
+                public boolean onPreferenceClick(Preference preference) {
+                    getActivity().finish();
+                    MainActivity.getInstance().finish();
+                    startActivity(MainActivity.getInstance().getIntent());
+                    return true;
+                }
+            });
 
             findPreference("pref_repair").setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
                 @Override
