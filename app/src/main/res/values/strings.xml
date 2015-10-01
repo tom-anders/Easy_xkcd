@@ -77,6 +77,7 @@
     <string name="action_browser">Open in browser</string>
     <string name="action_swipe">Swipe to navigate</string>
     <string name="action_donate">Donate</string>
+    <string name="action_trans">View Transcript</string>
     <string name="action_alt_tip">Tip: You can also view the alt text by long pressing the comic image.</string>
     <string name="search_title">Search</string>
     <string name="search_hint">Search a Comic</string>

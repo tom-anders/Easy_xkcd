@@ -87,7 +87,7 @@ public class Comic {
         try {
             return json.getString("transcript");
         } catch (JSONException e) {
-            return "";
+            return " ";
         }
     }
 

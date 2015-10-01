@@ -298,8 +298,19 @@ public class FavoritesFragment extends android.support.v4.app.Fragment {
             case R.id.action_random: {
                 return getRandomComic();
             }
+
+            case R.id.action_trans:
+                return showTranscript();
         }
         return super.onOptionsItemSelected(item);
+    }
+
+    private boolean showTranscript() {
+        String trans = mComicMap.get(sFavoriteIndex).getTranscript();
+        android.support.v7.app.AlertDialog.Builder mDialog = new android.support.v7.app.AlertDialog.Builder(getActivity());
+        mDialog.setMessage(trans);
+        mDialog.show();
+        return true;
     }
 
     private boolean setAltText() {

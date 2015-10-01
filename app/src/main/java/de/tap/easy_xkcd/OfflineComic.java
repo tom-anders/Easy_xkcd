@@ -77,5 +77,15 @@ public class OfflineComic {
     }
     public int getComicNumber() { return mComicNumber;}
 
+    public String getTranscript() {
+        if (PrefHelper.databaseLoaded()) {
+            String t = PrefHelper.getComicTrans();
+            String[] trans = t.split("&&");
+            return trans[mComicNumber-1];
+        } else {
+            return " ";
+        }
+    }
+
 }
 

@@ -418,8 +418,18 @@ public class ComicBrowserFragment extends android.support.v4.app.Fragment {
             case R.id.action_explain:
                 return explainComic(sLastComicNumber);
 
+            case R.id.action_trans:
+                return showTranscript();
         }
         return super.onOptionsItemSelected(item);
+    }
+
+    private boolean showTranscript() {
+        String trans = sLoadedComic.getTranscript();
+        android.support.v7.app.AlertDialog.Builder mDialog = new android.support.v7.app.AlertDialog.Builder(getActivity());
+        mDialog.setMessage(trans);
+        mDialog.show();
+        return true;
     }
 
     private boolean explainComic(int number) {

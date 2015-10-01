@@ -44,6 +44,10 @@
         android:title="@string/action_alt"
         app:showAsAction="never" />
 
+    <item android:id="@+id/action_trans"
+        android:title="@string/action_trans"
+        app:showAsAction="never" />
+
     <item android:id="@+id/delete_favorites"
         android:title="@string/delete_favorites"
         app:showAsAction="never" />
