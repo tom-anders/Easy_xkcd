@@ -305,8 +305,8 @@
     </string-array>
 
     <string-array name="random_values" translatable="false">
-        <item>pref_random_favorites</item>
         <item>pref_random_comics</item>
+        <item>pref_random_favorites</item>
     </string-array>
 
     <string-array name="random_default" translatable="false">
