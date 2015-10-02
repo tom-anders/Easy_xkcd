@@ -118,7 +118,7 @@ public class ComicBrowserFragment extends android.support.v4.app.Fragment {
                 }
                 sLastComicNumber = position+1;
                 mActionBar.setSubtitle(String.valueOf(sLastComicNumber));
-                PrefHelper.setLastComic(sLastComicNumber);
+
             }
 
             @Override
@@ -126,9 +126,13 @@ public class ComicBrowserFragment extends android.support.v4.app.Fragment {
 
             }
         });
-
         return v;
+    }
 
+    @Override
+    public void onStop() {
+        PrefHelper.setLastComic(sLastComicNumber);
+        super.onDestroy();
     }
 
     private class updateNewest extends AsyncTask<Void, Void, Void> {
@@ -417,9 +421,12 @@ public class ComicBrowserFragment extends android.support.v4.app.Fragment {
 
     public void getPreviousRandom() {
         if (isOnline() && sNewestComicNumber != 0) {
-            MainActivity.sProgress = ProgressDialog.show(getActivity(), "", this.getResources().getString(R.string.loading_random), true);
+            int n = sLastComicNumber;
             sLastComicNumber = PrefHelper.getPreviousRandom(sLastComicNumber);
-            sPager.setCurrentItem(sLastComicNumber-1);
+            if (sLastComicNumber != n) {
+                MainActivity.sProgress = ProgressDialog.show(getActivity(), "", this.getResources().getString(R.string.loading_random), true);
+            }
+            sPager.setCurrentItem(sLastComicNumber-1, false);
         } else {
             Toast.makeText(getActivity(), R.string.no_connection, Toast.LENGTH_SHORT).show();
         }
