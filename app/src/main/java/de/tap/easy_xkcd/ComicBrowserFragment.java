@@ -1,26 +1,8 @@
-/**
- * *******************************************************************************
- * Copyright 2015 Tom Praschan
- * <p/>
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- * <p/>
- * http://www.apache.org/licenses/LICENSE-2.0
- * <p/>
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- * ******************************************************************************
- */
-
 package de.tap.easy_xkcd;
+
 
 import android.app.AlertDialog;
 import android.app.ProgressDialog;
-import android.content.ActivityNotFoundException;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -62,27 +44,26 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.bumptech.glide.Glide;
+import com.bumptech.glide.load.resource.drawable.GlideDrawable;
 import com.bumptech.glide.request.animation.GlideAnimation;
 import com.bumptech.glide.request.target.SimpleTarget;
 import com.tap.xkcd_reader.R;
 
 import org.json.JSONObject;
-import org.w3c.dom.Text;
 
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.lang.reflect.Field;
 import java.util.Arrays;
-import java.util.Random;
 
+import butterknife.OnPageChange;
 import de.tap.easy_xkcd.CustomTabHelpers.BrowserFallback;
 import de.tap.easy_xkcd.CustomTabHelpers.CustomTabActivityHelper;
 import uk.co.senab.photoview.PhotoView;
 import uk.co.senab.photoview.PhotoViewAttacher;
 
 public class ComicBrowserFragment extends android.support.v4.app.Fragment {
-
     public static int sLastComicNumber = 0;
     public static int sNewestComicNumber = 0;
     public static SparseArray<Comic> sComicMap = new SparseArray<>();
@@ -123,8 +104,7 @@ public class ComicBrowserFragment extends android.support.v4.app.Fragment {
 
         sPager.addOnPageChangeListener(new ViewPager.OnPageChangeListener() {
             @Override
-            public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) {
-            }
+            public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) {}
 
             @Override
             public void onPageSelected(int position) {
@@ -136,7 +116,7 @@ public class ComicBrowserFragment extends android.support.v4.app.Fragment {
                 if (!isOnline()) { //Don't update if the device is not online
                     Toast.makeText(getActivity(), R.string.no_connection, Toast.LENGTH_SHORT).show();
                 }
-                sLastComicNumber = position + 1;
+                sLastComicNumber = position+1;
                 mActionBar.setSubtitle(String.valueOf(sLastComicNumber));
                 PrefHelper.setLastComic(sLastComicNumber);
             }
@@ -427,13 +407,22 @@ public class ComicBrowserFragment extends android.support.v4.app.Fragment {
         if (isOnline() && sNewestComicNumber != 0) {
             MainActivity.sProgress = ProgressDialog.show(getActivity(), "", this.getResources().getString(R.string.loading_random), true);
             //get a random number and update the pager
-            int mNumber = PrefHelper.getRandomNumber(sLastComicNumber);
-            sLastComicNumber = mNumber;
-            sPager.setCurrentItem(sLastComicNumber-1, false);
+            sLastComicNumber = PrefHelper.getRandomNumber(sLastComicNumber);
+            sPager.setCurrentItem(sLastComicNumber - 1, false);
         } else {
             Toast.makeText(getActivity(), R.string.no_connection, Toast.LENGTH_SHORT).show();
         }
         return true;
+    }
+
+    public void getPreviousRandom() {
+        if (isOnline() && sNewestComicNumber != 0) {
+            MainActivity.sProgress = ProgressDialog.show(getActivity(), "", this.getResources().getString(R.string.loading_random), true);
+            sLastComicNumber = PrefHelper.getPreviousRandom(sLastComicNumber);
+            sPager.setCurrentItem(sLastComicNumber-1);
+        } else {
+            Toast.makeText(getActivity(), R.string.no_connection, Toast.LENGTH_SHORT).show();
+        }
     }
 
     private boolean getLatestComic() {
@@ -717,3 +706,51 @@ public class ComicBrowserFragment extends android.support.v4.app.Fragment {
 
     }
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
