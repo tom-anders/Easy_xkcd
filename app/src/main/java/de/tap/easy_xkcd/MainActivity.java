@@ -563,7 +563,7 @@ public class MainActivity extends AppCompatActivity {
             } else {
                 OfflineFragment fragment = (OfflineFragment) fm.findFragmentByTag("browser");
                 OfflineFragment.sLastComicNumber = getNumberFromUrl(intent.getDataString());
-                fragment.new pagerUpdate().execute(OfflineFragment.sLastComicNumber);
+                //fragment.new pagerUpdate().execute(OfflineFragment.sLastComicNumber);
             }
         }
         if (("de.tap.easy_xkcd.ACTION_COMIC").equals(getIntent().getAction())) {
