@@ -17,3 +17,7 @@
 #}
 
 -keepattributes JavascriptInterface
+
+-keepclassmembers class android.support.v4.view.ViewPager {
+    private int mRestoredCurItem;
+}

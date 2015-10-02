@@ -30,6 +30,7 @@ import android.graphics.Canvas;
 import android.graphics.ColorFilter;
 import android.graphics.ColorMatrixColorFilter;
 import android.graphics.RectF;
+import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
@@ -71,6 +72,7 @@ import org.w3c.dom.Text;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.lang.reflect.Field;
 import java.util.Arrays;
 import java.util.Random;
 
@@ -82,14 +84,10 @@ import uk.co.senab.photoview.PhotoViewAttacher;
 public class ComicBrowserFragment extends android.support.v4.app.Fragment {
 
     public static int sLastComicNumber = 0;
-    public static Comic sLoadedComic;
     public static int sNewestComicNumber = 0;
     public static SparseArray<Comic> sComicMap = new SparseArray<>();
-    private Comic[] sComics;
     private HackyViewPager sPager;
-    private ComicBrowserPagerAdapter sPagerAdapter;
     private ActionBar mActionBar;
-    private int pagerState;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
@@ -99,124 +97,89 @@ public class ComicBrowserFragment extends android.support.v4.app.Fragment {
         if (savedInstanceState != null) {
             sLastComicNumber = savedInstanceState.getInt("Last Comic");
         } else if (sLastComicNumber == 0) {
-            //sLastComicNumber = mSharedPreferences.getInt("Last Comic", 0);
             sLastComicNumber = PrefHelper.getLastComic();
         }
-
         mActionBar = ((MainActivity) getActivity()).getSupportActionBar();
         assert mActionBar != null;
+        mActionBar.setSubtitle(String.valueOf(sLastComicNumber));
 
-        //Setup ViewPager, alt TextView
-        sPagerAdapter = new ComicBrowserPagerAdapter(getActivity());
         sPager = (HackyViewPager) v.findViewById(R.id.pager);
-        setupPager(sPager);
-        /*tvAlt = (TextView) getActivity().findViewById(R.id.tvAlt);
-        tvAlt.setVisibility(View.GONE);*/
-        //Update the pager
-        new pagerUpdate().execute(sLastComicNumber);
+        sPager.setOffscreenPageLimit(3);
 
-        return v;
-    }
-
-    private void setupPager(final ViewPager pager) {
-        pager.addOnPageChangeListener(new ViewPager.OnPageChangeListener() {
-            @Override
-            public void onPageSelected(int position) {
-                //tvAlt.setVisibility(View.GONE);
+        if (savedInstanceState == null) {
+            new updateNewest().execute();
+        } else {
+            if (sLastComicNumber != 0) {
                 try {
-                    //This updates the favorite icon
-                    getActivity().invalidateOptionsMenu();
-                } catch (NullPointerException e) {
-                    e.printStackTrace();
-                }
-
-                if (!isOnline()) { //Don't update if the device is not online
-                    Toast.makeText(getActivity(), R.string.no_connection, Toast.LENGTH_SHORT).show();
-                    return;
-                }
-                //Update ViewPager items
-                switch (position) {
-                    case 0: {
-                        sLastComicNumber--;
-                        new pagerUpdate().execute(sLastComicNumber);
-                        break;
-                    }
-                    case 1: {
-                        if (sLastComicNumber == 1) {
-                            //This is only true if the user scrolled to from comic 1 to comic 2
-                            sLastComicNumber++;
-                            new pagerUpdate().execute(2);
-                        }
-                        break;
-                    }
-                    case 2: {
-                        sLastComicNumber++;
-                        new pagerUpdate().execute(sLastComicNumber);
-                        break;
-                    }
-                }
-                //Update ActionBar Subtitle
-                if (PrefHelper.subtitleEnabled()) {
-                    mActionBar.setSubtitle(String.valueOf(sLastComicNumber));
-                }
-            }
-
-            @Override
-            public void onPageScrollStateChanged(int state) {
-                pagerState = state;
-            }
-
-            @Override
-            public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) {
-            }
-        });
-    }
-
-    public class pagerUpdate extends AsyncTask<Integer, Void, Void> {
-        @Override
-        protected Void doInBackground(Integer... pos) {
-            PrefHelper.setLastComic(sLastComicNumber);
-            //Get the most recent comic if the app is started for the first time
-            if (sNewestComicNumber == 0) {
-                try {
-                    JSONObject json = JsonParser.getJSONFromUrl("http://xkcd.com/info.0.json");
-                    sNewestComicNumber = Integer.parseInt(json.getString("num"));
-                    if (sLastComicNumber == 0) {
-                        sLastComicNumber = sNewestComicNumber;
-                        pos[0] = sNewestComicNumber;
-                    }
+                    Field field = ViewPager.class.getDeclaredField("mRestoredCurItem");
+                    field.setAccessible(true);
+                    field.set(sPager, sLastComicNumber - 1);
                 } catch (Exception e) {
                     e.printStackTrace();
                 }
             }
-            PrefHelper.setNewestComic(sNewestComicNumber);
-
-            //Update comic array
-            try {
-                sComics = GetComic(pos[0]);
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-            if (sLastComicNumber != 1 && sLastComicNumber != 2 && sLastComicNumber != sNewestComicNumber && sLastComicNumber != sNewestComicNumber - 1) {
-                while (pagerState == ViewPager.SCROLL_STATE_SETTLING) {
-                    //wait for view pager to finish animation
-                }
-            }
-            return null;
+            sPager.setAdapter(new ComicBrowserPagerAdapter(getActivity()));
         }
 
+        sPager.addOnPageChangeListener(new ViewPager.OnPageChangeListener() {
+            @Override
+            public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) {
+            }
+
+            @Override
+            public void onPageSelected(int position) {
+                try {
+                    getActivity().invalidateOptionsMenu();
+                } catch (NullPointerException e) {
+                    e.printStackTrace();
+                }
+                if (!isOnline()) { //Don't update if the device is not online
+                    Toast.makeText(getActivity(), R.string.no_connection, Toast.LENGTH_SHORT).show();
+                }
+                sLastComicNumber = position + 1;
+                mActionBar.setSubtitle(String.valueOf(sLastComicNumber));
+                PrefHelper.setLastComic(sLastComicNumber);
+            }
+
+            @Override
+            public void onPageScrollStateChanged(int state) {
+
+            }
+        });
+
+        return v;
+
+    }
+
+    private class updateNewest extends AsyncTask<Void, Void, Void> {
+        @Override
+        protected Void doInBackground(Void... params) {
+            try {
+                JSONObject json = JsonParser.getJSONFromUrl("http://xkcd.com/info.0.json");
+                sNewestComicNumber = Integer.parseInt(json.getString("num"));
+                if (sLastComicNumber == 0) {
+                    sLastComicNumber = sNewestComicNumber;
+                }
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+            PrefHelper.setNewestComic(sNewestComicNumber);
+            PrefHelper.setLastComic(sLastComicNumber);
+            return null;
+        }
         @Override
         protected void onPostExecute(Void v) {
-            //Setup pager
-            sPager.setAdapter(sPagerAdapter);
-            sPagerAdapter.notifyDataSetChanged();
-
-            if (sLastComicNumber != 1) {
-                sPager.setCurrentItem(1, true);
-            } else {
-                //this only true if the user reached comic 1
-                sPager.setCurrentItem(0, true);
+            if (sLastComicNumber != 0) {
+                try {
+                    Field field = ViewPager.class.getDeclaredField("mRestoredCurItem");
+                    field.setAccessible(true);
+                    field.set(sPager, sLastComicNumber - 1);
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
             }
+            sPager.setAdapter(new ComicBrowserPagerAdapter(getActivity()));
+            sPager.setOffscreenPageLimit(3);
         }
     }
 
@@ -232,7 +195,7 @@ public class ComicBrowserFragment extends android.support.v4.app.Fragment {
 
         @Override
         public int getCount() {
-            return sComics.length;
+            return sNewestComicNumber;
         }
 
         @Override
@@ -241,17 +204,77 @@ public class ComicBrowserFragment extends android.support.v4.app.Fragment {
         }
 
         @Override
-        public Object instantiateItem(ViewGroup container, final int position) {
+        public Object instantiateItem(final ViewGroup container, final int position) {
             View itemView = mLayoutInflater.inflate(R.layout.pager_item, container, false);
-            final PhotoView pvComic = (PhotoView) itemView.findViewById(R.id.ivComic);
             itemView.setTag(position);
+            final PhotoView pvComic = (PhotoView) itemView.findViewById(R.id.ivComic);
             final TextView tvAlt = (TextView) itemView.findViewById(R.id.tvAlt);
+            final TextView tvTitle = (TextView) itemView.findViewById(R.id.tvTitle);
+            Log.d("page added", String.valueOf(position));
 
             if (PrefHelper.altByDefault()) {
                 tvAlt.setVisibility(View.VISIBLE);
             }
-            tvAlt.setText(sComicMap.get(sLastComicNumber - 1 + position).getComicData()[1]);
+            class loadComic extends AsyncTask<Void, Void, Void> {
+                private Comic comic;
 
+                @Override
+                protected Void doInBackground(Void... dummy) {
+                    try {
+                        comic = new Comic(position + 1);
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+                    return null;
+                }
+
+                @Override
+                protected void onPostExecute(Void dummy) {
+                    if (comic != null) {
+                        tvAlt.setText(comic.getComicData()[1]);
+                        //Setup the title text view
+                        tvTitle.setText(comic.getComicData()[0]);
+                        Glide.with(getActivity())
+                                .load(comic.getComicData()[2])
+                                .asBitmap()
+                                .into(new SimpleTarget<Bitmap>() {
+                                    @Override
+                                    public void onResourceReady(Bitmap resource, GlideAnimation<? super Bitmap> glideAnimation) {
+                                        pvComic.setImageBitmap(resource);
+                                        if (position == sLastComicNumber - 1 && MainActivity.sProgress != null) {
+                                            MainActivity.sProgress.dismiss();
+                                            Toolbar toolbar = ((MainActivity) getActivity()).toolbar;
+                                            if (toolbar.getAlpha() == 0) {
+                                                toolbar.setTranslationY(-300);
+                                                toolbar.animate().setDuration(300).translationY(0).alpha(1);
+                                                View view;
+                                                for (int i = 0; i < toolbar.getChildCount(); i++) {
+                                                    view = toolbar.getChildAt(i);
+                                                    view.setTranslationY(-300);
+                                                    view.animate().setStartDelay(50 * (i + 1)).setDuration(70 * (i + 1)).translationY(0);
+                                                }
+                                            }
+                                        }
+                                        if (position == sLastComicNumber + 2) {
+                                            switch (Integer.parseInt(PrefHelper.getOrientation())) {
+                                                case 1:
+                                                    getActivity().setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_USER);
+                                                    break;
+                                                case 2:
+                                                    getActivity().setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
+                                                    break;
+                                                case 3:
+                                                    getActivity().setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE);
+                                                    break;
+                                            }
+                                        }
+                                    }
+                                });
+                        sComicMap.put(position+1, comic);
+                    }
+                }
+            }
+            new loadComic().execute();
             //fix for issue #2
             pvComic.setOnDoubleTapListener(new GestureDetector.OnDoubleTapListener() {
                 @Override
@@ -265,7 +288,6 @@ public class ComicBrowserFragment extends android.support.v4.app.Fragment {
                     }
                     return true;
                 }
-
                 @Override
                 public boolean onSingleTapConfirmed(MotionEvent e) {
                     if (sLastComicNumber - 1 + position == 1572) {
@@ -285,7 +307,6 @@ public class ComicBrowserFragment extends android.support.v4.app.Fragment {
                     }
                     return false;
                 }
-
                 @Override
                 public boolean onDoubleTapEvent(MotionEvent e) {
                     if (e.getAction() == MotionEvent.ACTION_UP) {
@@ -297,7 +318,6 @@ public class ComicBrowserFragment extends android.support.v4.app.Fragment {
                     return false;
                 }
             });
-
             //Setup alt text and LongClickListener
             pvComic.setOnLongClickListener(new View.OnLongClickListener() {
                 @Override
@@ -319,10 +339,6 @@ public class ComicBrowserFragment extends android.support.v4.app.Fragment {
                     return true;
                 }
             });
-            //Setup the title text view
-            TextView tvTitle = (TextView) itemView.findViewById(R.id.tvTitle);
-            tvTitle.setText(sComics[position].getComicData()[0]);
-
             if (PrefHelper.invertColors()) {
                 float[] colorMatrix_Negative = {
                         -1.0f, 0, 0, 0, 255, //red
@@ -333,42 +349,6 @@ public class ComicBrowserFragment extends android.support.v4.app.Fragment {
                 ColorFilter cf = new ColorMatrixColorFilter(colorMatrix_Negative);
                 pvComic.setColorFilter(cf);
             }
-
-            //load the image
-            Glide.with(mContext)
-                    .load(sComics[position].getComicData()[2])
-                    .asBitmap()
-                    .into(new SimpleTarget<Bitmap>() {
-                        @Override
-                        public void onResourceReady(Bitmap resource, GlideAnimation<? super Bitmap> glideAnimation) {
-                            //dismiss the progress dialog if the last image finished loading
-                            if (position == 1 && MainActivity.sProgress != null) {
-                                MainActivity.sProgress.dismiss();
-                                Toolbar toolbar = ((MainActivity)getActivity()).toolbar;
-                                if (toolbar.getAlpha()==0) {
-                                    toolbar.setTranslationY(-300);
-                                    toolbar.animate().setDuration(300).translationY(0).alpha(1);
-                                    View view;
-                                    for (int i = 0; i<toolbar.getChildCount(); i++) {
-                                        view = toolbar.getChildAt(i);
-                                        view.setTranslationY(-300);
-                                        view.animate().setStartDelay(50*(i+1)).setDuration(70*(i+1)).translationY(0);
-                                    }
-                                }
-                            }
-                            pvComic.setImageBitmap(resource);
-                            if (position == sPagerAdapter.getCount()-1) {
-                                switch (Integer.parseInt(PrefHelper.getOrientation())) {
-                                    case 1: getActivity().setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_USER);
-                                        break;
-                                    case 2: getActivity().setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
-                                        break;
-                                    case 3: getActivity().setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE);
-                                        break;
-                                }
-                            }
-                        }
-                    });
             if (Arrays.binarySearch(mContext.getResources().getIntArray(R.array.large_comics), sLastComicNumber) >= 0) {
                 pvComic.setMaximumScale(7.0f);
             }
@@ -391,6 +371,7 @@ public class ComicBrowserFragment extends android.support.v4.app.Fragment {
         @Override
         public void destroyItem(ViewGroup container, int position, Object object) {
             container.removeView((RelativeLayout) object);
+            Log.d("page removed", String.valueOf(position));
         }
     }
 
@@ -424,19 +405,8 @@ public class ComicBrowserFragment extends android.support.v4.app.Fragment {
         return super.onOptionsItemSelected(item);
     }
 
-    private boolean showTranscript() {
-        String trans = sLoadedComic.getTranscript();
-        android.support.v7.app.AlertDialog.Builder mDialog = new android.support.v7.app.AlertDialog.Builder(getActivity());
-        mDialog.setMessage(trans);
-        mDialog.show();
-        return true;
-    }
-
     private boolean explainComic(int number) {
         String url = "http://explainxkcd.com/" + String.valueOf(number);
-        /*Intent intent = new Intent(Intent.ACTION_VIEW);
-        intent.setData(Uri.parse(url));
-        startActivity(intent);*/
         CustomTabsIntent.Builder intentBuilder = new CustomTabsIntent.Builder();
         TypedValue typedValue = new TypedValue();
         getActivity().getTheme().resolveAttribute(R.attr.colorPrimary, typedValue, true);
@@ -445,58 +415,32 @@ public class ComicBrowserFragment extends android.support.v4.app.Fragment {
         return true;
     }
 
-    private Comic[] GetComic(Integer number) throws IOException {
-        //try to get the Comics from sComicMap in order to save bandwidth & memory
-        Comic newComic = sComicMap.get(number);
-        Comic newComic0 = sComicMap.get(number - 1);
-        Comic newComic2 = sComicMap.get(number + 1);
+    private boolean showTranscript() {
+        String trans = sComicMap.get(sLastComicNumber).getTranscript();
+        android.support.v7.app.AlertDialog.Builder mDialog = new android.support.v7.app.AlertDialog.Builder(getActivity());
+        mDialog.setMessage(trans);
+        mDialog.show();
+        return true;
+    }
 
-        //Create new Comic objects if they are not already in our ComicMap
-        if (newComic == null) {
-            newComic = new Comic(number, getActivity());
-            sComicMap.put(number, newComic);
+    public boolean getRandomComic() {
+        if (isOnline() && sNewestComicNumber != 0) {
+            MainActivity.sProgress = ProgressDialog.show(getActivity(), "", this.getResources().getString(R.string.loading_random), true);
+            //get a random number and update the pager
+            int mNumber = PrefHelper.getRandomNumber(sLastComicNumber);
+            sLastComicNumber = mNumber;
+            sPager.setCurrentItem(sLastComicNumber-1, false);
+        } else {
+            Toast.makeText(getActivity(), R.string.no_connection, Toast.LENGTH_SHORT).show();
         }
-        if (newComic0 == null) {
-            newComic0 = new Comic(number - 1, getActivity());
-            sComicMap.put(number - 1, newComic0);
-        }
-        if (newComic2 == null) {
-            newComic2 = new Comic(number + 1, getActivity());
-            sComicMap.put(number + 1, newComic2);
-        }
-        sLoadedComic = newComic;
-
-        //Return the comics depending on the View Pager's current position
-        if (number == 1) { //this is only true when the user has reached comic 1
-            Comic[] result = new Comic[2];
-            result[0] = newComic;
-            result[1] = newComic2;
-            return result;
-        }
-        if (number != sNewestComicNumber) {
-            Comic[] result = new Comic[3];
-            result[0] = newComic0;
-            result[1] = newComic;
-            result[2] = newComic2;
-            return result;
-        } else { //this is true when the user has reached latest comic
-            Comic[] result = new Comic[2];
-            result[0] = newComic0;
-            result[1] = newComic;
-            return result;
-        }
+        return true;
     }
 
     private boolean getLatestComic() {
-        if (!isOnline()) {
-            MainActivity.sProgress.dismiss();
-            Toast.makeText(getActivity(), R.string.no_connection, Toast.LENGTH_SHORT).show();
-            return true;
+        if (sNewestComicNumber-sLastComicNumber>4) {
+            MainActivity.sProgress = ProgressDialog.show(getActivity(), "", this.getResources().getString(R.string.loading_latest), true);
         }
-        //update pager
-        MainActivity.sProgress = ProgressDialog.show(getActivity(), "", this.getResources().getString(R.string.loading_latest), true);
-        sLastComicNumber = sNewestComicNumber;
-        new pagerUpdate().execute(sNewestComicNumber);
+        sPager.setCurrentItem(sNewestComicNumber - 1, false);
         return true;
     }
 
@@ -508,7 +452,7 @@ public class ComicBrowserFragment extends android.support.v4.app.Fragment {
             PrefHelper.setAltTip(false);
         }
         //Show alt text
-        TextView tvAlt = (TextView) sPager.getChildAt(1).findViewById(R.id.tvAlt);
+        TextView tvAlt = (TextView) sPager.findViewWithTag(sLastComicNumber-1).findViewById(R.id.tvAlt);
         if (PrefHelper.classicAltStyle()) {
             toggleVisibility(tvAlt);
         } else {
@@ -524,7 +468,6 @@ public class ComicBrowserFragment extends android.support.v4.app.Fragment {
             shareComicImage();
             return true;
         }
-
         //Show the alert dialog to choose between sharing image or url
         AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
         builder.setItems(R.array.share_dialog, new DialogInterface.OnClickListener() {
@@ -549,11 +492,11 @@ public class ComicBrowserFragment extends android.support.v4.app.Fragment {
         //shares the comics url along with its title
         Intent share = new Intent(android.content.Intent.ACTION_SEND);
         share.setType("text/plain");
-        share.putExtra(Intent.EXTRA_SUBJECT, sLoadedComic.getComicData()[0]);
+        share.putExtra(Intent.EXTRA_SUBJECT, sComicMap.get(sLastComicNumber).getComicData()[0]);
         if (PrefHelper.shareMobile()) {
-            share.putExtra(Intent.EXTRA_TEXT, "http://m.xkcd.com/" + String.valueOf(sLoadedComic.getComicNumber()));
+            share.putExtra(Intent.EXTRA_TEXT, "http://m.xkcd.com/" + String.valueOf(sLastComicNumber));
         } else {
-            share.putExtra(Intent.EXTRA_TEXT, "http://xkcd.com/" + String.valueOf(sLoadedComic.getComicNumber()));
+            share.putExtra(Intent.EXTRA_TEXT, "http://xkcd.com/" + String.valueOf(sLastComicNumber));
         }
         startActivity(Intent.createChooser(share, this.getResources().getString(R.string.share_url)));
     }
@@ -563,22 +506,18 @@ public class ComicBrowserFragment extends android.support.v4.app.Fragment {
         Intent share = new Intent(Intent.ACTION_SEND);
         share.setType("image/*");
         share.putExtra(Intent.EXTRA_STREAM, getURI());
-        share.putExtra(Intent.EXTRA_SUBJECT, sLoadedComic.getComicData()[0]);
+        share.putExtra(Intent.EXTRA_SUBJECT,sComicMap.get(sLastComicNumber).getComicData()[0]);
         if (PrefHelper.shareAlt()) {
-            share.putExtra(Intent.EXTRA_TEXT, sLoadedComic.getComicData()[1]);
+            share.putExtra(Intent.EXTRA_TEXT, sComicMap.get(sLastComicNumber).getComicData()[1]);
         }
         startActivity(Intent.createChooser(share, this.getResources().getString(R.string.share_image)));
     }
 
     private Uri getURI() {
         //Gets the URI of the currently loaded image
-        View v = sPager.findViewWithTag(1);
+        View v = sPager.findViewWithTag(sLastComicNumber - 1);
         ImageView siv = (ImageView) v.findViewById(R.id.ivComic);
-        Drawable mDrawable = siv.getDrawable();
-        Bitmap mBitmap = Bitmap.createBitmap(mDrawable.getIntrinsicWidth(),
-                mDrawable.getIntrinsicHeight(), Bitmap.Config.ARGB_8888);
-        Canvas canvas = new Canvas(mBitmap);
-        mDrawable.draw(canvas);
+        Bitmap mBitmap = ((BitmapDrawable)siv.getDrawable()).getBitmap();
         String path = MediaStore.Images.Media.insertImage(getActivity().getContentResolver(),
                 mBitmap, "Image Description", null);
         return Uri.parse(path);
@@ -599,10 +538,11 @@ public class ComicBrowserFragment extends android.support.v4.app.Fragment {
                         }
                         getActivity().invalidateOptionsMenu();
                         //Delete all saved images
-                        for (String i : fav) {
-                            getActivity().deleteFile(i);
+                        if (PrefHelper.fullOfflineEnabled()) {
+                            for (String i : fav) {
+                                getActivity().deleteFile(i);
+                            }
                         }
-
                         Toast toast = Toast.makeText(getActivity(), R.string.favorites_cleared, Toast.LENGTH_SHORT);
                         toast.show();
                     }
@@ -635,21 +575,19 @@ public class ComicBrowserFragment extends android.support.v4.app.Fragment {
             item.setIcon(R.drawable.ic_action_favorite);
             return true;
         }
-
     }
 
     private class SaveComicImageTask extends AsyncTask<Void, Void, Void> {
         private Bitmap mBitmap;
         private int mAddedNumber = sLastComicNumber;
-        private Comic mAddedComic = sLoadedComic;
-
+        private Comic mAddedComic = sComicMap.get(sLastComicNumber);
         @Override
         protected Void doInBackground(Void... params) {
             //Add the comics number to the favorite list
             Favorites.addFavoriteItem(getActivity(), String.valueOf(mAddedNumber));
             try {
                 //Download the image
-                String url = sLoadedComic.getComicData()[2];
+                String url = mAddedComic.getComicData()[2];
                 mBitmap = Glide
                         .with(getActivity())
                         .load(url)
@@ -660,16 +598,10 @@ public class ComicBrowserFragment extends android.support.v4.app.Fragment {
                 Favorites.removeFavoriteItem(getActivity(), String.valueOf(mAddedNumber));
                 Log.e("Saving Image failed!", e.toString());
             }
-            //save title and alt text
-            /*SharedPreferences.Editor mEditor = mSharedPreferences.edit();
-            mEditor.putString(("title" + String.valueOf(mAddedNumber)), mAddedComic.getComicData()[0]);
-            mEditor.putString(("alt" + String.valueOf(mAddedNumber)), mAddedComic.getComicData()[1]);
-            mEditor.apply();*/
             PrefHelper.addTitle(mAddedComic.getComicData()[0], mAddedNumber);
             PrefHelper.addAlt(mAddedComic.getComicData()[1], mAddedNumber);
             return null;
         }
-
         @Override
         protected void onPostExecute(Void dummy) {
             //the full bitmap should be available here
@@ -693,13 +625,10 @@ public class ComicBrowserFragment extends android.support.v4.app.Fragment {
                 }
             }
 
-            //refresh the FavoritesFragmentco
             FavoritesFragment f = (FavoritesFragment) getActivity().getSupportFragmentManager().findFragmentByTag("favorites");
             if (f != null) {
                 f.refresh();
             }
-
-            //Sometimes the floating action button does not animate back to the bottom when the snackbar is dismissed, so force it to its original position
             ((MainActivity) getActivity()).mFab.forceLayout();
         }
     }
@@ -717,18 +646,11 @@ public class ComicBrowserFragment extends android.support.v4.app.Fragment {
             File dir = new File(sdCard.getAbsolutePath() + "/easy xkcd");
             File file = new File(dir, String.valueOf(mRemovedNumber) + ".png");
             file.delete();
-
-            //remove the number from the favorites list
+            //Remove the number from the favorites list
             Favorites.removeFavoriteItem(getActivity(), String.valueOf(mRemovedNumber));
             //clear alt text and title
-            /*SharedPreferences.Editor mEditor = mSharedPreferences.edit();
-            mEditor.putString("title" + String.valueOf(mRemovedNumber), null);
-            mEditor.putString("alt" + String.valueOf(mRemovedNumber), null);
-            mEditor.apply();*/
             PrefHelper.addTitle("", mRemovedNumber);
             PrefHelper.addAlt("", mRemovedNumber);
-
-
             //Setup the listener for the snackbar
             oc = new View.OnClickListener() {
                 @Override
@@ -742,7 +664,6 @@ public class ComicBrowserFragment extends android.support.v4.app.Fragment {
                     .show();
             return null;
         }
-
         @Override
         protected void onPostExecute(Void v) {
             //refresh the favorites fragment
@@ -751,33 +672,6 @@ public class ComicBrowserFragment extends android.support.v4.app.Fragment {
                 f.refresh();
             }
         }
-    }
-
-    private void showRateSnackbar() {
-        if(PrefHelper.showRateDialog()) {
-            View.OnClickListener oc = new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    Uri uri = Uri.parse("market://details?id=" + getActivity().getPackageName());
-                    Intent intent = new Intent(Intent.ACTION_VIEW, uri);
-                    intent.addFlags(Intent.FLAG_ACTIVITY_NO_HISTORY | Intent.FLAG_ACTIVITY_NEW_DOCUMENT | Intent.FLAG_ACTIVITY_MULTIPLE_TASK);
-                    try {
-                        startActivity(intent);
-                    } catch (ActivityNotFoundException e) {
-                        startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse("http://play.google.com/store/apps/details?id=" + getActivity().getPackageName())));
-                    }
-                }
-            };
-            Snackbar.make(((MainActivity) getActivity()).mFab, R.string.snackbar_rate, Snackbar.LENGTH_LONG)
-                    .setAction(R.string.snackbar_rate_action, oc)
-                    .show();
-        }
-    }
-
-    @Override
-    public void onSaveInstanceState(Bundle savedInstanceState) {
-        savedInstanceState.putInt("Last Comic", sLastComicNumber);
-        super.onSaveInstanceState(savedInstanceState);
     }
 
     @Override
@@ -799,27 +693,18 @@ public class ComicBrowserFragment extends android.support.v4.app.Fragment {
         super.onPrepareOptionsMenu(menu);
     }
 
-    public boolean getRandomComic() {
-        if (isOnline() && sNewestComicNumber != 0) {
-            MainActivity.sProgress = ProgressDialog.show(getActivity(), "", this.getResources().getString(R.string.loading_random), true);
-            //get a random number and update the pager
-            int mNumber = PrefHelper.getRandomNumber(sLastComicNumber);
-            sLastComicNumber = mNumber;
-            new pagerUpdate().execute(mNumber);
-        } else {
-            Toast.makeText(getActivity(), R.string.no_connection, Toast.LENGTH_SHORT).show();
-        }
-        return true;
+    @Override
+    public void onSaveInstanceState(Bundle savedInstanceState) {
+        savedInstanceState.putInt("Last Comic", sLastComicNumber);
+        super.onSaveInstanceState(savedInstanceState);
     }
 
-    public void getPreviousRandom() {
-        if (isOnline() && sNewestComicNumber != 0) {
-            MainActivity.sProgress = ProgressDialog.show(getActivity(), "", this.getResources().getString(R.string.loading_random), true);
-            int mNumber = PrefHelper.getPreviousRandom(sLastComicNumber);
-            sLastComicNumber = mNumber;
-            new pagerUpdate().execute(mNumber);
+    private void toggleVisibility(View view) {
+        // Switches a view's visibility between GONE and VISIBLE
+        if (view.getVisibility() == View.GONE) {
+            view.setVisibility(View.VISIBLE);
         } else {
-            Toast.makeText(getActivity(), R.string.no_connection, Toast.LENGTH_SHORT).show();
+            view.setVisibility(View.GONE);
         }
     }
 
@@ -830,14 +715,5 @@ public class ComicBrowserFragment extends android.support.v4.app.Fragment {
         NetworkInfo netInfo = cm.getActiveNetworkInfo();
         return netInfo != null && netInfo.isConnectedOrConnecting();
 
-    }
-
-    private void toggleVisibility(View view) {
-        // Switches a view's visibility between GONE and VISIBLE
-        if (view.getVisibility() == View.GONE) {
-            view.setVisibility(View.VISIBLE);
-        } else {
-            view.setVisibility(View.GONE);
-        }
     }
 }
