@@ -558,7 +558,8 @@ public class MainActivity extends AppCompatActivity {
             if (isOnline() && !fullOffline) {
                 ComicBrowserFragment fragment = (ComicBrowserFragment) fm.findFragmentByTag("browser");
                 ComicBrowserFragment.sLastComicNumber = getNumberFromUrl(intent.getDataString());
-                fragment.new pagerUpdate().execute(ComicBrowserFragment.sLastComicNumber);
+                //fragment.sPager.setCurrentItem(ComicBrowserFragment.sLastComicNumber-1, false);
+                //fragment.new pagerUpdate().execute(ComicBrowserFragment.sLastComicNumber);
             } else {
                 OfflineFragment fragment = (OfflineFragment) fm.findFragmentByTag("browser");
                 OfflineFragment.sLastComicNumber = getNumberFromUrl(intent.getDataString());
@@ -571,13 +572,11 @@ public class MainActivity extends AppCompatActivity {
                 ComicBrowserFragment.sLastComicNumber = number;
                 ComicBrowserFragment.sNewestComicNumber = 0;
                 sProgress = ProgressDialog.show(this, "", this.getResources().getString(R.string.loading_comics), true);
-                ComicBrowserFragment fragment = (ComicBrowserFragment) fm.findFragmentByTag("browser");
-                fragment.new pagerUpdate().execute(ComicBrowserFragment.sLastComicNumber);
             } else {
                 OfflineFragment.sLastComicNumber = number;
-                OfflineFragment fragment = (OfflineFragment) fm.findFragmentByTag("browser");
+                //OfflineFragment fragment = (OfflineFragment) fm.findFragmentByTag("browser");
                 //fragment.new pagerUpdate().execute(OfflineFragment.sLastComicNumber);
-                fragment.new updateImages().execute();
+                //fragment.new updateImages().execute();
             }
         }
 
