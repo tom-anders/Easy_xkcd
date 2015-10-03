@@ -5,6 +5,7 @@ import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.pm.ActivityInfo;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.ColorFilter;
@@ -610,6 +611,20 @@ public class OfflineFragment extends android.support.v4.app.Fragment {
                         view.setTranslationY(-300);
                         view.animate().setStartDelay(50 * (i + 1)).setDuration(70 * (i + 1)).translationY(0);
                     }
+                }
+            }
+
+            if (position == sLastComicNumber + 1) {
+                switch (Integer.parseInt(PrefHelper.getOrientation())) {
+                    case 1:
+                        getActivity().setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_USER);
+                        break;
+                    case 2:
+                        getActivity().setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
+                        break;
+                    case 3:
+                        getActivity().setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE);
+                        break;
                 }
             }
 

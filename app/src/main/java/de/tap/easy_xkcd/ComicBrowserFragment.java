@@ -194,7 +194,6 @@ public class ComicBrowserFragment extends android.support.v4.app.Fragment {
             final PhotoView pvComic = (PhotoView) itemView.findViewById(R.id.ivComic);
             final TextView tvAlt = (TextView) itemView.findViewById(R.id.tvAlt);
             final TextView tvTitle = (TextView) itemView.findViewById(R.id.tvTitle);
-            Log.d("page added", String.valueOf(position));
 
             if (PrefHelper.altByDefault()) {
                 tvAlt.setVisibility(View.VISIBLE);
@@ -355,7 +354,6 @@ public class ComicBrowserFragment extends android.support.v4.app.Fragment {
         @Override
         public void destroyItem(ViewGroup container, int position, Object object) {
             container.removeView((RelativeLayout) object);
-            Log.d("page removed", String.valueOf(position));
         }
     }
 
