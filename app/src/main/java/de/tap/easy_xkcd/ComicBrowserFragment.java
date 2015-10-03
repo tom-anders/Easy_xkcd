@@ -66,14 +66,19 @@ import uk.co.senab.photoview.PhotoViewAttacher;
 public class ComicBrowserFragment extends android.support.v4.app.Fragment {
     public static int sLastComicNumber = 0;
     public static int sNewestComicNumber = 0;
+    public static boolean newestUpated = false;
     public static SparseArray<Comic> sComicMap = new SparseArray<>();
     private HackyViewPager sPager;
     private ActionBar mActionBar;
+    public String mImageId="";
+    public String mTextId="";
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View v = inflater.inflate(R.layout.pager_layout, container, false);
         setHasOptionsMenu(true);
+
+        Log.d("image id", mImageId);
 
         if (savedInstanceState != null) {
             sLastComicNumber = savedInstanceState.getInt("Last Comic");
@@ -87,7 +92,8 @@ public class ComicBrowserFragment extends android.support.v4.app.Fragment {
         sPager = (HackyViewPager) v.findViewById(R.id.pager);
         sPager.setOffscreenPageLimit(3);
 
-        if (savedInstanceState == null) {
+        if (savedInstanceState == null && !newestUpated) {
+            newestUpated = true;
             new updateNewest().execute();
         } else {
             if (sLastComicNumber != 0) {
@@ -189,7 +195,7 @@ public class ComicBrowserFragment extends android.support.v4.app.Fragment {
 
         @Override
         public Object instantiateItem(final ViewGroup container, final int position) {
-            View itemView = mLayoutInflater.inflate(R.layout.pager_item, container, false);
+            final View itemView = mLayoutInflater.inflate(R.layout.pager_item, container, false);
             itemView.setTag(position);
             final PhotoView pvComic = (PhotoView) itemView.findViewById(R.id.ivComic);
             final TextView tvAlt = (TextView) itemView.findViewById(R.id.tvAlt);
@@ -198,6 +204,7 @@ public class ComicBrowserFragment extends android.support.v4.app.Fragment {
             if (PrefHelper.altByDefault()) {
                 tvAlt.setVisibility(View.VISIBLE);
             }
+
             class loadComic extends AsyncTask<Void, Void, Void> {
                 private Comic comic;
 
@@ -253,7 +260,7 @@ public class ComicBrowserFragment extends android.support.v4.app.Fragment {
                                         }
                                     }
                                 });
-                        sComicMap.put(position+1, comic);
+                        sComicMap.put(position + 1, comic);
                     }
                 }
             }
@@ -332,7 +339,7 @@ public class ComicBrowserFragment extends android.support.v4.app.Fragment {
                 ColorFilter cf = new ColorMatrixColorFilter(colorMatrix_Negative);
                 pvComic.setColorFilter(cf);
             }
-            if (Arrays.binarySearch(mContext.getResources().getIntArray(R.array.large_comics), sLastComicNumber) >= 0) {
+            /*if (Arrays.binarySearch(mContext.getResources().getIntArray(R.array.large_comics), sLastComicNumber) >= 0) {
                 pvComic.setMaximumScale(7.0f);
             }
             //Disable ViewPager scrolling when the user zooms into an image
@@ -345,7 +352,7 @@ public class ComicBrowserFragment extends android.support.v4.app.Fragment {
                         sPager.setLocked(false);
                     }
                 }
-            });
+            });*/
 
             container.addView(itemView);
             return itemView;
@@ -365,6 +372,8 @@ public class ComicBrowserFragment extends android.support.v4.app.Fragment {
 
             case R.id.delete_favorites:
                 return deleteAllFavorites();
+                /*getActivity().getSupportFragmentManager().beginTransaction().replace(R.id.flContent, new OverviewFragment()).commit();
+                return true; */
 
             case R.id.action_share:
                 return shareComic();
