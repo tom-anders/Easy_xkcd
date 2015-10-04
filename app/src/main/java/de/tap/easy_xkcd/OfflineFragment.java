@@ -61,7 +61,7 @@ public class OfflineFragment extends android.support.v4.app.Fragment {
     public static int sLastComicNumber = 0;
     public static int sNewestComicNumber = 0;
     public static SparseArray<OfflineComic> sComicMap = new SparseArray<>();
-    private HackyViewPager sPager;
+    public HackyViewPager sPager;
     private ActionBar mActionBar;
     private Boolean randomSelected = false;
 

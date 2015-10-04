@@ -68,7 +68,7 @@ public class ComicBrowserFragment extends android.support.v4.app.Fragment {
     public static int sNewestComicNumber = 0;
     public static boolean newestUpated = false;
     public static SparseArray<Comic> sComicMap = new SparseArray<>();
-    private HackyViewPager sPager;
+    public HackyViewPager sPager;
     private ActionBar mActionBar;
     public String mImageId="";
     public String mTextId="";

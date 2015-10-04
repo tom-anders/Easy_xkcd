@@ -15,8 +15,8 @@ android {
         applicationId "de.tap.easy_xkcd"
         minSdkVersion 15
         targetSdkVersion 22
-        versionCode 62
-        versionName "2.8"
+        versionCode 63
+        versionName "2.8.1"
     }
     buildTypes {
         release {
@@ -52,5 +52,4 @@ dependencies {
     compile "com.android.support:customtabs:23.0.1"
     compile 'com.anjlab.android.iab.v3:library:1.0.28'
     compile 'com.jakewharton:butterknife:7.0.1'
-
 }

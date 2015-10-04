@@ -560,10 +560,12 @@ public class MainActivity extends AppCompatActivity {
                 ComicBrowserFragment.sLastComicNumber = getNumberFromUrl(intent.getDataString());
                 //fragment.sPager.setCurrentItem(ComicBrowserFragment.sLastComicNumber-1, false);
                 //fragment.new pagerUpdate().execute(ComicBrowserFragment.sLastComicNumber);
+                fragment.sPager.setCurrentItem(ComicBrowserFragment.sLastComicNumber-1, false);
             } else {
                 OfflineFragment fragment = (OfflineFragment) fm.findFragmentByTag("browser");
                 OfflineFragment.sLastComicNumber = getNumberFromUrl(intent.getDataString());
                 //fragment.new pagerUpdate().execute(OfflineFragment.sLastComicNumber);
+                fragment.sPager.setCurrentItem(OfflineFragment.sLastComicNumber-1, false);
             }
         }
         if (("de.tap.easy_xkcd.ACTION_COMIC").equals(getIntent().getAction())) {
