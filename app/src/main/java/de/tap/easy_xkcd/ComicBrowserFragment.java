@@ -339,7 +339,7 @@ public class ComicBrowserFragment extends android.support.v4.app.Fragment {
                 ColorFilter cf = new ColorMatrixColorFilter(colorMatrix_Negative);
                 pvComic.setColorFilter(cf);
             }
-            /*if (Arrays.binarySearch(mContext.getResources().getIntArray(R.array.large_comics), sLastComicNumber) >= 0) {
+            if (Arrays.binarySearch(mContext.getResources().getIntArray(R.array.large_comics), sLastComicNumber) >= 0) {
                 pvComic.setMaximumScale(7.0f);
             }
             //Disable ViewPager scrolling when the user zooms into an image
@@ -352,7 +352,7 @@ public class ComicBrowserFragment extends android.support.v4.app.Fragment {
                         sPager.setLocked(false);
                     }
                 }
-            });*/
+            });
 
             container.addView(itemView);
             return itemView;
