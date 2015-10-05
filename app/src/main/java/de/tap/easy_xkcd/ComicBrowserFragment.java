@@ -66,6 +66,7 @@ import uk.co.senab.photoview.PhotoViewAttacher;
 public class ComicBrowserFragment extends android.support.v4.app.Fragment {
     public static int sLastComicNumber = 0;
     public static int sNewestComicNumber = 0;
+    private static boolean newestUpdated = false;
     public static SparseArray<Comic> sComicMap = new SparseArray<>();
     public HackyViewPager sPager;
     private ComicBrowserPagerAdapter adapter;
@@ -88,7 +89,8 @@ public class ComicBrowserFragment extends android.support.v4.app.Fragment {
         sPager = (HackyViewPager) v.findViewById(R.id.pager);
         sPager.setOffscreenPageLimit(3);
 
-        if (savedInstanceState == null) {
+        if (savedInstanceState == null &&!newestUpdated) {
+            newestUpdated = true;
             new updateNewest().execute();
         } else {
             if (sLastComicNumber != 0) {
@@ -137,6 +139,10 @@ public class ComicBrowserFragment extends android.support.v4.app.Fragment {
         super.onDestroy();
     }
 
+    public void updatePager() {
+        new updateNewest().execute();
+    }
+
     private class updateNewest extends AsyncTask<Void, Void, Void> {
         @Override
         protected Void doInBackground(Void... params) {
@@ -151,6 +157,7 @@ public class ComicBrowserFragment extends android.support.v4.app.Fragment {
             }
             PrefHelper.setNewestComic(sNewestComicNumber);
             PrefHelper.setLastComic(sLastComicNumber);
+            Log.d("info", "newest updated");
             return null;
         }
         @Override

@@ -43,6 +43,7 @@ import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
+import android.util.Log;
 import android.util.TypedValue;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -88,6 +89,8 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         ButterKnife.bind(this);
+
+        Log.d("info", "onCreate");
 
         instance = this;
         customTabActivityHelper = new CustomTabActivityHelper();
@@ -544,6 +547,7 @@ public class MainActivity extends AppCompatActivity {
 
     private void handleIntent(Intent intent) {
         //Called when users open xkcd.com or m.xkcd.com links
+        Log.d("info", "newIntent");
         android.support.v4.app.FragmentManager fm = getSupportFragmentManager();
         if (Intent.ACTION_VIEW.equals(intent.getAction())) {
             //Get the ComicBrowserFragment and update it
@@ -556,12 +560,16 @@ public class MainActivity extends AppCompatActivity {
                 startActivity(whatIf);
             }
             if (isOnline() && !fullOffline) {
+                MenuItem item = mNavView.getMenu().findItem(R.id.nav_browser);
+                selectDrawerItem(item);
                 ComicBrowserFragment fragment = (ComicBrowserFragment) fm.findFragmentByTag("browser");
                 ComicBrowserFragment.sLastComicNumber = getNumberFromUrl(intent.getDataString());
                 //fragment.sPager.setCurrentItem(ComicBrowserFragment.sLastComicNumber-1, false);
                 //fragment.new pagerUpdate().execute(ComicBrowserFragment.sLastComicNumber);
                 fragment.sPager.setCurrentItem(ComicBrowserFragment.sLastComicNumber-1, false);
             } else {
+                MenuItem item = mNavView.getMenu().findItem(R.id.nav_browser);
+                selectDrawerItem(item);
                 OfflineFragment fragment = (OfflineFragment) fm.findFragmentByTag("browser");
                 OfflineFragment.sLastComicNumber = getNumberFromUrl(intent.getDataString());
                 //fragment.new pagerUpdate().execute(OfflineFragment.sLastComicNumber);
@@ -570,15 +578,20 @@ public class MainActivity extends AppCompatActivity {
         }
         if (("de.tap.easy_xkcd.ACTION_COMIC").equals(getIntent().getAction())) {
             int number = getIntent().getIntExtra("number", 0);
+            Log.d("number", String.valueOf(number));
             if (isOnline() && !fullOffline) {
+                ComicBrowserFragment fragment = (ComicBrowserFragment) fm.findFragmentByTag("browser");
                 ComicBrowserFragment.sLastComicNumber = number;
                 ComicBrowserFragment.sNewestComicNumber = 0;
                 sProgress = ProgressDialog.show(this, "", this.getResources().getString(R.string.loading_comics), true);
+                fragment.updatePager();
             } else {
+                OfflineFragment fragment = (OfflineFragment) fm.findFragmentByTag("browser");
                 OfflineFragment.sLastComicNumber = number;
                 //OfflineFragment fragment = (OfflineFragment) fm.findFragmentByTag("browser");
                 //fragment.new pagerUpdate().execute(OfflineFragment.sLastComicNumber);
                 //fragment.new updateImages().execute();
+                fragment.updatePager();
             }
         }
 

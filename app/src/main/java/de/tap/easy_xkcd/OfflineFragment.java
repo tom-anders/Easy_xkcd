@@ -133,6 +133,10 @@ public class OfflineFragment extends android.support.v4.app.Fragment {
         return v;
     }
 
+    public void updatePager() {
+        new updateImages().execute();
+    }
+
     public class updateImages extends AsyncTask<Void, Void, Void> {
         private ProgressDialog progress;
         @Override
