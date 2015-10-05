@@ -66,19 +66,15 @@ import uk.co.senab.photoview.PhotoViewAttacher;
 public class ComicBrowserFragment extends android.support.v4.app.Fragment {
     public static int sLastComicNumber = 0;
     public static int sNewestComicNumber = 0;
-    public static boolean newestUpated = false;
     public static SparseArray<Comic> sComicMap = new SparseArray<>();
     public HackyViewPager sPager;
+    private ComicBrowserPagerAdapter adapter;
     private ActionBar mActionBar;
-    public String mImageId="";
-    public String mTextId="";
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View v = inflater.inflate(R.layout.pager_layout, container, false);
         setHasOptionsMenu(true);
-
-        Log.d("image id", mImageId);
 
         if (savedInstanceState != null) {
             sLastComicNumber = savedInstanceState.getInt("Last Comic");
@@ -92,8 +88,7 @@ public class ComicBrowserFragment extends android.support.v4.app.Fragment {
         sPager = (HackyViewPager) v.findViewById(R.id.pager);
         sPager.setOffscreenPageLimit(3);
 
-        if (savedInstanceState == null && !newestUpated) {
-            newestUpated = true;
+        if (savedInstanceState == null) {
             new updateNewest().execute();
         } else {
             if (sLastComicNumber != 0) {
@@ -105,7 +100,8 @@ public class ComicBrowserFragment extends android.support.v4.app.Fragment {
                     e.printStackTrace();
                 }
             }
-            sPager.setAdapter(new ComicBrowserPagerAdapter(getActivity()));
+            adapter = new ComicBrowserPagerAdapter(getActivity());
+            sPager.setAdapter(adapter);
         }
 
         sPager.addOnPageChangeListener(new ViewPager.OnPageChangeListener() {
@@ -168,7 +164,8 @@ public class ComicBrowserFragment extends android.support.v4.app.Fragment {
                     e.printStackTrace();
                 }
             }
-            sPager.setAdapter(new ComicBrowserPagerAdapter(getActivity()));
+            adapter = new ComicBrowserPagerAdapter(getActivity());
+            sPager.setAdapter(adapter);
             sPager.setOffscreenPageLimit(3);
         }
     }

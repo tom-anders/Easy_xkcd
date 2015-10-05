@@ -62,6 +62,7 @@ public class OfflineFragment extends android.support.v4.app.Fragment {
     public static int sNewestComicNumber = 0;
     public static SparseArray<OfflineComic> sComicMap = new SparseArray<>();
     public HackyViewPager sPager;
+    private OfflineBrowserPagerAdapter adapter;
     private ActionBar mActionBar;
     private Boolean randomSelected = false;
 
@@ -100,7 +101,8 @@ public class OfflineFragment extends android.support.v4.app.Fragment {
                     e.printStackTrace();
                 }
             }
-            sPager.setAdapter(new OfflineBrowserPagerAdapter(getActivity()));
+            adapter = new OfflineBrowserPagerAdapter(getActivity());
+            sPager.setAdapter(adapter);
         }
 
         sPager.addOnPageChangeListener(new ViewPager.OnPageChangeListener() {
@@ -210,7 +212,8 @@ public class OfflineFragment extends android.support.v4.app.Fragment {
                     e.printStackTrace();
                 }
             }
-            sPager.setAdapter(new OfflineBrowserPagerAdapter(getActivity()));
+            adapter = new OfflineBrowserPagerAdapter(getActivity());
+            sPager.setAdapter(adapter);
         }
     }
 
