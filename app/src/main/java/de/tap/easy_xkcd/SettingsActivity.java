@@ -16,12 +16,14 @@
 
 package de.tap.easy_xkcd;
 
+import android.Manifest;
 import android.app.Activity;
 import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.SharedPreferences;
 import android.content.pm.ActivityInfo;
+import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.net.ConnectivityManager;
@@ -35,6 +37,8 @@ import android.preference.Preference;
 import android.preference.PreferenceFragment;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
+import android.support.v4.app.ActivityCompat;
+import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.util.TypedValue;
@@ -87,7 +91,7 @@ public class SettingsActivity extends AppCompatActivity {
             getWindow().setNavigationBarColor(getResources().getColor(R.color.ColorPrimaryBlack));
         }
 
-        getFragmentManager().beginTransaction().replace(R.id.content_frame, new CustomPreferenceFragment()).commit();
+        getFragmentManager().beginTransaction().replace(R.id.content_frame, new CustomPreferenceFragment(), "preferences").commit();
     }
 
     public static SettingsActivity getInstance() {
@@ -97,7 +101,42 @@ public class SettingsActivity extends AppCompatActivity {
     @Override
     protected void onPause() {
         super.onPause();
+    }
 
+    @Override
+    public void onRequestPermissionsResult(int requestCode, String permissions[], int[] grantResults) {
+        CustomPreferenceFragment fragment = (CustomPreferenceFragment) getFragmentManager().findFragmentByTag("preferences");
+        switch (requestCode) {
+            case 1:
+                if (grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                    fragment.new downloadComicsTask().execute();
+                    PrefHelper.setFullOffline(true);
+                }
+                break;
+            case 2:
+                if (grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                    fragment.new deleteComicsTask().execute();
+                } else {
+                    PrefHelper.setFullOffline(true);
+                }
+                break;
+            case 3:
+                if (grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                    fragment.new downloadArticlesTask().execute();
+                    PrefHelper.setFullOfflineWhatIf(true);
+                }
+                break;
+            case 4:
+                if (grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                    fragment.new deleteArticlesTask().execute();
+                } else {
+                    PrefHelper.setFullOfflineWhatIf(true);
+                } break;
+            case 5:
+                if (grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                    fragment.new repairComicsTask().execute();
+                }
+        }
     }
 
     public static class CustomPreferenceFragment extends PreferenceFragment {
@@ -126,7 +165,11 @@ public class SettingsActivity extends AppCompatActivity {
                 @Override
                 public boolean onPreferenceClick(Preference preference) {
                     if (((SettingsActivity) getActivity()).isOnline()) {
-                        new repairComicsTask().execute();
+                        if (ContextCompat.checkSelfPermission(getActivity(), Manifest.permission.WRITE_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED) {
+                            new repairComicsTask().execute();
+                        } else {
+                            ActivityCompat.requestPermissions(getActivity(), new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE}, 5);
+                        }
                     } else {
                         Toast.makeText(getActivity(), R.string.no_connection, Toast.LENGTH_SHORT).show();
                     }
@@ -179,8 +222,13 @@ public class SettingsActivity extends AppCompatActivity {
                     boolean checked = Boolean.valueOf(newValue.toString());
                     if (checked) {
                         if (((SettingsActivity) getActivity()).isOnline()) {
-                            new downloadComicsTask().execute();
-                            return true;
+                            if (ContextCompat.checkSelfPermission(getActivity(), Manifest.permission.WRITE_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED) {
+                                new downloadComicsTask().execute();
+                                return true;
+                            } else {
+                                ActivityCompat.requestPermissions(getActivity(), new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE}, 1);
+                                return false;
+                            }
                         } else {
                             Toast.makeText(getActivity(), R.string.no_connection, Toast.LENGTH_SHORT).show();
                             return false;
@@ -197,7 +245,11 @@ public class SettingsActivity extends AppCompatActivity {
                                 })
                                 .setPositiveButton(R.string.dialog_yes, new DialogInterface.OnClickListener() {
                                     public void onClick(DialogInterface dialog, int which) {
-                                        new deleteComicsTask().execute();
+                                        if (ContextCompat.checkSelfPermission(getActivity(), Manifest.permission.WRITE_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED) {
+                                            new deleteComicsTask().execute();
+                                        } else {
+                                            ActivityCompat.requestPermissions(getActivity(), new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE}, 2);
+                                        }
                                     }
                                 })
                                 .setCancelable(false);
@@ -213,8 +265,13 @@ public class SettingsActivity extends AppCompatActivity {
                     boolean checked = Boolean.valueOf(newValue.toString());
                     if (checked) {
                         if (((SettingsActivity) getActivity()).isOnline()) {
-                            new downloadArticlesTask().execute();
-                            return true;
+                            if (ContextCompat.checkSelfPermission(getActivity(), Manifest.permission.WRITE_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED) {
+                                new downloadArticlesTask().execute();
+                                return true;
+                            } else {
+                                ActivityCompat.requestPermissions(getActivity(), new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE}, 3);
+                                return false;
+                            }
                         } else {
                             Toast.makeText(getActivity(), R.string.no_connection, Toast.LENGTH_SHORT).show();
                             return false;
@@ -231,7 +288,11 @@ public class SettingsActivity extends AppCompatActivity {
                                 })
                                 .setPositiveButton(R.string.dialog_yes, new DialogInterface.OnClickListener() {
                                     public void onClick(DialogInterface dialog, int which) {
-                                        new deleteArticlesTask().execute();
+                                        if (ContextCompat.checkSelfPermission(getActivity(), Manifest.permission.WRITE_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED) {
+                                            new deleteArticlesTask().execute();
+                                        } else {
+                                            ActivityCompat.requestPermissions(getActivity(), new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE}, 4);
+                                        }
                                     }
                                 })
                                 .setCancelable(false);
@@ -649,7 +710,6 @@ public class SettingsActivity extends AppCompatActivity {
         }
 
     }
-
 
 
     private boolean isOnline() {

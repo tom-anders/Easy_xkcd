@@ -9,14 +9,14 @@ android {
         }
         release
     }
-    compileSdkVersion 22
-    buildToolsVersion "22.0.1"
+    compileSdkVersion 23
+    buildToolsVersion "23.0.1"
     defaultConfig {
         applicationId "de.tap.easy_xkcd"
         minSdkVersion 15
-        targetSdkVersion 22
-        versionCode 64
-        versionName "2.8.2"
+        targetSdkVersion 23
+        versionCode 65
+        versionName "2.9"
     }
     buildTypes {
         release {
@@ -40,12 +40,12 @@ android {
 dependencies {
     compile fileTree(dir: 'libs', include: ['*.jar'])
     compile 'com.google.code.gson:gson:2.3.1'
-    compile 'com.android.support:design:22.2.0'
+    compile 'com.android.support:design:23.0.1'
     compile 'com.github.bumptech.glide:glide:3.6.0'
     compile 'com.github.chrisbanes.photoview:library:1.2.3'
     compile 'org.sufficientlysecure:html-textview:1.2'
-    compile 'com.android.support:recyclerview-v7:22.2.0'
-    compile 'com.android.support:cardview-v7:22.2.0'
+    compile 'com.android.support:recyclerview-v7:23.0.1'
+    compile 'com.android.support:cardview-v7:23.0.1'
     compile 'com.commonsware.cwac:wakeful:1.0.+'
     compile 'org.jsoup:jsoup:1.8.3'
     compile 'jp.wasabeef:recyclerview-animators:1.2.2'

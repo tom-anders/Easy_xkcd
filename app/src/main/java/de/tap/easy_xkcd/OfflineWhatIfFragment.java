@@ -1,12 +1,14 @@
 package de.tap.easy_xkcd;
 
 
+import android.Manifest;
 import android.app.AlertDialog;
 import android.app.ProgressDialog;
 import android.app.SearchManager;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.content.res.Resources;
 import android.graphics.Bitmap;
 import android.graphics.ColorFilter;
@@ -18,6 +20,7 @@ import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Environment;
 import android.support.design.widget.FloatingActionButton;
+import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.view.MenuItemCompat;
 import android.support.v7.widget.CardView;
@@ -347,19 +350,23 @@ public class OfflineWhatIfFragment extends android.support.v4.app.Fragment {
     class CustomOnClickListener implements View.OnClickListener {
         @Override
         public void onClick(View v) {
-            int pos = rv.getChildAdapterPosition(v);
-            Intent intent = new Intent(getActivity(), WhatIfActivity.class);
-            String title = adapter.titles.get(pos);
-            int n = mTitles.size() - mTitles.indexOf(title);
-            WhatIfActivity.WhatIfIndex = n;
-            startActivity(intent);
-            Log.d("index", String.valueOf(n));
+            if (ContextCompat.checkSelfPermission(getActivity(), Manifest.permission.WRITE_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED) {
+                int pos = rv.getChildAdapterPosition(v);
+                Intent intent = new Intent(getActivity(), WhatIfActivity.class);
+                String title = adapter.titles.get(pos);
+                int n = mTitles.size() - mTitles.indexOf(title);
+                WhatIfActivity.WhatIfIndex = n;
+                startActivity(intent);
+                Log.d("index", String.valueOf(n));
 
-            PrefHelper.setLastWhatIf(n);
-            PrefHelper.setWhatifRead(String.valueOf(n));
-            if (searchMenuItem.isActionViewExpanded()) {
-                searchMenuItem.collapseActionView();
-                rv.scrollToPosition(mTitles.size() - n);
+                PrefHelper.setLastWhatIf(n);
+                PrefHelper.setWhatifRead(String.valueOf(n));
+                if (searchMenuItem.isActionViewExpanded()) {
+                    searchMenuItem.collapseActionView();
+                    rv.scrollToPosition(mTitles.size() - n);
+                }
+            } else {
+                ActivityCompat.requestPermissions(getActivity(), new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE}, 7);
             }
         }
     }
