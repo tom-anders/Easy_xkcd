@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
+    <CheckBoxPreference
+        android:key="pref_night"
+        android:title="@string/pref_night"
+        android:defaultValue="false" />
+
+    <CheckBoxPreference
+        android:key="pref_invert"
+        android:title="@string/pref_invert"
+        android:defaultValue="true"
+        android:dependency="pref_night" />
+
+    <CheckBoxPreference
+        android:title="@string/pref_auto_night"
+        android:key="pref_auto_night"
+        android:dependency="pref_night"/>
+
+    <Preference
+        android:title="@string/pref_auto_night_start"
+        android:persistent="false"
+        android:key="pref_auto_night_start"
+        android:dependency="pref_auto_night" />
+
+    <Preference
+        android:title="@string/pref_auto_night_end"
+        android:persistent="false"
+        android:key="pref_auto_night_end"
+        android:dependency="pref_auto_night" />
+
+</PreferenceScreen>

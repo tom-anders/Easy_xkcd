@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
+    <ListPreference
+        android:key="pref_zoom"
+        android:title="@string/pref_zoom"
+        android:summary="@string/pref_zoom_sum"
+        android:entries="@array/pref_zoom"
+        android:entryValues="@array/pref_zoom_entries"
+        android:defaultValue="default"
+        />
+
+    <Preference
+        android:key="pref_repair"
+        android:title="@string/pref_repair"
+        android:summary="@string/pref_repair_sum"
+        />
+
+    <CheckBoxPreference
+        android:defaultValue="true"
+        android:key="pref_large"
+        android:summary="@string/pref_large_sum"
+        android:title="@string/pref_large" />
+
+    <CheckBoxPreference
+        android:defaultValue="true"
+        android:key="pref_update_mobile"
+        android:title="@string/pref_update_mobile"
+        android:summary="@string/pref_update_mobile_sum" />
+</PreferenceScreen>

@@ -107,6 +107,15 @@
                 android:value="de.tap.easy_xkcd.MainActivity" />
         </activity>
         <activity
+            android:name="de.tap.easy_xkcd.NestedSettingsActivity"
+            android:label="@string/pref_title"
+            android:launchMode="singleTop"
+            android:parentActivityName="de.tap.easy_xkcd.SettingsActivity" >
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value="de.tap.easy_xkcd.SettingsActivity" />
+        </activity>
+        <activity
             android:name="de.tap.easy_xkcd.AboutActivity"
             android:label="@string/title_activity_about"
             android:parentActivityName="de.tap.easy_xkcd.MainActivity" >

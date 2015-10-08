@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
+    <PreferenceCategory android:title="@string/pref_alt_title">
+        <MultiSelectListPreference
+            android:summary="@string/pref_alt_options_sum"
+            android:title="@string/pref_alt_options"
+            android:key="pref_alt_options"
+            android:entries="@array/alt_options_entries"
+            android:entryValues="@array/alt_options_values"
+            android:defaultValue="@array/alt_options_default" />
+
+        <ListPreference
+            android:dialogTitle="@string/pref_alt_style_title"
+            android:title="@string/pref_alt_style"
+            android:summary="@string/pref_alt_style_sum"
+            android:key="pref_alt_style"
+            android:entries="@array/alt_style_entries"
+            android:entryValues="@array/alt_style_values"
+            android:defaultValue="0" />
+
+        <ListPreference
+            android:title="@string/pref_alt_activation"
+            android:summary="@string/pref_alt_activation_sum"
+            android:key="pref_alt_activation"
+            android:entries="@array/alt_activation"
+            android:entryValues="@array/alt_activation_values"
+            android:defaultValue="1" />
+    </PreferenceCategory>
+
+    <PreferenceCategory android:title="@string/pref_share_title">
+        <CheckBoxPreference
+            android:defaultValue="false"
+            android:key="pref_share"
+            android:summary="@string/pref_share_sum"
+            android:title="@string/pref_share" />
+        <CheckBoxPreference
+            android:defaultValue="false"
+            android:key="pref_mobile"
+            android:summary="@string/pref_mobile_sum"
+            android:title="@string/pref_mobile" />
+    </PreferenceCategory>
+
+</PreferenceScreen>

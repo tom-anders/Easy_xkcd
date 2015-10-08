@@ -18,7 +18,6 @@
 package de.tap.easy_xkcd;
 
 import android.app.Activity;
-import android.content.ActivityNotFoundException;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -26,12 +25,12 @@ import android.net.Uri;
 import android.preference.PreferenceManager;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
+import android.text.format.DateFormat;
 import android.util.Log;
 import android.view.View;
 
 import com.tap.xkcd_reader.R;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
@@ -95,6 +94,11 @@ public class PrefHelper {
     private static final String INVERT_COLORS = "pref_invert";
     private static final String COLORED_NAVBAR = "pref_navbar";
     private static final String MOBILE_ENABLED = "pref_update_mobile";
+    private static final String AUTO_NIGHT = "pref_auto_night";
+    private static final String AUTO_NIGHT_START_MIN = "pref_auto_night_start_min";
+    private static final String AUTO_NIGHT_START_HOUR = "pref_auto_night_start_hour";
+    private static final String AUTO_NIGHT_END_MIN = "pref_auto_night_end_min";
+    private static final String AUTO_NIGHT_END_HOUR = "pref_auto_night_end_hour";
 
 
     public static void getPrefs(Context context) {
@@ -533,10 +537,6 @@ public class PrefHelper {
         }
     }
 
-    public static boolean nightThemeEnabled() {
-        return prefs.getBoolean(NIGHT_THEME, false);
-    }
-
     public static boolean invertColors() {
         return prefs.getBoolean(INVERT_COLORS, true) && nightThemeEnabled();
     }
@@ -584,6 +584,89 @@ public class PrefHelper {
     public static boolean mobileEnabled() {
         return prefs.getBoolean(MOBILE_ENABLED, false);
     }
+
+    public static boolean autoNightEnabled() {
+        return prefs.getBoolean(AUTO_NIGHT, false);
+    }
+
+    public static boolean nightThemeEnabled() {
+        if (!autoNightEnabled()) {
+            return prefs.getBoolean(NIGHT_THEME, false);
+        } else {
+            int hour = Calendar.getInstance().get(Calendar.HOUR_OF_DAY);
+            int minute = Calendar.getInstance().get(Calendar.MINUTE);
+            int[] start = getAutoNightStart();
+            int[] end = getAutoNightEnd();
+            if (hour == start[0]) {
+                return minute >= start[1];
+            }
+            if (hour == end[0]) {
+                return minute < end[1];
+            }
+            if (hour > start[0] && hour > end[0] && end[0] >= start[0]) {
+                return false;
+            }
+            if (hour > start[0]) {
+                /*if (end[0] > start[0]) {
+                    return hour < end[0];
+                } else {
+                    return true;
+                } */
+                return end[0] <= start[0] || hour < end[0];
+            } else {
+                return hour < end[0];
+            }
+        }
+    }
+
+    public static int[] getAutoNightStart() {
+        return new int[]{
+                sharedPrefs.getInt(AUTO_NIGHT_START_HOUR, 21),
+                sharedPrefs.getInt(AUTO_NIGHT_START_MIN, 0)
+        };
+    }
+
+    public static int[] getAutoNightEnd() {
+        return new int[]{
+                sharedPrefs.getInt(AUTO_NIGHT_END_HOUR, 8),
+                sharedPrefs.getInt(AUTO_NIGHT_END_MIN, 0)
+        };
+    }
+
+    public static void setAutoNightStart(int[] time) {
+        SharedPreferences.Editor editor = sharedPrefs.edit();
+        editor.putInt(AUTO_NIGHT_START_HOUR, time[0]);
+        editor.putInt(AUTO_NIGHT_START_MIN, time[1]);
+        editor.apply();
+    }
+
+    public static void setAutoNightEnd(int[] time) {
+        SharedPreferences.Editor editor = sharedPrefs.edit();
+        editor.putInt(AUTO_NIGHT_END_HOUR, time[0]);
+        editor.putInt(AUTO_NIGHT_END_MIN, time[1]);
+        editor.apply();
+    }
+
+    public static String getStartSummary() {
+        int[] start = getAutoNightStart();
+        String suffix = "";
+        String minute = String.valueOf(start[1]);
+        if (start[1]<10) {
+            minute = "0"+minute;
+        }
+        return start[0] + ":" + minute + suffix;
+    }
+
+    public static String getEndSummary() {
+        int[] end = getAutoNightEnd();
+        String suffix = "";
+        String minute = String.valueOf(end[1]);
+        if (end[1]<10) {
+            minute = "0"+minute;
+        }
+        return end[0] + ":" + minute + suffix;
+    }
+
 
 }
 

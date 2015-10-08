@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
+    <ListPreference
+        android:key="pref_theme"
+        android:title="@string/pref_theme"
+        android:entries="@array/pref_theme"
+        android:entryValues="@array/pref_theme_entries"
+        android:defaultValue="1"
+        />
+
+    <CheckBoxPreference
+        android:key="pref_navbar"
+        android:title="@string/pref_navbar"
+        android:defaultValue="true" />
+
+    <CheckBoxPreference
+        android:defaultValue="true"
+        android:key="pref_subtitle"
+        android:summary="@string/pref_subtitle_sum"
+        android:title="@string/pref_subtitle" />
+
+    <MultiSelectListPreference
+        android:dialogTitle="@string/pref_random_title"
+        android:title="@string/pref_random"
+        android:hint="@string/pref_random_sum"
+        android:key="pref_random"
+        android:entries="@array/random_entries"
+        android:entryValues="@array/random_values"
+        android:defaultValue="@array/random_default" />
+
+    <CheckBoxPreference
+        android:defaultValue="false"
+        android:key="pref_hide_donate"
+        android:title="@string/pref_hide_donate" />
+</PreferenceScreen>

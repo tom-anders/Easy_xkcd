@@ -1,159 +1,33 @@
 <?xml version="1.0" encoding="utf-8"?>
 <PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
 
-    <PreferenceCategory
-        android:title="@string/pref_behavior">
+    <Preference
+        android:key="appearance"
+        android:persistent="false"
+        android:title="@string/pref_appearance"
+        android:summary="@string/pref_appearance_sum" />
 
-        <ListPreference
-            android:key="pref_notifications"
-            android:title="@string/pref_notifications"
-            android:entries="@array/pref_notifications"
-            android:entryValues="@array/pref_notifications_entries"
-            android:defaultValue="0"
-            android:summary="@string/pref_notifications_sum"
-            />
-        <CheckBoxPreference
-            android:defaultValue="false"
-            android:key="pref_offline"
-            android:summary="@string/pref_offline_sum"
-            android:title="@string/pref_offline" />
-        <CheckBoxPreference
-            android:defaultValue="false"
-            android:key="pref_offline_whatif"
-            android:title="@string/pref_offline_whatif" />
-    </PreferenceCategory>
+    <Preference
+        android:key="behavior"
+        android:persistent="false"
+        android:summary="@string/pref_behavior_sum"
+        android:title="@string/pref_behavior" />
 
-    <PreferenceCategory android:title="@string/pref_appearance">
+    <Preference
+        android:key="night"
+        android:persistent="false"
+        android:title="@string/pref_night_options"
+        android:summary="@string/pref_night_options_sum"/>
 
-        <ListPreference
-            android:key="pref_theme"
-            android:title="@string/pref_theme"
-            android:entries="@array/pref_theme"
-            android:entryValues="@array/pref_theme_entries"
-            android:defaultValue="1"
-            />
+    <Preference
+        android:key="altSharing"
+        android:persistent="false"
+        android:summary="@string/pref_alt_sharing_sum"
+        android:title="@string/pref_alt_sharing" />
 
-        <CheckBoxPreference
-            android:key="pref_navbar"
-            android:title="@string/pref_navbar"
-            android:defaultValue="true" />
-
-        <CheckBoxPreference
-            android:key="pref_night"
-            android:title="@string/pref_night"
-            android:defaultValue="false" />
-
-        <CheckBoxPreference
-            android:key="pref_invert"
-            android:title="@string/pref_invert"
-            android:defaultValue="true"
-            android:dependency="pref_night" />
-
-        <ListPreference
-            android:key="pref_orientation"
-            android:title="@string/pref_orientation"
-            android:entries="@array/pref_orientation"
-            android:entryValues="@array/pref_orientation_entries"
-            android:defaultValue="1"
-            android:summary="@string/pref_orientation_sum"
-            />
-
-        <CheckBoxPreference
-            android:defaultValue="true"
-            android:key="pref_subtitle"
-            android:summary="@string/pref_subtitle_sum"
-            android:title="@string/pref_subtitle" />
-
-        <MultiSelectListPreference
-            android:dialogTitle="@string/pref_random_title"
-            android:title="@string/pref_random"
-            android:hint="@string/pref_random_sum"
-            android:key="pref_random"
-            android:entries="@array/random_entries"
-            android:entryValues="@array/random_values"
-            android:defaultValue="@array/random_default" />
-
-        <CheckBoxPreference
-            android:defaultValue="false"
-            android:key="pref_hide_donate"
-            android:title="@string/pref_hide_donate" />
-
-    </PreferenceCategory>
-
-    <PreferenceCategory android:title="@string/pref_alt_title">
-        <MultiSelectListPreference
-            android:summary="@string/pref_alt_options_sum"
-            android:title="@string/pref_alt_options"
-            android:key="pref_alt_options"
-            android:entries="@array/alt_options_entries"
-            android:entryValues="@array/alt_options_values"
-            android:defaultValue="@array/alt_options_default" />
-
-        <ListPreference
-            android:dialogTitle="@string/pref_alt_style_title"
-            android:title="@string/pref_alt_style"
-            android:summary="@string/pref_alt_style_sum"
-            android:key="pref_alt_style"
-            android:entries="@array/alt_style_entries"
-            android:entryValues="@array/alt_style_values"
-            android:defaultValue="0" />
-
-        <ListPreference
-            android:title="@string/pref_alt_activation"
-            android:summary="@string/pref_alt_activation_sum"
-            android:key="pref_alt_activation"
-            android:entries="@array/alt_activation"
-            android:entryValues="@array/alt_activation_values"
-            android:defaultValue="1" />
-
-
-    </PreferenceCategory>
-
-    <PreferenceCategory android:title="@string/pref_share_title">
-        <CheckBoxPreference
-            android:defaultValue="false"
-            android:key="pref_share"
-            android:summary="@string/pref_share_sum"
-            android:title="@string/pref_share" />
-        <CheckBoxPreference
-            android:defaultValue="false"
-            android:key="pref_mobile"
-            android:summary="@string/pref_mobile_sum"
-            android:title="@string/pref_mobile" />
-       <!-- <CheckBoxPreference
-            android:defaultValue="false"
-            android:key="pref_share_alt"
-            android:title="@string/pref_share_alt" />-->
-    </PreferenceCategory>
-
-    <PreferenceCategory android:title="@string/pref_advanced">
-        <ListPreference
-            android:key="pref_zoom"
-            android:title="@string/pref_zoom"
-            android:summary="@string/pref_zoom_sum"
-            android:entries="@array/pref_zoom"
-            android:entryValues="@array/pref_zoom_entries"
-            android:defaultValue="default"
-            />
-
-        <Preference
-            android:key="pref_repair"
-            android:title="@string/pref_repair"
-            android:summary="@string/pref_repair_sum"
-            />
-
-        <CheckBoxPreference
-            android:defaultValue="true"
-            android:key="pref_large"
-            android:summary="@string/pref_large_sum"
-            android:title="@string/pref_large" />
-
-        <CheckBoxPreference
-            android:defaultValue="true"
-            android:key="pref_update_mobile"
-            android:title="@string/pref_update_mobile"
-            android:summary="@string/pref_update_mobile_sum" />
-
-    </PreferenceCategory>
+    <Preference
+        android:key="advanced"
+        android:persistent="false"
+        android:title="@string/pref_advanced" />
 
 </PreferenceScreen>
