@@ -145,9 +145,9 @@ public class SettingsActivity extends AppCompatActivity {
             super.onCreate(savedInstanceState);
             addPreferencesFromResource(R.xml.preferences);
 
-            if (!MainActivity.fullOffline) {
-                findPreference("pref_repair").setEnabled(false);
-            }
+            findPreference("pref_repair").setEnabled(MainActivity.fullOffline);
+
+            findPreference("pref_update_mobile").setEnabled(MainActivity.fullOffline|MainActivity.fullOfflineWhatIf);
 
             findPreference("pref_navbar").setEnabled(Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP);
 

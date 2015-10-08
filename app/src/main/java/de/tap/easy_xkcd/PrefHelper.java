@@ -94,6 +94,7 @@ public class PrefHelper {
     private static final String NIGHT_THEME = "pref_night";
     private static final String INVERT_COLORS = "pref_invert";
     private static final String COLORED_NAVBAR = "pref_navbar";
+    private static final String MOBILE_ENABLED = "pref_update_mobile";
 
 
     public static void getPrefs(Context context) {
@@ -578,6 +579,10 @@ public class PrefHelper {
 
     public static boolean colorNavbar() {
         return prefs.getBoolean(COLORED_NAVBAR, true);
+    }
+
+    public static boolean mobileEnabled() {
+        return prefs.getBoolean(MOBILE_ENABLED, false);
     }
 
 }

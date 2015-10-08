@@ -100,7 +100,7 @@ public class OfflineWhatIfFragment extends android.support.v4.app.Fragment {
 
         ((MainActivity) getActivity()).mFab.setVisibility(View.GONE);
 
-        if (isOnline() && isWifi()) {
+        if (isOnline() && (isWifi()|PrefHelper.mobileEnabled())) {
             new UpdateArticles().execute();
         } else {
             new DisplayOverview().execute();

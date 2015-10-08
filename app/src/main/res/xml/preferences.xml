@@ -148,6 +148,12 @@
             android:summary="@string/pref_large_sum"
             android:title="@string/pref_large" />
 
+        <CheckBoxPreference
+            android:defaultValue="true"
+            android:key="pref_update_mobile"
+            android:title="@string/pref_update_mobile"
+            android:summary="@string/pref_update_mobile_sum" />
+
     </PreferenceCategory>
 
 </PreferenceScreen>
