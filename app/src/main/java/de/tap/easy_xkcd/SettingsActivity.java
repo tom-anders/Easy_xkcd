@@ -323,6 +323,7 @@ public class SettingsActivity extends AppCompatActivity {
                 try {
                     newest = new Comic(0).getComicNumber();
                     PrefHelper.setNewestComic(newest);
+                    PrefHelper.setHighestOffline(newest);
                 } catch (Exception e) {
                     newest = PrefHelper.getNewest();
                 }
