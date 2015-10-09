@@ -178,6 +178,7 @@ public class MainActivity extends AppCompatActivity {
                 public void run() {
                     showRateSnackbar();
                     PrefHelper.showSurveySnackbar(MainActivity.this, mFab);
+                    PrefHelper.showFeatureSnackbar(MainActivity.this, mFab);
                 }
             }, 1500);
         }

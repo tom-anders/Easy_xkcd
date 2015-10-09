@@ -108,7 +108,11 @@ public class NestedSettingsActivity extends AppCompatActivity {
     public void onPause() {
         if (NestedPreferenceFragment.themeSettingChanged) {
             MainActivity.getInstance().finish();
-            SettingsActivity.getInstance().finish();
+            try {
+                SettingsActivity.getInstance().finish();
+            } catch (NullPointerException e) {
+                //only happens when entered via the snackbar
+            }
             startActivity(MainActivity.getInstance().getIntent());
         }
         super.onPause();

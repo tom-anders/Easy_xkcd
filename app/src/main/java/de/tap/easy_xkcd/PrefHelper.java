@@ -90,6 +90,7 @@ public class PrefHelper {
     private static final String ALT_OPTIONS = "pref_alt_options";
     private static final String ALT_ACTIVATION = "pref_alt_activation";
     private static final String SURVEY_SNACKBAR = "survey_snackbar";
+    private static final String NEW_FEATURE_SNACKBAR = "new_feature_snackbar";
     private static final String NIGHT_THEME = "pref_night";
     private static final String INVERT_COLORS = "pref_invert";
     private static final String COLORED_NAVBAR = "pref_navbar";
@@ -534,6 +535,25 @@ public class PrefHelper {
             SharedPreferences.Editor editor = sharedPrefs.edit();
             editor.putInt("survey count", n + 1);
             editor.apply();
+        }
+    }
+
+    public static void showFeatureSnackbar(final Context context, FloatingActionButton fab) {
+        if (!sharedPrefs.getBoolean(NEW_FEATURE_SNACKBAR, false)) {
+            View.OnClickListener oc = new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    Intent intent = new Intent(context, NestedSettingsActivity.class);
+                    intent.putExtra("key", "night");
+                    context.startActivity(intent);
+                }
+            };
+            SharedPreferences.Editor editor = sharedPrefs.edit();
+            editor.putBoolean(NEW_FEATURE_SNACKBAR, true);
+            editor.apply();
+            Snackbar.make(fab, R.string.snackbar_feature, Snackbar.LENGTH_LONG)
+                    .setAction(R.string.snackbar_feature_oc, oc)
+                    .show();
         }
     }
 

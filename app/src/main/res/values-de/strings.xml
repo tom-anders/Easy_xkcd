@@ -211,7 +211,7 @@
     <string name="pref_alt_options">Allgemeine Optionen</string>
     <string name="pref_alt_options_sum">Alt Text immer anzeigen, Alt Text teilen, haptisches Feedback</string>
     <string name="pref_alt_style">Stil</string>
-    <string name="pref_alt_style_sum">Klassich oder Pop-Up</string>
+    <string name="pref_alt_style_sum">Klassisch oder Pop-Up</string>
     <string name="pref_alt_style_title">Wähle deinen bevorzugten Stil</string>
     <string name="snackbar_survey">Hast du ein paar Minuten übrig und möchtest die App verbessern?</string>
     <string name="snackbar_survey_oc">Umfrage starten</string>
@@ -221,5 +221,16 @@
     <string name="action_trans">Transcript anzeigen</string>
     <string name="pref_update_mobile">Aktualisierung bei Mobilen Daten</string>
     <string name="pref_update_mobile_sum">Wenn deaktiviert, werden Offline Comics und What-If Artikel nur im WLAN aktualisiert</string>
+    <string name="pref_alt_sharing">Alt Text &#38; Teilem</string>
+    <string name="pref_alt_sharing_sum">Verändere das Verhalten der App beim Alt Text und beim Teilen</string>
+    <string name="pref_appearance_sum">Verändere das Aussehen der App</string>
+    <string name="pref_auto_night">Automatischer Nachtmodus</string>
+    <string name="pref_auto_night_end">Ende</string>
+    <string name="pref_auto_night_start">Start</string>
+    <string name="pref_behavior_sum">Aktiviere den Offline Modus und Benachrichtigungen, lege die Bildschirmausrichtung fest</string>
+    <string name="pref_night_options">Nacht Einstellungen</string>
+    <string name="pref_night_options_sum">Richte den Nachtmodus ein</string>
+    <string name="snackbar_feature">Neues Feature: Automatischer Nachtmodus!</string>
+    <string name="snackbar_feature_oc">Ausprobieren</string>
 
 </resources>

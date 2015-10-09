@@ -222,4 +222,15 @@
     <string name="action_trans">View Transcript</string>
     <string name="pref_update_mobile">Update on mobile data</string>
     <string name="pref_update_mobile_sum">When disabled, offline comics and what-if articles are only updated on Wifi</string>
+    <string name="pref_alt_sharing">Alt text &#38; sharing</string>
+    <string name="pref_alt_sharing_sum">Setup alt text and sharing behavior</string>
+    <string name="pref_appearance_sum">Change how the app looks</string>
+    <string name="pref_auto_night">Auto night theme</string>
+    <string name="pref_auto_night_end">End time</string>
+    <string name="pref_auto_night_start">Start time</string>
+    <string name="pref_behavior_sum">Enable offline mode &#38; notifications, screen orientation</string>
+    <string name="pref_night_options">Night options</string>
+    <string name="pref_night_options_sum">Setup the night theme</string>
+    <string name="snackbar_feature">New feature: Auto night mode!</string>
+    <string name="snackbar_feature_oc">Check it out</string>
 </resources>
