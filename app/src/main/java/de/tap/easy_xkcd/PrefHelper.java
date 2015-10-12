@@ -610,9 +610,7 @@ public class PrefHelper {
     }
 
     public static boolean nightThemeEnabled() {
-        if (!autoNightEnabled()) {
-            return prefs.getBoolean(NIGHT_THEME, false);
-        } else {
+        if (prefs.getBoolean(NIGHT_THEME, false) && autoNightEnabled()) {
             int hour = Calendar.getInstance().get(Calendar.HOUR_OF_DAY);
             int minute = Calendar.getInstance().get(Calendar.MINUTE);
             int[] start = getAutoNightStart();
@@ -636,6 +634,8 @@ public class PrefHelper {
             } else {
                 return hour < end[0];
             }
+        } else {
+            return prefs.getBoolean(NIGHT_THEME, false);
         }
     }
 
