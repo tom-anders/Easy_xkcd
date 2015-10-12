@@ -233,4 +233,5 @@
     <string name="pref_night_options_sum">Setup the night theme</string>
     <string name="snackbar_feature">New feature: Auto night mode!</string>
     <string name="snackbar_feature_oc">Check it out</string>
+    <string name="new_comic_view">View</string>
 </resources>

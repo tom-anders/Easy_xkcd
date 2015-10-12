@@ -232,5 +232,6 @@
     <string name="pref_night_options_sum">Richte den Nachtmodus ein</string>
     <string name="snackbar_feature">Neues Feature: Automatischer Nachtmodus!</string>
     <string name="snackbar_feature_oc">Ausprobieren</string>
+    <string name="new_comic_view">Ansehen</string>
 
 </resources>

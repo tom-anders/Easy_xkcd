@@ -748,7 +748,7 @@ public class MainActivity extends AppCompatActivity {
                 if (!fullOffline) {
                     ComicBrowserFragment comicBrowserFragment = (ComicBrowserFragment) fragment;
                     comicBrowserFragment.updatePager();
-                } else {
+                } else if (isWifi()|PrefHelper.mobileEnabled()){
                     OfflineFragment offlineFragment = (OfflineFragment) fragment;
                     offlineFragment.updatePager();
                 }
@@ -777,6 +777,12 @@ public class MainActivity extends AppCompatActivity {
         } else {
             super.onBackPressed();
         }
+    }
+
+    private boolean isWifi() {
+        ConnectivityManager cm = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
+        NetworkInfo info = cm.getActiveNetworkInfo();
+        return (info != null && info.isConnected() && info.getType() == ConnectivityManager.TYPE_WIFI);
     }
 
 }
