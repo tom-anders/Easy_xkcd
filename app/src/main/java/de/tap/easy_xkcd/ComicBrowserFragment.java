@@ -123,7 +123,9 @@ public class ComicBrowserFragment extends android.support.v4.app.Fragment {
                     Toast.makeText(getActivity(), R.string.no_connection, Toast.LENGTH_SHORT).show();
                 }
                 sLastComicNumber = position + 1;
-                mActionBar.setSubtitle(String.valueOf(sLastComicNumber));
+                if (MainActivity.sCurrentFragment == R.id.nav_browser && PrefHelper.subtitleEnabled()) {
+                    mActionBar.setSubtitle(String.valueOf(sLastComicNumber));
+                }
 
             }
 

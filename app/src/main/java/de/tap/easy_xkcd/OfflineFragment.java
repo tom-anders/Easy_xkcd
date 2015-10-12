@@ -120,7 +120,7 @@ public class OfflineFragment extends android.support.v4.app.Fragment {
                     e.printStackTrace();
                 }
                 sLastComicNumber = position+1;
-                if (PrefHelper.subtitleEnabled()) {
+                if (PrefHelper.subtitleEnabled() && MainActivity.sCurrentFragment == R.id.nav_browser) {
                     mActionBar.setSubtitle(String.valueOf(sLastComicNumber));
                 }
             }
