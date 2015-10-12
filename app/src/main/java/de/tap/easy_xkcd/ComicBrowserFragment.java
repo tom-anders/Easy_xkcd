@@ -23,6 +23,7 @@ import android.os.Environment;
 import android.os.Vibrator;
 import android.provider.MediaStore;
 import android.support.customtabs.CustomTabsIntent;
+import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
 import android.support.v4.view.PagerAdapter;
 import android.support.v4.view.ViewPager;
@@ -108,7 +109,8 @@ public class ComicBrowserFragment extends android.support.v4.app.Fragment {
 
         sPager.addOnPageChangeListener(new ViewPager.OnPageChangeListener() {
             @Override
-            public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) {}
+            public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) {
+            }
 
             @Override
             public void onPageSelected(int position) {
@@ -120,7 +122,7 @@ public class ComicBrowserFragment extends android.support.v4.app.Fragment {
                 if (!isOnline()) { //Don't update if the device is not online
                     Toast.makeText(getActivity(), R.string.no_connection, Toast.LENGTH_SHORT).show();
                 }
-                sLastComicNumber = position+1;
+                sLastComicNumber = position + 1;
                 mActionBar.setSubtitle(String.valueOf(sLastComicNumber));
 
             }
@@ -136,16 +138,16 @@ public class ComicBrowserFragment extends android.support.v4.app.Fragment {
     @Override
     public void onStop() {
         PrefHelper.setLastComic(sLastComicNumber);
-        super.onDestroy();
+        super.onStop();
     }
 
     public void updatePager() {
         new updateNewest().execute();
     }
 
-    private class updateNewest extends AsyncTask<Void, Void, Void> {
+    private class updateNewest extends AsyncTask<Void, Void, Boolean> {
         @Override
-        protected Void doInBackground(Void... params) {
+        protected Boolean doInBackground(Void... params) {
             try {
                 JSONObject json = JsonParser.getJSONFromUrl("http://xkcd.com/info.0.json");
                 sNewestComicNumber = Integer.parseInt(json.getString("num"));
@@ -155,13 +157,16 @@ public class ComicBrowserFragment extends android.support.v4.app.Fragment {
             } catch (Exception e) {
                 e.printStackTrace();
             }
+
+            boolean showSnackbar = sNewestComicNumber > PrefHelper.getNewest() && sLastComicNumber != sNewestComicNumber && (PrefHelper.getNotificationInterval()==0);
+
             PrefHelper.setNewestComic(sNewestComicNumber);
             PrefHelper.setLastComic(sLastComicNumber);
             Log.d("info", "newest updated");
-            return null;
+            return showSnackbar;
         }
         @Override
-        protected void onPostExecute(Void v) {
+        protected void onPostExecute(Boolean showSnackbar) {
             if (sLastComicNumber != 0) {
                 try {
                     Field field = ViewPager.class.getDeclaredField("mRestoredCurItem");
@@ -174,6 +179,18 @@ public class ComicBrowserFragment extends android.support.v4.app.Fragment {
             adapter = new ComicBrowserPagerAdapter(getActivity());
             sPager.setAdapter(adapter);
             sPager.setOffscreenPageLimit(3);
+            if (showSnackbar) {
+                View.OnClickListener oc = new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        getLatestComic();
+                    }
+                };
+                FloatingActionButton fab = (FloatingActionButton) getActivity().findViewById(R.id.fab);
+                Snackbar.make(fab, getActivity().getResources().getString(R.string.new_comic), Snackbar.LENGTH_LONG)
+                        .setAction(getActivity().getResources().getString(R.string.new_comic_view), oc)
+                        .show();
+            }
         }
     }
 

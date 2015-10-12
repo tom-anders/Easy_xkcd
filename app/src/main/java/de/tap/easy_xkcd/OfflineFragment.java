@@ -21,6 +21,7 @@ import android.os.Environment;
 import android.os.Vibrator;
 import android.provider.MediaStore;
 import android.support.customtabs.CustomTabsIntent;
+import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
 import android.support.v4.view.PagerAdapter;
 import android.support.v4.view.ViewPager;
@@ -137,7 +138,7 @@ public class OfflineFragment extends android.support.v4.app.Fragment {
         new updateImages().execute();
     }
 
-    public class updateImages extends AsyncTask<Void, Void, Void> {
+    public class updateImages extends AsyncTask<Void, Void, Boolean> {
         private ProgressDialog progress;
         @Override
         protected void onPreExecute() {
@@ -147,11 +148,13 @@ public class OfflineFragment extends android.support.v4.app.Fragment {
             progress.show();
         }
         @Override
-        protected Void doInBackground(Void... pos) {
+        protected Boolean doInBackground(Void... pos) {
+            boolean showSnackbar = false;
             try {
                 sNewestComicNumber = new Comic(0).getComicNumber();
                 Log.d("test", String.valueOf(sNewestComicNumber) + " " + String.valueOf(PrefHelper.getHighestOffline()));
                 if (sNewestComicNumber > PrefHelper.getHighestOffline()) {
+                    showSnackbar = PrefHelper.getNotificationInterval()==0 && sLastComicNumber != sNewestComicNumber;
                     for (int i = PrefHelper.getHighestOffline(); i <= sNewestComicNumber; i++) {
                         Log.d("comic added", String.valueOf(i));
                         Comic comic = new Comic(i, getActivity());
@@ -201,11 +204,11 @@ public class OfflineFragment extends android.support.v4.app.Fragment {
                     e.printStackTrace();
                 }
             }
-            return null;
+            return showSnackbar;
         }
 
         @Override
-        protected void onPostExecute(Void v) {
+        protected void onPostExecute(Boolean showSnackbar) {
             progress.dismiss();
             if (sLastComicNumber != 0) {
                 try {
@@ -218,6 +221,18 @@ public class OfflineFragment extends android.support.v4.app.Fragment {
             }
             adapter = new OfflineBrowserPagerAdapter(getActivity());
             sPager.setAdapter(adapter);
+            if (showSnackbar) {
+                View.OnClickListener oc = new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        getLatestComic();
+                    }
+                };
+                FloatingActionButton fab = (FloatingActionButton) getActivity().findViewById(R.id.fab);
+                Snackbar.make(fab, getActivity().getResources().getString(R.string.new_comic), Snackbar.LENGTH_LONG)
+                        .setAction(getActivity().getResources().getString(R.string.new_comic_view), oc)
+                        .show();
+            }
         }
     }
 
@@ -688,7 +703,7 @@ public class OfflineFragment extends android.support.v4.app.Fragment {
     @Override
     public void onStop() {
         PrefHelper.setLastComic(sLastComicNumber);
-        super.onDestroy();
+        super.onStop();
     }
 
     @Override

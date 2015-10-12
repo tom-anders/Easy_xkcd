@@ -19,6 +19,7 @@
 package de.tap.easy_xkcd;
 
 import android.app.ActivityManager;
+import android.app.Fragment;
 import android.app.ProgressDialog;
 import android.content.ActivityNotFoundException;
 import android.content.res.Configuration;
@@ -735,6 +736,24 @@ public class MainActivity extends AppCompatActivity {
                 WakefulIntentService.cancelAlarms(this);
             }
         }
+    }
+
+    @Override
+    protected void onRestart() {
+        android.support.v4.app.Fragment fragment = getSupportFragmentManager().findFragmentByTag("browser");
+        if (fragment != null && isOnline()) {
+                if (sCurrentFragment == R.id.nav_browser) {
+                    sProgress = ProgressDialog.show(this, "", this.getResources().getString(R.string.loading_comics), true);
+                }
+                if (!fullOffline) {
+                    ComicBrowserFragment comicBrowserFragment = (ComicBrowserFragment) fragment;
+                    comicBrowserFragment.updatePager();
+                } else {
+                    OfflineFragment offlineFragment = (OfflineFragment) fragment;
+                    offlineFragment.updatePager();
+                }
+        }
+        super.onRestart();
     }
 
     @Override
