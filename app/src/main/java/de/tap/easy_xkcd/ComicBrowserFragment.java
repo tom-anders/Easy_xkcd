@@ -85,7 +85,9 @@ public class ComicBrowserFragment extends android.support.v4.app.Fragment {
         }
         mActionBar = ((MainActivity) getActivity()).getSupportActionBar();
         assert mActionBar != null;
-        mActionBar.setSubtitle(String.valueOf(sLastComicNumber));
+        if (MainActivity.sCurrentFragment == R.id.nav_browser && PrefHelper.subtitleEnabled()) {
+            mActionBar.setSubtitle(String.valueOf(sLastComicNumber));
+        }
 
         sPager = (HackyViewPager) v.findViewById(R.id.pager);
         sPager.setOffscreenPageLimit(3);
