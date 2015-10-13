@@ -79,6 +79,14 @@
         name="card_long_click">
         <item>Share</item>
         <item>Open in Browser</item>
+        <item>Add to Favorites</item>
+    </string-array>
+
+    <string-array
+        name="card_long_click_remove">
+        <item>Share</item>
+        <item>Open in Browser</item>
+        <item>Remove from Favorites</item>
     </string-array>
 
     <string-array
@@ -234,4 +242,5 @@
     <string name="snackbar_feature">New feature: Auto night mode!</string>
     <string name="snackbar_feature_oc">Check it out</string>
     <string name="new_comic_view">View</string>
+    <string name="whatif_overview">Overview</string>
 </resources>

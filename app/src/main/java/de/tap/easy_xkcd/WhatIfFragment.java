@@ -6,8 +6,6 @@ import android.app.SearchManager;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.content.res.Resources;
-import android.graphics.Bitmap;
 import android.graphics.ColorFilter;
 import android.graphics.ColorMatrixColorFilter;
 import android.net.ConnectivityManager;
@@ -15,7 +13,6 @@ import android.net.NetworkInfo;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
-import android.support.design.widget.FloatingActionButton;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.view.MenuItemCompat;
 import android.support.v7.widget.CardView;
@@ -23,16 +20,12 @@ import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
-import android.util.TypedValue;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.animation.AccelerateInterpolator;
-import android.view.animation.Animation;
-import android.view.animation.AnimationUtils;
 import android.view.animation.DecelerateInterpolator;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.ImageView;
@@ -41,16 +34,12 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.bumptech.glide.Glide;
-import com.bumptech.glide.request.animation.GlideAnimation;
-import com.bumptech.glide.request.target.SimpleTarget;
 import com.tap.xkcd_reader.R;
 
-import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Random;
@@ -58,7 +47,6 @@ import java.util.Random;
 
 import butterknife.Bind;
 import butterknife.ButterKnife;
-import butterknife.OnClick;
 import jp.wasabeef.recyclerview.animators.adapters.SlideInBottomAnimationAdapter;
 
 public class WhatIfFragment extends android.support.v4.app.Fragment {
@@ -66,13 +54,14 @@ public class WhatIfFragment extends android.support.v4.app.Fragment {
     public static ArrayList<String> mTitles = new ArrayList<>();
     private static ArrayList<String> mImgs = new ArrayList<>();
     //public static RecyclerView rv;
-    @Bind(R.id.rv) RecyclerView rv;
+    @Bind(R.id.rv)
+    RecyclerView rv;
     private MenuItem searchMenuItem;
     public static RVAdapter adapter;
     private static WhatIfFragment instance;
     public static boolean newIntent;
     //private FloatingActionButton fab;
-    @Bind(R.id.fab) FloatingActionButton fab;
+    //@Bind(R.id.fab) FloatingActionButton fab;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
@@ -91,7 +80,7 @@ public class WhatIfFragment extends android.support.v4.app.Fragment {
         LinearLayoutManager llm = new LinearLayoutManager(getActivity());
         rv.setLayoutManager(llm);
         rv.setHasFixedSize(false);
-        rv.addOnScrollListener(new CustomOnScrollListener());
+        //rv.addOnScrollListener(new CustomOnScrollListener());
 
         instance = this;
 
@@ -118,28 +107,23 @@ public class WhatIfFragment extends android.support.v4.app.Fragment {
         protected Void doInBackground(Void... dummy) {
             mTitles.clear();
             mImgs.clear();
-            try {
-                Document doc = Jsoup.connect("https://what-if.xkcd.com/archive/")
-                        .userAgent("Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/32.0.1700.19 Safari/537.36")
-                        .get();
-                Log.e("Info", "doc loaded");
-                Elements titles = doc.select("h1");
-                Elements imagelinks = doc.select("img.archive-image");
 
-                for (Element title : titles) {
-                    mTitles.add(title.text());
-                }
-                Log.e("Info", "titles");
-                for (Element image : imagelinks) {
-                    mImgs.add(image.absUrl("src"));
-                }
-                Log.e("Info", "imgs");
+            Document doc = WhatIfOverviewFragment.doc;
+            Log.e("Info", "doc loaded");
+            Elements titles = doc.select("h1");
+            Elements imagelinks = doc.select("img.archive-image");
 
-                Collections.reverse(mTitles);
-                Collections.reverse(mImgs);
-            } catch (IOException e) {
-                e.printStackTrace();
+            for (Element title : titles) {
+                mTitles.add(title.text());
             }
+            Log.e("Info", "titles");
+            for (Element image : imagelinks) {
+                mImgs.add(image.absUrl("src"));
+            }
+            Log.e("Info", "imgs");
+
+            Collections.reverse(mTitles);
+            Collections.reverse(mImgs);
             return null;
         }
 
@@ -168,15 +152,15 @@ public class WhatIfFragment extends android.support.v4.app.Fragment {
                 rv.scrollToPosition(mTitles.size() - PrefHelper.getLastWhatIf());
             }
             progress.dismiss();
-            Toolbar toolbar = ((MainActivity)getActivity()).toolbar;
-            if (toolbar.getAlpha()==0) {
+            Toolbar toolbar = ((MainActivity) getActivity()).toolbar;
+            if (toolbar.getAlpha() == 0) {
                 toolbar.setTranslationY(-300);
                 toolbar.animate().setDuration(300).translationY(0).alpha(1);
                 View view;
-                for (int i = 0; i<toolbar.getChildCount(); i++) {
+                for (int i = 0; i < toolbar.getChildCount(); i++) {
                     view = toolbar.getChildAt(i);
                     view.setTranslationY(-300);
-                    view.animate().setStartDelay(50*(i+1)).setDuration(70*(i+1)).translationY(0);
+                    view.animate().setStartDelay(50 * (i + 1)).setDuration(70 * (i + 1)).translationY(0);
                 }
             }
 
@@ -302,7 +286,7 @@ public class WhatIfFragment extends android.support.v4.app.Fragment {
         }
     }
 
-    @OnClick(R.id.fab) void onClick() {
+    public void getRandom() {
         if (isOnline()) {
             Random mRand = new Random();
             int number = mRand.nextInt(adapter.titles.size());
@@ -334,12 +318,21 @@ public class WhatIfFragment extends android.support.v4.app.Fragment {
         }
     }*/
 
-    class CustomOnLongClickListener implements  View.OnLongClickListener {
+    class CustomOnLongClickListener implements View.OnLongClickListener {
         @Override
         public boolean onLongClick(View v) {
             final View view = v;
             AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
-            builder.setItems(R.array.card_long_click, new DialogInterface.OnClickListener() {
+            int pos = pos = rv.getChildAdapterPosition(view);
+            String title = adapter.titles.get(pos);
+            int n = mTitles.size() - mTitles.indexOf(title);
+            int array;
+            if (PrefHelper.checkWhatIfFav(n)) {
+                array = R.array.card_long_click_remove;
+            } else {
+                array = R.array.card_long_click;
+            }
+            builder.setItems(array, new DialogInterface.OnClickListener() {
                 @Override
                 public void onClick(DialogInterface dialog, int which) {
                     int pos;
@@ -363,16 +356,27 @@ public class WhatIfFragment extends android.support.v4.app.Fragment {
                             Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse("http://what-if.xkcd.com/" + String.valueOf(n)));
                             startActivity(intent);
                             break;
+                        case 2:
+                            pos = rv.getChildAdapterPosition(view);
+                            title = adapter.titles.get(pos);
+                            n = mTitles.size() - mTitles.indexOf(title);
+                            if (!PrefHelper.checkWhatIfFav(n)) {
+                                PrefHelper.setWhatIfFavorite(String.valueOf(n));
+                            } else {
+                                PrefHelper.removeWhatifFav(n);
+                            }
+                            WhatIfFavoritesFragment.getInstance().updateFavorites();
+                            break;
                     }
                 }
             });
             AlertDialog alert = builder.create();
             alert.show();
-           return true;
+            return true;
         }
     }
 
-    class CustomOnScrollListener extends RecyclerView.OnScrollListener {
+    /*class CustomOnScrollListener extends RecyclerView.OnScrollListener {
         int scrollDist = 0;
         boolean isVisible = true;
         static final float MINIMUM = 25;
@@ -395,7 +399,7 @@ public class WhatIfFragment extends android.support.v4.app.Fragment {
                 scrollDist += dy;
             }
         }
-    }
+    }*/
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
@@ -463,16 +467,6 @@ public class WhatIfFragment extends android.support.v4.app.Fragment {
 
     @Override
     public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
-        for (int i = 0; i < menu.size()-2; i++) {
-            menu.getItem(i).setVisible(false);
-        }
-        if (PrefHelper.hideDonate()) {
-            menu.findItem(R.id.action_donate).setVisible(false);
-        }
-
-        menu.findItem(R.id.action_unread).setVisible(true);
-        menu.findItem(R.id.action_hide_read).setVisible(true);
-        menu.findItem(R.id.action_hide_read).setChecked(PrefHelper.hideRead());
 
         // Get the SearchView and set the searchable configuration
         SearchManager searchManager = (SearchManager) getActivity().getSystemService(Context.SEARCH_SERVICE);
@@ -517,7 +511,8 @@ public class WhatIfFragment extends android.support.v4.app.Fragment {
                 searchView.requestFocus();
 
 
-                fab.setVisibility(View.INVISIBLE);
+                //fab.setVisibility(View.INVISIBLE);
+                ((WhatIfOverviewFragment) getParentFragment()).fab.hide();
                 return true;
             }
 
@@ -534,8 +529,9 @@ public class WhatIfFragment extends android.support.v4.app.Fragment {
                 rv.setAdapter(slideAdapter);
                 searchView.setQuery("", false);
 
-                fab.setVisibility(View.VISIBLE);
-                fab.startAnimation(AnimationUtils.loadAnimation(getActivity(), R.anim.grow));
+                //fab.setVisibility(View.VISIBLE);
+                //fab.startAnimation(AnimationUtils.loadAnimation(getActivity(), R.anim.grow));
+                ((WhatIfOverviewFragment) getParentFragment()).fab.show();
                 return true;
             }
         });
@@ -551,7 +547,8 @@ public class WhatIfFragment extends android.support.v4.app.Fragment {
         return netInfo != null && netInfo.isConnectedOrConnecting();
     }
 
-    @Override public void onDestroyView() {
+    @Override
+    public void onDestroyView() {
         super.onDestroyView();
         ButterKnife.unbind(this);
     }

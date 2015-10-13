@@ -287,7 +287,6 @@ public class WhatIfActivity extends AppCompatActivity {
 
         menu.findItem(R.id.action_night_mode).setChecked(PrefHelper.nightModeEnabled());
         menu.findItem(R.id.action_swipe).setChecked(PrefHelper.swipeEnabled());
-
         return true;
     }
 
@@ -317,6 +316,7 @@ public class WhatIfActivity extends AppCompatActivity {
             case R.id.action_swipe:
                 item.setChecked(!item.isChecked());
                 PrefHelper.setSwipeEnabled(item.isChecked());
+                invalidateOptionsMenu();
                 return true;
 
             case R.id.action_browser:
@@ -343,9 +343,21 @@ public class WhatIfActivity extends AppCompatActivity {
                 }
                 PrefHelper.setWhatifRead(String.valueOf(WhatIfIndex));
                 new LoadWhatIf().execute();
+                return true;
+            case R.id.action_favorite:
+                if (!PrefHelper.checkWhatIfFav(WhatIfIndex)) {
+                    PrefHelper.setWhatIfFavorite(String.valueOf(WhatIfIndex));
+                } else {
+                    PrefHelper.removeWhatifFav(WhatIfIndex);
+                }
+                WhatIfFavoritesFragment.getInstance().updateFavorites();
+                invalidateOptionsMenu();
+                return true;
         }
         return super.onOptionsItemSelected(item);
     }
+
+
 
     private boolean nextWhatIf(boolean left) {
         Animation animation;
@@ -371,6 +383,7 @@ public class WhatIfActivity extends AppCompatActivity {
             OfflineWhatIfFragment.getInstance().rv.scrollToPosition(OfflineWhatIfFragment.mTitles.size() - WhatIfIndex);
         }
         PrefHelper.setWhatifRead(String.valueOf(WhatIfIndex));
+        invalidateOptionsMenu();
         return true;
     }
 
@@ -393,6 +406,13 @@ public class WhatIfActivity extends AppCompatActivity {
             } else {
                 menu.findItem(R.id.action_next).setVisible(true);
             }
+        }
+        if (menu.findItem(R.id.action_swipe).isChecked()) {
+            menu.findItem(R.id.action_back).setVisible(false);
+            menu.findItem(R.id.action_next).setVisible(false);
+        }
+        if (PrefHelper.checkWhatIfFav(WhatIfIndex)) {
+            menu.findItem(R.id.action_favorite).setIcon(getResources().getDrawable(R.drawable.ic_action_favorite));
         }
         return super.onPrepareOptionsMenu(menu);
     }

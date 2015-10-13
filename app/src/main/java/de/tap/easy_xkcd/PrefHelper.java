@@ -25,7 +25,6 @@ import android.net.Uri;
 import android.preference.PreferenceManager;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
-import android.text.format.DateFormat;
 import android.util.Log;
 import android.view.View;
 
@@ -74,6 +73,7 @@ public class PrefHelper {
     private static final String LAST_WHATIF = "last_whatif";
     private static final String NIGHT_MODE = "night_mode";
     private static final String WHATIF_READ = "whatif_read";
+    private static final String WHATIF_FAV = "whatif_fav";
     private static final String NEWEST_WHATIF = "whatif_newest";
     private static final String HIDE_READ = "hide_read";
     private static final String SWIPE_ENABLED = "whatif_swipe";
@@ -360,6 +360,63 @@ public class PrefHelper {
         }
         int a = Arrays.binarySearch(readInt, number);
         return (a >= 0);
+    }
+
+    public static void setWhatIfFavorite (String added) {
+        String fav = sharedPrefs.getString(WHATIF_FAV, "");
+        if (!fav.equals("")) {
+            fav = fav + "," + added;
+        } else {
+            fav = added;
+        }
+        SharedPreferences.Editor editor = sharedPrefs.edit();
+        editor.putString(WHATIF_FAV, fav);
+        editor.commit();
+    }
+
+    public static boolean checkWhatIfFav(int number) {
+        String fav = sharedPrefs.getString(WHATIF_FAV, "");
+        if (fav.equals("")) {
+            return false;
+        }
+        String[] favList = Favorites.sortArray(fav.split(","));
+        int[] favInt = new int[favList.length];
+        for (int i = 0; i < favInt.length; i++) {
+            favInt[i] = Integer.parseInt(favList[i]);
+        }
+        int a = Arrays.binarySearch(favInt, number);
+        return (a >= 0);
+    }
+
+    public static void removeWhatifFav(int number) {
+        String[] old = sharedPrefs.getString(WHATIF_FAV, "").split(",");
+        old = Favorites.sortArray(old);
+        int[] oldInt = new int[old.length];
+        for (int i = 0; i < old.length; i++) {
+            oldInt[i] = Integer.parseInt(old[i]);
+        }
+        int a = Arrays.binarySearch(oldInt, number);
+        String[] out = new String[old.length - 1];
+        Log.d("favorites", sharedPrefs.getString(WHATIF_FAV, ""));
+        Log.d("a", String.valueOf(a));
+        if (out.length != 0 && a >= 0) {
+            System.arraycopy(old, 0, out, 0, a);
+            System.arraycopy(old, a + 1, out, a, out.length - a);
+            StringBuilder sb = new StringBuilder();
+            sb.append(out[0]);
+            for (int i = 1; i < out.length; i++) {
+                sb.append(",");
+                sb.append(out[i]);
+            }
+            SharedPreferences.Editor editor = sharedPrefs.edit();
+            editor.putString(WHATIF_FAV, sb.toString());
+            editor.commit();
+        } else {
+            SharedPreferences.Editor editor = sharedPrefs.edit();
+            editor.putString(WHATIF_FAV, "");
+            editor.commit();
+        }
+
     }
 
     public static void setAllUnread() {

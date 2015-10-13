@@ -95,9 +95,17 @@
     </string-array>
 
     <string-array
-        name="card_long_click">
+        name="card_long_click_add">
         <item>Share</item>
         <item>Open in Browser</item>
+        <item>Add to Favorites</item>
+    </string-array>
+
+    <string-array
+        name="card_long_click_remove">
+        <item>Share</item>
+        <item>Open in Browser</item>
+        <item>Remove from Favorites</item>
     </string-array>
 
     <string-array
@@ -309,6 +317,7 @@
     <string name="pref_auto_night_end">End time</string>
     <string name="snackbar_feature">New feature: Auto night mode!</string>
     <string name="snackbar_feature_oc">Check it out</string>
+    <string name="whatif_overview">Overview</string>
 
 
     <string name="dialog_donate">How much would you like to donate?</string>

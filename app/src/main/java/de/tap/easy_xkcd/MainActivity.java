@@ -341,6 +341,15 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public void selectDrawerItem(MenuItem menuItem) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+            if (menuItem.getItemId() == R.id.nav_whatif)
+                toolbar.setElevation(0);
+            else {
+                Resources r = getResources();
+                float px = TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 4, r.getDisplayMetrics());
+                toolbar.setElevation(px);
+            }
+        }
         switch (menuItem.getItemId()) {
             case R.id.nav_browser:
                 //Check if the device is online
@@ -518,11 +527,12 @@ public class MainActivity extends AppCompatActivity {
                     }
                     break;
                 case R.id.nav_whatif:
-                    if (isOnline() && !fullOfflineWhatIf) {
+                    /*if (isOnline() && !fullOfflineWhatIf) {
                         fragmentManager.beginTransaction().setCustomAnimations(R.anim.abc_slide_in_bottom, R.anim.abc_slide_in_bottom).add(R.id.flContent, new WhatIfFragment(), fragmentTagShow).commitAllowingStateLoss();
                     } else {
                         fragmentManager.beginTransaction().setCustomAnimations(R.anim.abc_slide_in_bottom, R.anim.abc_slide_in_bottom).add(R.id.flContent, new OfflineWhatIfFragment(), fragmentTagShow).commitAllowingStateLoss();
-                    }
+                    }*/
+                    fragmentManager.beginTransaction().setCustomAnimations(R.anim.abc_slide_in_bottom, R.anim.abc_slide_in_bottom).add(R.id.flContent, new WhatIfOverviewFragment(), fragmentTagShow).commitAllowingStateLoss();
                     break;
             }
         }

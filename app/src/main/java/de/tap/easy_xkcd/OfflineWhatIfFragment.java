@@ -9,7 +9,6 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
-import android.content.res.Resources;
 import android.graphics.Bitmap;
 import android.graphics.ColorFilter;
 import android.graphics.ColorMatrixColorFilter;
@@ -19,7 +18,6 @@ import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Environment;
-import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.view.MenuItemCompat;
@@ -28,16 +26,12 @@ import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
-import android.util.TypedValue;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.animation.AccelerateInterpolator;
-import android.view.animation.Animation;
-import android.view.animation.AnimationUtils;
 import android.view.animation.DecelerateInterpolator;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.ImageView;
@@ -45,11 +39,8 @@ import android.widget.SearchView;
 import android.widget.TextView;
 
 import com.bumptech.glide.Glide;
-import com.bumptech.glide.request.animation.GlideAnimation;
-import com.bumptech.glide.request.target.SimpleTarget;
 import com.tap.xkcd_reader.R;
 
-import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
@@ -63,7 +54,6 @@ import java.util.Random;
 
 import butterknife.Bind;
 import butterknife.ButterKnife;
-import butterknife.OnClick;
 import jp.wasabeef.recyclerview.animators.adapters.SlideInBottomAnimationAdapter;
 
 public class OfflineWhatIfFragment extends android.support.v4.app.Fragment {
@@ -75,7 +65,7 @@ public class OfflineWhatIfFragment extends android.support.v4.app.Fragment {
     private static OfflineWhatIfFragment instance;
     public static boolean newIntent;
     //private FloatingActionButton fab;
-    @Bind(R.id.fab) FloatingActionButton fab;
+    //@Bind(R.id.fab) FloatingActionButton fab;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
@@ -83,18 +73,13 @@ public class OfflineWhatIfFragment extends android.support.v4.app.Fragment {
         ButterKnife.bind(this, v);
         setHasOptionsMenu(true);
 
-        //fab = (FloatingActionButton) v.findViewById(R.id.fab);
-        /*fab.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                openRandomWhatIf();
-            }
-        });*/
+
+
         //rv = (RecyclerView) v.findViewById(R.id.rv);
         LinearLayoutManager llm = new LinearLayoutManager(getActivity());
         rv.setLayoutManager(llm);
         rv.setHasFixedSize(false);
-        rv.addOnScrollListener(new CustomOnScrollListener());
+        //rv.addOnScrollListener(new CustomOnScrollListener());
 
         instance = this;
 
@@ -188,9 +173,7 @@ public class OfflineWhatIfFragment extends android.support.v4.app.Fragment {
         @Override
         protected Void doInBackground(Void... dummy) {
             try {
-                Document doc = Jsoup.connect("https://what-if.xkcd.com/archive/")
-                        .userAgent("Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/32.0.1700.19 Safari/537.36")
-                        .get();
+                Document doc = WhatIfOverviewFragment.doc;
                 Elements titles = doc.select("h1");
                 Elements img = doc.select("img.archive-image");
                 if (titles.size() > PrefHelper.getNewestWhatIf()) {
@@ -371,7 +354,7 @@ public class OfflineWhatIfFragment extends android.support.v4.app.Fragment {
         }
     }
 
-    @OnClick(R.id.fab) void onClick() {
+    public void getRandom() {
         Random mRand = new Random();
         int number = mRand.nextInt(adapter.titles.size());
         Intent intent = new Intent(getActivity(), WhatIfActivity.class);
@@ -402,7 +385,16 @@ public class OfflineWhatIfFragment extends android.support.v4.app.Fragment {
         public boolean onLongClick(View v) {
             final View view = v;
             AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
-            builder.setItems(R.array.card_long_click, new DialogInterface.OnClickListener() {
+            int pos = rv.getChildAdapterPosition(view);
+            final String title = adapter.titles.get(pos);
+            final int n = mTitles.size() - mTitles.indexOf(title);
+            int array;
+            if (PrefHelper.checkWhatIfFav(n)) {
+                array = R.array.card_long_click_remove;
+            } else {
+                array = R.array.card_long_click;
+            }
+            builder.setItems(array, new DialogInterface.OnClickListener() {
                 @Override
                 public void onClick(DialogInterface dialog, int which) {
                     int pos;
@@ -426,6 +418,17 @@ public class OfflineWhatIfFragment extends android.support.v4.app.Fragment {
                             Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse("http://what-if.xkcd.com/" + String.valueOf(n)));
                             startActivity(intent);
                             break;
+                        case 2:
+                            pos = rv.getChildAdapterPosition(view);
+                            title = adapter.titles.get(pos);
+                            n = mTitles.size() - mTitles.indexOf(title);
+                            if (!PrefHelper.checkWhatIfFav(n)) {
+                                PrefHelper.setWhatIfFavorite(String.valueOf(n));
+                            } else {
+                                PrefHelper.removeWhatifFav(n);
+                            }
+                            WhatIfFavoritesFragment.getInstance().updateFavorites();
+                            break;
                     }
                 }
             });
@@ -435,7 +438,7 @@ public class OfflineWhatIfFragment extends android.support.v4.app.Fragment {
         }
     }
 
-    class CustomOnScrollListener extends RecyclerView.OnScrollListener {
+   /* class CustomOnScrollListener extends RecyclerView.OnScrollListener {
         int scrollDist = 0;
         boolean isVisible = true;
         static final float MINIMUM = 25;
@@ -458,7 +461,7 @@ public class OfflineWhatIfFragment extends android.support.v4.app.Fragment {
                 scrollDist += dy;
             }
         }
-    }
+    }*/
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
@@ -522,13 +525,6 @@ public class OfflineWhatIfFragment extends android.support.v4.app.Fragment {
 
     @Override
     public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
-        for (int i = 0; i < menu.size() - 2; i++) {
-            menu.getItem(i).setVisible(false);
-        }
-
-        menu.findItem(R.id.action_unread).setVisible(true);
-        menu.findItem(R.id.action_hide_read).setVisible(true);
-        menu.findItem(R.id.action_hide_read).setChecked(PrefHelper.hideRead());
 
         // Get the SearchView and set the searchable configuration
         SearchManager searchManager = (SearchManager) getActivity().getSystemService(Context.SEARCH_SERVICE);
@@ -571,7 +567,8 @@ public class OfflineWhatIfFragment extends android.support.v4.app.Fragment {
                 searchView.requestFocus();
 
 
-                fab.setVisibility(View.INVISIBLE);
+                //fab.setVisibility(View.INVISIBLE);
+                ((WhatIfOverviewFragment) getParentFragment()).fab.hide();
                 return true;
             }
 
@@ -588,8 +585,9 @@ public class OfflineWhatIfFragment extends android.support.v4.app.Fragment {
                 rv.setAdapter(slideAdapter);
                 searchView.setQuery("", false);
 
-                fab.setVisibility(View.VISIBLE);
-                fab.startAnimation(AnimationUtils.loadAnimation(getActivity(), R.anim.grow));
+                /*fab.setVisibility(View.VISIBLE);
+                fab.startAnimation(AnimationUtils.loadAnimation(getActivity(), R.anim.grow));*/
+                ((WhatIfOverviewFragment) getParentFragment()).fab.show();
                 return true;
             }
         });

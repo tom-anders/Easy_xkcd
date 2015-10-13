@@ -76,6 +76,14 @@
         name="card_long_click">
         <item>Teilen</item>
         <item>Im Browser öffnen</item>
+        <item>Zu Favoriten hinzufügen</item>
+    </string-array>
+
+    <string-array
+        name="card_long_click_remove">
+        <item>Teilen</item>
+        <item>Im Browser öffnen</item>
+        <item>Aus Favoriten entfernen</item>
     </string-array>
 
     <string-array
@@ -233,5 +241,6 @@
     <string name="snackbar_feature">Neues Feature: Automatischer Nachtmodus!</string>
     <string name="snackbar_feature_oc">Ausprobieren</string>
     <string name="new_comic_view">Ansehen</string>
+    <string name="whatif_overview">Übersicht</string>
 
 </resources>
