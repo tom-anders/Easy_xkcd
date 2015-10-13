@@ -95,7 +95,7 @@
     </string-array>
 
     <string-array
-        name="card_long_click_add">
+        name="card_long_click">
         <item>Share</item>
         <item>Open in Browser</item>
         <item>Add to Favorites</item>
