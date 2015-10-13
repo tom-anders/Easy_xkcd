@@ -62,7 +62,7 @@ public class OfflineFragment extends android.support.v4.app.Fragment {
     public static int sLastComicNumber = 0;
     public static int sNewestComicNumber = 0;
     public static SparseArray<OfflineComic> sComicMap = new SparseArray<>();
-    public HackyViewPager sPager;
+    public static HackyViewPager sPager;
     private OfflineBrowserPagerAdapter adapter;
     private ActionBar mActionBar;
     private Boolean randomSelected = false;
@@ -704,6 +704,17 @@ public class OfflineFragment extends android.support.v4.app.Fragment {
     public void onStop() {
         PrefHelper.setLastComic(sLastComicNumber);
         super.onStop();
+    }
+
+    public static boolean zoomReset() {
+        PhotoView pv = (PhotoView) sPager.findViewWithTag(sLastComicNumber-1).findViewById(R.id.ivComic);
+        float scale = pv.getScale();
+        if (scale != 1f) {
+            pv.setScale(1f, true);
+            return true;
+        } else {
+            return false;
+        }
     }
 
     @Override

@@ -69,7 +69,7 @@ public class FavoritesFragment extends android.support.v4.app.Fragment {
     public SparseArray<OfflineComic> mComicMap = new SparseArray<>();
     static final String LAST_FAV = "last fav";
     public static Integer sFavoriteIndex = 0;
-    private HackyViewPager mPager = null;
+    private static HackyViewPager mPager = null;
     private FavoritesPagerAdapter mPagerAdapter = null;
     private String[] mFav;
     public static int[] sFavorites;
@@ -584,6 +584,17 @@ public class FavoritesFragment extends android.support.v4.app.Fragment {
             }
         }
 
+    }
+
+    public static boolean zoomReset() {
+        PhotoView pv = (PhotoView) mPager.findViewWithTag(sFavoriteIndex).findViewById(R.id.ivComic);
+        float scale = pv.getScale();
+        if (scale != 1f) {
+            pv.setScale(1f, true);
+            return true;
+        } else {
+            return false;
+        }
     }
 
     public boolean getRandomComic() {

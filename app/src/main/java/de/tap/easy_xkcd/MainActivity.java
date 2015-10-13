@@ -784,6 +784,20 @@ public class MainActivity extends AppCompatActivity {
     public void onBackPressed() {
         if (getSearchMenuItem().isActionViewExpanded()) {
             getSearchMenuItem().collapseActionView();
+        } else if (sCurrentFragment == R.id.nav_browser) {
+            if (!fullOffline) {
+                if (!ComicBrowserFragment.zoomReset()) {
+                    super.onBackPressed();
+                }
+            } else {
+                if (!OfflineFragment.zoomReset()) {
+                    super.onBackPressed();
+                }
+            }
+        } else if (sCurrentFragment == R.id.nav_favorites) {
+            if (!FavoritesFragment.zoomReset()) {
+                super.onBackPressed();
+            }
         } else {
             super.onBackPressed();
         }

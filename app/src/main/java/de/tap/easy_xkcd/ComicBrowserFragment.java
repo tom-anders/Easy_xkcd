@@ -69,7 +69,7 @@ public class ComicBrowserFragment extends android.support.v4.app.Fragment {
     public static int sNewestComicNumber = 0;
     private static boolean newestUpdated = false;
     public static SparseArray<Comic> sComicMap = new SparseArray<>();
-    public HackyViewPager sPager;
+    public static HackyViewPager sPager;
     private ComicBrowserPagerAdapter adapter;
     private ActionBar mActionBar;
 
@@ -733,6 +733,17 @@ public class ComicBrowserFragment extends android.support.v4.app.Fragment {
             view.setVisibility(View.VISIBLE);
         } else {
             view.setVisibility(View.GONE);
+        }
+    }
+
+    public static boolean zoomReset() {
+        PhotoView pv = (PhotoView) sPager.findViewWithTag(sLastComicNumber-1).findViewById(R.id.ivComic);
+        float scale = pv.getScale();
+        if (scale != 1f) {
+            pv.setScale(1f, true);
+            return true;
+        } else {
+            return false;
         }
     }
 
