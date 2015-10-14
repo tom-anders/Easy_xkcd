@@ -236,7 +236,7 @@ public class ComicBrowserFragment extends android.support.v4.app.Fragment {
                 @Override
                 protected Void doInBackground(Void... dummy) {
                     try {
-                        comic = new Comic(position + 1);
+                        comic = new Comic(position + 1, getActivity());
                     } catch (IOException e) {
                         e.printStackTrace();
                     }
