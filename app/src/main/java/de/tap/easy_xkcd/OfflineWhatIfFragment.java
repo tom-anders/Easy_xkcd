@@ -41,6 +41,7 @@ import android.widget.TextView;
 import com.bumptech.glide.Glide;
 import com.tap.xkcd_reader.R;
 
+import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
@@ -173,7 +174,9 @@ public class OfflineWhatIfFragment extends android.support.v4.app.Fragment {
         @Override
         protected Void doInBackground(Void... dummy) {
             try {
-                Document doc = WhatIfOverviewFragment.doc;
+                Document doc = Jsoup.connect("https://what-if.xkcd.com/archive/")
+                        .userAgent("Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/32.0.1700.19 Safari/537.36")
+                        .get();
                 Elements titles = doc.select("h1");
                 Elements img = doc.select("img.archive-image");
                 if (titles.size() > PrefHelper.getNewestWhatIf()) {
