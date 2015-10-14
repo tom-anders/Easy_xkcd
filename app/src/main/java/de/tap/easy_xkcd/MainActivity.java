@@ -340,7 +340,7 @@ public class MainActivity extends AppCompatActivity {
                 });
     }
 
-    public void selectDrawerItem(MenuItem menuItem) {
+    public void selectDrawerItem(final MenuItem menuItem) {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
             if (menuItem.getItemId() == R.id.nav_whatif)
                 toolbar.setElevation(0);
@@ -413,9 +413,15 @@ public class MainActivity extends AppCompatActivity {
                     view.setTranslationY(300);
                     view.animate().setStartDelay(50 * (i + 1)).setDuration(70 * (i + 1)).translationY(0);
                 }
-                toolbar.getChildAt(0).setAlpha(0);
-                toolbar.getChildAt(0).animate().alpha(1).setDuration(200).setInterpolator(new AccelerateInterpolator());
-                showFragment("", menuItem.getItemId(), "What if?", "whatif", "favorites", "browser");
+                sDrawer.closeDrawers();
+                new Handler().postDelayed(new Runnable() {
+                    @Override
+                    public void run() {
+                        toolbar.getChildAt(0).setAlpha(0);
+                        toolbar.getChildAt(0).animate().alpha(1).setDuration(200).setInterpolator(new AccelerateInterpolator());
+                        showFragment("", menuItem.getItemId(), "What if?", "whatif", "favorites", "browser");
+                    }
+                }, 150);
                 break;
 
             case R.id.nav_settings:
