@@ -532,7 +532,7 @@ public class MainActivity extends AppCompatActivity {
                     } else {
                         fragmentManager.beginTransaction().setCustomAnimations(R.anim.abc_slide_in_bottom, R.anim.abc_slide_in_bottom).add(R.id.flContent, new OfflineWhatIfFragment(), fragmentTagShow).commitAllowingStateLoss();
                     }*/
-                    fragmentManager.beginTransaction().setCustomAnimations(R.anim.abc_slide_in_bottom, R.anim.abc_slide_in_bottom).add(R.id.flContent, new WhatIfOverviewFragment(), fragmentTagShow).commitAllowingStateLoss();
+                    fragmentManager.beginTransaction().add(R.id.flContent, new WhatIfOverviewFragment(), fragmentTagShow).commitAllowingStateLoss();
                     break;
             }
         }
