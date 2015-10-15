@@ -48,6 +48,8 @@ import com.bumptech.glide.Glide;
 import com.bumptech.glide.load.resource.drawable.GlideDrawable;
 import com.bumptech.glide.request.animation.GlideAnimation;
 import com.bumptech.glide.request.target.SimpleTarget;
+import com.kogitune.activity_transition.ActivityTransition;
+import com.kogitune.activity_transition.ExitActivityTransition;
 import com.tap.xkcd_reader.R;
 
 import org.json.JSONObject;
@@ -72,6 +74,7 @@ public class ComicBrowserFragment extends android.support.v4.app.Fragment {
     public static HackyViewPager sPager;
     private ComicBrowserPagerAdapter adapter;
     private ActionBar mActionBar;
+    public static boolean fromSearch = false;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
@@ -225,6 +228,11 @@ public class ComicBrowserFragment extends android.support.v4.app.Fragment {
             final PhotoView pvComic = (PhotoView) itemView.findViewById(R.id.ivComic);
             final TextView tvAlt = (TextView) itemView.findViewById(R.id.tvAlt);
             final TextView tvTitle = (TextView) itemView.findViewById(R.id.tvTitle);
+
+            if (position == sLastComicNumber -1 && fromSearch) {
+                fromSearch = false;
+                ActivityTransition.with(getActivity().getIntent()).duration(300).to(tvTitle).to(pvComic).start(null);
+            }
 
             if (PrefHelper.altByDefault()) {
                 tvAlt.setVisibility(View.VISIBLE);

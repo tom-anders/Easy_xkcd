@@ -55,6 +55,7 @@ import android.widget.SearchView;
 import android.widget.Toast;
 
 import com.commonsware.cwac.wakeful.WakefulIntentService;
+import com.kogitune.activity_transition.ActivityTransition;
 import com.tap.xkcd_reader.R;
 
 import butterknife.Bind;
@@ -106,6 +107,7 @@ public class MainActivity extends AppCompatActivity {
 
         fullOffline = PrefHelper.fullOfflineEnabled();
         fullOfflineWhatIf = PrefHelper.fullOfflineWhatIf();
+        boolean showProgress = true;
 
         boolean whatIfIntent = false;
         if (getIntent().getAction().equals(Intent.ACTION_VIEW)) {
@@ -122,6 +124,7 @@ public class MainActivity extends AppCompatActivity {
         }
         if (("de.tap.easy_xkcd.ACTION_COMIC").equals(getIntent().getAction())) {
             int number = getIntent().getIntExtra("number", 0);
+            showProgress = false;
             if (isOnline() && !fullOffline) {
                 ComicBrowserFragment.sLastComicNumber = number;
             } else {
@@ -194,7 +197,9 @@ public class MainActivity extends AppCompatActivity {
             } else {
                 if (!whatIfIntent && fullOffline | isOnline()) {
                     //Load ComicBrowserFragment by default
-                    sProgress = ProgressDialog.show(this, "", this.getResources().getString(R.string.loading_comics), true);
+                    if (showProgress) {
+                        sProgress = ProgressDialog.show(this, "", this.getResources().getString(R.string.loading_comics), true);
+                    }
                     item = mNavView.getMenu().findItem(R.id.nav_browser);
                 } else {
                     item = mNavView.getMenu().findItem(R.id.nav_whatif);

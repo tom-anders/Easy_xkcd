@@ -45,6 +45,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.bumptech.glide.Glide;
+import com.kogitune.activity_transition.ActivityTransition;
 import com.tap.xkcd_reader.R;
 
 import java.io.File;
@@ -66,6 +67,7 @@ public class OfflineFragment extends android.support.v4.app.Fragment {
     private OfflineBrowserPagerAdapter adapter;
     private ActionBar mActionBar;
     private Boolean randomSelected = false;
+    public static boolean fromSearch = false;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
@@ -510,6 +512,11 @@ public class OfflineFragment extends android.support.v4.app.Fragment {
             final View itemView = mLayoutInflater.inflate(R.layout.pager_item, container, false);
             final PhotoView pvComic = (PhotoView) itemView.findViewById(R.id.ivComic);
             itemView.setTag(position);
+
+            if (position == sLastComicNumber -1 && fromSearch) {
+                fromSearch = false;
+                ActivityTransition.with(getActivity().getIntent()).duration(300).to(pvComic).start(null);
+            }
 
             final TextView tvAlt = (TextView) itemView.findViewById(R.id.tvAlt);
             if (PrefHelper.altByDefault()) {

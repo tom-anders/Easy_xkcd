@@ -25,6 +25,8 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.ColorFilter;
 import android.graphics.ColorMatrixColorFilter;
+import android.graphics.drawable.BitmapDrawable;
+import android.media.Image;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.os.AsyncTask;
@@ -54,6 +56,8 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.bumptech.glide.Glide;
+import com.bumptech.glide.load.resource.bitmap.GlideBitmapDrawable;
+import com.kogitune.activity_transition.ActivityTransitionLauncher;
 import com.tap.xkcd_reader.R;
 
 import java.io.BufferedReader;
@@ -509,7 +513,11 @@ public class SearchResultsActivity extends AppCompatActivity {
             } else {
                 intent.putExtra("number", resultsTranscript.keyAt(pos - resultsTitle.size()));
             }
-            startActivity(intent);
+            //startActivity(intent);
+            ImageView imageView = (ImageView) v.findViewById(R.id.thumbnail);
+            Bitmap bitmap = ((BitmapDrawable)imageView.getDrawable()).getBitmap();
+            ComicBrowserFragment.fromSearch = true;
+            ActivityTransitionLauncher.with(SearchResultsActivity.this).from(v.findViewById(R.id.comic_title)).from(v.findViewById(R.id.thumbnail)).image(bitmap).launch(intent);
         }
     }
 
