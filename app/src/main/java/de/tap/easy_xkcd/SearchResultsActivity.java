@@ -516,7 +516,11 @@ public class SearchResultsActivity extends AppCompatActivity {
             //startActivity(intent);
             ImageView imageView = (ImageView) v.findViewById(R.id.thumbnail);
             Bitmap bitmap = ((BitmapDrawable)imageView.getDrawable()).getBitmap();
-            ComicBrowserFragment.fromSearch = true;
+            if (!PrefHelper.fullOfflineEnabled()) {
+                ComicBrowserFragment.fromSearch = true;
+            } else {
+                OfflineFragment.fromSearch = true;
+            }
             ActivityTransitionLauncher.with(SearchResultsActivity.this).from(v.findViewById(R.id.comic_title)).from(v.findViewById(R.id.thumbnail)).image(bitmap).launch(intent);
         }
     }
@@ -611,5 +615,11 @@ public class SearchResultsActivity extends AppCompatActivity {
                 (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
         NetworkInfo netInfo = cm.getActiveNetworkInfo();
         return netInfo != null && netInfo.isConnectedOrConnecting();
+    }
+
+    @Override
+    public void onBackPressed() {
+        MainActivity.fromSearch = true;
+        super.onBackPressed();
     }
 }

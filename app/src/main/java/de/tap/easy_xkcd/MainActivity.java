@@ -83,6 +83,7 @@ public class MainActivity extends AppCompatActivity {
     private boolean settingsOpened = false;
     private static MainActivity instance;
     private CustomTabActivityHelper customTabActivityHelper;
+    public static boolean fromSearch = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -762,7 +763,7 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onRestart() {
         android.support.v4.app.Fragment fragment = getSupportFragmentManager().findFragmentByTag("browser");
-        if (fragment != null && isOnline()) {
+        if (fragment != null && isOnline() && !fromSearch) {
                 if (sCurrentFragment == R.id.nav_browser) {
                     sProgress = ProgressDialog.show(this, "", this.getResources().getString(R.string.loading_comics), true);
                 }
@@ -774,6 +775,8 @@ public class MainActivity extends AppCompatActivity {
                     offlineFragment.updatePager();
                 }
         }
+        if (fromSearch)
+            fromSearch = false;
         super.onRestart();
     }
 
