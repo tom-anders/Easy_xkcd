@@ -91,7 +91,7 @@ public class OfflineFragment extends android.support.v4.app.Fragment {
         sPager = (HackyViewPager) v.findViewById(R.id.pager);
         sPager.setOffscreenPageLimit(2);
 
-        if (savedInstanceState == null && isOnline() && (isWifi()|PrefHelper.mobileEnabled()) ) {
+        if (savedInstanceState == null && isOnline() && (isWifi()|PrefHelper.mobileEnabled()) &&!fromSearch) {
             new updateImages().execute();
         } else {
             sNewestComicNumber = PrefHelper.getHighestOffline();
