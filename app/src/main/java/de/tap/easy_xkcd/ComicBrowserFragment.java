@@ -75,6 +75,7 @@ public class ComicBrowserFragment extends android.support.v4.app.Fragment {
     private ComicBrowserPagerAdapter adapter;
     private ActionBar mActionBar;
     public static boolean fromSearch = false;
+    private static boolean loadingImages;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
@@ -94,6 +95,7 @@ public class ComicBrowserFragment extends android.support.v4.app.Fragment {
 
         sPager = (HackyViewPager) v.findViewById(R.id.pager);
         sPager.setOffscreenPageLimit(3);
+        loadingImages = true;
 
         if (savedInstanceState == null &&!newestUpdated) {
             newestUpdated = true;
@@ -290,6 +292,7 @@ public class ComicBrowserFragment extends android.support.v4.app.Fragment {
                                                     getActivity().setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE);
                                                     break;
                                             }
+                                            loadingImages = false;
                                         }
                                     }
                                 });
@@ -745,6 +748,9 @@ public class ComicBrowserFragment extends android.support.v4.app.Fragment {
     }
 
     public static boolean zoomReset() {
+        if (loadingImages) {
+            return true;
+        }
         PhotoView pv = (PhotoView) sPager.findViewWithTag(sLastComicNumber-1).findViewById(R.id.ivComic);
         float scale = pv.getScale();
         if (scale != 1f) {
@@ -757,6 +763,8 @@ public class ComicBrowserFragment extends android.support.v4.app.Fragment {
 
     private boolean isOnline() {
         //Checks if the device is currently online
+        if (getActivity() == null)
+            return true;
         ConnectivityManager cm =
                 (ConnectivityManager) getActivity().getSystemService(Context.CONNECTIVITY_SERVICE);
         NetworkInfo netInfo = cm.getActiveNetworkInfo();
