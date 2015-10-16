@@ -1,10 +1,9 @@
-package de.tap.easy_xkcd;
+package de.tap.easy_xkcd.notifications;
 
 import android.app.Notification;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.content.Intent;
-import android.net.Uri;
 import android.os.AsyncTask;
 import android.support.v4.app.NotificationCompat;
 import android.util.Log;
@@ -18,6 +17,9 @@ import org.jsoup.select.Elements;
 
 import java.io.IOException;
 import java.util.Calendar;
+
+import de.tap.easy_xkcd.utils.Comic;
+import de.tap.easy_xkcd.utils.PrefHelper;
 
 public class ComicNotifier extends WakefulIntentService {
 

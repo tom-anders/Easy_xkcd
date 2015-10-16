@@ -16,7 +16,7 @@
  * ******************************************************************************
  */
 
-package de.tap.easy_xkcd;
+package de.tap.easy_xkcd.Activities;
 
 import android.app.ActivityManager;
 import android.app.ProgressDialog;
@@ -60,7 +60,15 @@ import butterknife.Bind;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
 import butterknife.OnLongClick;
-import de.tap.easy_xkcd.Activities.AboutActivity;
+import de.tap.easy_xkcd.fragments.ComicBrowserFragment;
+import de.tap.easy_xkcd.notifications.ComicListener;
+import de.tap.easy_xkcd.utils.Favorites;
+import de.tap.easy_xkcd.fragments.FavoritesFragment;
+import de.tap.easy_xkcd.fragments.OfflineFragment;
+import de.tap.easy_xkcd.fragments.OfflineWhatIfFragment;
+import de.tap.easy_xkcd.utils.PrefHelper;
+import de.tap.easy_xkcd.fragments.WhatIfFragment;
+import de.tap.easy_xkcd.fragments.WhatIfOverviewFragment;
 import de.tap.easy_xkcd.CustomTabHelpers.CustomTabActivityHelper;
 
 
@@ -756,6 +764,18 @@ public class MainActivity extends AppCompatActivity {
                 WakefulIntentService.cancelAlarms(this);
             }
         }
+    }
+
+    public FloatingActionButton getFab() {
+        return mFab;
+    }
+
+    public Toolbar getToolbar() {
+        return toolbar;
+    }
+
+    public NavigationView getNavView() {
+        return mNavView;
     }
 
     @Override

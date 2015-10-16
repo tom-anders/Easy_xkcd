@@ -1,4 +1,4 @@
-package de.tap.easy_xkcd;
+package de.tap.easy_xkcd.Activities;
 
 
 import android.content.Context;
@@ -11,6 +11,9 @@ import android.support.v7.app.AppCompatActivity;
 import android.util.TypedValue;
 
 import com.tap.xkcd_reader.R;
+
+import de.tap.easy_xkcd.fragments.NestedPreferenceFragment;
+import de.tap.easy_xkcd.utils.PrefHelper;
 
 public class NestedSettingsActivity extends AppCompatActivity {
     private static final String APPEARANCE = "appearance";

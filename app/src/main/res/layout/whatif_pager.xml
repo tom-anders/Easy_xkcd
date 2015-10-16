@@ -36,7 +36,7 @@
         app:borderWidth="0dp"
         app:layout_anchorGravity="bottom|right|end"
         android:src="@mipmap/ic_shuffle"
-        app:layout_behavior="de.tap.easy_xkcd.ScrollAwareFABBehavior"
+        app:layout_behavior="de.tap.easy_xkcd.misc.ScrollAwareFABBehavior"
         android:layout_margin="16dp" />
 
 

@@ -1,4 +1,4 @@
-package de.tap.easy_xkcd;
+package de.tap.easy_xkcd.fragments;
 
 
 import android.app.AlertDialog;
@@ -8,12 +8,10 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.ActivityInfo;
 import android.graphics.Bitmap;
-import android.graphics.Canvas;
 import android.graphics.ColorFilter;
 import android.graphics.ColorMatrixColorFilter;
 import android.graphics.RectF;
 import android.graphics.drawable.BitmapDrawable;
-import android.graphics.drawable.Drawable;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.net.Uri;
@@ -45,11 +43,9 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.bumptech.glide.Glide;
-import com.bumptech.glide.load.resource.drawable.GlideDrawable;
 import com.bumptech.glide.request.animation.GlideAnimation;
 import com.bumptech.glide.request.target.SimpleTarget;
 import com.kogitune.activity_transition.ActivityTransition;
-import com.kogitune.activity_transition.ExitActivityTransition;
 import com.tap.xkcd_reader.R;
 
 import org.json.JSONObject;
@@ -60,9 +56,14 @@ import java.io.IOException;
 import java.lang.reflect.Field;
 import java.util.Arrays;
 
-import butterknife.OnPageChange;
+import de.tap.easy_xkcd.utils.Comic;
 import de.tap.easy_xkcd.CustomTabHelpers.BrowserFallback;
 import de.tap.easy_xkcd.CustomTabHelpers.CustomTabActivityHelper;
+import de.tap.easy_xkcd.utils.Favorites;
+import de.tap.easy_xkcd.misc.HackyViewPager;
+import de.tap.easy_xkcd.utils.JsonParser;
+import de.tap.easy_xkcd.utils.PrefHelper;
+import de.tap.easy_xkcd.Activities.MainActivity;
 import uk.co.senab.photoview.PhotoView;
 import uk.co.senab.photoview.PhotoViewAttacher;
 
@@ -268,7 +269,7 @@ public class ComicBrowserFragment extends android.support.v4.app.Fragment {
                                         pvComic.setImageBitmap(resource);
                                         if (position == sLastComicNumber - 1 && MainActivity.sProgress != null) {
                                             MainActivity.sProgress.dismiss();
-                                            Toolbar toolbar = ((MainActivity) getActivity()).toolbar;
+                                            Toolbar toolbar = ((MainActivity) getActivity()).getToolbar();
                                             if (toolbar.getAlpha() == 0) {
                                                 toolbar.setTranslationY(-300);
                                                 toolbar.animate().setDuration(300).translationY(0).alpha(1);
@@ -668,7 +669,7 @@ public class ComicBrowserFragment extends android.support.v4.app.Fragment {
             if (f != null) {
                 f.refresh();
             }
-            ((MainActivity) getActivity()).mFab.forceLayout();
+            ((MainActivity) getActivity()).getFab().forceLayout();
         }
     }
 
@@ -698,7 +699,7 @@ public class ComicBrowserFragment extends android.support.v4.app.Fragment {
                 }
             };
             //attach listener and FAB to snackbar
-            Snackbar.make(((MainActivity) getActivity()).mFab, R.string.snackbar_remove, Snackbar.LENGTH_LONG)
+            Snackbar.make(((MainActivity) getActivity()).getFab(), R.string.snackbar_remove, Snackbar.LENGTH_LONG)
                     .setAction(R.string.snackbar_undo, oc)
                     .show();
             return null;
@@ -723,7 +724,7 @@ public class ComicBrowserFragment extends android.support.v4.app.Fragment {
             fav.setIcon(R.drawable.ic_favorite_outline);
         }
         //If the FAB is visible, hide the random comic menu item
-        if (((MainActivity) getActivity()).mFab.getVisibility() == View.GONE) {
+        if (((MainActivity) getActivity()).getFab().getVisibility() == View.GONE) {
             menu.findItem(R.id.action_random).setVisible(true);
         } else {
             menu.findItem(R.id.action_random).setVisible(false);

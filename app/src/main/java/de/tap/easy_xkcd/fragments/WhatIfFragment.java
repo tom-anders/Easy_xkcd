@@ -1,4 +1,4 @@
-package de.tap.easy_xkcd;
+package de.tap.easy_xkcd.fragments;
 
 import android.app.AlertDialog;
 import android.app.ProgressDialog;
@@ -47,6 +47,9 @@ import java.util.Random;
 
 import butterknife.Bind;
 import butterknife.ButterKnife;
+import de.tap.easy_xkcd.utils.PrefHelper;
+import de.tap.easy_xkcd.Activities.MainActivity;
+import de.tap.easy_xkcd.Activities.WhatIfActivity;
 import jp.wasabeef.recyclerview.animators.adapters.SlideInBottomAnimationAdapter;
 
 public class WhatIfFragment extends android.support.v4.app.Fragment {
@@ -84,7 +87,7 @@ public class WhatIfFragment extends android.support.v4.app.Fragment {
 
         instance = this;
 
-        ((MainActivity) getActivity()).mFab.setVisibility(View.GONE);
+        ((MainActivity) getActivity()).getFab().setVisibility(View.GONE);
 
         new DisplayOverview().execute();
 
@@ -152,7 +155,7 @@ public class WhatIfFragment extends android.support.v4.app.Fragment {
                 rv.scrollToPosition(mTitles.size() - PrefHelper.getLastWhatIf());
             }
             progress.dismiss();
-            Toolbar toolbar = ((MainActivity) getActivity()).toolbar;
+            Toolbar toolbar = ((MainActivity) getActivity()).getToolbar();
             if (toolbar.getAlpha() == 0) {
                 toolbar.setTranslationY(-300);
                 toolbar.animate().setDuration(300).translationY(0).alpha(1);
@@ -171,6 +174,10 @@ public class WhatIfFragment extends android.support.v4.app.Fragment {
             }
         }
 
+    }
+
+    public RecyclerView getRv() {
+        return rv;
     }
 
     public class RVAdapter extends RecyclerView.Adapter<RVAdapter.ComicViewHolder> {

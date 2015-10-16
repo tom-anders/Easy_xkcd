@@ -1,4 +1,4 @@
-package de.tap.easy_xkcd;
+package de.tap.easy_xkcd.utils;
 
 /**
  * Used to get the JSON Objects from https://xkcd.com/json.html

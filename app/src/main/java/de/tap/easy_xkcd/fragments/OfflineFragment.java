@@ -1,4 +1,4 @@
-package de.tap.easy_xkcd;
+package de.tap.easy_xkcd.fragments;
 
 import android.app.AlertDialog;
 import android.app.ProgressDialog;
@@ -54,8 +54,14 @@ import java.io.IOException;
 import java.lang.reflect.Field;
 import java.util.Arrays;
 
+import de.tap.easy_xkcd.utils.Comic;
 import de.tap.easy_xkcd.CustomTabHelpers.BrowserFallback;
 import de.tap.easy_xkcd.CustomTabHelpers.CustomTabActivityHelper;
+import de.tap.easy_xkcd.utils.Favorites;
+import de.tap.easy_xkcd.misc.HackyViewPager;
+import de.tap.easy_xkcd.utils.OfflineComic;
+import de.tap.easy_xkcd.utils.PrefHelper;
+import de.tap.easy_xkcd.Activities.MainActivity;
 import uk.co.senab.photoview.PhotoView;
 import uk.co.senab.photoview.PhotoViewAttacher;
 
@@ -214,7 +220,6 @@ public class OfflineFragment extends android.support.v4.app.Fragment {
             if (MainActivity.sProgress != null) {
                 MainActivity.sProgress.dismiss();
             }
-            Log.d("test", "progress dismissed");
             if (sLastComicNumber != 0) {
                 try {
                     Field field = ViewPager.class.getDeclaredField("mRestoredCurItem");
@@ -347,7 +352,7 @@ public class OfflineFragment extends android.support.v4.app.Fragment {
                 f.refresh();
             }
             //Sometimes the floating action button does not animate back to the bottom when the snackbar is dismissed, so force it to its original position
-            ((MainActivity) getActivity()).mFab.forceLayout();
+            ((MainActivity) getActivity()).getFab().forceLayout();
         }
     }
 
@@ -366,7 +371,7 @@ public class OfflineFragment extends android.support.v4.app.Fragment {
                 }
             };
             //attach listener and FAB to snackbar
-            Snackbar.make(((MainActivity) getActivity()).mFab, R.string.snackbar_remove, Snackbar.LENGTH_LONG)
+            Snackbar.make(((MainActivity) getActivity()).getFab(), R.string.snackbar_remove, Snackbar.LENGTH_LONG)
                     .setAction(R.string.snackbar_undo, oc)
                     .show();
             return null;
@@ -633,7 +638,7 @@ public class OfflineFragment extends android.support.v4.app.Fragment {
             }
 
             if (position == sLastComicNumber-1) {
-                Toolbar toolbar = ((MainActivity) getActivity()).toolbar;
+                Toolbar toolbar = ((MainActivity) getActivity()).getToolbar();
                 if (toolbar.getAlpha() == 0) {
                     toolbar.setTranslationY(-300);
                     toolbar.animate().setDuration(300).translationY(0).alpha(1);
@@ -680,7 +685,7 @@ public class OfflineFragment extends android.support.v4.app.Fragment {
             fav.setIcon(R.drawable.ic_favorite_outline);
         }
         //If the FAB is visible, hide the random comic menu item
-        if (((MainActivity) getActivity()).mFab.getVisibility() == View.GONE) {
+        if (((MainActivity) getActivity()).getFab().getVisibility() == View.GONE) {
             menu.findItem(R.id.action_random).setVisible(true);
         } else {
             menu.findItem(R.id.action_random).setVisible(false);

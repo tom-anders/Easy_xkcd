@@ -26,7 +26,7 @@ import com.tap.xkcd_reader.R;
 
 import org.sufficientlysecure.htmltextview.HtmlTextView;
 
-import de.tap.easy_xkcd.PrefHelper;
+import de.tap.easy_xkcd.utils.PrefHelper;
 
 
 public class AboutActivity extends ActionBarActivity {

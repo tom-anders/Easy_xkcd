@@ -1,4 +1,4 @@
-package de.tap.easy_xkcd;
+package de.tap.easy_xkcd.notifications;
 
 
 import android.app.AlarmManager;
@@ -12,6 +12,8 @@ import android.util.Log;
 import com.commonsware.cwac.wakeful.WakefulIntentService;
 
 import java.util.Calendar;
+
+import de.tap.easy_xkcd.utils.PrefHelper;
 
 public class ComicListener implements WakefulIntentService.AlarmListener {
     public void scheduleAlarms(AlarmManager mgr, PendingIntent pi, Context context) {

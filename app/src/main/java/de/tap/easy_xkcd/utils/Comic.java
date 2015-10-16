@@ -14,7 +14,7 @@
  * limitations under the License.
  ********************************************************************************/
 
-package de.tap.easy_xkcd;
+package de.tap.easy_xkcd.utils;
 
 import android.content.Context;
 import android.preference.PreferenceManager;

@@ -14,24 +14,19 @@
  * limitations under the License.
  ********************************************************************************/
 
-package de.tap.easy_xkcd;
+package de.tap.easy_xkcd.utils;
 
-import android.app.Activity;
 import android.content.Context;
-import android.content.SharedPreferences;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.os.Environment;
-import android.support.v4.content.ContextCompat;
 import android.util.Log;
-
-import com.tap.xkcd_reader.R;
 
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 
-import de.tap.easy_xkcd.MainActivity;
+import de.tap.easy_xkcd.utils.PrefHelper;
 
 public class OfflineComic {
     //private String[] mComicData;

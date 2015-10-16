@@ -15,7 +15,7 @@
  * limitations under the License.
  * ******************************************************************************
  */
-package de.tap.easy_xkcd;
+package de.tap.easy_xkcd.Activities;
 
 import android.app.ProgressDialog;
 import android.app.SearchManager;
@@ -26,7 +26,6 @@ import android.graphics.BitmapFactory;
 import android.graphics.ColorFilter;
 import android.graphics.ColorMatrixColorFilter;
 import android.graphics.drawable.BitmapDrawable;
-import android.media.Image;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.os.AsyncTask;
@@ -56,7 +55,6 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.bumptech.glide.Glide;
-import com.bumptech.glide.load.resource.bitmap.GlideBitmapDrawable;
 import com.kogitune.activity_transition.ActivityTransitionLauncher;
 import com.tap.xkcd_reader.R;
 
@@ -69,6 +67,10 @@ import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.Arrays;
 
+import de.tap.easy_xkcd.utils.Comic;
+import de.tap.easy_xkcd.fragments.ComicBrowserFragment;
+import de.tap.easy_xkcd.fragments.OfflineFragment;
+import de.tap.easy_xkcd.utils.PrefHelper;
 import jp.wasabeef.recyclerview.animators.adapters.SlideInBottomAnimationAdapter;
 
 

@@ -16,7 +16,7 @@
  * ******************************************************************************
  */
 
-package de.tap.easy_xkcd;
+package de.tap.easy_xkcd.fragments;
 
 import android.app.AlertDialog;
 import android.content.Context;
@@ -59,7 +59,11 @@ import java.io.IOException;
 import java.util.Arrays;
 import java.util.Random;
 
-import butterknife.ButterKnife;
+import de.tap.easy_xkcd.utils.Favorites;
+import de.tap.easy_xkcd.misc.HackyViewPager;
+import de.tap.easy_xkcd.utils.OfflineComic;
+import de.tap.easy_xkcd.utils.PrefHelper;
+import de.tap.easy_xkcd.Activities.MainActivity;
 import uk.co.senab.photoview.PhotoView;
 import uk.co.senab.photoview.PhotoViewAttacher;
 
@@ -345,7 +349,7 @@ public class FavoritesFragment extends android.support.v4.app.Fragment {
                         Favorites.putStringInPreferences(getActivity(), null, "favorites");
 
                         //Show ComicBrowserFragment
-                        MenuItem mBrowser = ((MainActivity) getActivity()).mNavView.getMenu().findItem(R.id.nav_browser);
+                        MenuItem mBrowser = ((MainActivity) getActivity()).getNavView().getMenu().findItem(R.id.nav_browser);
                         ((MainActivity) getActivity()).selectDrawerItem(mBrowser);
 
                         //Delete all saved images
@@ -386,7 +390,7 @@ public class FavoritesFragment extends android.support.v4.app.Fragment {
             String[] fav = Favorites.getFavoriteList(getActivity());
             if (fav.length == 0) {
                 //If there are no favorites left, show ComicBrowserFragment
-                MenuItem mBrowser = ((MainActivity) getActivity()).mNavView.getMenu().findItem(R.id.nav_browser);
+                MenuItem mBrowser = ((MainActivity) getActivity()).getNavView().getMenu().findItem(R.id.nav_browser);
                 ((MainActivity) getActivity()).selectDrawerItem(mBrowser);
                 return;
             }
@@ -519,7 +523,7 @@ public class FavoritesFragment extends android.support.v4.app.Fragment {
         fav.setIcon(R.drawable.ic_action_favorite);
 
         //If the FAB is visible, hide the random comic menu item
-        if (((MainActivity) getActivity()).mFab.getVisibility() == View.GONE) {
+        if (((MainActivity) getActivity()).getFab().getVisibility() == View.GONE) {
             menu.findItem(R.id.action_random).setVisible(true);
         } else {
             menu.findItem(R.id.action_random).setVisible(false);
@@ -571,7 +575,7 @@ public class FavoritesFragment extends android.support.v4.app.Fragment {
                 mActionBar.setSubtitle(String.valueOf(sFavorites[sFavoriteIndex]));
             }
 
-            Toolbar toolbar = ((MainActivity)getActivity()).toolbar;
+            Toolbar toolbar = ((MainActivity)getActivity()).getToolbar();
             if (toolbar.getAlpha()==0) {
                 toolbar.setTranslationY(-300);
                 toolbar.animate().setDuration(300).translationY(0).alpha(1);

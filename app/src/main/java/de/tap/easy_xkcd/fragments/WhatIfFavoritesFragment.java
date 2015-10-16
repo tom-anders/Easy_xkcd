@@ -1,4 +1,4 @@
-package de.tap.easy_xkcd;
+package de.tap.easy_xkcd.fragments;
 
 import android.app.AlertDialog;
 import android.app.ProgressDialog;
@@ -42,6 +42,8 @@ import java.util.Collections;
 
 import butterknife.Bind;
 import butterknife.ButterKnife;
+import de.tap.easy_xkcd.utils.PrefHelper;
+import de.tap.easy_xkcd.Activities.WhatIfActivity;
 import jp.wasabeef.recyclerview.animators.adapters.SlideInBottomAnimationAdapter;
 
 public class WhatIfFavoritesFragment extends android.support.v4.app.Fragment {

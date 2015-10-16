@@ -1,36 +1,21 @@
-package de.tap.easy_xkcd;
+package de.tap.easy_xkcd.fragments;
 
 import android.app.ProgressDialog;
-import android.app.SearchManager;
-import android.content.Context;
-import android.content.Intent;
 import android.content.res.Resources;
 import android.os.AsyncTask;
-import android.os.Build;
 import android.os.Bundle;
-import android.support.design.widget.AppBarLayout;
-import android.support.design.widget.CoordinatorLayout;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.TabLayout;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentPagerAdapter;
-import android.support.v4.view.MenuItemCompat;
-import android.support.v4.view.ViewCompat;
 import android.support.v4.view.ViewPager;
-import android.support.v7.widget.Toolbar;
-import android.util.AttributeSet;
-import android.util.Log;
 import android.util.TypedValue;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
-import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.animation.DecelerateInterpolator;
-import android.view.inputmethod.InputMethodManager;
-import android.widget.SearchView;
 
 import com.tap.xkcd_reader.R;
 
@@ -38,14 +23,11 @@ import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Random;
 
 import butterknife.Bind;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
-import jp.wasabeef.recyclerview.animators.adapters.SlideInBottomAnimationAdapter;
+import de.tap.easy_xkcd.utils.PrefHelper;
 
 public class WhatIfOverviewFragment extends android.support.v4.app.Fragment {
 

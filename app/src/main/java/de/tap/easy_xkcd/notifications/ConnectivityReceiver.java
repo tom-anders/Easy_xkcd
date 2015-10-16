@@ -1,4 +1,4 @@
-package de.tap.easy_xkcd;
+package de.tap.easy_xkcd.notifications;
 
 import android.content.BroadcastReceiver;
 import android.content.ComponentName;

@@ -1,19 +1,18 @@
-package de.tap.easy_xkcd;
+package de.tap.easy_xkcd.Activities;
 
 import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
-import android.support.v7.widget.Toolbar;
-import android.util.Log;
 import android.view.Menu;
-import android.view.MenuItem;
 import android.widget.Toast;
 
 import com.anjlab.android.iab.v3.BillingProcessor;
 import com.anjlab.android.iab.v3.TransactionDetails;
 import com.tap.xkcd_reader.R;
+
+import de.tap.easy_xkcd.utils.PrefHelper;
 
 public class DonateActivity extends AppCompatActivity {
 

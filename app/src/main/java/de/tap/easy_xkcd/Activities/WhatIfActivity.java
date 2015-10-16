@@ -1,37 +1,26 @@
-package de.tap.easy_xkcd;
+package de.tap.easy_xkcd.Activities;
 
-import android.app.FragmentManager;
 import android.app.ProgressDialog;
-import android.app.SearchManager;
-import android.content.Context;
 import android.content.Intent;
 import android.content.pm.ActivityInfo;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Environment;
-import android.os.Vibrator;
-import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.text.Html;
-import android.text.SpannableString;
 import android.text.method.LinkMovementMethod;
-import android.text.util.Linkify;
-import android.util.Log;
 import android.util.TypedValue;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
-import android.view.inputmethod.InputMethodManager;
 import android.webkit.JavascriptInterface;
 import android.webkit.WebChromeClient;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
-import android.widget.Button;
-import android.widget.SearchView;
 import android.widget.TextView;
 
 import com.tap.xkcd_reader.R;
@@ -44,7 +33,11 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.Random;
 
-import de.tap.easy_xkcd.CustomTabHelpers.CustomTabActivityHelper;
+import de.tap.easy_xkcd.fragments.OfflineWhatIfFragment;
+import de.tap.easy_xkcd.misc.OnSwipeTouchListener;
+import de.tap.easy_xkcd.utils.PrefHelper;
+import de.tap.easy_xkcd.fragments.WhatIfFavoritesFragment;
+import de.tap.easy_xkcd.fragments.WhatIfFragment;
 
 public class WhatIfActivity extends AppCompatActivity {
 
@@ -337,9 +330,9 @@ public class WhatIfActivity extends AppCompatActivity {
                 WhatIfIndex = mRand.nextInt(PrefHelper.getNewestWhatIf());
                 PrefHelper.setLastWhatIf(WhatIfIndex);
                 if (!fullOffline) {
-                    WhatIfFragment.getInstance().rv.scrollToPosition(WhatIfFragment.mTitles.size() - WhatIfIndex);
+                    WhatIfFragment.getInstance().getRv().scrollToPosition(WhatIfFragment.mTitles.size() - WhatIfIndex);
                 } else {
-                    OfflineWhatIfFragment.getInstance().rv.scrollToPosition(OfflineWhatIfFragment.mTitles.size() - WhatIfIndex);
+                    OfflineWhatIfFragment.getInstance().getRv().scrollToPosition(OfflineWhatIfFragment.mTitles.size() - WhatIfIndex);
                 }
                 PrefHelper.setWhatifRead(String.valueOf(WhatIfIndex));
                 new LoadWhatIf().execute();
@@ -378,9 +371,9 @@ public class WhatIfActivity extends AppCompatActivity {
         new LoadWhatIf().execute();
         invalidateOptionsMenu();
         if (!fullOffline) {
-            WhatIfFragment.getInstance().rv.scrollToPosition(WhatIfFragment.mTitles.size() - WhatIfIndex);
+            WhatIfFragment.getInstance().getRv().scrollToPosition(WhatIfFragment.mTitles.size() - WhatIfIndex);
         } else {
-            OfflineWhatIfFragment.getInstance().rv.scrollToPosition(OfflineWhatIfFragment.mTitles.size() - WhatIfIndex);
+            OfflineWhatIfFragment.getInstance().getRv().scrollToPosition(OfflineWhatIfFragment.mTitles.size() - WhatIfIndex);
         }
         PrefHelper.setWhatifRead(String.valueOf(WhatIfIndex));
         invalidateOptionsMenu();

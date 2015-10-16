@@ -1,4 +1,4 @@
-package de.tap.easy_xkcd;
+package de.tap.easy_xkcd.misc;
 
 import android.content.Context;
 import android.support.v4.widget.DrawerLayout;

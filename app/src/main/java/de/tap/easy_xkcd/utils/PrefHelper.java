@@ -15,7 +15,7 @@
  * limitations under the License.
  * ******************************************************************************
  */
-package de.tap.easy_xkcd;
+package de.tap.easy_xkcd.utils;
 
 import android.app.Activity;
 import android.content.Context;
@@ -36,6 +36,8 @@ import java.util.Calendar;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
+
+import de.tap.easy_xkcd.Activities.NestedSettingsActivity;
 
 public class PrefHelper {
     private static SharedPreferences sharedPrefs;

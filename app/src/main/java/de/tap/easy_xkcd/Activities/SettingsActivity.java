@@ -14,55 +14,19 @@
  * limitations under the License.
  ********************************************************************************/
 
-package de.tap.easy_xkcd;
+package de.tap.easy_xkcd.Activities;
 
-import android.Manifest;
-import android.app.Activity;
-import android.app.ProgressDialog;
-import android.content.Context;
-import android.content.DialogInterface;
 import android.content.Intent;
-import android.content.SharedPreferences;
-import android.content.pm.ActivityInfo;
-import android.content.pm.PackageManager;
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
-import android.net.ConnectivityManager;
-import android.net.NetworkInfo;
-import android.os.AsyncTask;
 import android.os.Build;
-import android.os.Environment;
-import android.os.Handler;
-import android.preference.MultiSelectListPreference;
 import android.preference.Preference;
 import android.preference.PreferenceFragment;
 import android.os.Bundle;
-import android.preference.PreferenceManager;
-import android.support.v4.app.ActivityCompat;
-import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
-import android.util.Log;
 import android.util.TypedValue;
-import android.widget.Toast;
 
-import com.bumptech.glide.Glide;
 import com.tap.xkcd_reader.R;
 
-import org.jsoup.Jsoup;
-import org.jsoup.nodes.Document;
-import org.jsoup.nodes.Element;
-import org.jsoup.select.Elements;
-
-import java.io.BufferedWriter;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
-import java.io.FileWriter;
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Objects;
-import java.util.Set;
-import java.util.SimpleTimeZone;
+import de.tap.easy_xkcd.utils.PrefHelper;
 
 public class SettingsActivity extends AppCompatActivity {
     private static SettingsActivity instance;

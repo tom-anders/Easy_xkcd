@@ -1,4 +1,4 @@
-package de.tap.easy_xkcd;
+package de.tap.easy_xkcd.fragments;
 
 
 import android.Manifest;
@@ -38,6 +38,13 @@ import java.io.FileOutputStream;
 import java.io.FileWriter;
 import java.io.IOException;
 
+import de.tap.easy_xkcd.utils.Comic;
+import de.tap.easy_xkcd.utils.Favorites;
+import de.tap.easy_xkcd.utils.PrefHelper;
+import de.tap.easy_xkcd.Activities.MainActivity;
+import de.tap.easy_xkcd.Activities.NestedSettingsActivity;
+import de.tap.easy_xkcd.Activities.SettingsActivity;
+
 public class NestedPreferenceFragment extends PreferenceFragment {
     private static final String APPEARANCE = "appearance";
     private static final String BEHAVIOR = "behavior";
@@ -55,14 +62,13 @@ public class NestedPreferenceFragment extends PreferenceFragment {
         Bundle args = new Bundle();
         args.putString(TAG_KEY, key);
         fragment.setArguments(args);
-        themeSettingChanged = false;
+        themeSettingChanged = false; //TODO add listener to notifications preference
         return fragment;
     }
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
         checkPreferenceResource();
     }
 
