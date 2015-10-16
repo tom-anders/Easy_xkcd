@@ -229,7 +229,7 @@
     <string name="action_trans">Transcript anzeigen</string>
     <string name="pref_update_mobile">Aktualisierung bei Mobilen Daten</string>
     <string name="pref_update_mobile_sum">Wenn deaktiviert, werden Offline Comics und What-If Artikel nur im WLAN aktualisiert</string>
-    <string name="pref_alt_sharing">Alt Text &#38; Teilem</string>
+    <string name="pref_alt_sharing">Alt Text &#38; Teilen</string>
     <string name="pref_alt_sharing_sum">Verändere das Verhalten der App beim Alt Text und beim Teilen</string>
     <string name="pref_appearance_sum">Verändere das Aussehen der App</string>
     <string name="pref_auto_night">Automatischer Nachtmodus</string>
