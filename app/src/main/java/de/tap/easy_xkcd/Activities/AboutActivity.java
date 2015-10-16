@@ -15,7 +15,7 @@
  * limitations under the License.
  * ******************************************************************************
  */
-package de.tap.easy_xkcd;
+package de.tap.easy_xkcd.Activities;
 
 import android.os.Build;
 import android.support.v7.app.ActionBarActivity;
@@ -25,6 +25,8 @@ import android.util.TypedValue;
 import com.tap.xkcd_reader.R;
 
 import org.sufficientlysecure.htmltextview.HtmlTextView;
+
+import de.tap.easy_xkcd.PrefHelper;
 
 
 public class AboutActivity extends ActionBarActivity {

@@ -19,7 +19,6 @@
 package de.tap.easy_xkcd;
 
 import android.app.ActivityManager;
-import android.app.Fragment;
 import android.app.ProgressDialog;
 import android.content.ActivityNotFoundException;
 import android.content.res.Configuration;
@@ -55,14 +54,13 @@ import android.widget.SearchView;
 import android.widget.Toast;
 
 import com.commonsware.cwac.wakeful.WakefulIntentService;
-import com.kogitune.activity_transition.ActivityTransition;
 import com.tap.xkcd_reader.R;
 
 import butterknife.Bind;
 import butterknife.ButterKnife;
-import butterknife.OnCheckedChanged;
 import butterknife.OnClick;
 import butterknife.OnLongClick;
+import de.tap.easy_xkcd.Activities.AboutActivity;
 import de.tap.easy_xkcd.CustomTabHelpers.CustomTabActivityHelper;
 
 
