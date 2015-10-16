@@ -194,7 +194,6 @@ public class OfflineFragment extends android.support.v4.app.Fragment {
             } catch (Exception e) {
                 e.printStackTrace();
             }
-
             if (!PrefHelper.nomediaCreated()) {
                 File sdCard = Environment.getExternalStorageDirectory();
                 File dir = new File(sdCard.getAbsolutePath() + "/easy xkcd");
@@ -212,6 +211,10 @@ public class OfflineFragment extends android.support.v4.app.Fragment {
         @Override
         protected void onPostExecute(Boolean showSnackbar) {
             progress.dismiss();
+            if (MainActivity.sProgress != null) {
+                MainActivity.sProgress.dismiss();
+            }
+            Log.d("test", "progress dismissed");
             if (sLastComicNumber != 0) {
                 try {
                     Field field = ViewPager.class.getDeclaredField("mRestoredCurItem");
