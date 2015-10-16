@@ -24,6 +24,7 @@ import android.widget.TimePicker;
 import android.widget.Toast;
 
 import com.bumptech.glide.Glide;
+import com.commonsware.cwac.wakeful.WakefulIntentService;
 import com.tap.xkcd_reader.R;
 
 import org.jsoup.Jsoup;
@@ -38,6 +39,7 @@ import java.io.FileOutputStream;
 import java.io.FileWriter;
 import java.io.IOException;
 
+import de.tap.easy_xkcd.notifications.ComicListener;
 import de.tap.easy_xkcd.utils.Comic;
 import de.tap.easy_xkcd.utils.Favorites;
 import de.tap.easy_xkcd.utils.PrefHelper;
@@ -51,8 +53,26 @@ public class NestedPreferenceFragment extends PreferenceFragment {
     private static final String ALT_SHARING = "altSharing";
     private static final String ADVANCED = "advanced";
     private static final String NIGHT = "night";
-
     private static final String TAG_KEY = "NESTED_KEY";
+
+    private static final String COLORED_NAVBAR = "pref_navbar";
+    private static final String THEME = "pref_theme";
+    private static final String NOTIFICATIONS_INTERVAL = "pref_notifications";
+    private static final String ORIENTATION = "pref_orientation";
+    private static final String FULL_OFFLINE = "pref_offline";
+    private static final String WHATIF_OFFLINE = "pref_offline_whatif";
+    private static final String NIGHT_THEME = "pref_night";
+    private static final String AUTO_NIGHT = "pref_auto_night";
+    private static final String AUTO_NIGHT_START = "pref_auto_night_start";
+    private static final String AUTO_NIGHT_END = "pref_auto_night_end";
+    private static final String REPAIR = "pref_repair";
+    private static final String MOBILE_ENABLED = "pref_update_mobile";
+
+    private static final String OFFLINE_PATH = "/easy xkcd";
+    private static final String OFFLINE_WHATIF_PATH = "/easy xkcd/what if/";
+    private static final String OFFLINE_WHATIF_OVERVIEW_PATH = "/easy xkcd/what if/overview";
+
+
 
     public static boolean themeSettingChanged;
 
@@ -62,7 +82,7 @@ public class NestedPreferenceFragment extends PreferenceFragment {
         Bundle args = new Bundle();
         args.putString(TAG_KEY, key);
         fragment.setArguments(args);
-        themeSettingChanged = false; //TODO add listener to notifications preference
+        themeSettingChanged = false;
         return fragment;
     }
 
@@ -74,19 +94,20 @@ public class NestedPreferenceFragment extends PreferenceFragment {
 
     private void checkPreferenceResource() {
         String key = getArguments().getString(TAG_KEY);
+        assert key != null;
         // Load the preferences from an XML resource
         switch (key) {
             case APPEARANCE:
                 addPreferencesFromResource(R.xml.pref_appearance);
-                findPreference("pref_navbar").setEnabled(Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP);
-                findPreference("pref_navbar").setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
+                findPreference(COLORED_NAVBAR).setEnabled(Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP);
+                findPreference(COLORED_NAVBAR).setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
                     @Override
                     public boolean onPreferenceClick(Preference preference) {
                         themeSettingChanged = true;
                         return true;
                     }
                 });
-                findPreference("pref_theme").setOnPreferenceChangeListener(new Preference.OnPreferenceChangeListener() {
+                findPreference(THEME).setOnPreferenceChangeListener(new Preference.OnPreferenceChangeListener() {
                     @Override
                     public boolean onPreferenceChange(Preference preference, Object newValue) {
                         themeSettingChanged = true;
@@ -97,7 +118,19 @@ public class NestedPreferenceFragment extends PreferenceFragment {
 
             case BEHAVIOR:
                 addPreferencesFromResource(R.xml.pref_behavior);
-                findPreference("pref_orientation").setOnPreferenceChangeListener(new Preference.OnPreferenceChangeListener() {
+                findPreference(NOTIFICATIONS_INTERVAL).setOnPreferenceChangeListener(new Preference.OnPreferenceChangeListener() {
+                    @Override
+                    public boolean onPreferenceChange(Preference preference, Object o) {
+                        int newValue = Integer.parseInt(o.toString());
+                        if (newValue != 0) {
+                            WakefulIntentService.scheduleAlarms(new ComicListener(), MainActivity.getInstance(), true);
+                        } else {
+                            WakefulIntentService.cancelAlarms(MainActivity.getInstance());
+                        }
+                        return true;
+                    }
+                });
+                findPreference(ORIENTATION).setOnPreferenceChangeListener(new Preference.OnPreferenceChangeListener() {
                     @Override
                     public boolean onPreferenceChange(Preference preference, Object newValue) {
                         switch (Integer.parseInt(PrefHelper.getOrientation())) {
@@ -114,7 +147,7 @@ public class NestedPreferenceFragment extends PreferenceFragment {
                         return true;
                     }
                 });
-                findPreference("pref_offline").setOnPreferenceChangeListener(new Preference.OnPreferenceChangeListener() {
+                findPreference(FULL_OFFLINE).setOnPreferenceChangeListener(new Preference.OnPreferenceChangeListener() {
                     @Override
                     public boolean onPreferenceChange(Preference preference, Object newValue) {
                         boolean checked = Boolean.valueOf(newValue.toString());
@@ -156,7 +189,7 @@ public class NestedPreferenceFragment extends PreferenceFragment {
                         }
                     }
                 });
-                findPreference("pref_offline_whatif").setOnPreferenceChangeListener(new Preference.OnPreferenceChangeListener() {
+                findPreference(WHATIF_OFFLINE).setOnPreferenceChangeListener(new Preference.OnPreferenceChangeListener() {
                     @Override
                     public boolean onPreferenceChange(Preference preference, Object newValue) {
                         boolean checked = Boolean.valueOf(newValue.toString());
@@ -202,8 +235,8 @@ public class NestedPreferenceFragment extends PreferenceFragment {
 
             case NIGHT:
                 addPreferencesFromResource(R.xml.pref_night);
-                final Preference start = findPreference("pref_auto_night_start");
-                final Preference end = findPreference("pref_auto_night_end");
+                final Preference start = findPreference(AUTO_NIGHT_START);
+                final Preference end = findPreference(AUTO_NIGHT_END);
                 final int[] startTime = PrefHelper.getAutoNightStart();
                 final int[] endTime = PrefHelper.getAutoNightEnd();
                 start.setSummary(PrefHelper.getStartSummary());
@@ -211,7 +244,7 @@ public class NestedPreferenceFragment extends PreferenceFragment {
 
 
 
-                findPreference("pref_night").setOnPreferenceChangeListener(new Preference.OnPreferenceChangeListener() {
+                findPreference(NIGHT_THEME).setOnPreferenceChangeListener(new Preference.OnPreferenceChangeListener() {
                     @Override
                     public boolean onPreferenceChange(Preference preference, Object newValue) {
                         PrefHelper.setNightMode(Boolean.valueOf(newValue.toString()));
@@ -219,7 +252,7 @@ public class NestedPreferenceFragment extends PreferenceFragment {
                         return true;
                     }
                 });
-                findPreference("pref_auto_night").setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
+                findPreference(AUTO_NIGHT).setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
                     @Override
                     public boolean onPreferenceClick(Preference preference) {
                         themeSettingChanged = true;
@@ -264,9 +297,9 @@ public class NestedPreferenceFragment extends PreferenceFragment {
 
             case ADVANCED:
                 addPreferencesFromResource(R.xml.pref_advanced);
-                findPreference("pref_repair").setEnabled(MainActivity.fullOffline);
-                findPreference("pref_update_mobile").setEnabled(MainActivity.fullOffline | MainActivity.fullOfflineWhatIf);
-                findPreference("pref_repair").setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
+                findPreference(REPAIR).setEnabled(MainActivity.fullOffline);
+                findPreference(MOBILE_ENABLED).setEnabled(MainActivity.fullOffline | MainActivity.fullOfflineWhatIf);
+                findPreference(REPAIR).setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
                     @Override
                     public boolean onPreferenceClick(Preference preference) {
                         if (((NestedSettingsActivity) getActivity()).isOnline()) {
@@ -314,13 +347,13 @@ public class NestedPreferenceFragment extends PreferenceFragment {
                 Log.d("i", String.valueOf(i));
                 try {
                     FileInputStream fis = getActivity().openFileInput(String.valueOf(i));
-                    mBitmap = BitmapFactory.decodeStream(fis);
+                    //mBitmap = BitmapFactory.decodeStream(fis);
                     fis.close();
                 } catch (Exception e) {
                     Log.e("error", "not found in internal");
                     try {
                         File sdCard = Environment.getExternalStorageDirectory();
-                        File dir = new File(sdCard.getAbsolutePath() + "/easy xkcd");
+                        File dir = new File(sdCard.getAbsolutePath() + OFFLINE_PATH);
                         File file = new File(dir, String.valueOf(i) + ".png");
                         FileInputStream fis = new FileInputStream(file);
                         mBitmap = BitmapFactory.decodeStream(fis);
@@ -348,7 +381,7 @@ public class NestedPreferenceFragment extends PreferenceFragment {
                         .get();
                 try {
                     File sdCard = Environment.getExternalStorageDirectory();
-                    File dir = new File(sdCard.getAbsolutePath() + "/easy xkcd");
+                    File dir = new File(sdCard.getAbsolutePath() + OFFLINE_PATH);
                     dir.mkdirs();
                     File file = new File(dir, String.valueOf(i) + ".png");
                     FileOutputStream fos = new FileOutputStream(file);
@@ -414,7 +447,7 @@ public class NestedPreferenceFragment extends PreferenceFragment {
                             .get();
                     try {
                         File sdCard = Environment.getExternalStorageDirectory();
-                        File dir = new File(sdCard.getAbsolutePath() + "/easy xkcd");
+                        File dir = new File(sdCard.getAbsolutePath() + OFFLINE_PATH);
                         dir.mkdirs();
                         File file = new File(dir, String.valueOf(i) + ".png");
                         FileOutputStream fos = new FileOutputStream(file);
@@ -507,7 +540,7 @@ public class NestedPreferenceFragment extends PreferenceFragment {
                     getActivity().deleteFile(String.valueOf(i));
                     //delete from external storage
                     File sdCard = Environment.getExternalStorageDirectory();
-                    File dir = new File(sdCard.getAbsolutePath() + "/easy xkcd");
+                    File dir = new File(sdCard.getAbsolutePath() + OFFLINE_PATH);
                     File file = new File(dir, String.valueOf(i) + ".png");
                     file.delete();
 
@@ -583,7 +616,7 @@ public class NestedPreferenceFragment extends PreferenceFragment {
                                 .asBitmap()
                                 .into(-1, -1)
                                 .get();
-                        dir = new File(sdCard.getAbsolutePath() + "/easy xkcd/what if/overview");
+                        dir = new File(sdCard.getAbsolutePath() + OFFLINE_WHATIF_OVERVIEW_PATH);
                         dir.mkdirs();
                         File file = new File(dir, String.valueOf(count) + ".png");
                         FileOutputStream fos = new FileOutputStream(file);
@@ -607,7 +640,7 @@ public class NestedPreferenceFragment extends PreferenceFragment {
                 int size = PrefHelper.getNewestWhatIf();
                 try {
                     doc = Jsoup.connect("https://what-if.xkcd.com/" + String.valueOf(i)).get();
-                    dir = new File(sdCard.getAbsolutePath() + "/easy xkcd/what if/" + String.valueOf(i));
+                    dir = new File(sdCard.getAbsolutePath() + OFFLINE_WHATIF_PATH + String.valueOf(i));
                     dir.mkdirs();
                     File file = new File(dir, String.valueOf(i) + ".html");
                     BufferedWriter writer = new BufferedWriter(new FileWriter(file));
@@ -623,7 +656,7 @@ public class NestedPreferenceFragment extends PreferenceFragment {
                                     .asBitmap()
                                     .into(-1, -1)
                                     .get();
-                            dir = new File(sdCard.getAbsolutePath() + "/easy xkcd/what if/" + String.valueOf(i));
+                            dir = new File(sdCard.getAbsolutePath() + OFFLINE_WHATIF_PATH + String.valueOf(i));
                             dir.mkdirs();
                             file = new File(dir, String.valueOf(count) + ".png");
                             FileOutputStream fos = new FileOutputStream(file);
@@ -675,7 +708,7 @@ public class NestedPreferenceFragment extends PreferenceFragment {
         @Override
         protected Void doInBackground(Void... params) {
             File sdCard = Environment.getExternalStorageDirectory();
-            File dir = new File(sdCard.getAbsolutePath() + "/easy xkcd/what if/");
+            File dir = new File(sdCard.getAbsolutePath() + OFFLINE_WHATIF_PATH);
             deleteFolder(dir);
             return null;
         }

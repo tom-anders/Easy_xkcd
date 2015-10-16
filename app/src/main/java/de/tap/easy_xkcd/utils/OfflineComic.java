@@ -32,6 +32,7 @@ public class OfflineComic {
     //private String[] mComicData;
     private int mComicNumber;
     private Context mContext;
+    private static final String OFFLINE_PATH = "/easy xkcd";
 
     public OfflineComic(Integer number, Context context){
         mContext = context;
@@ -53,7 +54,7 @@ public class OfflineComic {
         Bitmap mBitmap = null;
         try {
             File sdCard = Environment.getExternalStorageDirectory();
-            File dir = new File(sdCard.getAbsolutePath() + "/easy xkcd");
+            File dir = new File(sdCard.getAbsolutePath() + OFFLINE_PATH);
             File file = new File(dir, String.valueOf(mComicNumber) + ".png");
             FileInputStream fis = new FileInputStream(file);
             mBitmap = BitmapFactory.decodeStream(fis);

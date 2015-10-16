@@ -30,11 +30,13 @@ import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 
 import java.io.File;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Random;
 
 import de.tap.easy_xkcd.fragments.OfflineWhatIfFragment;
 import de.tap.easy_xkcd.misc.OnSwipeTouchListener;
+import de.tap.easy_xkcd.utils.Article;
 import de.tap.easy_xkcd.utils.PrefHelper;
 import de.tap.easy_xkcd.fragments.WhatIfFavoritesFragment;
 import de.tap.easy_xkcd.fragments.WhatIfFragment;
@@ -44,12 +46,10 @@ public class WhatIfActivity extends AppCompatActivity {
     private WebView web;
     public static int WhatIfIndex;
     private ProgressDialog mProgress;
-    private String title;
-    private Document doc;
     private boolean leftSwipe = false;
     private boolean rightSwipe = false;
     private boolean fullOffline = false;
-    private ArrayList<String> ref = new ArrayList<>();
+    private Article loadedArticle;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -92,7 +92,7 @@ public class WhatIfActivity extends AppCompatActivity {
             @JavascriptInterface
             public void performClick(String n) {
                 ((TextView) new android.support.v7.app.AlertDialog.Builder(WhatIfActivity.this)
-                        .setMessage(Html.fromHtml(ref.get(Integer.parseInt(n))))
+                        .setMessage(Html.fromHtml(loadedArticle.getRefs().get(Integer.parseInt(n))))
                         .show()
                         .findViewById(android.R.id.message))
                         .setMovementMethod(LinkMovementMethod.getInstance());
@@ -110,6 +110,7 @@ public class WhatIfActivity extends AppCompatActivity {
     }
 
     private class LoadWhatIf extends AsyncTask<Void, Void, Void> {
+        private Document doc;
         @JavascriptInterface
 
         @Override
@@ -125,69 +126,9 @@ public class WhatIfActivity extends AppCompatActivity {
         @Override
         protected Void doInBackground(Void... dummy) {
             try {
-                if (!fullOffline) {
-                    doc = Jsoup.connect("http://what-if.xkcd.com/" + String.valueOf(WhatIfIndex)).get();
-                } else {
-                    File sdCard = Environment.getExternalStorageDirectory();
-                    File dir = new File(sdCard.getAbsolutePath() + "/easy xkcd/what if/"+String.valueOf(WhatIfIndex));
-                    File file = new File(dir, String.valueOf(WhatIfIndex) + ".html");
-                    doc = Jsoup.parse(file, "UTF-8");
-                }
-                //append custom css
-                doc.head().getElementsByTag("link").remove();
-                if (!PrefHelper.nightModeEnabled()) {
-                    doc.head().appendElement("link").attr("rel", "stylesheet").attr("type", "text/css").attr("href", "style.css");
-                } else {
-                    doc.head().appendElement("link").attr("rel", "stylesheet").attr("type", "text/css").attr("href", "night.css");
-                }
-
-                //fix the image links
-
-                int count = 1;
-                String base = Environment.getExternalStorageDirectory().getAbsolutePath();
-                for (org.jsoup.nodes.Element e : doc.select(".illustration")) {
-                    if (!fullOffline) {
-                        String src = e.attr("src");
-                        e.attr("src", "http://what-if.xkcd.com" + src);
-                    } else {
-                        String path = "file://"+base+"/easy xkcd/what if/"+String.valueOf(WhatIfIndex)+"/"+String.valueOf(count)+".png";
-                        e.attr("src", path);
-                    }
-                    e.attr("onclick", "img.performClick(title);");
-                    count++;
-                }
-
-                count = 0;
-                ref.clear();
-                for (Element e : doc.select(".ref")) {
-                    ref.add((e.select(".refbody").html()));
-                    String n = "\"" + String.valueOf(count) + "\"" ;
-                    e.select(".refnum").attr("onclick", "ref.performClick(" + n + ")");
-                    e.select(".refbody").remove();
-                    count++;
-                }
-
-
-                //fix footnotes and math scripts
-                if (!PrefHelper.fullOfflineWhatIf()) {
-                //doc.select("script[src]").last().attr("src", "http://aja" +
-                        //"x.googleapis.com/ajax/libs/jquery/1.10.1/jquery.min.js");
-                    doc.select("script[src]").first().attr("src", "http://cdn.mathjax.org/mathjax/latest/MathJax.js");
-                } else {
-                    //doc.select("script[src]").last().attr("src", "footnotes.js");
-                    doc.select("script[src]").first().attr("src", "MathJax.js");
-                }
-
-                //remove header, footer, nav buttons
-                doc.getElementById("header-wrapper").remove();
-                doc.select("nav").remove();
-                doc.getElementById("footer-wrapper").remove();
-
-                //remove title
-                title = doc.select("h1").text();
-                doc.select("h1").remove();
-
-            } catch (Exception e) {
+                loadedArticle = new Article(WhatIfIndex, fullOffline, WhatIfActivity.this);
+                doc = loadedArticle.getWhatIf();
+            } catch (IOException e) {
                 e.printStackTrace();
             }
             return null;
@@ -268,7 +209,7 @@ public class WhatIfActivity extends AppCompatActivity {
 
                 }
             });
-            getSupportActionBar().setSubtitle(title);
+            getSupportActionBar().setSubtitle(loadedArticle.getTitle());
         }
     }
 
@@ -320,7 +261,7 @@ public class WhatIfActivity extends AppCompatActivity {
             case R.id.action_share:
                 Intent share = new Intent(Intent.ACTION_SEND);
                 share.setType("text/plain");
-                share.putExtra(Intent.EXTRA_SUBJECT, "What if: " + title);
+                share.putExtra(Intent.EXTRA_SUBJECT, "What if: " + loadedArticle.getTitle());
                 share.putExtra(Intent.EXTRA_TEXT, "http://what-if.xkcd.com/" + String.valueOf(WhatIfIndex));
                 startActivity(share);
                 return true;

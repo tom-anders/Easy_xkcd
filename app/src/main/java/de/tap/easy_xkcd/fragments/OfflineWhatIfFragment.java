@@ -70,6 +70,8 @@ public class OfflineWhatIfFragment extends android.support.v4.app.Fragment {
     public static boolean newIntent;
     //private FloatingActionButton fab;
     //@Bind(R.id.fab) FloatingActionButton fab;
+    private static final String OFFLINE_WHATIF_OVERVIEW_PATH = "/easy xkcd/what if/overview";
+    private static final String OFFLINE_WHATIF_PATH = "/easy xkcd/what if/";
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
@@ -298,7 +300,7 @@ public class OfflineWhatIfFragment extends android.support.v4.app.Fragment {
             }
 
             File sdCard = Environment.getExternalStorageDirectory();
-            File dir = new File(sdCard.getAbsolutePath() + "/easy xkcd/what if/overview");
+            File dir = new File(sdCard.getAbsolutePath() + OFFLINE_WHATIF_OVERVIEW_PATH);
             //File file = new File(dir, String.valueOf(titles.size()-i) + ".png");
             File file = new File(dir, String.valueOf(n) + ".png");
 

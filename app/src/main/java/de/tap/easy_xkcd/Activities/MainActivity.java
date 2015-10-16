@@ -86,7 +86,7 @@ public class MainActivity extends AppCompatActivity {
     private MenuItem searchMenuItem;
     public static boolean fullOffline = false;
     public static boolean fullOfflineWhatIf = false;
-    private boolean settingsOpened = false;
+    private boolean secondGroup = false;
     private static MainActivity instance;
     private CustomTabActivityHelper customTabActivityHelper;
     public static boolean fromSearch = false;
@@ -437,7 +437,7 @@ public class MainActivity extends AppCompatActivity {
                 break;
 
             case R.id.nav_settings:
-                settingsOpened = true;
+                secondGroup = true;
                 sDrawer.closeDrawer(mNavView);
                 //Add delay so that the Drawer is closed before the Settings Activity is launched
                 new Handler().postDelayed(new Runnable() {
@@ -450,6 +450,7 @@ public class MainActivity extends AppCompatActivity {
                 return;
 
             case R.id.nav_feedback:
+                secondGroup = true;
                 sDrawer.closeDrawer(mNavView);
                 new Handler().postDelayed(new Runnable() {
                     @Override
@@ -461,6 +462,7 @@ public class MainActivity extends AppCompatActivity {
                 return;
 
             case R.id.nav_about:
+                secondGroup = true;
                 sDrawer.closeDrawer(mNavView);
                 new Handler().postDelayed(new Runnable() {
                     @Override
@@ -749,20 +751,14 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onResume() {
         super.onResume();
-        if (settingsOpened) {
-            settingsOpened = false;
+        if (secondGroup) {
+            secondGroup = false;
             assert getSupportActionBar() != null;
             //Reselect the current fragment in order to update action bar and floating action button
-            if (isOnline()) {
-                MenuItem m = mNavView.getMenu().findItem(sCurrentFragment);
-                selectDrawerItem(m);
-            }
-
-            if (PrefHelper.getNotificationInterval() != 0) {
-                WakefulIntentService.scheduleAlarms(new ComicListener(), this, true);
-            } else {
-                WakefulIntentService.cancelAlarms(this);
-            }
+            if (sCurrentFragment == R.id.nav_browser && !isOnline())
+                return;
+            MenuItem m = mNavView.getMenu().findItem(sCurrentFragment);
+            selectDrawerItem(m);
         }
     }
 
