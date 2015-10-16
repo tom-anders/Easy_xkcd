@@ -4,7 +4,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    tools:context="de.tap.easy_xkcd.SearchResultsActivity"
+    tools:context="de.tap.easy_xkcd.activities.SearchResultsActivity"
     android:orientation="vertical">
 
     <android.support.v7.widget.RecyclerView

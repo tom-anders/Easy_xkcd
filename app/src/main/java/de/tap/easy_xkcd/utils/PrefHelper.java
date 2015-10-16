@@ -37,7 +37,7 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 
-import de.tap.easy_xkcd.NestedSettingsActivity;
+import de.tap.easy_xkcd.activities.NestedSettingsActivity;
 
 public class PrefHelper {
     private static SharedPreferences sharedPrefs;
