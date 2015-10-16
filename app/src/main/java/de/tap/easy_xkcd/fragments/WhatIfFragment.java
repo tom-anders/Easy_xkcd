@@ -48,8 +48,8 @@ import java.util.Random;
 import butterknife.Bind;
 import butterknife.ButterKnife;
 import de.tap.easy_xkcd.utils.PrefHelper;
-import de.tap.easy_xkcd.activities.MainActivity;
-import de.tap.easy_xkcd.activities.WhatIfActivity;
+import de.tap.easy_xkcd.MainActivity;
+import de.tap.easy_xkcd.WhatIfActivity;
 import jp.wasabeef.recyclerview.animators.adapters.SlideInBottomAnimationAdapter;
 
 public class WhatIfFragment extends android.support.v4.app.Fragment {

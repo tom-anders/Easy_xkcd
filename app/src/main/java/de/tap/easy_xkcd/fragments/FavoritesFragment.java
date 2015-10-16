@@ -63,7 +63,7 @@ import de.tap.easy_xkcd.utils.Favorites;
 import de.tap.easy_xkcd.misc.HackyViewPager;
 import de.tap.easy_xkcd.utils.OfflineComic;
 import de.tap.easy_xkcd.utils.PrefHelper;
-import de.tap.easy_xkcd.activities.MainActivity;
+import de.tap.easy_xkcd.MainActivity;
 import uk.co.senab.photoview.PhotoView;
 import uk.co.senab.photoview.PhotoViewAttacher;
 
