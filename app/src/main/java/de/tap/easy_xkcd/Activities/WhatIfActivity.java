@@ -32,7 +32,6 @@ import java.util.Random;
 
 import butterknife.Bind;
 import butterknife.ButterKnife;
-import de.tap.easy_xkcd.fragments.OfflineWhatIfFragment;
 import de.tap.easy_xkcd.misc.OnSwipeTouchListener;
 import de.tap.easy_xkcd.utils.Article;
 import de.tap.easy_xkcd.utils.PrefHelper;
@@ -41,12 +40,12 @@ import de.tap.easy_xkcd.fragments.WhatIfFragment;
 
 public class WhatIfActivity extends AppCompatActivity {
 
-    @Bind(R.id.wv) WebView web;
+    @Bind(R.id.wv)
+    WebView web;
     public static int WhatIfIndex;
     private ProgressDialog mProgress;
     private boolean leftSwipe = false;
     private boolean rightSwipe = false;
-    private boolean fullOffline = false;
     private Article loadedArticle;
 
     @Override
@@ -56,7 +55,6 @@ public class WhatIfActivity extends AppCompatActivity {
         setContentView(R.layout.activity_what_if);
         PrefHelper.getPrefs(getApplicationContext());
         ButterKnife.bind(this);
-        fullOffline = PrefHelper.fullOfflineWhatIf();
 
         android.support.v7.widget.Toolbar toolbar = (android.support.v7.widget.Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
@@ -123,7 +121,7 @@ public class WhatIfActivity extends AppCompatActivity {
         @Override
         protected Void doInBackground(Void... dummy) {
             try {
-                loadedArticle = new Article(WhatIfIndex, fullOffline, WhatIfActivity.this);
+                loadedArticle = new Article(WhatIfIndex, PrefHelper.fullOfflineWhatIf(), WhatIfActivity.this);
                 doc = loadedArticle.getWhatIf();
             } catch (IOException e) {
                 e.printStackTrace();
@@ -148,11 +146,7 @@ public class WhatIfActivity extends AppCompatActivity {
                 }
 
                 public void onPageFinished(WebView view, String url) {
-                    if (!fullOffline) {
-                        WhatIfFragment.getInstance().updateRv();
-                    } else {
-                        OfflineWhatIfFragment.getInstance().updateRv();
-                    }
+                    WhatIfFragment.getInstance().updateRv();
                     if (mProgress != null)
                         mProgress.dismiss();
 
@@ -187,17 +181,13 @@ public class WhatIfActivity extends AppCompatActivity {
                                 nextWhatIf(true);
                             }
                         }
+
                         @Override
                         public void onSwipeLeft() {
-                            if (!fullOffline) {
-                                if (WhatIfIndex != WhatIfFragment.mTitles.size() && PrefHelper.swipeEnabled()) {
-                                    nextWhatIf(false);
-                                }
-                            } else {
-                                if (WhatIfIndex != OfflineWhatIfFragment.mTitles.size() && PrefHelper.swipeEnabled()) {
-                                    nextWhatIf(false);
-                                }
+                            if (WhatIfIndex != WhatIfFragment.mTitles.size() && PrefHelper.swipeEnabled()) {
+                                nextWhatIf(false);
                             }
+
                         }
                     });
 
@@ -225,7 +215,7 @@ public class WhatIfActivity extends AppCompatActivity {
                 return nextWhatIf(false);
 
             case R.id.action_back:
-                    return nextWhatIf(true);
+                return nextWhatIf(true);
 
             case R.id.action_night_mode:
                 item.setChecked(!item.isChecked());
@@ -256,11 +246,8 @@ public class WhatIfActivity extends AppCompatActivity {
                 Random mRand = new Random();
                 WhatIfIndex = mRand.nextInt(PrefHelper.getNewestWhatIf());
                 PrefHelper.setLastWhatIf(WhatIfIndex);
-                if (!fullOffline) {
-                    WhatIfFragment.getInstance().getRv().scrollToPosition(WhatIfFragment.mTitles.size() - WhatIfIndex);
-                } else {
-                    OfflineWhatIfFragment.getInstance().getRv().scrollToPosition(OfflineWhatIfFragment.mTitles.size() - WhatIfIndex);
-                }
+                WhatIfFragment.getInstance().getRv().scrollToPosition(WhatIfFragment.mTitles.size() - WhatIfIndex);
+
                 PrefHelper.setWhatifRead(String.valueOf(WhatIfIndex));
                 new LoadWhatIf().execute();
                 return true;
@@ -295,11 +282,9 @@ public class WhatIfActivity extends AppCompatActivity {
         PrefHelper.setLastWhatIf(WhatIfIndex);
         new LoadWhatIf().execute();
         invalidateOptionsMenu();
-        if (!fullOffline) {
-            WhatIfFragment.getInstance().getRv().scrollToPosition(WhatIfFragment.mTitles.size() - WhatIfIndex);
-        } else {
-            OfflineWhatIfFragment.getInstance().getRv().scrollToPosition(OfflineWhatIfFragment.mTitles.size() - WhatIfIndex);
-        }
+
+        WhatIfFragment.getInstance().getRv().scrollToPosition(WhatIfFragment.mTitles.size() - WhatIfIndex);
+
         PrefHelper.setWhatifRead(String.valueOf(WhatIfIndex));
         invalidateOptionsMenu();
         return true;
@@ -312,19 +297,12 @@ public class WhatIfActivity extends AppCompatActivity {
         } else {
             menu.findItem(R.id.action_back).setVisible(true);
         }
-        if (!fullOffline) {
-            if (WhatIfIndex == WhatIfFragment.mTitles.size()) {
-                menu.findItem(R.id.action_next).setVisible(false);
-            } else {
-                menu.findItem(R.id.action_next).setVisible(true);
-            }
+        if (WhatIfIndex == WhatIfFragment.mTitles.size()) {
+            menu.findItem(R.id.action_next).setVisible(false);
         } else {
-            if (WhatIfIndex == OfflineWhatIfFragment.mTitles.size()) {
-                menu.findItem(R.id.action_next).setVisible(false);
-            } else {
-                menu.findItem(R.id.action_next).setVisible(true);
-            }
+            menu.findItem(R.id.action_next).setVisible(true);
         }
+
         if (menu.findItem(R.id.action_swipe).isChecked()) {
             menu.findItem(R.id.action_back).setVisible(false);
             menu.findItem(R.id.action_next).setVisible(false);

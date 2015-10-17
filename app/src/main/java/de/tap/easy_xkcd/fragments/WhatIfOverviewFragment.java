@@ -84,11 +84,7 @@ public class WhatIfOverviewFragment extends android.support.v4.app.Fragment {
     }
 
     @OnClick(R.id.fab) void onClick() {
-        if (PrefHelper.fullOfflineWhatIf()) {
-            OfflineWhatIfFragment.getInstance().getRandom();
-        } else {
-            WhatIfFragment.getInstance().getRandom();
-        }
+        WhatIfFragment.getInstance().getRandom();
     }
 
     private class GetDoc extends AsyncTask<Void, Void, Void> {
@@ -137,11 +133,7 @@ public class WhatIfOverviewFragment extends android.support.v4.app.Fragment {
         @Override
         public Fragment getItem(int position) {
             if (position==0) {
-                if (PrefHelper.fullOfflineWhatIf()) {
-                    return new OfflineWhatIfFragment();
-                } else {
-                    return new WhatIfFragment();
-                }
+                return new WhatIfFragment();
             } else {
                 return new WhatIfFavoritesFragment();
             }

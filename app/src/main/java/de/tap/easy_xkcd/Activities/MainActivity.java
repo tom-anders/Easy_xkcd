@@ -62,7 +62,6 @@ import de.tap.easy_xkcd.notifications.ComicListener;
 import de.tap.easy_xkcd.utils.Favorites;
 import de.tap.easy_xkcd.fragments.FavoritesFragment;
 import de.tap.easy_xkcd.fragments.OfflineFragment;
-import de.tap.easy_xkcd.fragments.OfflineWhatIfFragment;
 import de.tap.easy_xkcd.utils.PrefHelper;
 import de.tap.easy_xkcd.fragments.WhatIfFragment;
 import de.tap.easy_xkcd.fragments.WhatIfOverviewFragment;
@@ -132,7 +131,6 @@ public class MainActivity extends AppCompatActivity {
                 PrefHelper.setLastWhatIf(WhatIfActivity.WhatIfIndex);
                 whatIfIntent = true;
                 WhatIfFragment.newIntent = true;
-                OfflineWhatIfFragment.newIntent = true;
             } else {
                 ComicBrowserFragment.sLastComicNumber = (getNumberFromUrl(getIntent().getDataString(), 0));
                 OfflineFragment.sLastComicNumber = (getNumberFromUrl(getIntent().getDataString(), 0));
@@ -152,7 +150,6 @@ public class MainActivity extends AppCompatActivity {
             PrefHelper.setLastWhatIf(WhatIfActivity.WhatIfIndex);
             whatIfIntent = true;
             WhatIfFragment.newIntent = true;
-            OfflineWhatIfFragment.newIntent = true;
         }
 
         //On Lollipop, change the app's icon in the recents app screen

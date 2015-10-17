@@ -5,11 +5,13 @@ import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.graphics.Bitmap;
 import android.graphics.ColorFilter;
 import android.graphics.ColorMatrixColorFilter;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.os.Environment;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.view.MenuItemCompat;
 import android.support.v7.widget.CardView;
@@ -33,10 +35,14 @@ import android.widget.Toast;
 import com.bumptech.glide.Glide;
 import com.tap.xkcd_reader.R;
 
+import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Random;
@@ -59,6 +65,8 @@ public class WhatIfFragment extends android.support.v4.app.Fragment {
     public static RVAdapter adapter;
     private static WhatIfFragment instance;
     public static boolean newIntent;
+    private boolean offlineMode;
+    private static final String OFFLINE_WHATIF_OVERVIEW_PATH = "/easy xkcd/what if/overview";
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
@@ -70,11 +78,97 @@ public class WhatIfFragment extends android.support.v4.app.Fragment {
         rv.setLayoutManager(llm);
         rv.setHasFixedSize(false);
 
+        offlineMode = PrefHelper.fullOfflineWhatIf();
         instance = this;
         ((MainActivity) getActivity()).getFab().setVisibility(View.GONE);
 
-        new DisplayOverview().execute();
+        if (PrefHelper.isOnline(getActivity()) && (PrefHelper.isWifi(getActivity()) | PrefHelper.mobileEnabled()) && offlineMode) {
+            new UpdateArticles().execute();
+        } else {
+            new DisplayOverview().execute();
+        }
         return v;
+    }
+
+    private class UpdateArticles extends AsyncTask<Void, Void, Void> {
+        private ProgressDialog progress;
+
+        @Override
+        protected void onPreExecute() {
+            progress = new ProgressDialog(getActivity());
+            progress.setMessage(getResources().getString(R.string.loading_articles));
+            progress.setIndeterminate(true);
+            progress.setCancelable(false);
+            progress.show();
+        }
+
+        @SuppressWarnings("ResultOfMethodCallIgnored")
+        @Override
+        protected Void doInBackground(Void... dummy) {
+            try {
+                Document doc = Jsoup.connect("https://what-if.xkcd.com/archive/")
+                        .userAgent("Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/32.0.1700.19 Safari/537.36")
+                        .get();
+                Elements titles = doc.select("h1");
+                Elements img = doc.select("img.archive-image");
+                if (titles.size() > PrefHelper.getNewestWhatIf()) {
+                    StringBuilder sb = new StringBuilder();
+                    sb.append(titles.first().text());
+                    titles.remove(0);
+                    for (Element title : titles) {
+                        sb.append("&&");
+                        sb.append(title.text());
+                    }
+                    PrefHelper.setWhatIfTitles(sb.toString());
+
+                    Bitmap mBitmap;
+                    for (int i = PrefHelper.getNewestWhatIf(); i < titles.size() + 1; i++) {
+                        String url = img.get(i).absUrl("src");
+                        try {
+                            mBitmap = Glide.with(getActivity())
+                                    .load(url)
+                                    .asBitmap()
+                                    .into(-1, -1)
+                                    .get();
+                            File sdCard = Environment.getExternalStorageDirectory();
+                            File dir = new File(sdCard.getAbsolutePath() + "/easy xkcd/what if/overview");
+                            dir.mkdirs();
+                            File file = new File(dir, String.valueOf(i + 1) + ".png");
+                            FileOutputStream fos = new FileOutputStream(file);
+                            mBitmap.compress(Bitmap.CompressFormat.PNG, 100, fos);
+                            fos.flush();
+                            fos.close();
+                        } catch (IOException e) {
+                            e.printStackTrace();
+                        }
+                    }
+
+                }
+                PrefHelper.setNewestWhatif(titles.size());
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+
+            if (!PrefHelper.nomediaCreated()) {
+                File sdCard = Environment.getExternalStorageDirectory();
+                File dir = new File(sdCard.getAbsolutePath() + "/easy xkcd");
+                File nomedia = new File(dir, ".nomedia");
+                try {
+                    boolean created = nomedia.createNewFile();
+                    Log.d("created", String.valueOf(created));
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+            return null;
+        }
+
+        @Override
+        protected void onPostExecute(Void dummy) {
+            progress.dismiss();
+            new DisplayOverview().execute();
+        }
+
     }
 
     private class DisplayOverview extends AsyncTask<Void, Void, Void> {
@@ -94,45 +188,30 @@ public class WhatIfFragment extends android.support.v4.app.Fragment {
             mTitles.clear();
             mImgs.clear();
 
-            Document doc = WhatIfOverviewFragment.doc;
-            Elements titles = doc.select("h1");
-            Elements imagelinks = doc.select("img.archive-image");
+            if (offlineMode) {
+                mTitles = PrefHelper.getWhatIfTitles();
+                Collections.reverse(mTitles);
+            } else {
+                Document doc = WhatIfOverviewFragment.doc;
+                Elements titles = doc.select("h1");
+                Elements imagelinks = doc.select("img.archive-image");
 
-            for (Element title : titles)
-                mTitles.add(title.text());
+                for (Element title : titles)
+                    mTitles.add(title.text());
 
-            for (Element image : imagelinks)
-                mImgs.add(image.absUrl("src"));
+                for (Element image : imagelinks)
+                    mImgs.add(image.absUrl("src"));
 
-            Collections.reverse(mTitles);
-            Collections.reverse(mImgs);
+                Collections.reverse(mTitles);
+                Collections.reverse(mImgs);
+            }
             return null;
         }
 
         @Override
         protected void onPostExecute(Void dummy) {
             PrefHelper.setNewestWhatif(mTitles.size());
-            if (PrefHelper.hideRead()) {
-                ArrayList<String> titleUnread = new ArrayList<>();
-                ArrayList<String> imgUnread = new ArrayList<>();
-                for (int i = 0; i < mTitles.size(); i++) {
-                    if (!PrefHelper.checkRead(mTitles.size() - i)) {
-                        titleUnread.add(mTitles.get(i));
-                        imgUnread.add(mImgs.get(i));
-                    }
-                }
-                adapter = new RVAdapter(titleUnread, imgUnread);
-                SlideInBottomAnimationAdapter slideAdapter = new SlideInBottomAnimationAdapter(adapter);
-                slideAdapter.setInterpolator(new DecelerateInterpolator());
-                rv.setAdapter(slideAdapter);
-                rv.scrollToPosition(titleUnread.size() - PrefHelper.getLastWhatIf());
-            } else {
-                adapter = new RVAdapter(mTitles, mImgs);
-                SlideInBottomAnimationAdapter slideAdapter = new SlideInBottomAnimationAdapter(adapter);
-                slideAdapter.setInterpolator(new DecelerateInterpolator());
-                rv.setAdapter(slideAdapter);
-                rv.scrollToPosition(mTitles.size() - PrefHelper.getLastWhatIf());
-            }
+            setupAdapter(PrefHelper.hideRead());
             progress.dismiss();
             Toolbar toolbar = ((MainActivity) getActivity()).getToolbar();
             if (toolbar.getAlpha() == 0) {
@@ -151,7 +230,6 @@ public class WhatIfFragment extends android.support.v4.app.Fragment {
                 newIntent = false;
             }
         }
-
     }
 
     public class RVAdapter extends RecyclerView.Adapter<RVAdapter.ComicViewHolder> {
@@ -179,7 +257,6 @@ public class WhatIfFragment extends android.support.v4.app.Fragment {
         @Override
         public void onBindViewHolder(final ComicViewHolder comicViewHolder, int i) {
             comicViewHolder.articleTitle.setText(titles.get(i));
-
             String title = titles.get(i);
             int n = mTitles.size() - mTitles.indexOf(title);
 
@@ -205,11 +282,18 @@ public class WhatIfFragment extends android.support.v4.app.Fragment {
                 comicViewHolder.thumbnail.setImageDrawable(ContextCompat.getDrawable(getActivity(), R.mipmap.proton_earth));
                 return;
             }
-
-            Glide.with(getActivity())
-                    .load(imgs.get(i))
-                    .into(comicViewHolder.thumbnail);
-
+            if (offlineMode) {
+                File sdCard = Environment.getExternalStorageDirectory();
+                File dir = new File(sdCard.getAbsolutePath() + OFFLINE_WHATIF_OVERVIEW_PATH);
+                File file = new File(dir, String.valueOf(n) + ".png");
+                Glide.with(getActivity())
+                        .load(file)
+                        .into(comicViewHolder.thumbnail);
+            } else {
+                Glide.with(getActivity())
+                        .load(imgs.get(i))
+                        .into(comicViewHolder.thumbnail);
+            }
             if (PrefHelper.invertColors()) {
                 float[] colorMatrix_Negative = {
                         -1.0f, 0, 0, 0, 255, //red
@@ -246,7 +330,7 @@ public class WhatIfFragment extends android.support.v4.app.Fragment {
     class CustomOnClickListener implements View.OnClickListener {
         @Override
         public void onClick(View v) {
-            if (!PrefHelper.isOnline(getActivity())) {
+            if (!PrefHelper.isOnline(getActivity()) && !offlineMode) {
                 Toast.makeText(getActivity(), R.string.no_connection, Toast.LENGTH_SHORT).show();
                 return;
             }
@@ -267,7 +351,7 @@ public class WhatIfFragment extends android.support.v4.app.Fragment {
     }
 
     public void getRandom() {
-        if (PrefHelper.isOnline(getActivity())) {
+        if (PrefHelper.isOnline(getActivity()) | offlineMode) {
             Random mRand = new Random();
             int number = mRand.nextInt(adapter.titles.size());
             Intent intent = new Intent(getActivity(), WhatIfActivity.class);
@@ -288,8 +372,8 @@ public class WhatIfFragment extends android.support.v4.app.Fragment {
             final View view = v;
             AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
             int pos = rv.getChildAdapterPosition(view);
-            String title = adapter.titles.get(pos);
-            int n = mTitles.size() - mTitles.indexOf(title);
+            final String title = adapter.titles.get(pos);
+            final int n = mTitles.size() - mTitles.indexOf(title);
             int array;
             if (PrefHelper.checkWhatIfFav(n)) {
                 array = R.array.card_long_click_remove;
@@ -345,45 +429,26 @@ public class WhatIfFragment extends android.support.v4.app.Fragment {
         switch (item.getItemId()) {
             case R.id.action_unread:
                 PrefHelper.setAllUnread();
-                adapter.notifyDataSetChanged();
+                setupAdapter(PrefHelper.hideRead());
                 return true;
             case R.id.action_hide_read:
                 item.setChecked(!item.isChecked());
                 PrefHelper.setHideRead(item.isChecked());
-                if (item.isChecked()) {
-                    ArrayList<String> titleUnread = new ArrayList<>();
-                    ArrayList<String> imgUnread = new ArrayList<>();
-                    for (int i = 0; i < mTitles.size(); i++) {
-                        if (!PrefHelper.checkRead(mTitles.size() - i)) {
-                            titleUnread.add(mTitles.get(i));
-                            imgUnread.add(mImgs.get(i));
-                        }
-                    }
-                    adapter = new RVAdapter(titleUnread, imgUnread);
-                    SlideInBottomAnimationAdapter slideAdapter = new SlideInBottomAnimationAdapter(adapter);
-                    slideAdapter.setInterpolator(new DecelerateInterpolator());
-                    rv.setAdapter(slideAdapter);
-                    rv.scrollToPosition(titleUnread.size() - PrefHelper.getLastWhatIf());
-                } else {
-                    adapter = new RVAdapter(mTitles, mImgs);
-                    SlideInBottomAnimationAdapter slideAdapter = new SlideInBottomAnimationAdapter(adapter);
-                    slideAdapter.setInterpolator(new DecelerateInterpolator());
-                    rv.setAdapter(slideAdapter);
-                    rv.scrollToPosition(mTitles.size() - PrefHelper.getLastWhatIf());
-                }
+                setupAdapter(item.isChecked());
                 return true;
         }
         return super.onOptionsItemSelected(item);
     }
 
-    public void updateRv() {
-        if (PrefHelper.hideRead()) {
+    private void setupAdapter(boolean hideRead) {
+        if (hideRead) {
             ArrayList<String> titleUnread = new ArrayList<>();
             ArrayList<String> imgUnread = new ArrayList<>();
             for (int i = 0; i < mTitles.size(); i++) {
                 if (!PrefHelper.checkRead(mTitles.size() - i)) {
                     titleUnread.add(mTitles.get(i));
-                    imgUnread.add(mImgs.get(i));
+                    if (!offlineMode)
+                        imgUnread.add(mImgs.get(i));
                 }
             }
             adapter = new RVAdapter(titleUnread, imgUnread);
@@ -400,8 +465,8 @@ public class WhatIfFragment extends android.support.v4.app.Fragment {
         }
     }
 
-    public static WhatIfFragment getInstance() {
-        return instance;
+    public void updateRv() {
+        setupAdapter(PrefHelper.hideRead());
     }
 
     @Override
@@ -425,7 +490,8 @@ public class WhatIfFragment extends android.support.v4.app.Fragment {
                 for (int i = 0; i < mTitles.size(); i++) {
                     if (mTitles.get(i).toLowerCase().contains(newText.toLowerCase().trim())) {
                         titleResults.add(mTitles.get(i));
-                        imgResults.add(mImgs.get(i));
+                        if (!offlineMode)
+                            imgResults.add(mImgs.get(i));
                     }
                 }
                 adapter = new RVAdapter(titleResults, imgResults);
@@ -445,7 +511,6 @@ public class WhatIfFragment extends android.support.v4.app.Fragment {
                     imm.showSoftInput(view, 0);
                 }
                 searchView.requestFocus();
-
                 ((WhatIfOverviewFragment) getParentFragment()).fab.hide();
                 return true;
             }
@@ -462,7 +527,6 @@ public class WhatIfFragment extends android.support.v4.app.Fragment {
                 slideAdapter.setInterpolator(new DecelerateInterpolator());
                 rv.setAdapter(slideAdapter);
                 searchView.setQuery("", false);
-
                 ((WhatIfOverviewFragment) getParentFragment()).fab.show();
                 return true;
             }
@@ -473,6 +537,10 @@ public class WhatIfFragment extends android.support.v4.app.Fragment {
 
     public RecyclerView getRv() {
         return rv;
+    }
+
+    public static WhatIfFragment getInstance() {
+        return instance;
     }
 
     @Override

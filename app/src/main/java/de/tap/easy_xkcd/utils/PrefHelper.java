@@ -689,7 +689,7 @@ public class PrefHelper {
     }
 
     public static boolean mobileEnabled() {
-        return prefs.getBoolean(MOBILE_ENABLED, false);
+        return prefs.getBoolean(MOBILE_ENABLED, true);
     }
 
     public static boolean autoNightEnabled() {

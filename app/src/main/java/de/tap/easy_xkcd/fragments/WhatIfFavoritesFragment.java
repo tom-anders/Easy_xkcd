@@ -14,7 +14,6 @@ import android.support.v4.content.ContextCompat;
 import android.support.v7.widget.CardView;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -87,18 +86,14 @@ public class WhatIfFavoritesFragment extends android.support.v4.app.Fragment {
                 mImgs.clear();
 
                 Document doc = WhatIfOverviewFragment.doc;
-                Log.e("Info", "doc loaded");
                 Elements titles = doc.select("h1");
                 Elements imagelinks = doc.select("img.archive-image");
 
-                for (Element title : titles) {
+                for (Element title : titles)
                     mTitles.add(title.text());
-                }
-                Log.e("Info", "titles");
-                for (Element image : imagelinks) {
+
+                for (Element image : imagelinks)
                     mImgs.add(image.absUrl("src"));
-                }
-                Log.e("Info", "imgs");
 
                 Collections.reverse(mTitles);
                 Collections.reverse(mImgs);
