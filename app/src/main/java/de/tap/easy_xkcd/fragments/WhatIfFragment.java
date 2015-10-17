@@ -84,6 +84,7 @@ public class WhatIfFragment extends android.support.v4.app.Fragment {
 
         if (PrefHelper.isOnline(getActivity()) && (PrefHelper.isWifi(getActivity()) | PrefHelper.mobileEnabled()) && offlineMode) {
             new UpdateArticles().execute();
+            Log.d("info", "update started");
         } else {
             new DisplayOverview().execute();
         }

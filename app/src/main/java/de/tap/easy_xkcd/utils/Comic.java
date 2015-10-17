@@ -32,11 +32,9 @@ public class Comic {
     private String[] mComicData;
     private String mJsonUrl;
     private int mComicNumber;
-    private Context mContext;
     private JSONObject json;
 
     public Comic(Integer number, Context context) throws IOException{
-        mContext = context;
         if (number != 0) {
             mJsonUrl = "http://xkcd.com/" + number.toString() + "/info.0.json";
         } else {
@@ -46,13 +44,13 @@ public class Comic {
         } catch (JSONException e){
             e.printStackTrace();
         }
-        if (Arrays.binarySearch(mContext.getResources().getIntArray(R.array.interactive_comics), mComicNumber)>=0) {
-            mComicData[0] = mComicData[0] + " " + mContext.getResources().getString(R.string.title_interactive);
+        if (Arrays.binarySearch(context.getResources().getIntArray(R.array.interactive_comics), mComicNumber)>=0) {
+            mComicData[0] = mComicData[0] + " " + context.getResources().getString(R.string.title_interactive);
         }
 
-        int i = Arrays.binarySearch(mContext.getResources().getIntArray(R.array.large_comics), mComicNumber);
-        if (i>=0 && PreferenceManager.getDefaultSharedPreferences(mContext).getBoolean("pref_large", true)) {
-            mComicData[2] = mContext.getResources().getStringArray(R.array.large_comics_urls)[i];
+        int i = Arrays.binarySearch(context.getResources().getIntArray(R.array.large_comics), mComicNumber);
+        if (i>=0 && PreferenceManager.getDefaultSharedPreferences(context).getBoolean("pref_large", true)) {
+            mComicData[2] = context.getResources().getStringArray(R.array.large_comics_urls)[i];
         }
     }
 

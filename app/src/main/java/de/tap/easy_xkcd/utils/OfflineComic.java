@@ -26,10 +26,7 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 
-import de.tap.easy_xkcd.utils.PrefHelper;
-
 public class OfflineComic {
-    //private String[] mComicData;
     private int mComicNumber;
     private Context mContext;
     private static final String OFFLINE_PATH = "/easy xkcd";
@@ -37,10 +34,6 @@ public class OfflineComic {
     public OfflineComic(Integer number, Context context){
         mContext = context;
         mComicNumber = number;
-        //SharedPreferences preferences = ((MainActivity) context).getPreferences(Activity.MODE_PRIVATE);
-        //mComicData = new String[2];
-        //mComicData[0] = preferences.getString("title"+String.valueOf(number),"");
-        //mComicData[1] = preferences.getString("alt"+String.valueOf(number),"");
     }
 
     public String[] getComicData() {

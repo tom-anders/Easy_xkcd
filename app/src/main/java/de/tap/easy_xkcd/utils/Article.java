@@ -1,8 +1,6 @@
 package de.tap.easy_xkcd.utils;
 
-import android.content.Context;
 import android.os.Environment;
-import android.util.Log;
 
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
@@ -15,15 +13,13 @@ import java.util.ArrayList;
 public class Article {
     private int mNumber;
     private boolean offline;
-    private Context mContext;
     private ArrayList<String> ref = new ArrayList<>();
     private String title;
     private static final String OFFLINE_WHATIF_PATH = "/easy xkcd/what if/";
 
-    public Article (Integer number, boolean offlineArticle, Context context) {
+    public Article (Integer number, boolean offlineArticle) {
         mNumber = number;
         offline = offlineArticle;
-        mContext = context;
     }
 
     public String getTitle() {
@@ -53,10 +49,8 @@ public class Article {
         }
 
         //fix the image links
-
         int count = 1;
         String base = Environment.getExternalStorageDirectory().getAbsolutePath();
-        Log.d("base", base);
         for (org.jsoup.nodes.Element e : doc.select(".illustration")) {
             if (!offline) {
                 String src = e.attr("src");

@@ -53,12 +53,7 @@ public class PrefHelper {
     private static final String COMIC_TRANS = "comic_trans";
     private static final String COMIC_URLS = "comic_urls";
     private static final String SUBTITLE_ENABLED = "pref_subtitle";
-    private static final String TITLES_LOADED = "titles_loaded";
-    private static final String URLS_LOADED = "urls_loaded";
-    private static final String HIGHEST_COMIC_TITLE = "highest_comic_title";
     private static final String HIGHEST_COMIC_URL = "highest_comic_url";
-    private static final String TRANS_LOADED = "trans_loaded";
-    private static final String HIGHEST_COMIC_TRANS = "highest_comic_trans";
     private static final String OFFLINE_TITLE = "title";
     private static final String OFFLINE_ALT = "alt";
     private static final String OFFLINE_HIGHEST = "highest_offline";
@@ -108,7 +103,6 @@ public class PrefHelper {
 
 
     public static void getPrefs(Context context) {
-        //sharedPrefs = ((MainActivity) context).getPreferences(Activity.MODE_PRIVATE);
         sharedPrefs = context.getSharedPreferences("MainActivity", Activity.MODE_PRIVATE);
         prefs = PreferenceManager.getDefaultSharedPreferences(context);
     }

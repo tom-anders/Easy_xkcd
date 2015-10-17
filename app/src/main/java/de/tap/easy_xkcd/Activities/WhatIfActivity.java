@@ -121,7 +121,7 @@ public class WhatIfActivity extends AppCompatActivity {
         @Override
         protected Void doInBackground(Void... dummy) {
             try {
-                loadedArticle = new Article(WhatIfIndex, PrefHelper.fullOfflineWhatIf(), WhatIfActivity.this);
+                loadedArticle = new Article(WhatIfIndex, PrefHelper.fullOfflineWhatIf());
                 doc = loadedArticle.getWhatIf();
             } catch (IOException e) {
                 e.printStackTrace();
