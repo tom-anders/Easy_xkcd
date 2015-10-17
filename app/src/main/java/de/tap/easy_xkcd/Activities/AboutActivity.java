@@ -21,11 +21,17 @@ import android.os.Build;
 import android.os.Bundle;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
+import android.text.Html;
+import android.util.Log;
 import android.util.TypedValue;
+import android.widget.TextView;
 
 import com.tap.xkcd_reader.R;
 
-import org.sufficientlysecure.htmltextview.HtmlTextView;
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 
 import de.tap.easy_xkcd.utils.PrefHelper;
 
@@ -53,9 +59,19 @@ public class AboutActivity extends AppCompatActivity {
             if (!PrefHelper.colorNavbar())
                 getWindow().setNavigationBarColor(ContextCompat.getColor(this, R.color.ColorPrimaryBlack));
         }
-        HtmlTextView tvAbout = (HtmlTextView) findViewById(R.id.tvAbout);
-        tvAbout.setHtmlFromRawResource(this, R.raw.licenses, new HtmlTextView.RemoteImageGetter());
-
+        TextView tvAbout = (TextView) findViewById(R.id.tvAbout);
+        InputStream is = getResources().openRawResource(R.raw.licenses);
+        BufferedReader br = new BufferedReader(new InputStreamReader(is));
+        StringBuilder sb = new StringBuilder();
+        String line;
+        try {
+            while ((line = br.readLine()) != null) {
+                sb.append(line);
+            }
+        } catch (IOException e) {
+            Log.e("error:", e.getMessage());
+        }
+        tvAbout.setText(Html.fromHtml(sb.toString()));
     }
 
 

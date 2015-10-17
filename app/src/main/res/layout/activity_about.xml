@@ -29,7 +29,7 @@
         android:layout_below="@id/toolbar"
         >
 
-        <org.sufficientlysecure.htmltextview.HtmlTextView
+        <TextView
             android:id="@+id/tvAbout"
             android:layout_margin="5dp"
             android:layout_width="match_parent"
