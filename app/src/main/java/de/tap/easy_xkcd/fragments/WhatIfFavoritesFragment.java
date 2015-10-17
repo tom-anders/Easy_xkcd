@@ -2,13 +2,10 @@ package de.tap.easy_xkcd.fragments;
 
 import android.app.AlertDialog;
 import android.app.ProgressDialog;
-import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.ColorFilter;
 import android.graphics.ColorMatrixColorFilter;
-import android.net.ConnectivityManager;
-import android.net.NetworkInfo;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -21,7 +18,6 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
-import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.animation.DecelerateInterpolator;
@@ -49,15 +45,11 @@ import jp.wasabeef.recyclerview.animators.adapters.SlideInBottomAnimationAdapter
 public class WhatIfFavoritesFragment extends android.support.v4.app.Fragment {
     public static ArrayList<String> mTitles = new ArrayList<>();
     private static ArrayList<String> mImgs = new ArrayList<>();
-    //public static RecyclerView rv;
     private static WhatIfFavoritesFragment instance;
     @Bind(R.id.rv)
     RecyclerView rv;
-    private MenuItem searchMenuItem;
     public static RVAdapter adapter;
     private boolean fullOffline;
-    //private FloatingActionButton fab;
-    //@Bind(R.id.fab) FloatingActionButton fab;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
@@ -65,19 +57,10 @@ public class WhatIfFavoritesFragment extends android.support.v4.app.Fragment {
         ButterKnife.bind(this, v);
         setHasOptionsMenu(true);
 
-        //fab = (FloatingActionButton) v.findViewById(R.id.fab);
-        /*fab.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                openRandomWhatIf();
-            }
-        });*/
-        //rv = (RecyclerView) v.findViewById(R.id.rv);
         instance = this;
         LinearLayoutManager llm = new LinearLayoutManager(getActivity());
         rv.setLayoutManager(llm);
         rv.setHasFixedSize(false);
-        //rv.addOnScrollListener(new CustomOnScrollListener());
 
         fullOffline = PrefHelper.fullOfflineWhatIf();
         new DisplayOverview().execute();
@@ -194,7 +177,6 @@ public class WhatIfFavoritesFragment extends android.support.v4.app.Fragment {
         @Override
         public void onBindViewHolder(final ComicViewHolder comicViewHolder, int i) {
             comicViewHolder.articleTitle.setText(titles.get(i));
-
             String title = titles.get(i);
             int n = mTitles.size() - mTitles.indexOf(title);
 
@@ -255,7 +237,7 @@ public class WhatIfFavoritesFragment extends android.support.v4.app.Fragment {
                 super(itemView);
                 cv = (CardView) itemView.findViewById(R.id.cv);
                 if (PrefHelper.nightThemeEnabled())
-                    cv.setBackgroundColor(getResources().getColor(R.color.background_material_dark));
+                    cv.setBackgroundColor(ContextCompat.getColor(getActivity(), R.color.background_material_dark));
                 articleTitle = (TextView) itemView.findViewById(R.id.article_title);
                 thumbnail = (ImageView) itemView.findViewById(R.id.thumbnail);
             }
@@ -265,7 +247,7 @@ public class WhatIfFavoritesFragment extends android.support.v4.app.Fragment {
     class CustomOnClickListener implements View.OnClickListener {
         @Override
         public void onClick(View v) {
-            if (!isOnline()&&!fullOffline) {
+            if (!PrefHelper.isOnline(getActivity()) && !fullOffline) {
                 Toast.makeText(getActivity(), R.string.no_connection, Toast.LENGTH_SHORT).show();
                 return;
             }
@@ -275,8 +257,6 @@ public class WhatIfFavoritesFragment extends android.support.v4.app.Fragment {
             int n = mTitles.size() - mTitles.indexOf(title);
             WhatIfActivity.WhatIfIndex = n;
             startActivity(intent);
-            Log.d("index", String.valueOf(n));
-
             PrefHelper.setLastWhatIf(n);
         }
     }
@@ -320,17 +300,14 @@ public class WhatIfFavoritesFragment extends android.support.v4.app.Fragment {
                             for (int i = 0; i < mTitles.size(); i++) {
                                 if (PrefHelper.checkWhatIfFav(mTitles.size() - i)) {
                                     titleFav.add(mTitles.get(i));
-                                    if (!fullOffline) {
+                                    if (!fullOffline)
                                         imgFav.add(mImgs.get(i));
-                                    }
                                 }
                             }
                             adapter = new RVAdapter(titleFav, imgFav);
                             SlideInBottomAnimationAdapter slideAdapter = new SlideInBottomAnimationAdapter(adapter);
                             slideAdapter.setInterpolator(new DecelerateInterpolator());
                             rv.setAdapter(slideAdapter);
-
-
                     }
                 }
             });
@@ -340,46 +317,11 @@ public class WhatIfFavoritesFragment extends android.support.v4.app.Fragment {
         }
     }
 
-    public void updateRv() {
-        if (PrefHelper.hideRead()) {
-            ArrayList<String> titleUnread = new ArrayList<>();
-            ArrayList<String> imgUnread = new ArrayList<>();
-            for (int i = 0; i < mTitles.size(); i++) {
-                if (!PrefHelper.checkRead(mTitles.size() - i)) {
-                    titleUnread.add(mTitles.get(i));
-                    imgUnread.add(mImgs.get(i));
-                }
-            }
-            adapter = new RVAdapter(titleUnread, imgUnread);
-            SlideInBottomAnimationAdapter slideAdapter = new SlideInBottomAnimationAdapter(adapter);
-            slideAdapter.setInterpolator(new DecelerateInterpolator());
-            rv.setAdapter(slideAdapter);
-            rv.scrollToPosition(titleUnread.size() - PrefHelper.getLastWhatIf());
-        } else {
-            adapter = new RVAdapter(mTitles, mImgs);
-            SlideInBottomAnimationAdapter slideAdapter = new SlideInBottomAnimationAdapter(adapter);
-            slideAdapter.setInterpolator(new DecelerateInterpolator());
-            rv.setAdapter(slideAdapter);
-            rv.scrollToPosition(mTitles.size() - PrefHelper.getLastWhatIf());
-        }
-    }
-
     @Override
     public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
         menu.findItem(R.id.action_unread).setVisible(false);
         menu.findItem(R.id.action_hide_read).setVisible(false);
-        //menu.findItem(R.id.action_search).setVisible(false);
-
-
         super.onCreateOptionsMenu(menu, inflater);
-    }
-
-    private boolean isOnline() {
-        //Checks if the device is currently online
-        ConnectivityManager cm =
-                (ConnectivityManager) getActivity().getSystemService(Context.CONNECTIVITY_SERVICE);
-        NetworkInfo netInfo = cm.getActiveNetworkInfo();
-        return netInfo != null && netInfo.isConnectedOrConnecting();
     }
 
     @Override

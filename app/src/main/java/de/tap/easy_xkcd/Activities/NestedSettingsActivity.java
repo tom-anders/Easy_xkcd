@@ -1,12 +1,9 @@
 package de.tap.easy_xkcd.Activities;
 
-
-import android.content.Context;
 import android.content.pm.PackageManager;
-import android.net.ConnectivityManager;
-import android.net.NetworkInfo;
 import android.os.Build;
 import android.os.Bundle;
+import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.util.TypedValue;
 
@@ -21,7 +18,6 @@ public class NestedSettingsActivity extends AppCompatActivity {
     private static final String ALT_SHARING = "altSharing";
     private static final String ADVANCED = "advanced";
     private static final String NIGHT = "night";
-    private String mKey;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -32,6 +28,7 @@ public class NestedSettingsActivity extends AppCompatActivity {
         //Setup toolbar and status bar color
         android.support.v7.widget.Toolbar toolbar = (android.support.v7.widget.Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
+        assert getSupportActionBar() != null;
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
 
@@ -44,12 +41,11 @@ public class NestedSettingsActivity extends AppCompatActivity {
             getWindow().setStatusBarColor(typedValue.data);
         }
         if (!PrefHelper.colorNavbar() && Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-            getWindow().setNavigationBarColor(getResources().getColor(R.color.ColorPrimaryBlack));
+            getWindow().setNavigationBarColor(ContextCompat.getColor(this, R.color.ColorPrimaryBlack));
         }
 
         if (savedInstanceState==null) {
             String key = getIntent().getStringExtra("key");
-            mKey = key;
             getFragmentManager().beginTransaction().replace(R.id.content_frame, NestedPreferenceFragment.newInstance(key), "nested").commit();
             switch (key) {
                 case APPEARANCE:
@@ -119,12 +115,5 @@ public class NestedSettingsActivity extends AppCompatActivity {
             startActivity(MainActivity.getInstance().getIntent());
         }
         super.onPause();
-    }
-
-    public boolean isOnline() {
-        ConnectivityManager cm =
-                (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
-        NetworkInfo netInfo = cm.getActiveNetworkInfo();
-        return netInfo != null && netInfo.isConnectedOrConnecting();
     }
 }

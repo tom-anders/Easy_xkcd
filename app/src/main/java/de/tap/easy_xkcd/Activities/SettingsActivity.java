@@ -21,6 +21,7 @@ import android.os.Build;
 import android.preference.Preference;
 import android.preference.PreferenceFragment;
 import android.os.Bundle;
+import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.util.TypedValue;
 
@@ -38,11 +39,10 @@ public class SettingsActivity extends AppCompatActivity {
         setContentView(R.layout.activity_settings);
         instance = this;
 
-        //Setup toolbar and status bar color
         android.support.v7.widget.Toolbar toolbar = (android.support.v7.widget.Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
+        assert getSupportActionBar() != null;
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-
 
         TypedValue typedValue = new TypedValue();
         getTheme().resolveAttribute(R.attr.colorPrimaryDark, typedValue, true);
@@ -51,18 +51,12 @@ public class SettingsActivity extends AppCompatActivity {
         toolbar.setBackgroundColor(typedValue2.data);
         if (Build.VERSION.SDK_INT >= 21) {
             getWindow().setStatusBarColor(typedValue.data);
-        }
-        if (!PrefHelper.colorNavbar() && Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-            getWindow().setNavigationBarColor(getResources().getColor(R.color.ColorPrimaryBlack));
+            if (!PrefHelper.colorNavbar())
+                getWindow().setNavigationBarColor(ContextCompat.getColor(this, R.color.ColorPrimaryBlack));
         }
 
-        if (savedInstanceState==null) {
+        if (savedInstanceState==null)
             getFragmentManager().beginTransaction().replace(R.id.content_frame, new CustomPreferenceFragment(), "preferences").commit();
-        }
-    }
-
-    public static SettingsActivity getInstance() {
-        return instance;
     }
 
     public void showPrefFragment(String key) {
@@ -97,7 +91,6 @@ public class SettingsActivity extends AppCompatActivity {
             findPreference(ALT_SHARING).setOnPreferenceClickListener(this);
             findPreference(ADVANCED).setOnPreferenceClickListener(this);
             findPreference(NIGHT).setOnPreferenceClickListener(this);
-
         }
 
         @Override
@@ -106,6 +99,10 @@ public class SettingsActivity extends AppCompatActivity {
             ((SettingsActivity) getActivity()).showPrefFragment(preference.getKey());
             return false;
         }
+    }
+
+    public static SettingsActivity getInstance() {
+        return instance;
     }
 
 }

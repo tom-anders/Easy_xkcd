@@ -50,7 +50,6 @@ public class DonateActivity extends AppCompatActivity {
                 builder.setItems(mPrices, new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialogInterface, int i) {
-                        //mBillingProcessor.purchase(DonateActivity.this, "android.test.purchased");
                         mBillingProcessor.purchase(DonateActivity.this, mIds[i]);
                     }
                 })
@@ -81,7 +80,6 @@ public class DonateActivity extends AppCompatActivity {
 
             @Override
             public void onPurchaseHistoryRestored() {
-
             }
         });
 

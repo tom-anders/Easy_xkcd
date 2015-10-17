@@ -6,7 +6,7 @@ import android.content.pm.ActivityInfo;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Build;
-import android.os.Environment;
+import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.text.Html;
@@ -25,15 +25,13 @@ import android.widget.TextView;
 
 import com.tap.xkcd_reader.R;
 
-import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
-import org.jsoup.nodes.Element;
 
-import java.io.File;
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.Random;
 
+import butterknife.Bind;
+import butterknife.ButterKnife;
 import de.tap.easy_xkcd.fragments.OfflineWhatIfFragment;
 import de.tap.easy_xkcd.misc.OnSwipeTouchListener;
 import de.tap.easy_xkcd.utils.Article;
@@ -43,7 +41,7 @@ import de.tap.easy_xkcd.fragments.WhatIfFragment;
 
 public class WhatIfActivity extends AppCompatActivity {
 
-    private WebView web;
+    @Bind(R.id.wv) WebView web;
     public static int WhatIfIndex;
     private ProgressDialog mProgress;
     private boolean leftSwipe = false;
@@ -56,12 +54,13 @@ public class WhatIfActivity extends AppCompatActivity {
         setTheme(PrefHelper.getTheme());
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_what_if);
-
         PrefHelper.getPrefs(getApplicationContext());
+        ButterKnife.bind(this);
         fullOffline = PrefHelper.fullOfflineWhatIf();
 
         android.support.v7.widget.Toolbar toolbar = (android.support.v7.widget.Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
+        assert getSupportActionBar() != null;
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
 
@@ -70,35 +69,14 @@ public class WhatIfActivity extends AppCompatActivity {
         TypedValue typedValue2 = new TypedValue();
         getTheme().resolveAttribute(R.attr.colorPrimary, typedValue2, true);
         toolbar.setBackgroundColor(typedValue2.data);
-        if (Build.VERSION.SDK_INT >= 21) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
             getWindow().setStatusBarColor(typedValue.data);
+            if (!PrefHelper.colorNavbar())
+                getWindow().setNavigationBarColor(ContextCompat.getColor(this, R.color.ColorPrimaryBlack));
         }
-        if (!PrefHelper.colorNavbar() && Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-            getWindow().setNavigationBarColor(getResources().getColor(R.color.ColorPrimaryBlack));
-        }
 
-
-        web = (WebView) findViewById(R.id.wv);
-        web.addJavascriptInterface(new Object() {
-            @JavascriptInterface
-            public void performClick(String alt) {
-                android.support.v7.app.AlertDialog.Builder mDialog = new android.support.v7.app.AlertDialog.Builder(WhatIfActivity.this);
-                mDialog.setMessage(alt);
-                mDialog.show();
-            }
-        }, "img");
-
-        web.addJavascriptInterface(new Object() {
-            @JavascriptInterface
-            public void performClick(String n) {
-                ((TextView) new android.support.v7.app.AlertDialog.Builder(WhatIfActivity.this)
-                        .setMessage(Html.fromHtml(loadedArticle.getRefs().get(Integer.parseInt(n))))
-                        .show()
-                        .findViewById(android.R.id.message))
-                        .setMovementMethod(LinkMovementMethod.getInstance());
-            }
-        }, "ref");
-
+        web.addJavascriptInterface(new altObject(), "img");
+        web.addJavascriptInterface(new refObject(), "ref");
         web.getSettings().setBuiltInZoomControls(true);
         web.getSettings().setUseWideViewPort(Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT);
         web.getSettings().setJavaScriptEnabled(true);
@@ -109,9 +87,28 @@ public class WhatIfActivity extends AppCompatActivity {
         new LoadWhatIf().execute();
     }
 
+    private class altObject {
+        @JavascriptInterface
+        public void performClick(String alt) {
+            android.support.v7.app.AlertDialog.Builder mDialog = new android.support.v7.app.AlertDialog.Builder(WhatIfActivity.this);
+            mDialog.setMessage(alt);
+            mDialog.show();
+        }
+    }
+
+    private class refObject {
+        @JavascriptInterface
+        public void performClick(String n) {
+            ((TextView) new android.support.v7.app.AlertDialog.Builder(WhatIfActivity.this)
+                    .setMessage(Html.fromHtml(loadedArticle.getRefs().get(Integer.parseInt(n))))
+                    .show()
+                    .findViewById(android.R.id.message))
+                    .setMovementMethod(LinkMovementMethod.getInstance());
+        }
+    }
+
     private class LoadWhatIf extends AsyncTask<Void, Void, Void> {
         private Document doc;
-        @JavascriptInterface
 
         @Override
         protected void onPreExecute() {
@@ -137,7 +134,7 @@ public class WhatIfActivity extends AppCompatActivity {
         @Override
         protected void onPostExecute(Void dummy) {
             web.loadDataWithBaseURL("file:///android_asset/.", doc.html(), "text/html", "UTF-8", null);
-            web.setWebChromeClient(new WebChromeClient(){
+            web.setWebChromeClient(new WebChromeClient() {
                 public void onProgressChanged(WebView view, int progress) {
                     mProgress.setProgress(progress);
                 }
@@ -156,10 +153,8 @@ public class WhatIfActivity extends AppCompatActivity {
                     } else {
                         OfflineWhatIfFragment.getInstance().updateRv();
                     }
-
-                    if (mProgress != null) {
+                    if (mProgress != null)
                         mProgress.dismiss();
-                    }
 
                     switch (Integer.parseInt(PrefHelper.getOrientation())) {
                         case 1:
@@ -192,7 +187,6 @@ public class WhatIfActivity extends AppCompatActivity {
                                 nextWhatIf(true);
                             }
                         }
-
                         @Override
                         public void onSwipeLeft() {
                             if (!fullOffline) {
@@ -209,6 +203,7 @@ public class WhatIfActivity extends AppCompatActivity {
 
                 }
             });
+            assert getSupportActionBar() != null;
             getSupportActionBar().setSubtitle(loadedArticle.getTitle());
         }
     }
@@ -218,7 +213,6 @@ public class WhatIfActivity extends AppCompatActivity {
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
         getMenuInflater().inflate(R.menu.menu_what_if, menu);
-
         menu.findItem(R.id.action_night_mode).setChecked(PrefHelper.nightModeEnabled());
         menu.findItem(R.id.action_swipe).setChecked(PrefHelper.swipeEnabled());
         return true;
@@ -228,19 +222,11 @@ public class WhatIfActivity extends AppCompatActivity {
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
             case R.id.action_next:
-                if (!fullOffline) {
-                    if (WhatIfIndex != WhatIfFragment.mTitles.size()) {
-                        return nextWhatIf(false);
-                    }
-                } else {
-                    if (WhatIfIndex != OfflineWhatIfFragment.mTitles.size()) {
-                        return nextWhatIf(false);
-                    }
-                }
+                return nextWhatIf(false);
+
             case R.id.action_back:
-                if (WhatIfIndex != 1) {
                     return nextWhatIf(true);
-                }
+
             case R.id.action_night_mode:
                 item.setChecked(!item.isChecked());
                 PrefHelper.setNightMode(item.isChecked());
@@ -290,8 +276,6 @@ public class WhatIfActivity extends AppCompatActivity {
         }
         return super.onOptionsItemSelected(item);
     }
-
-
 
     private boolean nextWhatIf(boolean left) {
         Animation animation;
@@ -346,7 +330,7 @@ public class WhatIfActivity extends AppCompatActivity {
             menu.findItem(R.id.action_next).setVisible(false);
         }
         if (PrefHelper.checkWhatIfFav(WhatIfIndex)) {
-            menu.findItem(R.id.action_favorite).setIcon(getResources().getDrawable(R.drawable.ic_action_favorite));
+            menu.findItem(R.id.action_favorite).setIcon(ContextCompat.getDrawable(this, R.drawable.ic_action_favorite));
         }
         return super.onPrepareOptionsMenu(menu);
     }

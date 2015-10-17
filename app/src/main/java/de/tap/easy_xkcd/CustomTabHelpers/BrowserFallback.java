@@ -5,8 +5,9 @@ import android.content.Intent;
 import android.net.Uri;
 
 /**
- * Created by Tom on 14.09.2015.
+ * Adapted from https://medium.com/ribot-labs/exploring-chrome-customs-tabs-on-android-ef427effe2f4
  */
+
 public class BrowserFallback implements CustomTabActivityHelper.CustomTabFallback {
     @Override
     public void openUri(Activity activity, Uri uri) {

@@ -18,9 +18,12 @@
 package de.tap.easy_xkcd.utils;
 
 import android.app.Activity;
+import android.content.ActivityNotFoundException;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.net.Uri;
 import android.preference.PreferenceManager;
 import android.support.design.widget.FloatingActionButton;
@@ -457,6 +460,31 @@ public class PrefHelper {
         return (n == 12 | n == 30);
     }
 
+    public static void showRateSnackbar(final String packageName, final Context context, FloatingActionButton mFab) {
+        // Thanks to /u/underhound for this great idea! https://www.reddit.com/r/Android/comments/3i6uw0/dev_i_think_ive_mastered_the_art_of_asking_for/
+        if (PrefHelper.showRateDialog()) {
+            View.OnClickListener oc = new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    Uri uri = Uri.parse("market://details?id=" + packageName);
+                    Intent intent = new Intent(Intent.ACTION_VIEW, uri);
+                    intent.addFlags(Intent.FLAG_ACTIVITY_NO_HISTORY | Intent.FLAG_ACTIVITY_MULTIPLE_TASK);
+                    SharedPreferences.Editor editor = sharedPrefs.edit();
+                    editor.putInt(RATE_SNACKBAR, 32);
+                    editor.apply();
+                    try {
+                        context.startActivity(intent);
+                    } catch (ActivityNotFoundException e) {
+                        context.startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse("http://play.google.com/store/apps/details?id=" + packageName)));
+                    }
+                }
+            };
+            Snackbar.make(mFab, R.string.snackbar_rate, Snackbar.LENGTH_LONG)
+                    .setAction(R.string.snackbar_rate_action, oc)
+                    .show();
+        }
+    }
+
     public static int getTheme() {
         if (nightThemeEnabled())
             return R.style.NightTheme;
@@ -746,6 +774,20 @@ public class PrefHelper {
         return end[0] + ":" + minute + suffix;
     }
 
+    public static boolean isWifi(Context context) {
+        if (context == null)
+            return true;
+        ConnectivityManager cm = (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
+        NetworkInfo info = cm.getActiveNetworkInfo();
+        return (info != null && info.isConnected() && info.getType() == ConnectivityManager.TYPE_WIFI);
+    }
+
+    public static boolean isOnline(Context context) {
+        ConnectivityManager cm =
+                (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
+        NetworkInfo netInfo = cm.getActiveNetworkInfo();
+        return netInfo != null && netInfo.isConnectedOrConnecting();
+    }
 
 }
 

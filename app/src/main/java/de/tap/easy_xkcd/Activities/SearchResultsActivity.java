@@ -32,11 +32,13 @@ import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
+import android.support.v4.content.ContextCompat;
 import android.support.v4.view.MenuItemCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.CardView;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.support.v7.widget.Toolbar;
 import android.text.Html;
 import android.util.Log;
 import android.util.SparseArray;
@@ -67,6 +69,8 @@ import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.Arrays;
 
+import butterknife.Bind;
+import butterknife.ButterKnife;
 import de.tap.easy_xkcd.utils.Comic;
 import de.tap.easy_xkcd.fragments.ComicBrowserFragment;
 import de.tap.easy_xkcd.fragments.OfflineFragment;
@@ -80,9 +84,8 @@ public class SearchResultsActivity extends AppCompatActivity {
     private SparseArray<String> resultsTranscript = new SparseArray<>();
     private SparseArray<String> resultsUrls = new SparseArray<>();
     private SparseArray<String> resultsPreview = new SparseArray<>();
-    private RecyclerView rv;
+    @Bind(R.id.rv) RecyclerView rv;
     private searchTask task;
-    private MenuItem searchMenuItem;
     private ProgressDialog mProgress;
     private String query;
     private static String sComicTitles;
@@ -93,12 +96,13 @@ public class SearchResultsActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         setTheme(PrefHelper.getTheme());
         super.onCreate(savedInstanceState);
-
         setContentView(R.layout.activity_search_results);
+        ButterKnife.bind(this);
 
         //Setup toolbar and status bar color
-        android.support.v7.widget.Toolbar toolbar = (android.support.v7.widget.Toolbar) findViewById(R.id.toolbar);
+        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
+        assert getSupportActionBar() != null;
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
         TypedValue typedValue = new TypedValue();
@@ -106,16 +110,15 @@ public class SearchResultsActivity extends AppCompatActivity {
         TypedValue typedValue2 = new TypedValue();
         getTheme().resolveAttribute(R.attr.colorPrimary, typedValue2, true);
         toolbar.setBackgroundColor(typedValue2.data);
-        if (Build.VERSION.SDK_INT >= 21) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
             getWindow().setStatusBarColor(typedValue.data);
-        }
-        if (!PrefHelper.colorNavbar() && Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-            getWindow().setNavigationBarColor(getResources().getColor(R.color.ColorPrimaryBlack));
+            if (!PrefHelper.colorNavbar())
+                getWindow().setNavigationBarColor(ContextCompat.getColor(this, R.color.ColorPrimaryBlack));
         }
 
-
-        rv = (RecyclerView) findViewById(R.id.rv);
-        setupRecyclerView(rv);
+        LinearLayoutManager llm = new LinearLayoutManager(this);
+        rv.setLayoutManager(llm);
+        rv.setHasFixedSize(true);
 
         Intent intent = getIntent();
         if (savedInstanceState==null) {
@@ -124,8 +127,7 @@ public class SearchResultsActivity extends AppCompatActivity {
             query = savedInstanceState.getString("query");
         }
         getSupportActionBar().setTitle(getResources().getString(R.string.title_activity_search_results) + " " + query);
-
-        mProgress = ProgressDialog.show(SearchResultsActivity.this, "", SearchResultsActivity.this.getResources().getString(R.string.loading_results), true);
+        mProgress = ProgressDialog.show(this, "", getResources().getString(R.string.loading_results), true);
 
         if (savedInstanceState==null) {
             new updateDatabase().execute();
@@ -194,7 +196,7 @@ public class SearchResultsActivity extends AppCompatActivity {
                 PrefHelper.setDatabaseLoaded();
             }
             publishProgress(50);
-            if (isOnline()) {
+            if (PrefHelper.isOnline(SearchResultsActivity.this)) {
                 int newest;
                 try {
                     newest = new Comic(0).getComicNumber();
@@ -261,13 +263,6 @@ public class SearchResultsActivity extends AppCompatActivity {
         }
     }
 
-
-    private void setupRecyclerView(RecyclerView recyclerView) {
-        LinearLayoutManager llm = new LinearLayoutManager(this);
-        recyclerView.setLayoutManager(llm);
-        recyclerView.setHasFixedSize(true);
-    }
-
     private boolean performSearch(String query) {
         if (checkInteger(query)) {
             return getComicByNumber(Integer.parseInt(query));
@@ -331,7 +326,6 @@ public class SearchResultsActivity extends AppCompatActivity {
         private Boolean done;
         private ProgressBar pb;
 
-
         @Override
         protected void onPreExecute() {
             pb = (ProgressBar) findViewById(R.id.pb);
@@ -354,6 +348,7 @@ public class SearchResultsActivity extends AppCompatActivity {
                 slideAdapter.setInterpolator(new DecelerateInterpolator());
                 rv.setAdapter(slideAdapter);
                 mProgress.dismiss();
+                assert getSupportActionBar() != null;
                 getSupportActionBar().setTitle(getResources().getString(R.string.title_activity_search_results) + " " + query);
             } else {
                 mProgress.dismiss();
@@ -432,7 +427,6 @@ public class SearchResultsActivity extends AppCompatActivity {
                     }
                 }
             }
-
             if (PrefHelper.invertColors()) {
                 float[] colorMatrix_Negative = {
                         -1.0f, 0, 0, 0, 255, //red
@@ -443,7 +437,6 @@ public class SearchResultsActivity extends AppCompatActivity {
                 ColorFilter cf = new ColorMatrixColorFilter(colorMatrix_Negative);
                 comicViewHolder.thumbnail.setColorFilter(cf);
             }
-
         }
 
         @Override
@@ -462,7 +455,7 @@ public class SearchResultsActivity extends AppCompatActivity {
                 super(itemView);
                 cv = (CardView) itemView.findViewById(R.id.cv);
                 if (PrefHelper.nightThemeEnabled())
-                    cv.setBackgroundColor(getResources().getColor(R.color.background_material_dark));
+                    cv.setBackgroundColor(ContextCompat.getColor(SearchResultsActivity.this, R.color.background_material_dark));
                 comicTitle = (TextView) itemView.findViewById(R.id.comic_title);
                 comicInfo = (TextView) itemView.findViewById(R.id.comic_info);
                 thumbnail = (ImageView) itemView.findViewById(R.id.thumbnail);
@@ -473,9 +466,7 @@ public class SearchResultsActivity extends AppCompatActivity {
 
     private String getPreview(String query, String transcript) {
         String firstWord = query.split(" ")[0].toLowerCase();
-
         transcript = transcript.replace(".", ". ").replace("?", "? ").replace("]]"," ").replace("[["," ").replace("{{", " ").replace("}}", " ");
-
         ArrayList<String> words = new ArrayList<>(Arrays.asList(transcript.toLowerCase().split(" ")));
         int i = 0;
         boolean found = false;
@@ -498,16 +489,13 @@ public class SearchResultsActivity extends AppCompatActivity {
             sb.append(s);
             sb.append(" ");
         }
-        //String[] s = sb.toString().split(query.toLowerCase());
         String s = sb.toString();
         return "..." + s.replace(query, "<b>"+query+"</b>") + "...";
-        //return "..."+s[0]+"<b>"+query+"</b>"+s[1]+"...";
     }
 
     class CustomOnClickListener implements View.OnClickListener {
         @Override
         public void onClick(View v) {
-            //int pos = rv.getChildPosition(v);
             int pos = rv.getChildAdapterPosition(v);
             Intent intent = new Intent("de.tap.easy_xkcd.ACTION_COMIC");
             if (pos < resultsTitle.size()) {
@@ -515,7 +503,6 @@ public class SearchResultsActivity extends AppCompatActivity {
             } else {
                 intent.putExtra("number", resultsTranscript.keyAt(pos - resultsTitle.size()));
             }
-            //startActivity(intent);
             ImageView imageView = (ImageView) v.findViewById(R.id.thumbnail);
             Bitmap bitmap = ((BitmapDrawable)imageView.getDrawable()).getBitmap();
             if (!PrefHelper.fullOfflineEnabled()) {
@@ -530,26 +517,16 @@ public class SearchResultsActivity extends AppCompatActivity {
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         getMenuInflater().inflate(R.menu.menu_search_results, menu);
-        // Get the SearchView and set the searchable configuration
+
         SearchManager searchManager = (SearchManager) getSystemService(Context.SEARCH_SERVICE);
         final SearchView searchView = (SearchView) menu.findItem(R.id.action_search).getActionView();
         searchView.setSearchableInfo(searchManager.getSearchableInfo(getComponentName()));
         searchView.setIconifiedByDefault(false);
-        //searchView.setInputType(InputType.TYPE_CLASS_NUMBER);
-        searchMenuItem = menu.findItem(R.id.action_search);
+        MenuItem searchMenuItem = menu.findItem(R.id.action_search);
 
         searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
             @Override
             public boolean onQueryTextSubmit(String query) {
-                /*MenuItem searchMenuItem = getSearchMenuItem();
-                searchMenuItem.collapseActionView();
-                searchView.setQuery("", false);
-                //Hide Keyboard
-                View view = SearchResultsActivity.this.getCurrentFocus();
-                if (view != null) {
-                    InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
-                    imm.hideSoftInputFromWindow(view.getWindowToken(), 0);
-                }*/
                 return false;
             }
 
@@ -592,10 +569,11 @@ public class SearchResultsActivity extends AppCompatActivity {
     @Override
     protected void onPause() {
         super.onPause();
-        if (mProgress != null) {
+        if (mProgress != null)
             mProgress.dismiss();
-        }
     }
+
+    @SuppressWarnings("ResultOfMethodCallIgnored")
     private boolean checkInteger(String s) {
         boolean isInteger = true;
         try {
@@ -610,13 +588,6 @@ public class SearchResultsActivity extends AppCompatActivity {
     public void onSaveInstanceState(Bundle savedInstanceState) {
         savedInstanceState.putString("query", query);
         super.onSaveInstanceState(savedInstanceState);
-    }
-
-    private boolean isOnline() {
-        ConnectivityManager cm =
-                (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
-        NetworkInfo netInfo = cm.getActiveNetworkInfo();
-        return netInfo != null && netInfo.isConnectedOrConnecting();
     }
 
     @Override

@@ -92,7 +92,7 @@
 
             <meta-data
                 android:name="android.app.default_searchable"
-                android:value=".SearchResultsActivity" />
+                android:value=".Activities.SearchResultsActivity" />
             <meta-data
                 android:name="de.tap.easy_xkcd.misc.GlideConfiguration"
                 android:value="GlideModule" />

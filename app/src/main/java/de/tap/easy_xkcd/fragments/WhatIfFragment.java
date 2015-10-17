@@ -2,14 +2,11 @@ package de.tap.easy_xkcd.fragments;
 
 import android.app.AlertDialog;
 import android.app.ProgressDialog;
-import android.app.SearchManager;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.ColorFilter;
 import android.graphics.ColorMatrixColorFilter;
-import android.net.ConnectivityManager;
-import android.net.NetworkInfo;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -56,15 +53,12 @@ public class WhatIfFragment extends android.support.v4.app.Fragment {
 
     public static ArrayList<String> mTitles = new ArrayList<>();
     private static ArrayList<String> mImgs = new ArrayList<>();
-    //public static RecyclerView rv;
     @Bind(R.id.rv)
     RecyclerView rv;
     private MenuItem searchMenuItem;
     public static RVAdapter adapter;
     private static WhatIfFragment instance;
     public static boolean newIntent;
-    //private FloatingActionButton fab;
-    //@Bind(R.id.fab) FloatingActionButton fab;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
@@ -72,25 +66,14 @@ public class WhatIfFragment extends android.support.v4.app.Fragment {
         ButterKnife.bind(this, v);
         setHasOptionsMenu(true);
 
-        //fab = (FloatingActionButton) v.findViewById(R.id.fab);
-        /*fab.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                openRandomWhatIf();
-            }
-        });*/
-        //rv = (RecyclerView) v.findViewById(R.id.rv);
         LinearLayoutManager llm = new LinearLayoutManager(getActivity());
         rv.setLayoutManager(llm);
         rv.setHasFixedSize(false);
-        //rv.addOnScrollListener(new CustomOnScrollListener());
 
         instance = this;
-
         ((MainActivity) getActivity()).getFab().setVisibility(View.GONE);
 
         new DisplayOverview().execute();
-
         return v;
     }
 
@@ -112,18 +95,14 @@ public class WhatIfFragment extends android.support.v4.app.Fragment {
             mImgs.clear();
 
             Document doc = WhatIfOverviewFragment.doc;
-            Log.e("Info", "doc loaded");
             Elements titles = doc.select("h1");
             Elements imagelinks = doc.select("img.archive-image");
 
-            for (Element title : titles) {
+            for (Element title : titles)
                 mTitles.add(title.text());
-            }
-            Log.e("Info", "titles");
-            for (Element image : imagelinks) {
+
+            for (Element image : imagelinks)
                 mImgs.add(image.absUrl("src"));
-            }
-            Log.e("Info", "imgs");
 
             Collections.reverse(mTitles);
             Collections.reverse(mImgs);
@@ -166,7 +145,6 @@ public class WhatIfFragment extends android.support.v4.app.Fragment {
                     view.animate().setStartDelay(50 * (i + 1)).setDuration(70 * (i + 1)).translationY(0);
                 }
             }
-
             if (newIntent) {
                 Intent intent = new Intent(getActivity(), WhatIfActivity.class);
                 startActivity(intent);
@@ -174,10 +152,6 @@ public class WhatIfFragment extends android.support.v4.app.Fragment {
             }
         }
 
-    }
-
-    public RecyclerView getRv() {
-        return rv;
     }
 
     public class RVAdapter extends RecyclerView.Adapter<RVAdapter.ComicViewHolder> {
@@ -210,9 +184,9 @@ public class WhatIfFragment extends android.support.v4.app.Fragment {
             int n = mTitles.size() - mTitles.indexOf(title);
 
             if (PrefHelper.checkRead(n)) {
-                comicViewHolder.articleTitle.setTextColor(getResources().getColor(R.color.Read));
+                comicViewHolder.articleTitle.setTextColor(ContextCompat.getColor(getActivity(), R.color.Read));
             } else {
-                comicViewHolder.articleTitle.setTextColor(getResources().getColor(android.R.color.tertiary_text_light));
+                comicViewHolder.articleTitle.setTextColor(ContextCompat.getColor(getActivity(), android.R.color.tertiary_text_light));
             }
 
             if (titles.get(i).equals("Jupiter Descending")) {
@@ -262,7 +236,7 @@ public class WhatIfFragment extends android.support.v4.app.Fragment {
                 super(itemView);
                 cv = (CardView) itemView.findViewById(R.id.cv);
                 if (PrefHelper.nightThemeEnabled())
-                    cv.setBackgroundColor(getResources().getColor(R.color.background_material_dark));
+                    cv.setBackgroundColor(ContextCompat.getColor(getActivity(), R.color.background_material_dark));
                 articleTitle = (TextView) itemView.findViewById(R.id.article_title);
                 thumbnail = (ImageView) itemView.findViewById(R.id.thumbnail);
             }
@@ -272,7 +246,7 @@ public class WhatIfFragment extends android.support.v4.app.Fragment {
     class CustomOnClickListener implements View.OnClickListener {
         @Override
         public void onClick(View v) {
-            if (!isOnline()) {
+            if (!PrefHelper.isOnline(getActivity())) {
                 Toast.makeText(getActivity(), R.string.no_connection, Toast.LENGTH_SHORT).show();
                 return;
             }
@@ -282,7 +256,6 @@ public class WhatIfFragment extends android.support.v4.app.Fragment {
             int n = mTitles.size() - mTitles.indexOf(title);
             WhatIfActivity.WhatIfIndex = n;
             startActivity(intent);
-            Log.d("index", String.valueOf(n));
 
             PrefHelper.setLastWhatIf(n);
             PrefHelper.setWhatifRead(String.valueOf(n));
@@ -294,7 +267,7 @@ public class WhatIfFragment extends android.support.v4.app.Fragment {
     }
 
     public void getRandom() {
-        if (isOnline()) {
+        if (PrefHelper.isOnline(getActivity())) {
             Random mRand = new Random();
             int number = mRand.nextInt(adapter.titles.size());
             Intent intent = new Intent(getActivity(), WhatIfActivity.class);
@@ -309,28 +282,12 @@ public class WhatIfFragment extends android.support.v4.app.Fragment {
         }
     }
 
-    /*private void openRandomWhatIf() {
-        if (isOnline()) {
-            Random mRand = new Random();
-            int number = mRand.nextInt(adapter.titles.size());
-            Intent intent = new Intent(getActivity(), WhatIfActivity.class);
-            String title = adapter.titles.get(number);
-            int n = mTitles.size() - mTitles.indexOf(title);
-            WhatIfActivity.WhatIfIndex = n;
-            startActivity(intent);
-            PrefHelper.setLastWhatIf(n);
-            PrefHelper.setWhatifRead(String.valueOf(n));
-        } else {
-            Toast.makeText(getActivity(), R.string.no_connection, Toast.LENGTH_SHORT).show();
-        }
-    }*/
-
     class CustomOnLongClickListener implements View.OnLongClickListener {
         @Override
         public boolean onLongClick(View v) {
             final View view = v;
             AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
-            int pos = pos = rv.getChildAdapterPosition(view);
+            int pos = rv.getChildAdapterPosition(view);
             String title = adapter.titles.get(pos);
             int n = mTitles.size() - mTitles.indexOf(title);
             int array;
@@ -382,31 +339,6 @@ public class WhatIfFragment extends android.support.v4.app.Fragment {
             return true;
         }
     }
-
-    /*class CustomOnScrollListener extends RecyclerView.OnScrollListener {
-        int scrollDist = 0;
-        boolean isVisible = true;
-        static final float MINIMUM = 25;
-        @Override
-        public void onScrolled(RecyclerView recyclerView, int dx, int dy) {
-            super.onScrolled(recyclerView, dx, dy);
-            if (isVisible && scrollDist > MINIMUM) {
-                Resources r = getActivity().getResources();
-                float px = TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 16, r.getDisplayMetrics());
-                fab.animate().translationY(fab.getHeight() + px ).setInterpolator(new AccelerateInterpolator(2)).start();
-                scrollDist = 0;
-                isVisible = false;
-            }
-            else if (!isVisible && scrollDist < -MINIMUM) {
-                fab.animate().translationY(0).setInterpolator(new DecelerateInterpolator(2)).start();
-                scrollDist = 0;
-                isVisible = true;
-            }
-            if ((isVisible && dy > 0) || (!isVisible && dy < 0)) {
-                scrollDist += dy;
-            }
-        }
-    }*/
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
@@ -474,12 +406,9 @@ public class WhatIfFragment extends android.support.v4.app.Fragment {
 
     @Override
     public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
-
-        // Get the SearchView and set the searchable configuration
-        SearchManager searchManager = (SearchManager) getActivity().getSystemService(Context.SEARCH_SERVICE);
         final SearchView searchView = (SearchView) menu.findItem(R.id.action_search).getActionView();
-        searchView.setSearchableInfo(searchManager.getSearchableInfo(getActivity().getComponentName()));
         searchView.setIconifiedByDefault(false);
+        searchView.setQueryHint(getResources().getString(R.string.search_hint_whatif));
         searchMenuItem = menu.findItem(R.id.action_search);
         searchMenuItem.setVisible(true);
 
@@ -517,8 +446,6 @@ public class WhatIfFragment extends android.support.v4.app.Fragment {
                 }
                 searchView.requestFocus();
 
-
-                //fab.setVisibility(View.INVISIBLE);
                 ((WhatIfOverviewFragment) getParentFragment()).fab.hide();
                 return true;
             }
@@ -536,8 +463,6 @@ public class WhatIfFragment extends android.support.v4.app.Fragment {
                 rv.setAdapter(slideAdapter);
                 searchView.setQuery("", false);
 
-                //fab.setVisibility(View.VISIBLE);
-                //fab.startAnimation(AnimationUtils.loadAnimation(getActivity(), R.anim.grow));
                 ((WhatIfOverviewFragment) getParentFragment()).fab.show();
                 return true;
             }
@@ -546,12 +471,8 @@ public class WhatIfFragment extends android.support.v4.app.Fragment {
         super.onCreateOptionsMenu(menu, inflater);
     }
 
-    private boolean isOnline() {
-        //Checks if the device is currently online
-        ConnectivityManager cm =
-                (ConnectivityManager) getActivity().getSystemService(Context.CONNECTIVITY_SERVICE);
-        NetworkInfo netInfo = cm.getActiveNetworkInfo();
-        return netInfo != null && netInfo.isConnectedOrConnecting();
+    public RecyclerView getRv() {
+        return rv;
     }
 
     @Override

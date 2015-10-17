@@ -152,7 +152,7 @@ public class NestedPreferenceFragment extends PreferenceFragment {
                     public boolean onPreferenceChange(Preference preference, Object newValue) {
                         boolean checked = Boolean.valueOf(newValue.toString());
                         if (checked) {
-                            if (((NestedSettingsActivity) getActivity()).isOnline()) {
+                            if (PrefHelper.isOnline(getActivity())) {
                                 if (ContextCompat.checkSelfPermission(getActivity(), Manifest.permission.WRITE_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED) {
                                     new downloadComicsTask().execute();
                                     return true;
@@ -194,7 +194,7 @@ public class NestedPreferenceFragment extends PreferenceFragment {
                     public boolean onPreferenceChange(Preference preference, Object newValue) {
                         boolean checked = Boolean.valueOf(newValue.toString());
                         if (checked) {
-                            if (((NestedSettingsActivity) getActivity()).isOnline()) {
+                            if (PrefHelper.isOnline(getActivity())) {
                                 if (ContextCompat.checkSelfPermission(getActivity(), Manifest.permission.WRITE_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED) {
                                     new downloadArticlesTask().execute();
                                     return true;
@@ -302,7 +302,7 @@ public class NestedPreferenceFragment extends PreferenceFragment {
                 findPreference(REPAIR).setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
                     @Override
                     public boolean onPreferenceClick(Preference preference) {
-                        if (((NestedSettingsActivity) getActivity()).isOnline()) {
+                        if (PrefHelper.isOnline(getActivity())) {
                             if (ContextCompat.checkSelfPermission(getActivity(), Manifest.permission.WRITE_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED) {
                                 new repairComicsTask().execute();
                             } else {

@@ -4,7 +4,6 @@ package de.tap.easy_xkcd.fragments;
 import android.Manifest;
 import android.app.AlertDialog;
 import android.app.ProgressDialog;
-import android.app.SearchManager;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -12,8 +11,6 @@ import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.graphics.ColorFilter;
 import android.graphics.ColorMatrixColorFilter;
-import android.net.ConnectivityManager;
-import android.net.NetworkInfo;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -62,16 +59,13 @@ import jp.wasabeef.recyclerview.animators.adapters.SlideInBottomAnimationAdapter
 
 public class OfflineWhatIfFragment extends android.support.v4.app.Fragment {
     public static ArrayList<String> mTitles = new ArrayList<>();
-    //public static RecyclerView rv;
-    @Bind(R.id.rv) RecyclerView rv;
+    @Bind(R.id.rv)
+    RecyclerView rv;
     private MenuItem searchMenuItem;
     public static RVAdapter adapter;
     private static OfflineWhatIfFragment instance;
     public static boolean newIntent;
-    //private FloatingActionButton fab;
-    //@Bind(R.id.fab) FloatingActionButton fab;
     private static final String OFFLINE_WHATIF_OVERVIEW_PATH = "/easy xkcd/what if/overview";
-    private static final String OFFLINE_WHATIF_PATH = "/easy xkcd/what if/";
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
@@ -79,24 +73,18 @@ public class OfflineWhatIfFragment extends android.support.v4.app.Fragment {
         ButterKnife.bind(this, v);
         setHasOptionsMenu(true);
 
-
-
-        //rv = (RecyclerView) v.findViewById(R.id.rv);
         LinearLayoutManager llm = new LinearLayoutManager(getActivity());
         rv.setLayoutManager(llm);
         rv.setHasFixedSize(false);
-        //rv.addOnScrollListener(new CustomOnScrollListener());
 
         instance = this;
-
         ((MainActivity) getActivity()).getFab().setVisibility(View.GONE);
 
-        if (isOnline() && (isWifi()| PrefHelper.mobileEnabled())) {
+        if (PrefHelper.isOnline(getActivity()) && (PrefHelper.isWifi(getActivity()) | PrefHelper.mobileEnabled())) {
             new UpdateArticles().execute();
         } else {
             new DisplayOverview().execute();
         }
-
         return v;
     }
 
@@ -115,7 +103,6 @@ public class OfflineWhatIfFragment extends android.support.v4.app.Fragment {
         @Override
         protected Void doInBackground(Void... dummy) {
             mTitles.clear();
-
             mTitles = PrefHelper.getWhatIfTitles();
             Collections.reverse(mTitles);
             return null;
@@ -154,18 +141,12 @@ public class OfflineWhatIfFragment extends android.support.v4.app.Fragment {
                     view.animate().setStartDelay(50 * (i + 1)).setDuration(70 * (i + 1)).translationY(0);
                 }
             }
-
             if (newIntent) {
                 Intent intent = new Intent(getActivity(), WhatIfActivity.class);
                 startActivity(intent);
                 newIntent = false;
             }
         }
-
-    }
-
-    public RecyclerView getRv() {
-        return rv;
     }
 
     private class UpdateArticles extends AsyncTask<Void, Void, Void> {
@@ -180,6 +161,7 @@ public class OfflineWhatIfFragment extends android.support.v4.app.Fragment {
             progress.show();
         }
 
+        @SuppressWarnings("ResultOfMethodCallIgnored")
         @Override
         protected Void doInBackground(Void... dummy) {
             try {
@@ -249,7 +231,6 @@ public class OfflineWhatIfFragment extends android.support.v4.app.Fragment {
     }
 
     public class RVAdapter extends RecyclerView.Adapter<RVAdapter.ComicViewHolder> {
-        private int lastPosition = 0;
         public ArrayList<String> titles;
 
         @Override
@@ -272,14 +253,13 @@ public class OfflineWhatIfFragment extends android.support.v4.app.Fragment {
         @Override
         public void onBindViewHolder(final ComicViewHolder comicViewHolder, int i) {
             comicViewHolder.articleTitle.setText(titles.get(i));
-
             String title = titles.get(i);
             int n = mTitles.size() - mTitles.indexOf(title);
 
             if (PrefHelper.checkRead(n)) {
-                comicViewHolder.articleTitle.setTextColor(getResources().getColor(R.color.Read));
+                comicViewHolder.articleTitle.setTextColor(ContextCompat.getColor(getActivity(), R.color.Read));
             } else {
-                comicViewHolder.articleTitle.setTextColor(getResources().getColor(android.R.color.tertiary_text_light));
+                comicViewHolder.articleTitle.setTextColor(ContextCompat.getColor(getActivity(), android.R.color.tertiary_text_light));
             }
 
             if (titles.get(i).equals("Jupiter Descending")) {
@@ -301,7 +281,6 @@ public class OfflineWhatIfFragment extends android.support.v4.app.Fragment {
 
             File sdCard = Environment.getExternalStorageDirectory();
             File dir = new File(sdCard.getAbsolutePath() + OFFLINE_WHATIF_OVERVIEW_PATH);
-            //File file = new File(dir, String.valueOf(titles.size()-i) + ".png");
             File file = new File(dir, String.valueOf(n) + ".png");
 
             Glide.with(getActivity())
@@ -335,7 +314,7 @@ public class OfflineWhatIfFragment extends android.support.v4.app.Fragment {
                 super(itemView);
                 cv = (CardView) itemView.findViewById(R.id.cv);
                 if (PrefHelper.nightThemeEnabled())
-                    cv.setBackgroundColor(getResources().getColor(R.color.background_material_dark));
+                    cv.setBackgroundColor(ContextCompat.getColor(getActivity(), R.color.background_material_dark));
                 articleTitle = (TextView) itemView.findViewById(R.id.article_title);
                 thumbnail = (ImageView) itemView.findViewById(R.id.thumbnail);
             }
@@ -352,7 +331,6 @@ public class OfflineWhatIfFragment extends android.support.v4.app.Fragment {
                 int n = mTitles.size() - mTitles.indexOf(title);
                 WhatIfActivity.WhatIfIndex = n;
                 startActivity(intent);
-                Log.d("index", String.valueOf(n));
 
                 PrefHelper.setLastWhatIf(n);
                 PrefHelper.setWhatifRead(String.valueOf(n));
@@ -377,20 +355,6 @@ public class OfflineWhatIfFragment extends android.support.v4.app.Fragment {
         PrefHelper.setLastWhatIf(n);
         PrefHelper.setWhatifRead(String.valueOf(n));
     }
-
-    /*private void openRandomWhatIf() {
-
-        Random mRand = new Random();
-        int number = mRand.nextInt(adapter.titles.size());
-        Intent intent = new Intent(getActivity(), WhatIfActivity.class);
-        String title = adapter.titles.get(number);
-        int n = mTitles.size() - mTitles.indexOf(title);
-        WhatIfActivity.WhatIfIndex = n;
-        startActivity(intent);
-        PrefHelper.setLastWhatIf(n);
-        PrefHelper.setWhatifRead(String.valueOf(n));
-
-    }*/
 
     class CustomOnLongClickListener implements View.OnLongClickListener {
         @Override
@@ -450,31 +414,6 @@ public class OfflineWhatIfFragment extends android.support.v4.app.Fragment {
         }
     }
 
-   /* class CustomOnScrollListener extends RecyclerView.OnScrollListener {
-        int scrollDist = 0;
-        boolean isVisible = true;
-        static final float MINIMUM = 25;
-
-        @Override
-        public void onScrolled(RecyclerView recyclerView, int dx, int dy) {
-            super.onScrolled(recyclerView, dx, dy);
-            if (isVisible && scrollDist > MINIMUM) {
-                Resources r = getActivity().getResources();
-                float px = TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 16, r.getDisplayMetrics());
-                fab.animate().translationY(fab.getHeight() + px).setInterpolator(new AccelerateInterpolator(2)).start();
-                scrollDist = 0;
-                isVisible = false;
-            } else if (!isVisible && scrollDist < -MINIMUM) {
-                fab.animate().translationY(0).setInterpolator(new DecelerateInterpolator(2)).start();
-                scrollDist = 0;
-                isVisible = true;
-            }
-            if ((isVisible && dy > 0) || (!isVisible && dy < 0)) {
-                scrollDist += dy;
-            }
-        }
-    }*/
-
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
@@ -488,9 +427,8 @@ public class OfflineWhatIfFragment extends android.support.v4.app.Fragment {
                 if (item.isChecked()) {
                     ArrayList<String> titleUnread = new ArrayList<>();
                     for (int i = 0; i < mTitles.size(); i++) {
-                        if (!PrefHelper.checkRead(mTitles.size() - i)) {
+                        if (!PrefHelper.checkRead(mTitles.size() - i))
                             titleUnread.add(mTitles.get(i));
-                        }
                     }
                     adapter = new RVAdapter(titleUnread);
                     SlideInBottomAnimationAdapter slideAdapter = new SlideInBottomAnimationAdapter(adapter);
@@ -513,9 +451,8 @@ public class OfflineWhatIfFragment extends android.support.v4.app.Fragment {
         if (PrefHelper.hideRead()) {
             ArrayList<String> titleUnread = new ArrayList<>();
             for (int i = 0; i < mTitles.size(); i++) {
-                if (!PrefHelper.checkRead(mTitles.size() - i)) {
+                if (!PrefHelper.checkRead(mTitles.size() - i))
                     titleUnread.add(mTitles.get(i));
-                }
             }
             adapter = new RVAdapter(titleUnread);
             SlideInBottomAnimationAdapter slideAdapter = new SlideInBottomAnimationAdapter(adapter);
@@ -531,18 +468,11 @@ public class OfflineWhatIfFragment extends android.support.v4.app.Fragment {
         }
     }
 
-    public static OfflineWhatIfFragment getInstance() {
-        return instance;
-    }
-
     @Override
     public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
-
-        // Get the SearchView and set the searchable configuration
-        SearchManager searchManager = (SearchManager) getActivity().getSystemService(Context.SEARCH_SERVICE);
         final SearchView searchView = (SearchView) menu.findItem(R.id.action_search).getActionView();
-        searchView.setSearchableInfo(searchManager.getSearchableInfo(getActivity().getComponentName()));
         searchView.setIconifiedByDefault(false);
+        searchView.setQueryHint(getResources().getString(R.string.search_hint_whatif));
         searchMenuItem = menu.findItem(R.id.action_search);
         searchMenuItem.setVisible(true);
 
@@ -577,9 +507,6 @@ public class OfflineWhatIfFragment extends android.support.v4.app.Fragment {
                     imm.showSoftInput(view, 0);
                 }
                 searchView.requestFocus();
-
-
-                //fab.setVisibility(View.INVISIBLE);
                 ((WhatIfOverviewFragment) getParentFragment()).fab.hide();
                 return true;
             }
@@ -596,31 +523,23 @@ public class OfflineWhatIfFragment extends android.support.v4.app.Fragment {
                 slideAdapter.setInterpolator(new DecelerateInterpolator());
                 rv.setAdapter(slideAdapter);
                 searchView.setQuery("", false);
-
-                /*fab.setVisibility(View.VISIBLE);
-                fab.startAnimation(AnimationUtils.loadAnimation(getActivity(), R.anim.grow));*/
                 ((WhatIfOverviewFragment) getParentFragment()).fab.show();
                 return true;
             }
         });
-
         super.onCreateOptionsMenu(menu, inflater);
     }
 
-    private boolean isOnline() {
-        ConnectivityManager cm =
-                (ConnectivityManager) getActivity().getSystemService(Context.CONNECTIVITY_SERVICE);
-        NetworkInfo netInfo = cm.getActiveNetworkInfo();
-        return netInfo != null && netInfo.isConnectedOrConnecting();
+    public RecyclerView getRv() {
+        return rv;
     }
 
-    private boolean isWifi() {
-        ConnectivityManager cm = (ConnectivityManager) getActivity().getSystemService(Context.CONNECTIVITY_SERVICE);
-        NetworkInfo info = cm.getActiveNetworkInfo();
-        return (info != null && info.isConnected() && info.getType() == ConnectivityManager.TYPE_WIFI);
+    public static OfflineWhatIfFragment getInstance() {
+        return instance;
     }
 
-    @Override public void onDestroyView() {
+    @Override
+    public void onDestroyView() {
         super.onDestroyView();
         ButterKnife.unbind(this);
     }

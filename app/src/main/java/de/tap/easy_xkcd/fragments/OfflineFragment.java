@@ -12,8 +12,6 @@ import android.graphics.ColorFilter;
 import android.graphics.ColorMatrixColorFilter;
 import android.graphics.RectF;
 import android.graphics.drawable.Drawable;
-import android.net.ConnectivityManager;
-import android.net.NetworkInfo;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -25,7 +23,6 @@ import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
 import android.support.v4.view.PagerAdapter;
 import android.support.v4.view.ViewPager;
-import android.support.v7.app.ActionBar;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.util.SparseArray;
@@ -71,7 +68,6 @@ public class OfflineFragment extends android.support.v4.app.Fragment {
     public static SparseArray<OfflineComic> sComicMap = new SparseArray<>();
     public static HackyViewPager sPager;
     private OfflineBrowserPagerAdapter adapter;
-    private ActionBar mActionBar;
     private Boolean randomSelected = false;
     public static boolean fromSearch = false;
 
@@ -80,9 +76,8 @@ public class OfflineFragment extends android.support.v4.app.Fragment {
         View v = inflater.inflate(R.layout.pager_layout, container, false);
         setHasOptionsMenu(true);
 
-        if (MainActivity.sProgress != null) {
-            MainActivity.sProgress.dismiss();
-        }
+        if (((MainActivity) getActivity()).getProgressDialog() != null)
+            ((MainActivity) getActivity()).getProgressDialog().dismiss();
 
         if (savedInstanceState != null) {
             sLastComicNumber = savedInstanceState.getInt("Last Comic");
@@ -90,14 +85,10 @@ public class OfflineFragment extends android.support.v4.app.Fragment {
             sLastComicNumber = PrefHelper.getLastComic();
         }
 
-        mActionBar = ((MainActivity) getActivity()).getSupportActionBar();
-        assert mActionBar != null;
-
-        //Setup ViewPager, alt TextView
         sPager = (HackyViewPager) v.findViewById(R.id.pager);
         sPager.setOffscreenPageLimit(2);
 
-        if (savedInstanceState == null && isOnline() && (isWifi()|PrefHelper.mobileEnabled()) &&!fromSearch) {
+        if (savedInstanceState == null && PrefHelper.isOnline(getActivity()) && (PrefHelper.isWifi(getActivity()) | PrefHelper.mobileEnabled()) && !fromSearch) {
             new updateImages().execute();
         } else {
             sNewestComicNumber = PrefHelper.getHighestOffline();
@@ -127,10 +118,9 @@ public class OfflineFragment extends android.support.v4.app.Fragment {
                 } catch (NullPointerException e) {
                     e.printStackTrace();
                 }
-                sLastComicNumber = position+1;
-                if (PrefHelper.subtitleEnabled() && MainActivity.sCurrentFragment == R.id.nav_browser) {
-                    mActionBar.setSubtitle(String.valueOf(sLastComicNumber));
-                }
+                sLastComicNumber = position + 1;
+                if (PrefHelper.subtitleEnabled() && ((MainActivity) getActivity()).getCurrentFragment() == R.id.nav_browser)
+                    ((MainActivity) getActivity()).getToolbar().setSubtitle(String.valueOf(sLastComicNumber));
             }
 
             @Override
@@ -148,6 +138,7 @@ public class OfflineFragment extends android.support.v4.app.Fragment {
 
     public class updateImages extends AsyncTask<Void, Void, Boolean> {
         private ProgressDialog progress;
+
         @Override
         protected void onPreExecute() {
             progress = new ProgressDialog(getActivity());
@@ -155,14 +146,15 @@ public class OfflineFragment extends android.support.v4.app.Fragment {
             progress.setCancelable(false);
             progress.show();
         }
+
+        @SuppressWarnings("ResultOfMethodCallIgnored")
         @Override
         protected Boolean doInBackground(Void... pos) {
             boolean showSnackbar = false;
             try {
                 sNewestComicNumber = new Comic(0).getComicNumber();
-                Log.d("test", String.valueOf(sNewestComicNumber) + " " + String.valueOf(PrefHelper.getHighestOffline()));
                 if (sNewestComicNumber > PrefHelper.getHighestOffline()) {
-                    showSnackbar = PrefHelper.getNotificationInterval()==0 && sLastComicNumber != sNewestComicNumber;
+                    showSnackbar = PrefHelper.getNotificationInterval() == 0 && sLastComicNumber != sNewestComicNumber;
                     for (int i = PrefHelper.getHighestOffline(); i <= sNewestComicNumber; i++) {
                         Log.d("comic added", String.valueOf(i));
                         Comic comic = new Comic(i, getActivity());
@@ -217,9 +209,8 @@ public class OfflineFragment extends android.support.v4.app.Fragment {
         @Override
         protected void onPostExecute(Boolean showSnackbar) {
             progress.dismiss();
-            if (MainActivity.sProgress != null) {
-                MainActivity.sProgress.dismiss();
-            }
+            if (((MainActivity) getActivity()).getProgressDialog() != null)
+                ((MainActivity) getActivity()).getProgressDialog().dismiss();
             if (sLastComicNumber != 0) {
                 try {
                     Field field = ViewPager.class.getDeclaredField("mRestoredCurItem");
@@ -278,10 +269,9 @@ public class OfflineFragment extends android.support.v4.app.Fragment {
 
     public boolean getRandomComic() {
         if (sNewestComicNumber != 0) {
-            //get a random number and update the pager
             sLastComicNumber = PrefHelper.getRandomNumber(sLastComicNumber);
             randomSelected = true;
-            sPager.setCurrentItem(sLastComicNumber-1, false);
+            sPager.setCurrentItem(sLastComicNumber - 1, false);
         }
         return true;
     }
@@ -299,7 +289,6 @@ public class OfflineFragment extends android.support.v4.app.Fragment {
             shareComicImage();
             return true;
         }
-        //Show the alert dialog to choose between sharing image or url
         AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
         builder.setItems(R.array.share_dialog, new DialogInterface.OnClickListener() {
             @Override
@@ -321,15 +310,12 @@ public class OfflineFragment extends android.support.v4.app.Fragment {
 
     private boolean ModifyFavorites(MenuItem item) {
         if (Favorites.checkFavorite(getActivity(), sLastComicNumber)) {
-            //Delete the image
             new DeleteComicImageTask().execute();
-            //update the favorites icon
             item.setIcon(R.drawable.ic_favorite_outline);
             return true;
         } else {
             //save image to internal storage
             new SaveComicImageTask().execute();
-            //update the favorites icon
             item.setIcon(R.drawable.ic_action_favorite);
             return true;
         }
@@ -339,18 +325,15 @@ public class OfflineFragment extends android.support.v4.app.Fragment {
         private int mAddedNumber = sLastComicNumber;
         @Override
         protected Void doInBackground(Void... params) {
-            //Add the comics number to the favorite list
             Favorites.addFavoriteItem(getActivity(), String.valueOf(mAddedNumber));
             return null;
         }
-
         @Override
         protected void onPostExecute(Void dummy) {
             //refresh the FavoritesFragment
             FavoritesFragment f = (FavoritesFragment) getActivity().getSupportFragmentManager().findFragmentByTag("favorites");
-            if (f != null) {
+            if (f != null)
                 f.refresh();
-            }
             //Sometimes the floating action button does not animate back to the bottom when the snackbar is dismissed, so force it to its original position
             ((MainActivity) getActivity()).getFab().forceLayout();
         }
@@ -361,28 +344,25 @@ public class OfflineFragment extends android.support.v4.app.Fragment {
         private View.OnClickListener oc;
         @Override
         protected Void doInBackground(Integer... pos) {
-            //remove the number from the favorites list
             Favorites.removeFavoriteItem(getActivity(), String.valueOf(mRemovedNumber));
-            //Setup the listener for the snackbar
             oc = new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
                     new SaveComicImageTask().execute();
                 }
             };
-            //attach listener and FAB to snackbar
             Snackbar.make(((MainActivity) getActivity()).getFab(), R.string.snackbar_remove, Snackbar.LENGTH_LONG)
                     .setAction(R.string.snackbar_undo, oc)
                     .show();
             return null;
         }
+
         @Override
         protected void onPostExecute(Void v) {
             //refresh the favorites fragment
             FavoritesFragment f = (FavoritesFragment) getActivity().getSupportFragmentManager().findFragmentByTag("favorites");
-            if (f != null) {
+            if (f != null)
                 f.refresh();
-            }
         }
     }
 
@@ -392,12 +372,10 @@ public class OfflineFragment extends android.support.v4.app.Fragment {
                 .setPositiveButton(R.string.dialog_yes, new DialogInterface.OnClickListener() {
                     public void onClick(DialogInterface dialog, int which) {
                         Favorites.putStringInPreferences(getActivity(), null, "favorites");
-                        //Remove the FavoritesFragment
                         android.support.v4.app.FragmentManager fragmentManager = getActivity().getSupportFragmentManager();
                         FavoritesFragment f = (FavoritesFragment) fragmentManager.findFragmentByTag("favorites");
-                        if (f != null) {
+                        if (f != null)
                             fragmentManager.beginTransaction().remove(f).commit();
-                        }
                         getActivity().invalidateOptionsMenu();
                         Toast toast = Toast.makeText(getActivity(), R.string.favorites_cleared, Toast.LENGTH_SHORT);
                         toast.show();
@@ -440,7 +418,7 @@ public class OfflineFragment extends android.support.v4.app.Fragment {
 
     private Uri getURI() {
         //Gets the URI of the currently loaded image
-        View v = sPager.findViewWithTag(sLastComicNumber-1);
+        View v = sPager.findViewWithTag(sLastComicNumber - 1);
         ImageView siv = (ImageView) v.findViewById(R.id.ivComic);
         Drawable mDrawable = siv.getDrawable();
         Bitmap mBitmap = Bitmap.createBitmap(mDrawable.getIntrinsicWidth(),
@@ -460,7 +438,7 @@ public class OfflineFragment extends android.support.v4.app.Fragment {
             PrefHelper.setAltTip(false);
         }
         //Show alt text
-        TextView tvAlt = (TextView) sPager.findViewWithTag(sLastComicNumber-1).findViewById(R.id.tvAlt);
+        TextView tvAlt = (TextView) sPager.findViewWithTag(sLastComicNumber - 1).findViewById(R.id.tvAlt);
         if (PrefHelper.classicAltStyle()) {
             toggleVisibility(tvAlt);
         } else {
@@ -473,7 +451,7 @@ public class OfflineFragment extends android.support.v4.app.Fragment {
 
     private boolean getLatestComic() {
         sLastComicNumber = sNewestComicNumber;
-        sPager.setCurrentItem(sLastComicNumber-1, false);
+        sPager.setCurrentItem(sLastComicNumber - 1, false);
         return true;
     }
 
@@ -519,23 +497,21 @@ public class OfflineFragment extends android.support.v4.app.Fragment {
         public Object instantiateItem(ViewGroup container, final int position) {
             final View itemView = mLayoutInflater.inflate(R.layout.pager_item, container, false);
             final PhotoView pvComic = (PhotoView) itemView.findViewById(R.id.ivComic);
+            final TextView tvAlt = (TextView) itemView.findViewById(R.id.tvAlt);
             itemView.setTag(position);
 
-            if (position == sLastComicNumber -1 && fromSearch) {
+            if (position == sLastComicNumber - 1 && fromSearch) {
                 fromSearch = false;
                 ActivityTransition.with(getActivity().getIntent()).duration(300).to(pvComic).start(null);
             }
-
-            final TextView tvAlt = (TextView) itemView.findViewById(R.id.tvAlt);
-            if (PrefHelper.altByDefault()) {
+            if (PrefHelper.altByDefault())
                 tvAlt.setVisibility(View.VISIBLE);
-            }
 
-            sComicMap.put(position+1, new OfflineComic(position+1, getActivity()));
+            sComicMap.put(position + 1, new OfflineComic(position + 1, getActivity()));
             //Setup the title text view
             TextView tvTitle = (TextView) itemView.findViewById(R.id.tvTitle);
-            tvTitle.setText(sComicMap.get(position+1).getComicData()[0]);
-            tvAlt.setText(sComicMap.get(position+1).getComicData()[1]);
+            tvTitle.setText(sComicMap.get(position + 1).getComicData()[0]);
+            tvAlt.setText(sComicMap.get(position + 1).getComicData()[1]);
             //load the image
             pvComic.setImageBitmap(sComicMap.get(position + 1).getBitmap());
 
@@ -552,7 +528,6 @@ public class OfflineFragment extends android.support.v4.app.Fragment {
                     }
                     return true;
                 }
-
                 @Override
                 public boolean onSingleTapConfirmed(MotionEvent e) {
                     if (position == 1571) {
@@ -575,17 +550,14 @@ public class OfflineFragment extends android.support.v4.app.Fragment {
 
                 @Override
                 public boolean onDoubleTapEvent(MotionEvent e) {
-                    if (e.getAction() == MotionEvent.ACTION_UP) {
+                    if (e.getAction() == MotionEvent.ACTION_UP)
                         fingerLifted = true;
-                    }
-                    if (e.getAction() == MotionEvent.ACTION_DOWN) {
+                    if (e.getAction() == MotionEvent.ACTION_DOWN)
                         fingerLifted = false;
-                    }
                     return false;
                 }
             });
 
-            //Setup alt text and LongClickListener
             pvComic.setOnLongClickListener(new View.OnLongClickListener() {
                 @Override
                 public boolean onLongClick(View v) {
@@ -594,7 +566,6 @@ public class OfflineFragment extends android.support.v4.app.Fragment {
                             Vibrator vi = (Vibrator) getActivity().getSystemService(MainActivity.VIBRATOR_SERVICE);
                             vi.vibrate(10);
                         }
-                        //tvAlt.setText(sComicMap.get(sLastComicNumber).getComicData()[1]);
                         if (PrefHelper.classicAltStyle()) {
                             toggleVisibility(tvAlt);
                         } else {
@@ -606,9 +577,9 @@ public class OfflineFragment extends android.support.v4.app.Fragment {
                     return true;
                 }
             });
-            if (Arrays.binarySearch(mContext.getResources().getIntArray(R.array.large_comics), sLastComicNumber) >= 0) {
+            if (Arrays.binarySearch(mContext.getResources().getIntArray(R.array.large_comics), sLastComicNumber) >= 0)
                 pvComic.setMaximumScale(7.0f);
-            }
+
             if (PrefHelper.invertColors()) {
                 float[] colorMatrix_Negative = {
                         -1.0f, 0, 0, 0, 255, //red
@@ -631,13 +602,13 @@ public class OfflineFragment extends android.support.v4.app.Fragment {
                 }
             });
 
-            if (randomSelected && position == sLastComicNumber-1) {
+            if (randomSelected && position == sLastComicNumber - 1) {
                 Animation animation = AnimationUtils.loadAnimation(getActivity().getApplicationContext(), android.R.anim.fade_in);
                 itemView.setAnimation(animation);
                 randomSelected = false;
             }
 
-            if (position == sLastComicNumber-1) {
+            if (position == sLastComicNumber - 1) {
                 Toolbar toolbar = ((MainActivity) getActivity()).getToolbar();
                 if (toolbar.getAlpha() == 0) {
                     toolbar.setTranslationY(-300);
@@ -664,7 +635,6 @@ public class OfflineFragment extends android.support.v4.app.Fragment {
                         break;
                 }
             }
-
             container.addView(itemView);
             return itemView;
         }
@@ -702,19 +672,6 @@ public class OfflineFragment extends android.support.v4.app.Fragment {
         }
     }
 
-    private boolean isWifi() {
-        ConnectivityManager cm = (ConnectivityManager) getActivity().getSystemService(Context.CONNECTIVITY_SERVICE);
-        NetworkInfo info = cm.getActiveNetworkInfo();
-        return (info != null && info.isConnected() && info.getType() == ConnectivityManager.TYPE_WIFI);
-    }
-
-    private boolean isOnline() {
-        ConnectivityManager cm =
-                (ConnectivityManager) getActivity().getSystemService(Context.CONNECTIVITY_SERVICE);
-        NetworkInfo netInfo = cm.getActiveNetworkInfo();
-        return netInfo != null && netInfo.isConnectedOrConnecting();
-    }
-
     @Override
     public void onStop() {
         PrefHelper.setLastComic(sLastComicNumber);
@@ -722,7 +679,7 @@ public class OfflineFragment extends android.support.v4.app.Fragment {
     }
 
     public static boolean zoomReset() {
-        PhotoView pv = (PhotoView) sPager.findViewWithTag(sLastComicNumber-1).findViewById(R.id.ivComic);
+        PhotoView pv = (PhotoView) sPager.findViewWithTag(sLastComicNumber - 1).findViewById(R.id.ivComic);
         float scale = pv.getScale();
         if (scale != 1f) {
             pv.setScale(1f, true);
@@ -737,6 +694,4 @@ public class OfflineFragment extends android.support.v4.app.Fragment {
         savedInstanceState.putInt("Last Comic", sLastComicNumber);
         super.onSaveInstanceState(savedInstanceState);
     }
-
-
 }

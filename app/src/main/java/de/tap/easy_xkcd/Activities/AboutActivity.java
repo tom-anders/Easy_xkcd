@@ -18,8 +18,9 @@
 package de.tap.easy_xkcd.Activities;
 
 import android.os.Build;
-import android.support.v7.app.ActionBarActivity;
 import android.os.Bundle;
+import android.support.v4.content.ContextCompat;
+import android.support.v7.app.AppCompatActivity;
 import android.util.TypedValue;
 
 import com.tap.xkcd_reader.R;
@@ -29,7 +30,7 @@ import org.sufficientlysecure.htmltextview.HtmlTextView;
 import de.tap.easy_xkcd.utils.PrefHelper;
 
 
-public class AboutActivity extends ActionBarActivity {
+public class AboutActivity extends AppCompatActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -37,9 +38,9 @@ public class AboutActivity extends ActionBarActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_about);
 
-        //Setup toolbar and status bar color
         android.support.v7.widget.Toolbar toolbar = (android.support.v7.widget.Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
+        assert getSupportActionBar() != null;
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
         TypedValue typedValue = new TypedValue();
@@ -47,13 +48,11 @@ public class AboutActivity extends ActionBarActivity {
         TypedValue typedValue2 = new TypedValue();
         getTheme().resolveAttribute(R.attr.colorPrimary, typedValue2, true);
         toolbar.setBackgroundColor(typedValue2.data);
-        if (Build.VERSION.SDK_INT >= 21) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
             getWindow().setStatusBarColor(typedValue.data);
+            if (!PrefHelper.colorNavbar())
+                getWindow().setNavigationBarColor(ContextCompat.getColor(this, R.color.ColorPrimaryBlack));
         }
-        if (!PrefHelper.colorNavbar() && Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-            getWindow().setNavigationBarColor(getResources().getColor(R.color.ColorPrimaryBlack));
-        }
-
         HtmlTextView tvAbout = (HtmlTextView) findViewById(R.id.tvAbout);
         tvAbout.setHtmlFromRawResource(this, R.raw.licenses, new HtmlTextView.RemoteImageGetter());
 

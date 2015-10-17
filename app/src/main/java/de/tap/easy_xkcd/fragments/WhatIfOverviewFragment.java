@@ -150,12 +150,11 @@ public class WhatIfOverviewFragment extends android.support.v4.app.Fragment {
 
     @Override
     public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
-        for (int i = 0; i < menu.size() - 2; i++) {
+        for (int i = 0; i < menu.size() - 2; i++)
             menu.getItem(i).setVisible(false);
-        }
-        if (PrefHelper.hideDonate()) {
+
+        if (PrefHelper.hideDonate())
             menu.findItem(R.id.action_donate).setVisible(false);
-        }
 
         menu.findItem(R.id.action_unread).setVisible(true);
         menu.findItem(R.id.action_hide_read).setVisible(true);
