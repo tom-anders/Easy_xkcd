@@ -11,7 +11,7 @@ A beautiful, fast, and easy to use [xkcd](http://xkcd.com/) reader for Android.
 * Share comic url or image
 * Save a list of favorites
 * Open links from xkcd.com and m.xkcd.com
-* I ntegration of [explain xkcd](http://www.explainxkcd.com) 
+* Integration of [explain xkcd](http://www.explainxkcd.com) 
 * Night mode
 * Multiple colour themes (blue, green, black...)
 
