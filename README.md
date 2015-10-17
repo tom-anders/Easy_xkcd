@@ -1,5 +1,5 @@
 # Easy xkcd
-An beautiful, fast, and easy to use [xkcd](http://xkcd.com/) reader for Android.
+A beautiful, fast, and easy to use [xkcd](http://xkcd.com/) reader for Android.
 
 ### Features
 * Reads xkcd comics & [What If?](https://what-if.xkcd.com/) articles
