@@ -243,4 +243,5 @@
     <string name="snackbar_feature_oc">Check it out</string>
     <string name="new_comic_view">View</string>
     <string name="whatif_overview">Overview</string>
+    <string name="search_hint_whatif">Search an Article</string>
 </resources>

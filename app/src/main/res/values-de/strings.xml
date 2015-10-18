@@ -242,5 +242,6 @@
     <string name="snackbar_feature_oc">Ausprobieren</string>
     <string name="new_comic_view">Ansehen</string>
     <string name="whatif_overview">Übersicht</string>
+    <string name="search_hint_whatif">Suche einen Artikel</string>
 
 </resources>
