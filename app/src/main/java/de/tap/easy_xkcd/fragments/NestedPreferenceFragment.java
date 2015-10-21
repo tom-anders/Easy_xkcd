@@ -67,6 +67,7 @@ public class NestedPreferenceFragment extends PreferenceFragment {
     private static final String AUTO_NIGHT_END = "pref_auto_night_end";
     private static final String REPAIR = "pref_repair";
     private static final String MOBILE_ENABLED = "pref_update_mobile";
+    private static final String FAB_OPTIONS = "pref_random";
 
     private static final String OFFLINE_PATH = "/easy xkcd";
     private static final String OFFLINE_WHATIF_PATH = "/easy xkcd/what if/";
@@ -110,6 +111,13 @@ public class NestedPreferenceFragment extends PreferenceFragment {
                 findPreference(THEME).setOnPreferenceChangeListener(new Preference.OnPreferenceChangeListener() {
                     @Override
                     public boolean onPreferenceChange(Preference preference, Object newValue) {
+                        themeSettingChanged = true;
+                        return true;
+                    }
+                });
+                findPreference(FAB_OPTIONS).setOnPreferenceChangeListener(new Preference.OnPreferenceChangeListener() {
+                    @Override
+                    public boolean onPreferenceChange(Preference preference, Object o) {
                         themeSettingChanged = true;
                         return true;
                     }

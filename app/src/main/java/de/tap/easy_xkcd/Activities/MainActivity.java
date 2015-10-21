@@ -86,7 +86,6 @@ public class MainActivity extends AppCompatActivity {
 
     public ActionBarDrawerToggle mDrawerToggle;
     private MenuItem searchMenuItem;
-    private boolean secondGroup = false;
     private CustomTabActivityHelper customTabActivityHelper;
     private int mCurrentFragment;
     private ProgressDialog mProgress;
@@ -327,7 +326,6 @@ public class MainActivity extends AppCompatActivity {
                 break;
 
             case R.id.nav_settings:
-                secondGroup = true;
                 mDrawer.closeDrawers();
                 new Handler().postDelayed(new Runnable() {
                     @Override
@@ -339,7 +337,6 @@ public class MainActivity extends AppCompatActivity {
                 return;
 
             case R.id.nav_feedback:
-                secondGroup = true;
                 mDrawer.closeDrawers();
                 new Handler().postDelayed(new Runnable() {
                     @Override
@@ -351,7 +348,6 @@ public class MainActivity extends AppCompatActivity {
                 return;
 
             case R.id.nav_about:
-                secondGroup = true;
                 mDrawer.closeDrawers();
                 new Handler().postDelayed(new Runnable() {
                     @Override
@@ -674,15 +670,7 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onResume() {
         super.onResume();
-        if (secondGroup) {
-            secondGroup = false;
-            assert getSupportActionBar() != null;
-            //Reselect the current fragment in order to update action bar and floating action button
-            if (mCurrentFragment == R.id.nav_browser && !PrefHelper.isOnline(this))
-                return;
-            MenuItem m = mNavView.getMenu().findItem(mCurrentFragment);
-            selectDrawerItem(m);
-        }
+        mNavView.getMenu().findItem(getCurrentFragment()).setChecked(true);
     }
 
     @Override
