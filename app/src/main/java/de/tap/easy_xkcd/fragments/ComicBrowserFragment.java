@@ -271,8 +271,9 @@ public class ComicBrowserFragment extends android.support.v4.app.Fragment {
                                     @Override
                                     public void onResourceReady(Bitmap resource, GlideAnimation<? super Bitmap> glideAnimation) {
                                         pvComic.setImageBitmap(resource);
-                                        if (position == sLastComicNumber - 1 && ((MainActivity) getActivity()).getProgressDialog() != null) {
-                                            ((MainActivity) getActivity()).getProgressDialog().dismiss();
+                                        if (position == sLastComicNumber - 1) {
+                                            if (((MainActivity) getActivity()).getProgressDialog() != null)
+                                                ((MainActivity) getActivity()).getProgressDialog().dismiss();
                                             Toolbar toolbar = ((MainActivity) getActivity()).getToolbar();
                                             if (toolbar.getAlpha() == 0) {
                                                 toolbar.setTranslationY(-300);
@@ -642,7 +643,7 @@ public class ComicBrowserFragment extends android.support.v4.app.Fragment {
         @Override
         protected void onPostExecute(Void dummy) {
             try {
-                File sdCard = Environment.getExternalStorageDirectory();
+                File sdCard = PrefHelper.getOfflinePath();
                 File dir = new File(sdCard.getAbsolutePath() + "/easy xkcd");
                 dir.mkdirs();
                 File file = new File(dir, String.valueOf(mAddedNumber) + ".png");
@@ -678,7 +679,7 @@ public class ComicBrowserFragment extends android.support.v4.app.Fragment {
             //delete the image from internal storage
             getActivity().deleteFile(String.valueOf(mRemovedNumber));
             //delete from external storage
-            File sdCard = Environment.getExternalStorageDirectory();
+            File sdCard = PrefHelper.getOfflinePath();
             File dir = new File(sdCard.getAbsolutePath() + "/easy xkcd");
             File file = new File(dir, String.valueOf(mRemovedNumber) + ".png");
             file.delete();
