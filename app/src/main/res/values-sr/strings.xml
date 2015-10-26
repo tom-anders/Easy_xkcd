@@ -24,13 +24,14 @@
     <string name="delete_favorites_dialog">Желите ли заиста да обришете све ваше омиљене стрипове?</string>
     <string name="favorites_cleared">Омиљени очишћени</string>
     <string name="delete_offline_dialog">Желите ли заиста да онемогућите режим ван везе? Ово ће да обрише све сачуване слике (осим омиљених)</string>
+    <string name="delete_offline_whatif_dialog">Желите ли заиста да онемогућите режим ван везе? Ово ће да обрише све сачуване чланке</string>
 
     <string name="share_url">Подели УРЛ помоћу&#8230;</string>
     <string name="share_image">Подели слику помоћу&#8230;</string>
     <string name="dialog_cancel">Одустани</string>
     <string name="dialog_yes">Да</string>
     <string name="loading_random">Учитавам насумични стрип&#8230;</string>
-    <string name="no_favorites">Нисте додали ниједан омиљени!</string>
+    <string name="no_favorites">Нисте додали ништа у омиљене!</string>
     <string name="loading_comics">Учитавам стрипове&#8230;</string>
     <string name="loading_articles">Учитавам чланке&#8230;</string>
     <string name="loading_results">Учитавам резултате претраге&#8230;</string>
@@ -41,6 +42,7 @@
     <string name="search_error">Нема стрипова</string>
     <string name="loading_latest">Учитавам најновији стрип&#8230;</string>
     <string name="loading_offline">Преузимам стрипове&#8230;</string>
+    <string name="loading_offline_whatif">Преузимам чланке&#8230;</string>
     <string name="loading_offline_message">Не затварајте апликацију!</string>
     <string name="loading_offline_2">Ово би могло да потраје, опустите се&#8230;</string>
     <string name="loading_offline_20">Попијте кафу или нешто&#8230;</string>
@@ -50,11 +52,14 @@
     <string name="loading_offline_96">Шала мала.</string>
     <string name="loading_offline_97">Да сте само видели ваше лице!</string>
     <string name="delete_offline">Бришем стрипове&#8230;</string>
+    <string name="delete_offline_articles">Бришем чланке&#8230;</string>
 
     <string name="snackbar_remove">Стрип уклоњен из омиљених</string>
     <string name="snackbar_add">Стрип додат у омиљене</string>
     <string name="snackbar_remove_all">Омиљени очишћени</string>
     <string name="snackbar_undo">Врати</string>
+    <string name="snackbar_rate">Дакле, свиђа вам се Лагани xkcd?</string>
+    <string name="snackbar_rate_action">Оцените</string>
 
     <!-- ActionBar strings -->
     <string name="action_settings">Поставке</string>
@@ -65,16 +70,24 @@
     <string name="action_share">Подели стрип</string>
     <string name="action_share_article">Подели чланак</string>
     <string name="action_random">Насумични стрип</string>
+    <string name="action_random_article">Насумични чланак</string>
     <string name="action_explain">Објасни стрип</string>
     <string name="action_alt">Прикажи алт текст</string>
     <string name="action_night_mode">Ноћни режим</string>
     <string name="action_browser">Отвори у прегледачу</string>
+    <string name="action_swipe">Превлачите за навигацију</string>
+    <string name="action_donate">Донирај</string>
+    <string name="action_trans">Прикажи транскрипт</string>
     <string name="action_alt_tip">Савет: Такође можете да видите алтернативни текст дугим притиском на слику стрипа.</string>
     <string name="search_title">Претрага</string>
     <string name="search_hint">Тражите стрип</string>
+    <string name="search_hint_whatif">Тражите чланак</string>
     <string name="drawer_open">Отвори навигациону фиоку</string>
     <string name="drawer_close">Затвори навигациону фиоку</string>
     <string name="new_comic">Нови стрип!</string>
+    <string name="new_comic_view">Приказ</string>
+    <string name="new_whatif">Нови „What If“!</string>
+    <string name="apply_theme">Покренути поново за примену теме?</string>
 
     <string-array
         name="share_dialog">
@@ -83,39 +96,17 @@
     </string-array>
 
     <string-array
-        name="pref_zoom">
-        <item>40%</item>
-        <item>70%</item>
-        <item>100%</item>
-        <item>130%</item>
-        <item>170%</item>
-        <item>200%</item>
-        <item>WebView default</item>
-    </string-array>
-
-    <string-array
-        name="pref_theme">
-        <item>Blue/Grey (Default)</item>
-        <item>Red</item>
-        <item>Bright Blue</item>
-        <item>Black</item>
-        <item>Purple</item>
-        <item>Lime</item>
-        <item>Green</item>
-    </string-array>
-
-    <string-array
         name="card_long_click">
         <item>Подели</item>
         <item>Отвори у прегледачу</item>
-        <item>Add to Favorites</item>
+        <item>Додај у омиљене</item>
     </string-array>
 
     <string-array
         name="card_long_click_remove">
-        <item>Share</item>
-        <item>Open in Browser</item>
-        <item>Remove from Favorites</item>
+        <item>Подели</item>
+        <item>Отвори у прегледачу</item>
+        <item>Уклони из омиљених</item>
     </string-array>
 
     <string-array
@@ -131,28 +122,29 @@
         <item>3 сата</item>
         <item>6 сати</item>
         <item>12 сати</item>
-        <item>никад</item>
+        <item>Никад</item>
     </string-array>
 
-    <string-array name="random_entries">
-        <item>Comic Browser</item>
-        <item>Favorites</item>
+    <string-array
+        name="pref_theme">
+        <item>Плава/сива (подраз.)</item>
+        <item>Црвена</item>
+        <item>Јарко плава</item>
+        <item>Црна</item>
+        <item>Љубичаста</item>
+        <item>Лимета</item>
+        <item>Зелена</item>
     </string-array>
 
-    <string-array name="alt_style_entries">
-        <item>Classic</item>
-        <item>Pop-up</item>
-    </string-array>
-
-    <string-array name="alt_options_entries">
-        <item>Always show alt text</item>
-        <item>Include alt text when sharing</item>
-        <item>Haptic feedback</item>
-    </string-array>
-
-    <string-array name="alt_activation">
-        <item>Single Tap</item>
-        <item>Long tap</item>
+    <string-array
+        name="pref_zoom">
+        <item>40%</item>
+        <item>70%</item>
+        <item>100%</item>
+        <item>130%</item>
+        <item>170%</item>
+        <item>200%</item>
+        <item>Подразумевано за WebView</item>
     </string-array>
 
     <string name="title_interactive">(интерактивно)</string>
@@ -163,8 +155,19 @@
     <string name="nv_about">О програму</string>
     <string name="nv_feedback">Повратне информације</string>
     <string name="nav_feedback_send">Пошаљи е-пошту помоћу&#8230;</string>
+    <string name="nv_whatif" translatable="false">What if?</string>
 
     <!-- preference strings -->
+    <string name="pref_night">Ноћна тема</string>
+    <string name="pref_invert">Обрни боје стрипа</string>
+    <string name="pref_alt_activation">Активирање</string>
+    <string name="pref_alt_activation_sum">Дуги тап или двотап</string>
+    <string name="pref_alt_options">Опште поставке</string>
+    <string name="pref_alt_options_sum">Приказ и дељење алт текста, хаптички одзив</string>
+    <string name="pref_random">Сакриј плутајуће дугме радње</string>
+    <string name="pref_random_title">Сакриј ФАБ у&#8230;</string>
+    <string name="pref_alt_style_sum">Класично или искачуће</string>
+    <string name="pref_alt_style_title">Жељени стил</string>
     <string name="pref_alt">Хаптички одзив приказа алт текста</string>
     <string name="pref_alt_sum">Дуги притисак на слику окида хаптички одзив</string>
     <string name="pref_subtitle">Прикажи поднаслов на траци радње</string>
@@ -174,77 +177,77 @@
     <string name="pref_random_sum">Сакрива ФАБ (плутајуће дугме радње). Ако је сакривено, дугме ће бити у менију</string>
     <string name="pref_share">Увек дели слику стрипа</string>
     <string name="pref_share_sum">Без упита шта да се дели</string>
+    <string name="pref_share_alt">Укључи алт текст приликом дељења</string>
+    <string name="pref_share_title">Дељење</string>
     <string name="pref_behavior">Понашање</string>
+    <string name="pref_behavior_sum">Режим ван везе и обавештења, орјентација екрана</string>
     <string name="pref_appearance">Изглед</string>
+    <string name="pref_appearance_sum">Измена изгледа апликације</string>
     <string name="pref_large">Велике слике</string>
     <string name="pref_large_sum">Учитавање великих слика ако их има (нпр. #657). Може да утиче на перформансе на старијим уређајима</string>
     <string name="pref_offline">Режим ван везе</string>
     <string name="pref_offline_sum">Преузимање свих стрипова на унутрашње складиште. Нови стрипови ће бити додавани аутоматски</string>
+    <string name="pref_offline_whatif">Режим ван везе за "What if?"</string>
     <string name="pref_mobile">Дели мобилне везе</string>
     <string name="pref_mobile_sum">Дељење m.xkcd.com уместо xkcd.com</string>
     <string name="pref_orientation">Орјентација екрана</string>
     <string name="pref_orientation_sum">Подразумевана, усправна или положена</string>
     <string name="pref_notifications">Интервал ажурирања за обавештења</string>
-    <string name="pref_notifications_sum">Checks on Monday, Wednesday and Friday for new comics, checks on Tuesday for new What If.</string>
+    <string name="pref_notifications_sum">Провере понедељком, средом и петком за нове стрипове, средом за нови „What If“.</string>
     <string name="pref_show_alt">Подразумевано прикажи алт текст</string>
-    <string name="action_swipe">Swipe to navigate</string>
-    <string name="snackbar_rate">So you like Easy xkcd?</string>
-    <string name="snackbar_rate_action">Rate</string>
-    <string name="pref_theme">Theme</string>
-    <string name="pref_theme_sum">You need to restart the app in order for the theme to be applied</string>
-    <string name="apply_theme">Restart now to apply new theme?</string>
-    <string name="pref_offline_whatif">"What if?" offline mode </string>
-    <string name="loading_offline_whatif">Downloading articles&#8230;</string>
-    <string name="new_whatif">New What If!</string>
-    <string name="delete_offline_articles">Deleting articles&#8230;</string>
-    <string name="delete_offline_whatif_dialog">Are you sure you want to disable Offline Mode? This will delete all saved articles</string>
-    <string name="pref_share_title">Sharing</string>
-    <string name="pref_share_alt">Include alt text when sharing</string>
-    <string name="pref_advanced">Advanced</string>
-    <string name="pref_zoom">What If? Text Zoom</string>
+    <string name="pref_theme">Тема</string>
+    <string name="pref_theme_sum">Морате поново да покренете апликацију да тема била примењена</string>
+    <string name="pref_zoom">Увеличање текста за „What If“?</string>
     <string name="pref_zoom_sum">May fix layout issues on some devices</string>
-    <string name="pref_repair">Repair offline comics</string>
-    <string name="pref_repair_sum">If you see some blank comics, this option should fix it by re-downloading them</string>
-    <string name="action_donate">Donate</string>
-    <string name="dialog_donate">How much would you like to donate</string>
-    <string name="pref_hide_donate">Hide donation button</string>
-    <string name="title_activity_donate">Donate</string>
-    <string name="update_database">Updating database&#8230;</string>
-    <string name="pref_random">Hide Floating Action Button</string>
-    <string name="pref_random_title">Hide FAB in&#8230;</string>
-    <string name="action_random_article">Random article</string>
-    <string name="pref_alt_activation">Activation</string>
-    <string name="pref_alt_activation_sum">Long tap or single tap</string>
-    <string name="pref_alt_options">General Options</string>
-    <string name="pref_alt_options_sum">Always show alt text, share alt text, haptic feedback</string>
-    <string name="pref_alt_style">Style</string>
-    <string name="pref_alt_style_sum">Classic or pop-up</string>
-    <string name="pref_alt_style_title">Select your preferred style</string>
-    <string name="pref_alt_title">Alt text</string>
-    <string name="snackbar_survey">Got a few minutes and want to help improve this app?</string>
-    <string name="snackbar_survey_oc">Take survey</string>
-    <string name="pref_night">Night Theme</string>
-    <string name="pref_invert">Invert comic colors</string>
-    <string name="pref_navbar">Colored Navigation Bar</string>
-    <string name="action_trans">View Transcript</string>
-    <string name="pref_update_mobile">Update on mobile data</string>
-    <string name="pref_update_mobile_sum">When disabled, offline comics and what-if articles are only updated on Wifi</string>
-    <string name="pref_alt_sharing">Alt text &#38; sharing</string>
-    <string name="pref_alt_sharing_sum">Setup alt text and sharing behavior</string>
-    <string name="pref_appearance_sum">Change how the app looks</string>
-    <string name="pref_auto_night">Auto night theme</string>
-    <string name="pref_auto_night_end">End time</string>
-    <string name="pref_auto_night_start">Start time</string>
-    <string name="pref_behavior_sum">Enable offline mode &#38; notifications, screen orientation</string>
-    <string name="pref_night_options">Night options</string>
-    <string name="pref_night_options_sum">Setup the night theme</string>
-    <string name="snackbar_feature">New feature: Auto night mode!</string>
-    <string name="snackbar_feature_oc">Check it out</string>
-    <string name="new_comic_view">View</string>
-    <string name="whatif_overview">Overview</string>
-    <string name="search_hint_whatif">Search an Article</string>
-    <string name="pref_offline_path">Path for offline data (Experimental)</string>
-    <string name="pref_offline_path_sum">Default is root directory of external storage.</string>
-    <string name="copy_folder">Moving folders and files &#8230;</string>
+    <string name="pref_advanced">Напредно</string>
+    <string name="pref_repair">Поправи локалне стрипове</string>
+    <string name="pref_repair_sum">Ако видите празне стрипове, овом опцијом ћетепоново да их преузмете</string>
+    <string name="pref_hide_donate">Сакриј дугме за донацију</string>
+    <string name="title_activity_what_if" translatable="false">What if?</string>
+    <string name="title_activity_donate">Донирање</string>
+    <string name="pref_alt_title">Алт текст</string>
+    <string name="pref_alt_style">Стил</string>
+    <string name="snackbar_survey">Имате који минут и желите да побољшате ову апликацију?</string>
+    <string name="snackbar_survey_oc">Попуните анкету</string>
+    <string name="pref_navbar">Обојена трака навигације</string>
+    <string name="pref_update_mobile">Ажурирај на мобилним подацима</string>
+    <string name="pref_update_mobile_sum">АКо је искључено, локални стрипови и „what-if“ чланци ће се ажурирати само на бежичном</string>
+    <string name="pref_alt_sharing">Алт текст и дељење</string>
+    <string name="pref_alt_sharing_sum">Поставке алтернативног текста и дељења</string>
+    <string name="pref_night_options">Ноћни режим</string>
+    <string name="pref_night_options_sum">Поставке ноћног режима</string>
+    <string name="pref_auto_night">Аутоматско активирање</string>
+    <string name="pref_auto_night_start">Почетак</string>
+    <string name="pref_auto_night_end">Завршетак</string>
+    <string name="snackbar_feature">Нова функција: Аутоматско активирање ноћног режима!</string>
+    <string name="snackbar_feature_oc">Баците поглед</string>
+    <string name="whatif_overview">Преглед</string>
+    <string name="pref_offline_path">Путања за податке ван везе (експериментално)</string>
+    <string name="pref_offline_path_sum">Подразумевано је корена фасцикла спољашњег складишта.</string>
+    <string name="copy_folder">Премештам фасцикле и фајлове&#8230;</string>
+
+    <string name="dialog_donate">Колико желите да донирате</string>
+    <string name="update_database">Ажурирам базу података&#8230;</string>
+
+    <string-array name="random_entries">
+        <item>прегледачу стрипова</item>
+        <item>омиљеним</item>
+    </string-array>
+
+    <string-array name="alt_style_entries">
+        <item>Класично</item>
+        <item>Искачуће</item>
+    </string-array>
+
+    <string-array name="alt_options_entries">
+        <item>Увек прикажи алт текст</item>
+        <item>Укључи алт текст приликом дељења</item>
+        <item>Хаптички одзив</item>
+    </string-array>
+
+    <string-array name="alt_activation">
+        <item>Један тап</item>
+        <item>Двотап</item>
+    </string-array>
 
 </resources>
