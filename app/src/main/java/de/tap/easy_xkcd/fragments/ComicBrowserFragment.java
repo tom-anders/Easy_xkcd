@@ -286,7 +286,10 @@ public class ComicBrowserFragment extends android.support.v4.app.Fragment {
                                                 }
                                             }
                                         }
-                                        if (position == sLastComicNumber + 2) {
+                                        if (position == sLastComicNumber + 2
+                                                | (position == sLastComicNumber-1 && sLastComicNumber == sNewestComicNumber)
+                                                | (position == sLastComicNumber && sLastComicNumber == sNewestComicNumber-1)
+                                                | (position == sLastComicNumber+1 && sLastComicNumber == sNewestComicNumber-2)) {
                                             switch (Integer.parseInt(PrefHelper.getOrientation())) {
                                                 case 1:
                                                     getActivity().setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_USER);
