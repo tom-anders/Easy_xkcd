@@ -15,8 +15,9 @@
   ~ limitations under the License.
 -->
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
     package="com.tap.xkcd_reader"
-    android:installLocation="auto" >
+    android:installLocation="auto">
 
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
@@ -30,6 +31,7 @@
         android:allowBackup="true"
         android:icon="@mipmap/ic_easy_xkcd"
         android:label="@string/app_name"
+        tools:replace="android:theme"
         android:theme="@style/DefaultTheme" >
         <activity
             android:name="de.tap.easy_xkcd.Activities.MainActivity"
@@ -178,6 +180,7 @@
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value="de.tap.easy_xkcd.Activities.MainActivity" />
         </activity>
+        <activity android:name="net.rdrei.android.dirchooser.DirectoryChooserActivity" />
     </application>
 
 </manifest>

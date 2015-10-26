@@ -84,7 +84,8 @@ public class SearchResultsActivity extends AppCompatActivity {
     private SparseArray<String> resultsTranscript = new SparseArray<>();
     private SparseArray<String> resultsUrls = new SparseArray<>();
     private SparseArray<String> resultsPreview = new SparseArray<>();
-    @Bind(R.id.rv) RecyclerView rv;
+    @Bind(R.id.rv)
+    RecyclerView rv;
     private searchTask task;
     private ProgressDialog mProgress;
     private String query;
@@ -121,7 +122,7 @@ public class SearchResultsActivity extends AppCompatActivity {
         rv.setHasFixedSize(true);
 
         Intent intent = getIntent();
-        if (savedInstanceState==null) {
+        if (savedInstanceState == null) {
             query = intent.getStringExtra(SearchManager.QUERY);
         } else {
             query = savedInstanceState.getString("query");
@@ -129,7 +130,7 @@ public class SearchResultsActivity extends AppCompatActivity {
         getSupportActionBar().setTitle(getResources().getString(R.string.title_activity_search_results) + " " + query);
         mProgress = ProgressDialog.show(this, "", getResources().getString(R.string.loading_results), true);
 
-        if (savedInstanceState==null) {
+        if (savedInstanceState == null) {
             new updateDatabase().execute();
         } else {
             new searchTask().execute(query);
@@ -255,7 +256,7 @@ public class SearchResultsActivity extends AppCompatActivity {
             sComicTitles = PrefHelper.getComicTitles();
             sComicTrans = PrefHelper.getComicTrans();
             sComicUrls = PrefHelper.getComicUrls();
-            if (mProgress!=null) {
+            if (mProgress != null) {
                 progress.dismiss();
             }
             task = new searchTask();
@@ -273,7 +274,7 @@ public class SearchResultsActivity extends AppCompatActivity {
 
     private boolean getComicByNumber(int number) {
         Intent intent = new Intent("de.tap.easy_xkcd.ACTION_COMIC");
-        if ((number > ComicBrowserFragment.sNewestComicNumber && number > OfflineFragment.sNewestComicNumber) | number<1) {
+        if ((number > ComicBrowserFragment.sNewestComicNumber && number > OfflineFragment.sNewestComicNumber) | number < 1) {
             intent.putExtra("number", ComicBrowserFragment.sNewestComicNumber);
         } else {
             intent.putExtra("number", number);
@@ -315,7 +316,7 @@ public class SearchResultsActivity extends AppCompatActivity {
                 if (found) {
                     resultsTranscript.put(i + 1, titles[i]);
                     resultsUrls.put(i + 1, urls[i]);
-                    resultsPreview.put(i+1, getPreview(query, trans[i]));
+                    resultsPreview.put(i + 1, getPreview(query, trans[i]));
                 }
             }
         }
@@ -415,7 +416,7 @@ public class SearchResultsActivity extends AppCompatActivity {
                 } catch (Exception e) {
                     Log.e("Error", "loading from internal storage failed");
                     try {
-                        File sdCard = Environment.getExternalStorageDirectory();
+                        File sdCard = PrefHelper.getOfflinePath();
                         File dir = new File(sdCard.getAbsolutePath() + "/easy xkcd");
                         File file = new File(dir, String.valueOf(number) + ".png");
                         Glide.with(getApplicationContext())
@@ -466,11 +467,11 @@ public class SearchResultsActivity extends AppCompatActivity {
 
     private String getPreview(String query, String transcript) {
         String firstWord = query.split(" ")[0].toLowerCase();
-        transcript = transcript.replace(".", ". ").replace("?", "? ").replace("]]"," ").replace("[["," ").replace("{{", " ").replace("}}", " ");
+        transcript = transcript.replace(".", ". ").replace("?", "? ").replace("]]", " ").replace("[[", " ").replace("{{", " ").replace("}}", " ");
         ArrayList<String> words = new ArrayList<>(Arrays.asList(transcript.toLowerCase().split(" ")));
         int i = 0;
         boolean found = false;
-        while (!found&&i<words.size()) {
+        while (!found && i < words.size()) {
             if (query.length() < 5) {
                 found = words.get(i).matches(".*\\b" + firstWord + "\\b.*");
             } else {
@@ -478,39 +479,41 @@ public class SearchResultsActivity extends AppCompatActivity {
             }
             if (!found) i++;
         }
-        int start=i-6;
-        int end=i+6;
+        int start = i - 6;
+        int end = i + 6;
 
-        if (i<6) start = 0;
-        if (words.size()-i<6) end = words.size();
+        if (i < 6) start = 0;
+        if (words.size() - i < 6) end = words.size();
 
         StringBuilder sb = new StringBuilder();
-        for (String s: words.subList(start, end)) {
+        for (String s : words.subList(start, end)) {
             sb.append(s);
             sb.append(" ");
         }
         String s = sb.toString();
-        return "..." + s.replace(query, "<b>"+query+"</b>") + "...";
+        return "..." + s.replace(query, "<b>" + query + "</b>") + "...";
     }
 
     class CustomOnClickListener implements View.OnClickListener {
         @Override
         public void onClick(View v) {
-            int pos = rv.getChildAdapterPosition(v);
-            Intent intent = new Intent("de.tap.easy_xkcd.ACTION_COMIC");
-            if (pos < resultsTitle.size()) {
-                intent.putExtra("number", resultsTitle.keyAt(pos));
-            } else {
-                intent.putExtra("number", resultsTranscript.keyAt(pos - resultsTitle.size()));
-            }
             ImageView imageView = (ImageView) v.findViewById(R.id.thumbnail);
-            Bitmap bitmap = ((BitmapDrawable)imageView.getDrawable()).getBitmap();
-            if (!PrefHelper.fullOfflineEnabled()) {
-                ComicBrowserFragment.fromSearch = true;
-            } else {
-                OfflineFragment.fromSearch = true;
+            if (imageView.getDrawable() != null) {
+                int pos = rv.getChildAdapterPosition(v);
+                Intent intent = new Intent("de.tap.easy_xkcd.ACTION_COMIC");
+                if (pos < resultsTitle.size()) {
+                    intent.putExtra("number", resultsTitle.keyAt(pos));
+                } else {
+                    intent.putExtra("number", resultsTranscript.keyAt(pos - resultsTitle.size()));
+                }
+                Bitmap bitmap = ((BitmapDrawable) imageView.getDrawable()).getBitmap();
+                if (!PrefHelper.fullOfflineEnabled()) {
+                    ComicBrowserFragment.fromSearch = true;
+                } else {
+                    OfflineFragment.fromSearch = true;
+                }
+                ActivityTransitionLauncher.with(SearchResultsActivity.this).from(v.findViewById(R.id.comic_title)).from(v.findViewById(R.id.thumbnail)).image(bitmap).launch(intent);
             }
-            ActivityTransitionLauncher.with(SearchResultsActivity.this).from(v.findViewById(R.id.comic_title)).from(v.findViewById(R.id.thumbnail)).image(bitmap).launch(intent);
         }
     }
 
@@ -532,7 +535,7 @@ public class SearchResultsActivity extends AppCompatActivity {
 
             @Override
             public boolean onQueryTextChange(String newText) {
-                if (task!=null) {
+                if (task != null) {
                     task.cancel(true);
                 }
                 task = new searchTask();

@@ -243,5 +243,8 @@
     <string name="new_comic_view">View</string>
     <string name="whatif_overview">Overview</string>
     <string name="search_hint_whatif">Search an Article</string>
+    <string name="pref_offline_path">Path for offline data (Experimental)</string>
+    <string name="pref_offline_path_sum">Default is root directory of external storage.</string>
+    <string name="copy_folder">Moving folders and files &#8230;</string>
 
 </resources>

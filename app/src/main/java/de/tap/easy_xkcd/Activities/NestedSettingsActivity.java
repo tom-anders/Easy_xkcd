@@ -1,18 +1,32 @@
 package de.tap.easy_xkcd.Activities;
 
+import android.app.ProgressDialog;
 import android.content.pm.PackageManager;
+import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
+import android.util.Log;
 import android.util.TypedValue;
 
 import com.tap.xkcd_reader.R;
+import com.turhanoz.android.reactivedirectorychooser.event.OnDirectoryCancelEvent;
+import com.turhanoz.android.reactivedirectorychooser.event.OnDirectoryChosenEvent;
+import com.turhanoz.android.reactivedirectorychooser.ui.OnDirectoryChooserFragmentInteraction;
+
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 
 import de.tap.easy_xkcd.fragments.NestedPreferenceFragment;
 import de.tap.easy_xkcd.utils.PrefHelper;
 
-public class NestedSettingsActivity extends AppCompatActivity {
+public class NestedSettingsActivity extends AppCompatActivity implements OnDirectoryChooserFragmentInteraction  {
     private static final String APPEARANCE = "appearance";
     private static final String BEHAVIOR = "behavior";
     private static final String ALT_SHARING = "altSharing";
@@ -101,6 +115,103 @@ public class NestedSettingsActivity extends AppCompatActivity {
                     fragment.new repairComicsTask().execute();
                 }
         }
+    }
+
+    public android.support.v4.app.FragmentManager getManger() {
+        return getSupportFragmentManager();
+    }
+
+    @Override
+    public void onEvent(OnDirectoryChosenEvent event) {
+        File path = event.getFile();
+        File oldPath = PrefHelper.getOfflinePath();
+        PrefHelper.setOfflinePath(path.getAbsolutePath());
+        new moveData().execute(new String[]{oldPath.getAbsolutePath(), path.getAbsolutePath()});
+    }
+
+    public class moveData extends AsyncTask<String[], Void, Void> {
+        private ProgressDialog progress;
+
+        @Override
+        protected void onPreExecute() {
+            progress = new ProgressDialog(NestedSettingsActivity.this);
+            progress.setTitle(getResources().getString(R.string.copy_folder));
+            progress.setMessage(getResources().getString(R.string.loading_offline_message));
+            progress.setIndeterminate(true);
+            progress.setCancelable(false);
+            progress.show();
+        }
+
+        @Override
+        protected Void doInBackground(String[]... params) {
+            File oldPath = new File(params[0][0] + "/easy xkcd");
+            File newPath = new File(params[0][1] + "/easy xkcd");
+
+            try {
+                copyDirectory(oldPath, newPath);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+
+            deleteFolder(oldPath);
+
+            return null;
+        }
+
+        private void copyDirectory(File sourceLocation , File targetLocation)
+                throws IOException {
+
+            if (sourceLocation.isDirectory()) {
+                if (!targetLocation.exists() && !targetLocation.mkdirs()) {
+                    throw new IOException("Cannot create dir " + targetLocation.getAbsolutePath());
+                }
+
+                String[] children = sourceLocation.list();
+                for (int i=0; i<children.length; i++) {
+                    copyDirectory(new File(sourceLocation, children[i]),
+                            new File(targetLocation, children[i]));
+                }
+            } else {
+
+                // make sure the directory we plan to store the recording in exists
+                File directory = targetLocation.getParentFile();
+                if (directory != null && !directory.exists() && !directory.mkdirs()) {
+                    throw new IOException("Cannot create dir " + directory.getAbsolutePath());
+                }
+
+                InputStream in = new FileInputStream(sourceLocation);
+                OutputStream out = new FileOutputStream(targetLocation);
+
+                // Copy the bits from instream to outstream
+                byte[] buf = new byte[1024];
+                int len;
+                while ((len = in.read(buf)) > 0) {
+                    out.write(buf, 0, len);
+                }
+                in.close();
+                out.close();
+            }
+        }
+
+        private void deleteFolder(File file) {
+            if (file.isDirectory())
+                for (File child : file.listFiles())
+                    deleteFolder(child);
+            file.delete();
+        }
+
+        @Override
+        protected void onPostExecute(Void dummy) {
+            progress.dismiss();
+            MainActivity.getInstance().finish();
+            SettingsActivity.getInstance().finish();
+            NestedSettingsActivity.this.finish();
+            startActivity(MainActivity.getInstance().getIntent());
+        }
+    }
+
+    @Override
+    public void onEvent(OnDirectoryCancelEvent event) {
     }
 
     @Override

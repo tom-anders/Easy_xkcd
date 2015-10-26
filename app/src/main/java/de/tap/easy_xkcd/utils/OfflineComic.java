@@ -46,7 +46,7 @@ public class OfflineComic {
     public Bitmap getBitmap() {
         Bitmap mBitmap = null;
         try {
-            File sdCard = Environment.getExternalStorageDirectory();
+            File sdCard = PrefHelper.getOfflinePath();
             File dir = new File(sdCard.getAbsolutePath() + OFFLINE_PATH);
             File file = new File(dir, String.valueOf(mComicNumber) + ".png");
             FileInputStream fis = new FileInputStream(file);

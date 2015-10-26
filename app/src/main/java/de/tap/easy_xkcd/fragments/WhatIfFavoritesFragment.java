@@ -197,7 +197,7 @@ public class WhatIfFavoritesFragment extends android.support.v4.app.Fragment {
                         .load(imgs.get(i))
                         .into(comicViewHolder.thumbnail);
             } else {
-                File sdCard = Environment.getExternalStorageDirectory();
+                File sdCard = PrefHelper.getOfflinePath();
                 File dir = new File(sdCard.getAbsolutePath() + "/easy xkcd/what if/overview");
                 File file = new File(dir, String.valueOf(n) + ".png");
 

@@ -243,5 +243,8 @@
     <string name="new_comic_view">Ansehen</string>
     <string name="whatif_overview">Übersicht</string>
     <string name="search_hint_whatif">Suche einen Artikel</string>
+    <string name="pref_offline_path">Pfad für Offline Daten (Experimentell)</string>
+    <string name="pref_offline_path_sum">Standard ist das Basisverzeichnis des externen Speichers</string>
+    <string name="copy_folder">Verschiebe Ordner und Dateien...</string>
 
 </resources>

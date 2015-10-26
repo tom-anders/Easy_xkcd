@@ -18,6 +18,8 @@ import android.os.Handler;
 import android.preference.Preference;
 import android.preference.PreferenceFragment;
 import android.support.v4.app.ActivityCompat;
+import android.support.v4.app.DialogFragment;
+import android.support.v4.app.FragmentTransaction;
 import android.support.v4.content.ContextCompat;
 import android.util.Log;
 import android.widget.TimePicker;
@@ -26,6 +28,10 @@ import android.widget.Toast;
 import com.bumptech.glide.Glide;
 import com.commonsware.cwac.wakeful.WakefulIntentService;
 import com.tap.xkcd_reader.R;
+import com.turhanoz.android.reactivedirectorychooser.event.OnDirectoryCancelEvent;
+import com.turhanoz.android.reactivedirectorychooser.event.OnDirectoryChosenEvent;
+import com.turhanoz.android.reactivedirectorychooser.ui.DirectoryChooserFragment;
+import com.turhanoz.android.reactivedirectorychooser.ui.OnDirectoryChooserFragmentInteraction;
 
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
@@ -68,6 +74,7 @@ public class NestedPreferenceFragment extends PreferenceFragment {
     private static final String REPAIR = "pref_repair";
     private static final String MOBILE_ENABLED = "pref_update_mobile";
     private static final String FAB_OPTIONS = "pref_random";
+    private static final String OFFLINE_PATH_PREF = "pref_offline_path";
 
     private static final String OFFLINE_PATH = "/easy xkcd";
     private static final String OFFLINE_WHATIF_PATH = "/easy xkcd/what if/";
@@ -307,6 +314,8 @@ public class NestedPreferenceFragment extends PreferenceFragment {
                 addPreferencesFromResource(R.xml.pref_advanced);
                 findPreference(REPAIR).setEnabled(MainActivity.fullOffline);
                 findPreference(MOBILE_ENABLED).setEnabled(MainActivity.fullOffline | MainActivity.fullOfflineWhatIf);
+                findPreference(OFFLINE_PATH_PREF).setEnabled(MainActivity.fullOffline | MainActivity.fullOfflineWhatIf);
+
                 findPreference(REPAIR).setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
                     @Override
                     public boolean onPreferenceClick(Preference preference) {
@@ -319,6 +328,16 @@ public class NestedPreferenceFragment extends PreferenceFragment {
                         } else {
                             Toast.makeText(getActivity(), R.string.no_connection, Toast.LENGTH_SHORT).show();
                         }
+                        return true;
+                    }
+                });
+                findPreference(OFFLINE_PATH_PREF).setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
+                    @Override
+                    public boolean onPreferenceClick(Preference preference){
+                        DialogFragment directoryChooserFragment = DirectoryChooserFragment.newInstance(Environment.getExternalStorageDirectory());
+
+                        FragmentTransaction transaction = ((NestedSettingsActivity) getActivity()).getManger().beginTransaction();
+                        directoryChooserFragment.show(transaction, "RDC");
                         return true;
                     }
                 });
@@ -360,7 +379,7 @@ public class NestedPreferenceFragment extends PreferenceFragment {
                 } catch (Exception e) {
                     Log.e("error", "not found in internal");
                     try {
-                        File sdCard = Environment.getExternalStorageDirectory();
+                        File sdCard = PrefHelper.getOfflinePath();
                         File dir = new File(sdCard.getAbsolutePath() + OFFLINE_PATH);
                         File file = new File(dir, String.valueOf(i) + ".png");
                         FileInputStream fis = new FileInputStream(file);
@@ -388,7 +407,7 @@ public class NestedPreferenceFragment extends PreferenceFragment {
                         .into(-1, -1)
                         .get();
                 try {
-                    File sdCard = Environment.getExternalStorageDirectory();
+                    File sdCard = PrefHelper.getOfflinePath();
                     File dir = new File(sdCard.getAbsolutePath() + OFFLINE_PATH);
                     dir.mkdirs();
                     File file = new File(dir, String.valueOf(i) + ".png");
@@ -454,7 +473,7 @@ public class NestedPreferenceFragment extends PreferenceFragment {
                             .into(-1, -1)
                             .get();
                     try {
-                        File sdCard = Environment.getExternalStorageDirectory();
+                        File sdCard = PrefHelper.getOfflinePath();
                         File dir = new File(sdCard.getAbsolutePath() + OFFLINE_PATH);
                         dir.mkdirs();
                         File file = new File(dir, String.valueOf(i) + ".png");
@@ -547,7 +566,7 @@ public class NestedPreferenceFragment extends PreferenceFragment {
                     //delete from internal storage
                     getActivity().deleteFile(String.valueOf(i));
                     //delete from external storage
-                    File sdCard = Environment.getExternalStorageDirectory();
+                    File sdCard = PrefHelper.getOfflinePath();
                     File dir = new File(sdCard.getAbsolutePath() + OFFLINE_PATH);
                     File file = new File(dir, String.valueOf(i) + ".png");
                     file.delete();
@@ -595,7 +614,7 @@ public class NestedPreferenceFragment extends PreferenceFragment {
         @Override
         protected Void doInBackground(Void... params) {
             Bitmap mBitmap;
-            File sdCard = Environment.getExternalStorageDirectory();
+            File sdCard = PrefHelper.getOfflinePath();
             File dir;
             //download overview
             try {
@@ -715,7 +734,7 @@ public class NestedPreferenceFragment extends PreferenceFragment {
 
         @Override
         protected Void doInBackground(Void... params) {
-            File sdCard = Environment.getExternalStorageDirectory();
+            File sdCard = PrefHelper.getOfflinePath();
             File dir = new File(sdCard.getAbsolutePath() + OFFLINE_WHATIF_PATH);
             deleteFolder(dir);
             return null;

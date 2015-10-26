@@ -35,7 +35,7 @@ public class Article {
         if (!offline) {
             doc = Jsoup.connect("http://what-if.xkcd.com/" + String.valueOf(mNumber)).get();
         } else {
-            File sdCard = Environment.getExternalStorageDirectory();
+            File sdCard = PrefHelper.getOfflinePath();
             File dir = new File(sdCard.getAbsolutePath() + OFFLINE_WHATIF_PATH +String.valueOf(mNumber));
             File file = new File(dir, String.valueOf(mNumber) + ".html");
             doc = Jsoup.parse(file, "UTF-8");
@@ -50,7 +50,7 @@ public class Article {
 
         //fix the image links
         int count = 1;
-        String base = Environment.getExternalStorageDirectory().getAbsolutePath();
+        String base = PrefHelper.getOfflinePath().getAbsolutePath();
         for (org.jsoup.nodes.Element e : doc.select(".illustration")) {
             if (!offline) {
                 String src = e.attr("src");

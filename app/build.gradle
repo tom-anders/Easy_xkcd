@@ -15,8 +15,8 @@ android {
         applicationId "de.tap.easy_xkcd"
         minSdkVersion 15
         targetSdkVersion 23
-        versionCode 73
-        versionName "3.3.3"
+        versionCode 74
+        versionName "3.3.4"
     }
     buildTypes {
         release {
@@ -51,4 +51,7 @@ dependencies {
     compile 'com.anjlab.android.iab.v3:library:1.0.28'
     compile 'com.jakewharton:butterknife:7.0.1'
     compile 'com.kogitune:pre-lollipop-activity-transition:1.0.0'
+    compile ('com.turhanoz.android:reactivedirectorychooser:0.0.12@aar'){
+        transitive=true
+    }
 }

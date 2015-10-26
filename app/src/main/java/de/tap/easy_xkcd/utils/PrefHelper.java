@@ -25,6 +25,7 @@ import android.content.SharedPreferences;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.net.Uri;
+import android.os.Environment;
 import android.preference.PreferenceManager;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
@@ -33,6 +34,7 @@ import android.view.View;
 
 import com.tap.xkcd_reader.R;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
@@ -100,6 +102,7 @@ public class PrefHelper {
     private static final String AUTO_NIGHT_START_HOUR = "pref_auto_night_start_hour";
     private static final String AUTO_NIGHT_END_MIN = "pref_auto_night_end_min";
     private static final String AUTO_NIGHT_END_HOUR = "pref_auto_night_end_hour";
+    private static final String OFFLINE_PATH = "pref_offline_path";
 
 
     public static void getPrefs(Context context) {
@@ -766,6 +769,19 @@ public class PrefHelper {
             minute = "0"+minute;
         }
         return end[0] + ":" + minute + suffix;
+    }
+
+    public static File getOfflinePath() {
+        String path = prefs.getString(OFFLINE_PATH, "default");
+        if (path.equals("default"))
+            return Environment.getExternalStorageDirectory();
+        return new File(path);
+    }
+
+    public static void setOfflinePath(String path) {
+        SharedPreferences.Editor editor = prefs.edit();
+        editor.putString(OFFLINE_PATH, path);
+        editor.apply();
     }
 
     public static boolean isWifi(Context context) {

@@ -165,7 +165,7 @@ public class OfflineFragment extends android.support.v4.app.Fragment {
                                 .into(-1, -1)
                                 .get();
                         try {
-                            File sdCard = Environment.getExternalStorageDirectory();
+                            File sdCard = PrefHelper.getOfflinePath();
                             File dir = new File(sdCard.getAbsolutePath() + "/easy xkcd");
                             dir.mkdirs();
                             File file = new File(dir, String.valueOf(i) + ".png");
@@ -193,7 +193,7 @@ public class OfflineFragment extends android.support.v4.app.Fragment {
                 e.printStackTrace();
             }
             if (!PrefHelper.nomediaCreated()) {
-                File sdCard = Environment.getExternalStorageDirectory();
+                File sdCard = PrefHelper.getOfflinePath();
                 File dir = new File(sdCard.getAbsolutePath() + "/easy xkcd");
                 File nomedia = new File(dir, ".nomedia");
                 try {

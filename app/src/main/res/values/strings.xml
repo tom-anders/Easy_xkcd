@@ -319,7 +319,9 @@
     <string name="snackbar_feature">New feature: Auto night mode!</string>
     <string name="snackbar_feature_oc">Check it out</string>
     <string name="whatif_overview">Overview</string>
-
+    <string name="pref_offline_path">Path for offline data (Experimental)</string>
+    <string name="pref_offline_path_sum">Default is root directory of external storage.</string>
+    <string name="copy_folder">Moving folders and files &#8230;</string>
 
     <string name="dialog_donate">How much would you like to donate?</string>
     <string name="update_database">Updating database&#8230;</string>

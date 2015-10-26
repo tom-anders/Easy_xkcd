@@ -131,7 +131,7 @@ public class WhatIfFragment extends android.support.v4.app.Fragment {
                                     .asBitmap()
                                     .into(-1, -1)
                                     .get();
-                            File sdCard = Environment.getExternalStorageDirectory();
+                            File sdCard = PrefHelper.getOfflinePath();
                             File dir = new File(sdCard.getAbsolutePath() + "/easy xkcd/what if/overview");
                             dir.mkdirs();
                             File file = new File(dir, String.valueOf(i + 1) + ".png");
@@ -151,7 +151,7 @@ public class WhatIfFragment extends android.support.v4.app.Fragment {
             }
 
             if (!PrefHelper.nomediaCreated()) {
-                File sdCard = Environment.getExternalStorageDirectory();
+                File sdCard = PrefHelper.getOfflinePath();
                 File dir = new File(sdCard.getAbsolutePath() + "/easy xkcd");
                 File nomedia = new File(dir, ".nomedia");
                 try {
@@ -284,9 +284,10 @@ public class WhatIfFragment extends android.support.v4.app.Fragment {
                 return;
             }
             if (offlineMode) {
-                File sdCard = Environment.getExternalStorageDirectory();
-                File dir = new File(sdCard.getAbsolutePath() + OFFLINE_WHATIF_OVERVIEW_PATH);
+                File offlinePath = PrefHelper.getOfflinePath();
+                File dir = new File(offlinePath.getAbsolutePath() + OFFLINE_WHATIF_OVERVIEW_PATH);
                 File file = new File(dir, String.valueOf(n) + ".png");
+
                 Glide.with(getActivity())
                         .load(file)
                         .into(comicViewHolder.thumbnail);
