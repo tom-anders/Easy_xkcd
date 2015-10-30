@@ -69,14 +69,23 @@ public class Comic {
     private String[] loadComicData(String url) throws IOException, JSONException {
         json = JsonParser.getJSONFromUrl(url);
         String[] result = new String[3];
-        result[0] = json.getString("title");
-        result[1] = json.getString("alt");
-        result[2] = json.getString("img");
-        mComicNumber = Integer.parseInt(json.getString("num"));
+        if (json != null) {
+            result[0] = json.getString("title");
+            result[1] = json.getString("alt");
+            result[2] = json.getString("img");
+            mComicNumber = Integer.parseInt(json.getString("num"));
+        }  else {
+            result[0] = "404";
+            result[1] = "404";
+            result[2] = "http://i.imgur.com/p0eKxKs.png";
+            mComicNumber = 404;
+        }
         if (mComicNumber==712) { //fix for é and û
             result[1] = "Using a ring to bind someone you covet into your dark and twisted world? Wow, just got the subtext there. Also, the apparently eager Beyoncé would've made one badass Nazgȗl.";
         } else if (mComicNumber == 847) {
             result[1] = "Eärendil will patrol the walls of night only until the sun reaches red giant stage, engulfing the Morning Star on his brow. Light and high beauty are passing things as well.";
+        } else if (mComicNumber == 1037) {
+            result[2] = "http://www.explainxkcd.com/wiki/images/f/ff/umwelt_the_void.jpg";
         }
         return result;
     }

@@ -15,9 +15,10 @@ import org.json.JSONObject;
 
 public class JsonParser {
 
-    static JSONObject jObj = null;
+    //static JSONObject jObj = null;
 
     public static JSONObject getJSONFromUrl(String url) throws IOException{
+        JSONObject jObj = null;
         try{
             String json = HTTPGetCall(url);
             jObj = new JSONObject(json);
