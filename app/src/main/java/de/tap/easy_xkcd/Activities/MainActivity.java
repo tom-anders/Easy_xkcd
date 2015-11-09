@@ -20,6 +20,7 @@ package de.tap.easy_xkcd.Activities;
 
 import android.app.ActivityManager;
 import android.app.ProgressDialog;
+import android.content.pm.PackageManager;
 import android.content.res.Configuration;
 import android.content.res.Resources;
 import android.graphics.Bitmap;
@@ -59,6 +60,7 @@ import butterknife.OnClick;
 import butterknife.OnLongClick;
 import de.tap.easy_xkcd.fragments.ComicBrowserFragment;
 import de.tap.easy_xkcd.notifications.ComicListener;
+import de.tap.easy_xkcd.utils.Comic;
 import de.tap.easy_xkcd.utils.Favorites;
 import de.tap.easy_xkcd.fragments.FavoritesFragment;
 import de.tap.easy_xkcd.fragments.OfflineFragment;
@@ -617,7 +619,7 @@ public class MainActivity extends AppCompatActivity {
         return mProgress;
     }
 
-    public void setProgressDialog (String message, boolean cancel) {
+    public void setProgressDialog(String message, boolean cancel) {
         mProgress = ProgressDialog.show(this, "", message, cancel);
     }
 
@@ -697,6 +699,22 @@ public class MainActivity extends AppCompatActivity {
 
     public static MainActivity getInstance() {
         return instance;
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, String permissions[], int[] grantResults) {
+        switch (requestCode) {
+            case 1:
+                if (grantResults[0] == PackageManager.PERMISSION_GRANTED)
+                    if (mCurrentFragment == R.id.nav_favorites) {
+                        FavoritesFragment fragment = (FavoritesFragment) getSupportFragmentManager().findFragmentByTag(FAV_TAG);
+                        fragment.shareComicImage();
+                    } else {
+                        ComicBrowserFragment fragment = (ComicBrowserFragment) getSupportFragmentManager().findFragmentByTag(BROWSER_TAG);
+                        fragment.shareComicImage();
+                    }
+
+        }
     }
 
 }

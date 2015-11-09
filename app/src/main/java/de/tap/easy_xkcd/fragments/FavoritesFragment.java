@@ -18,11 +18,13 @@
 
 package de.tap.easy_xkcd.fragments;
 
+import android.Manifest;
 import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.ActivityInfo;
+import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.graphics.ColorFilter;
 import android.graphics.ColorMatrixColorFilter;
@@ -34,6 +36,8 @@ import android.os.Vibrator;
 import android.provider.MediaStore;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
+import android.support.v4.app.ActivityCompat;
+import android.support.v4.content.ContextCompat;
 import android.support.v4.content.FileProvider;
 import android.support.v4.view.PagerAdapter;
 import android.support.v4.view.ViewPager;
@@ -433,7 +437,11 @@ public class FavoritesFragment extends android.support.v4.app.Fragment {
     }
 
     @SuppressWarnings("ResultOfMethodCallIgnored")
-    private void shareComicImage() {
+    public void shareComicImage() {
+        if (!(ContextCompat.checkSelfPermission(getActivity(), Manifest.permission.WRITE_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED)) {
+            ActivityCompat.requestPermissions(getActivity(), new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE}, 1);
+            return;
+        }
         Intent share = new Intent(Intent.ACTION_SEND);
         share.setType("image/*");
         Bitmap mBitmap = mComicMap.get(sFavoriteIndex).getBitmap();
