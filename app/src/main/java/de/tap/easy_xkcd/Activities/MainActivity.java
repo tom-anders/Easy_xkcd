@@ -672,7 +672,11 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onResume() {
         super.onResume();
-        mNavView.getMenu().findItem(getCurrentFragment()).setChecked(true);
+        try {
+            mNavView.getMenu().findItem(getCurrentFragment()).setChecked(true);
+        } catch (NullPointerException e) {
+            e.printStackTrace();
+        }
     }
 
     @Override
