@@ -26,6 +26,7 @@ import android.support.customtabs.CustomTabsIntent;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
 import android.support.v4.app.ActivityCompat;
+import android.support.v4.app.Fragment;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.view.PagerAdapter;
 import android.support.v4.view.ViewPager;
@@ -263,7 +264,7 @@ public class ComicBrowserFragment extends android.support.v4.app.Fragment {
 
                 @Override
                 protected void onPostExecute(Void dummy) {
-                    if (comic != null) {
+                    if (comic != null && getActivity() != null) {
                         tvAlt.setText(comic.getComicData()[1]);
                         //Setup the title text view
                         tvTitle.setText(comic.getComicData()[0]);
