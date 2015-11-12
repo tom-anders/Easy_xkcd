@@ -34,14 +34,12 @@ import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Vibrator;
 import android.provider.MediaStore;
-import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.content.FileProvider;
 import android.support.v4.view.PagerAdapter;
 import android.support.v4.view.ViewPager;
-import android.support.v7.app.ActionBar;
 import android.support.v7.widget.Toolbar;
 import android.util.SparseArray;
 import android.view.GestureDetector;
@@ -77,7 +75,7 @@ public class FavoritesFragment extends android.support.v4.app.Fragment {
     public SparseArray<OfflineComic> mComicMap = new SparseArray<>();
     static final String LAST_FAV = "last fav";
     public static Integer sFavoriteIndex = 0;
-    private static HackyViewPager mPager = null;
+    private static HackyViewPager sPager;
     private FavoritesPagerAdapter mPagerAdapter = null;
     private String[] mFav;
     public static int[] sFavorites;
@@ -94,8 +92,8 @@ public class FavoritesFragment extends android.support.v4.app.Fragment {
         }
 
         mPagerAdapter = new FavoritesPagerAdapter(getActivity());
-        mPager = (HackyViewPager) v.findViewById(R.id.pager);
-        setupPager(mPager);
+        sPager = (HackyViewPager) v.findViewById(R.id.pager);
+        setupPager(sPager);
         if (savedInstanceState != null) {
             sFavoriteIndex = savedInstanceState.getInt(LAST_FAV);
             getActivity().invalidateOptionsMenu();
@@ -258,9 +256,9 @@ public class FavoritesFragment extends android.support.v4.app.Fragment {
                 @Override
                 public void onMatrixChanged(RectF rectF) {
                     if (pvComic.getScale() > 1.4) {
-                        mPager.setLocked(true);
+                        sPager.setLocked(true);
                     } else {
-                        mPager.setLocked(false);
+                        sPager.setLocked(false);
                     }
                 }
             });
@@ -313,9 +311,13 @@ public class FavoritesFragment extends android.support.v4.app.Fragment {
             toast.show();
             PrefHelper.setAltTip(false);
         }
-        TextView tvAlt = (TextView) mPager.getChildAt(sFavoriteIndex).findViewById(R.id.tvAlt);
+        TextView tvAlt = (TextView) sPager.findViewWithTag(sFavoriteIndex).findViewById(R.id.tvAlt);
         if (PrefHelper.classicAltStyle()) {
-            toggleVisibility(tvAlt);
+            try {
+                toggleVisibility(tvAlt);
+            } catch (NullPointerException e) {
+                e.printStackTrace();
+            }
         } else {
             android.support.v7.app.AlertDialog.Builder mDialog = new android.support.v7.app.AlertDialog.Builder(getActivity());
             mDialog.setMessage(tvAlt.getText());
@@ -512,9 +514,9 @@ public class FavoritesFragment extends android.support.v4.app.Fragment {
 
         @Override
         protected void onPostExecute(Void v) {
-            mPager.setAdapter(mPagerAdapter);
+            sPager.setAdapter(mPagerAdapter);
             mPagerAdapter.notifyDataSetChanged();
-            mPager.setCurrentItem(sFavoriteIndex);
+            sPager.setCurrentItem(sFavoriteIndex);
 
             Toolbar toolbar = ((MainActivity)getActivity()).getToolbar();
             if (PrefHelper.subtitleEnabled() && ((MainActivity) getActivity()).getCurrentFragment() == R.id.nav_favorites)
@@ -535,7 +537,7 @@ public class FavoritesFragment extends android.support.v4.app.Fragment {
     }
 
     public static boolean zoomReset() {
-        PhotoView pv = (PhotoView) mPager.findViewWithTag(sFavoriteIndex).findViewById(R.id.ivComic);
+        PhotoView pv = (PhotoView) sPager.findViewWithTag(sFavoriteIndex).findViewById(R.id.ivComic);
         float scale = pv.getScale();
         if (scale != 1f) {
             pv.setScale(1f, true);
@@ -553,7 +555,7 @@ public class FavoritesFragment extends android.support.v4.app.Fragment {
             while (number.equals(sFavoriteIndex)) {
                 number = rand.nextInt(mFav.length);
             }
-            mPager.setCurrentItem(number);
+            sPager.setCurrentItem(number);
         }
         return true;
     }
