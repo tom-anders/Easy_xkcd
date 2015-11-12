@@ -232,7 +232,7 @@ public class WhatIfFavoritesFragment extends android.support.v4.app.Fragment {
                 super(itemView);
                 cv = (CardView) itemView.findViewById(R.id.cv);
                 if (PrefHelper.nightThemeEnabled())
-                    cv.setBackgroundColor(ContextCompat.getColor(getActivity(), R.color.background_material_dark));
+                    cv.setCardBackgroundColor(ContextCompat.getColor(getActivity(), R.color.background_material_dark));
                 articleTitle = (TextView) itemView.findViewById(R.id.article_title);
                 thumbnail = (ImageView) itemView.findViewById(R.id.thumbnail);
             }

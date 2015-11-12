@@ -456,7 +456,7 @@ public class SearchResultsActivity extends AppCompatActivity {
                 super(itemView);
                 cv = (CardView) itemView.findViewById(R.id.cv);
                 if (PrefHelper.nightThemeEnabled())
-                    cv.setBackgroundColor(ContextCompat.getColor(SearchResultsActivity.this, R.color.background_material_dark));
+                    cv.setCardBackgroundColor(ContextCompat.getColor(SearchResultsActivity.this, R.color.background_material_dark));
                 comicTitle = (TextView) itemView.findViewById(R.id.comic_title);
                 comicInfo = (TextView) itemView.findViewById(R.id.comic_info);
                 thumbnail = (ImageView) itemView.findViewById(R.id.thumbnail);

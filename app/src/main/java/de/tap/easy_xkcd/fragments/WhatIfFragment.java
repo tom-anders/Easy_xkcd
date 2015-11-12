@@ -262,10 +262,17 @@ public class WhatIfFragment extends android.support.v4.app.Fragment {
             int n = mTitles.size() - mTitles.indexOf(title);
 
             if (PrefHelper.checkRead(n)) {
-                comicViewHolder.articleTitle.setTextColor(ContextCompat.getColor(getActivity(), R.color.Read));
+                if (PrefHelper.nightThemeEnabled())
+                    comicViewHolder.articleTitle.setTextColor(ContextCompat.getColor(getActivity(), android.R.color.tertiary_text_light));
+                else
+                    comicViewHolder.articleTitle.setTextColor(ContextCompat.getColor(getActivity(), R.color.Read));
             } else {
-                comicViewHolder.articleTitle.setTextColor(ContextCompat.getColor(getActivity(), android.R.color.tertiary_text_light));
+                if (PrefHelper.nightThemeEnabled())
+                    comicViewHolder.articleTitle.setTextColor(ContextCompat.getColor(getActivity(), R.color.Read));
+                else
+                    comicViewHolder.articleTitle.setTextColor(ContextCompat.getColor(getActivity(), android.R.color.tertiary_text_light));
             }
+
 
             if (titles.get(i).equals("Jupiter Descending")) {
                 comicViewHolder.thumbnail.setImageDrawable(ContextCompat.getDrawable(getActivity(), R.mipmap.jupiter_descending));
@@ -322,7 +329,7 @@ public class WhatIfFragment extends android.support.v4.app.Fragment {
                 super(itemView);
                 cv = (CardView) itemView.findViewById(R.id.cv);
                 if (PrefHelper.nightThemeEnabled())
-                    cv.setBackgroundColor(ContextCompat.getColor(getActivity(), R.color.background_material_dark));
+                    cv.setCardBackgroundColor(ContextCompat.getColor(getActivity(), R.color.background_material_dark));
                 articleTitle = (TextView) itemView.findViewById(R.id.article_title);
                 thumbnail = (ImageView) itemView.findViewById(R.id.thumbnail);
             }
