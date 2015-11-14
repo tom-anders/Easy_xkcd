@@ -663,6 +663,10 @@ public class OfflineFragment extends android.support.v4.app.Fragment {
         super.onPrepareOptionsMenu(menu);
     }
 
+    public void scrollTo(int pos) {
+        sPager.setCurrentItem(pos);
+    }
+
     private void toggleVisibility(View view) {
         // Switches a view's visibility between GONE and VISIBLE
         if (view.getVisibility() == View.GONE) {

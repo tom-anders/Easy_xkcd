@@ -488,6 +488,7 @@ public class FavoritesFragment extends android.support.v4.app.Fragment {
     public void onPrepareOptionsMenu(Menu menu) {
         menu.findItem(R.id.action_latest).setVisible(false);
         menu.findItem(R.id.action_search).setVisible(false);
+        menu.findItem(R.id.action_overview).setVisible(false);
         MenuItem fav = menu.findItem(R.id.action_favorite);
         fav.setIcon(R.drawable.ic_action_favorite);
         //If the FAB is visible, hide the random comic menu item

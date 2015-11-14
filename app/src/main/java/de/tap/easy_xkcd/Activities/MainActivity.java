@@ -35,6 +35,7 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
+import android.support.v4.app.Fragment;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.view.MenuItemCompat;
 import android.support.v4.widget.DrawerLayout;
@@ -98,8 +99,6 @@ public class MainActivity extends AppCompatActivity {
     private static final String BROWSER_TAG = "browser";
     private static final String FAV_TAG = "favorites";
     private static final String WHATIF_TAG = "whatif";
-
-    //TODO variable naming convention
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -584,6 +583,10 @@ public class MainActivity extends AppCompatActivity {
             case R.id.action_donate:
                 startActivity(new Intent(MainActivity.this, DonateActivity.class));
                 return true;
+
+            case R.id.action_overview:
+                startActivity(new Intent(MainActivity.this, OverviewActivity.class));
+                return true;
         }
         return super.onOptionsItemSelected(item);
     }
@@ -703,6 +706,14 @@ public class MainActivity extends AppCompatActivity {
 
     public static MainActivity getInstance() {
         return instance;
+    }
+
+    public void scrollBrowser(int pos) {
+        Fragment fragment = getSupportFragmentManager().findFragmentByTag(BROWSER_TAG);
+        if (PrefHelper.fullOfflineEnabled())
+            ((OfflineFragment) fragment).scrollTo(pos);
+        else
+            ((ComicBrowserFragment) fragment).scrollTo(pos);
     }
 
     @Override

@@ -247,5 +247,6 @@
         <item>Један тап</item>
         <item>Двотап</item>
     </string-array>
+    <string name="action_overview">Comic Overview</string>
 
 </resources>

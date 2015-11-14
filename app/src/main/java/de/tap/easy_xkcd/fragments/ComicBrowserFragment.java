@@ -760,6 +760,10 @@ public class ComicBrowserFragment extends android.support.v4.app.Fragment {
         }
     }
 
+    public void scrollTo(int pos) {
+        sPager.setCurrentItem(pos);
+    }
+
     public static boolean zoomReset() {
         if (loadingImages) {
             return true;

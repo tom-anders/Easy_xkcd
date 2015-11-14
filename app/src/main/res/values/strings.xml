@@ -323,6 +323,7 @@
     <string name="pref_offline_path">Path for offline data (Experimental)</string>
     <string name="pref_offline_path_sum">Default is root directory of external storage.</string>
     <string name="copy_folder">Moving folders and files &#8230;</string>
+    <string name="action_overview">Comic Overview</string>
 
     <string name="dialog_donate">How much would you like to donate?</string>
     <string name="update_database">Updating database&#8230;</string>
@@ -376,5 +377,6 @@
         <item>0</item>
         <item>1</item>
     </string-array>
+    <string name="title_activity_overview">OverviewActivity</string>
 
 </resources>
