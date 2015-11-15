@@ -43,6 +43,7 @@ import java.util.HashSet;
 import java.util.List;
 
 import de.tap.easy_xkcd.Activities.NestedSettingsActivity;
+import de.tap.easy_xkcd.misc.ScrollAwareFABBehavior;
 
 public class PrefHelper {
     private static SharedPreferences sharedPrefs;
@@ -103,6 +104,7 @@ public class PrefHelper {
     private static final String AUTO_NIGHT_END_MIN = "pref_auto_night_end_min";
     private static final String AUTO_NIGHT_END_HOUR = "pref_auto_night_end_hour";
     private static final String OFFLINE_PATH = "pref_offline_path";
+    private static final String ZOOM_SCROLL = "pref_zoom_scroll";
 
 
     public static void getPrefs(Context context) {
@@ -797,6 +799,10 @@ public class PrefHelper {
                 (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
         NetworkInfo netInfo = cm.getActiveNetworkInfo();
         return netInfo != null && netInfo.isConnected();
+    }
+
+    public static boolean scrollDisabledWhileZoom() {
+        return prefs.getBoolean(ZOOM_SCROLL, true);
     }
 
 }

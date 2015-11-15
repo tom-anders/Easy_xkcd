@@ -26,4 +26,9 @@
         android:defaultValue="1"
         android:summary="@string/pref_orientation_sum"
         />
+
+    <CheckBoxPreference
+        android:defaultValue="true"
+        android:key="pref_zoom_scroll"
+        android:title="@string/pref_zoom_scroll" />
 </PreferenceScreen>

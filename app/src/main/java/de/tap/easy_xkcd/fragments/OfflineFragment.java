@@ -323,11 +323,13 @@ public class OfflineFragment extends android.support.v4.app.Fragment {
 
     private class SaveComicImageTask extends AsyncTask<Void, Void, Void> {
         private int mAddedNumber = sLastComicNumber;
+
         @Override
         protected Void doInBackground(Void... params) {
             Favorites.addFavoriteItem(getActivity(), String.valueOf(mAddedNumber));
             return null;
         }
+
         @Override
         protected void onPostExecute(Void dummy) {
             //refresh the FavoritesFragment
@@ -342,6 +344,7 @@ public class OfflineFragment extends android.support.v4.app.Fragment {
     private class DeleteComicImageTask extends AsyncTask<Integer, Void, Void> {
         private int mRemovedNumber = sLastComicNumber;
         private View.OnClickListener oc;
+
         @Override
         protected Void doInBackground(Integer... pos) {
             Favorites.removeFavoriteItem(getActivity(), String.valueOf(mRemovedNumber));
@@ -528,6 +531,7 @@ public class OfflineFragment extends android.support.v4.app.Fragment {
                     }
                     return true;
                 }
+
                 @Override
                 public boolean onSingleTapConfirmed(MotionEvent e) {
                     if (position == 1571) {
@@ -591,16 +595,17 @@ public class OfflineFragment extends android.support.v4.app.Fragment {
                 pvComic.setColorFilter(cf);
             }
             //Disable ViewPager scrolling when the user zooms into an image
-            pvComic.setOnMatrixChangeListener(new PhotoViewAttacher.OnMatrixChangedListener() {
-                @Override
-                public void onMatrixChanged(RectF rectF) {
-                    if (pvComic.getScale() > 1.4) {
-                        sPager.setLocked(true);
-                    } else {
-                        sPager.setLocked(false);
+            if (PrefHelper.scrollDisabledWhileZoom())
+                pvComic.setOnMatrixChangeListener(new PhotoViewAttacher.OnMatrixChangedListener() {
+                    @Override
+                    public void onMatrixChanged(RectF rectF) {
+                        if (pvComic.getScale() > 1.4) {
+                            sPager.setLocked(true);
+                        } else {
+                            sPager.setLocked(false);
+                        }
                     }
-                }
-            });
+                });
 
             if (randomSelected && position == sLastComicNumber - 1) {
                 Animation animation = AnimationUtils.loadAnimation(getActivity().getApplicationContext(), android.R.anim.fade_in);

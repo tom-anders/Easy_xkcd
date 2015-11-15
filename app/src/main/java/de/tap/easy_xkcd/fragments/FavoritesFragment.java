@@ -252,16 +252,17 @@ public class FavoritesFragment extends android.support.v4.app.Fragment {
                 pvComic.setMaximumScale(7.0f);
             }
             //Disable ViewPager scrolling when the user zooms into an image
-            pvComic.setOnMatrixChangeListener(new PhotoViewAttacher.OnMatrixChangedListener() {
-                @Override
-                public void onMatrixChanged(RectF rectF) {
-                    if (pvComic.getScale() > 1.4) {
-                        sPager.setLocked(true);
-                    } else {
-                        sPager.setLocked(false);
+            if (PrefHelper.scrollDisabledWhileZoom())
+                pvComic.setOnMatrixChangeListener(new PhotoViewAttacher.OnMatrixChangedListener() {
+                    @Override
+                    public void onMatrixChanged(RectF rectF) {
+                        if (pvComic.getScale() > 1.4) {
+                            sPager.setLocked(true);
+                        } else {
+                            sPager.setLocked(false);
+                        }
                     }
-                }
-            });
+                });
             container.addView(itemView);
             return itemView;
         }
@@ -519,18 +520,18 @@ public class FavoritesFragment extends android.support.v4.app.Fragment {
             mPagerAdapter.notifyDataSetChanged();
             sPager.setCurrentItem(sFavoriteIndex);
 
-            Toolbar toolbar = ((MainActivity)getActivity()).getToolbar();
+            Toolbar toolbar = ((MainActivity) getActivity()).getToolbar();
             if (PrefHelper.subtitleEnabled() && ((MainActivity) getActivity()).getCurrentFragment() == R.id.nav_favorites)
                 toolbar.setSubtitle(String.valueOf(sFavorites[sFavoriteIndex]));
 
-            if (toolbar.getAlpha()==0) {
+            if (toolbar.getAlpha() == 0) {
                 toolbar.setTranslationY(-300);
                 toolbar.animate().setDuration(300).translationY(0).alpha(1);
                 View view;
-                for (int i = 0; i<toolbar.getChildCount(); i++) {
+                for (int i = 0; i < toolbar.getChildCount(); i++) {
                     view = toolbar.getChildAt(i);
                     view.setTranslationY(-300);
-                    view.animate().setStartDelay(50*(i+1)).setDuration(70*(i+1)).translationY(0);
+                    view.animate().setStartDelay(50 * (i + 1)).setDuration(70 * (i + 1)).translationY(0);
                 }
             }
         }

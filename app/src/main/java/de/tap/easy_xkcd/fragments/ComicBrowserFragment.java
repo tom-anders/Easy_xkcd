@@ -304,9 +304,9 @@ public class ComicBrowserFragment extends android.support.v4.app.Fragment {
                                             }
                                         }
                                         if (position == sLastComicNumber + 2
-                                                | (position == sLastComicNumber-1 && sLastComicNumber == sNewestComicNumber)
-                                                | (position == sLastComicNumber && sLastComicNumber == sNewestComicNumber-1)
-                                                | (position == sLastComicNumber+1 && sLastComicNumber == sNewestComicNumber-2)) {
+                                                | (position == sLastComicNumber - 1 && sLastComicNumber == sNewestComicNumber)
+                                                | (position == sLastComicNumber && sLastComicNumber == sNewestComicNumber - 1)
+                                                | (position == sLastComicNumber + 1 && sLastComicNumber == sNewestComicNumber - 2)) {
                                             loadingImages = false;
                                         }
 
@@ -396,16 +396,17 @@ public class ComicBrowserFragment extends android.support.v4.app.Fragment {
                 pvComic.setMaximumScale(7.0f);
             }
             //Disable ViewPager scrolling when the user zooms into an image
-            pvComic.setOnMatrixChangeListener(new PhotoViewAttacher.OnMatrixChangedListener() {
-                @Override
-                public void onMatrixChanged(RectF rectF) {
-                    if (pvComic.getScale() > 1.4) {
-                        sPager.setLocked(true);
-                    } else {
-                        sPager.setLocked(false);
+            if (PrefHelper.scrollDisabledWhileZoom())
+                pvComic.setOnMatrixChangeListener(new PhotoViewAttacher.OnMatrixChangedListener() {
+                    @Override
+                    public void onMatrixChanged(RectF rectF) {
+                        if (pvComic.getScale() > 1.4) {
+                            sPager.setLocked(true);
+                        } else {
+                            sPager.setLocked(false);
+                        }
                     }
-                }
-            });
+                });
             container.addView(itemView);
             return itemView;
         }

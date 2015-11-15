@@ -248,4 +248,5 @@
     <string name="pref_offline_path_sum">Default is root directory of external storage.</string>
     <string name="copy_folder">Moving folders and files &#8230;</string>
     <string name="action_overview">Comic Overview</string>
+    <string name="pref_zoom_scroll">Disable scrolling while zoomed into comic image</string>
 </resources>
