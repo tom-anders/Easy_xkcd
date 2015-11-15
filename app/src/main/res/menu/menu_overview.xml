@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <item android:id="@+id/action_favorite"
+        android:title="@string/action_favorite"
+        app:showAsAction="ifRoom"
+        android:icon="@drawable/ic_favorite_outline"/>
+
+    <item android:id="@+id/action_random"
+        android:title="@string/action_random"
+        app:showAsAction="ifRoom"
+        android:icon="@mipmap/ic_shuffle"/>
+</menu>

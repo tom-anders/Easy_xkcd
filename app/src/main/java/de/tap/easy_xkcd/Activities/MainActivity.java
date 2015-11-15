@@ -585,6 +585,7 @@ public class MainActivity extends AppCompatActivity {
                 return true;
 
             case R.id.action_overview:
+                fromSearch = true;
                 startActivity(new Intent(MainActivity.this, OverviewActivity.class));
                 return true;
         }

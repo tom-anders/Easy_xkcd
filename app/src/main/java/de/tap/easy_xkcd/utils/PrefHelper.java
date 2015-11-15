@@ -105,6 +105,7 @@ public class PrefHelper {
     private static final String AUTO_NIGHT_END_HOUR = "pref_auto_night_end_hour";
     private static final String OFFLINE_PATH = "pref_offline_path";
     private static final String ZOOM_SCROLL = "pref_zoom_scroll";
+    private static final String OVERVIEW_FAV= "overview_fav";
 
 
     public static void getPrefs(Context context) {
@@ -803,6 +804,16 @@ public class PrefHelper {
 
     public static boolean scrollDisabledWhileZoom() {
         return prefs.getBoolean(ZOOM_SCROLL, true);
+    }
+
+    public static boolean overviewFav() {
+        return sharedPrefs.getBoolean(OVERVIEW_FAV, false);
+    }
+
+    public static void setOverviewFav(boolean value) {
+        SharedPreferences.Editor editor = sharedPrefs.edit();
+        editor.putBoolean(OVERVIEW_FAV, value);
+        editor.apply();
     }
 
 }

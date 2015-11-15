@@ -15,6 +15,8 @@ import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.util.TypedValue;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
@@ -44,8 +46,6 @@ public class OverviewActivity extends AppCompatActivity {
     private ListAdapter adapter;
     @Bind(R.id.list)
     ListView list;
-    private static final String BROWSER_TAG = "browser";
-    private static final String FAV_TAG = "favorites";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -70,7 +70,7 @@ public class OverviewActivity extends AppCompatActivity {
                 getWindow().setNavigationBarColor(ContextCompat.getColor(this, R.color.ColorPrimaryBlack));
         }
 
-        if (savedInstanceState==null) {
+        if (savedInstanceState == null) {
             new updateDatabase().execute();
         } else {
             adapter = new ListAdapter();
@@ -79,7 +79,7 @@ public class OverviewActivity extends AppCompatActivity {
                 @Override
                 public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
                     Intent intent = new Intent("de.tap.easy_xkcd.ACTION_COMIC");
-                    intent.putExtra("number", i+1);
+                    intent.putExtra("number", i + 1);
                     startActivity(intent);
                 }
             });
@@ -95,6 +95,8 @@ public class OverviewActivity extends AppCompatActivity {
 
         @Override
         public int getCount() {
+            if (PrefHelper.overviewFav())
+                return Favorites.getFavoriteList(MainActivity.getInstance()).length;
             return PrefHelper.getNewest();
         }
 
@@ -119,7 +121,12 @@ public class OverviewActivity extends AppCompatActivity {
             } else {
                 holder = (ViewHolder) view.getTag();
             }
-            String label = String.valueOf(position+1) +" " + titles[position];
+            String label;
+            if (PrefHelper.overviewFav()) {
+                int n = Integer.parseInt(Favorites.getFavoriteList(MainActivity.getInstance())[position]);
+                label = n + ": " + PrefHelper.getTitle(n);
+            } else
+                label = String.valueOf(position + 1) + " " + titles[position];
             holder.textView.setText(label);
             return view;
         }
@@ -129,6 +136,38 @@ public class OverviewActivity extends AppCompatActivity {
         public TextView textView;
     }
 
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        getMenuInflater().inflate(R.menu.menu_overview, menu);
+        MenuItem item = menu.findItem(R.id.action_favorite);
+        if (!PrefHelper.overviewFav())
+            item.setIcon(R.drawable.ic_favorite_outline);
+        else
+            item.setIcon(R.drawable.ic_action_favorite);
+        return true;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()) {
+            case R.id.action_random:
+                finish();
+                if (PrefHelper.fullOfflineEnabled())
+                    MainActivity.getInstance().scrollBrowser(PrefHelper.getRandomNumber(OfflineFragment.sLastComicNumber));
+                else
+                    MainActivity.getInstance().scrollBrowser(PrefHelper.getRandomNumber(ComicBrowserFragment.sLastComicNumber));
+                return true;
+            case R.id.action_favorite:
+                if (PrefHelper.overviewFav())
+                    item.setIcon(R.drawable.ic_favorite_outline);
+                else
+                    item.setIcon(R.drawable.ic_action_favorite);
+                PrefHelper.setOverviewFav(!PrefHelper.overviewFav());
+                adapter = new ListAdapter();
+                list.setAdapter(adapter);
+        }
+        return super.onOptionsItemSelected(item);
+    }
 
     private class updateDatabase extends AsyncTask<Void, Integer, Void> {
         private ProgressDialog progress;
@@ -253,13 +292,16 @@ public class OverviewActivity extends AppCompatActivity {
             if (PrefHelper.fullOfflineEnabled()) {
                 list.setSelection(OfflineFragment.sLastComicNumber);
             } else {
-                list.setSelection(ComicBrowserFragment.sLastComicNumber-1);
+                list.setSelection(ComicBrowserFragment.sLastComicNumber - 1);
             }
             list.setOnItemClickListener(new AdapterView.OnItemClickListener() {
                 @Override
                 public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
                     finish();
-                    MainActivity.getInstance().scrollBrowser(i);
+                    if (!PrefHelper.overviewFav())
+                        MainActivity.getInstance().scrollBrowser(i);
+                    else
+                        MainActivity.getInstance().scrollBrowser(Integer.parseInt(Favorites.getFavoriteList(MainActivity.getInstance())[i])-1);
                 }
             });
         }
