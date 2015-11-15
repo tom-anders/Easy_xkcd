@@ -1,3 +1,4 @@
+<?xml version="1.0"?>
 <!--
   ~ Copyright 2015, Tom Praschan
   ~
@@ -12,8 +13,7 @@
   ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
   ~ See the License for the specific language governing permissions and
   ~ limitations under the License.
-  -->
-<resources>
+  --><resources>
     <string name="app_name">Easy xkcd</string>
     <string name="pref_title">Nastavení</string>
     <string name="title_activity_about">O aplikaci</string>
@@ -22,231 +22,340 @@
     <!-- dialog strings -->
     <string name="delete_favorites">Smazat oblíbené</string>
     <string name="delete_favorites_dialog">Opravdu chcete smazat všechny své oblíbené?</string>
-    <string name="favorites_cleared">Oblíbené smazány</string>
-    <string name="delete_offline_dialog">Opravdu chcete vypnout offline mód? Tímto budou smazány všechny uložené obrázky (kromě oblíbených)</string>
+    <string name="favorites_cleared">Oblíbené vymazány</string>
+    <string name="delete_offline_dialog">Opravdu chcete vypnout offline mód? Toto smaže všechny uložené obrázky (kromě oblíbených)</string>
+    <string name="delete_offline_whatif_dialog">Opravdu chcete vypnout offline mód? Toto smaže všechny uložené články</string>
 
-    <string name="share_url">Sdílet URL pomocí&#8230;</string>
-    <string name="share_image">Sdílet obrázek pomocí&#8230;</string>
+    <string name="share_url">Sdílet url s…</string>
+    <string name="share_image">Sdílet obrázek s…</string>
     <string name="dialog_cancel">Zrušit</string>
     <string name="dialog_yes">Ano</string>
-    <string name="loading_random">Načítám náhodný komiks&#8230;</string>
-    <string name="no_favorites">Zatím jste nepřidali nic k oblíbeným!</string>
-    <string name="loading_comics">Načítám komiks&#8230;</string>
-    <string name="loading_results">Načítám výsledky hledání&#8230;</string>
-    <string name="no_connection">Bez připojení&#8230;</string>
+    <string name="loading_random">Načíst náhodný komix…</string>
+    <string name="no_favorites">Zatím jste neuložili žádné oblíbené!</string>
+    <string name="loading_comics">Načítání komixů…</string>
+    <string name="loading_articles">Načítání článků…</string>
+    <string name="loading_results">Načítání výsledků vyhledávání…</string>
+    <string name="no_connection">Bez připojení…</string>
     <string name="no_connection_retry">Zkusit znovu</string>
     <string name="no_connection_favorites">Zobrazit oblíbené</string>
-    <string name="comic_error">Komiks není dostupný</string>
-    <string name="search_error">Komiks nebyl nalezen</string>
-    <string name="loading_latest">načítám nejnovější komiks&#8230;</string>
-    <string name="loading_offline">Stahuji komiks&#8230;</string>
-    <string name="loading_offline_message">Neukončujte aplikaci!</string>
-    <string name="loading_offline_2">Chvíli strpení, hoďte nohy na stůl&#8230;</string>
-    <string name="loading_offline_20">Asi byste si měli skočit pro kafe nebo tak něco&#8230;</string>
-    <string name="loading_offline_50">Už chybí jen druhá polovina!</string>
-    <string name="loading_offline_80">Už to skoro mám&#8230;</string>
-    <string name="loading_offline_95">Došlo k chybě! Zkuste to znovu</string>
-    <string name="loading_offline_96">Jen si dělám prdel.</string>
-    <string name="loading_offline_97">Měl(a) jsi vidět svůj obličej!</string>
-    <string name="delete_offline">Mažu komiks&#8230;</string>
+    <string name="comic_error">Komix není dostupný</string>
+    <string name="search_error">Komix nebyl nalezen</string>
+    <string name="loading_latest">Načítání nejnovějšího komixu…</string>
+    <string name="loading_offline">Stahování komixu…</string>
+    <string name="loading_offline_whatif">Stahování článků…</string>
+    <string name="loading_offline_message">Nechat aplikaci otevřenou!</string>
+    <string name="loading_offline_2">Chvilku to zabere, voraz si…</string>
+    <string name="loading_offline_20">Radši si skoč pro kafe nebo tak něco...</string>
+    <string name="loading_offline_50">Už zbývá jen polovina!</string>
+    <string name="loading_offline_80">Skoro hotovo…</string>
+    <string name="loading_offline_95">Došlo k chybě! Zkusit znovu</string>
+    <string name="loading_offline_96">Si dělám legraci.</string>
+    <string name="loading_offline_97">Měl jsi se vidět!</string>
+    <string name="delete_offline">Mazání komixů…</string>
+    <string name="delete_offline_articles">Mazání článků…</string>
 
-    <string name="snackbar_remove">Komiks odstraněn z oblíbených</string>
-    <string name="snackbar_add">Komiks přidán k oblíbeným</string>
-    <string name="snackbar_remove_all">Oblíbené smazány</string>
-    <string name="snackbar_undo">Vrátit zpět</string>
+    <string name="snackbar_remove">Komix odstraněn z oblíbených</string>
+    <string name="snackbar_add">Komix přidán k oblíbeným</string>
+    <string name="snackbar_remove_all">Oblíbené vymazány</string>
+    <string name="snackbar_undo">Vrátit</string>
+    <string name="snackbar_rate">Takže se ti Easy xkcd líbí?</string>
+    <string name="snackbar_rate_action">Ohodnotit</string>
 
     <!-- ActionBar strings -->
     <string name="action_settings">Nastavení</string>
+    <string name="action_unread">Označit vše jako nepřečtené</string>
+    <string name="action_hide_read">Skrýt přečtené články</string>
     <string name="action_favorite">Přidat k oblíbeným</string>
-    <string name="action_latest">Nejnovější komiks</string>
-    <string name="action_share">Sdílet komiks</string>
-    <string name="action_random">Náhodný komiks</string>
-    <string name="action_explain">Vysvětlení komiksu</string>
-    <string name="action_alt">Zobrazit text</string>
-    <string name="action_alt_tip">Tip: Text můžete zobrazit také dlouhým podržením obrázku komiksu.</string>
-    <string name="search_title">Hledání</string>
-    <string name="search_hint">Hledat komiks</string>
-    <string name="drawer_open">Zobrazit navigační lištu</string>
-    <string name="drawer_close">Zavřít navigační lištu</string>
+    <string name="action_latest">Nejnovější komix</string>
+    <string name="action_share">Sdílet komix</string>
+    <string name="action_share_article">Sdílet článek</string>
+    <string name="action_random">Náhodný komix</string>
+    <string name="action_random_article">Náhodný článek</string>
+    <string name="action_explain">Vysvětlit komix</string>
+    <string name="action_alt">Zobrazit jako text</string>
+    <string name="action_night_mode">Noční mód</string>
+    <string name="action_browser">Otevřít v prohlížeči</string>
+    <string name="action_swipe">Potáhnout pro navigaci</string>
+    <string name="action_donate">Darovat</string>
+    <string name="action_trans">Zobrazit transkript</string>
+    <string name="action_alt_tip">Tip: Můžete si nechat zobrazit alternativní text dlouhým podržením obrázku komixu.</string>
+    <string name="search_title">Hledat</string>
+    <string name="search_hint">Hledat komix</string>
+    <string name="search_hint_whatif">Hledat článek</string>
+    <string name="drawer_open">Otevřít navigaci</string>
+    <string name="drawer_close">Zavřít navigaci</string>
+    <string name="new_comic">Nový komix!</string>
+    <string name="new_comic_view">Zobrazit</string>
+    <string name="new_whatif">Nové Co kdyby!</string>
+    <string name="apply_theme">Restartovat a použít nový vzhled?</string>
 
-    <string-array
-        name="share_dialog">
+    <string-array name="share_dialog">
         <item>Sdílet obrázek</item>
         <item>Sdílet URL</item>
     </string-array>
 
-    <string-array
-        name="card_long_click">
-        <item>Share</item>
-        <item>Open in Browser</item>
-        <item>Add to Favorites</item>
+    <string-array name="card_long_click">
+        <item>Sdílet</item>
+        <item>Otevřít v prohlížeči</item>
+        <item>Přidat k oblíbeným</item>
     </string-array>
 
-    <string-array
-        name="card_long_click_remove">
-        <item>Share</item>
-        <item>Open in Browser</item>
-        <item>Remove from Favorites</item>
+    <string-array name="card_long_click_remove">
+        <item>Sdílet</item>
+        <item>Otevřít v prohlížeči</item>
+        <item>Odstranit z oblíbených</item>
     </string-array>
 
-    <string-array
-        name="pref_theme">
-        <item>Blue/Grey (Default)</item>
-        <item>Red</item>
-        <item>Bright Blue</item>
-        <item>Black</item>
-        <item>Purple</item>
-        <item>Lime</item>
-        <item>Green</item>
+    <string-array name="pref_orientation">
+        <item>Výchozí</item>
+        <item>Na výšku</item>
+        <item>Na šířku</item>
     </string-array>
 
-    <string-array
-        name="pref_zoom">
+    <string-array name="pref_notifications">
+        <item>1 hodina</item>
+        <item>3 hodiny</item>
+        <item>6 hodin</item>
+        <item>12 hodin</item>
+        <item>nikdy</item>
+    </string-array>
+
+    <string-array name="pref_theme">
+        <item>Modrá/Šedivá (Výchozí)</item>
+        <item>Červená</item>
+        <item>Světlemodrá</item>
+        <item>Černá</item>
+        <item>Fialová</item>
+        <item>Citrónová</item>
+        <item>Zelená</item>
+    </string-array>
+
+    <string-array name="pref_theme_entries" translatable="false">
+        <item>1</item>
+        <item>2</item>
+        <item>3</item>
+        <item>4</item>
+        <item>5</item>
+        <item>6</item>
+        <item>7</item>
+    </string-array>
+
+    <string-array name="pref_zoom">
         <item>40%</item>
         <item>70%</item>
         <item>100%</item>
         <item>130%</item>
         <item>170%</item>
         <item>200%</item>
-        <item>WebView default</item>
+        <item>WebView výchozí</item>
     </string-array>
 
-    <string-array
-        name="pref_notifications">
-        <item>1 hour</item>
-        <item>3 hours</item>
-        <item>6 hours</item>
-        <item>12 hours</item>
-        <item>never</item>
+    <string-array name="pref_zoom_entries" translatable="false">
+        <item>40</item>
+        <item>70</item>
+        <item>100</item>
+        <item>130</item>
+        <item>170</item>
+        <item>200</item>
+        <item>default</item>
     </string-array>
 
-
-    <string-array
-        name="pref_orientation">
-        <item>Default</item>
-        <item>Portrait</item>
-        <item>Landscape</item>
+    <string-array name="pref_notifications_entries" translatable="false">
+        <item>1</item>
+        <item>3</item>
+        <item>6</item>
+        <item>12</item>
+        <item>0</item>
     </string-array>
 
-    <string-array name="random_entries">
-        <item>Comic Browser</item>
-        <item>Favorites</item>
+    <string-array name="pref_orientation_entries" translatable="false">
+        <item>1</item>
+        <item>2</item>
+        <item>3</item>
     </string-array>
 
-    <string-array name="alt_style_entries">
-        <item>Classic</item>
-        <item>Pop-up</item>
-    </string-array>
+    <integer-array name="interactive_comics" translatable="false">
+        <item>826</item>
+        <item>1037</item>
+        <item>1110</item>
+        <item>1264</item>
+        <item>1331</item>
+        <item>1350</item>
+        <item>1416</item>
+        <item>1506</item>
+        <item>1525</item>
+    </integer-array>
 
-    <string-array name="alt_options_entries">
-        <item>Always show alt text</item>
-        <item>Include alt text when sharing</item>
-        <item>Haptic feedback</item>
-    </string-array>
+    <integer-array name="large_comics" translatable="false">
+        <item>256</item>
+        <item>482</item>
+        <item>657</item>
+        <item>681</item>
+        <item>802</item>
+        <item>1000</item>
+        <item>1040</item>
+        <item>1071</item>
+        <item>1079</item>
+        <item>1080</item>
+        <item>1196</item>
+        <item>1256</item>
+        <item>1298</item>
+        <item>1389</item>
+        <item>1392</item>
+        <item>1491</item>
+    </integer-array>
 
-    <string-array name="alt_activation">
-        <item>Single Tap</item>
-        <item>Long tap</item>
+    <string-array name="large_comics_urls" translatable="false">
+        <item>http://imgs.xkcd.com/comics/online_communities.png</item>
+        <item>http://imgs.xkcd.com/comics/height.png</item>
+        <item>http://imgs.xkcd.com/comics/movie_narrative_charts_large.png</item>
+        <item>http://imgs.xkcd.com/comics/gravity_wells_large.png</item>
+        <item>http://imgs.xkcd.com/comics/online_communities_2_large.png</item>
+        <item>http://imgs.xkcd.com/comics/1000_comics_large.png</item>
+        <item>http://imgs.xkcd.com/comics/lakes_and_oceans_large.png</item>
+        <item>http://imgs.xkcd.com/comics/exoplanets_large.png</item>
+        <item>http://imgs.xkcd.com/comics/united_shapes_large.png</item>
+        <item>http://imgs.xkcd.com/comics/visual_field_large.png</item>
+        <item>http://imgs.xkcd.com/comics/subways_large.png</item>
+        <item>http://imgs.xkcd.com/comics/questions_large.png</item>
+        <item>http://imgs.xkcd.com/comics/exoplanet_neighborhood_large.png</item>
+        <item>http://imgs.xkcd.com/comics/surface_area_large.png</item>
+        <item>http://imgs.xkcd.com/comics/dominant_players_large.png</item>
+        <item>http://imgs.xkcd.com/comics/stories_of_the_past_and_future_large.png</item>
     </string-array>
 
     <string name="title_interactive">(interaktivní)</string>
 
     <!-- navigation drawer -->
-    <string name="nv_comicbrowser">Prohlížeč komiksu</string>
+    <string name="nv_comicbrowser">Prohlížeč komixu</string>
     <string name="nv_favorites">Oblíbené</string>
     <string name="nv_about">O aplikaci</string>
     <string name="nv_feedback">Zpětná vazba</string>
-    <string name="nav_feedback_send">Odeslat email pomocí&#8230;</string>
+    <string name="nav_feedback_send">Odeslat email s…</string>
+    <string name="nv_whatif" translatable="false">What if?</string>
 
     <!-- preference strings -->
-    <string name="pref_alt">Haptická zpětná vazba pro text</string>
-    <string name="pref_alt_sum">Povolí haptickou zpětnou vazbu při dlouhém podržení obrázku</string>
-    <string name="pref_subtitle">Zobrazit popisky akční lišty</string>
-    <string name="pref_subtitle_sum">Nastaví číslo aktuálního komiksu jako popisek akční lišty</string>
+    <string name="pref_night">Noční vzheld</string>
+    <string name="pref_invert">Obrátit barvy komixu</string>
+    <string name="pref_alt_activation">Aktivace</string>
+    <string name="pref_alt_activation_sum">Dlouze podržet nebo jednou ťuknout</string>
+    <string name="pref_alt_options">Všeobecná nastavení</string>
+    <string name="pref_alt_options_sum">Vždy zobrazovat alternativní text, sdílet text, haptická zpětná vazba</string>
+    <string name="pref_random">Skrýt plovoucí tlačítko akcí</string>
+    <string name="pref_random_title">Skrýt FAB v…</string>
+    <string name="pref_alt_style_sum">Klasický nebo pop-up</string>
+    <string name="pref_alt_style_title">Vyberte svůj oblíbený styl</string>
+    <string name="pref_alt">Hmatová zpětná vazba alternativního textu</string>
+    <string name="pref_alt_sum">Povolit hmatovou zpětnou vazbu při dlouhém podržení obrázku</string>
+    <string name="pref_subtitle">Zobrazit titulek akčního panelu</string>
+    <string name="pref_subtitle_sum">Nastaví číslo aktuálního komixu jako titulek akčního panelu</string>
     <string name="pref_random_favorites">Skrýt FAB na obrazovce oblíbených</string>
-    <string name="pref_random_comics">Skrýt FAB na obrazovce komiksu</string>
-    <string name="pref_random_sum">Skrýt plovoucí akční tlačítko. Pokud je skryté, bude místo něj tlačítko ve vysouvacím menu</string>
-    <string name="pref_share">Vždy sdílet obrázek komiksu</string>
-    <string name="pref_share_sum">Neptej se mě jestli se má sdílet obrázek komiksu nebo jeho URL</string>
+    <string name="pref_random_comics">Skrýt FAB na obrazovce komixů</string>
+    <string name="pref_random_sum">Skryje plovoucí tlačítko akcí. Pokud skryté, bude místo toho zobrazeno tlačítko v náhledovém menu</string>
+    <string name="pref_share">Vždy sdílet obrázek komixu</string>
+    <string name="pref_share_sum">Neptat se jestli se má sdílet obrázek nebo jeho URL</string>
+    <string name="pref_share_alt">Vložit alternativní text při sdílení</string>
+    <string name="pref_share_title">Sdílet</string>
     <string name="pref_behavior">Chování</string>
+    <string name="pref_behavior_sum">Povolit offline mód &amp; upozornění, orientaci obrazovky</string>
     <string name="pref_appearance">Vzhled</string>
-    <string name="pref_large">Velké obrázky komiksu</string>
-    <string name="pref_large_sum">Načítat velké obrázky, pokud jsou dostupné (e.g. #657). Může zhoršit výkon na starších přístrojích </string>
+    <string name="pref_appearance_sum">Změnit vzhled aplikace</string>
+    <string name="pref_large">Velké obrázky komixu</string>
+    <string name="pref_large_sum">Načítat velké obrázky pokud jsou dostupné (např. #657). Může snížit výkon na starších přístrojích</string>
     <string name="pref_offline">Offline mód</string>
-    <string name="pref_offline_sum">Stahovat všechny komiksy do interního úložiště. Nové komiksy budou přidány automaticky</string>
+    <string name="pref_offline_sum">Stáhnout všechny komixy do externího úložiště Nové komixy budou přidány automaticky</string>
+    <string name="pref_offline_whatif">&quot;Co kdyby?&quot; offline mód</string>
     <string name="pref_mobile">Sdílet mobilní odkazy</string>
     <string name="pref_mobile_sum">Sdílet m.xkcd.com odkazy místo xkcd.com</string>
-    <string name="pref_orientation">Screen Orientation</string>
-    <string name="pref_orientation_sum">Default, Portrait or Landscape</string>
-    <string name="pref_notifications">Update interval for notifications</string>
-    <string name="pref_notifications_sum">Checks on Monday, Wednesday and Friday for new comics, checks on Tuesday for new What If.</string>
-    <string name="new_comic">New Comic!</string>
-    <string name="pref_show_alt">Show alt text by default</string>
-    <string name="loading_articles">Loading articles&#8230;</string>
-    <string name="action_night_mode">Night Mode</string>
-    <string name="action_browser">Open in browser</string>
-    <string name="action_hide_read">Hide read articles</string>
-    <string name="action_share_article">Share article</string>
-    <string name="action_unread">Mark all as unread</string>
-    <string name="action_swipe">Swipe to navigate</string>
-    <string name="snackbar_rate">So you like Easy xkcd?</string>
-    <string name="snackbar_rate_action">Rate</string>
-    <string name="pref_theme">Theme</string>
-    <string name="pref_theme_sum">You need to restart the app in order for the theme to be applied</string>
-    <string name="apply_theme">Restart now to apply new theme?</string>
-    <string name="pref_offline_whatif">"What if?" offline mode</string>
-    <string name="loading_offline_whatif">Downloading articles&#8230;</string>
-    <string name="new_whatif">New What If!</string>
-    <string name="delete_offline_articles">Deleting articles&#8230;</string>
-    <string name="delete_offline_whatif_dialog">Are you sure you want to disable Offline Mode? This will delete all saved articles</string>
-    <string name="pref_share_title">Sharing</string>
-    <string name="pref_share_alt">Include alt text when sharing</string>
-    <string name="pref_advanced">Advanced</string>
-    <string name="pref_zoom">What If? Text Zoom</string>
-    <string name="pref_zoom_sum">May fix layout issues on some devices</string>
-    <string name="pref_repair">Repair offline comics</string>
-    <string name="pref_repair_sum">If you see some blank comics, this option should fix it by re-downloading them</string>
-    <string name="action_donate">Donate</string>
-    <string name="dialog_donate">How much would you like to donate</string>
-    <string name="pref_hide_donate">Hide donation button</string>
-    <string name="title_activity_donate">Donate</string>
-    <string name="update_database">Updating database&#8230;</string>
-    <string name="pref_random">Hide Floating Action Button</string>
-    <string name="pref_random_title">Hide FAB in&#8230;</string>
-    <string name="action_random_article">Random article</string>
-    <string name="pref_alt_activation">Activation</string>
-    <string name="pref_alt_activation_sum">Long tap or single tap</string>
-    <string name="pref_alt_options">General Options</string>
-    <string name="pref_alt_options_sum">Always show alt text, share alt text, haptic feedback</string>
-    <string name="pref_alt_style">Style</string>
-    <string name="pref_alt_style_sum">Classic or pop-up</string>
-    <string name="pref_alt_style_title">Select your preferred style</string>
-    <string name="pref_alt_title">Alt text</string>
-    <string name="snackbar_survey">Got a few minutes and want to help improve this app?</string>
-    <string name="snackbar_survey_oc">Take survey</string>
-    <string name="pref_night">Night Theme</string>
-    <string name="pref_invert">Invert comic colors</string>
-    <string name="pref_navbar">Colored Navigation Bar</string>
-    <string name="action_trans">View Transcript</string>
-    <string name="pref_update_mobile">Update on mobile data</string>
-    <string name="pref_update_mobile_sum">When disabled, offline comics and what-if articles are only updated on Wifi</string>
-    <string name="pref_alt_sharing">Alt text &#38; sharing</string>
-    <string name="pref_alt_sharing_sum">Setup alt text and sharing behavior</string>
-    <string name="pref_appearance_sum">Change how the app looks</string>
-    <string name="pref_auto_night">Auto night theme</string>
-    <string name="pref_auto_night_end">End time</string>
-    <string name="pref_auto_night_start">Start time</string>
-    <string name="pref_behavior_sum">Enable offline mode &#38; notifications, screen orientation</string>
-    <string name="pref_night_options">Night options</string>
-    <string name="pref_night_options_sum">Setup the night theme</string>
-    <string name="snackbar_feature">New feature: Auto night mode!</string>
-    <string name="snackbar_feature_oc">Check it out</string>
-    <string name="new_comic_view">View</string>
-    <string name="whatif_overview">Overview</string>
-    <string name="search_hint_whatif">Search an Article</string>
-    <string name="pref_offline_path">Path for offline data (Experimental)</string>
-    <string name="pref_offline_path_sum">Default is root directory of external storage.</string>
-    <string name="copy_folder">Moving folders and files &#8230;</string>
-    <string name="action_overview">Comic Overview</string>
-    <string name="pref_zoom_scroll">Disable scrolling while zoomed into comic image</string>
+    <string name="pref_orientation">Orientace obrazovky</string>
+    <string name="pref_orientation_sum">Výchozí, na výšku nebo na šířku</string>
+    <string name="pref_notifications">Interval aktualizace pro upozornění</string>
+    <string name="pref_notifications_sum">Kontroluje nové komixy v pondělí, ve středu a v pátek, kontroluje nové Co kdyby v úterý.</string>
+    <string name="pref_show_alt">Zobrazit alternativní text ve výchozím nastavení</string>
+    <string name="pref_theme">Vzhled</string>
+    <string name="pref_theme_sum">Musíte restartovat aplikaci aby bylo použito nové téma vzhledu</string>
+    <string name="pref_zoom">Co kdyby? Zvětšení textu</string>
+    <string name="pref_zoom_sum">Může spravit problémy s rozvržením na některých přístrojích</string>
+    <string name="pref_advanced">Rozšířené</string>
+    <string name="pref_repair">Opravit offline komixy</string>
+    <string name="pref_repair_sum">Pokud vidíte prázdné komixy, tato možnost je napraví novým stažením</string>
+    <string name="pref_hide_donate">Skrýt tlačítko pro darování</string>
+    <string name="title_activity_what_if" translatable="false">What if?</string>
+    <string name="title_activity_donate">Darovat</string>
+    <string name="pref_alt_title">Alternativní text</string>
+    <string name="pref_alt_style">Styl</string>
+    <string name="snackbar_survey">Máte minutku a chcete pomoci vylepšit tuto aplikac?</string>
+    <string name="snackbar_survey_oc">Vyplňte dotazník</string>
+    <string name="pref_navbar">Barevná navigační lišta</string>
+    <string name="pref_update_mobile">Aktualizovat přes mobilní data</string>
+    <string name="pref_update_mobile_sum">Pokud vypnuto, offline komixy a co kdyby články budou aktualizovány pouze přes wifi</string>
+    <string name="pref_alt_sharing">Alternativní text a sdílení</string>
+    <string name="pref_alt_sharing_sum">Nastavit chování sdílení a alternativního textu</string>
+    <string name="pref_night_options">Noční nastavení</string>
+    <string name="pref_night_options_sum">Nastavit noční téma</string>
+    <string name="pref_auto_night">Automatické noční téma</string>
+    <string name="pref_auto_night_start">Odkdy</string>
+    <string name="pref_auto_night_end">Dokdy</string>
+    <string name="snackbar_feature">Nová možnost: Automatický noční mód!</string>
+    <string name="snackbar_feature_oc">Vyzkoušejte ji</string>
+    <string name="whatif_overview">Přehled</string>
+    <string name="pref_offline_path">Cesta pro offline data (experimentální)</string>
+    <string name="pref_offline_path_sum">Výchozí je kořenový adresář na externím úložišti.</string>
+    <string name="copy_folder">Přesouvám adresáře a soubory …</string>
+    <string name="action_overview">Přehled komixů</string>
+    <string name="pref_zoom_scroll">Vypnout posun při přihlížení zvětšených obrázků komixu</string>
+
+    <string name="dialog_donate">Kolik chcete přispět?</string>
+    <string name="update_database">Aktualizace databáze…</string>
+
+    <string-array name="random_entries">
+        <item>Prohlížeč komixu</item>
+        <item>Oblíbené</item>
+    </string-array>
+
+    <string-array name="random_values" translatable="false">
+        <item>pref_random_comics</item>
+        <item>pref_random_favorites</item>
+    </string-array>
+
+    <string-array name="random_default" translatable="false">
+        <item>pref_random_whatif</item>
+    </string-array>
+
+    <string-array name="alt_style_entries">
+        <item>Klasický</item>
+        <item>Pop-up</item>
+    </string-array>
+
+    <string-array name="alt_style_values" translatable="false">
+        <item>0</item>
+        <item>1</item>
+    </string-array>
+
+    <string-array name="alt_options_entries">
+        <item>Vždy zobrazovat alternativní text</item>
+        <item>Vložit alternativní text při sdílení</item>
+        <item>Hmatová zpětná vazba</item>
+    </string-array>
+
+    <string-array name="alt_options_values" translatable="false">
+        <item>pref_show_alt</item>
+        <item>pref_share_alt</item>
+        <item>pref_alt</item>
+    </string-array>
+
+    <string-array name="alt_options_default" translatable="false">
+        <item>pref_alt</item>
+    </string-array>
+
+    <string-array name="alt_activation">
+        <item>Krátké ťuknutí</item>
+        <item>Dlouhé stlačení</item>
+    </string-array>
+
+    <string-array name="alt_activation_values" translatable="false">
+        <item>0</item>
+        <item>1</item>
+    </string-array>
+
 </resources>
