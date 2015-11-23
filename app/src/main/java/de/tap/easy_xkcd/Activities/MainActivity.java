@@ -92,6 +92,7 @@ public class MainActivity extends AppCompatActivity {
     private CustomTabActivityHelper customTabActivityHelper;
     private int mCurrentFragment;
     private ProgressDialog mProgress;
+    private PrefHelper prefHelper;
 
     private static final String COMIC_INTENT = "de.tap.easy_xkcd.ACTION_COMIC";
     private static final String WHATIF_INTENT = "de.tap.easy_xkcd.ACTION_WHAT_IF";
@@ -102,8 +103,8 @@ public class MainActivity extends AppCompatActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
-        PrefHelper.getPrefs(this);
-        setTheme(PrefHelper.getTheme());
+        prefHelper = new PrefHelper(this);
+        setTheme(prefHelper.getTheme());
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         ButterKnife.bind(this);
@@ -112,15 +113,15 @@ public class MainActivity extends AppCompatActivity {
         customTabActivityHelper = new CustomTabActivityHelper();
 
         if (savedInstanceState == null) {
-            if (PrefHelper.getNotificationInterval() != 0) {
+            if (prefHelper.getNotificationInterval() != 0) {
                 WakefulIntentService.scheduleAlarms(new ComicListener(), this, true);
             } else {
                 WakefulIntentService.cancelAlarms(this);
             }
         }
 
-        fullOffline = PrefHelper.fullOfflineEnabled();
-        fullOfflineWhatIf = PrefHelper.fullOfflineWhatIf();
+        fullOffline = prefHelper.fullOfflineEnabled();
+        fullOfflineWhatIf = prefHelper.fullOfflineWhatIf();
         boolean showProgress = true;
         boolean whatIfIntent = false;
 
@@ -128,7 +129,7 @@ public class MainActivity extends AppCompatActivity {
         if (getIntent().getAction().equals(Intent.ACTION_VIEW)) {
             if (getIntent().getDataString().contains("what")) {
                 WhatIfActivity.WhatIfIndex = (getNumberFromUrl(getIntent().getDataString(), 1));
-                PrefHelper.setLastWhatIf(WhatIfActivity.WhatIfIndex);
+                prefHelper.setLastWhatIf(WhatIfActivity.WhatIfIndex);
                 whatIfIntent = true;
                 WhatIfFragment.newIntent = true;
             } else {
@@ -139,7 +140,7 @@ public class MainActivity extends AppCompatActivity {
         if ((COMIC_INTENT).equals(getIntent().getAction())) {
             int number = getIntent().getIntExtra("number", 0);
             showProgress = false;
-            if (PrefHelper.isOnline(this) && !fullOffline) {
+            if (prefHelper.isOnline(this) && !fullOffline) {
                 ComicBrowserFragment.sLastComicNumber = number;
             } else {
                 OfflineFragment.sLastComicNumber = number;
@@ -147,7 +148,7 @@ public class MainActivity extends AppCompatActivity {
         }
         if ((WHATIF_INTENT).equals(getIntent().getAction())) {
             WhatIfActivity.WhatIfIndex = getIntent().getIntExtra("number", 0);
-            PrefHelper.setLastWhatIf(WhatIfActivity.WhatIfIndex);
+            prefHelper.setLastWhatIf(WhatIfActivity.WhatIfIndex);
             whatIfIntent = true;
             WhatIfFragment.newIntent = true;
         }
@@ -161,7 +162,7 @@ public class MainActivity extends AppCompatActivity {
             Bitmap ic = BitmapFactory.decodeResource(getResources(), R.mipmap.ic_easy_xkcd_recents);
             ActivityManager.TaskDescription description = new ActivityManager.TaskDescription("Easy xkcd", ic, color);
             setTaskDescription(description);
-            if (!PrefHelper.colorNavbar())
+            if (!prefHelper.colorNavbar())
                 getWindow().setNavigationBarColor(ContextCompat.getColor(this, R.color.ColorPrimaryBlack));
         }
         setSupportActionBar(toolbar);
@@ -173,7 +174,7 @@ public class MainActivity extends AppCompatActivity {
 
         mDrawer.setDrawerListener(mDrawerToggle);
         mDrawerToggle = setupDrawerToggle();
-        if (PrefHelper.nightThemeEnabled()) {
+        if (prefHelper.nightThemeEnabled()) {
             mNavView.setBackgroundColor(ContextCompat.getColor(this, R.color.background_material_dark));
             toolbar.setPopupTheme(R.style.ThemeOverlay_AppCompat);
         }
@@ -183,22 +184,22 @@ public class MainActivity extends AppCompatActivity {
             new Handler().postDelayed(new Runnable() {
                 @Override
                 public void run() {
-                    PrefHelper.showRateSnackbar(MainActivity.this.getPackageName(), MainActivity.this, mFab);
-                    PrefHelper.showSurveySnackbar(MainActivity.this, mFab);
-                    PrefHelper.showFeatureSnackbar(MainActivity.this, mFab);
+                    prefHelper.showRateSnackbar(MainActivity.this.getPackageName(), MainActivity.this, mFab);
+                    prefHelper.showSurveySnackbar(MainActivity.this, mFab);
+                    prefHelper.showFeatureSnackbar(MainActivity.this, mFab);
                 }
             }, 1500);
         }
 
         //Load fragment
-        if (PrefHelper.isOnline(this) | fullOffline | fullOfflineWhatIf) {
+        if (prefHelper.isOnline(this) | fullOffline | fullOfflineWhatIf) {
             MenuItem item;
             if (savedInstanceState != null) {
                 //Get last loaded fragment
                 mCurrentFragment = savedInstanceState.getInt(SAVED_INSTANCE_CURRENT_FRAGMENT);
                 item = mNavView.getMenu().findItem(mCurrentFragment);
             } else {
-                if (!whatIfIntent && fullOffline | PrefHelper.isOnline(this)) {
+                if (!whatIfIntent && fullOffline | prefHelper.isOnline(this)) {
                     //Load ComicBrowserFragment by default
                     if (showProgress) {
                         mProgress = ProgressDialog.show(this, "", this.getResources().getString(R.string.loading_comics), true);
@@ -210,7 +211,7 @@ public class MainActivity extends AppCompatActivity {
             }
             selectDrawerItem(item);
         } else if ((mCurrentFragment != R.id.nav_favorites)) { //Don't show the dialog if the user is currently browsing his favorites or full offline is enabled
-            AlertDialog.Builder mDialog = new AlertDialog.Builder(this, PrefHelper.getDialogTheme());
+            AlertDialog.Builder mDialog = new AlertDialog.Builder(this, prefHelper.getDialogTheme());
             mDialog.setMessage(R.string.no_connection)
                     .setPositiveButton(R.string.no_connection_retry, new DialogInterface.OnClickListener() {
                         public void onClick(DialogInterface dialog, int which) {
@@ -289,7 +290,7 @@ public class MainActivity extends AppCompatActivity {
         }
         switch (menuItem.getItemId()) {
             case R.id.nav_browser:
-                if (!PrefHelper.isOnline(this) && !fullOffline) {
+                if (!prefHelper.isOnline(this) && !fullOffline) {
                     showDrawerErrorToast(R.string.no_connection);
                     return;
                 }
@@ -308,7 +309,7 @@ public class MainActivity extends AppCompatActivity {
                 showFragment("pref_random_favorites", menuItem.getItemId(), getResources().getString(R.string.nv_favorites), FAV_TAG, BROWSER_TAG, WHATIF_TAG);
                 break;
             case R.id.nav_whatif:
-                if (!PrefHelper.isOnline(this) && !fullOfflineWhatIf) {
+                if (!prefHelper.isOnline(this) && !fullOfflineWhatIf) {
                     showDrawerErrorToast(R.string.no_connection);
                     return;
                 }
@@ -387,7 +388,7 @@ public class MainActivity extends AppCompatActivity {
         android.support.v4.app.FragmentManager fragmentManager = getSupportFragmentManager();
         assert getSupportActionBar() != null;  //We always have an ActionBar available, so this stops Android Studio from complaining about possible NullPointerExceptions
         //Setup FAB
-        if (PrefHelper.fabEnabled(prefTag)) {
+        if (prefHelper.fabEnabled(prefTag)) {
             mFab.setVisibility(View.GONE);
         } else if (!fragmentTagShow.equals(WHATIF_TAG)) {
             mFab.setVisibility(View.VISIBLE);
@@ -413,7 +414,7 @@ public class MainActivity extends AppCompatActivity {
                     fragmentManager.beginTransaction().setCustomAnimations(R.anim.abc_slide_in_bottom, R.anim.abc_slide_in_bottom).add(R.id.flContent, new FavoritesFragment(), fragmentTagShow).commitAllowingStateLoss();
                     break;
                 case R.id.nav_browser:
-                    if (PrefHelper.isOnline(this) && !fullOffline) {
+                    if (prefHelper.isOnline(this) && !fullOffline) {
                         fragmentManager.beginTransaction().add(R.id.flContent, new ComicBrowserFragment(), fragmentTagShow).commitAllowingStateLoss();
                     } else {
                         fragmentManager.beginTransaction().add(R.id.flContent, new OfflineFragment(), fragmentTagShow).commitAllowingStateLoss();
@@ -424,7 +425,7 @@ public class MainActivity extends AppCompatActivity {
                     break;
             }
         }
-        if (PrefHelper.subtitleEnabled() && itemId != R.id.nav_whatif) {
+        if (prefHelper.subtitleEnabled() && itemId != R.id.nav_whatif) {
             switch (itemId) {
                 //Update Action Bar title
                 case R.id.nav_favorites: {
@@ -433,7 +434,7 @@ public class MainActivity extends AppCompatActivity {
                     break;
                 }
                 case R.id.nav_browser: {
-                    if (PrefHelper.isOnline(this) && !fullOffline) {
+                    if (prefHelper.isOnline(this) && !fullOffline) {
                         getSupportActionBar().setSubtitle(String.valueOf(ComicBrowserFragment.sLastComicNumber));
                     } else {
                         getSupportActionBar().setSubtitle(String.valueOf(OfflineFragment.sLastComicNumber));
@@ -466,9 +467,9 @@ public class MainActivity extends AppCompatActivity {
                 selectDrawerItem(item);
                 WhatIfActivity.WhatIfIndex = getNumberFromUrl(getIntent().getDataString(), 1);
                 Intent whatIf = new Intent(MainActivity.this, WhatIfActivity.class);
-                PrefHelper.setLastWhatIf(WhatIfActivity.WhatIfIndex);
+                prefHelper.setLastWhatIf(WhatIfActivity.WhatIfIndex);
                 startActivity(whatIf);
-            } else if (PrefHelper.isOnline(this) && !fullOffline) {
+            } else if (prefHelper.isOnline(this) && !fullOffline) {
                 MenuItem item = mNavView.getMenu().findItem(R.id.nav_browser);
                 selectDrawerItem(item);
                 ComicBrowserFragment.sLastComicNumber = getNumberFromUrl(getIntent().getDataString(), 0);
@@ -482,7 +483,7 @@ public class MainActivity extends AppCompatActivity {
         }
         if ((COMIC_INTENT).equals(getIntent().getAction())) {
             int number = getIntent().getIntExtra("number", 0);
-            if (PrefHelper.isOnline(this) && !fullOffline) {
+            if (prefHelper.isOnline(this) && !fullOffline) {
                 ComicBrowserFragment fragment = (ComicBrowserFragment) fm.findFragmentByTag(BROWSER_TAG);
                 ComicBrowserFragment.sLastComicNumber = number;
                 ComicBrowserFragment.sNewestComicNumber = 0;
@@ -499,7 +500,7 @@ public class MainActivity extends AppCompatActivity {
             selectDrawerItem(item);
             WhatIfActivity.WhatIfIndex = intent.getIntExtra("number", 1);
             Intent whatIf = new Intent(MainActivity.this, WhatIfActivity.class);
-            PrefHelper.setLastWhatIf(WhatIfActivity.WhatIfIndex);
+            prefHelper.setLastWhatIf(WhatIfActivity.WhatIfIndex);
             startActivity(whatIf);
         }
     }
@@ -572,7 +573,7 @@ public class MainActivity extends AppCompatActivity {
                 return true;
             }
         });
-        if (PrefHelper.hideDonate())
+        if (prefHelper.hideDonate())
             menu.findItem(R.id.action_donate).setVisible(false);
         return true;
     }
@@ -686,10 +687,10 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onRestart() {
         android.support.v4.app.Fragment fragment = getSupportFragmentManager().findFragmentByTag(BROWSER_TAG);
-        if (fragment != null && PrefHelper.isOnline(this) && !fromSearch) {
+        if (fragment != null && prefHelper.isOnline(this) && !fromSearch) {
             if (!fullOffline) {
                 ((ComicBrowserFragment) fragment).updatePager();
-            } else if (PrefHelper.isWifi(this) | PrefHelper.mobileEnabled()) {
+            } else if (prefHelper.isWifi(this) | prefHelper.mobileEnabled()) {
                 ((OfflineFragment) fragment).updatePager();
             }
         }
@@ -711,7 +712,7 @@ public class MainActivity extends AppCompatActivity {
 
     public void scrollBrowser(int pos) {
         Fragment fragment = getSupportFragmentManager().findFragmentByTag(BROWSER_TAG);
-        if (PrefHelper.fullOfflineEnabled())
+        if (prefHelper.fullOfflineEnabled())
             ((OfflineFragment) fragment).scrollTo(pos);
         else
             ((ComicBrowserFragment) fragment).scrollTo(pos);
@@ -731,6 +732,10 @@ public class MainActivity extends AppCompatActivity {
                     }
 
         }
+    }
+
+    public PrefHelper getPrefHelper() {
+        return prefHelper;
     }
 
 }

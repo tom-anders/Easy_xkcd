@@ -19,34 +19,37 @@ package de.tap.easy_xkcd.utils;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
-import android.os.Environment;
 import android.util.Log;
 
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 
+import de.tap.easy_xkcd.Activities.MainActivity;
+
 public class OfflineComic {
     private int mComicNumber;
     private Context mContext;
     private static final String OFFLINE_PATH = "/easy xkcd";
+    private PrefHelper prefHelper;
 
     public OfflineComic(Integer number, Context context){
+        prefHelper = ((MainActivity) context).getPrefHelper();
         mContext = context;
         mComicNumber = number;
     }
 
     public String[] getComicData() {
         String[] result = new String[2];
-        result[0] = PrefHelper.getTitle(mComicNumber);
-        result[1] = PrefHelper.getAlt(mComicNumber);
+        result[0] = prefHelper.getTitle(mComicNumber);
+        result[1] = prefHelper.getAlt(mComicNumber);
         return result;
     }
 
     public Bitmap getBitmap() {
         Bitmap mBitmap = null;
         try {
-            File sdCard = PrefHelper.getOfflinePath();
+            File sdCard = prefHelper.getOfflinePath();
             File dir = new File(sdCard.getAbsolutePath() + OFFLINE_PATH);
             File file = new File(dir, String.valueOf(mComicNumber) + ".png");
             FileInputStream fis = new FileInputStream(file);
@@ -67,8 +70,8 @@ public class OfflineComic {
     public int getComicNumber() { return mComicNumber;}
 
     public String getTranscript() {
-        if (PrefHelper.databaseLoaded()) {
-            String t = PrefHelper.getComicTrans();
+        if (prefHelper.databaseLoaded()) {
+            String t = prefHelper.getComicTrans();
             String[] trans = t.split("&&");
             return trans[mComicNumber-1];
         } else {

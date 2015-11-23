@@ -29,6 +29,7 @@ import android.os.Environment;
 import android.preference.PreferenceManager;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
+import android.support.v4.content.ContextCompat;
 import android.util.Log;
 import android.view.View;
 
@@ -46,10 +47,10 @@ import de.tap.easy_xkcd.Activities.NestedSettingsActivity;
 import de.tap.easy_xkcd.misc.ScrollAwareFABBehavior;
 
 public class PrefHelper {
-    private static SharedPreferences sharedPrefs;
-    private static SharedPreferences prefs;
-    private static List<Integer> randList;
-    private static int randIndex = 0;
+    private SharedPreferences sharedPrefs;
+    private SharedPreferences prefs;
+    private List<Integer> randList;
+    private int randIndex = 0;
 
     private static final String FULL_OFFLINE = "pref_offline";
     private static final String COMIC_TITLES = "comic_titles";
@@ -107,114 +108,113 @@ public class PrefHelper {
     private static final String ZOOM_SCROLL = "pref_zoom_scroll";
     private static final String OVERVIEW_FAV= "overview_fav";
 
-
-    public static void getPrefs(Context context) {
+    public PrefHelper(Context context) {
         sharedPrefs = context.getSharedPreferences("MainActivity", Activity.MODE_PRIVATE);
         prefs = PreferenceManager.getDefaultSharedPreferences(context);
     }
 
-    public static boolean fullOfflineEnabled() {
+    public boolean fullOfflineEnabled() {
         return prefs.getBoolean(FULL_OFFLINE, false);
     }
 
-    public static void setFullOffline(boolean value) {
+    public void setFullOffline(boolean value) {
         SharedPreferences.Editor editor = prefs.edit();
         editor.putBoolean(FULL_OFFLINE, value);
         editor.commit();
     }
 
-    public static String getComicTitles() {
+    public String getComicTitles() {
         return sharedPrefs.getString(COMIC_TITLES, "");
     }
 
-    public static String getComicTrans() {
+    public String getComicTrans() {
         return sharedPrefs.getString(COMIC_TRANS, "");
     }
 
-    public static String getComicUrls() {
+    public String getComicUrls() {
         return sharedPrefs.getString(COMIC_URLS, "");
     }
 
-    public static boolean fabEnabled(String prefTag) {
+    public boolean fabEnabled(String prefTag) {
         return prefs.getStringSet("pref_random", new HashSet<String>()).contains(prefTag);
     }
 
-    public static boolean subtitleEnabled() {
+    public boolean subtitleEnabled() {
         return prefs.getBoolean(SUBTITLE_ENABLED, true);
     }
 
-    public static boolean classicAltStyle() {
+    public boolean classicAltStyle() {
         return Integer.parseInt(prefs.getString(ALT_STYLE, "0")) == 0;
     }
 
-    public static boolean databaseLoaded() {
+    public boolean databaseLoaded() {
         return sharedPrefs.getBoolean(DATABSE_LOADED, false);
     }
 
-    public static void setDatabaseLoaded() {
+    public void setDatabaseLoaded() {
         SharedPreferences.Editor editor = sharedPrefs.edit();
         editor.putBoolean(DATABSE_LOADED, true);
         editor.apply();
     }
 
-    public static void setTitles(String titles) {
+    public void setTitles(String titles) {
         SharedPreferences.Editor editor = sharedPrefs.edit();
         editor.putString(COMIC_TITLES, titles);
         editor.commit();
     }
 
-    public static void setUrls(String urls, int highest) {
+    public void setUrls(String urls, int highest) {
         SharedPreferences.Editor editor = sharedPrefs.edit();
         editor.putString(COMIC_URLS, urls);
         editor.putInt(HIGHEST_COMIC_URL, highest);
         editor.commit();
     }
 
-    public static void setTrans(String trans) {
+    public void setTrans(String trans) {
         SharedPreferences.Editor editor = sharedPrefs.edit();
         editor.putString(COMIC_TRANS, trans);
         editor.commit();
     }
 
-    public static int getHighestUrls() {
+    public int getHighestUrls() {
         return sharedPrefs.getInt(HIGHEST_COMIC_URL, 0);
     }
 
-    public static void addTitle(String title, int i) {
+    public void addTitle(String title, int i) {
         SharedPreferences.Editor editor = sharedPrefs.edit();
         editor.putString(OFFLINE_TITLE + String.valueOf(i), title);
         editor.commit();
     }
 
-    public static String getTitle(int number) {
+    public String getTitle(int number) {
         return sharedPrefs.getString(OFFLINE_TITLE + String.valueOf(number), "");
     }
 
-    public static void addAlt(String alt, int i) {
+    public void addAlt(String alt, int i) {
         SharedPreferences.Editor editor = sharedPrefs.edit();
         editor.putString(OFFLINE_ALT + String.valueOf(i), alt);
         editor.commit();
     }
 
-    public static String getAlt(int number) {
+    public String getAlt(int number) {
         return sharedPrefs.getString(OFFLINE_ALT + String.valueOf(number), "");
     }
 
-    public static void setHighestOffline(int number) {
+    public void setHighestOffline(int number) {
         SharedPreferences.Editor editor = sharedPrefs.edit();
         editor.putInt(OFFLINE_HIGHEST, number);
         editor.commit();
     }
 
-    public static int getHighestOffline() {
+    public int getHighestOffline() {
         return sharedPrefs.getInt(OFFLINE_HIGHEST, 0);
     }
 
-    public static int getNewest() {
+    public int getNewest() {
         return sharedPrefs.getInt(NEWEST_COMIC, 0);
     }
 
-    public static void deleteTitleAndAlt(int newest, Activity activity) {
+    public void deleteTitleAndAlt(int newest, Activity activity) {
         SharedPreferences.Editor editor = sharedPrefs.edit();
         for (int i = 1; i <= newest; i++) {
             if (!Favorites.checkFavorite(activity, i)) {
@@ -225,54 +225,54 @@ public class PrefHelper {
         editor.apply();
     }
 
-    public static void setLastComic(int number) {
+    public void setLastComic(int number) {
         SharedPreferences.Editor editor = sharedPrefs.edit();
         editor.putInt(LAST_COMIC, number);
         editor.commit();
     }
 
-    public static int getLastComic() {
+    public int getLastComic() {
         return sharedPrefs.getInt(LAST_COMIC, 0);
     }
 
-    public static void setNewestComic(int number) {
+    public void setNewestComic(int number) {
         SharedPreferences.Editor editor = sharedPrefs.edit();
         editor.putInt(NEWEST_COMIC, number);
         editor.commit();
     }
 
-    public static boolean altVibration() {
+    public boolean altVibration() {
         return prefs.getStringSet(ALT_OPTIONS, new HashSet<String>()).contains(ALT_VIBRATION);
     }
 
-    public static String getOrientation() {
+    public String getOrientation() {
         return prefs.getString(ORIENTATION, "1");
     }
 
-    public static boolean showAltTip() {
+    public boolean showAltTip() {
         return sharedPrefs.getBoolean(ALT_TIP, true);
     }
 
-    public static void setAltTip(boolean value) {
+    public void setAltTip(boolean value) {
         SharedPreferences.Editor editor = sharedPrefs.edit();
         editor.putBoolean(ALT_TIP, value);
         editor.apply();
     }
 
-    public static boolean shareImage() {
+    public boolean shareImage() {
         return prefs.getBoolean(SHARE_IMAGE, false);
     }
 
-    public static boolean shareMobile() {
+    public boolean shareMobile() {
         return prefs.getBoolean(SHARE_MOBILE, false);
     }
 
-    public static int getNotificationInterval() {
+    public int getNotificationInterval() {
         String hours = prefs.getString(NOTIFICATIONS_INTERVAL, "0");
         return Integer.parseInt(hours) * 60 * 60 * 1000;
     }
 
-    public static boolean checkUpdated(int day) {
+    public boolean checkUpdated(int day) {
         switch (day) {
             case Calendar.MONDAY:
                 return sharedPrefs.getBoolean(MONDAY_UPDATE, false);
@@ -287,7 +287,7 @@ public class PrefHelper {
         return true;
     }
 
-    public static void setUpdated(int day, boolean found) {
+    public void setUpdated(int day, boolean found) {
         SharedPreferences.Editor editor = sharedPrefs.edit();
         switch (day) {
             case Calendar.MONDAY:
@@ -317,31 +317,31 @@ public class PrefHelper {
                 + String.valueOf(sharedPrefs.getBoolean(FRIDAY_UPDATE, false)));
     }
 
-    public static boolean altByDefault() {
+    public boolean altByDefault() {
         return prefs.getStringSet(ALT_OPTIONS, new HashSet<String>()).contains(ALT_DEFAULT);
     }
 
-    public static int getLastWhatIf() {
+    public int getLastWhatIf() {
         return sharedPrefs.getInt(LAST_WHATIF, 0);
     }
 
-    public static void setLastWhatIf(int number) {
+    public void setLastWhatIf(int number) {
         SharedPreferences.Editor editor = sharedPrefs.edit();
         editor.putInt(LAST_WHATIF, number);
         editor.apply();
     }
 
-    public static boolean nightModeEnabled() {
+    public boolean nightModeEnabled() {
         return sharedPrefs.getBoolean(NIGHT_MODE, false);
     }
 
-    public static void setNightMode(boolean value) {
+    public void setNightMode(boolean value) {
         SharedPreferences.Editor editor = sharedPrefs.edit();
         editor.putBoolean(NIGHT_MODE, value);
         editor.commit();
     }
 
-    public static void setWhatifRead(String added) {
+    public void setWhatifRead(String added) {
         String read = sharedPrefs.getString(WHATIF_READ, "");
         if (!read.equals("")) {
             read = read + "," + added;
@@ -353,7 +353,7 @@ public class PrefHelper {
         editor.commit();
     }
 
-    public static boolean checkRead(int number) {
+    public boolean checkRead(int number) {
         String read = sharedPrefs.getString(WHATIF_READ, "");
         if (read.equals("")) {
             return false;
@@ -367,7 +367,7 @@ public class PrefHelper {
         return (a >= 0);
     }
 
-    public static void setWhatIfFavorite (String added) {
+    public void setWhatIfFavorite (String added) {
         String fav = sharedPrefs.getString(WHATIF_FAV, "");
         if (!fav.equals("")) {
             fav = fav + "," + added;
@@ -379,7 +379,7 @@ public class PrefHelper {
         editor.commit();
     }
 
-    public static boolean checkWhatIfFav(int number) {
+    public boolean checkWhatIfFav(int number) {
         String fav = sharedPrefs.getString(WHATIF_FAV, "");
         if (fav.equals("")) {
             return false;
@@ -393,7 +393,7 @@ public class PrefHelper {
         return (a >= 0);
     }
 
-    public static void removeWhatifFav(int number) {
+    public void removeWhatifFav(int number) {
         String[] old = sharedPrefs.getString(WHATIF_FAV, "").split(",");
         old = Favorites.sortArray(old);
         int[] oldInt = new int[old.length];
@@ -424,33 +424,33 @@ public class PrefHelper {
 
     }
 
-    public static void setAllUnread() {
+    public void setAllUnread() {
         SharedPreferences.Editor editor = sharedPrefs.edit();
         editor.putString(WHATIF_READ, "");
         editor.commit();
     }
 
-    public static boolean hideRead() {
+    public boolean hideRead() {
         return sharedPrefs.getBoolean(HIDE_READ, false);
     }
 
-    public static void setHideRead(boolean value) {
+    public void setHideRead(boolean value) {
         SharedPreferences.Editor editor = sharedPrefs.edit();
         editor.putBoolean(HIDE_READ, value);
         editor.apply();
     }
 
-    public static boolean swipeEnabled() {
+    public boolean swipeEnabled() {
         return sharedPrefs.getBoolean(SWIPE_ENABLED, false);
     }
 
-    public static void setSwipeEnabled(boolean value) {
+    public void setSwipeEnabled(boolean value) {
         SharedPreferences.Editor editor = sharedPrefs.edit();
         editor.putBoolean(SWIPE_ENABLED, value);
         editor.apply();
     }
 
-    public static boolean showRateDialog() {
+    public boolean showRateDialog() {
         int n = sharedPrefs.getInt(RATE_SNACKBAR, 0);
         if (n < 31) {
             SharedPreferences.Editor editor = sharedPrefs.edit();
@@ -460,9 +460,9 @@ public class PrefHelper {
         return (n == 12 | n == 30);
     }
 
-    public static void showRateSnackbar(final String packageName, final Context context, FloatingActionButton mFab) {
+    public void showRateSnackbar(final String packageName, final Context context, FloatingActionButton mFab) {
         // Thanks to /u/underhound for this great idea! https://www.reddit.com/r/Android/comments/3i6uw0/dev_i_think_ive_mastered_the_art_of_asking_for/
-        if (PrefHelper.showRateDialog()) {
+        if (showRateDialog()) {
             View.OnClickListener oc = new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
@@ -485,7 +485,7 @@ public class PrefHelper {
         }
     }
 
-    public static int getTheme() {
+    public int getTheme() {
         if (nightThemeEnabled())
             return R.style.NightTheme;
 
@@ -510,7 +510,7 @@ public class PrefHelper {
         }
     }
 
-    public static int getDialogTheme() {
+    public int getDialogTheme() {
         if (nightThemeEnabled())
             return R.style.AlertDialogNight;
         int n = Integer.parseInt(prefs.getString(THEME, "1"));
@@ -534,38 +534,38 @@ public class PrefHelper {
         }
     }
 
-    public static int getNewestWhatIf() {
+    public int getNewestWhatIf() {
         return sharedPrefs.getInt(NEWEST_WHATIF, 1);
     }
 
-    public static void setNewestWhatif(int number) {
+    public void setNewestWhatif(int number) {
         SharedPreferences.Editor editor = sharedPrefs.edit();
         editor.putInt(NEWEST_WHATIF, number);
         editor.apply();
     }
 
-    public static void setFullOfflineWhatIf(boolean value) {
+    public void setFullOfflineWhatIf(boolean value) {
         SharedPreferences.Editor editor = prefs.edit();
         editor.putBoolean(WHATIF_OFFLINE, value);
         editor.commit();
     }
 
-    public static boolean fullOfflineWhatIf() {
+    public boolean fullOfflineWhatIf() {
         return prefs.getBoolean(WHATIF_OFFLINE, false);
     }
 
-    public static void setWhatIfTitles(String titles) {
+    public void setWhatIfTitles(String titles) {
         SharedPreferences.Editor editor = sharedPrefs.edit();
         editor.putString(WHATIF_TITLES, titles);
         editor.commit();
     }
 
-    public static ArrayList<String> getWhatIfTitles() {
+    public ArrayList<String> getWhatIfTitles() {
         String titles = sharedPrefs.getString(WHATIF_TITLES, "");
         return new ArrayList<>(Arrays.asList(titles.split("&&")));
     }
 
-    public static boolean nomediaCreated() {
+    public boolean nomediaCreated() {
         SharedPreferences.Editor editor = sharedPrefs.edit();
         boolean created = sharedPrefs.getBoolean(NOMEDIA_CREATED, false);
         editor.putBoolean(NOMEDIA_CREATED, true);
@@ -573,11 +573,11 @@ public class PrefHelper {
         return created;
     }
 
-    public static boolean shareAlt() {
+    public boolean shareAlt() {
         return prefs.getStringSet(ALT_OPTIONS, new HashSet<String>()).contains(SHARE_ALT);
     }
 
-    public static int getZoom(int webDefault) {
+    public int getZoom(int webDefault) {
         int i;
         try {
             i = Integer.parseInt(prefs.getString(PREF_ZOOM, String.valueOf(webDefault)));
@@ -587,21 +587,21 @@ public class PrefHelper {
         return i;
     }
 
-    public static boolean hideDonate() {
+    public boolean hideDonate() {
         return prefs.getBoolean(PREF_DONATE, false);
     }
 
-    public static void setHideDonate(boolean value) {
+    public void setHideDonate(boolean value) {
         SharedPreferences.Editor editor = prefs.edit();
         editor.putBoolean(PREF_DONATE, value);
         editor.apply();
     }
 
-    public static boolean altLongTap() {
+    public boolean altLongTap() {
         return Integer.parseInt(prefs.getString(ALT_ACTIVATION, "1")) == 1;
     }
 
-    public static void showSurveySnackbar(final Context context, FloatingActionButton fab) {
+    public void showSurveySnackbar(final Context context, FloatingActionButton fab) {
         int n = sharedPrefs.getInt("survey count", 0);
         if (!sharedPrefs.getBoolean(SURVEY_SNACKBAR, false) && n == 4) {
             View.OnClickListener oc = new View.OnClickListener() {
@@ -625,8 +625,8 @@ public class PrefHelper {
         }
     }
 
-    public static void showFeatureSnackbar(final Context context, FloatingActionButton fab) {
-        if (!sharedPrefs.getBoolean(NEW_FEATURE_SNACKBAR, false)) {
+    public void showFeatureSnackbar(final Context context, FloatingActionButton fab) {
+        /*if (!sharedPrefs.getBoolean(NEW_FEATURE_SNACKBAR, false)) {
             View.OnClickListener oc = new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
@@ -641,14 +641,14 @@ public class PrefHelper {
             Snackbar.make(fab, R.string.snackbar_feature, Snackbar.LENGTH_LONG)
                     .setAction(R.string.snackbar_feature_oc, oc)
                     .show();
-        }
+        }*/
     }
 
-    public static boolean invertColors() {
+    public boolean invertColors() {
         return prefs.getBoolean(INVERT_COLORS, true) && nightThemeEnabled();
     }
 
-    public static int getRandomNumber(int current) {
+    public int getRandomNumber(int current) {
         if (randList == null) {
             randList = new ArrayList<>();
             for (int i = 1; i < getNewest(); i++) {
@@ -669,7 +669,7 @@ public class PrefHelper {
         return result;
     }
 
-    public static int getPreviousRandom(int i) {
+    public int getPreviousRandom(int i) {
         if (randList != null && randIndex > 0) {
             int result;
             if (randIndex == 1) {
@@ -684,77 +684,82 @@ public class PrefHelper {
         return i;
     }
 
-    public static boolean colorNavbar() {
+    public boolean colorNavbar() {
         return prefs.getBoolean(COLORED_NAVBAR, true);
     }
 
-    public static boolean mobileEnabled() {
+    public boolean mobileEnabled() {
         return prefs.getBoolean(MOBILE_ENABLED, true);
     }
 
-    public static boolean autoNightEnabled() {
+    public boolean autoNightEnabled() {
         return prefs.getBoolean(AUTO_NIGHT, false);
     }
 
-    public static boolean nightThemeEnabled() {
-        if (prefs.getBoolean(NIGHT_THEME, false) && autoNightEnabled()) {
-            int hour = Calendar.getInstance().get(Calendar.HOUR_OF_DAY);
-            int minute = Calendar.getInstance().get(Calendar.MINUTE);
-            int[] start = getAutoNightStart();
-            int[] end = getAutoNightEnd();
-            if (hour == start[0]) {
-                return minute >= start[1];
-            }
-            if (hour == end[0]) {
-                return minute < end[1];
-            }
-            if (hour > start[0] && hour > end[0] && end[0] >= start[0]) {
-                return false;
-            }
-            if (hour > start[0]) {
+    public boolean nightThemeEnabled() {
+        try {
+            if (prefs.getBoolean(NIGHT_THEME, false) && autoNightEnabled()) {
+                int hour = Calendar.getInstance().get(Calendar.HOUR_OF_DAY);
+                int minute = Calendar.getInstance().get(Calendar.MINUTE);
+                int[] start = getAutoNightStart();
+                int[] end = getAutoNightEnd();
+                if (hour == start[0]) {
+                    return minute >= start[1];
+                }
+                if (hour == end[0]) {
+                    return minute < end[1];
+                }
+                if (hour > start[0] && hour > end[0] && end[0] >= start[0]) {
+                    return false;
+                }
+                if (hour > start[0]) {
                 /*if (end[0] > start[0]) {
                     return hour < end[0];
                 } else {
                     return true;
                 } */
-                return end[0] <= start[0] || hour < end[0];
+                    return end[0] <= start[0] || hour < end[0];
+                } else {
+                    return hour < end[0];
+                }
             } else {
-                return hour < end[0];
+                return prefs.getBoolean(NIGHT_THEME, false);
             }
-        } else {
-            return prefs.getBoolean(NIGHT_THEME, false);
+        } catch (NullPointerException e) {
+            Log.e("error", "night theme null pointer");
+            return false;
         }
     }
 
-    public static int[] getAutoNightStart() {
+    public int[] getAutoNightStart() {
         return new int[]{
                 sharedPrefs.getInt(AUTO_NIGHT_START_HOUR, 21),
                 sharedPrefs.getInt(AUTO_NIGHT_START_MIN, 0)
         };
     }
 
-    public static int[] getAutoNightEnd() {
+    public int[] getAutoNightEnd() {
         return new int[]{
                 sharedPrefs.getInt(AUTO_NIGHT_END_HOUR, 8),
                 sharedPrefs.getInt(AUTO_NIGHT_END_MIN, 0)
         };
     }
 
-    public static void setAutoNightStart(int[] time) {
+    public void setAutoNightStart(int[] time) {
         SharedPreferences.Editor editor = sharedPrefs.edit();
         editor.putInt(AUTO_NIGHT_START_HOUR, time[0]);
         editor.putInt(AUTO_NIGHT_START_MIN, time[1]);
         editor.apply();
     }
 
-    public static void setAutoNightEnd(int[] time) {
+    public void setAutoNightEnd(int[] time) {
         SharedPreferences.Editor editor = sharedPrefs.edit();
         editor.putInt(AUTO_NIGHT_END_HOUR, time[0]);
         editor.putInt(AUTO_NIGHT_END_MIN, time[1]);
         editor.apply();
     }
 
-    public static String getStartSummary() {
+    public String getStartSummary() {
         int[] start = getAutoNightStart();
         String suffix = "";
         String minute = String.valueOf(start[1]);
@@ -764,7 +769,7 @@ public class PrefHelper {
         return start[0] + ":" + minute + suffix;
     }
 
-    public static String getEndSummary() {
+    public String getEndSummary() {
         int[] end = getAutoNightEnd();
         String suffix = "";
         String minute = String.valueOf(end[1]);
@@ -774,43 +779,45 @@ public class PrefHelper {
         return end[0] + ":" + minute + suffix;
     }
 
-    public static File getOfflinePath() {
+    public File getOfflinePath() {
         String path = prefs.getString(OFFLINE_PATH, "default");
         if (path.equals("default"))
             return Environment.getExternalStorageDirectory();
         return new File(path);
     }
 
-    public static void setOfflinePath(String path) {
+    public void setOfflinePath(String path) {
         SharedPreferences.Editor editor = prefs.edit();
         editor.putString(OFFLINE_PATH, path);
         editor.apply();
     }
 
-    public static boolean isWifi(Context context) {
-        if (context == null)
+    public boolean isWifi(Context context) {
+        if (context == null) {
+            Log.e("error", "context null");
             return true;
+        }
         ConnectivityManager cm = (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
         NetworkInfo info = cm.getActiveNetworkInfo();
         return (info != null && info.isConnected() && info.getType() == ConnectivityManager.TYPE_WIFI);
     }
 
-    public static boolean isOnline(Context context) {
+    public boolean isOnline(Context context) {
         ConnectivityManager cm =
                 (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
         NetworkInfo netInfo = cm.getActiveNetworkInfo();
         return netInfo != null && netInfo.isConnected();
     }
 
-    public static boolean scrollDisabledWhileZoom() {
+    public boolean scrollDisabledWhileZoom() {
         return prefs.getBoolean(ZOOM_SCROLL, true);
     }
 
-    public static boolean overviewFav() {
+    public boolean overviewFav() {
         return sharedPrefs.getBoolean(OVERVIEW_FAV, false);
     }
 
-    public static void setOverviewFav(boolean value) {
+    public void setOverviewFav(boolean value) {
         SharedPreferences.Editor editor = sharedPrefs.edit();
         editor.putBoolean(OVERVIEW_FAV, value);
         editor.apply();

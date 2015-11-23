@@ -47,13 +47,14 @@ public class WhatIfActivity extends AppCompatActivity {
     private boolean leftSwipe = false;
     private boolean rightSwipe = false;
     private Article loadedArticle;
+    private PrefHelper prefHelper;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
-        setTheme(PrefHelper.getTheme());
+        prefHelper = new PrefHelper(getApplicationContext());
+        setTheme(prefHelper.getTheme());
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_what_if);
-        PrefHelper.getPrefs(getApplicationContext());
         ButterKnife.bind(this);
 
         android.support.v7.widget.Toolbar toolbar = (android.support.v7.widget.Toolbar) findViewById(R.id.toolbar);
@@ -69,7 +70,7 @@ public class WhatIfActivity extends AppCompatActivity {
         toolbar.setBackgroundColor(typedValue2.data);
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
             getWindow().setStatusBarColor(typedValue.data);
-            if (!PrefHelper.colorNavbar())
+            if (!prefHelper.colorNavbar())
                 getWindow().setNavigationBarColor(ContextCompat.getColor(this, R.color.ColorPrimaryBlack));
         }
 
@@ -80,7 +81,7 @@ public class WhatIfActivity extends AppCompatActivity {
         web.getSettings().setJavaScriptEnabled(true);
         web.getSettings().setDisplayZoomControls(false);
         web.getSettings().setLoadWithOverviewMode(true);
-        web.getSettings().setTextZoom(PrefHelper.getZoom(web.getSettings().getTextZoom()));
+        web.getSettings().setTextZoom(prefHelper.getZoom(web.getSettings().getTextZoom()));
 
         new LoadWhatIf().execute();
     }
@@ -121,7 +122,7 @@ public class WhatIfActivity extends AppCompatActivity {
         @Override
         protected Void doInBackground(Void... dummy) {
             try {
-                loadedArticle = new Article(WhatIfIndex, PrefHelper.fullOfflineWhatIf());
+                loadedArticle = new Article(WhatIfIndex, prefHelper.fullOfflineWhatIf(), WhatIfActivity.this);
                 doc = loadedArticle.getWhatIf();
             } catch (IOException e) {
                 e.printStackTrace();
@@ -150,7 +151,7 @@ public class WhatIfActivity extends AppCompatActivity {
                     if (mProgress != null)
                         mProgress.dismiss();
 
-                    switch (Integer.parseInt(PrefHelper.getOrientation())) {
+                    switch (Integer.parseInt(prefHelper.getOrientation())) {
                         case 1:
                             setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_USER);
                             break;
@@ -177,14 +178,14 @@ public class WhatIfActivity extends AppCompatActivity {
                     web.setOnTouchListener(new OnSwipeTouchListener(WhatIfActivity.this) {
                         @Override
                         public void onSwipeRight() {
-                            if (WhatIfIndex != 1 && PrefHelper.swipeEnabled()) {
+                            if (WhatIfIndex != 1 && prefHelper.swipeEnabled()) {
                                 nextWhatIf(true);
                             }
                         }
 
                         @Override
                         public void onSwipeLeft() {
-                            if (WhatIfIndex != WhatIfFragment.mTitles.size() && PrefHelper.swipeEnabled()) {
+                            if (WhatIfIndex != WhatIfFragment.mTitles.size() && prefHelper.swipeEnabled()) {
                                 nextWhatIf(false);
                             }
 
@@ -203,8 +204,8 @@ public class WhatIfActivity extends AppCompatActivity {
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
         getMenuInflater().inflate(R.menu.menu_what_if, menu);
-        menu.findItem(R.id.action_night_mode).setChecked(PrefHelper.nightModeEnabled());
-        menu.findItem(R.id.action_swipe).setChecked(PrefHelper.swipeEnabled());
+        menu.findItem(R.id.action_night_mode).setChecked(prefHelper.nightModeEnabled());
+        menu.findItem(R.id.action_swipe).setChecked(prefHelper.swipeEnabled());
         return true;
     }
 
@@ -219,13 +220,13 @@ public class WhatIfActivity extends AppCompatActivity {
 
             case R.id.action_night_mode:
                 item.setChecked(!item.isChecked());
-                PrefHelper.setNightMode(item.isChecked());
+                prefHelper.setNightMode(item.isChecked());
                 new LoadWhatIf().execute();
                 return true;
 
             case R.id.action_swipe:
                 item.setChecked(!item.isChecked());
-                PrefHelper.setSwipeEnabled(item.isChecked());
+                prefHelper.setSwipeEnabled(item.isChecked());
                 invalidateOptionsMenu();
                 return true;
 
@@ -244,18 +245,18 @@ public class WhatIfActivity extends AppCompatActivity {
 
             case R.id.action_random:
                 Random mRand = new Random();
-                WhatIfIndex = mRand.nextInt(PrefHelper.getNewestWhatIf());
-                PrefHelper.setLastWhatIf(WhatIfIndex);
+                WhatIfIndex = mRand.nextInt(prefHelper.getNewestWhatIf());
+                prefHelper.setLastWhatIf(WhatIfIndex);
                 WhatIfFragment.getInstance().getRv().scrollToPosition(WhatIfFragment.mTitles.size() - WhatIfIndex);
 
-                PrefHelper.setWhatifRead(String.valueOf(WhatIfIndex));
+                prefHelper.setWhatifRead(String.valueOf(WhatIfIndex));
                 new LoadWhatIf().execute();
                 return true;
             case R.id.action_favorite:
-                if (!PrefHelper.checkWhatIfFav(WhatIfIndex)) {
-                    PrefHelper.setWhatIfFavorite(String.valueOf(WhatIfIndex));
+                if (!prefHelper.checkWhatIfFav(WhatIfIndex)) {
+                    prefHelper.setWhatIfFavorite(String.valueOf(WhatIfIndex));
                 } else {
-                    PrefHelper.removeWhatifFav(WhatIfIndex);
+                    prefHelper.removeWhatifFav(WhatIfIndex);
                 }
                 WhatIfFavoritesFragment.getInstance().updateFavorites();
                 invalidateOptionsMenu();
@@ -279,13 +280,13 @@ public class WhatIfActivity extends AppCompatActivity {
             web.startAnimation(animation);
             web.setVisibility(View.INVISIBLE);
         }
-        PrefHelper.setLastWhatIf(WhatIfIndex);
+        prefHelper.setLastWhatIf(WhatIfIndex);
         new LoadWhatIf().execute();
         invalidateOptionsMenu();
 
         WhatIfFragment.getInstance().getRv().scrollToPosition(WhatIfFragment.mTitles.size() - WhatIfIndex);
 
-        PrefHelper.setWhatifRead(String.valueOf(WhatIfIndex));
+        prefHelper.setWhatifRead(String.valueOf(WhatIfIndex));
         invalidateOptionsMenu();
         return true;
     }
@@ -307,7 +308,7 @@ public class WhatIfActivity extends AppCompatActivity {
             menu.findItem(R.id.action_back).setVisible(false);
             menu.findItem(R.id.action_next).setVisible(false);
         }
-        if (PrefHelper.checkWhatIfFav(WhatIfIndex)) {
+        if (prefHelper.checkWhatIfFav(WhatIfIndex)) {
             menu.findItem(R.id.action_favorite).setIcon(ContextCompat.getDrawable(this, R.drawable.ic_action_favorite));
         }
         return super.onPrepareOptionsMenu(menu);

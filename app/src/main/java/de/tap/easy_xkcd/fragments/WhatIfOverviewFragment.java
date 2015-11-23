@@ -27,6 +27,7 @@ import java.io.IOException;
 import butterknife.Bind;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
+import de.tap.easy_xkcd.Activities.MainActivity;
 import de.tap.easy_xkcd.utils.PrefHelper;
 
 public class WhatIfOverviewFragment extends android.support.v4.app.Fragment {
@@ -36,12 +37,14 @@ public class WhatIfOverviewFragment extends android.support.v4.app.Fragment {
     @Bind(R.id.fab) FloatingActionButton fab;
     private FragmentAdapter adapter;
     public static Document doc;
+    private PrefHelper prefHelper;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View v = inflater.inflate(R.layout.whatif_pager, container, false);
         ButterKnife.bind(this, v);
         setHasOptionsMenu(true);
+        prefHelper = ((MainActivity) getActivity()).getPrefHelper();
 
         if (savedInstanceState==null) {
             TypedValue typedValue = new TypedValue();
@@ -56,7 +59,7 @@ public class WhatIfOverviewFragment extends android.support.v4.app.Fragment {
         tabLayout.addTab(tabLayout.newTab().setText(getResources().getString(R.string.nv_favorites)));
         tabLayout.setTabGravity(TabLayout.GRAVITY_FILL);
 
-        if (doc == null && !PrefHelper.fullOfflineWhatIf()) {
+        if (doc == null && !prefHelper.fullOfflineWhatIf()) {
             new GetDoc().execute();
         } else {
             adapter = new FragmentAdapter(getChildFragmentManager());
@@ -145,12 +148,12 @@ public class WhatIfOverviewFragment extends android.support.v4.app.Fragment {
         for (int i = 0; i < menu.size() - 2; i++)
             menu.getItem(i).setVisible(false);
 
-        if (PrefHelper.hideDonate())
+        if (prefHelper.hideDonate())
             menu.findItem(R.id.action_donate).setVisible(false);
 
         menu.findItem(R.id.action_unread).setVisible(true);
         menu.findItem(R.id.action_hide_read).setVisible(true);
-        menu.findItem(R.id.action_hide_read).setChecked(PrefHelper.hideRead());
+        menu.findItem(R.id.action_hide_read).setChecked(prefHelper.hideRead());
 
         super.onCreateOptionsMenu(menu, inflater);
     }

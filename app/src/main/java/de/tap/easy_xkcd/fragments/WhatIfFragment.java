@@ -67,22 +67,24 @@ public class WhatIfFragment extends android.support.v4.app.Fragment {
     public static boolean newIntent;
     private boolean offlineMode;
     private static final String OFFLINE_WHATIF_OVERVIEW_PATH = "/easy xkcd/what if/overview";
+    private PrefHelper prefHelper;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View v = inflater.inflate(R.layout.whatif_recycler, container, false);
         ButterKnife.bind(this, v);
         setHasOptionsMenu(true);
+        prefHelper = ((MainActivity) getActivity()).getPrefHelper();
 
         LinearLayoutManager llm = new LinearLayoutManager(getActivity());
         rv.setLayoutManager(llm);
         rv.setHasFixedSize(false);
 
-        offlineMode = PrefHelper.fullOfflineWhatIf();
+        offlineMode = prefHelper.fullOfflineWhatIf();
         instance = this;
         ((MainActivity) getActivity()).getFab().setVisibility(View.GONE);
 
-        if (PrefHelper.isOnline(getActivity()) && (PrefHelper.isWifi(getActivity()) | PrefHelper.mobileEnabled()) && offlineMode) {
+        if (prefHelper.isOnline(getActivity()) && (prefHelper.isWifi(getActivity()) | prefHelper.mobileEnabled()) && offlineMode) {
             new UpdateArticles().execute();
             Log.d("info", "update started");
         } else {
@@ -112,7 +114,7 @@ public class WhatIfFragment extends android.support.v4.app.Fragment {
                         .get();
                 Elements titles = doc.select("h1");
                 Elements img = doc.select("img.archive-image");
-                if (titles.size() > PrefHelper.getNewestWhatIf()) {
+                if (titles.size() > prefHelper.getNewestWhatIf()) {
                     StringBuilder sb = new StringBuilder();
                     sb.append(titles.first().text());
                     titles.remove(0);
@@ -120,10 +122,10 @@ public class WhatIfFragment extends android.support.v4.app.Fragment {
                         sb.append("&&");
                         sb.append(title.text());
                     }
-                    PrefHelper.setWhatIfTitles(sb.toString());
+                    prefHelper.setWhatIfTitles(sb.toString());
 
                     Bitmap mBitmap;
-                    for (int i = PrefHelper.getNewestWhatIf(); i < titles.size() + 1; i++) {
+                    for (int i = prefHelper.getNewestWhatIf(); i < titles.size() + 1; i++) {
                         String url = img.get(i).absUrl("src");
                         try {
                             mBitmap = Glide.with(getActivity())
@@ -131,7 +133,7 @@ public class WhatIfFragment extends android.support.v4.app.Fragment {
                                     .asBitmap()
                                     .into(-1, -1)
                                     .get();
-                            File sdCard = PrefHelper.getOfflinePath();
+                            File sdCard = prefHelper.getOfflinePath();
                             File dir = new File(sdCard.getAbsolutePath() + "/easy xkcd/what if/overview");
                             dir.mkdirs();
                             File file = new File(dir, String.valueOf(i + 1) + ".png");
@@ -145,13 +147,13 @@ public class WhatIfFragment extends android.support.v4.app.Fragment {
                     }
 
                 }
-                PrefHelper.setNewestWhatif(titles.size());
+                prefHelper.setNewestWhatif(titles.size());
             } catch (Exception e) {
                 e.printStackTrace();
             }
 
-            if (!PrefHelper.nomediaCreated()) {
-                File sdCard = PrefHelper.getOfflinePath();
+            if (!prefHelper.nomediaCreated()) {
+                File sdCard = prefHelper.getOfflinePath();
                 File dir = new File(sdCard.getAbsolutePath() + "/easy xkcd");
                 File nomedia = new File(dir, ".nomedia");
                 try {
@@ -190,7 +192,7 @@ public class WhatIfFragment extends android.support.v4.app.Fragment {
             mImgs.clear();
 
             if (offlineMode) {
-                mTitles = PrefHelper.getWhatIfTitles();
+                mTitles = prefHelper.getWhatIfTitles();
                 Collections.reverse(mTitles);
             } else {
                 Document doc = WhatIfOverviewFragment.doc;
@@ -211,8 +213,8 @@ public class WhatIfFragment extends android.support.v4.app.Fragment {
 
         @Override
         protected void onPostExecute(Void dummy) {
-            PrefHelper.setNewestWhatif(mTitles.size());
-            setupAdapter(PrefHelper.hideRead());
+            prefHelper.setNewestWhatif(mTitles.size());
+            setupAdapter(prefHelper.hideRead());
             progress.dismiss();
             Toolbar toolbar = ((MainActivity) getActivity()).getToolbar();
             if (toolbar.getAlpha() == 0) {
@@ -261,13 +263,13 @@ public class WhatIfFragment extends android.support.v4.app.Fragment {
             String title = titles.get(i);
             int n = mTitles.size() - mTitles.indexOf(title);
 
-            if (PrefHelper.checkRead(n)) {
-                if (PrefHelper.nightThemeEnabled())
+            if (prefHelper.checkRead(n)) {
+                if (prefHelper.nightThemeEnabled())
                     comicViewHolder.articleTitle.setTextColor(ContextCompat.getColor(getActivity(), android.R.color.tertiary_text_light));
                 else
                     comicViewHolder.articleTitle.setTextColor(ContextCompat.getColor(getActivity(), R.color.Read));
             } else {
-                if (PrefHelper.nightThemeEnabled())
+                if (prefHelper.nightThemeEnabled())
                     comicViewHolder.articleTitle.setTextColor(ContextCompat.getColor(getActivity(), R.color.Read));
                 else
                     comicViewHolder.articleTitle.setTextColor(ContextCompat.getColor(getActivity(), android.R.color.tertiary_text_light));
@@ -291,7 +293,7 @@ public class WhatIfFragment extends android.support.v4.app.Fragment {
                 return;
             }
             if (offlineMode) {
-                File offlinePath = PrefHelper.getOfflinePath();
+                File offlinePath = prefHelper.getOfflinePath();
                 File dir = new File(offlinePath.getAbsolutePath() + OFFLINE_WHATIF_OVERVIEW_PATH);
                 File file = new File(dir, String.valueOf(n) + ".png");
 
@@ -303,7 +305,7 @@ public class WhatIfFragment extends android.support.v4.app.Fragment {
                         .load(imgs.get(i))
                         .into(comicViewHolder.thumbnail);
             }
-            if (PrefHelper.invertColors()) {
+            if (prefHelper.invertColors()) {
                 float[] colorMatrix_Negative = {
                         -1.0f, 0, 0, 0, 255, //red
                         0, -1.0f, 0, 0, 255, //green
@@ -328,7 +330,7 @@ public class WhatIfFragment extends android.support.v4.app.Fragment {
             ComicViewHolder(View itemView) {
                 super(itemView);
                 cv = (CardView) itemView.findViewById(R.id.cv);
-                if (PrefHelper.nightThemeEnabled())
+                if (prefHelper.nightThemeEnabled())
                     cv.setCardBackgroundColor(ContextCompat.getColor(getActivity(), R.color.background_material_dark));
                 articleTitle = (TextView) itemView.findViewById(R.id.article_title);
                 thumbnail = (ImageView) itemView.findViewById(R.id.thumbnail);
@@ -339,7 +341,7 @@ public class WhatIfFragment extends android.support.v4.app.Fragment {
     class CustomOnClickListener implements View.OnClickListener {
         @Override
         public void onClick(View v) {
-            if (!PrefHelper.isOnline(getActivity()) && !offlineMode) {
+            if (!prefHelper.isOnline(getActivity()) && !offlineMode) {
                 Toast.makeText(getActivity(), R.string.no_connection, Toast.LENGTH_SHORT).show();
                 return;
             }
@@ -350,8 +352,8 @@ public class WhatIfFragment extends android.support.v4.app.Fragment {
             WhatIfActivity.WhatIfIndex = n;
             startActivity(intent);
 
-            PrefHelper.setLastWhatIf(n);
-            PrefHelper.setWhatifRead(String.valueOf(n));
+            prefHelper.setLastWhatIf(n);
+            prefHelper.setWhatifRead(String.valueOf(n));
             if (searchMenuItem.isActionViewExpanded()) {
                 searchMenuItem.collapseActionView();
                 rv.scrollToPosition(mTitles.size() - n);
@@ -360,7 +362,7 @@ public class WhatIfFragment extends android.support.v4.app.Fragment {
     }
 
     public void getRandom() {
-        if (PrefHelper.isOnline(getActivity()) | offlineMode) {
+        if (prefHelper.isOnline(getActivity()) | offlineMode) {
             Random mRand = new Random();
             int number = mRand.nextInt(adapter.titles.size());
             Intent intent = new Intent(getActivity(), WhatIfActivity.class);
@@ -368,8 +370,8 @@ public class WhatIfFragment extends android.support.v4.app.Fragment {
             int n = mTitles.size() - mTitles.indexOf(title);
             WhatIfActivity.WhatIfIndex = n;
             startActivity(intent);
-            PrefHelper.setLastWhatIf(n);
-            PrefHelper.setWhatifRead(String.valueOf(n));
+            prefHelper.setLastWhatIf(n);
+            prefHelper.setWhatifRead(String.valueOf(n));
         } else {
             Toast.makeText(getActivity(), R.string.no_connection, Toast.LENGTH_SHORT).show();
         }
@@ -384,7 +386,7 @@ public class WhatIfFragment extends android.support.v4.app.Fragment {
             final String title = adapter.titles.get(pos);
             final int n = mTitles.size() - mTitles.indexOf(title);
             int array;
-            if (PrefHelper.checkWhatIfFav(n)) {
+            if (prefHelper.checkWhatIfFav(n)) {
                 array = R.array.card_long_click_remove;
             } else {
                 array = R.array.card_long_click;
@@ -417,10 +419,10 @@ public class WhatIfFragment extends android.support.v4.app.Fragment {
                             pos = rv.getChildAdapterPosition(view);
                             title = adapter.titles.get(pos);
                             n = mTitles.size() - mTitles.indexOf(title);
-                            if (!PrefHelper.checkWhatIfFav(n)) {
-                                PrefHelper.setWhatIfFavorite(String.valueOf(n));
+                            if (!prefHelper.checkWhatIfFav(n)) {
+                                prefHelper.setWhatIfFavorite(String.valueOf(n));
                             } else {
-                                PrefHelper.removeWhatifFav(n);
+                                prefHelper.removeWhatifFav(n);
                             }
                             WhatIfFavoritesFragment.getInstance().updateFavorites();
                             break;
@@ -437,12 +439,12 @@ public class WhatIfFragment extends android.support.v4.app.Fragment {
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
             case R.id.action_unread:
-                PrefHelper.setAllUnread();
-                setupAdapter(PrefHelper.hideRead());
+                prefHelper.setAllUnread();
+                setupAdapter(prefHelper.hideRead());
                 return true;
             case R.id.action_hide_read:
                 item.setChecked(!item.isChecked());
-                PrefHelper.setHideRead(item.isChecked());
+                prefHelper.setHideRead(item.isChecked());
                 setupAdapter(item.isChecked());
                 return true;
         }
@@ -454,7 +456,7 @@ public class WhatIfFragment extends android.support.v4.app.Fragment {
             ArrayList<String> titleUnread = new ArrayList<>();
             ArrayList<String> imgUnread = new ArrayList<>();
             for (int i = 0; i < mTitles.size(); i++) {
-                if (!PrefHelper.checkRead(mTitles.size() - i)) {
+                if (!prefHelper.checkRead(mTitles.size() - i)) {
                     titleUnread.add(mTitles.get(i));
                     if (!offlineMode)
                         imgUnread.add(mImgs.get(i));
@@ -464,18 +466,18 @@ public class WhatIfFragment extends android.support.v4.app.Fragment {
             SlideInBottomAnimationAdapter slideAdapter = new SlideInBottomAnimationAdapter(adapter);
             slideAdapter.setInterpolator(new DecelerateInterpolator());
             rv.setAdapter(slideAdapter);
-            rv.scrollToPosition(titleUnread.size() - PrefHelper.getLastWhatIf());
+            rv.scrollToPosition(titleUnread.size() - prefHelper.getLastWhatIf());
         } else {
             adapter = new RVAdapter(mTitles, mImgs);
             SlideInBottomAnimationAdapter slideAdapter = new SlideInBottomAnimationAdapter(adapter);
             slideAdapter.setInterpolator(new DecelerateInterpolator());
             rv.setAdapter(slideAdapter);
-            rv.scrollToPosition(mTitles.size() - PrefHelper.getLastWhatIf());
+            rv.scrollToPosition(mTitles.size() - prefHelper.getLastWhatIf());
         }
     }
 
     public void updateRv() {
-        setupAdapter(PrefHelper.hideRead());
+        setupAdapter(prefHelper.hideRead());
     }
 
     @Override

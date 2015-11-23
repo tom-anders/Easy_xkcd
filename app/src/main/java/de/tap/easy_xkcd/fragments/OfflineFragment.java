@@ -70,11 +70,13 @@ public class OfflineFragment extends android.support.v4.app.Fragment {
     private OfflineBrowserPagerAdapter adapter;
     private Boolean randomSelected = false;
     public static boolean fromSearch = false;
+    private PrefHelper prefHelper;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View v = inflater.inflate(R.layout.pager_layout, container, false);
         setHasOptionsMenu(true);
+        prefHelper = ((MainActivity) getActivity()).getPrefHelper();
 
         if (((MainActivity) getActivity()).getProgressDialog() != null)
             ((MainActivity) getActivity()).getProgressDialog().dismiss();
@@ -82,16 +84,16 @@ public class OfflineFragment extends android.support.v4.app.Fragment {
         if (savedInstanceState != null) {
             sLastComicNumber = savedInstanceState.getInt("Last Comic");
         } else if (sLastComicNumber == 0) {
-            sLastComicNumber = PrefHelper.getLastComic();
+            sLastComicNumber = prefHelper.getLastComic();
         }
 
         sPager = (HackyViewPager) v.findViewById(R.id.pager);
         sPager.setOffscreenPageLimit(2);
 
-        if (savedInstanceState == null && PrefHelper.isOnline(getActivity()) && (PrefHelper.isWifi(getActivity()) | PrefHelper.mobileEnabled()) && !fromSearch) {
+        if (savedInstanceState == null && prefHelper.isOnline(getActivity()) && (prefHelper.isWifi(getActivity()) | prefHelper.mobileEnabled()) && !fromSearch) {
             new updateImages().execute();
         } else {
-            sNewestComicNumber = PrefHelper.getHighestOffline();
+            sNewestComicNumber = prefHelper.getHighestOffline();
             if (sLastComicNumber != 0) {
                 try {
                     Field field = ViewPager.class.getDeclaredField("mRestoredCurItem");
@@ -119,7 +121,7 @@ public class OfflineFragment extends android.support.v4.app.Fragment {
                     e.printStackTrace();
                 }
                 sLastComicNumber = position + 1;
-                if (PrefHelper.subtitleEnabled() && ((MainActivity) getActivity()).getCurrentFragment() == R.id.nav_browser)
+                if (prefHelper.subtitleEnabled() && ((MainActivity) getActivity()).getCurrentFragment() == R.id.nav_browser)
                     ((MainActivity) getActivity()).getToolbar().setSubtitle(String.valueOf(sLastComicNumber));
             }
 
@@ -153,9 +155,9 @@ public class OfflineFragment extends android.support.v4.app.Fragment {
             boolean showSnackbar = false;
             try {
                 sNewestComicNumber = new Comic(0).getComicNumber();
-                if (sNewestComicNumber > PrefHelper.getHighestOffline()) {
-                    showSnackbar = PrefHelper.getNotificationInterval() == 0 && sLastComicNumber != sNewestComicNumber;
-                    for (int i = PrefHelper.getHighestOffline(); i <= sNewestComicNumber; i++) {
+                if (sNewestComicNumber > prefHelper.getHighestOffline()) {
+                    showSnackbar = prefHelper.getNotificationInterval() == 0 && sLastComicNumber != sNewestComicNumber;
+                    for (int i = prefHelper.getHighestOffline(); i <= sNewestComicNumber; i++) {
                         Log.d("comic added", String.valueOf(i));
                         Comic comic = new Comic(i, getActivity());
                         String url = comic.getComicData()[2];
@@ -165,7 +167,7 @@ public class OfflineFragment extends android.support.v4.app.Fragment {
                                 .into(-1, -1)
                                 .get();
                         try {
-                            File sdCard = PrefHelper.getOfflinePath();
+                            File sdCard = prefHelper.getOfflinePath();
                             File dir = new File(sdCard.getAbsolutePath() + "/easy xkcd");
                             dir.mkdirs();
                             File file = new File(dir, String.valueOf(i) + ".png");
@@ -183,17 +185,17 @@ public class OfflineFragment extends android.support.v4.app.Fragment {
                                 e2.printStackTrace();
                             }
                         }
-                        PrefHelper.addTitle(comic.getComicData()[0], i);
-                        PrefHelper.addAlt(comic.getComicData()[1], i);
-                        PrefHelper.setHighestOffline(sNewestComicNumber);
-                        PrefHelper.setNewestComic(i);
+                        prefHelper.addTitle(comic.getComicData()[0], i);
+                        prefHelper.addAlt(comic.getComicData()[1], i);
+                        prefHelper.setHighestOffline(sNewestComicNumber);
+                        prefHelper.setNewestComic(i);
                     }
                 }
             } catch (Exception e) {
                 e.printStackTrace();
             }
-            if (!PrefHelper.nomediaCreated()) {
-                File sdCard = PrefHelper.getOfflinePath();
+            if (!prefHelper.nomediaCreated()) {
+                File sdCard = prefHelper.getOfflinePath();
                 File dir = new File(sdCard.getAbsolutePath() + "/easy xkcd");
                 File nomedia = new File(dir, ".nomedia");
                 try {
@@ -269,7 +271,7 @@ public class OfflineFragment extends android.support.v4.app.Fragment {
 
     public boolean getRandomComic() {
         if (sNewestComicNumber != 0) {
-            sLastComicNumber = PrefHelper.getRandomNumber(sLastComicNumber);
+            sLastComicNumber = prefHelper.getRandomNumber(sLastComicNumber);
             randomSelected = true;
             sPager.setCurrentItem(sLastComicNumber - 1, false);
         }
@@ -278,14 +280,14 @@ public class OfflineFragment extends android.support.v4.app.Fragment {
 
     public void getPreviousRandom() {
         if (sNewestComicNumber != 0) {
-            sLastComicNumber = PrefHelper.getPreviousRandom(sLastComicNumber);
+            sLastComicNumber = prefHelper.getPreviousRandom(sLastComicNumber);
             randomSelected = true;
             sPager.setCurrentItem(sLastComicNumber - 1, false);
         }
     }
 
     private boolean shareComic() {
-        if (PrefHelper.shareImage()) {
+        if (prefHelper.shareImage()) {
             shareComicImage();
             return true;
         }
@@ -399,7 +401,7 @@ public class OfflineFragment extends android.support.v4.app.Fragment {
         Intent share = new Intent(android.content.Intent.ACTION_SEND);
         share.setType("text/plain");
         share.putExtra(Intent.EXTRA_SUBJECT, sComicMap.get(sLastComicNumber).getComicData()[0]);
-        if (PrefHelper.shareMobile()) {
+        if (prefHelper.shareMobile()) {
             share.putExtra(Intent.EXTRA_TEXT, "http://m.xkcd.com/" + String.valueOf(sComicMap.get(sLastComicNumber).getComicNumber()));
         } else {
             share.putExtra(Intent.EXTRA_TEXT, "http://xkcd.com/" + String.valueOf(sComicMap.get(sLastComicNumber).getComicNumber()));
@@ -413,7 +415,7 @@ public class OfflineFragment extends android.support.v4.app.Fragment {
         share.setType("image/*");
         share.putExtra(Intent.EXTRA_STREAM, getURI());
         share.putExtra(Intent.EXTRA_SUBJECT, sComicMap.get(sLastComicNumber).getComicData()[0]);
-        if (PrefHelper.shareAlt()) {
+        if (prefHelper.shareAlt()) {
             share.putExtra(Intent.EXTRA_TEXT, sComicMap.get(sLastComicNumber).getComicData()[1]);
         }
         startActivity(Intent.createChooser(share, this.getResources().getString(R.string.share_image)));
@@ -435,14 +437,14 @@ public class OfflineFragment extends android.support.v4.app.Fragment {
 
     private boolean setAltText() {
         //If the user selected the menu item for the first time, show the toast
-        if (PrefHelper.showAltTip()) {
+        if (prefHelper.showAltTip()) {
             Toast toast = Toast.makeText(getActivity(), R.string.action_alt_tip, Toast.LENGTH_LONG);
             toast.show();
-            PrefHelper.setAltTip(false);
+            prefHelper.setAltTip(false);
         }
         //Show alt text
         TextView tvAlt = (TextView) sPager.findViewWithTag(sLastComicNumber - 1).findViewById(R.id.tvAlt);
-        if (PrefHelper.classicAltStyle()) {
+        if (prefHelper.classicAltStyle()) {
             toggleVisibility(tvAlt);
         } else {
             android.support.v7.app.AlertDialog.Builder mDialog = new android.support.v7.app.AlertDialog.Builder(getActivity());
@@ -507,7 +509,7 @@ public class OfflineFragment extends android.support.v4.app.Fragment {
                 fromSearch = false;
                 ActivityTransition.with(getActivity().getIntent()).duration(300).to(pvComic).start(null);
             }
-            if (PrefHelper.altByDefault())
+            if (prefHelper.altByDefault())
                 tvAlt.setVisibility(View.VISIBLE);
 
             sComicMap.put(position + 1, new OfflineComic(position + 1, getActivity()));
@@ -540,8 +542,8 @@ public class OfflineFragment extends android.support.v4.app.Fragment {
                         intent.setData(Uri.parse(url));
                         startActivity(intent);
                     }
-                    if (!PrefHelper.altLongTap()) {
-                        if (PrefHelper.classicAltStyle()) {
+                    if (!prefHelper.altLongTap()) {
+                        if (prefHelper.classicAltStyle()) {
                             toggleVisibility(tvAlt);
                         } else {
                             android.support.v7.app.AlertDialog.Builder mDialog = new android.support.v7.app.AlertDialog.Builder(getActivity());
@@ -565,12 +567,12 @@ public class OfflineFragment extends android.support.v4.app.Fragment {
             pvComic.setOnLongClickListener(new View.OnLongClickListener() {
                 @Override
                 public boolean onLongClick(View v) {
-                    if (fingerLifted && PrefHelper.altLongTap()) {
-                        if (PrefHelper.altVibration()) {
+                    if (fingerLifted && prefHelper.altLongTap()) {
+                        if (prefHelper.altVibration()) {
                             Vibrator vi = (Vibrator) getActivity().getSystemService(MainActivity.VIBRATOR_SERVICE);
                             vi.vibrate(10);
                         }
-                        if (PrefHelper.classicAltStyle()) {
+                        if (prefHelper.classicAltStyle()) {
                             toggleVisibility(tvAlt);
                         } else {
                             android.support.v7.app.AlertDialog.Builder mDialog = new android.support.v7.app.AlertDialog.Builder(getActivity());
@@ -584,7 +586,7 @@ public class OfflineFragment extends android.support.v4.app.Fragment {
             if (Arrays.binarySearch(mContext.getResources().getIntArray(R.array.large_comics), sLastComicNumber) >= 0)
                 pvComic.setMaximumScale(7.0f);
 
-            if (PrefHelper.invertColors()) {
+            if (prefHelper.invertColors()) {
                 float[] colorMatrix_Negative = {
                         -1.0f, 0, 0, 0, 255, //red
                         0, -1.0f, 0, 0, 255, //green
@@ -595,7 +597,7 @@ public class OfflineFragment extends android.support.v4.app.Fragment {
                 pvComic.setColorFilter(cf);
             }
             //Disable ViewPager scrolling when the user zooms into an image
-            if (PrefHelper.scrollDisabledWhileZoom())
+            if (prefHelper.scrollDisabledWhileZoom())
                 pvComic.setOnMatrixChangeListener(new PhotoViewAttacher.OnMatrixChangedListener() {
                     @Override
                     public void onMatrixChanged(RectF rectF) {
@@ -628,7 +630,7 @@ public class OfflineFragment extends android.support.v4.app.Fragment {
             }
 
             if (position == sLastComicNumber + 1) {
-                switch (Integer.parseInt(PrefHelper.getOrientation())) {
+                switch (Integer.parseInt(prefHelper.getOrientation())) {
                     case 1:
                         getActivity().setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_USER);
                         break;
@@ -683,7 +685,7 @@ public class OfflineFragment extends android.support.v4.app.Fragment {
 
     @Override
     public void onStop() {
-        PrefHelper.setLastComic(sLastComicNumber);
+        prefHelper.setLastComic(sLastComicNumber);
         super.onStop();
     }
 

@@ -46,10 +46,12 @@ public class OverviewActivity extends AppCompatActivity {
     private ListAdapter adapter;
     @Bind(R.id.list)
     ListView list;
+    private PrefHelper prefHelper;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        prefHelper = new PrefHelper(getApplicationContext());
         setContentView(R.layout.activity_overview);
         ButterKnife.bind(this);
 
@@ -66,7 +68,7 @@ public class OverviewActivity extends AppCompatActivity {
         toolbar.setBackgroundColor(typedValue2.data);
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
             getWindow().setStatusBarColor(typedValue.data);
-            if (!PrefHelper.colorNavbar())
+            if (!prefHelper.colorNavbar())
                 getWindow().setNavigationBarColor(ContextCompat.getColor(this, R.color.ColorPrimaryBlack));
         }
 
@@ -95,9 +97,9 @@ public class OverviewActivity extends AppCompatActivity {
 
         @Override
         public int getCount() {
-            if (PrefHelper.overviewFav())
+            if (prefHelper.overviewFav())
                 return Favorites.getFavoriteList(MainActivity.getInstance()).length;
-            return PrefHelper.getNewest();
+            return prefHelper.getNewest();
         }
 
         @Override
@@ -122,9 +124,9 @@ public class OverviewActivity extends AppCompatActivity {
                 holder = (ViewHolder) view.getTag();
             }
             String label;
-            if (PrefHelper.overviewFav()) {
+            if (prefHelper.overviewFav()) {
                 int n = Integer.parseInt(Favorites.getFavoriteList(MainActivity.getInstance())[position]);
-                label = n + ": " + PrefHelper.getTitle(n);
+                label = n + ": " + prefHelper.getTitle(n);
             } else
                 label = String.valueOf(position + 1) + " " + titles[position];
             holder.textView.setText(label);
@@ -140,7 +142,7 @@ public class OverviewActivity extends AppCompatActivity {
     public boolean onCreateOptionsMenu(Menu menu) {
         getMenuInflater().inflate(R.menu.menu_overview, menu);
         MenuItem item = menu.findItem(R.id.action_favorite);
-        if (!PrefHelper.overviewFav())
+        if (!prefHelper.overviewFav())
             item.setIcon(R.drawable.ic_favorite_outline);
         else
             item.setIcon(R.drawable.ic_action_favorite);
@@ -152,17 +154,17 @@ public class OverviewActivity extends AppCompatActivity {
         switch (item.getItemId()) {
             case R.id.action_random:
                 finish();
-                if (PrefHelper.fullOfflineEnabled())
-                    MainActivity.getInstance().scrollBrowser(PrefHelper.getRandomNumber(OfflineFragment.sLastComicNumber));
+                if (prefHelper.fullOfflineEnabled())
+                    MainActivity.getInstance().scrollBrowser(prefHelper.getRandomNumber(OfflineFragment.sLastComicNumber));
                 else
-                    MainActivity.getInstance().scrollBrowser(PrefHelper.getRandomNumber(ComicBrowserFragment.sLastComicNumber));
+                    MainActivity.getInstance().scrollBrowser(prefHelper.getRandomNumber(ComicBrowserFragment.sLastComicNumber));
                 return true;
             case R.id.action_favorite:
-                if (PrefHelper.overviewFav())
+                if (prefHelper.overviewFav())
                     item.setIcon(R.drawable.ic_favorite_outline);
                 else
                     item.setIcon(R.drawable.ic_action_favorite);
-                PrefHelper.setOverviewFav(!PrefHelper.overviewFav());
+                prefHelper.setOverviewFav(!prefHelper.overviewFav());
                 adapter = new ListAdapter();
                 list.setAdapter(adapter);
         }
@@ -184,7 +186,7 @@ public class OverviewActivity extends AppCompatActivity {
 
         @Override
         protected Void doInBackground(Void... params) {
-            if (!PrefHelper.databaseLoaded()) {
+            if (!prefHelper.databaseLoaded()) {
                 InputStream is = getResources().openRawResource(R.raw.comic_titles);
                 BufferedReader br = new BufferedReader(new InputStreamReader(is));
                 StringBuilder sb = new StringBuilder();
@@ -196,7 +198,7 @@ public class OverviewActivity extends AppCompatActivity {
                 } catch (IOException e) {
                     Log.e("error:", e.getMessage());
                 }
-                PrefHelper.setTitles(sb.toString());
+                prefHelper.setTitles(sb.toString());
                 publishProgress(15);
                 Log.d("info", "titles loaded");
 
@@ -210,7 +212,7 @@ public class OverviewActivity extends AppCompatActivity {
                 } catch (IOException e) {
                     Log.e("error:", e.getMessage());
                 }
-                PrefHelper.setTrans(sb.toString());
+                prefHelper.setTrans(sb.toString());
                 publishProgress(30);
                 Log.d("info", "trans loaded");
 
@@ -224,29 +226,29 @@ public class OverviewActivity extends AppCompatActivity {
                 } catch (IOException e) {
                     Log.e("error:", e.getMessage());
                 }
-                PrefHelper.setUrls(sb.toString(), 1579);
+                prefHelper.setUrls(sb.toString(), 1579);
                 Log.d("info", "urls loaded");
-                PrefHelper.setDatabaseLoaded();
+                prefHelper.setDatabaseLoaded();
             }
             publishProgress(50);
-            if (PrefHelper.isOnline(OverviewActivity.this)) {
+            if (prefHelper.isOnline(OverviewActivity.this)) {
                 int newest;
                 try {
                     newest = new Comic(0).getComicNumber();
                 } catch (IOException e) {
-                    newest = PrefHelper.getNewest();
+                    newest = prefHelper.getNewest();
                 }
                 StringBuilder sbTitle = new StringBuilder();
-                sbTitle.append(PrefHelper.getComicTitles());
+                sbTitle.append(prefHelper.getComicTitles());
                 StringBuilder sbTrans = new StringBuilder();
-                sbTrans.append(PrefHelper.getComicTrans());
+                sbTrans.append(prefHelper.getComicTrans());
                 StringBuilder sbUrl = new StringBuilder();
-                sbUrl.append(PrefHelper.getComicUrls());
+                sbUrl.append(prefHelper.getComicUrls());
                 String title;
                 String trans;
                 String url;
                 Comic comic;
-                for (int i = PrefHelper.getHighestUrls(); i < newest; i++) {
+                for (int i = prefHelper.getHighestUrls(); i < newest; i++) {
                     try {
                         comic = new Comic(i + 1);
                         title = comic.getComicData()[0];
@@ -267,14 +269,14 @@ public class OverviewActivity extends AppCompatActivity {
                     } else {
                         sbTrans.append("n.a.");
                     }
-                    float x = newest - PrefHelper.getHighestUrls();
-                    int y = i - PrefHelper.getHighestUrls();
+                    float x = newest - prefHelper.getHighestUrls();
+                    int y = i - prefHelper.getHighestUrls();
                     int p = (int) ((y / x) * 50);
                     publishProgress(p + 50);
                 }
-                PrefHelper.setTitles(sbTitle.toString());
-                PrefHelper.setTrans(sbTrans.toString());
-                PrefHelper.setUrls(sbUrl.toString(), newest);
+                prefHelper.setTitles(sbTitle.toString());
+                prefHelper.setTrans(sbTrans.toString());
+                prefHelper.setUrls(sbUrl.toString(), newest);
             }
             return null;
         }
@@ -285,11 +287,11 @@ public class OverviewActivity extends AppCompatActivity {
 
         @Override
         protected void onPostExecute(Void dummy) {
-            titles = PrefHelper.getComicTitles().split("&&");
+            titles = prefHelper.getComicTitles().split("&&");
             progress.dismiss();
             adapter = new ListAdapter();
             list.setAdapter(adapter);
-            if (PrefHelper.fullOfflineEnabled()) {
+            if (prefHelper.fullOfflineEnabled()) {
                 list.setSelection(OfflineFragment.sLastComicNumber);
             } else {
                 list.setSelection(ComicBrowserFragment.sLastComicNumber - 1);
@@ -298,7 +300,7 @@ public class OverviewActivity extends AppCompatActivity {
                 @Override
                 public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
                     finish();
-                    if (!PrefHelper.overviewFav())
+                    if (!prefHelper.overviewFav())
                         MainActivity.getInstance().scrollBrowser(i);
                     else
                         MainActivity.getInstance().scrollBrowser(Integer.parseInt(Favorites.getFavoriteList(MainActivity.getInstance())[i])-1);

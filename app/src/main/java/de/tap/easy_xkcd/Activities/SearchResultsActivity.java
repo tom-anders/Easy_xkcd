@@ -92,10 +92,12 @@ public class SearchResultsActivity extends AppCompatActivity {
     private static String sComicTitles;
     private static String sComicTrans;
     private static String sComicUrls;
+    private PrefHelper prefHelper;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
-        setTheme(PrefHelper.getTheme());
+        prefHelper = new PrefHelper(getApplicationContext());
+        setTheme(prefHelper.getTheme());
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_search_results);
         ButterKnife.bind(this);
@@ -113,7 +115,7 @@ public class SearchResultsActivity extends AppCompatActivity {
         toolbar.setBackgroundColor(typedValue2.data);
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
             getWindow().setStatusBarColor(typedValue.data);
-            if (!PrefHelper.colorNavbar())
+            if (!prefHelper.colorNavbar())
                 getWindow().setNavigationBarColor(ContextCompat.getColor(this, R.color.ColorPrimaryBlack));
         }
 
@@ -152,7 +154,7 @@ public class SearchResultsActivity extends AppCompatActivity {
 
         @Override
         protected Void doInBackground(Void... params) {
-            if (!PrefHelper.databaseLoaded()) {
+            if (!prefHelper.databaseLoaded()) {
                 InputStream is = getResources().openRawResource(R.raw.comic_titles);
                 BufferedReader br = new BufferedReader(new InputStreamReader(is));
                 StringBuilder sb = new StringBuilder();
@@ -164,7 +166,7 @@ public class SearchResultsActivity extends AppCompatActivity {
                 } catch (IOException e) {
                     Log.e("error:", e.getMessage());
                 }
-                PrefHelper.setTitles(sb.toString());
+                prefHelper.setTitles(sb.toString());
                 publishProgress(15);
                 Log.d("info", "titles loaded");
 
@@ -178,7 +180,7 @@ public class SearchResultsActivity extends AppCompatActivity {
                 } catch (IOException e) {
                     Log.e("error:", e.getMessage());
                 }
-                PrefHelper.setTrans(sb.toString());
+                prefHelper.setTrans(sb.toString());
                 publishProgress(30);
                 Log.d("info", "trans loaded");
 
@@ -192,29 +194,29 @@ public class SearchResultsActivity extends AppCompatActivity {
                 } catch (IOException e) {
                     Log.e("error:", e.getMessage());
                 }
-                PrefHelper.setUrls(sb.toString(), 1579);
+                prefHelper.setUrls(sb.toString(), 1579);
                 Log.d("info", "urls loaded");
-                PrefHelper.setDatabaseLoaded();
+                prefHelper.setDatabaseLoaded();
             }
             publishProgress(50);
-            if (PrefHelper.isOnline(SearchResultsActivity.this)) {
+            if (prefHelper.isOnline(SearchResultsActivity.this)) {
                 int newest;
                 try {
                     newest = new Comic(0).getComicNumber();
                 } catch (IOException e) {
-                    newest = PrefHelper.getNewest();
+                    newest = prefHelper.getNewest();
                 }
                 StringBuilder sbTitle = new StringBuilder();
-                sbTitle.append(PrefHelper.getComicTitles());
+                sbTitle.append(prefHelper.getComicTitles());
                 StringBuilder sbTrans = new StringBuilder();
-                sbTrans.append(PrefHelper.getComicTrans());
+                sbTrans.append(prefHelper.getComicTrans());
                 StringBuilder sbUrl = new StringBuilder();
-                sbUrl.append(PrefHelper.getComicUrls());
+                sbUrl.append(prefHelper.getComicUrls());
                 String title;
                 String trans;
                 String url;
                 Comic comic;
-                for (int i = PrefHelper.getHighestUrls(); i < newest; i++) {
+                for (int i = prefHelper.getHighestUrls(); i < newest; i++) {
                     try {
                         comic = new Comic(i + 1);
                         title = comic.getComicData()[0];
@@ -235,14 +237,14 @@ public class SearchResultsActivity extends AppCompatActivity {
                     } else {
                         sbTrans.append("n.a.");
                     }
-                    float x = newest - PrefHelper.getHighestUrls();
-                    int y = i - PrefHelper.getHighestUrls();
+                    float x = newest - prefHelper.getHighestUrls();
+                    int y = i - prefHelper.getHighestUrls();
                     int p = (int) ((y / x) * 50);
                     publishProgress(p + 50);
                 }
-                PrefHelper.setTitles(sbTitle.toString());
-                PrefHelper.setTrans(sbTrans.toString());
-                PrefHelper.setUrls(sbUrl.toString(), newest);
+                prefHelper.setTitles(sbTitle.toString());
+                prefHelper.setTrans(sbTrans.toString());
+                prefHelper.setUrls(sbUrl.toString(), newest);
             }
             return null;
         }
@@ -253,9 +255,9 @@ public class SearchResultsActivity extends AppCompatActivity {
 
         @Override
         protected void onPostExecute(Void dummy) {
-            sComicTitles = PrefHelper.getComicTitles();
-            sComicTrans = PrefHelper.getComicTrans();
-            sComicUrls = PrefHelper.getComicUrls();
+            sComicTitles = prefHelper.getComicTitles();
+            sComicTrans = prefHelper.getComicTrans();
+            sComicUrls = prefHelper.getComicUrls();
             if (mProgress != null) {
                 progress.dismiss();
             }
@@ -416,7 +418,7 @@ public class SearchResultsActivity extends AppCompatActivity {
                 } catch (Exception e) {
                     Log.e("Error", "loading from internal storage failed");
                     try {
-                        File sdCard = PrefHelper.getOfflinePath();
+                        File sdCard = prefHelper.getOfflinePath();
                         File dir = new File(sdCard.getAbsolutePath() + "/easy xkcd");
                         File file = new File(dir, String.valueOf(number) + ".png");
                         Glide.with(getApplicationContext())
@@ -428,7 +430,7 @@ public class SearchResultsActivity extends AppCompatActivity {
                     }
                 }
             }
-            if (PrefHelper.invertColors()) {
+            if (prefHelper.invertColors()) {
                 float[] colorMatrix_Negative = {
                         -1.0f, 0, 0, 0, 255, //red
                         0, -1.0f, 0, 0, 255, //green
@@ -455,7 +457,7 @@ public class SearchResultsActivity extends AppCompatActivity {
             ComicViewHolder(View itemView) {
                 super(itemView);
                 cv = (CardView) itemView.findViewById(R.id.cv);
-                if (PrefHelper.nightThemeEnabled())
+                if (prefHelper.nightThemeEnabled())
                     cv.setCardBackgroundColor(ContextCompat.getColor(SearchResultsActivity.this, R.color.background_material_dark));
                 comicTitle = (TextView) itemView.findViewById(R.id.comic_title);
                 comicInfo = (TextView) itemView.findViewById(R.id.comic_info);
@@ -507,7 +509,7 @@ public class SearchResultsActivity extends AppCompatActivity {
                     intent.putExtra("number", resultsTranscript.keyAt(pos - resultsTitle.size()));
                 }
                 Bitmap bitmap = ((BitmapDrawable) imageView.getDrawable()).getBitmap();
-                if (!PrefHelper.fullOfflineEnabled()) {
+                if (!prefHelper.fullOfflineEnabled()) {
                     ComicBrowserFragment.fromSearch = true;
                 } else {
                     OfflineFragment.fromSearch = true;

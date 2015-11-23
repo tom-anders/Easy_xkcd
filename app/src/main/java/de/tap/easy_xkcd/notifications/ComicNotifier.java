@@ -23,6 +23,8 @@ import de.tap.easy_xkcd.utils.PrefHelper;
 
 public class ComicNotifier extends WakefulIntentService {
 
+    private PrefHelper prefHelper;
+
     public ComicNotifier() {
         super("NewComicNotifier");
     }
@@ -30,8 +32,8 @@ public class ComicNotifier extends WakefulIntentService {
     @Override
     public void doWakefulWork(Intent intent) {
         int day = Calendar.getInstance().get(Calendar.DAY_OF_WEEK);
-        PrefHelper.getPrefs(getApplicationContext());
-        if (!PrefHelper.checkUpdated(day)) {
+        prefHelper = new PrefHelper(getApplicationContext());
+        if (!prefHelper.checkUpdated(day)) {
             if (day == Calendar.TUESDAY) {
                 new updateWhatIfTitles().execute();
                 Log.e("Info", "What if task executed");
@@ -56,7 +58,7 @@ public class ComicNotifier extends WakefulIntentService {
                         .userAgent("Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/32.0.1700.19 Safari/537.36")
                         .get();
                 Elements titles = doc.select("h1");
-                if (titles.size()>PrefHelper.getNewestWhatIf()) {
+                if (titles.size()>prefHelper.getNewestWhatIf()) {
                     found = true;
                     title = titles.first().text();
                     number = titles.size();
@@ -88,7 +90,7 @@ public class ComicNotifier extends WakefulIntentService {
                         (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
                 mNotificationManager.notify(0, mBuilder.build());
             }
-            PrefHelper.setUpdated(Calendar.TUESDAY, found);
+            prefHelper.setUpdated(Calendar.TUESDAY, found);
         }
 
     }
@@ -101,7 +103,7 @@ public class ComicNotifier extends WakefulIntentService {
         protected Void doInBackground(Void... params) {
             try {
                 comic = new Comic(0);
-                if (comic.getComicNumber() > PrefHelper.getNewest()) {
+                if (comic.getComicNumber() > prefHelper.getNewest()) {
                     found = true;
                 }
             } catch (IOException e) {
@@ -131,7 +133,7 @@ public class ComicNotifier extends WakefulIntentService {
                         (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
                 mNotificationManager.notify(0, mBuilder.build());
             }
-            PrefHelper.setUpdated(Calendar.getInstance().get(Calendar.DAY_OF_WEEK), found);
+            prefHelper.setUpdated(Calendar.getInstance().get(Calendar.DAY_OF_WEEK), found);
         }
 
     }

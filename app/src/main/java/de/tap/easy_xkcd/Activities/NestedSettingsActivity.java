@@ -32,10 +32,12 @@ public class NestedSettingsActivity extends AppCompatActivity implements OnDirec
     private static final String ALT_SHARING = "altSharing";
     private static final String ADVANCED = "advanced";
     private static final String NIGHT = "night";
+    private PrefHelper prefHelper;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
-        setTheme(PrefHelper.getTheme());
+        prefHelper = new PrefHelper(getApplicationContext());
+        setTheme(prefHelper.getTheme());
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_settings);
 
@@ -54,7 +56,7 @@ public class NestedSettingsActivity extends AppCompatActivity implements OnDirec
         if (Build.VERSION.SDK_INT >= 21) {
             getWindow().setStatusBarColor(typedValue.data);
         }
-        if (!PrefHelper.colorNavbar() && Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+        if (!prefHelper.colorNavbar() && Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
             getWindow().setNavigationBarColor(ContextCompat.getColor(this, R.color.ColorPrimaryBlack));
         }
 
@@ -88,27 +90,27 @@ public class NestedSettingsActivity extends AppCompatActivity implements OnDirec
             case 1:
                 if (grantResults[0] == PackageManager.PERMISSION_GRANTED) {
                     fragment.new downloadComicsTask().execute();
-                    PrefHelper.setFullOffline(true);
+                    prefHelper.setFullOffline(true);
                 }
                 break;
             case 2:
                 if (grantResults[0] == PackageManager.PERMISSION_GRANTED) {
                     fragment.new deleteComicsTask().execute();
                 } else {
-                    PrefHelper.setFullOffline(true);
+                    prefHelper.setFullOffline(true);
                 }
                 break;
             case 3:
                 if (grantResults[0] == PackageManager.PERMISSION_GRANTED) {
                     fragment.new downloadArticlesTask().execute();
-                    PrefHelper.setFullOfflineWhatIf(true);
+                    prefHelper.setFullOfflineWhatIf(true);
                 }
                 break;
             case 4:
                 if (grantResults[0] == PackageManager.PERMISSION_GRANTED) {
                     fragment.new deleteArticlesTask().execute();
                 } else {
-                    PrefHelper.setFullOfflineWhatIf(true);
+                    prefHelper.setFullOfflineWhatIf(true);
                 } break;
             case 5:
                 if (grantResults[0] == PackageManager.PERMISSION_GRANTED) {
@@ -124,8 +126,8 @@ public class NestedSettingsActivity extends AppCompatActivity implements OnDirec
     @Override
     public void onEvent(OnDirectoryChosenEvent event) {
         File path = event.getFile();
-        File oldPath = PrefHelper.getOfflinePath();
-        PrefHelper.setOfflinePath(path.getAbsolutePath());
+        File oldPath = prefHelper.getOfflinePath();
+        prefHelper.setOfflinePath(path.getAbsolutePath());
         new moveData().execute(new String[]{oldPath.getAbsolutePath(), path.getAbsolutePath()});
     }
 

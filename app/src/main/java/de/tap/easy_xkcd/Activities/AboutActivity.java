@@ -40,7 +40,8 @@ public class AboutActivity extends AppCompatActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
-        setTheme(PrefHelper.getTheme());
+        PrefHelper prefHelper = new PrefHelper(getApplicationContext());
+        setTheme(prefHelper.getTheme());
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_about);
 
@@ -56,7 +57,7 @@ public class AboutActivity extends AppCompatActivity {
         toolbar.setBackgroundColor(typedValue2.data);
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
             getWindow().setStatusBarColor(typedValue.data);
-            if (!PrefHelper.colorNavbar())
+            if (!prefHelper.colorNavbar())
                 getWindow().setNavigationBarColor(ContextCompat.getColor(this, R.color.ColorPrimaryBlack));
         }
         TextView tvAbout = (TextView) findViewById(R.id.tvAbout);

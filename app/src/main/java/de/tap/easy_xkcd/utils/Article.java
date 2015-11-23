@@ -1,5 +1,6 @@
 package de.tap.easy_xkcd.utils;
 
+import android.content.Context;
 import android.os.Environment;
 
 import org.jsoup.Jsoup;
@@ -16,8 +17,11 @@ public class Article {
     private ArrayList<String> ref = new ArrayList<>();
     private String title;
     private static final String OFFLINE_WHATIF_PATH = "/easy xkcd/what if/";
+    private PrefHelper prefHelper;
 
-    public Article (Integer number, boolean offlineArticle) {
+    public Article (Integer number, boolean offlineArticle, Context context) {
+        if (prefHelper == null)
+            prefHelper = new PrefHelper(context.getApplicationContext());
         mNumber = number;
         offline = offlineArticle;
     }
@@ -35,14 +39,14 @@ public class Article {
         if (!offline) {
             doc = Jsoup.connect("http://what-if.xkcd.com/" + String.valueOf(mNumber)).get();
         } else {
-            File sdCard = PrefHelper.getOfflinePath();
+            File sdCard = prefHelper.getOfflinePath();
             File dir = new File(sdCard.getAbsolutePath() + OFFLINE_WHATIF_PATH +String.valueOf(mNumber));
             File file = new File(dir, String.valueOf(mNumber) + ".html");
             doc = Jsoup.parse(file, "UTF-8");
         }
         //append custom css
         doc.head().getElementsByTag("link").remove();
-        if (!PrefHelper.nightModeEnabled()) {
+        if (!prefHelper.nightModeEnabled()) {
             doc.head().appendElement("link").attr("rel", "stylesheet").attr("type", "text/css").attr("href", "style.css");
         } else {
             doc.head().appendElement("link").attr("rel", "stylesheet").attr("type", "text/css").attr("href", "night.css");
@@ -50,7 +54,7 @@ public class Article {
 
         //fix the image links
         int count = 1;
-        String base = PrefHelper.getOfflinePath().getAbsolutePath();
+        String base = prefHelper.getOfflinePath().getAbsolutePath();
         for (org.jsoup.nodes.Element e : doc.select(".illustration")) {
             if (!offline) {
                 String src = e.attr("src");
@@ -75,7 +79,7 @@ public class Article {
 
 
         //fix footnotes and math scripts
-        if (!PrefHelper.fullOfflineWhatIf()) {
+        if (!prefHelper.fullOfflineWhatIf()) {
             //doc.select("script[src]").last().attr("src", "http://aja" +
             //"x.googleapis.com/ajax/libs/jquery/1.10.1/jquery.min.js");
             doc.select("script[src]").first().attr("src", "http://cdn.mathjax.org/mathjax/latest/MathJax.js");

@@ -83,6 +83,7 @@ public class NestedPreferenceFragment extends PreferenceFragment {
 
 
     public static boolean themeSettingChanged;
+    private PrefHelper prefHelper;
 
     public static NestedPreferenceFragment newInstance(String key) {
         NestedPreferenceFragment fragment = new NestedPreferenceFragment();
@@ -98,6 +99,7 @@ public class NestedPreferenceFragment extends PreferenceFragment {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         checkPreferenceResource();
+        prefHelper = new PrefHelper(getActivity().getApplicationContext());
     }
 
     private void checkPreferenceResource() {
@@ -148,7 +150,7 @@ public class NestedPreferenceFragment extends PreferenceFragment {
                 findPreference(ORIENTATION).setOnPreferenceChangeListener(new Preference.OnPreferenceChangeListener() {
                     @Override
                     public boolean onPreferenceChange(Preference preference, Object newValue) {
-                        switch (Integer.parseInt(PrefHelper.getOrientation())) {
+                        switch (Integer.parseInt(prefHelper.getOrientation())) {
                             case 1:
                                 MainActivity.getInstance().setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_USER);
                                 break;
@@ -167,7 +169,7 @@ public class NestedPreferenceFragment extends PreferenceFragment {
                     public boolean onPreferenceChange(Preference preference, Object newValue) {
                         boolean checked = Boolean.valueOf(newValue.toString());
                         if (checked) {
-                            if (PrefHelper.isOnline(getActivity())) {
+                            if (prefHelper.isOnline(getActivity())) {
                                 if (ContextCompat.checkSelfPermission(getActivity(), Manifest.permission.WRITE_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED) {
                                     new downloadComicsTask().execute();
                                     return true;
@@ -181,12 +183,12 @@ public class NestedPreferenceFragment extends PreferenceFragment {
                             }
 
                         } else {
-                            android.support.v7.app.AlertDialog.Builder mDialog = new android.support.v7.app.AlertDialog.Builder(getActivity(), PrefHelper.getDialogTheme());
+                            android.support.v7.app.AlertDialog.Builder mDialog = new android.support.v7.app.AlertDialog.Builder(getActivity(), prefHelper.getDialogTheme());
                             mDialog.setMessage(R.string.delete_offline_dialog)
                                     .setNegativeButton(R.string.dialog_cancel, new DialogInterface.OnClickListener() {
                                         public void onClick(DialogInterface dialog, int which) {
                                             getActivity().finish();
-                                            PrefHelper.setFullOffline(true);
+                                            prefHelper.setFullOffline(true);
                                         }
                                     })
                                     .setPositiveButton(R.string.dialog_yes, new DialogInterface.OnClickListener() {
@@ -209,7 +211,7 @@ public class NestedPreferenceFragment extends PreferenceFragment {
                     public boolean onPreferenceChange(Preference preference, Object newValue) {
                         boolean checked = Boolean.valueOf(newValue.toString());
                         if (checked) {
-                            if (PrefHelper.isOnline(getActivity())) {
+                            if (prefHelper.isOnline(getActivity())) {
                                 if (ContextCompat.checkSelfPermission(getActivity(), Manifest.permission.WRITE_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED) {
                                     new downloadArticlesTask().execute();
                                     return true;
@@ -223,12 +225,12 @@ public class NestedPreferenceFragment extends PreferenceFragment {
                             }
 
                         } else {
-                            android.support.v7.app.AlertDialog.Builder mDialog = new android.support.v7.app.AlertDialog.Builder(getActivity(), PrefHelper.getDialogTheme());
+                            android.support.v7.app.AlertDialog.Builder mDialog = new android.support.v7.app.AlertDialog.Builder(getActivity(), prefHelper.getDialogTheme());
                             mDialog.setMessage(R.string.delete_offline_whatif_dialog)
                                     .setNegativeButton(R.string.dialog_cancel, new DialogInterface.OnClickListener() {
                                         public void onClick(DialogInterface dialog, int which) {
                                             getActivity().finish();
-                                            PrefHelper.setFullOfflineWhatIf(true);
+                                            prefHelper.setFullOfflineWhatIf(true);
                                         }
                                     })
                                     .setPositiveButton(R.string.dialog_yes, new DialogInterface.OnClickListener() {
@@ -252,17 +254,17 @@ public class NestedPreferenceFragment extends PreferenceFragment {
                 addPreferencesFromResource(R.xml.pref_night);
                 final Preference start = findPreference(AUTO_NIGHT_START);
                 final Preference end = findPreference(AUTO_NIGHT_END);
-                final int[] startTime = PrefHelper.getAutoNightStart();
-                final int[] endTime = PrefHelper.getAutoNightEnd();
-                start.setSummary(PrefHelper.getStartSummary());
-                end.setSummary(PrefHelper.getEndSummary());
+                final int[] startTime = prefHelper.getAutoNightStart();
+                final int[] endTime = prefHelper.getAutoNightEnd();
+                start.setSummary(prefHelper.getStartSummary());
+                end.setSummary(prefHelper.getEndSummary());
 
 
 
                 findPreference(NIGHT_THEME).setOnPreferenceChangeListener(new Preference.OnPreferenceChangeListener() {
                     @Override
                     public boolean onPreferenceChange(Preference preference, Object newValue) {
-                        PrefHelper.setNightMode(Boolean.valueOf(newValue.toString()));
+                        prefHelper.setNightMode(Boolean.valueOf(newValue.toString()));
                         themeSettingChanged = true;
                         return true;
                     }
@@ -280,9 +282,9 @@ public class NestedPreferenceFragment extends PreferenceFragment {
                         TimePickerDialog tpd = new TimePickerDialog(getActivity(), new TimePickerDialog.OnTimeSetListener() {
                             @Override
                             public void onTimeSet(TimePicker timePicker, int hourOfDay, int minute) {
-                                PrefHelper.setAutoNightStart(new int[]{hourOfDay, minute});
+                                prefHelper.setAutoNightStart(new int[]{hourOfDay, minute});
                                 themeSettingChanged = true;
-                                start.setSummary(PrefHelper.getStartSummary());
+                                start.setSummary(prefHelper.getStartSummary());
                             }
                         }, startTime[0], startTime[1], android.text.format.DateFormat.is24HourFormat(getActivity()));
                         tpd.show();
@@ -295,9 +297,9 @@ public class NestedPreferenceFragment extends PreferenceFragment {
                         TimePickerDialog tpd = new TimePickerDialog(getActivity(), new TimePickerDialog.OnTimeSetListener() {
                             @Override
                             public void onTimeSet(TimePicker timePicker, int hourOfDay, int minute) {
-                                PrefHelper.setAutoNightEnd(new int[]{hourOfDay, minute});
+                                prefHelper.setAutoNightEnd(new int[]{hourOfDay, minute});
                                 themeSettingChanged = true;
-                                end.setSummary(PrefHelper.getEndSummary());
+                                end.setSummary(prefHelper.getEndSummary());
                             }
                         }, endTime[0], endTime[1], android.text.format.DateFormat.is24HourFormat(getActivity()));
                         tpd.show();
@@ -319,7 +321,7 @@ public class NestedPreferenceFragment extends PreferenceFragment {
                 findPreference(REPAIR).setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
                     @Override
                     public boolean onPreferenceClick(Preference preference) {
-                        if (PrefHelper.isOnline(getActivity())) {
+                        if (prefHelper.isOnline(getActivity())) {
                             if (ContextCompat.checkSelfPermission(getActivity(), Manifest.permission.WRITE_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED) {
                                 new repairComicsTask().execute();
                             } else {
@@ -364,10 +366,10 @@ public class NestedPreferenceFragment extends PreferenceFragment {
             int newest;
             try {
                 newest = new Comic(0).getComicNumber();
-                PrefHelper.setNewestComic(newest);
-                PrefHelper.setHighestOffline(newest);
+                prefHelper.setNewestComic(newest);
+                prefHelper.setHighestOffline(newest);
             } catch (Exception e) {
-                newest = PrefHelper.getNewest();
+                newest = prefHelper.getNewest();
             }
             Bitmap mBitmap = null;
             for (int i = 1; i <= newest; i++) {
@@ -379,7 +381,7 @@ public class NestedPreferenceFragment extends PreferenceFragment {
                 } catch (Exception e) {
                     Log.e("error", "not found in internal");
                     try {
-                        File sdCard = PrefHelper.getOfflinePath();
+                        File sdCard = prefHelper.getOfflinePath();
                         File dir = new File(sdCard.getAbsolutePath() + OFFLINE_PATH);
                         File file = new File(dir, String.valueOf(i) + ".png");
                         FileInputStream fis = new FileInputStream(file);
@@ -407,7 +409,7 @@ public class NestedPreferenceFragment extends PreferenceFragment {
                         .into(-1, -1)
                         .get();
                 try {
-                    File sdCard = PrefHelper.getOfflinePath();
+                    File sdCard = prefHelper.getOfflinePath();
                     File dir = new File(sdCard.getAbsolutePath() + OFFLINE_PATH);
                     dir.mkdirs();
                     File file = new File(dir, String.valueOf(i) + ".png");
@@ -425,8 +427,8 @@ public class NestedPreferenceFragment extends PreferenceFragment {
                         e2.printStackTrace();
                     }
                 }
-                PrefHelper.addTitle(comic.getComicData()[0], i);
-                PrefHelper.addAlt(comic.getComicData()[1], i);
+                prefHelper.addTitle(comic.getComicData()[0], i);
+                prefHelper.addAlt(comic.getComicData()[1], i);
             } catch (Exception e) {
                 e.printStackTrace();
             }
@@ -473,7 +475,7 @@ public class NestedPreferenceFragment extends PreferenceFragment {
                             .into(-1, -1)
                             .get();
                     try {
-                        File sdCard = PrefHelper.getOfflinePath();
+                        File sdCard = prefHelper.getOfflinePath();
                         File dir = new File(sdCard.getAbsolutePath() + OFFLINE_PATH);
                         dir.mkdirs();
                         File file = new File(dir, String.valueOf(i) + ".png");
@@ -492,15 +494,15 @@ public class NestedPreferenceFragment extends PreferenceFragment {
                         }
                     }
 
-                    PrefHelper.addTitle(comic.getComicData()[0], i);
-                    PrefHelper.addAlt(comic.getComicData()[1], i);
+                    prefHelper.addTitle(comic.getComicData()[0], i);
+                    prefHelper.addAlt(comic.getComicData()[1], i);
                     int p = (int) (i / ((float) ComicBrowserFragment.sNewestComicNumber) * 100);
                     publishProgress(p);
                 } catch (Exception e) {
                     e.printStackTrace();
                 }
             }
-            PrefHelper.setHighestOffline(ComicBrowserFragment.sNewestComicNumber);
+            prefHelper.setHighestOffline(ComicBrowserFragment.sNewestComicNumber);
             return null;
         }
 
@@ -560,13 +562,13 @@ public class NestedPreferenceFragment extends PreferenceFragment {
 
         @Override
         protected Void doInBackground(Void... params) {
-            int newest = PrefHelper.getNewest();
+            int newest = prefHelper.getNewest();
             for (int i = 1; i <= newest; i++) {
                 if (!Favorites.checkFavorite(MainActivity.getInstance(), i)) {
                     //delete from internal storage
                     getActivity().deleteFile(String.valueOf(i));
                     //delete from external storage
-                    File sdCard = PrefHelper.getOfflinePath();
+                    File sdCard = prefHelper.getOfflinePath();
                     File dir = new File(sdCard.getAbsolutePath() + OFFLINE_PATH);
                     File file = new File(dir, String.valueOf(i) + ".png");
                     file.delete();
@@ -575,9 +577,9 @@ public class NestedPreferenceFragment extends PreferenceFragment {
                     publishProgress(p);
                 }
             }
-            PrefHelper.deleteTitleAndAlt(newest, getActivity());
+            prefHelper.deleteTitleAndAlt(newest, getActivity());
 
-            PrefHelper.setHighestOffline(0);
+            prefHelper.setHighestOffline(0);
 
             return null;
         }
@@ -614,7 +616,7 @@ public class NestedPreferenceFragment extends PreferenceFragment {
         @Override
         protected Void doInBackground(Void... params) {
             Bitmap mBitmap;
-            File sdCard = PrefHelper.getOfflinePath();
+            File sdCard = prefHelper.getOfflinePath();
             File dir;
             //download overview
             try {
@@ -623,7 +625,7 @@ public class NestedPreferenceFragment extends PreferenceFragment {
                         .get();
                 StringBuilder sb = new StringBuilder();
                 Elements titles = doc.select("h1");
-                PrefHelper.setNewestWhatif(titles.size());
+                prefHelper.setNewestWhatif(titles.size());
 
                 sb.append(titles.first().text());
                 titles.remove(0);
@@ -631,7 +633,7 @@ public class NestedPreferenceFragment extends PreferenceFragment {
                     sb.append("&&");
                     sb.append(title.text());
                 }
-                PrefHelper.setWhatIfTitles(sb.toString());
+                prefHelper.setWhatIfTitles(sb.toString());
 
                 Elements img = doc.select("img.archive-image");
                 int count = 1;
@@ -663,8 +665,8 @@ public class NestedPreferenceFragment extends PreferenceFragment {
             }
 
             //download html
-            for (int i = 1; i <= PrefHelper.getNewestWhatIf(); i++) {
-                int size = PrefHelper.getNewestWhatIf();
+            for (int i = 1; i <= prefHelper.getNewestWhatIf(); i++) {
+                int size = prefHelper.getNewestWhatIf();
                 try {
                     doc = Jsoup.connect("https://what-if.xkcd.com/" + String.valueOf(i)).get();
                     dir = new File(sdCard.getAbsolutePath() + OFFLINE_WHATIF_PATH + String.valueOf(i));
@@ -734,7 +736,7 @@ public class NestedPreferenceFragment extends PreferenceFragment {
 
         @Override
         protected Void doInBackground(Void... params) {
-            File sdCard = PrefHelper.getOfflinePath();
+            File sdCard = prefHelper.getOfflinePath();
             File dir = new File(sdCard.getAbsolutePath() + OFFLINE_WHATIF_PATH);
             deleteFolder(dir);
             return null;

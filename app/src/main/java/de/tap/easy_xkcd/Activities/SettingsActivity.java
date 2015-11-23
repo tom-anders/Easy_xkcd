@@ -31,10 +31,12 @@ import de.tap.easy_xkcd.utils.PrefHelper;
 
 public class SettingsActivity extends AppCompatActivity {
     private static SettingsActivity instance;
+    private PrefHelper prefHelper;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
-        setTheme(PrefHelper.getTheme());
+        prefHelper = new PrefHelper(getApplicationContext());
+        setTheme(prefHelper.getTheme());
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_settings);
         instance = this;
@@ -51,7 +53,7 @@ public class SettingsActivity extends AppCompatActivity {
         toolbar.setBackgroundColor(typedValue2.data);
         if (Build.VERSION.SDK_INT >= 21) {
             getWindow().setStatusBarColor(typedValue.data);
-            if (!PrefHelper.colorNavbar())
+            if (!prefHelper.colorNavbar())
                 getWindow().setNavigationBarColor(ContextCompat.getColor(this, R.color.ColorPrimaryBlack));
         }
 

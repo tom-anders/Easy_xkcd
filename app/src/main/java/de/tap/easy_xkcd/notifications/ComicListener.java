@@ -16,10 +16,15 @@ import java.util.Calendar;
 import de.tap.easy_xkcd.utils.PrefHelper;
 
 public class ComicListener implements WakefulIntentService.AlarmListener {
+
+    private PrefHelper prefHelper;
+
     public void scheduleAlarms(AlarmManager mgr, PendingIntent pi, Context context) {
         Log.e("Info", "Alarm Set!");
+        prefHelper = new PrefHelper(context.getApplicationContext());
         Calendar calendar = Calendar.getInstance();
-        mgr.setInexactRepeating(AlarmManager.RTC, calendar.getTimeInMillis(), PrefHelper.getNotificationInterval(), pi);
+        mgr.setInexactRepeating(AlarmManager.RTC, calendar.getTimeInMillis(), prefHelper.getNotificationInterval(), pi);
+        Log.d("intervall:", String.valueOf(prefHelper.getNotificationInterval()));
     }
 
     public void sendWakefulWork(Context context) {
@@ -43,6 +48,6 @@ public class ComicListener implements WakefulIntentService.AlarmListener {
     }
 
     public long getMaxAge() {
-        return (PrefHelper.getNotificationInterval() + 60 * 1000);
+        return (prefHelper.getNotificationInterval() + 60 * 1000);
     }
 }

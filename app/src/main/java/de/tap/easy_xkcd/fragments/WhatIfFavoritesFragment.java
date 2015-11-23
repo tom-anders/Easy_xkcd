@@ -37,6 +37,7 @@ import java.util.Collections;
 
 import butterknife.Bind;
 import butterknife.ButterKnife;
+import de.tap.easy_xkcd.Activities.MainActivity;
 import de.tap.easy_xkcd.utils.PrefHelper;
 import de.tap.easy_xkcd.Activities.WhatIfActivity;
 import jp.wasabeef.recyclerview.animators.adapters.SlideInBottomAnimationAdapter;
@@ -49,19 +50,21 @@ public class WhatIfFavoritesFragment extends android.support.v4.app.Fragment {
     RecyclerView rv;
     public static RVAdapter adapter;
     private boolean fullOffline;
+    private PrefHelper prefHelper;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View v = inflater.inflate(R.layout.whatif_recycler, container, false);
         ButterKnife.bind(this, v);
         setHasOptionsMenu(true);
+        prefHelper = ((MainActivity) getActivity()).getPrefHelper();
 
         instance = this;
         LinearLayoutManager llm = new LinearLayoutManager(getActivity());
         rv.setLayoutManager(llm);
         rv.setHasFixedSize(false);
 
-        fullOffline = PrefHelper.fullOfflineWhatIf();
+        fullOffline = prefHelper.fullOfflineWhatIf();
         new DisplayOverview().execute();
 
         return v;
@@ -99,7 +102,7 @@ public class WhatIfFavoritesFragment extends android.support.v4.app.Fragment {
                 Collections.reverse(mImgs);
             } else {
                 mTitles.clear();
-                mTitles = PrefHelper.getWhatIfTitles();
+                mTitles = prefHelper.getWhatIfTitles();
                 Collections.reverse(mTitles);
             }
 
@@ -111,7 +114,7 @@ public class WhatIfFavoritesFragment extends android.support.v4.app.Fragment {
             ArrayList<String> titleFav = new ArrayList<>();
             ArrayList<String> imgFav = new ArrayList<>();
             for (int i = 0; i < mTitles.size(); i++) {
-                if (PrefHelper.checkWhatIfFav(mTitles.size() - i)) {
+                if (prefHelper.checkWhatIfFav(mTitles.size() - i)) {
                     titleFav.add(mTitles.get(i));
                     if (!fullOffline) {
                         imgFav.add(mImgs.get(i));
@@ -134,7 +137,7 @@ public class WhatIfFavoritesFragment extends android.support.v4.app.Fragment {
         ArrayList<String> titleFav = new ArrayList<>();
         ArrayList<String> imgFav = new ArrayList<>();
         for (int i = 0; i < mTitles.size(); i++) {
-            if (PrefHelper.checkWhatIfFav(mTitles.size() - i)) {
+            if (prefHelper.checkWhatIfFav(mTitles.size() - i)) {
                 titleFav.add(mTitles.get(i));
                 if (!fullOffline) {
                     imgFav.add(mImgs.get(i));
@@ -192,12 +195,12 @@ public class WhatIfFavoritesFragment extends android.support.v4.app.Fragment {
                 return;
             }
 
-            if (!PrefHelper.fullOfflineWhatIf()) {
+            if (!prefHelper.fullOfflineWhatIf()) {
                 Glide.with(getActivity())
                         .load(imgs.get(i))
                         .into(comicViewHolder.thumbnail);
             } else {
-                File sdCard = PrefHelper.getOfflinePath();
+                File sdCard = prefHelper.getOfflinePath();
                 File dir = new File(sdCard.getAbsolutePath() + "/easy xkcd/what if/overview");
                 File file = new File(dir, String.valueOf(n) + ".png");
 
@@ -206,7 +209,7 @@ public class WhatIfFavoritesFragment extends android.support.v4.app.Fragment {
                         .into(comicViewHolder.thumbnail);
             }
 
-            if (PrefHelper.invertColors()) {
+            if (prefHelper.invertColors()) {
                 float[] colorMatrix_Negative = {
                         -1.0f, 0, 0, 0, 255, //red
                         0, -1.0f, 0, 0, 255, //green
@@ -231,7 +234,7 @@ public class WhatIfFavoritesFragment extends android.support.v4.app.Fragment {
             ComicViewHolder(View itemView) {
                 super(itemView);
                 cv = (CardView) itemView.findViewById(R.id.cv);
-                if (PrefHelper.nightThemeEnabled())
+                if (prefHelper.nightThemeEnabled())
                     cv.setCardBackgroundColor(ContextCompat.getColor(getActivity(), R.color.background_material_dark));
                 articleTitle = (TextView) itemView.findViewById(R.id.article_title);
                 thumbnail = (ImageView) itemView.findViewById(R.id.thumbnail);
@@ -242,7 +245,7 @@ public class WhatIfFavoritesFragment extends android.support.v4.app.Fragment {
     class CustomOnClickListener implements View.OnClickListener {
         @Override
         public void onClick(View v) {
-            if (!PrefHelper.isOnline(getActivity()) && !fullOffline) {
+            if (!prefHelper.isOnline(getActivity()) && !fullOffline) {
                 Toast.makeText(getActivity(), R.string.no_connection, Toast.LENGTH_SHORT).show();
                 return;
             }
@@ -252,7 +255,7 @@ public class WhatIfFavoritesFragment extends android.support.v4.app.Fragment {
             int n = mTitles.size() - mTitles.indexOf(title);
             WhatIfActivity.WhatIfIndex = n;
             startActivity(intent);
-            PrefHelper.setLastWhatIf(n);
+            prefHelper.setLastWhatIf(n);
         }
     }
 
@@ -289,11 +292,11 @@ public class WhatIfFavoritesFragment extends android.support.v4.app.Fragment {
                             pos = rv.getChildAdapterPosition(view);
                             title = adapter.titles.get(pos);
                             n = mTitles.size() - mTitles.indexOf(title);
-                            PrefHelper.removeWhatifFav(n);
+                            prefHelper.removeWhatifFav(n);
                             ArrayList<String> titleFav = new ArrayList<>();
                             ArrayList<String> imgFav = new ArrayList<>();
                             for (int i = 0; i < mTitles.size(); i++) {
-                                if (PrefHelper.checkWhatIfFav(mTitles.size() - i)) {
+                                if (prefHelper.checkWhatIfFav(mTitles.size() - i)) {
                                     titleFav.add(mTitles.get(i));
                                     if (!fullOffline)
                                         imgFav.add(mImgs.get(i));
