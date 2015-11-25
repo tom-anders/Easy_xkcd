@@ -98,8 +98,8 @@ public class NestedPreferenceFragment extends PreferenceFragment {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        checkPreferenceResource();
         prefHelper = new PrefHelper(getActivity().getApplicationContext());
+        checkPreferenceResource();
     }
 
     private void checkPreferenceResource() {
