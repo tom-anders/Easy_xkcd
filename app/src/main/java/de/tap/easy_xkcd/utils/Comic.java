@@ -88,6 +88,8 @@ public class Comic {
             result[1] = "Eärendil will patrol the walls of night only until the sun reaches red giant stage, engulfing the Morning Star on his brow. Light and high beauty are passing things as well.";
         } else if (mComicNumber == 1037) {
             result[2] = "http://www.explainxkcd.com/wiki/images/f/ff/umwelt_the_void.jpg";
+        } else if (mComicNumber == 1608) {
+            result[2] = "http://www.explainxkcd.com/wiki/images/4/41/hoverboard.png";
         }
         return result;
     }
