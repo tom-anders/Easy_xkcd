@@ -60,8 +60,8 @@ import butterknife.ButterKnife;
 import butterknife.OnClick;
 import butterknife.OnLongClick;
 import de.tap.easy_xkcd.fragments.ComicBrowserFragment;
+import de.tap.easy_xkcd.fragments.OverviewListFragment;
 import de.tap.easy_xkcd.notifications.ComicListener;
-import de.tap.easy_xkcd.utils.Comic;
 import de.tap.easy_xkcd.utils.Favorites;
 import de.tap.easy_xkcd.fragments.FavoritesFragment;
 import de.tap.easy_xkcd.fragments.OfflineFragment;
@@ -100,6 +100,8 @@ public class MainActivity extends AppCompatActivity {
     private static final String BROWSER_TAG = "browser";
     private static final String FAV_TAG = "favorites";
     private static final String WHATIF_TAG = "whatif";
+    private static final String OVERVIEW_TAG = "overview";
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -238,6 +240,7 @@ public class MainActivity extends AppCompatActivity {
     void onClick() {
         android.support.v4.app.FragmentManager fragmentManager = getSupportFragmentManager();
         switch (mCurrentFragment) {
+            //TODO in overview
             case R.id.nav_browser: {
                 if (!fullOffline) {
                     ((ComicBrowserFragment) fragmentManager.findFragmentByTag(BROWSER_TAG)).getRandomComic();
@@ -449,6 +452,8 @@ public class MainActivity extends AppCompatActivity {
             fragmentManager.beginTransaction().hide(fragmentManager.findFragmentByTag(fragmentTagHide)).commitAllowingStateLoss();
         if (fragmentManager.findFragmentByTag(fragmentTagHide2) != null)
             fragmentManager.beginTransaction().hide(fragmentManager.findFragmentByTag(fragmentTagHide2)).commitAllowingStateLoss();
+        if (fragmentManager.findFragmentByTag(OVERVIEW_TAG) != null)
+            fragmentManager.beginTransaction().hide(fragmentManager.findFragmentByTag(OVERVIEW_TAG)).commitAllowingStateLoss();
     }
 
 
@@ -586,11 +591,23 @@ public class MainActivity extends AppCompatActivity {
                 return true;
 
             case R.id.action_overview:
-                fromSearch = true;
-                startActivity(new Intent(MainActivity.this, OverviewActivity.class));
+                /*fromSearch = true;
+                startActivity(new Intent(MainActivity.this, OverviewActivity.class));*/
+                showOverview();
                 return true;
         }
         return super.onOptionsItemSelected(item);
+    }
+
+    private void showOverview() {
+        android.support.v4.app.FragmentManager fragmentManager = getSupportFragmentManager();
+        if (fragmentManager.findFragmentByTag(OVERVIEW_TAG) == null)
+            fragmentManager.beginTransaction().add(R.id.flContent, new OverviewListFragment(), OVERVIEW_TAG).commitAllowingStateLoss();
+        else
+            fragmentManager.beginTransaction().show(fragmentManager.findFragmentByTag(OVERVIEW_TAG)).commitAllowingStateLoss();
+        fragmentManager.beginTransaction().hide(fragmentManager.findFragmentByTag(BROWSER_TAG)).commitAllowingStateLoss();
+        assert getSupportActionBar() != null;
+        getSupportActionBar().setSubtitle("");
     }
 
     @Override
@@ -641,18 +658,19 @@ public class MainActivity extends AppCompatActivity {
 
     @Override
     public void onBackPressed() {
+        android.support.v4.app.FragmentManager fragmentManager = getSupportFragmentManager();
         if (getSearchMenuItem().isActionViewExpanded()) {
             getSearchMenuItem().collapseActionView();
-        } else if (mCurrentFragment == R.id.nav_browser) {
-            if (!fullOffline) {
-                if (!ComicBrowserFragment.zoomReset()) {
-                    super.onBackPressed();
+        } else if (mCurrentFragment == R.id.nav_browser && (fragmentManager.findFragmentByTag(OVERVIEW_TAG) == null || !fragmentManager.findFragmentByTag(OVERVIEW_TAG).isVisible())) {
+                boolean zoomReset;
+                if (!fullOffline) {
+                    zoomReset = ComicBrowserFragment.zoomReset();
+                } else {
+                    zoomReset = OfflineFragment.zoomReset();
                 }
-            } else {
-                if (!OfflineFragment.zoomReset()) {
-                    super.onBackPressed();
+                if (!zoomReset) {
+                    showOverview();
                 }
-            }
         } else if (mCurrentFragment == R.id.nav_favorites) {
             if (!FavoritesFragment.zoomReset()) {
                 super.onBackPressed();
@@ -713,9 +731,9 @@ public class MainActivity extends AppCompatActivity {
     public void scrollBrowser(int pos) {
         Fragment fragment = getSupportFragmentManager().findFragmentByTag(BROWSER_TAG);
         if (prefHelper.fullOfflineEnabled())
-            ((OfflineFragment) fragment).scrollTo(pos);
+            ((OfflineFragment) fragment).scrollTo(pos, false);
         else
-            ((ComicBrowserFragment) fragment).scrollTo(pos);
+            ((ComicBrowserFragment) fragment).scrollTo(pos, false);
     }
 
     @Override

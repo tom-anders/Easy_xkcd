@@ -670,8 +670,8 @@ public class OfflineFragment extends android.support.v4.app.Fragment {
         super.onPrepareOptionsMenu(menu);
     }
 
-    public void scrollTo(int pos) {
-        sPager.setCurrentItem(pos);
+    public void scrollTo(int pos, boolean smooth) {
+        sPager.setCurrentItem(pos, smooth);
     }
 
     private void toggleVisibility(View view) {

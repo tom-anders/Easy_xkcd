@@ -6,10 +6,6 @@
     tools:context="de.tap.easy_xkcd.Activities.OverviewActivity"
     android:orientation="vertical">
 
-    <include
-        android:id="@+id/toolbar"
-        layout="@layout/tool_bar" />
-
     <ListView
         android:layout_width="match_parent"
         android:layout_height="match_parent"

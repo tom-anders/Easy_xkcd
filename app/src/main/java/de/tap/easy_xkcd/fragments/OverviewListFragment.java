@@ -1,18 +1,14 @@
-package de.tap.easy_xkcd.Activities;
+package de.tap.easy_xkcd.fragments;
 
 import android.app.ProgressDialog;
 import android.content.Context;
-import android.content.Intent;
 import android.os.AsyncTask;
-import android.os.Build;
 import android.os.Bundle;
-import android.support.v4.content.ContextCompat;
-import android.support.v7.app.AppCompatActivity;
-import android.support.v7.widget.Toolbar;
+import android.support.v4.app.Fragment;
 import android.util.Log;
-import android.util.TypedValue;
 import android.view.LayoutInflater;
 import android.view.Menu;
+import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
@@ -30,43 +26,27 @@ import java.io.InputStreamReader;
 
 import butterknife.Bind;
 import butterknife.ButterKnife;
-import de.tap.easy_xkcd.fragments.ComicBrowserFragment;
-import de.tap.easy_xkcd.fragments.OfflineFragment;
+import de.tap.easy_xkcd.Activities.MainActivity;
 import de.tap.easy_xkcd.utils.Comic;
 import de.tap.easy_xkcd.utils.Favorites;
 import de.tap.easy_xkcd.utils.PrefHelper;
 
-public class OverviewActivity extends AppCompatActivity {
-
+public class OverviewListFragment extends android.support.v4.app.Fragment {
     private static String[] titles;
     private ListAdapter adapter;
     @Bind(R.id.list)
     ListView list;
     private PrefHelper prefHelper;
+    private static final String BROWSER_TAG = "browser";
+    private static final String OVERVIEW_TAG = "overview";
 
     @Override
-    protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        prefHelper = new PrefHelper(getApplicationContext());
-        setContentView(R.layout.overview_list);
-        ButterKnife.bind(this);
-
-        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
-        setSupportActionBar(toolbar);
-        assert getSupportActionBar() != null;
-        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+        View v = inflater.inflate(R.layout.overview_list, container, false);
+        prefHelper = ((MainActivity) getActivity()).getPrefHelper();
+        ButterKnife.bind(this, v);
         list.setFastScrollEnabled(true);
-
-        TypedValue typedValue = new TypedValue();
-        getTheme().resolveAttribute(R.attr.colorPrimaryDark, typedValue, true);
-        TypedValue typedValue2 = new TypedValue();
-        getTheme().resolveAttribute(R.attr.colorPrimary, typedValue2, true);
-        toolbar.setBackgroundColor(typedValue2.data);
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-            getWindow().setStatusBarColor(typedValue.data);
-            if (!prefHelper.colorNavbar())
-                getWindow().setNavigationBarColor(ContextCompat.getColor(this, R.color.ColorPrimaryBlack));
-        }
+        setHasOptionsMenu(true);
 
         if (savedInstanceState == null) {
             new updateDatabase().execute();
@@ -76,19 +56,44 @@ public class OverviewActivity extends AppCompatActivity {
             list.setOnItemClickListener(new AdapterView.OnItemClickListener() {
                 @Override
                 public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
-                    Intent intent = new Intent("de.tap.easy_xkcd.ACTION_COMIC");
-                    intent.putExtra("number", i + 1);
-                    startActivity(intent);
+                    showComic(i);
                 }
             });
         }
+        return v;
+    }
+
+    private void showComic(int pos) {
+        android.support.v4.app.FragmentManager fragmentManager = getActivity().getSupportFragmentManager();
+        android.support.v4.app.Fragment fragment = fragmentManager.findFragmentByTag(BROWSER_TAG);
+        if (!prefHelper.overviewFav()) {
+            if (!prefHelper.fullOfflineEnabled())
+                ((ComicBrowserFragment) fragment).scrollTo(adapter.getCount() - pos - 1, false);
+            else
+                ((OfflineFragment) fragment).scrollTo(adapter.getCount() - pos - 1, false);
+        } else {
+            int n = Integer.parseInt(Favorites.getFavoriteList(MainActivity.getInstance())[pos]);
+            if (!prefHelper.fullOfflineEnabled())
+                ((ComicBrowserFragment) fragment).scrollTo(n-1, false);
+            else
+                ((OfflineFragment) fragment).scrollTo(n-1, false);
+        }
+
+        fragmentManager.beginTransaction().hide(fragmentManager.findFragmentByTag(OVERVIEW_TAG)).show(fragment).commitAllowingStateLoss();
+        if (prefHelper.subtitleEnabled()) {
+            if (!prefHelper.fullOfflineEnabled())
+                ((MainActivity) getActivity()).getToolbar().setSubtitle(String.valueOf(ComicBrowserFragment.sLastComicNumber));
+            else
+                ((MainActivity) getActivity()).getToolbar().setSubtitle(String.valueOf(OfflineFragment.sLastComicNumber));
+        }
+
     }
 
     private class ListAdapter extends BaseAdapter {
         private LayoutInflater inflater;
 
         public ListAdapter() {
-            inflater = (LayoutInflater) getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+            inflater = (LayoutInflater) getActivity().getSystemService(Context.LAYOUT_INFLATER_SERVICE);
         }
 
         @Override
@@ -124,7 +129,7 @@ public class OverviewActivity extends AppCompatActivity {
                 int n = Integer.parseInt(Favorites.getFavoriteList(MainActivity.getInstance())[position]);
                 label = n + ": " + prefHelper.getTitle(n);
             } else
-                label = String.valueOf(position + 1) + " " + titles[position];
+                label = String.valueOf(getCount() - position) + " " + titles[getCount() - position - 1];
             holder.textView.setText(label);
             return view;
         }
@@ -135,26 +140,27 @@ public class OverviewActivity extends AppCompatActivity {
     }
 
     @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        getMenuInflater().inflate(R.menu.menu_overview, menu);
+    public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
+        for (int i = 0; i < menu.size() - 2; i++)
+            menu.getItem(i).setVisible(false);
+
         MenuItem item = menu.findItem(R.id.action_favorite);
+        item.setVisible(true);
         if (!prefHelper.overviewFav())
             item.setIcon(R.drawable.ic_favorite_outline);
         else
             item.setIcon(R.drawable.ic_action_favorite);
-        return true;
+
+        if (prefHelper.hideDonate())
+            menu.findItem(R.id.action_donate).setVisible(false);
+
+
+        super.onCreateOptionsMenu(menu, inflater);
     }
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
-            case R.id.action_random:
-                finish();
-                if (prefHelper.fullOfflineEnabled())
-                    MainActivity.getInstance().scrollBrowser(prefHelper.getRandomNumber(OfflineFragment.sLastComicNumber));
-                else
-                    MainActivity.getInstance().scrollBrowser(prefHelper.getRandomNumber(ComicBrowserFragment.sLastComicNumber));
-                return true;
             case R.id.action_favorite:
                 if (prefHelper.overviewFav())
                     item.setIcon(R.drawable.ic_favorite_outline);
@@ -172,7 +178,7 @@ public class OverviewActivity extends AppCompatActivity {
 
         @Override
         protected void onPreExecute() {
-            progress = new ProgressDialog(OverviewActivity.this);
+            progress = new ProgressDialog(getActivity());
             progress.setTitle(getResources().getString(R.string.update_database));
             progress.setIndeterminate(false);
             progress.setProgressStyle(ProgressDialog.STYLE_HORIZONTAL);
@@ -227,7 +233,7 @@ public class OverviewActivity extends AppCompatActivity {
                 prefHelper.setDatabaseLoaded();
             }
             publishProgress(50);
-            if (prefHelper.isOnline(OverviewActivity.this)) {
+            if (prefHelper.isOnline(getActivity())) {
                 int newest;
                 try {
                     newest = new Comic(0).getComicNumber();
@@ -295,15 +301,10 @@ public class OverviewActivity extends AppCompatActivity {
             list.setOnItemClickListener(new AdapterView.OnItemClickListener() {
                 @Override
                 public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
-                    finish();
-                    if (!prefHelper.overviewFav())
-                        MainActivity.getInstance().scrollBrowser(i);
-                    else
-                        MainActivity.getInstance().scrollBrowser(Integer.parseInt(Favorites.getFavoriteList(MainActivity.getInstance())[i])-1);
+                    showComic(i);
                 }
             });
         }
     }
-
 
 }

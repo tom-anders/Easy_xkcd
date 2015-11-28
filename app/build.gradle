@@ -46,4 +46,5 @@ dependencies {
     compile ('com.turhanoz.android:reactivedirectorychooser:0.0.12@aar'){
         transitive=true
     }
+    compile 'com.squareup.picasso:picasso:2.5.2'
 }
