@@ -11,6 +11,7 @@ import android.graphics.Canvas;
 import android.graphics.ColorFilter;
 import android.graphics.ColorMatrixColorFilter;
 import android.graphics.RectF;
+import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.AsyncTask;
@@ -422,17 +423,10 @@ public class OfflineFragment extends android.support.v4.app.Fragment {
     }
 
     private Uri getURI() {
-        //Gets the URI of the currently loaded image
-        View v = sPager.findViewWithTag(sLastComicNumber - 1);
-        ImageView siv = (ImageView) v.findViewById(R.id.ivComic);
-        Drawable mDrawable = siv.getDrawable();
-        Bitmap mBitmap = Bitmap.createBitmap(mDrawable.getIntrinsicWidth(),
-                mDrawable.getIntrinsicHeight(), Bitmap.Config.ARGB_8888);
-        Canvas canvas = new Canvas(mBitmap);
-        mDrawable.draw(canvas);
-        String path = MediaStore.Images.Media.insertImage(getActivity().getContentResolver(),
-                mBitmap, "Image Description", null);
-        return Uri.parse(path);
+        File sdCard = prefHelper.getOfflinePath();
+        File dir = new File(sdCard.getAbsolutePath() + "/easy xkcd");
+        File path = new File(dir, String.valueOf(sLastComicNumber) + ".png");
+        return Uri.fromFile(path);
     }
 
     private boolean setAltText() {

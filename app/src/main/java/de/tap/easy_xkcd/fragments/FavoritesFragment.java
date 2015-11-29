@@ -32,6 +32,7 @@ import android.graphics.RectF;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.os.Environment;
 import android.os.Vibrator;
 import android.provider.MediaStore;
 import android.support.design.widget.Snackbar;
@@ -337,7 +338,7 @@ public class FavoritesFragment extends android.support.v4.app.Fragment {
                         Favorites.putStringInPreferences(getActivity(), null, "favorites");
 
                         MenuItem mBrowser = ((MainActivity) getActivity()).getNavView().getMenu().findItem(R.id.nav_browser);
-                        ((MainActivity) getActivity()).selectDrawerItem(mBrowser);
+                        ((MainActivity) getActivity()).selectDrawerItem(mBrowser, false);
 
                         if (!prefHelper.fullOfflineEnabled())
                             for (String i : fav)
@@ -375,7 +376,7 @@ public class FavoritesFragment extends android.support.v4.app.Fragment {
             if (fav.length == 0) {
                 //If there are no favorites left, show ComicBrowserFragment
                 MenuItem mBrowser = ((MainActivity) getActivity()).getNavView().getMenu().findItem(R.id.nav_browser);
-                ((MainActivity) getActivity()).selectDrawerItem(mBrowser);
+                ((MainActivity) getActivity()).selectDrawerItem(mBrowser, false);
                 return;
             }
             refresh();
@@ -445,31 +446,25 @@ public class FavoritesFragment extends android.support.v4.app.Fragment {
             ActivityCompat.requestPermissions(getActivity(), new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE}, 1);
             return;
         }
-        Intent share = new Intent(Intent.ACTION_SEND);
-        share.setType("image/*");
-        Bitmap mBitmap = mComicMap.get(sFavoriteIndex).getBitmap();
         try {
-            String path = MediaStore.Images.Media.insertImage(getActivity().getContentResolver(),
-                    mBitmap, "Image Description", null);
-            share.putExtra(Intent.EXTRA_STREAM, Uri.parse(path));
-        } catch (Exception e) {
-            try {
-                File cachePath = new File(getActivity().getCacheDir(), "images");
-                cachePath.mkdirs();
-                FileOutputStream stream = new FileOutputStream(cachePath + "/image.png");
-                mBitmap.compress(Bitmap.CompressFormat.PNG, 100, stream);
-                stream.close();
-                File imagePath = new File(getActivity().getCacheDir(), "images");
-                File newFile = new File(imagePath, "image.png");
-                Uri contentUri = FileProvider.getUriForFile(getActivity(), "com.tap.easy_xkcd.fileprovider", newFile);
-                share.putExtra(Intent.EXTRA_STREAM, contentUri);
-            } catch (IOException e2) {
-                e.printStackTrace();
-            }
+            Intent share = new Intent(Intent.ACTION_SEND);
+            share.setType("image/*");
+            Bitmap mBitmap = mComicMap.get(sFavoriteIndex).getBitmap();
+            String cachePath = Environment.getExternalStorageDirectory() + "/easy xkcd";
+            File dir = new File(cachePath);
+            dir.mkdirs();
+            File file = new File(dir, String.valueOf(mComicMap.get(sFavoriteIndex).getComicNumber()) + ".png");
+            FileOutputStream stream = new FileOutputStream(file);
+            mBitmap.compress(Bitmap.CompressFormat.PNG, 100, stream);
+            stream.close();
+            Uri uri = Uri.fromFile(file);
+            share.putExtra(Intent.EXTRA_STREAM, uri);
+            if (prefHelper.shareAlt())
+                share.putExtra(Intent.EXTRA_TEXT, prefHelper.getAlt(sFavorites[sFavoriteIndex]));
+            startActivity(Intent.createChooser(share, this.getResources().getString(R.string.share_image)));
+        } catch (IOException e) {
+            e.printStackTrace();
         }
-        if (prefHelper.shareAlt())
-            share.putExtra(Intent.EXTRA_TEXT, prefHelper.getAlt(sFavorites[sFavoriteIndex]));
-        startActivity(Intent.createChooser(share, this.getResources().getString(R.string.share_image)));
     }
 
     private void shareComicUrl() {

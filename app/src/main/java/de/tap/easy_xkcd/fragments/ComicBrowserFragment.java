@@ -28,6 +28,7 @@ import android.support.design.widget.Snackbar;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.Fragment;
 import android.support.v4.content.ContextCompat;
+import android.support.v4.content.FileProvider;
 import android.support.v4.view.PagerAdapter;
 import android.support.v4.view.ViewPager;
 import android.support.v7.app.ActionBar;
@@ -48,6 +49,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.bumptech.glide.Glide;
+import com.bumptech.glide.load.engine.DiskCacheStrategy;
 import com.bumptech.glide.request.animation.GlideAnimation;
 import com.bumptech.glide.request.target.SimpleTarget;
 import com.kogitune.activity_transition.ActivityTransition;
@@ -273,6 +275,7 @@ public class ComicBrowserFragment extends android.support.v4.app.Fragment {
                         Glide.with(getActivity())
                                 .load(comic.getComicData()[2])
                                 .asBitmap()
+                                .diskCacheStrategy(DiskCacheStrategy.SOURCE)
                                 .into(new SimpleTarget<Bitmap>() {
                                     @Override
                                     public void onResourceReady(Bitmap resource, GlideAnimation<? super Bitmap> glideAnimation) {
@@ -557,29 +560,61 @@ public class ComicBrowserFragment extends android.support.v4.app.Fragment {
     }
 
     public void shareComicImage() {
-        if (!(ContextCompat.checkSelfPermission(getActivity(), Manifest.permission.WRITE_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED)) {
+       if (!(ContextCompat.checkSelfPermission(getActivity(), Manifest.permission.WRITE_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED)) {
             ActivityCompat.requestPermissions(getActivity(), new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE}, 1);
             return;
         }
-        //shares the comic's image along with its title
-        Intent share = new Intent(Intent.ACTION_SEND);
-        share.setType("image/*");
-        share.putExtra(Intent.EXTRA_STREAM, getURI());
-        share.putExtra(Intent.EXTRA_SUBJECT, sComicMap.get(sLastComicNumber).getComicData()[0]);
-        if (prefHelper.shareAlt()) {
-            share.putExtra(Intent.EXTRA_TEXT, sComicMap.get(sLastComicNumber).getComicData()[1]);
-        }
-        startActivity(Intent.createChooser(share, this.getResources().getString(R.string.share_image)));
+        new ShareImageTask().execute(sComicMap.get(sLastComicNumber).getComicData()[2]);
     }
 
-    private Uri getURI() {
-        //Gets the URI of the currently loaded image
-        View v = sPager.findViewWithTag(sLastComicNumber - 1);
-        ImageView siv = (ImageView) v.findViewById(R.id.ivComic);
-        Bitmap mBitmap = ((BitmapDrawable) siv.getDrawable()).getBitmap();
-        String path = MediaStore.Images.Media.insertImage(getActivity().getContentResolver(),
-                mBitmap, "Image Description", null);
-        return Uri.parse(path);
+    private class ShareImageTask extends AsyncTask<String, Void, Bitmap> {
+        @Override
+        protected Bitmap doInBackground(String... params) {
+            String url = params[0];
+            try {
+                return Glide
+                        .with(getActivity())
+                        .load(url)
+                        .asBitmap()
+                        .diskCacheStrategy(DiskCacheStrategy.SOURCE)
+                        .into(-1, -1)
+                        .get();
+            } catch (Exception e) {
+                e.printStackTrace();
+                return null;
+            }
+        }
+
+        @Override
+        protected void onPostExecute(Bitmap result) {
+            if (result == null) {
+                return;
+            }
+            try {
+                String cachePath = Environment.getExternalStorageDirectory() +"/easy xkcd";
+                File dir = new File(cachePath);
+                dir.mkdirs();
+                File file = new File(dir, String.valueOf(sLastComicNumber)+".png");
+                FileOutputStream stream = new FileOutputStream(file);
+                result.compress(Bitmap.CompressFormat.PNG, 100, stream);
+                stream.close();
+                Uri uri = Uri.fromFile(file);
+                share(uri);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+
+        private void share(Uri result) {
+            Intent share = new Intent(Intent.ACTION_SEND);
+            share.setType("image/*");
+            share.putExtra(Intent.EXTRA_STREAM, result);
+            share.putExtra(Intent.EXTRA_SUBJECT, sComicMap.get(sLastComicNumber).getComicData()[0]);
+            if (prefHelper.shareAlt()) {
+                share.putExtra(Intent.EXTRA_TEXT, sComicMap.get(sLastComicNumber).getComicData()[1]);
+            }
+            startActivity(Intent.createChooser(share, getResources().getString(R.string.share_image)));
+        }
     }
 
     private boolean deleteAllFavorites() {
@@ -645,6 +680,7 @@ public class ComicBrowserFragment extends android.support.v4.app.Fragment {
                         .with(getActivity())
                         .load(url)
                         .asBitmap()
+                        .diskCacheStrategy(DiskCacheStrategy.SOURCE)
                         .into(-1, -1)
                         .get();
             } catch (Exception e) {
