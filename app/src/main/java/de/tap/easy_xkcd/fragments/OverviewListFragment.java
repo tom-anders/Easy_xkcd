@@ -3,8 +3,11 @@ package de.tap.easy_xkcd.fragments;
 import android.app.ProgressDialog;
 import android.content.Context;
 import android.os.AsyncTask;
+import android.os.Build;
 import android.os.Bundle;
-import android.support.v4.app.Fragment;
+import android.os.Handler;
+import android.transition.Transition;
+import android.transition.TransitionInflater;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -63,7 +66,7 @@ public class OverviewListFragment extends android.support.v4.app.Fragment {
         return v;
     }
 
-    private void showComic(int pos) {
+    public void showComic(final int pos) {
         android.support.v4.app.FragmentManager fragmentManager = getActivity().getSupportFragmentManager();
         android.support.v4.app.Fragment fragment = fragmentManager.findFragmentByTag(BROWSER_TAG);
         if (!prefHelper.overviewFav()) {
@@ -78,15 +81,34 @@ public class OverviewListFragment extends android.support.v4.app.Fragment {
             else
                 ((OfflineFragment) fragment).scrollTo(n-1, false);
         }
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.LOLLIPOP) {
+            fragmentManager.beginTransaction().hide(fragmentManager.findFragmentByTag(OVERVIEW_TAG)).show(fragment).commitAllowingStateLoss();
+        } else {
+            Transition left = TransitionInflater.from(getActivity()).inflateTransition(android.R.transition.slide_left);
+            Transition right = TransitionInflater.from(getActivity()).inflateTransition(android.R.transition.slide_right);
 
-        fragmentManager.beginTransaction().hide(fragmentManager.findFragmentByTag(OVERVIEW_TAG)).show(fragment).commitAllowingStateLoss();
+            OverviewListFragment.this.setExitTransition(left);
+
+            fragment.setEnterTransition(right);
+
+            getFragmentManager().beginTransaction()
+                    .hide(fragmentManager.findFragmentByTag(OVERVIEW_TAG))
+                    .show(fragment)
+                    .commit();
+        }
+
         if (prefHelper.subtitleEnabled()) {
             if (!prefHelper.fullOfflineEnabled())
                 ((MainActivity) getActivity()).getToolbar().setSubtitle(String.valueOf(ComicBrowserFragment.sLastComicNumber));
             else
                 ((MainActivity) getActivity()).getToolbar().setSubtitle(String.valueOf(OfflineFragment.sLastComicNumber));
         }
-
+        new Handler().postDelayed(new Runnable() {
+            @Override
+            public void run() {
+                list.setSelection(pos);
+            }
+        }, 250);
     }
 
     private class ListAdapter extends BaseAdapter {

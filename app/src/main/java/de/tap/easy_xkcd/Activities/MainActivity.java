@@ -36,6 +36,7 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentTransaction;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.view.MenuItemCompat;
 import android.support.v4.widget.DrawerLayout;
@@ -43,6 +44,8 @@ import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
+import android.transition.Transition;
+import android.transition.TransitionInflater;
 import android.util.TypedValue;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -62,6 +65,7 @@ import butterknife.OnLongClick;
 import de.tap.easy_xkcd.fragments.ComicBrowserFragment;
 import de.tap.easy_xkcd.fragments.OverviewListFragment;
 import de.tap.easy_xkcd.notifications.ComicListener;
+import de.tap.easy_xkcd.utils.Comic;
 import de.tap.easy_xkcd.utils.Favorites;
 import de.tap.easy_xkcd.fragments.FavoritesFragment;
 import de.tap.easy_xkcd.fragments.OfflineFragment;
@@ -212,7 +216,7 @@ public class MainActivity extends AppCompatActivity {
                 }
             }
             boolean showOverview = false;
-            if (savedInstanceState!=null)
+            if (savedInstanceState != null)
                 showOverview = savedInstanceState.getBoolean(OVERVIEW_TAG, false);
             selectDrawerItem(item, showOverview);
         } else if ((mCurrentFragment != R.id.nav_favorites)) { //Don't show the dialog if the user is currently browsing his favorites or full offline is enabled
@@ -242,19 +246,27 @@ public class MainActivity extends AppCompatActivity {
     @OnClick(R.id.fab)
     void onClick() {
         android.support.v4.app.FragmentManager fragmentManager = getSupportFragmentManager();
-        switch (mCurrentFragment) {
-            //TODO in overview
-            case R.id.nav_browser: {
-                if (!fullOffline) {
-                    ((ComicBrowserFragment) fragmentManager.findFragmentByTag(BROWSER_TAG)).getRandomComic();
-                } else {
-                    ((OfflineFragment) fragmentManager.findFragmentByTag(BROWSER_TAG)).getRandomComic();
+        OverviewListFragment overviewListFragment = (OverviewListFragment) fragmentManager.findFragmentByTag(OVERVIEW_TAG);
+        if (overviewListFragment != null && overviewListFragment.isVisible()) {
+            if (!fullOffline)
+                overviewListFragment.showComic(ComicBrowserFragment.sNewestComicNumber - prefHelper.getRandomNumber(ComicBrowserFragment.sLastComicNumber));
+            else
+                overviewListFragment.showComic(OfflineFragment.sNewestComicNumber - prefHelper.getRandomNumber(OfflineFragment.sLastComicNumber));
+
+        } else {
+            switch (mCurrentFragment) {
+                case R.id.nav_browser: {
+                    if (!fullOffline) {
+                        ((ComicBrowserFragment) fragmentManager.findFragmentByTag(BROWSER_TAG)).getRandomComic();
+                    } else {
+                        ((OfflineFragment) fragmentManager.findFragmentByTag(BROWSER_TAG)).getRandomComic();
+                    }
+                    break;
                 }
-                break;
-            }
-            case R.id.nav_favorites: {
-                ((FavoritesFragment) fragmentManager.findFragmentByTag(FAV_TAG)).getRandomComic();
-                break;
+                case R.id.nav_favorites: {
+                    ((FavoritesFragment) fragmentManager.findFragmentByTag(FAV_TAG)).getRandomComic();
+                    break;
+                }
             }
         }
     }
@@ -263,11 +275,16 @@ public class MainActivity extends AppCompatActivity {
     @OnLongClick(R.id.fab)
     boolean onLongClick() {
         android.support.v4.app.FragmentManager fragmentManager = getSupportFragmentManager();
-        if (mCurrentFragment == R.id.nav_browser) {
-            if (!fullOffline) {
-                ((ComicBrowserFragment) fragmentManager.findFragmentByTag(BROWSER_TAG)).getPreviousRandom();
-            } else {
-                ((OfflineFragment) fragmentManager.findFragmentByTag(BROWSER_TAG)).getPreviousRandom();
+        OverviewListFragment overviewListFragment = (OverviewListFragment) fragmentManager.findFragmentByTag(OVERVIEW_TAG);
+        if (overviewListFragment != null && overviewListFragment.isVisible()) {
+            return true;
+        } else {
+            if (mCurrentFragment == R.id.nav_browser) {
+                if (!fullOffline) {
+                    ((ComicBrowserFragment) fragmentManager.findFragmentByTag(BROWSER_TAG)).getPreviousRandom();
+                } else {
+                    ((OfflineFragment) fragmentManager.findFragmentByTag(BROWSER_TAG)).getPreviousRandom();
+                }
             }
         }
         return true;
@@ -607,11 +624,34 @@ public class MainActivity extends AppCompatActivity {
 
     private void showOverview() {
         android.support.v4.app.FragmentManager fragmentManager = getSupportFragmentManager();
-        if (fragmentManager.findFragmentByTag(OVERVIEW_TAG) == null)
-            fragmentManager.beginTransaction().add(R.id.flContent, new OverviewListFragment(), OVERVIEW_TAG).commitAllowingStateLoss();
-        else
-            fragmentManager.beginTransaction().show(fragmentManager.findFragmentByTag(OVERVIEW_TAG)).commitAllowingStateLoss();
-        fragmentManager.beginTransaction().hide(fragmentManager.findFragmentByTag(BROWSER_TAG)).commitAllowingStateLoss();
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.LOLLIPOP) {
+            if (fragmentManager.findFragmentByTag(OVERVIEW_TAG) == null)
+                fragmentManager.beginTransaction().add(R.id.flContent, new OverviewListFragment(), OVERVIEW_TAG).commitAllowingStateLoss();
+            else
+                fragmentManager.beginTransaction().show(fragmentManager.findFragmentByTag(OVERVIEW_TAG)).commitAllowingStateLoss();
+            fragmentManager.beginTransaction().hide(fragmentManager.findFragmentByTag(BROWSER_TAG)).commitAllowingStateLoss();
+        } else {
+            Transition left = TransitionInflater.from(this).inflateTransition(android.R.transition.slide_left);
+            Transition right = TransitionInflater.from(this).inflateTransition(android.R.transition.fade);
+            fragmentManager.findFragmentByTag(BROWSER_TAG).setExitTransition(right);
+
+            if (fragmentManager.findFragmentByTag(OVERVIEW_TAG) == null) {
+                OverviewListFragment overviewListFragment = new OverviewListFragment();
+                overviewListFragment.setEnterTransition(left);
+                getSupportFragmentManager().beginTransaction()
+                        .hide(fragmentManager.findFragmentByTag(BROWSER_TAG))
+                        .add(R.id.flContent, overviewListFragment, OVERVIEW_TAG)
+                        .commit();
+            } else {
+                fragmentManager.findFragmentByTag(OVERVIEW_TAG).setEnterTransition(left);
+                getSupportFragmentManager().beginTransaction()
+                        .hide(fragmentManager.findFragmentByTag(BROWSER_TAG))
+                        .show(fragmentManager.findFragmentByTag(OVERVIEW_TAG))
+                        .commit();
+            }
+
+
+        }
         assert getSupportActionBar() != null;
         getSupportActionBar().setSubtitle("");
     }
@@ -620,7 +660,7 @@ public class MainActivity extends AppCompatActivity {
     public void onSaveInstanceState(Bundle savedInstanceState) {
         //Save the current fragment
         savedInstanceState.putInt(SAVED_INSTANCE_CURRENT_FRAGMENT, mCurrentFragment);
-        if (getSupportFragmentManager().findFragmentByTag(OVERVIEW_TAG)!=null)
+        if (getSupportFragmentManager().findFragmentByTag(OVERVIEW_TAG) != null)
             savedInstanceState.putBoolean(OVERVIEW_TAG, getSupportFragmentManager().findFragmentByTag(OVERVIEW_TAG).isVisible());
         else
             savedInstanceState.putBoolean(OVERVIEW_TAG, false);
@@ -672,15 +712,15 @@ public class MainActivity extends AppCompatActivity {
         if (getSearchMenuItem().isActionViewExpanded()) {
             getSearchMenuItem().collapseActionView();
         } else if (mCurrentFragment == R.id.nav_browser && (fragmentManager.findFragmentByTag(OVERVIEW_TAG) == null || !fragmentManager.findFragmentByTag(OVERVIEW_TAG).isVisible())) {
-                boolean zoomReset;
-                if (!fullOffline) {
-                    zoomReset = ComicBrowserFragment.zoomReset();
-                } else {
-                    zoomReset = OfflineFragment.zoomReset();
-                }
-                if (!zoomReset) {
-                    showOverview();
-                }
+            boolean zoomReset;
+            if (!fullOffline) {
+                zoomReset = ComicBrowserFragment.zoomReset();
+            } else {
+                zoomReset = OfflineFragment.zoomReset();
+            }
+            if (!zoomReset) {
+                showOverview();
+            }
         } else if (mCurrentFragment == R.id.nav_favorites) {
             if (!FavoritesFragment.zoomReset()) {
                 super.onBackPressed();
