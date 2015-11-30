@@ -6,6 +6,7 @@ import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
+import android.support.v4.content.ContextCompat;
 import android.transition.Transition;
 import android.transition.TransitionInflater;
 import android.util.Log;
@@ -77,9 +78,9 @@ public class OverviewListFragment extends android.support.v4.app.Fragment {
         } else {
             int n = Integer.parseInt(Favorites.getFavoriteList(MainActivity.getInstance())[pos]);
             if (!prefHelper.fullOfflineEnabled())
-                ((ComicBrowserFragment) fragment).scrollTo(n-1, false);
+                ((ComicBrowserFragment) fragment).scrollTo(n - 1, false);
             else
-                ((OfflineFragment) fragment).scrollTo(n-1, false);
+                ((OfflineFragment) fragment).scrollTo(n - 1, false);
         }
         if (Build.VERSION.SDK_INT < Build.VERSION_CODES.LOLLIPOP) {
             fragmentManager.beginTransaction().hide(fragmentManager.findFragmentByTag(OVERVIEW_TAG)).show(fragment).commitAllowingStateLoss();
@@ -150,8 +151,20 @@ public class OverviewListFragment extends android.support.v4.app.Fragment {
             if (prefHelper.overviewFav()) {
                 int n = Integer.parseInt(Favorites.getFavoriteList(MainActivity.getInstance())[position]);
                 label = n + ": " + prefHelper.getTitle(n);
-            } else
+            } else {
                 label = String.valueOf(getCount() - position) + " " + titles[getCount() - position - 1];
+                if (prefHelper.checkComicRead(getCount() - position)) {
+                    if (prefHelper.nightThemeEnabled())
+                        holder.textView.setTextColor(ContextCompat.getColor(getActivity(), android.R.color.tertiary_text_light));
+                    else
+                        holder.textView.setTextColor(ContextCompat.getColor(getActivity(), R.color.Read));
+                } else {
+                    if (prefHelper.nightThemeEnabled())
+                        holder.textView.setTextColor(ContextCompat.getColor(getActivity(), R.color.Read));
+                    else
+                        holder.textView.setTextColor(ContextCompat.getColor(getActivity(), android.R.color.tertiary_text_light));
+                }
+            }
             holder.textView.setText(label);
             return view;
         }
@@ -176,6 +189,8 @@ public class OverviewListFragment extends android.support.v4.app.Fragment {
         if (prefHelper.hideDonate())
             menu.findItem(R.id.action_donate).setVisible(false);
 
+        menu.findItem(R.id.action_unread).setVisible(true);
+
 
         super.onCreateOptionsMenu(menu, inflater);
     }
@@ -191,8 +206,17 @@ public class OverviewListFragment extends android.support.v4.app.Fragment {
                 prefHelper.setOverviewFav(!prefHelper.overviewFav());
                 adapter = new ListAdapter();
                 list.setAdapter(adapter);
+                break;
+            case R.id.action_unread:
+                prefHelper.setComicsUnread();
+                adapter.notifyDataSetChanged();
+                break;
         }
         return super.onOptionsItemSelected(item);
+    }
+
+    public void notifyAdapter() {
+        adapter.notifyDataSetChanged();
     }
 
     private class updateDatabase extends AsyncTask<Void, Integer, Void> {

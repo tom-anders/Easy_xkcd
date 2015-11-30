@@ -13,25 +13,18 @@ import android.graphics.Bitmap;
 import android.graphics.ColorFilter;
 import android.graphics.ColorMatrixColorFilter;
 import android.graphics.RectF;
-import android.graphics.drawable.BitmapDrawable;
-import android.net.ConnectivityManager;
-import android.net.NetworkInfo;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Environment;
 import android.os.Vibrator;
-import android.provider.MediaStore;
 import android.support.customtabs.CustomTabsIntent;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
 import android.support.v4.app.ActivityCompat;
-import android.support.v4.app.Fragment;
 import android.support.v4.content.ContextCompat;
-import android.support.v4.content.FileProvider;
 import android.support.v4.view.PagerAdapter;
 import android.support.v4.view.ViewPager;
-import android.support.v7.app.ActionBar;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.util.SparseArray;
@@ -43,7 +36,6 @@ import android.view.MenuItem;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ImageView;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -63,14 +55,14 @@ import java.io.IOException;
 import java.lang.reflect.Field;
 import java.util.Arrays;
 
-import de.tap.easy_xkcd.utils.Comic;
+import de.tap.easy_xkcd.Activities.MainActivity;
 import de.tap.easy_xkcd.CustomTabHelpers.BrowserFallback;
 import de.tap.easy_xkcd.CustomTabHelpers.CustomTabActivityHelper;
-import de.tap.easy_xkcd.utils.Favorites;
 import de.tap.easy_xkcd.misc.HackyViewPager;
+import de.tap.easy_xkcd.utils.Comic;
+import de.tap.easy_xkcd.utils.Favorites;
 import de.tap.easy_xkcd.utils.JsonParser;
 import de.tap.easy_xkcd.utils.PrefHelper;
-import de.tap.easy_xkcd.Activities.MainActivity;
 import uk.co.senab.photoview.PhotoView;
 import uk.co.senab.photoview.PhotoViewAttacher;
 
@@ -79,7 +71,7 @@ public class ComicBrowserFragment extends android.support.v4.app.Fragment {
     public static int sNewestComicNumber = 0;
     private static boolean newestUpdated = false;
     public static SparseArray<Comic> sComicMap = new SparseArray<>();
-    public static HackyViewPager sPager;
+    public HackyViewPager mPager;
     public static boolean fromSearch = false;
     private static boolean loadingImages;
 
@@ -100,8 +92,8 @@ public class ComicBrowserFragment extends android.support.v4.app.Fragment {
         if (((MainActivity) getActivity()).getCurrentFragment() == R.id.nav_browser && prefHelper.subtitleEnabled())
             ((MainActivity) getActivity()).getToolbar().setSubtitle(String.valueOf(sLastComicNumber));
 
-        sPager = (HackyViewPager) v.findViewById(R.id.pager);
-        sPager.setOffscreenPageLimit(3);
+        mPager = (HackyViewPager) v.findViewById(R.id.pager);
+        mPager.setOffscreenPageLimit(3);
         loadingImages = true;
 
         if (savedInstanceState == null && !newestUpdated) {
@@ -112,16 +104,16 @@ public class ComicBrowserFragment extends android.support.v4.app.Fragment {
                 try {
                     Field field = ViewPager.class.getDeclaredField("mRestoredCurItem");
                     field.setAccessible(true);
-                    field.set(sPager, sLastComicNumber - 1);
+                    field.set(mPager, sLastComicNumber - 1);
                 } catch (Exception e) {
                     e.printStackTrace();
                 }
             }
             adapter = new ComicBrowserPagerAdapter(getActivity());
-            sPager.setAdapter(adapter);
+            mPager.setAdapter(adapter);
         }
 
-        sPager.addOnPageChangeListener(new ViewPager.OnPageChangeListener() {
+        mPager.addOnPageChangeListener(new ViewPager.OnPageChangeListener() {
             @Override
             public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) {
             }
@@ -133,6 +125,9 @@ public class ComicBrowserFragment extends android.support.v4.app.Fragment {
                 } catch (NullPointerException e) {
                     e.printStackTrace();
                 }
+                prefHelper.setComicRead(String.valueOf(position + 1));
+                if (getActivity().getSupportFragmentManager().findFragmentByTag("overview") != null)
+                    ((OverviewListFragment) getActivity().getSupportFragmentManager().findFragmentByTag("overview")).notifyAdapter();
                 if (!prefHelper.isOnline(getActivity()))  //Don't update if the device is not online
                     Toast.makeText(getActivity(), R.string.no_connection, Toast.LENGTH_SHORT).show();
 
@@ -193,14 +188,14 @@ public class ComicBrowserFragment extends android.support.v4.app.Fragment {
                 try {
                     Field field = ViewPager.class.getDeclaredField("mRestoredCurItem");
                     field.setAccessible(true);
-                    field.set(sPager, sLastComicNumber - 1);
+                    field.set(mPager, sLastComicNumber - 1);
                 } catch (Exception e) {
                     e.printStackTrace();
                 }
             }
             adapter = new ComicBrowserPagerAdapter(getActivity());
-            sPager.setAdapter(adapter);
-            sPager.setOffscreenPageLimit(3);
+            mPager.setAdapter(adapter);
+            mPager.setOffscreenPageLimit(3);
             if (showSnackbar) {
                 View.OnClickListener oc = new View.OnClickListener() {
                     @Override
@@ -406,9 +401,9 @@ public class ComicBrowserFragment extends android.support.v4.app.Fragment {
                     @Override
                     public void onMatrixChanged(RectF rectF) {
                         if (pvComic.getScale() > 1.4) {
-                            sPager.setLocked(true);
+                            mPager.setLocked(true);
                         } else {
-                            sPager.setLocked(false);
+                            mPager.setLocked(false);
                         }
                     }
                 });
@@ -474,7 +469,7 @@ public class ComicBrowserFragment extends android.support.v4.app.Fragment {
         if (prefHelper.isOnline(getActivity()) && sNewestComicNumber != 0) {
             ((MainActivity) getActivity()).setProgressDialog(getActivity().getResources().getString(R.string.loading_random), false);
             sLastComicNumber = prefHelper.getRandomNumber(sLastComicNumber);
-            sPager.setCurrentItem(sLastComicNumber - 1, false);
+            mPager.setCurrentItem(sLastComicNumber - 1, false);
         } else {
             Toast.makeText(getActivity(), R.string.no_connection, Toast.LENGTH_SHORT).show();
         }
@@ -488,7 +483,7 @@ public class ComicBrowserFragment extends android.support.v4.app.Fragment {
             if (sLastComicNumber != n) {
                 ((MainActivity) getActivity()).setProgressDialog(this.getResources().getString(R.string.loading_random), false);
             }
-            sPager.setCurrentItem(sLastComicNumber - 1, false);
+            mPager.setCurrentItem(sLastComicNumber - 1, false);
         } else {
             Toast.makeText(getActivity(), R.string.no_connection, Toast.LENGTH_SHORT).show();
         }
@@ -498,7 +493,7 @@ public class ComicBrowserFragment extends android.support.v4.app.Fragment {
         if (sNewestComicNumber - sLastComicNumber > 4) {
             ((MainActivity) getActivity()).setProgressDialog(this.getResources().getString(R.string.loading_latest), false);
         }
-        sPager.setCurrentItem(sNewestComicNumber - 1, false);
+        mPager.setCurrentItem(sNewestComicNumber - 1, false);
         return true;
     }
 
@@ -510,7 +505,7 @@ public class ComicBrowserFragment extends android.support.v4.app.Fragment {
             prefHelper.setAltTip(false);
         }
         //Show alt text
-        TextView tvAlt = (TextView) sPager.findViewWithTag(sLastComicNumber - 1).findViewById(R.id.tvAlt);
+        TextView tvAlt = (TextView) mPager.findViewWithTag(sLastComicNumber - 1).findViewById(R.id.tvAlt);
         if (prefHelper.classicAltStyle()) {
             toggleVisibility(tvAlt);
         } else {
@@ -585,6 +580,7 @@ public class ComicBrowserFragment extends android.support.v4.app.Fragment {
             }
         }
 
+        @SuppressWarnings("ResultOfMethodCallIgnored")
         @Override
         protected void onPostExecute(Bitmap result) {
             if (result == null) {
@@ -800,14 +796,14 @@ public class ComicBrowserFragment extends android.support.v4.app.Fragment {
     }
 
     public void scrollTo(int pos, boolean smooth) {
-        sPager.setCurrentItem(pos, smooth);
+        mPager.setCurrentItem(pos, smooth);
     }
 
-    public static boolean zoomReset() {
+    public boolean zoomReset() {
         if (loadingImages) {
             return true;
         }
-        PhotoView pv = (PhotoView) sPager.findViewWithTag(sLastComicNumber - 1).findViewById(R.id.ivComic);
+        PhotoView pv = (PhotoView) mPager.findViewWithTag(sLastComicNumber - 1).findViewById(R.id.ivComic);
         float scale = pv.getScale();
         if (scale != 1f) {
             pv.setScale(1f, true);

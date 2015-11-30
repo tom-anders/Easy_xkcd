@@ -7,18 +7,13 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.ActivityInfo;
 import android.graphics.Bitmap;
-import android.graphics.Canvas;
 import android.graphics.ColorFilter;
 import android.graphics.ColorMatrixColorFilter;
 import android.graphics.RectF;
-import android.graphics.drawable.BitmapDrawable;
-import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
-import android.os.Environment;
 import android.os.Vibrator;
-import android.provider.MediaStore;
 import android.support.customtabs.CustomTabsIntent;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
@@ -37,7 +32,6 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
-import android.widget.ImageView;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -67,7 +61,7 @@ public class OfflineFragment extends android.support.v4.app.Fragment {
     public static int sLastComicNumber = 0;
     public static int sNewestComicNumber = 0;
     public static SparseArray<OfflineComic> sComicMap = new SparseArray<>();
-    public static HackyViewPager sPager;
+    public HackyViewPager mPager;
     private OfflineBrowserPagerAdapter adapter;
     private Boolean randomSelected = false;
     public static boolean fromSearch = false;
@@ -88,8 +82,8 @@ public class OfflineFragment extends android.support.v4.app.Fragment {
             sLastComicNumber = prefHelper.getLastComic();
         }
 
-        sPager = (HackyViewPager) v.findViewById(R.id.pager);
-        sPager.setOffscreenPageLimit(2);
+        mPager = (HackyViewPager) v.findViewById(R.id.pager);
+        mPager.setOffscreenPageLimit(2);
 
         if (savedInstanceState == null && prefHelper.isOnline(getActivity()) && (prefHelper.isWifi(getActivity()) | prefHelper.mobileEnabled()) && !fromSearch) {
             new updateImages().execute();
@@ -99,16 +93,16 @@ public class OfflineFragment extends android.support.v4.app.Fragment {
                 try {
                     Field field = ViewPager.class.getDeclaredField("mRestoredCurItem");
                     field.setAccessible(true);
-                    field.set(sPager, sLastComicNumber - 1);
+                    field.set(mPager, sLastComicNumber - 1);
                 } catch (Exception e) {
                     e.printStackTrace();
                 }
             }
             adapter = new OfflineBrowserPagerAdapter(getActivity());
-            sPager.setAdapter(adapter);
+            mPager.setAdapter(adapter);
         }
 
-        sPager.addOnPageChangeListener(new ViewPager.OnPageChangeListener() {
+        mPager.addOnPageChangeListener(new ViewPager.OnPageChangeListener() {
             @Override
             public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) {
 
@@ -121,6 +115,7 @@ public class OfflineFragment extends android.support.v4.app.Fragment {
                 } catch (NullPointerException e) {
                     e.printStackTrace();
                 }
+                prefHelper.setComicRead(String.valueOf(position+1));
                 sLastComicNumber = position + 1;
                 if (prefHelper.subtitleEnabled() && ((MainActivity) getActivity()).getCurrentFragment() == R.id.nav_browser)
                     ((MainActivity) getActivity()).getToolbar().setSubtitle(String.valueOf(sLastComicNumber));
@@ -218,13 +213,13 @@ public class OfflineFragment extends android.support.v4.app.Fragment {
                 try {
                     Field field = ViewPager.class.getDeclaredField("mRestoredCurItem");
                     field.setAccessible(true);
-                    field.set(sPager, sLastComicNumber - 1);
+                    field.set(mPager, sLastComicNumber - 1);
                 } catch (Exception e) {
                     e.printStackTrace();
                 }
             }
             adapter = new OfflineBrowserPagerAdapter(getActivity());
-            sPager.setAdapter(adapter);
+            mPager.setAdapter(adapter);
             if (showSnackbar) {
                 View.OnClickListener oc = new View.OnClickListener() {
                     @Override
@@ -274,7 +269,7 @@ public class OfflineFragment extends android.support.v4.app.Fragment {
         if (sNewestComicNumber != 0) {
             sLastComicNumber = prefHelper.getRandomNumber(sLastComicNumber);
             randomSelected = true;
-            sPager.setCurrentItem(sLastComicNumber - 1, false);
+            mPager.setCurrentItem(sLastComicNumber - 1, false);
         }
         return true;
     }
@@ -283,7 +278,7 @@ public class OfflineFragment extends android.support.v4.app.Fragment {
         if (sNewestComicNumber != 0) {
             sLastComicNumber = prefHelper.getPreviousRandom(sLastComicNumber);
             randomSelected = true;
-            sPager.setCurrentItem(sLastComicNumber - 1, false);
+            mPager.setCurrentItem(sLastComicNumber - 1, false);
         }
     }
 
@@ -437,7 +432,7 @@ public class OfflineFragment extends android.support.v4.app.Fragment {
             prefHelper.setAltTip(false);
         }
         //Show alt text
-        TextView tvAlt = (TextView) sPager.findViewWithTag(sLastComicNumber - 1).findViewById(R.id.tvAlt);
+        TextView tvAlt = (TextView) mPager.findViewWithTag(sLastComicNumber - 1).findViewById(R.id.tvAlt);
         if (prefHelper.classicAltStyle()) {
             toggleVisibility(tvAlt);
         } else {
@@ -450,7 +445,7 @@ public class OfflineFragment extends android.support.v4.app.Fragment {
 
     private boolean getLatestComic() {
         sLastComicNumber = sNewestComicNumber;
-        sPager.setCurrentItem(sLastComicNumber - 1, false);
+        mPager.setCurrentItem(sLastComicNumber - 1, false);
         return true;
     }
 
@@ -596,9 +591,9 @@ public class OfflineFragment extends android.support.v4.app.Fragment {
                     @Override
                     public void onMatrixChanged(RectF rectF) {
                         if (pvComic.getScale() > 1.4) {
-                            sPager.setLocked(true);
+                            mPager.setLocked(true);
                         } else {
-                            sPager.setLocked(false);
+                            mPager.setLocked(false);
                         }
                     }
                 });
@@ -665,7 +660,7 @@ public class OfflineFragment extends android.support.v4.app.Fragment {
     }
 
     public void scrollTo(int pos, boolean smooth) {
-        sPager.setCurrentItem(pos, smooth);
+        mPager.setCurrentItem(pos, smooth);
     }
 
     private void toggleVisibility(View view) {
@@ -683,8 +678,8 @@ public class OfflineFragment extends android.support.v4.app.Fragment {
         super.onStop();
     }
 
-    public static boolean zoomReset() {
-        PhotoView pv = (PhotoView) sPager.findViewWithTag(sLastComicNumber - 1).findViewById(R.id.ivComic);
+    public boolean zoomReset() {
+        PhotoView pv = (PhotoView) mPager.findViewWithTag(sLastComicNumber - 1).findViewById(R.id.ivComic);
         float scale = pv.getScale();
         if (scale != 1f) {
             pv.setScale(1f, true);

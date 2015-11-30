@@ -77,6 +77,7 @@ public class PrefHelper {
     private static final String LAST_WHATIF = "last_whatif";
     private static final String NIGHT_MODE = "night_mode";
     private static final String WHATIF_READ = "whatif_read";
+    private static final String COMIC_READ = "comic_read";
     private static final String WHATIF_FAV = "whatif_fav";
     private static final String NEWEST_WHATIF = "whatif_newest";
     private static final String HIDE_READ = "hide_read";
@@ -367,6 +368,32 @@ public class PrefHelper {
         return (a >= 0);
     }
 
+    public void setComicRead(String added) {
+        String read = sharedPrefs.getString(COMIC_READ, "");
+        if (!read.equals("")) {
+            read = read + "," + added;
+        } else {
+            read = added;
+        }
+        SharedPreferences.Editor editor = sharedPrefs.edit();
+        editor.putString(COMIC_READ, read);
+        editor.apply();
+    }
+
+    public boolean checkComicRead(int number) {
+        String read = sharedPrefs.getString(COMIC_READ, "");
+        if (read.equals("")) {
+            return false;
+        }
+        String[] readList = Favorites.sortArray(read.split(","));
+        int[] readInt = new int[readList.length];
+        for (int i = 0; i < readInt.length; i++) {
+            readInt[i] = Integer.parseInt(readList[i]);
+        }
+        int a = Arrays.binarySearch(readInt, number);
+        return (a >= 0);
+    }
+
     public void setWhatIfFavorite (String added) {
         String fav = sharedPrefs.getString(WHATIF_FAV, "");
         if (!fav.equals("")) {
@@ -427,6 +454,12 @@ public class PrefHelper {
     public void setAllUnread() {
         SharedPreferences.Editor editor = sharedPrefs.edit();
         editor.putString(WHATIF_READ, "");
+        editor.commit();
+    }
+
+    public void setComicsUnread() {
+        SharedPreferences.Editor editor = sharedPrefs.edit();
+        editor.putString(COMIC_READ, "");
         editor.commit();
     }
 

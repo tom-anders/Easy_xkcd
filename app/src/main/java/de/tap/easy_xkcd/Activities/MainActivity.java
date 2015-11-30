@@ -36,7 +36,6 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
-import android.support.v4.app.FragmentTransaction;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.view.MenuItemCompat;
 import android.support.v4.widget.DrawerLayout;
@@ -65,7 +64,6 @@ import butterknife.OnLongClick;
 import de.tap.easy_xkcd.fragments.ComicBrowserFragment;
 import de.tap.easy_xkcd.fragments.OverviewListFragment;
 import de.tap.easy_xkcd.notifications.ComicListener;
-import de.tap.easy_xkcd.utils.Comic;
 import de.tap.easy_xkcd.utils.Favorites;
 import de.tap.easy_xkcd.fragments.FavoritesFragment;
 import de.tap.easy_xkcd.fragments.OfflineFragment;
@@ -501,12 +499,12 @@ public class MainActivity extends AppCompatActivity {
                 MenuItem item = mNavView.getMenu().findItem(R.id.nav_browser);
                 selectDrawerItem(item, false);
                 ComicBrowserFragment.sLastComicNumber = getNumberFromUrl(getIntent().getDataString(), 0);
-                ComicBrowserFragment.sPager.setCurrentItem(ComicBrowserFragment.sLastComicNumber - 1, false);
+                ((ComicBrowserFragment)fm.findFragmentByTag(BROWSER_TAG)).mPager.setCurrentItem(ComicBrowserFragment.sLastComicNumber - 1, false);
             } else {
                 MenuItem item = mNavView.getMenu().findItem(R.id.nav_browser);
                 selectDrawerItem(item, false);
                 OfflineFragment.sLastComicNumber = getNumberFromUrl(getIntent().getDataString(), 0);
-                OfflineFragment.sPager.setCurrentItem(OfflineFragment.sLastComicNumber - 1, false);
+                ((ComicBrowserFragment)fm.findFragmentByTag(BROWSER_TAG)).mPager.setCurrentItem(OfflineFragment.sLastComicNumber - 1, false);
             }
         }
         if ((COMIC_INTENT).equals(getIntent().getAction())) {
@@ -714,9 +712,9 @@ public class MainActivity extends AppCompatActivity {
         } else if (mCurrentFragment == R.id.nav_browser && (fragmentManager.findFragmentByTag(OVERVIEW_TAG) == null || !fragmentManager.findFragmentByTag(OVERVIEW_TAG).isVisible())) {
             boolean zoomReset;
             if (!fullOffline) {
-                zoomReset = ComicBrowserFragment.zoomReset();
+                zoomReset = ((ComicBrowserFragment)fragmentManager.findFragmentByTag(BROWSER_TAG)).zoomReset();
             } else {
-                zoomReset = OfflineFragment.zoomReset();
+                zoomReset = ((OfflineFragment)fragmentManager.findFragmentByTag(BROWSER_TAG)).zoomReset();
             }
             if (!zoomReset) {
                 showOverview();
@@ -776,14 +774,6 @@ public class MainActivity extends AppCompatActivity {
 
     public static MainActivity getInstance() {
         return instance;
-    }
-
-    public void scrollBrowser(int pos) {
-        Fragment fragment = getSupportFragmentManager().findFragmentByTag(BROWSER_TAG);
-        if (prefHelper.fullOfflineEnabled())
-            ((OfflineFragment) fragment).scrollTo(pos, false);
-        else
-            ((ComicBrowserFragment) fragment).scrollTo(pos, false);
     }
 
     @Override
