@@ -276,8 +276,8 @@ public class SearchResultsActivity extends AppCompatActivity {
 
     private boolean getComicByNumber(int number) {
         Intent intent = new Intent("de.tap.easy_xkcd.ACTION_COMIC");
-        if ((number > ComicBrowserFragment.sNewestComicNumber && number > OfflineFragment.sNewestComicNumber) | number < 1) {
-            intent.putExtra("number", ComicBrowserFragment.sNewestComicNumber);
+        if ((number > prefHelper.getNewest() && number > prefHelper.getHighestOffline()) | number < 1) {
+            intent.putExtra("number", prefHelper.getNewest());
         } else {
             intent.putExtra("number", number);
         }

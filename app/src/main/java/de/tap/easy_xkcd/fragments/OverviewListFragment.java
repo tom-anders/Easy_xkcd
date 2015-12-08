@@ -99,8 +99,10 @@ public class OverviewListFragment extends android.support.v4.app.Fragment {
         }
 
         if (prefHelper.subtitleEnabled()) {
-            if (!prefHelper.fullOfflineEnabled())
-                ((MainActivity) getActivity()).getToolbar().setSubtitle(String.valueOf(ComicBrowserFragment.sLastComicNumber));
+            if (!prefHelper.fullOfflineEnabled()) {
+                ComicBrowserFragment comicBrowserFragment = (ComicBrowserFragment) getActivity().getSupportFragmentManager().findFragmentByTag(BROWSER_TAG);
+                ((MainActivity) getActivity()).getToolbar().setSubtitle(String.valueOf(comicBrowserFragment.sLastComicNumber));
+            }
             else
                 ((MainActivity) getActivity()).getToolbar().setSubtitle(String.valueOf(OfflineFragment.sLastComicNumber));
         }
@@ -342,7 +344,8 @@ public class OverviewListFragment extends android.support.v4.app.Fragment {
             if (prefHelper.fullOfflineEnabled()) {
                 list.setSelection(OfflineFragment.sLastComicNumber);
             } else {
-                list.setSelection(ComicBrowserFragment.sLastComicNumber - 1);
+                ComicBrowserFragment comicBrowserFragment = (ComicBrowserFragment) getActivity().getSupportFragmentManager().findFragmentByTag(BROWSER_TAG);
+                list.setSelection(comicBrowserFragment.sLastComicNumber - 1);
             }
             list.setOnItemClickListener(new AdapterView.OnItemClickListener() {
                 @Override

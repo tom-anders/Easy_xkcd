@@ -64,6 +64,7 @@ import butterknife.OnLongClick;
 import de.tap.easy_xkcd.fragments.ComicBrowserFragment;
 import de.tap.easy_xkcd.fragments.OverviewListFragment;
 import de.tap.easy_xkcd.notifications.ComicListener;
+import de.tap.easy_xkcd.utils.Comic;
 import de.tap.easy_xkcd.utils.Favorites;
 import de.tap.easy_xkcd.fragments.FavoritesFragment;
 import de.tap.easy_xkcd.fragments.OfflineFragment;
@@ -137,7 +138,7 @@ public class MainActivity extends AppCompatActivity {
                 whatIfIntent = true;
                 WhatIfFragment.newIntent = true;
             } else {
-                ComicBrowserFragment.sLastComicNumber = (getNumberFromUrl(getIntent().getDataString(), 0));
+                prefHelper.setLastComic(getNumberFromUrl(getIntent().getDataString(), 0));
                 OfflineFragment.sLastComicNumber = (getNumberFromUrl(getIntent().getDataString(), 0));
             }
         }
@@ -145,7 +146,7 @@ public class MainActivity extends AppCompatActivity {
             int number = getIntent().getIntExtra("number", 0);
             showProgress = false;
             if (prefHelper.isOnline(this) && !fullOffline) {
-                ComicBrowserFragment.sLastComicNumber = number;
+                prefHelper.setLastComic(number);
             } else {
                 OfflineFragment.sLastComicNumber = number;
             }
@@ -246,10 +247,13 @@ public class MainActivity extends AppCompatActivity {
         android.support.v4.app.FragmentManager fragmentManager = getSupportFragmentManager();
         OverviewListFragment overviewListFragment = (OverviewListFragment) fragmentManager.findFragmentByTag(OVERVIEW_TAG);
         if (overviewListFragment != null && overviewListFragment.isVisible()) {
-            if (!fullOffline)
-                overviewListFragment.showComic(ComicBrowserFragment.sNewestComicNumber - prefHelper.getRandomNumber(ComicBrowserFragment.sLastComicNumber));
-            else
+            if (!fullOffline) {
+                ComicBrowserFragment comicBrowserFragment = (ComicBrowserFragment) fragmentManager.findFragmentByTag(BROWSER_TAG);
+                overviewListFragment.showComic(comicBrowserFragment.sNewestComicNumber - prefHelper.getRandomNumber(comicBrowserFragment.sLastComicNumber));
+            }
+            else {
                 overviewListFragment.showComic(OfflineFragment.sNewestComicNumber - prefHelper.getRandomNumber(OfflineFragment.sLastComicNumber));
+            }
 
         } else {
             switch (mCurrentFragment) {
@@ -420,6 +424,8 @@ public class MainActivity extends AppCompatActivity {
         if (fragmentManager.findFragmentByTag(fragmentTagShow) != null) {
             //if the fragment exists, show it.
             android.support.v4.app.FragmentTransaction ft = fragmentManager.beginTransaction();
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP)
+                fragmentManager.findFragmentByTag(fragmentTagShow).setEnterTransition(null);
             if (fragmentTagShow.equals(BROWSER_TAG)) {
                 ft.setCustomAnimations(R.anim.abc_slide_in_top, R.anim.abc_slide_in_top);
             } else {
@@ -456,7 +462,7 @@ public class MainActivity extends AppCompatActivity {
                 }
                 case R.id.nav_browser: {
                     if (prefHelper.isOnline(this) && !fullOffline) {
-                        getSupportActionBar().setSubtitle(String.valueOf(ComicBrowserFragment.sLastComicNumber));
+                        getSupportActionBar().setSubtitle(String.valueOf(prefHelper.getLastComic()));
                     } else {
                         getSupportActionBar().setSubtitle(String.valueOf(OfflineFragment.sLastComicNumber));
                     }
@@ -498,8 +504,9 @@ public class MainActivity extends AppCompatActivity {
             } else if (prefHelper.isOnline(this) && !fullOffline) {
                 MenuItem item = mNavView.getMenu().findItem(R.id.nav_browser);
                 selectDrawerItem(item, false);
-                ComicBrowserFragment.sLastComicNumber = getNumberFromUrl(getIntent().getDataString(), 0);
-                ((ComicBrowserFragment)fm.findFragmentByTag(BROWSER_TAG)).mPager.setCurrentItem(ComicBrowserFragment.sLastComicNumber - 1, false);
+                ComicBrowserFragment comicBrowserFragment = (ComicBrowserFragment) getSupportFragmentManager().findFragmentByTag(BROWSER_TAG);
+                comicBrowserFragment.sLastComicNumber = getNumberFromUrl(getIntent().getDataString(), 0);
+                comicBrowserFragment.mPager.setCurrentItem(comicBrowserFragment.sLastComicNumber - 1, false);
             } else {
                 MenuItem item = mNavView.getMenu().findItem(R.id.nav_browser);
                 selectDrawerItem(item, false);
@@ -511,8 +518,8 @@ public class MainActivity extends AppCompatActivity {
             int number = getIntent().getIntExtra("number", 0);
             if (prefHelper.isOnline(this) && !fullOffline) {
                 ComicBrowserFragment fragment = (ComicBrowserFragment) fm.findFragmentByTag(BROWSER_TAG);
-                ComicBrowserFragment.sLastComicNumber = number;
-                ComicBrowserFragment.sNewestComicNumber = 0;
+                fragment.sLastComicNumber = number;
+                fragment.sNewestComicNumber = 0;
                 mProgress = ProgressDialog.show(this, "", this.getResources().getString(R.string.loading_comics), true);
                 fragment.updatePager();
             } else {
@@ -645,10 +652,10 @@ public class MainActivity extends AppCompatActivity {
                 getSupportFragmentManager().beginTransaction()
                         .hide(fragmentManager.findFragmentByTag(BROWSER_TAG))
                         .show(fragmentManager.findFragmentByTag(OVERVIEW_TAG))
+
                         .commit();
             }
-
-
+            fragmentManager.findFragmentByTag(BROWSER_TAG).setExitTransition(null);
         }
         assert getSupportActionBar() != null;
         getSupportActionBar().setSubtitle("");

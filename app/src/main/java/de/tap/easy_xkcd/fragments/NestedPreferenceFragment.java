@@ -464,7 +464,7 @@ public class NestedPreferenceFragment extends PreferenceFragment {
 
         @Override
         protected Void doInBackground(Void... params) {
-            for (int i = 1; i <= ComicBrowserFragment.sNewestComicNumber; i++) {
+            for (int i = 1; i <= prefHelper.getNewest(); i++) {
                 Log.d("i", String.valueOf(i));
                 try {
                     Comic comic = new Comic(i, getActivity());
@@ -496,13 +496,13 @@ public class NestedPreferenceFragment extends PreferenceFragment {
 
                     prefHelper.addTitle(comic.getComicData()[0], i);
                     prefHelper.addAlt(comic.getComicData()[1], i);
-                    int p = (int) (i / ((float) ComicBrowserFragment.sNewestComicNumber) * 100);
+                    int p = (int) (i / ((float) prefHelper.getNewest()) * 100);
                     publishProgress(p);
                 } catch (Exception e) {
                     e.printStackTrace();
                 }
             }
-            prefHelper.setHighestOffline(ComicBrowserFragment.sNewestComicNumber);
+            prefHelper.setHighestOffline(prefHelper.getNewest());
             return null;
         }
 

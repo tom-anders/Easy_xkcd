@@ -67,8 +67,8 @@ import uk.co.senab.photoview.PhotoView;
 import uk.co.senab.photoview.PhotoViewAttacher;
 
 public class ComicBrowserFragment extends android.support.v4.app.Fragment {
-    public static int sLastComicNumber = 0;
-    public static int sNewestComicNumber = 0;
+    public int sLastComicNumber;
+    public int sNewestComicNumber;
     private static boolean newestUpdated = false;
     public static SparseArray<Comic> sComicMap = new SparseArray<>();
     public HackyViewPager mPager;
@@ -98,8 +98,9 @@ public class ComicBrowserFragment extends android.support.v4.app.Fragment {
 
         if (savedInstanceState == null && !newestUpdated) {
             newestUpdated = true;
-            new updateNewest().execute();
+            new updateNewest(true).execute();
         } else {
+            sNewestComicNumber = prefHelper.getNewest();
             if (sLastComicNumber != 0) {
                 try {
                     Field field = ViewPager.class.getDeclaredField("mRestoredCurItem");
@@ -151,18 +152,27 @@ public class ComicBrowserFragment extends android.support.v4.app.Fragment {
     }
 
     public void updatePager() {
-        new updateNewest().execute();
+        new updateNewest(false).execute();
     }
 
     private class updateNewest extends AsyncTask<Void, Void, Boolean> {
         private ProgressDialog progress;
+        private boolean showProgress;
+        private boolean updatePager;
+
+        public updateNewest(boolean showProgress) {
+            super();
+            this.showProgress = showProgress;
+        }
 
         @Override
         protected void onPreExecute() {
-            progress = new ProgressDialog(getActivity());
-            progress.setTitle(getResources().getString(R.string.loading_comics));
-            progress.setCancelable(false);
-            progress.show();
+            if (showProgress) {
+                progress = new ProgressDialog(getActivity());
+                progress.setTitle(getResources().getString(R.string.loading_comics));
+                progress.setCancelable(false);
+                progress.show();
+            }
         }
 
         @Override
@@ -176,6 +186,7 @@ public class ComicBrowserFragment extends android.support.v4.app.Fragment {
                 e.printStackTrace();
             }
             boolean showSnackbar = sNewestComicNumber > prefHelper.getNewest() && sLastComicNumber != sNewestComicNumber && (prefHelper.getNotificationInterval() == 0);
+            updatePager = showProgress || sNewestComicNumber > prefHelper.getNewest();
 
             prefHelper.setNewestComic(sNewestComicNumber);
             prefHelper.setLastComic(sLastComicNumber);
@@ -184,18 +195,20 @@ public class ComicBrowserFragment extends android.support.v4.app.Fragment {
 
         @Override
         protected void onPostExecute(Boolean showSnackbar) {
-            if (sLastComicNumber != 0) {
-                try {
-                    Field field = ViewPager.class.getDeclaredField("mRestoredCurItem");
-                    field.setAccessible(true);
-                    field.set(mPager, sLastComicNumber - 1);
-                } catch (Exception e) {
-                    e.printStackTrace();
+            if (updatePager) {
+                if (sLastComicNumber != 0) {
+                    try {
+                        Field field = ViewPager.class.getDeclaredField("mRestoredCurItem");
+                        field.setAccessible(true);
+                        field.set(mPager, sLastComicNumber - 1);
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
                 }
+                adapter = new ComicBrowserPagerAdapter(getActivity());
+                mPager.setAdapter(adapter);
+                mPager.setOffscreenPageLimit(3);
             }
-            adapter = new ComicBrowserPagerAdapter(getActivity());
-            mPager.setAdapter(adapter);
-            mPager.setOffscreenPageLimit(3);
             if (showSnackbar) {
                 View.OnClickListener oc = new View.OnClickListener() {
                     @Override
@@ -208,7 +221,8 @@ public class ComicBrowserFragment extends android.support.v4.app.Fragment {
                         .setAction(getActivity().getResources().getString(R.string.new_comic_view), oc)
                         .show();
             }
-            progress.dismiss();
+            if (showProgress)
+                progress.dismiss();
         }
     }
 
