@@ -13,7 +13,8 @@
   ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
   ~ See the License for the specific language governing permissions and
   ~ limitations under the License.
-  --><resources>
+  -->
+  <resources>
     <string name="app_name">Easy xkcd</string>
     <string name="pref_title">Nastavení</string>
     <string name="title_activity_about">O aplikaci</string>
@@ -76,7 +77,7 @@
     <string name="action_night_mode">Noční mód</string>
     <string name="action_browser">Otevřít v prohlížeči</string>
     <string name="action_swipe">Potáhnout pro navigaci</string>
-    <string name="action_donate">Darovat</string>
+    <string name="action_donate">Podpořit</string>
     <string name="action_trans">Zobrazit transkript</string>
     <string name="action_alt_tip">Tip: Můžete si nechat zobrazit alternativní text dlouhým podržením obrázku komixu.</string>
     <string name="search_title">Hledat</string>
@@ -86,7 +87,7 @@
     <string name="drawer_close">Zavřít navigaci</string>
     <string name="new_comic">Nový komix!</string>
     <string name="new_comic_view">Zobrazit</string>
-    <string name="new_whatif">Nové Co kdyby!</string>
+    <string name="new_whatif">Nové What If!</string>
     <string name="apply_theme">Restartovat a použít nový vzhled?</string>
 
     <string-array name="share_dialog">
@@ -140,45 +141,6 @@
         <item>WebView výchozí</item>
     </string-array>
 
-
-
-
-
-
-
-    <integer-array name="interactive_comics" translatable="false">
-        <item>826</item>
-        <item>1037</item>
-        <item>1110</item>
-        <item>1264</item>
-        <item>1331</item>
-        <item>1350</item>
-        <item>1416</item>
-        <item>1506</item>
-        <item>1525</item>
-    </integer-array>
-
-    <integer-array name="large_comics" translatable="false">
-        <item>256</item>
-        <item>482</item>
-        <item>657</item>
-        <item>681</item>
-        <item>802</item>
-        <item>1000</item>
-        <item>1040</item>
-        <item>1071</item>
-        <item>1079</item>
-        <item>1080</item>
-        <item>1196</item>
-        <item>1256</item>
-        <item>1298</item>
-        <item>1389</item>
-        <item>1392</item>
-        <item>1491</item>
-    </integer-array>
-
-
-
     <string name="title_interactive">(interaktivní)</string>
 
     <!-- navigation drawer -->
@@ -218,30 +180,30 @@
     <string name="pref_large_sum">Načítat velké obrázky pokud jsou dostupné (např. #657). Může snížit výkon na starších přístrojích</string>
     <string name="pref_offline">Offline mód</string>
     <string name="pref_offline_sum">Stáhnout všechny komixy do externího úložiště Nové komixy budou přidány automaticky</string>
-    <string name="pref_offline_whatif">&quot;Co kdyby?&quot; offline mód</string>
+    <string name="pref_offline_whatif">&quot;What if?&quot; offline mód</string>
     <string name="pref_mobile">Sdílet mobilní odkazy</string>
     <string name="pref_mobile_sum">Sdílet m.xkcd.com odkazy místo xkcd.com</string>
     <string name="pref_orientation">Orientace obrazovky</string>
     <string name="pref_orientation_sum">Výchozí, na výšku nebo na šířku</string>
     <string name="pref_notifications">Interval aktualizace pro upozornění</string>
-    <string name="pref_notifications_sum">Kontroluje nové komixy v pondělí, ve středu a v pátek, kontroluje nové Co kdyby v úterý.</string>
+    <string name="pref_notifications_sum">Kontroluje nové komixy v pondělí, ve středu a v pátek, kontroluje nové What If v úterý.</string>
     <string name="pref_show_alt">Zobrazit alternativní text ve výchozím nastavení</string>
     <string name="pref_theme">Vzhled</string>
     <string name="pref_theme_sum">Musíte restartovat aplikaci aby bylo použito nové téma vzhledu</string>
-    <string name="pref_zoom">Co kdyby? Zvětšení textu</string>
+    <string name="pref_zoom">What If? Zvětšení textu</string>
     <string name="pref_zoom_sum">Může spravit problémy s rozvržením na některých přístrojích</string>
     <string name="pref_advanced">Rozšířené</string>
     <string name="pref_repair">Opravit offline komixy</string>
     <string name="pref_repair_sum">Pokud vidíte prázdné komixy, tato možnost je napraví novým stažením</string>
     <string name="pref_hide_donate">Skrýt tlačítko pro darování</string>
-    <string name="title_activity_donate">Darovat</string>
+    <string name="title_activity_donate">Podpořit</string>
     <string name="pref_alt_title">Alternativní text</string>
     <string name="pref_alt_style">Styl</string>
     <string name="snackbar_survey">Máte minutku a chcete pomoci vylepšit tuto aplikac?</string>
     <string name="snackbar_survey_oc">Vyplňte dotazník</string>
     <string name="pref_navbar">Barevná navigační lišta</string>
     <string name="pref_update_mobile">Aktualizovat přes mobilní data</string>
-    <string name="pref_update_mobile_sum">Pokud vypnuto, offline komixy a co kdyby články budou aktualizovány pouze přes wifi</string>
+    <string name="pref_update_mobile_sum">Pokud vypnuto, offline komixy a what-if články budou aktualizovány pouze přes wifi</string>
     <string name="pref_alt_sharing">Alternativní text a sdílení</string>
     <string name="pref_alt_sharing_sum">Nastavit chování sdílení a alternativního textu</string>
     <string name="pref_night_options">Noční nastavení</string>
@@ -257,6 +219,7 @@
     <string name="copy_folder">Přesouvám adresáře a soubory …</string>
     <string name="action_overview">Přehled komixů</string>
     <string name="pref_zoom_scroll">Vypnout posun při přihlížení zvětšených obrázků komixu</string>
+    <string name="not_restart">Hotovo. Dotykem restartovat aplikaci.</string>
 
     <string name="dialog_donate">Kolik chcete přispět?</string>
     <string name="update_database">Aktualizace databáze…</string>
@@ -265,7 +228,6 @@
         <item>Prohlížeč komixu</item>
         <item>Oblíbené</item>
     </string-array>
-
 
     <string-array name="alt_style_entries">
         <item>Klasický</item>
@@ -282,6 +244,5 @@
         <item>Krátké ťuknutí</item>
         <item>Dlouhé stlačení</item>
     </string-array>
-    <string name="not_restart">Done. Tap to restart the app.</string>
 
 </resources>
