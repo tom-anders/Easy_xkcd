@@ -103,8 +103,10 @@ public class OverviewListFragment extends android.support.v4.app.Fragment {
                 ComicBrowserFragment comicBrowserFragment = (ComicBrowserFragment) getActivity().getSupportFragmentManager().findFragmentByTag(BROWSER_TAG);
                 ((MainActivity) getActivity()).getToolbar().setSubtitle(String.valueOf(comicBrowserFragment.sLastComicNumber));
             }
-            else
-                ((MainActivity) getActivity()).getToolbar().setSubtitle(String.valueOf(OfflineFragment.sLastComicNumber));
+            else {
+                OfflineFragment offlineFragment = (OfflineFragment) fragmentManager.findFragmentByTag(BROWSER_TAG);
+                ((MainActivity) getActivity()).getToolbar().setSubtitle(String.valueOf(offlineFragment.sLastComicNumber));
+            }
         }
         new Handler().postDelayed(new Runnable() {
             @Override
@@ -342,7 +344,8 @@ public class OverviewListFragment extends android.support.v4.app.Fragment {
             adapter = new ListAdapter();
             list.setAdapter(adapter);
             if (prefHelper.fullOfflineEnabled()) {
-                list.setSelection(OfflineFragment.sLastComicNumber);
+                OfflineFragment offlineFragment = (OfflineFragment) getActivity().getSupportFragmentManager().findFragmentByTag(BROWSER_TAG);
+                list.setSelection(offlineFragment.sLastComicNumber);
             } else {
                 ComicBrowserFragment comicBrowserFragment = (ComicBrowserFragment) getActivity().getSupportFragmentManager().findFragmentByTag(BROWSER_TAG);
                 list.setSelection(comicBrowserFragment.sLastComicNumber - 1);

@@ -139,17 +139,17 @@ public class MainActivity extends AppCompatActivity {
                 WhatIfFragment.newIntent = true;
             } else {
                 prefHelper.setLastComic(getNumberFromUrl(getIntent().getDataString(), 0));
-                OfflineFragment.sLastComicNumber = (getNumberFromUrl(getIntent().getDataString(), 0));
+                //OfflineFragment.sLastComicNumber = (getNumberFromUrl(getIntent().getDataString(), 0));
             }
         }
         if ((COMIC_INTENT).equals(getIntent().getAction())) {
             int number = getIntent().getIntExtra("number", 0);
             showProgress = false;
-            if (prefHelper.isOnline(this) && !fullOffline) {
-                prefHelper.setLastComic(number);
-            } else {
+            //if (prefHelper.isOnline(this) && !fullOffline) {
+            prefHelper.setLastComic(number);
+            /*} else {
                 OfflineFragment.sLastComicNumber = number;
-            }
+            }*/
         }
         if ((WHATIF_INTENT).equals(getIntent().getAction())) {
             WhatIfActivity.WhatIfIndex = getIntent().getIntExtra("number", 0);
@@ -250,9 +250,9 @@ public class MainActivity extends AppCompatActivity {
             if (!fullOffline) {
                 ComicBrowserFragment comicBrowserFragment = (ComicBrowserFragment) fragmentManager.findFragmentByTag(BROWSER_TAG);
                 overviewListFragment.showComic(comicBrowserFragment.sNewestComicNumber - prefHelper.getRandomNumber(comicBrowserFragment.sLastComicNumber));
-            }
-            else {
-                overviewListFragment.showComic(OfflineFragment.sNewestComicNumber - prefHelper.getRandomNumber(OfflineFragment.sLastComicNumber));
+            } else {
+                OfflineFragment offlineFragment = (OfflineFragment) fragmentManager.findFragmentByTag(BROWSER_TAG);
+                overviewListFragment.showComic(offlineFragment.sNewestComicNumber - prefHelper.getRandomNumber(offlineFragment.sLastComicNumber));
             }
 
         } else {
@@ -462,9 +462,17 @@ public class MainActivity extends AppCompatActivity {
                 }
                 case R.id.nav_browser: {
                     if (prefHelper.isOnline(this) && !fullOffline) {
-                        getSupportActionBar().setSubtitle(String.valueOf(prefHelper.getLastComic()));
+                        ComicBrowserFragment comicBrowserFragment = (ComicBrowserFragment) getSupportFragmentManager().findFragmentByTag(BROWSER_TAG);
+                        if (comicBrowserFragment != null && comicBrowserFragment.sLastComicNumber != 0)
+                            getSupportActionBar().setSubtitle(String.valueOf(comicBrowserFragment.sLastComicNumber));
+                        else
+                            getSupportActionBar().setSubtitle(String.valueOf(prefHelper.getLastComic()));
                     } else {
-                        getSupportActionBar().setSubtitle(String.valueOf(OfflineFragment.sLastComicNumber));
+                        OfflineFragment offlineFragment = (OfflineFragment) fragmentManager.findFragmentByTag(BROWSER_TAG);
+                        if (offlineFragment != null && offlineFragment.sLastComicNumber != 0)
+                            getSupportActionBar().setSubtitle(String.valueOf(offlineFragment.sLastComicNumber));
+                        else
+                            getSupportActionBar().setSubtitle(String.valueOf(prefHelper.getLastComic()));
                     }
                     break;
                 }
@@ -510,8 +518,9 @@ public class MainActivity extends AppCompatActivity {
             } else {
                 MenuItem item = mNavView.getMenu().findItem(R.id.nav_browser);
                 selectDrawerItem(item, false);
-                OfflineFragment.sLastComicNumber = getNumberFromUrl(getIntent().getDataString(), 0);
-                ((ComicBrowserFragment)fm.findFragmentByTag(BROWSER_TAG)).mPager.setCurrentItem(OfflineFragment.sLastComicNumber - 1, false);
+                OfflineFragment offlineFragment = (OfflineFragment) getSupportFragmentManager().findFragmentByTag(BROWSER_TAG);
+                offlineFragment.sLastComicNumber = getNumberFromUrl(getIntent().getDataString(), 0);
+                ((ComicBrowserFragment) fm.findFragmentByTag(BROWSER_TAG)).mPager.setCurrentItem(offlineFragment.sLastComicNumber - 1, false);
             }
         }
         if ((COMIC_INTENT).equals(getIntent().getAction())) {
@@ -524,7 +533,7 @@ public class MainActivity extends AppCompatActivity {
                 fragment.updatePager();
             } else {
                 OfflineFragment fragment = (OfflineFragment) fm.findFragmentByTag(BROWSER_TAG);
-                OfflineFragment.sLastComicNumber = number;
+                fragment.sLastComicNumber = number;
                 fragment.updatePager();
             }
         }
@@ -717,9 +726,9 @@ public class MainActivity extends AppCompatActivity {
         } else if (mCurrentFragment == R.id.nav_browser && (fragmentManager.findFragmentByTag(OVERVIEW_TAG) == null || !fragmentManager.findFragmentByTag(OVERVIEW_TAG).isVisible())) {
             boolean zoomReset;
             if (!fullOffline) {
-                zoomReset = ((ComicBrowserFragment)fragmentManager.findFragmentByTag(BROWSER_TAG)).zoomReset();
+                zoomReset = ((ComicBrowserFragment) fragmentManager.findFragmentByTag(BROWSER_TAG)).zoomReset();
             } else {
-                zoomReset = ((OfflineFragment)fragmentManager.findFragmentByTag(BROWSER_TAG)).zoomReset();
+                zoomReset = ((OfflineFragment) fragmentManager.findFragmentByTag(BROWSER_TAG)).zoomReset();
             }
             if (!zoomReset) {
                 showOverview();

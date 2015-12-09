@@ -58,9 +58,9 @@ import uk.co.senab.photoview.PhotoView;
 import uk.co.senab.photoview.PhotoViewAttacher;
 
 public class OfflineFragment extends android.support.v4.app.Fragment {
-    public static int sLastComicNumber = 0;
-    public static int sNewestComicNumber = 0;
-    public static SparseArray<OfflineComic> sComicMap = new SparseArray<>();
+    public int sLastComicNumber;
+    public int sNewestComicNumber;
+    public SparseArray<OfflineComic> sComicMap = new SparseArray<>();
     public HackyViewPager mPager;
     private OfflineBrowserPagerAdapter adapter;
     private Boolean randomSelected = false;

@@ -70,7 +70,7 @@ public class ComicBrowserFragment extends android.support.v4.app.Fragment {
     public int sLastComicNumber;
     public int sNewestComicNumber;
     private static boolean newestUpdated = false;
-    public static SparseArray<Comic> sComicMap = new SparseArray<>();
+    public SparseArray<Comic> sComicMap = new SparseArray<>();
     public HackyViewPager mPager;
     public static boolean fromSearch = false;
     private static boolean loadingImages;

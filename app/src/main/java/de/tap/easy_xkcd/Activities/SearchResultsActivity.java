@@ -283,7 +283,8 @@ public class SearchResultsActivity extends AppCompatActivity {
         }
         mProgress.dismiss();
         startActivity(intent);
-        task.cancel(true);
+        if (task!=null)
+            task.cancel(true);
         return true;
     }
 
