@@ -249,5 +249,6 @@
     </string-array>
     <string name="action_overview">Comic Overview</string>
     <string name="pref_zoom_scroll">Disable scrolling while zoomed into comic image</string>
+    <string name="not_restart">Done. Tap to restart the app.</string>
 
 </resources>

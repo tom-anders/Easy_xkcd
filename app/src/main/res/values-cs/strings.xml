@@ -282,5 +282,6 @@
         <item>Krátké ťuknutí</item>
         <item>Dlouhé stlačení</item>
     </string-array>
+    <string name="not_restart">Done. Tap to restart the app.</string>
 
 </resources>

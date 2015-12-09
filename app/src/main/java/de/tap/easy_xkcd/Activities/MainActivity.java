@@ -35,7 +35,6 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
-import android.support.v4.app.Fragment;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.view.MenuItemCompat;
 import android.support.v4.widget.DrawerLayout;
@@ -45,6 +44,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.transition.Transition;
 import android.transition.TransitionInflater;
+import android.util.Log;
 import android.util.TypedValue;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -64,7 +64,6 @@ import butterknife.OnLongClick;
 import de.tap.easy_xkcd.fragments.ComicBrowserFragment;
 import de.tap.easy_xkcd.fragments.OverviewListFragment;
 import de.tap.easy_xkcd.notifications.ComicListener;
-import de.tap.easy_xkcd.utils.Comic;
 import de.tap.easy_xkcd.utils.Favorites;
 import de.tap.easy_xkcd.fragments.FavoritesFragment;
 import de.tap.easy_xkcd.fragments.OfflineFragment;
@@ -113,6 +112,7 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         ButterKnife.bind(this);
+        Log.d("info", "MainActivity OnCreateView");
 
         instance = this;
         customTabActivityHelper = new CustomTabActivityHelper();
@@ -619,8 +619,6 @@ public class MainActivity extends AppCompatActivity {
                 return true;
 
             case R.id.action_overview:
-                /*fromSearch = true;
-                startActivity(new Intent(MainActivity.this, OverviewActivity.class));*/
                 showOverview();
                 return true;
         }

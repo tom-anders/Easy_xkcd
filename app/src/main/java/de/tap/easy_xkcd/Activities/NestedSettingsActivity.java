@@ -1,14 +1,15 @@
 package de.tap.easy_xkcd.Activities;
 
 import android.app.ProgressDialog;
+import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
-import android.util.Log;
 import android.util.TypedValue;
+import android.widget.Toast;
 
 import com.tap.xkcd_reader.R;
 import com.turhanoz.android.reactivedirectorychooser.event.OnDirectoryCancelEvent;
@@ -17,13 +18,14 @@ import com.turhanoz.android.reactivedirectorychooser.ui.OnDirectoryChooserFragme
 
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 
 import de.tap.easy_xkcd.fragments.NestedPreferenceFragment;
+import de.tap.easy_xkcd.services.ArticleDownloadService;
+import de.tap.easy_xkcd.services.ComicDownloadService;
 import de.tap.easy_xkcd.utils.PrefHelper;
 
 public class NestedSettingsActivity extends AppCompatActivity implements OnDirectoryChooserFragmentInteraction  {
@@ -89,7 +91,9 @@ public class NestedSettingsActivity extends AppCompatActivity implements OnDirec
         switch (requestCode) {
             case 1:
                 if (grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                    fragment.new downloadComicsTask().execute();
+                    //fragment.new downloadComicsTask().execute();
+                    Toast.makeText(getApplicationContext(), getResources().getString(R.string.loading_comics), Toast.LENGTH_SHORT).show();
+                    startService(new Intent(this, ComicDownloadService.class));
                     prefHelper.setFullOffline(true);
                 }
                 break;
@@ -102,7 +106,9 @@ public class NestedSettingsActivity extends AppCompatActivity implements OnDirec
                 break;
             case 3:
                 if (grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                    fragment.new downloadArticlesTask().execute();
+                    //fragment.new downloadArticlesTask().execute();
+                    Toast.makeText(this, getResources().getString(R.string.loading_articles), Toast.LENGTH_SHORT).show();
+                    startService(new Intent(this, ArticleDownloadService.class));
                     prefHelper.setFullOfflineWhatIf(true);
                 }
                 break;

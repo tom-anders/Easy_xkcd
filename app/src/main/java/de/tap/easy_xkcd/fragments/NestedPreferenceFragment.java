@@ -6,6 +6,7 @@ import android.app.ProgressDialog;
 import android.app.TimePickerDialog;
 import android.content.Context;
 import android.content.DialogInterface;
+import android.content.Intent;
 import android.content.pm.ActivityInfo;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
@@ -14,7 +15,6 @@ import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
-import android.os.Handler;
 import android.preference.Preference;
 import android.preference.PreferenceFragment;
 import android.support.v4.app.ActivityCompat;
@@ -27,31 +27,23 @@ import android.widget.Toast;
 
 import com.bumptech.glide.Glide;
 import com.commonsware.cwac.wakeful.WakefulIntentService;
+import com.tap.xkcd_reader.BuildConfig;
 import com.tap.xkcd_reader.R;
-import com.turhanoz.android.reactivedirectorychooser.event.OnDirectoryCancelEvent;
-import com.turhanoz.android.reactivedirectorychooser.event.OnDirectoryChosenEvent;
 import com.turhanoz.android.reactivedirectorychooser.ui.DirectoryChooserFragment;
-import com.turhanoz.android.reactivedirectorychooser.ui.OnDirectoryChooserFragmentInteraction;
 
-import org.jsoup.Jsoup;
-import org.jsoup.nodes.Document;
-import org.jsoup.nodes.Element;
-import org.jsoup.select.Elements;
-
-import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
-import java.io.FileWriter;
-import java.io.IOException;
 
-import de.tap.easy_xkcd.notifications.ComicListener;
-import de.tap.easy_xkcd.utils.Comic;
-import de.tap.easy_xkcd.utils.Favorites;
-import de.tap.easy_xkcd.utils.PrefHelper;
 import de.tap.easy_xkcd.Activities.MainActivity;
 import de.tap.easy_xkcd.Activities.NestedSettingsActivity;
 import de.tap.easy_xkcd.Activities.SettingsActivity;
+import de.tap.easy_xkcd.notifications.ComicListener;
+import de.tap.easy_xkcd.services.ArticleDownloadService;
+import de.tap.easy_xkcd.services.ComicDownloadService;
+import de.tap.easy_xkcd.utils.Comic;
+import de.tap.easy_xkcd.utils.Favorites;
+import de.tap.easy_xkcd.utils.PrefHelper;
 
 public class NestedPreferenceFragment extends PreferenceFragment {
     private static final String APPEARANCE = "appearance";
@@ -79,7 +71,6 @@ public class NestedPreferenceFragment extends PreferenceFragment {
     private static final String OFFLINE_PATH = "/easy xkcd";
     private static final String OFFLINE_WHATIF_PATH = "/easy xkcd/what if/";
     private static final String OFFLINE_WHATIF_OVERVIEW_PATH = "/easy xkcd/what if/overview";
-
 
 
     public static boolean themeSettingChanged;
@@ -171,7 +162,9 @@ public class NestedPreferenceFragment extends PreferenceFragment {
                         if (checked) {
                             if (prefHelper.isOnline(getActivity())) {
                                 if (ContextCompat.checkSelfPermission(getActivity(), Manifest.permission.WRITE_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED) {
-                                    new downloadComicsTask().execute();
+                                    //new downloadComicsTask().execute();
+                                    Toast.makeText(getActivity(), getResources().getString(R.string.loading_comics), Toast.LENGTH_SHORT).show();
+                                    getActivity().startService(new Intent(getActivity(), ComicDownloadService.class));
                                     return true;
                                 } else {
                                     ActivityCompat.requestPermissions(getActivity(), new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE}, 1);
@@ -213,7 +206,9 @@ public class NestedPreferenceFragment extends PreferenceFragment {
                         if (checked) {
                             if (prefHelper.isOnline(getActivity())) {
                                 if (ContextCompat.checkSelfPermission(getActivity(), Manifest.permission.WRITE_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED) {
-                                    new downloadArticlesTask().execute();
+                                    //new downloadArticlesTask().execute();
+                                    Toast.makeText(getActivity(), getResources().getString(R.string.loading_articles), Toast.LENGTH_SHORT).show();
+                                    getActivity().startService(new Intent(getActivity(), ArticleDownloadService.class));
                                     return true;
                                 } else {
                                     ActivityCompat.requestPermissions(getActivity(), new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE}, 3);
@@ -258,7 +253,6 @@ public class NestedPreferenceFragment extends PreferenceFragment {
                 final int[] endTime = prefHelper.getAutoNightEnd();
                 start.setSummary(prefHelper.getStartSummary());
                 end.setSummary(prefHelper.getEndSummary());
-
 
 
                 findPreference(NIGHT_THEME).setOnPreferenceChangeListener(new Preference.OnPreferenceChangeListener() {
@@ -335,7 +329,7 @@ public class NestedPreferenceFragment extends PreferenceFragment {
                 });
                 findPreference(OFFLINE_PATH_PREF).setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
                     @Override
-                    public boolean onPreferenceClick(Preference preference){
+                    public boolean onPreferenceClick(Preference preference) {
                         DialogFragment directoryChooserFragment = DirectoryChooserFragment.newInstance(Environment.getExternalStorageDirectory());
 
                         FragmentTransaction transaction = ((NestedSettingsActivity) getActivity()).getManger().beginTransaction();
@@ -448,7 +442,7 @@ public class NestedPreferenceFragment extends PreferenceFragment {
         }
     }
 
-    public class downloadComicsTask extends AsyncTask<Void, Integer, Void> {
+    /*public class downloadComicsTask extends AsyncTask<Void, Integer, Void> {
         private ProgressDialog progress;
 
         @Override
@@ -544,7 +538,7 @@ public class NestedPreferenceFragment extends PreferenceFragment {
             getActivity().finish();
             startActivity(MainActivity.getInstance().getIntent());
         }
-    }
+    }*/
 
     public class deleteComicsTask extends AsyncTask<Void, Integer, Void> {
         private ProgressDialog progress;
@@ -563,20 +557,21 @@ public class NestedPreferenceFragment extends PreferenceFragment {
         @Override
         protected Void doInBackground(Void... params) {
             int newest = prefHelper.getNewest();
-            for (int i = 1; i <= newest; i++) {
-                if (!Favorites.checkFavorite(MainActivity.getInstance(), i)) {
-                    //delete from internal storage
-                    getActivity().deleteFile(String.valueOf(i));
-                    //delete from external storage
-                    File sdCard = prefHelper.getOfflinePath();
-                    File dir = new File(sdCard.getAbsolutePath() + OFFLINE_PATH);
-                    File file = new File(dir, String.valueOf(i) + ".png");
-                    file.delete();
+            if (!BuildConfig.DEBUG)
+                for (int i = 1; i <= newest; i++) {
+                    if (!Favorites.checkFavorite(MainActivity.getInstance(), i)) {
+                        //delete from internal storage
+                        getActivity().deleteFile(String.valueOf(i));
+                        //delete from external storage
+                        File sdCard = prefHelper.getOfflinePath();
+                        File dir = new File(sdCard.getAbsolutePath() + OFFLINE_PATH);
+                        File file = new File(dir, String.valueOf(i) + ".png");
+                        file.delete();
 
-                    int p = (int) (i / ((float) newest) * 100);
-                    publishProgress(p);
+                        int p = (int) (i / ((float) newest) * 100);
+                        publishProgress(p);
+                    }
                 }
-            }
             prefHelper.deleteTitleAndAlt(newest, getActivity());
 
             prefHelper.setHighestOffline(0);
@@ -598,7 +593,7 @@ public class NestedPreferenceFragment extends PreferenceFragment {
         }
     }
 
-    public class downloadArticlesTask extends AsyncTask<Void, Integer, Void> {
+    /*public class downloadArticlesTask extends AsyncTask<Void, Integer, Void> {
         private ProgressDialog progress;
         private Document doc;
 
@@ -719,7 +714,7 @@ public class NestedPreferenceFragment extends PreferenceFragment {
             getActivity().finish();
             startActivity(MainActivity.getInstance().getIntent());
         }
-    }
+    }*/
 
     public class deleteArticlesTask extends AsyncTask<Void, Void, Void> {
         private ProgressDialog progress;
@@ -736,9 +731,11 @@ public class NestedPreferenceFragment extends PreferenceFragment {
 
         @Override
         protected Void doInBackground(Void... params) {
-            File sdCard = prefHelper.getOfflinePath();
-            File dir = new File(sdCard.getAbsolutePath() + OFFLINE_WHATIF_PATH);
-            deleteFolder(dir);
+            if (!BuildConfig.DEBUG) {
+                File sdCard = prefHelper.getOfflinePath();
+                File dir = new File(sdCard.getAbsolutePath() + OFFLINE_WHATIF_PATH);
+                deleteFolder(dir);
+            }
             return null;
         }
 

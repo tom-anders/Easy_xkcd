@@ -248,5 +248,6 @@
     <string name="copy_folder">Verschiebe Ordner und Dateien...</string>
     <string name="action_overview">Comic Übersicht</string>
     <string name="pref_zoom_scroll">Scrollen deaktivieren während Comic Bild vergrößert ist</string>
+    <string name="not_restart">Fertig. Tippe hier, um die App neu zu starten.</string>
 
 </resources>

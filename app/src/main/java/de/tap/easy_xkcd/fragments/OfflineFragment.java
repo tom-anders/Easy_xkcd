@@ -143,6 +143,7 @@ public class OfflineFragment extends android.support.v4.app.Fragment {
             progress.setTitle(getResources().getString(R.string.loading_comics));
             progress.setCancelable(false);
             progress.show();
+            Log.d("info", "updateImages started");
         }
 
         @SuppressWarnings("ResultOfMethodCallIgnored")
