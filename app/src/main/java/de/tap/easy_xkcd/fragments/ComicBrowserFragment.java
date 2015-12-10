@@ -2,6 +2,7 @@ package de.tap.easy_xkcd.fragments;
 
 
 import android.Manifest;
+import android.app.ActionBar;
 import android.app.AlertDialog;
 import android.app.ProgressDialog;
 import android.content.Context;
@@ -36,6 +37,7 @@ import android.view.MenuItem;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -254,6 +256,12 @@ public class ComicBrowserFragment extends android.support.v4.app.Fragment {
             final TextView tvAlt = (TextView) itemView.findViewById(R.id.tvAlt);
             final TextView tvTitle = (TextView) itemView.findViewById(R.id.tvTitle);
 
+            if (!prefHelper.defaultZoom()) {
+                pvComic.setScaleType(ImageView.ScaleType.CENTER_INSIDE);
+                pvComic.setMaximumScale(10f);
+            }
+
+
             if (position == sLastComicNumber - 1 && fromSearch) {
                 fromSearch = false;
                 ActivityTransition.with(getActivity().getIntent()).duration(300).to(tvTitle).to(pvComic).start(null);
@@ -410,7 +418,7 @@ public class ComicBrowserFragment extends android.support.v4.app.Fragment {
                 pvComic.setMaximumScale(7.0f);
             }
             //Disable ViewPager scrolling when the user zooms into an image
-            if (prefHelper.scrollDisabledWhileZoom())
+            if (prefHelper.scrollDisabledWhileZoom() && prefHelper.defaultZoom())
                 pvComic.setOnMatrixChangeListener(new PhotoViewAttacher.OnMatrixChangedListener() {
                     @Override
                     public void onMatrixChanged(RectF rectF) {

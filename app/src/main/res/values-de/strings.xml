@@ -249,5 +249,7 @@
     <string name="action_overview">Comic Übersicht</string>
     <string name="pref_zoom_scroll">Scrollen deaktivieren während Comic Bild vergrößert ist</string>
     <string name="not_restart">Fertig. Tippe hier, um die App neu zu starten.</string>
+    <string name="pref_default_zoom">Passe Größe der Comic Bilder an die Größe des Bildschirms an</string>
+    <string name="pref_default_zoom_sum">Wennn diese Option deaktiviert ist, sehen Comics auf großen Geräten eventuell besser aus</string>
 
 </resources>

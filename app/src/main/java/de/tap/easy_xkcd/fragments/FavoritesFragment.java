@@ -50,6 +50,7 @@ import android.view.MenuItem;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -170,6 +171,11 @@ public class FavoritesFragment extends android.support.v4.app.Fragment {
             final TextView tvAlt = (TextView) itemView.findViewById(R.id.tvAlt);
             itemView.setTag(position);
 
+            if (!prefHelper.defaultZoom()) {
+                pvComic.setScaleType(ImageView.ScaleType.CENTER_INSIDE);
+                pvComic.setMaximumScale(10f);
+            }
+
             if (prefHelper.altByDefault())
                 tvAlt.setVisibility(View.VISIBLE);
             tvAlt.setText(prefHelper.getAlt(sFavorites[position]));
@@ -253,7 +259,7 @@ public class FavoritesFragment extends android.support.v4.app.Fragment {
                 pvComic.setMaximumScale(7.0f);
             }
             //Disable ViewPager scrolling when the user zooms into an image
-            if (prefHelper.scrollDisabledWhileZoom())
+            if (prefHelper.scrollDisabledWhileZoom() && prefHelper.defaultZoom())
                 pvComic.setOnMatrixChangeListener(new PhotoViewAttacher.OnMatrixChangedListener() {
                     @Override
                     public void onMatrixChanged(RectF rectF) {

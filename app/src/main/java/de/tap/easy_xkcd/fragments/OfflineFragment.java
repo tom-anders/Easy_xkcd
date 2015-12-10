@@ -32,6 +32,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
+import android.widget.ImageView;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -495,6 +496,11 @@ public class OfflineFragment extends android.support.v4.app.Fragment {
             final TextView tvAlt = (TextView) itemView.findViewById(R.id.tvAlt);
             itemView.setTag(position);
 
+            if (!prefHelper.defaultZoom()) {
+                pvComic.setScaleType(ImageView.ScaleType.CENTER_INSIDE);
+                pvComic.setMaximumScale(10f);
+            }
+
             if (position == sLastComicNumber - 1 && fromSearch) {
                 fromSearch = false;
                 ActivityTransition.with(getActivity().getIntent()).duration(300).to(pvComic).start(null);
@@ -587,7 +593,7 @@ public class OfflineFragment extends android.support.v4.app.Fragment {
                 pvComic.setColorFilter(cf);
             }
             //Disable ViewPager scrolling when the user zooms into an image
-            if (prefHelper.scrollDisabledWhileZoom())
+            if (prefHelper.scrollDisabledWhileZoom() && prefHelper.defaultZoom())
                 pvComic.setOnMatrixChangeListener(new PhotoViewAttacher.OnMatrixChangedListener() {
                     @Override
                     public void onMatrixChanged(RectF rectF) {

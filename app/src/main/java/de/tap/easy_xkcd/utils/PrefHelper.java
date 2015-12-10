@@ -107,7 +107,8 @@ public class PrefHelper {
     private static final String AUTO_NIGHT_END_HOUR = "pref_auto_night_end_hour";
     private static final String OFFLINE_PATH = "pref_offline_path";
     private static final String ZOOM_SCROLL = "pref_zoom_scroll";
-    private static final String OVERVIEW_FAV= "overview_fav";
+    private static final String OVERVIEW_FAV = "overview_fav";
+    private static final String DEFAULT_ZOOM = "pref_default_zoom";
 
     public PrefHelper(Context context) {
         sharedPrefs = context.getSharedPreferences("MainActivity", Activity.MODE_PRIVATE);
@@ -394,7 +395,7 @@ public class PrefHelper {
         return (a >= 0);
     }
 
-    public void setWhatIfFavorite (String added) {
+    public void setWhatIfFavorite(String added) {
         String fav = sharedPrefs.getString(WHATIF_FAV, "");
         if (!fav.equals("")) {
             fav = fav + "," + added;
@@ -796,8 +797,8 @@ public class PrefHelper {
         int[] start = getAutoNightStart();
         String suffix = "";
         String minute = String.valueOf(start[1]);
-        if (start[1]<10) {
-            minute = "0"+minute;
+        if (start[1] < 10) {
+            minute = "0" + minute;
         }
         return start[0] + ":" + minute + suffix;
     }
@@ -806,8 +807,8 @@ public class PrefHelper {
         int[] end = getAutoNightEnd();
         String suffix = "";
         String minute = String.valueOf(end[1]);
-        if (end[1]<10) {
-            minute = "0"+minute;
+        if (end[1] < 10) {
+            minute = "0" + minute;
         }
         return end[0] + ":" + minute + suffix;
     }
@@ -854,6 +855,10 @@ public class PrefHelper {
         SharedPreferences.Editor editor = sharedPrefs.edit();
         editor.putBoolean(OVERVIEW_FAV, value);
         editor.apply();
+    }
+
+    public boolean defaultZoom() {
+        return prefs.getBoolean(DEFAULT_ZOOM, true);
     }
 
 }

@@ -28,6 +28,7 @@ import android.graphics.BitmapFactory;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Handler;
+import android.preference.PreferenceManager;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.NavigationView;
 import android.app.SearchManager;
@@ -112,7 +113,7 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         ButterKnife.bind(this);
-        Log.d("info", "MainActivity OnCreateView");
+        PreferenceManager.setDefaultValues(this, R.xml.pref_alt_sharing, false);
 
         instance = this;
         customTabActivityHelper = new CustomTabActivityHelper();
