@@ -64,6 +64,10 @@
         android:title="@string/action_explain"
         app:showAsAction="never" />
 
+    <item android:id="@+id/action_browser"
+        android:title="@string/action_browser"
+        app:showAsAction="never" />
+
     <item android:id="@+id/action_unread"
         android:title="@string/action_unread"
         android:visible="false"
