@@ -29,6 +29,7 @@ import android.net.Uri;
 import android.os.Build;
 import android.os.Handler;
 import android.preference.PreferenceManager;
+import android.support.customtabs.CustomTabsIntent;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.NavigationView;
 import android.app.SearchManager;
@@ -62,6 +63,7 @@ import butterknife.Bind;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
 import butterknife.OnLongClick;
+import de.tap.easy_xkcd.CustomTabHelpers.BrowserFallback;
 import de.tap.easy_xkcd.fragments.ComicBrowserFragment;
 import de.tap.easy_xkcd.fragments.OverviewListFragment;
 import de.tap.easy_xkcd.notifications.ComicListener;
@@ -809,6 +811,29 @@ public class MainActivity extends AppCompatActivity {
 
     public PrefHelper getPrefHelper() {
         return prefHelper;
+    }
+
+    public boolean openComicInBrowser(int number) {
+        Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse("http://xkcd.com/" + String.valueOf(number)));
+        startActivity(intent);
+        return true;
+    }
+
+    public boolean explainComic(int number) {
+        String url = "http://explainxkcd.com/" + String.valueOf(number);
+        CustomTabsIntent.Builder intentBuilder = new CustomTabsIntent.Builder();
+        TypedValue typedValue = new TypedValue();
+        getTheme().resolveAttribute(R.attr.colorPrimary, typedValue, true);
+        intentBuilder.setToolbarColor(typedValue.data);
+        CustomTabActivityHelper.openCustomTab(this, intentBuilder.build(), Uri.parse(url), new BrowserFallback());
+        return true;
+    }
+
+    public boolean showTranscript(String trans) {
+        android.support.v7.app.AlertDialog.Builder mDialog = new android.support.v7.app.AlertDialog.Builder(this);
+        mDialog.setMessage(trans);
+        mDialog.show();
+        return true;
     }
 
 }

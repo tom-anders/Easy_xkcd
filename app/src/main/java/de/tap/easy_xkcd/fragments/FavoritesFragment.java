@@ -303,40 +303,16 @@ public class FavoritesFragment extends android.support.v4.app.Fragment {
                 return getRandomComic();
             }
             case R.id.action_explain: {
-                return explainComic(sFavorites[sFavoriteIndex]);
+                return ((MainActivity) getActivity()).explainComic(sFavorites[sFavoriteIndex]);
             }
             case R.id.action_browser: {
-                return openInBrowser(sFavorites[sFavoriteIndex]);
+                return ((MainActivity) getActivity()).openComicInBrowser(sFavorites[sFavoriteIndex]);
             }
             case R.id.action_trans: {
-                return showTranscript();
+                return ((MainActivity) getActivity()).showTranscript(mComicMap.get(sFavoriteIndex).getTranscript());
             }
         }
         return super.onOptionsItemSelected(item);
-    }
-
-    private boolean explainComic(int number) {
-        String url = "http://explainxkcd.com/" + String.valueOf(number);
-        CustomTabsIntent.Builder intentBuilder = new CustomTabsIntent.Builder();
-        TypedValue typedValue = new TypedValue();
-        getActivity().getTheme().resolveAttribute(R.attr.colorPrimary, typedValue, true);
-        intentBuilder.setToolbarColor(typedValue.data);
-        CustomTabActivityHelper.openCustomTab(getActivity(), intentBuilder.build(), Uri.parse(url), new BrowserFallback());
-        return true;
-    }
-
-    private boolean openInBrowser(int number) {
-        Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse("http://xkcd.com/" + String.valueOf(number)));
-        startActivity(intent);
-        return true;
-    }
-
-    private boolean showTranscript() {
-        String trans = mComicMap.get(sFavoriteIndex).getTranscript();
-        android.support.v7.app.AlertDialog.Builder mDialog = new android.support.v7.app.AlertDialog.Builder(getActivity());
-        mDialog.setMessage(trans);
-        mDialog.show();
-        return true;
     }
 
     private boolean setAltText() {

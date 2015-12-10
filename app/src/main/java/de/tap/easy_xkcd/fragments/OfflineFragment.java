@@ -116,7 +116,7 @@ public class OfflineFragment extends android.support.v4.app.Fragment {
                 } catch (NullPointerException e) {
                     e.printStackTrace();
                 }
-                prefHelper.setComicRead(String.valueOf(position+1));
+                prefHelper.setComicRead(String.valueOf(position + 1));
                 sLastComicNumber = position + 1;
                 if (prefHelper.subtitleEnabled() && ((MainActivity) getActivity()).getCurrentFragment() == R.id.nav_browser)
                     ((MainActivity) getActivity()).getToolbar().setSubtitle(String.valueOf(sLastComicNumber));
@@ -259,13 +259,13 @@ public class OfflineFragment extends android.support.v4.app.Fragment {
                 return getRandomComic();
 
             case R.id.action_explain:
-                return explainComic(sLastComicNumber);
+                return ((MainActivity) getActivity()).explainComic(sLastComicNumber);
 
             case R.id.action_browser:
-                return openInBrowser(sLastComicNumber);
+                return ((MainActivity) getActivity()).openComicInBrowser(sLastComicNumber);
 
             case R.id.action_trans:
-                return showTranscript();
+                return ((MainActivity) getActivity()).showTranscript(sComicMap.get(sLastComicNumber).getTranscript());
         }
         return super.onOptionsItemSelected(item);
     }
@@ -451,30 +451,6 @@ public class OfflineFragment extends android.support.v4.app.Fragment {
     private boolean getLatestComic() {
         sLastComicNumber = sNewestComicNumber;
         mPager.setCurrentItem(sLastComicNumber - 1, false);
-        return true;
-    }
-
-    private boolean showTranscript() {
-        String trans = sComicMap.get(sLastComicNumber).getTranscript();
-        android.support.v7.app.AlertDialog.Builder mDialog = new android.support.v7.app.AlertDialog.Builder(getActivity());
-        mDialog.setMessage(trans);
-        mDialog.show();
-        return true;
-    }
-
-    private boolean explainComic(int number) {
-        String url = "http://explainxkcd.com/" + String.valueOf(number);
-        CustomTabsIntent.Builder intentBuilder = new CustomTabsIntent.Builder();
-        TypedValue typedValue = new TypedValue();
-        getActivity().getTheme().resolveAttribute(R.attr.colorPrimary, typedValue, true);
-        intentBuilder.setToolbarColor(typedValue.data);
-        CustomTabActivityHelper.openCustomTab(getActivity(), intentBuilder.build(), Uri.parse(url), new BrowserFallback());
-        return true;
-    }
-
-    private boolean openInBrowser(int number) {
-        Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse("http://xkcd.com/" + String.valueOf(number)));
-        startActivity(intent);
         return true;
     }
 
