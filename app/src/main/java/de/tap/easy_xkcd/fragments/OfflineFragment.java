@@ -260,6 +260,9 @@ public class OfflineFragment extends android.support.v4.app.Fragment {
             case R.id.action_explain:
                 return explainComic(sLastComicNumber);
 
+            case R.id.action_browser:
+                return openInBrowser(sLastComicNumber);
+
             case R.id.action_trans:
                 return showTranscript();
         }
@@ -465,6 +468,12 @@ public class OfflineFragment extends android.support.v4.app.Fragment {
         getActivity().getTheme().resolveAttribute(R.attr.colorPrimary, typedValue, true);
         intentBuilder.setToolbarColor(typedValue.data);
         CustomTabActivityHelper.openCustomTab(getActivity(), intentBuilder.build(), Uri.parse(url), new BrowserFallback());
+        return true;
+    }
+
+    private boolean openInBrowser(int number) {
+        Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse("http://xkcd.com/" + String.valueOf(number)));
+        startActivity(intent);
         return true;
     }
 

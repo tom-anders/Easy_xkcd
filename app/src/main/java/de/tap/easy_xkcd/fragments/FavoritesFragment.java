@@ -35,6 +35,7 @@ import android.os.Bundle;
 import android.os.Environment;
 import android.os.Vibrator;
 import android.provider.MediaStore;
+import android.support.customtabs.CustomTabsIntent;
 import android.support.design.widget.Snackbar;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
@@ -43,6 +44,7 @@ import android.support.v4.view.PagerAdapter;
 import android.support.v4.view.ViewPager;
 import android.support.v7.widget.Toolbar;
 import android.util.SparseArray;
+import android.util.TypedValue;
 import android.view.GestureDetector;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -62,6 +64,8 @@ import java.io.IOException;
 import java.util.Arrays;
 import java.util.Random;
 
+import de.tap.easy_xkcd.CustomTabHelpers.BrowserFallback;
+import de.tap.easy_xkcd.CustomTabHelpers.CustomTabActivityHelper;
 import de.tap.easy_xkcd.utils.Favorites;
 import de.tap.easy_xkcd.misc.HackyViewPager;
 import de.tap.easy_xkcd.utils.OfflineComic;
@@ -292,11 +296,33 @@ public class FavoritesFragment extends android.support.v4.app.Fragment {
             case R.id.action_random: {
                 return getRandomComic();
             }
-
-            case R.id.action_trans:
+            case R.id.action_explain: {
+                return explainComic(sFavorites[sFavoriteIndex]);
+            }
+            case R.id.action_browser: {
+                return openInBrowser(sFavorites[sFavoriteIndex]);
+            }
+            case R.id.action_trans: {
                 return showTranscript();
+            }
         }
         return super.onOptionsItemSelected(item);
+    }
+
+    private boolean explainComic(int number) {
+        String url = "http://explainxkcd.com/" + String.valueOf(number);
+        CustomTabsIntent.Builder intentBuilder = new CustomTabsIntent.Builder();
+        TypedValue typedValue = new TypedValue();
+        getActivity().getTheme().resolveAttribute(R.attr.colorPrimary, typedValue, true);
+        intentBuilder.setToolbarColor(typedValue.data);
+        CustomTabActivityHelper.openCustomTab(getActivity(), intentBuilder.build(), Uri.parse(url), new BrowserFallback());
+        return true;
+    }
+
+    private boolean openInBrowser(int number) {
+        Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse("http://xkcd.com/" + String.valueOf(number)));
+        startActivity(intent);
+        return true;
     }
 
     private boolean showTranscript() {
