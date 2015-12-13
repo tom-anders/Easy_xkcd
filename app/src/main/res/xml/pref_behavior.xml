@@ -36,5 +36,6 @@
     <CheckBoxPreference
         android:defaultValue="true"
         android:key="pref_zoom_scroll"
+        android:dependency="pref_default_zoom"
         android:title="@string/pref_zoom_scroll" />
 </PreferenceScreen>

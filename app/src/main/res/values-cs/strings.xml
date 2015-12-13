@@ -261,6 +261,11 @@
     <string name="dialog_donate">Kolik chcete přispět?</string>
     <string name="update_database">Aktualizace databáze…</string>
 
+    <string-array name="overview_style">
+        <item>List</item>
+        <item>Small Cards</item>
+    </string-array>
+
     <string-array name="random_entries">
         <item>Prohlížeč komixu</item>
         <item>Oblíbené</item>
@@ -285,5 +290,6 @@
     <string name="not_restart">Done. Tap to restart the app.</string>
     <string name="pref_default_zoom">Scale comic images to fit device screen size by default</string>
     <string name="pref_default_zoom_sum">When disabled, comics may look better on large devices</string>
+    <string name="overview_style_title">Pick your preferred style</string>
 
 </resources>

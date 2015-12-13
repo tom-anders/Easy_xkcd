@@ -109,6 +109,7 @@ public class PrefHelper {
     private static final String ZOOM_SCROLL = "pref_zoom_scroll";
     private static final String OVERVIEW_FAV = "overview_fav";
     private static final String DEFAULT_ZOOM = "pref_default_zoom";
+    private static final String OVERVIEW_STYLE = "overview_style";
 
     public PrefHelper(Context context) {
         sharedPrefs = context.getSharedPreferences("MainActivity", Activity.MODE_PRIVATE);
@@ -859,6 +860,16 @@ public class PrefHelper {
 
     public boolean defaultZoom() {
         return prefs.getBoolean(DEFAULT_ZOOM, true);
+    }
+
+    public int getOverviewStyle() {
+        return sharedPrefs.getInt(OVERVIEW_STYLE, 1);
+    }
+
+    public void setOverviewStyle(int style) {
+        SharedPreferences.Editor editor = sharedPrefs.edit();
+        editor.putInt(OVERVIEW_STYLE, style);
+        editor.apply();
     }
 
 }

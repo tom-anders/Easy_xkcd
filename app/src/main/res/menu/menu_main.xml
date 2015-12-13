@@ -56,6 +56,11 @@
         android:title="@string/delete_favorites"
         app:showAsAction="never" />
 
+    <item android:id="@+id/action_overview_style"
+        app:showAsAction="always"
+        android:icon="@drawable/ic_action_sort"
+        android:visible="false" />
+
     <item android:id="@+id/action_latest"
         android:title="@string/action_latest"
         app:showAsAction="never" />

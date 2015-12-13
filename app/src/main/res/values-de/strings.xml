@@ -66,6 +66,11 @@
     <string name="drawer_open">Navigation Drawer öffnen</string>
     <string name="drawer_close">Navigation Drawer schließen</string>
 
+    <string-array name="overview_style">
+        <item>Liste</item>
+        <item>Karten</item>
+    </string-array>
+
     <string-array
         name="share_dialog">
         <item>Bild teilen</item>
@@ -251,5 +256,6 @@
     <string name="not_restart">Fertig. Tippe hier, um die App neu zu starten.</string>
     <string name="pref_default_zoom">Passe Größe der Comic Bilder an die Größe des Bildschirms an</string>
     <string name="pref_default_zoom_sum">Wennn diese Option deaktiviert ist, sehen Comics auf großen Geräten eventuell besser aus</string>
+    <string name="overview_style_title">Wähle deinen bevorzugten Stil</string>
 
 </resources>

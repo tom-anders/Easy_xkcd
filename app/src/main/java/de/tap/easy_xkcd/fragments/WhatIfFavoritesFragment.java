@@ -9,7 +9,6 @@ import android.graphics.ColorMatrixColorFilter;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
-import android.os.Environment;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.widget.CardView;
 import android.support.v7.widget.LinearLayoutManager;
@@ -54,7 +53,7 @@ public class WhatIfFavoritesFragment extends android.support.v4.app.Fragment {
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        View v = inflater.inflate(R.layout.whatif_recycler, container, false);
+        View v = inflater.inflate(R.layout.recycler_layout, container, false);
         ButterKnife.bind(this, v);
         setHasOptionsMenu(true);
         prefHelper = ((MainActivity) getActivity()).getPrefHelper();
