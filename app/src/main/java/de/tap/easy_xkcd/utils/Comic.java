@@ -90,6 +90,8 @@ public class Comic {
             result[2] = "http://www.explainxkcd.com/wiki/images/f/ff/umwelt_the_void.jpg";
         } else if (mComicNumber == 1608) {
             result[2] = "http://www.explainxkcd.com/wiki/images/4/41/hoverboard.png";
+        } else if (mComicNumber == 1350) {
+            result[2] = "http://www.explainxkcd.com/wiki/images/3/3d/lorenz.png";
         }
         return result;
     }
