@@ -272,6 +272,12 @@ public class PrefHelper {
 
     public int getNotificationInterval() {
         String hours = prefs.getString(NOTIFICATIONS_INTERVAL, "0");
+        switch (hours) {
+            case "12":
+            case "6":
+                hours = "5";
+                break;
+        }
         return Integer.parseInt(hours) * 60 * 60 * 1000;
     }
 
@@ -285,7 +291,7 @@ public class PrefHelper {
                 return sharedPrefs.getBoolean(FRIDAY_UPDATE, false);
 
             case Calendar.TUESDAY:
-                sharedPrefs.getBoolean(TUESDAY_UPDATE, false);
+                return sharedPrefs.getBoolean(TUESDAY_UPDATE, false);
         }
         return true;
     }

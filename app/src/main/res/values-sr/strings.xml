@@ -125,8 +125,7 @@
         name="pref_notifications">
         <item>1 сат</item>
         <item>3 сата</item>
-        <item>6 сати</item>
-        <item>12 сати</item>
+        <item>5 сати</item>
         <item>Никад</item>
     </string-array>
 

@@ -15,6 +15,7 @@ import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
+import android.os.Handler;
 import android.preference.Preference;
 import android.preference.PreferenceFragment;
 import android.preference.PreferenceManager;
@@ -129,13 +130,19 @@ public class NestedPreferenceFragment extends PreferenceFragment {
                 addPreferencesFromResource(R.xml.pref_behavior);
                 findPreference(NOTIFICATIONS_INTERVAL).setOnPreferenceChangeListener(new Preference.OnPreferenceChangeListener() {
                     @Override
-                    public boolean onPreferenceChange(Preference preference, Object o) {
-                        int newValue = Integer.parseInt(o.toString());
-                        if (newValue != 0) {
-                            WakefulIntentService.scheduleAlarms(new ComicListener(), MainActivity.getInstance(), true);
-                        } else {
-                            WakefulIntentService.cancelAlarms(MainActivity.getInstance());
-                        }
+                    public boolean onPreferenceChange(final Preference preference, Object o) {
+                        final int newValue = Integer.parseInt(o.toString());
+                        //Wait a few seconds for the new value to be written to memory
+                        new Handler().postDelayed(new Runnable() {
+                            @Override
+                            public void run() {
+                                if (newValue != 0) {
+                                    WakefulIntentService.scheduleAlarms(new ComicListener(), MainActivity.getInstance(), true);
+                                } else {
+                                    WakefulIntentService.cancelAlarms(MainActivity.getInstance());
+                                }
+                            }
+                        }, 5000);
                         return true;
                     }
                 });

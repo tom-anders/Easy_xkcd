@@ -45,7 +45,7 @@
     <string name="loading_offline_whatif">Stahování článků…</string>
     <string name="loading_offline_message">Nechat aplikaci otevřenou!</string>
     <string name="loading_offline_2">Chvilku to zabere, voraz si…</string>
-    <string name="loading_offline_20">Radši si skoč pro kafe nebo tak něco...</string>
+    <string name="loading_offline_20">Radši si skoč pro kafe nebo tak něco&#8230;</string>
     <string name="loading_offline_50">Už zbývá jen polovina!</string>
     <string name="loading_offline_80">Skoro hotovo…</string>
     <string name="loading_offline_95">Došlo k chybě! Zkusit znovu</string>
@@ -115,8 +115,7 @@
     <string-array name="pref_notifications">
         <item>1 hodina</item>
         <item>3 hodiny</item>
-        <item>6 hodin</item>
-        <item>12 hodin</item>
+        <item>5 hodin</item>
         <item>nikdy</item>
     </string-array>
 

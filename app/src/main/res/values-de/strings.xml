@@ -95,8 +95,7 @@
         name="pref_notifications">
         <item>1 Stunde</item>
         <item>3 Stunden</item>
-        <item>6 Stunden</item>
-        <item>12 Stunden</item>
+        <item>5 Stunden</item>
         <item>nie</item>
     </string-array>
 

@@ -120,8 +120,7 @@
         name="pref_notifications">
         <item>1 hour</item>
         <item>3 hours</item>
-        <item>6 hours</item>
-        <item>12 hours</item>
+        <item>5 hours</item>
         <item>never</item>
     </string-array>
 
@@ -176,8 +175,7 @@
         translatable="false">
         <item>1</item>
         <item>3</item>
-        <item>6</item>
-        <item>12</item>
+        <item>5</item>
         <item>0</item>
     </string-array>
 
