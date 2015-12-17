@@ -73,7 +73,7 @@ public class ArticleDownloadService extends IntentService {
             for (Element image : img) {
                 String url = image.absUrl("src");
                 try {
-                    mBitmap = Glide.with(getApplicationContext())
+                    mBitmap = Glide.with(this)
                             .load(url)
                             .asBitmap()
                             .into(-1, -1)
