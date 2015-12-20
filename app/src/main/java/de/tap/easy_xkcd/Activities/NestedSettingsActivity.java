@@ -94,7 +94,6 @@ public class NestedSettingsActivity extends AppCompatActivity implements OnDirec
                     //fragment.new downloadComicsTask().execute();
                     Toast.makeText(getApplicationContext(), getResources().getString(R.string.loading_comics), Toast.LENGTH_SHORT).show();
                     startService(new Intent(this, ComicDownloadService.class));
-                    prefHelper.setFullOffline(true);
                 }
                 break;
             case 2:

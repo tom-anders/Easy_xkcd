@@ -45,35 +45,31 @@ public class ComicDownloadService extends IntentService {
         NotificationManager mNotificationManager = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
         mNotificationManager.notify(0, mBuilder.build());
 
-        if (!BuildConfig.DEBUG) {
+        if (BuildConfig.DEBUG) {
             for (int i = 1; i <= prefHelper.getNewest(); i++) {
                 Log.d("i", String.valueOf(i));
                 try {
                     Comic comic = new Comic(i, getApplicationContext());
                     String url = comic.getComicData()[2];
-                    FutureTarget<byte[]> target =
-                            Glide.with(this)
-                                    .load(url)
-                                    .asBitmap()
-                                    .toBytes(Bitmap.CompressFormat.PNG, 100)
-                                    .format(DecodeFormat.PREFER_ARGB_8888)
-                                    .diskCacheStrategy(DiskCacheStrategy.NONE)
-                                    .skipMemoryCache(true)
-                                    .into(Target.SIZE_ORIGINAL, Target.SIZE_ORIGINAL);
+                    Bitmap mBitmap = Glide.with(this)
+                            .load(url)
+                            .asBitmap()
+                            .into(-1, -1)
+                            .get();
                     try {
                         File sdCard = prefHelper.getOfflinePath();
                         File dir = new File(sdCard.getAbsolutePath() + OFFLINE_PATH);
                         dir.mkdirs();
                         File file = new File(dir, String.valueOf(i) + ".png");
                         FileOutputStream fos = new FileOutputStream(file);
-                        fos.write(target.get());
+                        mBitmap.compress(Bitmap.CompressFormat.PNG, 100, fos);
                         fos.flush();
                         fos.close();
                     } catch (Exception e) {
                         Log.e("Error", "Saving to external storage failed");
                         try {
                             FileOutputStream fos = getApplicationContext().openFileOutput(String.valueOf(i), Context.MODE_PRIVATE);
-                            fos.write(target.get());
+                            mBitmap.compress(Bitmap.CompressFormat.PNG, 100, fos);
                             fos.close();
                         } catch (Exception e2) {
                             e2.printStackTrace();
@@ -85,22 +81,19 @@ public class ComicDownloadService extends IntentService {
                     mBuilder.setProgress(100, p, false);
                     mBuilder.setContentText(i + "/" + prefHelper.getNewest());
                     mNotificationManager.notify(0, mBuilder.build());
-                    Glide.clear(target);
                 } catch (Exception e) {
                     e.printStackTrace();
                 }
             }
-
-
-            prefHelper.setHighestOffline(prefHelper.getNewest());
-            Intent restart = new Intent("de.tap.easy_xkcd.ACTION_COMIC");
-            restart.putExtra("number", prefHelper.getLastComic());
-            PendingIntent pendingIntent = PendingIntent.getActivity(getApplicationContext(), 1, restart, PendingIntent.FLAG_UPDATE_CURRENT);
-            mBuilder.setContentIntent(pendingIntent);
-            mBuilder.setContentText(getResources().getString(R.string.not_restart));
-            mNotificationManager.notify(0, mBuilder.build());
-
         }
+        prefHelper.setFullOffline(true);
+        prefHelper.setHighestOffline(prefHelper.getNewest());
+        Intent restart = new Intent("de.tap.easy_xkcd.ACTION_COMIC");
+        restart.putExtra("number", prefHelper.getLastComic());
+        PendingIntent pendingIntent = PendingIntent.getActivity(getApplicationContext(), 1, restart, PendingIntent.FLAG_UPDATE_CURRENT);
+        mBuilder.setContentIntent(pendingIntent);
+        mBuilder.setContentText(getResources().getString(R.string.not_restart));
+        mNotificationManager.notify(0, mBuilder.build());
     }
 
 }

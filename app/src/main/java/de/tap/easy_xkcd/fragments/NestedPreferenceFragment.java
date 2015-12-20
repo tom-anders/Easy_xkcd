@@ -170,19 +170,15 @@ public class NestedPreferenceFragment extends PreferenceFragment {
                         if (checked) {
                             if (prefHelper.isOnline(getActivity())) {
                                 if (ContextCompat.checkSelfPermission(getActivity(), Manifest.permission.WRITE_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED) {
-                                    //new downloadComicsTask().execute();
                                     Toast.makeText(getActivity(), getResources().getString(R.string.loading_comics), Toast.LENGTH_SHORT).show();
                                     getActivity().startService(new Intent(getActivity(), ComicDownloadService.class));
-                                    return true;
                                 } else {
                                     ActivityCompat.requestPermissions(getActivity(), new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE}, 1);
-                                    return false;
                                 }
                             } else {
                                 Toast.makeText(getActivity(), R.string.no_connection, Toast.LENGTH_SHORT).show();
-                                return false;
                             }
-
+                            return false;
                         } else {
                             android.support.v7.app.AlertDialog.Builder mDialog = new android.support.v7.app.AlertDialog.Builder(getActivity(), prefHelper.getDialogTheme());
                             mDialog.setMessage(R.string.delete_offline_dialog)
