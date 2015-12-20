@@ -220,6 +220,7 @@
         <item>1298</item>
         <item>1389</item>
         <item>1392</item>
+        <item>1461</item>
         <item>1491</item>
     </integer-array>
 
@@ -241,6 +242,7 @@
         <item>http://imgs.xkcd.com/comics/exoplanet_neighborhood_large.png</item>
         <item>http://imgs.xkcd.com/comics/surface_area_large.png</item>
         <item>http://imgs.xkcd.com/comics/dominant_players_large.png</item>
+        <item>http://imgs.xkcd.com/comics/payloads_large.png</item>
         <item>http://imgs.xkcd.com/comics/stories_of_the_past_and_future_large.png</item>
     </string-array>
 
