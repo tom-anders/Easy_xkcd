@@ -45,7 +45,7 @@ public class ComicDownloadService extends IntentService {
         NotificationManager mNotificationManager = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
         mNotificationManager.notify(0, mBuilder.build());
 
-        if (BuildConfig.DEBUG) {
+        if (!BuildConfig.DEBUG) {
             for (int i = 1; i <= prefHelper.getNewest(); i++) {
                 Log.d("i", String.valueOf(i));
                 try {

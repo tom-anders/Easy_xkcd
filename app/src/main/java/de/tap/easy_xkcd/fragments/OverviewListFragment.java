@@ -426,13 +426,15 @@ public class OverviewListFragment extends android.support.v4.app.Fragment {
         return super.onOptionsItemSelected(item);
     }
 
-    public void notifyAdapter() {
+    public void notifyAdapter(int pos) {
         switch (prefHelper.getOverviewStyle()) {
             case 0:
                 listAdapter.notifyDataSetChanged();
+                list.setSelection(titles.length-pos);
                 break;
             case 1:
                 rvAdapter.notifyDataSetChanged();
+                rv.scrollToPosition(titles.length-pos);
                 break;
         }
     }
@@ -562,10 +564,10 @@ public class OverviewListFragment extends android.support.v4.app.Fragment {
                     list.setAdapter(listAdapter);
                     if (prefHelper.fullOfflineEnabled()) {
                         OfflineFragment offlineFragment = (OfflineFragment) getActivity().getSupportFragmentManager().findFragmentByTag(BROWSER_TAG);
-                        list.setSelection(offlineFragment.sLastComicNumber);
+                        list.setSelection(titles.length - offlineFragment.sLastComicNumber);
                     } else {
                         ComicBrowserFragment comicBrowserFragment = (ComicBrowserFragment) getActivity().getSupportFragmentManager().findFragmentByTag(BROWSER_TAG);
-                        list.setSelection(comicBrowserFragment.sLastComicNumber - 1);
+                        list.setSelection(titles.length - comicBrowserFragment.sLastComicNumber);
                     }
                     list.setOnItemClickListener(new AdapterView.OnItemClickListener() {
                         @Override
@@ -579,10 +581,10 @@ public class OverviewListFragment extends android.support.v4.app.Fragment {
                     rv.setAdapter(rvAdapter);
                     if (prefHelper.fullOfflineEnabled()) {
                         OfflineFragment offlineFragment = (OfflineFragment) getActivity().getSupportFragmentManager().findFragmentByTag(BROWSER_TAG);
-                        rv.scrollToPosition(offlineFragment.sLastComicNumber - 1);
+                        rv.scrollToPosition(titles.length - offlineFragment.sLastComicNumber);
                     } else {
                         ComicBrowserFragment comicBrowserFragment = (ComicBrowserFragment) getActivity().getSupportFragmentManager().findFragmentByTag(BROWSER_TAG);
-                        rv.scrollToPosition(comicBrowserFragment.sLastComicNumber - 1);
+                        rv.scrollToPosition(titles.length - comicBrowserFragment.sLastComicNumber);
                     }
                     break;
             }

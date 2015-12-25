@@ -639,6 +639,16 @@ public class MainActivity extends AppCompatActivity {
 
     private void showOverview() {
         android.support.v4.app.FragmentManager fragmentManager = getSupportFragmentManager();
+
+        if (fragmentManager.findFragmentByTag(OVERVIEW_TAG) != null) {
+            int pos;
+            if (!fullOffline)
+                pos = ((ComicBrowserFragment) fragmentManager.findFragmentByTag(BROWSER_TAG)).sLastComicNumber;
+            else
+                pos = ((OfflineFragment) fragmentManager.findFragmentByTag(BROWSER_TAG)).sLastComicNumber;
+            ((OverviewListFragment) fragmentManager.findFragmentByTag(OVERVIEW_TAG)).notifyAdapter(pos);
+        }
+
         if (Build.VERSION.SDK_INT < Build.VERSION_CODES.LOLLIPOP) {
             if (fragmentManager.findFragmentByTag(OVERVIEW_TAG) == null)
                 fragmentManager.beginTransaction().add(R.id.flContent, new OverviewListFragment(), OVERVIEW_TAG).commitAllowingStateLoss();

@@ -129,8 +129,6 @@ public class ComicBrowserFragment extends android.support.v4.app.Fragment {
                     e.printStackTrace();
                 }
                 prefHelper.setComicRead(String.valueOf(position + 1));
-                if (getActivity().getSupportFragmentManager().findFragmentByTag("overview") != null)
-                    ((OverviewListFragment) getActivity().getSupportFragmentManager().findFragmentByTag("overview")).notifyAdapter();
                 if (!prefHelper.isOnline(getActivity()))  //Don't update if the device is not online
                     Toast.makeText(getActivity(), R.string.no_connection, Toast.LENGTH_SHORT).show();
 
