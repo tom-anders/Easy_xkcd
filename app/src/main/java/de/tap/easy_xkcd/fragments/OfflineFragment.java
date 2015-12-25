@@ -226,7 +226,8 @@ public class OfflineFragment extends android.support.v4.app.Fragment {
                     }
                 };
                 FloatingActionButton fab = (FloatingActionButton) getActivity().findViewById(R.id.fab);
-                Snackbar.make(fab, getActivity().getResources().getString(R.string.new_comic), Snackbar.LENGTH_LONG)
+                //noinspection ResourceType (android studio won't let you set a custom snackbar length)
+                Snackbar.make(fab, getActivity().getResources().getString(R.string.new_comic), 4000)
                         .setAction(getActivity().getResources().getString(R.string.new_comic_view), oc)
                         .show();
             }
