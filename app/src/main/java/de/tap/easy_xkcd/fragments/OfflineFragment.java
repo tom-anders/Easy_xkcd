@@ -240,9 +240,6 @@ public class OfflineFragment extends android.support.v4.app.Fragment {
             case R.id.action_favorite:
                 return ModifyFavorites(item);
 
-            case R.id.delete_favorites:
-                return deleteAllFavorites();
-
             case R.id.action_share:
                 return shareComic();
 
@@ -367,31 +364,6 @@ public class OfflineFragment extends android.support.v4.app.Fragment {
             if (f != null)
                 f.refresh();
         }
-    }
-
-    private boolean deleteAllFavorites() {
-        new android.support.v7.app.AlertDialog.Builder(getActivity())
-                .setMessage(R.string.delete_favorites_dialog)
-                .setPositiveButton(R.string.dialog_yes, new DialogInterface.OnClickListener() {
-                    public void onClick(DialogInterface dialog, int which) {
-                        Favorites.putStringInPreferences(getActivity(), null, "favorites");
-                        android.support.v4.app.FragmentManager fragmentManager = getActivity().getSupportFragmentManager();
-                        FavoritesFragment f = (FavoritesFragment) fragmentManager.findFragmentByTag("favorites");
-                        if (f != null)
-                            fragmentManager.beginTransaction().remove(f).commit();
-                        getActivity().invalidateOptionsMenu();
-                        Toast toast = Toast.makeText(getActivity(), R.string.favorites_cleared, Toast.LENGTH_SHORT);
-                        toast.show();
-                    }
-                })
-                .setNegativeButton(R.string.dialog_cancel, new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                    }
-                })
-                .setCancelable(true)
-                .show();
-        return true;
     }
 
     private void shareComicUrl() {

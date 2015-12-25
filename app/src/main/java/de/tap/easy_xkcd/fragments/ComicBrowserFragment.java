@@ -446,9 +446,6 @@ public class ComicBrowserFragment extends android.support.v4.app.Fragment {
             case R.id.action_favorite:
                 return ModifyFavorites(item);
 
-            case R.id.delete_favorites:
-                return deleteAllFavorites();
-
             case R.id.action_share:
                 return shareComic();
 
@@ -619,39 +616,6 @@ public class ComicBrowserFragment extends android.support.v4.app.Fragment {
             }
             startActivity(Intent.createChooser(share, getResources().getString(R.string.share_image)));
         }
-    }
-
-    private boolean deleteAllFavorites() {
-        new android.support.v7.app.AlertDialog.Builder(getActivity())
-                .setMessage(R.string.delete_favorites_dialog)
-                .setPositiveButton(R.string.dialog_yes, new DialogInterface.OnClickListener() {
-                    public void onClick(DialogInterface dialog, int which) {
-                        final String[] fav = Favorites.getFavoriteList(getActivity());
-                        Favorites.putStringInPreferences(getActivity(), null, "favorites");
-                        //Remove the FavoritesFragment
-                        android.support.v4.app.FragmentManager fragmentManager = getActivity().getSupportFragmentManager();
-                        FavoritesFragment f = (FavoritesFragment) fragmentManager.findFragmentByTag("favorites");
-                        if (f != null) {
-                            fragmentManager.beginTransaction().remove(f).commit();
-                        }
-                        getActivity().invalidateOptionsMenu();
-                        //Delete all saved images
-                        if (!prefHelper.fullOfflineEnabled())
-                            for (String i : fav)
-                                getActivity().deleteFile(i);
-
-                        Toast toast = Toast.makeText(getActivity(), R.string.favorites_cleared, Toast.LENGTH_SHORT);
-                        toast.show();
-                    }
-                })
-                .setNegativeButton(R.string.dialog_cancel, new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                    }
-                })
-                .setCancelable(true)
-                .show();
-        return true;
     }
 
     private boolean ModifyFavorites(MenuItem item) {
