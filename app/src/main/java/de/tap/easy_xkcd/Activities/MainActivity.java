@@ -744,7 +744,7 @@ public class MainActivity extends AppCompatActivity {
                 zoomReset = ((OfflineFragment) fragmentManager.findFragmentByTag(BROWSER_TAG)).zoomReset();
             }
             if (!zoomReset) {
-                if (!SearchResultsActivity.isOpen)
+                if (!SearchResultsActivity.isOpen && !getIntent().getAction().equals(Intent.ACTION_VIEW))
                     showOverview();
                 else
                     super.onBackPressed();
