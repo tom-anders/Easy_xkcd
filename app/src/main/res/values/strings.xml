@@ -66,6 +66,7 @@
     <string name="action_unread">Mark all as unread</string>
     <string name="action_hide_read">Hide read articles</string>
     <string name="action_favorite">Add to Favorites</string>
+    <string name="action_favorite_remove">Remove from Favorites</string>
     <string name="action_latest">Latest comic</string>
     <string name="action_share">Share Comic</string>
     <string name="action_share_article">Share article</string>

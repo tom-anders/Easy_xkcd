@@ -251,5 +251,6 @@
         <item>Krátký dotyk</item>
         <item>Dlouhý dotyk</item>
     </string-array>
+    <string name="action_favorite_remove">Remove from Favorites</string>
 
 </resources>

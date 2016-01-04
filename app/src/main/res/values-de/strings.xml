@@ -256,5 +256,6 @@
     <string name="pref_default_zoom">Passe Größe der Comic Bilder an die Größe des Bildschirms an</string>
     <string name="pref_default_zoom_sum">Wennn diese Option deaktiviert ist, sehen Comics auf großen Geräten eventuell besser aus</string>
     <string name="overview_style_title">Wähle deinen bevorzugten Stil</string>
+    <string name="action_favorite_remove">Aus Favoriten entfernen</string>
 
 </resources>

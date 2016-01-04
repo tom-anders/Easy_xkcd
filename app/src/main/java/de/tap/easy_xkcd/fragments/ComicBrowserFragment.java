@@ -737,8 +737,10 @@ public class ComicBrowserFragment extends android.support.v4.app.Fragment {
         MenuItem fav = menu.findItem(R.id.action_favorite);
         if (Favorites.checkFavorite(getActivity(), sLastComicNumber)) {
             fav.setIcon(R.drawable.ic_action_favorite);
+            fav.setTitle(R.string.action_favorite_remove);
         } else {
             fav.setIcon(R.drawable.ic_favorite_outline);
+            fav.setTitle(R.string.action_favorite);
         }
         //If the FAB is visible, hide the random comic menu item
         if (((MainActivity) getActivity()).getFab().getVisibility() == View.GONE) {

@@ -257,5 +257,6 @@
     <string name="pref_default_zoom">Scale comic images to fit device screen size by default</string>
     <string name="pref_default_zoom_sum">When disabled, comics may look better on large devices</string>
     <string name="overview_style_title">Pick your preferred style</string>
+    <string name="action_favorite_remove">Remove from Favorites</string>
 
 </resources>
