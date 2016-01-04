@@ -744,7 +744,10 @@ public class MainActivity extends AppCompatActivity {
                 zoomReset = ((OfflineFragment) fragmentManager.findFragmentByTag(BROWSER_TAG)).zoomReset();
             }
             if (!zoomReset) {
-                showOverview();
+                if (!SearchResultsActivity.isOpen)
+                    showOverview();
+                else
+                    super.onBackPressed();
             }
         } else if (mCurrentFragment == R.id.nav_favorites) {
             if (!FavoritesFragment.zoomReset()) {
