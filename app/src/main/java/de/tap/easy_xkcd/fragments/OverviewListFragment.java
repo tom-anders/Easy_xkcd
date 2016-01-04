@@ -353,10 +353,14 @@ public class OverviewListFragment extends android.support.v4.app.Fragment {
 
         MenuItem item = menu.findItem(R.id.action_favorite);
         item.setVisible(true);
-        if (!prefHelper.overviewFav())
+        if (!prefHelper.overviewFav()) {
             item.setIcon(R.drawable.ic_favorite_outline);
-        else
+            item.setTitle(R.string.nv_favorites);
+        }
+        else {
             item.setIcon(R.drawable.ic_action_favorite);
+            item.setTitle(R.string.action_overview);
+        }
 
         if (prefHelper.hideDonate())
             menu.findItem(R.id.action_donate).setVisible(false);
@@ -371,10 +375,13 @@ public class OverviewListFragment extends android.support.v4.app.Fragment {
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
             case R.id.action_favorite:
-                if (prefHelper.overviewFav())
+                if (prefHelper.overviewFav()) {
                     item.setIcon(R.drawable.ic_favorite_outline);
-                else
+                    item.setTitle(R.string.action_overview);
+                } else {
                     item.setIcon(R.drawable.ic_action_favorite);
+                    item.setTitle(R.string.nv_favorites);
+                }
                 prefHelper.setOverviewFav(!prefHelper.overviewFav());
                 switch (prefHelper.getOverviewStyle()) {
                     case 0:
