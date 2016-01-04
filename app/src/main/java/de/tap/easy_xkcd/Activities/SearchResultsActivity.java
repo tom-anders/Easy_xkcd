@@ -601,4 +601,20 @@ public class SearchResultsActivity extends AppCompatActivity {
         MainActivity.fromSearch = true;
         super.onBackPressed();
     }
+
+
+    public static boolean isOpen;
+
+    @Override
+    protected void onStart() {
+        super.onStart();
+        isOpen=true;
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        isOpen=false;
+    }
+
 }
