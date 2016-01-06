@@ -257,5 +257,10 @@
     <string name="pref_default_zoom_sum">Wennn diese Option deaktiviert ist, sehen Comics auf großen Geräten eventuell besser aus</string>
     <string name="overview_style_title">Wähle deinen bevorzugten Stil</string>
     <string name="action_favorite_remove">Aus Favoriten entfernen</string>
+    <string name="open_bookmark">Zum Lesezeichen</string>
+    <string name="add_bookmark">Lesezeichen hinzufügen</string>
+    <string name="bookmark_toast">Du kannst in der Comic Übersicht zu deinem Lesezeichen zurückkehren. Es wird außerdem dort in der Liste markiert.</string>
+    <string name="no_bookmark">Du hast noch kein Lesezeichen! Du kannst eins im Comic Browser hinzufügen oder einen Comic in der Liste lang antippen</string>
+    <string name="bookmark_toast_2">Lesezeichen gesetzt</string>
 
 </resources>

@@ -110,6 +110,8 @@ public class PrefHelper {
     private static final String OVERVIEW_FAV = "overview_fav";
     private static final String DEFAULT_ZOOM = "pref_default_zoom";
     private static final String OVERVIEW_STYLE = "overview_style";
+    private static final String BOOKMARK = "bookmark";
+
 
     public PrefHelper(Context context) {
         sharedPrefs = context.getSharedPreferences("MainActivity", Activity.MODE_PRIVATE);
@@ -876,6 +878,16 @@ public class PrefHelper {
         SharedPreferences.Editor editor = sharedPrefs.edit();
         editor.putInt(OVERVIEW_STYLE, style);
         editor.apply();
+    }
+
+    public void setBookmark(int number) {
+        SharedPreferences.Editor editor = sharedPrefs.edit();
+        editor.putInt(BOOKMARK, number);
+        editor.apply();
+    }
+
+    public int getBookmark() {
+        return sharedPrefs.getInt(BOOKMARK, 0);
     }
 
 }

@@ -252,5 +252,10 @@
         <item>Dlouhý dotyk</item>
     </string-array>
     <string name="action_favorite_remove">Remove from Favorites</string>
+    <string name="open_bookmark">Go to bookmark</string>
+    <string name="add_bookmark">Add bookmark</string>
+    <string name="bookmark_toast">You can return to your bookmark from overview mode. It will also be highlighted in the list</string>
+    <string name="no_bookmark">You didn\'t add a bookmark yet! You can add one in the Comic Browser or by long pressing a comic in this list</string>
+    <string name="bookmark_toast_2">Bookmark added</string>
 
 </resources>

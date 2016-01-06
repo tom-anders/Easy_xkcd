@@ -90,6 +90,12 @@
     <string name="new_whatif">New What If!</string>
     <string name="apply_theme">Restart now to apply new theme?</string>
 
+    <string name="add_bookmark">Add bookmark</string>
+    <string name="open_bookmark">Go to bookmark</string>
+    <string name="bookmark_toast">You can return to your bookmark from overview mode. It will also be highlighted in the comic list</string>
+    <string name="bookmark_toast_2">Bookmark added</string>
+    <string name="no_bookmark">You didn\'t add a bookmark yet! You can add one in the Comic Browser or by long pressing a comic in this list</string>
+
     <string-array
         name="share_dialog">
         <item>Share Image</item>

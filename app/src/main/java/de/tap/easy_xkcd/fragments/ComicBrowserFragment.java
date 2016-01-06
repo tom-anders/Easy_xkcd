@@ -464,6 +464,9 @@ public class ComicBrowserFragment extends android.support.v4.app.Fragment {
 
             case R.id.action_trans:
                 return ((MainActivity) getActivity()).showTranscript(sComicMap.get(sLastComicNumber).getTranscript());
+
+            case R.id.action_boomark:
+                return ((MainActivity) getActivity()).addBookmark(sLastComicNumber);
         }
         return super.onOptionsItemSelected(item);
     }

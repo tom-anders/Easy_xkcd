@@ -62,6 +62,11 @@
         android:icon="@drawable/ic_action_sort"
         android:visible="false" />
 
+    <item android:id="@+id/action_boomark"
+        app:showAsAction="never"
+        android:title="@string/add_bookmark"
+        android:visible="true" />
+
     <item android:id="@+id/action_latest"
         android:title="@string/action_latest"
         app:showAsAction="never" />

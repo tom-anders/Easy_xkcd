@@ -1,3 +1,7 @@
+## 3.9
+
+- Long press a comic in overview mode to add it as a bookmark
+
 ## 3.8.4
 
 - Improved Back Button behavior

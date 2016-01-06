@@ -849,5 +849,13 @@ public class MainActivity extends AppCompatActivity {
         return true;
     }
 
+    public boolean addBookmark(int bookmark) {
+        if (prefHelper.getBookmark() == 0)
+            Toast.makeText(this, R.string.bookmark_toast, Toast.LENGTH_LONG).show();
+        prefHelper.setBookmark(bookmark);
+        OverviewListFragment.bookmark = bookmark;
+        return true;
+    }
+
 }
 

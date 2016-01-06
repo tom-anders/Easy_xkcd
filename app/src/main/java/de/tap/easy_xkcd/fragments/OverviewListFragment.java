@@ -18,6 +18,7 @@ import android.support.v7.widget.RecyclerView;
 import android.transition.Transition;
 import android.transition.TransitionInflater;
 import android.util.Log;
+import android.util.TypedValue;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -29,6 +30,7 @@ import android.widget.BaseAdapter;
 import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.bumptech.glide.Glide;
 import com.tap.xkcd_reader.R;
@@ -55,6 +57,7 @@ public class OverviewListFragment extends android.support.v4.app.Fragment {
     private RecyclerView rv;
     private VerticalRecyclerViewFastScroller scroller;
     private PrefHelper prefHelper;
+    public static int bookmark;
     private static final String BROWSER_TAG = "browser";
     private static final String OVERVIEW_TAG = "overview";
 
@@ -63,6 +66,7 @@ public class OverviewListFragment extends android.support.v4.app.Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         prefHelper = ((MainActivity) getActivity()).getPrefHelper();
+        bookmark = prefHelper.getBookmark();
         setHasOptionsMenu(true);
         View v = null;
         switch (prefHelper.getOverviewStyle()) {
@@ -98,6 +102,13 @@ public class OverviewListFragment extends android.support.v4.app.Fragment {
                             showComic(i);
                         }
                     });
+                    list.setOnItemLongClickListener(new AdapterView.OnItemLongClickListener() {
+                        @Override
+                        public boolean onItemLongClick(AdapterView<?> adapterView, View view, int i, long l) {
+                            updateBookmark(i);
+                            return true;
+                        }
+                    });
                     break;
                 case 1:
                     rvAdapter = new RVAdapter();
@@ -106,6 +117,30 @@ public class OverviewListFragment extends android.support.v4.app.Fragment {
             }
         }
         return v;
+    }
+
+    private void updateBookmark(int i) {
+        int count = 0;
+        switch (prefHelper.getOverviewStyle()) {
+            case 0:
+                count = listAdapter.getCount();
+                break;
+            case 1:
+                count = rvAdapter.getItemCount();
+                break;
+        }
+        if (bookmark == 0)
+            Toast.makeText(getActivity(), R.string.bookmark_toast_2, Toast.LENGTH_LONG).show();
+        prefHelper.setBookmark(count - i);
+        bookmark = count - i;
+        switch (prefHelper.getOverviewStyle()) {
+            case 0:
+                listAdapter.notifyDataSetChanged();
+                break;
+            case 1:
+                rvAdapter.notifyDataSetChanged();
+                break;
+        }
     }
 
     public void showComic(final int pos) {
@@ -225,6 +260,11 @@ public class OverviewListFragment extends android.support.v4.app.Fragment {
                     else
                         holder.textView.setTextColor(ContextCompat.getColor(getActivity(), android.R.color.tertiary_text_light));
                 }
+                if (getCount() - position == bookmark) {
+                    TypedValue typedValue = new TypedValue();
+                    getActivity().getTheme().resolveAttribute(R.attr.colorAccent, typedValue, true);
+                    holder.textView.setTextColor(typedValue.data);
+                }
             }
             holder.textView.setText(label);
             return view;
@@ -249,6 +289,7 @@ public class OverviewListFragment extends android.support.v4.app.Fragment {
         public ComicViewHolder onCreateViewHolder(ViewGroup viewGroup, int i) {
             View v = LayoutInflater.from(viewGroup.getContext()).inflate(R.layout.search_result, viewGroup, false);
             v.setOnClickListener(new CustomOnClickListener());
+            v.setOnLongClickListener(new CustomOnLongClickListener());
             return new ComicViewHolder(v);
         }
 
@@ -272,6 +313,11 @@ public class OverviewListFragment extends android.support.v4.app.Fragment {
                         comicViewHolder.comicTitle.setTextColor(ContextCompat.getColor(getActivity(), R.color.Read));
                     else
                         comicViewHolder.comicTitle.setTextColor(ContextCompat.getColor(getActivity(), android.R.color.tertiary_text_light));
+                }
+                if (getItemCount() - i == bookmark) {
+                    TypedValue typedValue = new TypedValue();
+                    getActivity().getTheme().resolveAttribute(R.attr.colorAccent, typedValue, true);
+                    comicViewHolder.comicTitle.setTextColor(typedValue.data);
                 }
             }
             comicViewHolder.comicInfo.setText(String.valueOf(number));
@@ -346,18 +392,27 @@ public class OverviewListFragment extends android.support.v4.app.Fragment {
         }
     }
 
+    class CustomOnLongClickListener implements View.OnLongClickListener {
+        @Override
+        public boolean onLongClick(View v) {
+            updateBookmark(rv.getChildAdapterPosition(v));
+            return true;
+        }
+    }
+
     @Override
     public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
         for (int i = 0; i < menu.size() - 2; i++)
             menu.getItem(i).setVisible(false);
+
+        menu.findItem(R.id.action_boomark).setVisible(prefHelper.getBookmark() != 0).setTitle(R.string.open_bookmark);
 
         MenuItem item = menu.findItem(R.id.action_favorite);
         item.setVisible(true);
         if (!prefHelper.overviewFav()) {
             item.setIcon(R.drawable.ic_favorite_outline);
             item.setTitle(R.string.nv_favorites);
-        }
-        else {
+        } else {
             item.setIcon(R.drawable.ic_action_favorite);
             item.setTitle(R.string.action_overview);
         }
@@ -429,6 +484,19 @@ public class OverviewListFragment extends android.support.v4.app.Fragment {
                             }
                         }).show();
                 break;
+
+            case R.id.action_boomark:
+                int count = 0;
+                switch (prefHelper.getOverviewStyle()) {
+                    case 0:
+                        count = listAdapter.getCount();
+                        break;
+                    case 1:
+                        count = rvAdapter.getItemCount();
+                        break;
+                }
+                showComic(count-bookmark);
+
         }
         return super.onOptionsItemSelected(item);
     }
@@ -437,11 +505,11 @@ public class OverviewListFragment extends android.support.v4.app.Fragment {
         switch (prefHelper.getOverviewStyle()) {
             case 0:
                 listAdapter.notifyDataSetChanged();
-                list.setSelection(titles.length-pos);
+                list.setSelection(titles.length - pos);
                 break;
             case 1:
                 rvAdapter.notifyDataSetChanged();
-                rv.scrollToPosition(titles.length-pos);
+                rv.scrollToPosition(titles.length - pos);
                 break;
         }
     }
@@ -580,6 +648,13 @@ public class OverviewListFragment extends android.support.v4.app.Fragment {
                         @Override
                         public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
                             showComic(i);
+                        }
+                    });
+                    list.setOnItemLongClickListener(new AdapterView.OnItemLongClickListener() {
+                        @Override
+                        public boolean onItemLongClick(AdapterView<?> adapterView, View view, int i, long l) {
+                            updateBookmark(i);
+                            return true;
                         }
                     });
                     break;
