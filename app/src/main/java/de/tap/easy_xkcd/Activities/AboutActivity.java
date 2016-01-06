@@ -22,6 +22,7 @@ import android.os.Bundle;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.text.Html;
+import android.text.method.LinkMovementMethod;
 import android.util.Log;
 import android.util.TypedValue;
 import android.widget.TextView;
@@ -73,6 +74,7 @@ public class AboutActivity extends AppCompatActivity {
             Log.e("error:", e.getMessage());
         }
         tvAbout.setText(Html.fromHtml(sb.toString()));
+        tvAbout.setMovementMethod(LinkMovementMethod.getInstance());
     }
 
 

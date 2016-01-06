@@ -377,10 +377,10 @@ public class OverviewListFragment extends android.support.v4.app.Fragment {
             case R.id.action_favorite:
                 if (prefHelper.overviewFav()) {
                     item.setIcon(R.drawable.ic_favorite_outline);
-                    item.setTitle(R.string.action_overview);
+                    item.setTitle(R.string.nv_favorites);
                 } else {
                     item.setIcon(R.drawable.ic_action_favorite);
-                    item.setTitle(R.string.nv_favorites);
+                    item.setTitle(R.string.action_overview);
                 }
                 prefHelper.setOverviewFav(!prefHelper.overviewFav());
                 switch (prefHelper.getOverviewStyle()) {
