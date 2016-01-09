@@ -314,7 +314,6 @@ public class NestedPreferenceFragment extends PreferenceFragment {
                 addPreferencesFromResource(R.xml.pref_advanced);
                 findPreference(REPAIR).setEnabled(MainActivity.fullOffline);
                 findPreference(MOBILE_ENABLED).setEnabled(MainActivity.fullOffline | MainActivity.fullOfflineWhatIf);
-                findPreference(OFFLINE_PATH_PREF).setEnabled(MainActivity.fullOffline | MainActivity.fullOfflineWhatIf);
 
                 findPreference(REPAIR).setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
                     @Override
@@ -334,10 +333,14 @@ public class NestedPreferenceFragment extends PreferenceFragment {
                 findPreference(OFFLINE_PATH_PREF).setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
                     @Override
                     public boolean onPreferenceClick(Preference preference) {
-                        DialogFragment directoryChooserFragment = DirectoryChooserFragment.newInstance(Environment.getExternalStorageDirectory());
+                        if (ContextCompat.checkSelfPermission(getActivity(), Manifest.permission.WRITE_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED) {
+                            DialogFragment directoryChooserFragment = DirectoryChooserFragment.newInstance(Environment.getExternalStorageDirectory());
 
-                        FragmentTransaction transaction = ((NestedSettingsActivity) getActivity()).getManger().beginTransaction();
-                        directoryChooserFragment.show(transaction, "RDC");
+                            FragmentTransaction transaction = ((NestedSettingsActivity) getActivity()).getManger().beginTransaction();
+                            directoryChooserFragment.show(transaction, "RDC");
+                        } else {
+                            ActivityCompat.requestPermissions(getActivity(), new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE}, 12);
+                        }
                         return true;
                     }
                 });

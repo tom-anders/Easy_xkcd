@@ -194,7 +194,7 @@ public class SearchResultsActivity extends AppCompatActivity {
                 } catch (IOException e) {
                     Log.e("error:", e.getMessage());
                 }
-                prefHelper.setUrls(sb.toString(), 1579);
+                prefHelper.setUrls(sb.toString(), 1627);
                 Log.d("info", "urls loaded");
                 prefHelper.setDatabaseLoaded();
             }

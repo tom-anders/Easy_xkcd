@@ -51,6 +51,7 @@ import android.util.TypedValue;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.WindowManager;
 import android.view.animation.AccelerateInterpolator;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.SearchView;
@@ -833,6 +834,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public boolean explainComic(int number) {
+        //TODO optionally only display text
         String url = "http://explainxkcd.com/" + String.valueOf(number);
         CustomTabsIntent.Builder intentBuilder = new CustomTabsIntent.Builder();
         TypedValue typedValue = new TypedValue();

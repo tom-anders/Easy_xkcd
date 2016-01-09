@@ -61,7 +61,7 @@ public class OverviewListFragment extends android.support.v4.app.Fragment {
     private static final String BROWSER_TAG = "browser";
     private static final String OVERVIEW_TAG = "overview";
 
-    //TODO grid
+    //TODO go to earliest unread comic
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {

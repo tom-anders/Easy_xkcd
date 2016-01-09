@@ -6,6 +6,9 @@ import android.content.pm.PackageManager;
 import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.Environment;
+import android.support.v4.app.DialogFragment;
+import android.support.v4.app.FragmentTransaction;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.util.TypedValue;
@@ -14,6 +17,7 @@ import android.widget.Toast;
 import com.tap.xkcd_reader.R;
 import com.turhanoz.android.reactivedirectorychooser.event.OnDirectoryCancelEvent;
 import com.turhanoz.android.reactivedirectorychooser.event.OnDirectoryChosenEvent;
+import com.turhanoz.android.reactivedirectorychooser.ui.DirectoryChooserFragment;
 import com.turhanoz.android.reactivedirectorychooser.ui.OnDirectoryChooserFragmentInteraction;
 
 import java.io.File;
@@ -22,6 +26,8 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.util.Timer;
+import java.util.TimerTask;
 
 import de.tap.easy_xkcd.fragments.NestedPreferenceFragment;
 import de.tap.easy_xkcd.services.ArticleDownloadService;
@@ -121,6 +127,17 @@ public class NestedSettingsActivity extends AppCompatActivity implements OnDirec
                 if (grantResults[0] == PackageManager.PERMISSION_GRANTED) {
                     fragment.new repairComicsTask().execute();
                 }
+            case 12:
+                if (grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                    new Timer().schedule(new TimerTask() {
+                        @Override
+                        public void run() {
+                            DialogFragment directoryChooserFragment = DirectoryChooserFragment.newInstance(Environment.getExternalStorageDirectory());
+                            FragmentTransaction transaction = getManger().beginTransaction();
+                            directoryChooserFragment.show(transaction, "RDC");
+                        }
+                    }, 100);
+                }
         }
     }
 
@@ -133,7 +150,8 @@ public class NestedSettingsActivity extends AppCompatActivity implements OnDirec
         File path = event.getFile();
         File oldPath = prefHelper.getOfflinePath();
         prefHelper.setOfflinePath(path.getAbsolutePath());
-        new moveData().execute(new String[]{oldPath.getAbsolutePath(), path.getAbsolutePath()});
+        if (MainActivity.fullOffline | MainActivity.fullOfflineWhatIf)
+            new moveData().execute(new String[]{oldPath.getAbsolutePath(), path.getAbsolutePath()});
     }
 
     public class moveData extends AsyncTask<String[], Void, Void> {

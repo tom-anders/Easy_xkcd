@@ -1,3 +1,7 @@
+## 3.9.1
+
+- Offline path can be changed even when offline mode is disabled
+
 ## 3.9
 
 - Long press a comic in overview mode to add it as a bookmark
