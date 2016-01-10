@@ -18,6 +18,7 @@ package de.tap.easy_xkcd.utils;
 
 import android.content.Context;
 import android.preference.PreferenceManager;
+import android.util.Log;
 
 import com.tap.xkcd_reader.R;
 
@@ -75,7 +76,7 @@ public class Comic {
         String[] result = new String[3];
         if (json != null) {
             result[0] = json.getString("title");
-            result[1] = json.getString("alt");
+            result[1] = new String(json.getString("alt").getBytes("ISO-8859-1"), "UTF-8");
             result[2] = json.getString("img");
             mComicNumber = Integer.parseInt(json.getString("num"));
         } else {
@@ -85,14 +86,8 @@ public class Comic {
             mComicNumber = 404;
         }
 
-        // some image/encoding fixes
+        // some image fixes
         switch (mComicNumber) {
-            case 712: result[1] = "Using a ring to bind someone you covet into your dark and twisted world? Wow, just got the subtext there. Also, the apparently eager Beyoncé would've made one badass Nazgȗl.";
-                break;
-            case 847: result[1] = "Eärendil will patrol the walls of night only until the sun reaches red giant stage, engulfing the Morning Star on his brow. Light and high beauty are passing things as well.";
-                break;
-            case 1379: result[1] = "The good news is that according to the latest IPCC report, if we enact aggressive emissions limits now, we could hold the warming to 2°C. That's only HALF an ice age unit, which is probably no big deal.";
-                break;
             case 1037: result[2] = "http://www.explainxkcd.com/wiki/images/f/ff/umwelt_the_void.jpg";
                 break;
             case 1608: result[2] = "http://www.explainxkcd.com/wiki/images/4/41/hoverboard.png";
