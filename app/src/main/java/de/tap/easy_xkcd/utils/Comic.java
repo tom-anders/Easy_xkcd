@@ -91,6 +91,8 @@ public class Comic {
                 break;
             case 847: result[1] = "Eärendil will patrol the walls of night only until the sun reaches red giant stage, engulfing the Morning Star on his brow. Light and high beauty are passing things as well.";
                 break;
+            case 1353: result[1] = "I looked at some of the data dumps from vulnerable sites, and it was ... bad. I saw emails, passwords, password hints. SSL keys and session cookies. Important servers brimming with visitor IPs. Attack ships on fire off the shoulder of Orion, c-beams glittering in the dark near the Tannhäuser Gate. I should probably patch OpenSSL.";
+                break;
             case 1379: result[1] = "The good news is that according to the latest IPCC report, if we enact aggressive emissions limits now, we could hold the warming to 2°C. That's only HALF an ice age unit, which is probably no big deal.";
                 break;
             case 1037: result[2] = "http://www.explainxkcd.com/wiki/images/f/ff/umwelt_the_void.jpg";
