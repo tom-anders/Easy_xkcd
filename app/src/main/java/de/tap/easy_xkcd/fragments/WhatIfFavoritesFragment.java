@@ -193,6 +193,10 @@ public class WhatIfFavoritesFragment extends android.support.v4.app.Fragment {
                 comicViewHolder.thumbnail.setImageDrawable(ContextCompat.getDrawable(getActivity(), R.mipmap.proton_earth));
                 return;
             }
+            if (titles.get(i).equals("Sunbeam")) {
+                comicViewHolder.thumbnail.setImageDrawable(ContextCompat.getDrawable(getActivity(), R.mipmap.sun_beam));
+                return;
+            }
 
             if (!prefHelper.fullOfflineWhatIf()) {
                 Glide.with(getActivity())

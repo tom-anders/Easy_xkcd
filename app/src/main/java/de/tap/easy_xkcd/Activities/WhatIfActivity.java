@@ -3,14 +3,17 @@ package de.tap.easy_xkcd.Activities;
 import android.app.ProgressDialog;
 import android.content.Intent;
 import android.content.pm.ActivityInfo;
+import android.media.Image;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Build;
 import android.support.v4.content.ContextCompat;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.text.Html;
 import android.text.method.LinkMovementMethod;
+import android.util.Log;
 import android.util.TypedValue;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -21,6 +24,8 @@ import android.webkit.JavascriptInterface;
 import android.webkit.WebChromeClient;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
+import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import com.tap.xkcd_reader.R;
@@ -98,6 +103,18 @@ public class WhatIfActivity extends AppCompatActivity {
     private class refObject {
         @JavascriptInterface
         public void performClick(String n) {
+            Log.d("n", n);
+            if (WhatIfIndex == 141 && n.equals("2")) {
+                ImageView image = new ImageView(WhatIfActivity.this);
+                image.setImageResource(R.mipmap.brda);
+                image.setScaleType(ImageView.ScaleType.CENTER_INSIDE);
+                AlertDialog.Builder builder =
+                        new AlertDialog.Builder(WhatIfActivity.this).
+                                setMessage("Here's an image which is great for annoying a few specific groups of people:")
+                                .setView(image);
+                builder.create().show();
+                return;
+            }
             ((TextView) new android.support.v7.app.AlertDialog.Builder(WhatIfActivity.this)
                     .setMessage(Html.fromHtml(loadedArticle.getRefs().get(Integer.parseInt(n))))
                     .show()

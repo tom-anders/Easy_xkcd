@@ -347,6 +347,10 @@ public class WhatIfFragment extends android.support.v4.app.Fragment {
                 comicViewHolder.thumbnail.setImageDrawable(ContextCompat.getDrawable(getActivity(), R.mipmap.proton_earth));
                 return;
             }
+            if (titles.get(i).equals("Sunbeam")) {
+                comicViewHolder.thumbnail.setImageDrawable(ContextCompat.getDrawable(getActivity(), R.mipmap.sun_beam));
+                return;
+            }
             if (offlineMode) {
                 File offlinePath = prefHelper.getOfflinePath();
                 File dir = new File(offlinePath.getAbsolutePath() + OFFLINE_WHATIF_OVERVIEW_PATH);
