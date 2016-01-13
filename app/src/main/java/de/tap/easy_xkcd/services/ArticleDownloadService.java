@@ -36,7 +36,7 @@ public class ArticleDownloadService extends IntentService {
     @Override
     protected void onHandleIntent(Intent intent) {
         NotificationCompat.Builder mBuilder =
-                new NotificationCompat.Builder(getApplicationContext())
+                new NotificationCompat.Builder(this)
                         .setSmallIcon(R.drawable.ic_notification)
                         .setProgress(100, 0 , false)
                         .setOngoing(true)

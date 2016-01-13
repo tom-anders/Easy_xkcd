@@ -1,3 +1,8 @@
+## 3.9.2
+
+- Added thumbnail for latest What-if, fixed offline download
+- Fixed some alt text encoding issues
+
 ## 3.9.1
 
 - Offline path can be changed even when offline mode is disabled

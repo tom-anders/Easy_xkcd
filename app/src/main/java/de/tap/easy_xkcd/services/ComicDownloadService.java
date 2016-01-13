@@ -35,7 +35,7 @@ public class ComicDownloadService extends IntentService {
     protected void onHandleIntent(Intent intent) {
         final PrefHelper prefHelper = new PrefHelper(getApplicationContext());
         NotificationCompat.Builder mBuilder =
-                new NotificationCompat.Builder(getApplicationContext())
+                new NotificationCompat.Builder(this)
                         .setSmallIcon(R.drawable.ic_notification)
                         .setProgress(100, 0, false)
                         .setContentTitle(getResources().getString(R.string.loading_offline))
