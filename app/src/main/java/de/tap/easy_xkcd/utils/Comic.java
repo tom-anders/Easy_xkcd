@@ -75,7 +75,7 @@ public class Comic {
         json = JsonParser.getJSONFromUrl(url);
         String[] result = new String[3];
         if (json != null) {
-            result[0] = json.getString("title");
+            result[0] = new String(json.getString("title").getBytes("ISO-8859-1"), "UTF-8");
             result[1] = new String(json.getString("alt").getBytes("ISO-8859-1"), "UTF-8");
             result[2] = json.getString("img");
             mComicNumber = Integer.parseInt(json.getString("num"));
