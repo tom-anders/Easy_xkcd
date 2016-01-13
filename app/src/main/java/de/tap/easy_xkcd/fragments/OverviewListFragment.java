@@ -455,6 +455,7 @@ public class OverviewListFragment extends android.support.v4.app.Fragment {
                         }
                         break;
                 }
+                getActivity().invalidateOptionsMenu();
                 break;
             case R.id.action_unread:
                 prefHelper.setComicsUnread();
@@ -499,6 +500,12 @@ public class OverviewListFragment extends android.support.v4.app.Fragment {
 
         }
         return super.onOptionsItemSelected(item);
+    }
+
+    @Override
+    public void onPrepareOptionsMenu(Menu menu) {
+        menu.findItem(R.id.action_boomark).setVisible(!prefHelper.overviewFav());
+        super.onPrepareOptionsMenu(menu);
     }
 
     public void notifyAdapter(int pos) {
