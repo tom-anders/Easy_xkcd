@@ -39,8 +39,10 @@ import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 
+import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileOutputStream;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -66,6 +68,7 @@ public class WhatIfFragment extends android.support.v4.app.Fragment {
     public static boolean newIntent;
     private boolean offlineMode;
     private static final String OFFLINE_WHATIF_OVERVIEW_PATH = "/easy xkcd/what if/overview";
+    private static final String OFFLINE_WHATIF_PATH = "/easy xkcd/what if/";
     private PrefHelper prefHelper;
 
     @Override
@@ -107,6 +110,7 @@ public class WhatIfFragment extends android.support.v4.app.Fragment {
         @SuppressWarnings("ResultOfMethodCallIgnored")
         @Override
         protected Void doInBackground(Void... dummy) {
+            int highestOffline = prefHelper.getNewestWhatIf();
             try {
                 Document doc = Jsoup.connect("https://what-if.xkcd.com/archive/")
                         .userAgent("Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/32.0.1700.19 Safari/537.36")
@@ -114,6 +118,9 @@ public class WhatIfFragment extends android.support.v4.app.Fragment {
                 Elements titles = doc.select("h1");
                 Elements img = doc.select("img.archive-image");
                 if (titles.size() > prefHelper.getNewestWhatIf()) {
+                    Log.d("what if", "updating overview");
+                    prefHelper.setNewestWhatif(titles.size());
+
                     StringBuilder sb = new StringBuilder();
                     sb.append(titles.first().text());
                     titles.remove(0);
@@ -133,23 +140,29 @@ public class WhatIfFragment extends android.support.v4.app.Fragment {
                                     .into(-1, -1)
                                     .get();
                             File sdCard = prefHelper.getOfflinePath();
-                            File dir = new File(sdCard.getAbsolutePath() + "/easy xkcd/what if/overview");
+                            File dir = new File(sdCard.getAbsolutePath() + OFFLINE_WHATIF_OVERVIEW_PATH);
                             dir.mkdirs();
                             File file = new File(dir, String.valueOf(i + 1) + ".png");
                             FileOutputStream fos = new FileOutputStream(file);
                             mBitmap.compress(Bitmap.CompressFormat.PNG, 100, fos);
                             fos.flush();
                             fos.close();
-                        } catch (IOException e) {
+                        } catch (Exception e) {
                             e.printStackTrace();
                         }
                     }
 
                 }
-                prefHelper.setNewestWhatif(titles.size());
-            } catch (Exception e) {
+            } catch (IOException e) {
                 e.printStackTrace();
             }
+            for (int i = highestOffline + 1; i<=prefHelper.getNewestWhatIf(); i++) {
+                downloadArticle(i);
+            }
+
+            //this What If failed downloading when it first came out
+            if (!prefHelper.sunBeamDownloaded())
+                downloadArticle(141);
 
             if (!prefHelper.nomediaCreated()) {
                 File sdCard = prefHelper.getOfflinePath();
@@ -163,6 +176,49 @@ public class WhatIfFragment extends android.support.v4.app.Fragment {
                 }
             }
             return null;
+        }
+
+        private void downloadArticle(int i) {
+            Log.d("what if", "downloading " + i);
+            if (i == 141)
+                prefHelper.setSunbeamLoaded();
+            Bitmap mBitmap;
+            Document doc;
+            File sdCard = prefHelper.getOfflinePath();
+            File dir;
+            try {
+                doc = Jsoup.connect("https://what-if.xkcd.com/" + String.valueOf(i)).get();
+                dir = new File(sdCard.getAbsolutePath() + OFFLINE_WHATIF_PATH + String.valueOf(i));
+                dir.mkdirs();
+                File file = new File(dir, String.valueOf(i) + ".html");
+                BufferedWriter writer = new BufferedWriter(new FileWriter(file));
+                writer.write(doc.outerHtml());
+                writer.close();
+                //download images
+                int count = 1;
+                for (Element e : doc.select(".illustration")) {
+                    try {
+                        String url = "http://what-if.xkcd.com" + e.attr("src");
+                        mBitmap = Glide.with(getActivity())
+                                .load(url)
+                                .asBitmap()
+                                .into(-1, -1)
+                                .get();
+                        dir = new File(sdCard.getAbsolutePath() + OFFLINE_WHATIF_PATH + String.valueOf(i));
+                        dir.mkdirs();
+                        file = new File(dir, String.valueOf(count) + ".png");
+                        FileOutputStream fos = new FileOutputStream(file);
+                        mBitmap.compress(Bitmap.CompressFormat.PNG, 100, fos);
+                        fos.flush();
+                        fos.close();
+                        count++;
+                    } catch (Exception e2) {
+                        e2.printStackTrace();
+                    }
+                }
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
         }
 
         @Override

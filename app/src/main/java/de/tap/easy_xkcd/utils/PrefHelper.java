@@ -111,6 +111,8 @@ public class PrefHelper {
     private static final String DEFAULT_ZOOM = "pref_default_zoom";
     private static final String OVERVIEW_STYLE = "overview_style";
     private static final String BOOKMARK = "bookmark";
+    private static final String WHAT_IF_SUNBEAM_LOADED = "sun_beam";
+
 
 
     public PrefHelper(Context context) {
@@ -888,6 +890,14 @@ public class PrefHelper {
 
     public int getBookmark() {
         return sharedPrefs.getInt(BOOKMARK, 0);
+    }
+
+    public boolean sunBeamDownloaded() {
+        return sharedPrefs.getBoolean(WHAT_IF_SUNBEAM_LOADED, false);
+    }
+
+    public void setSunbeamLoaded() {
+        sharedPrefs.edit().putBoolean(WHAT_IF_SUNBEAM_LOADED, true).apply();
     }
 
 }

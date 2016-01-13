@@ -101,7 +101,8 @@ public class ArticleDownloadService extends IntentService {
         }
 
         //download html
-        for (int i = 1; i <= prefHelper.getNewestWhatIf(); i++) {
+        //for (int i = 1; i <= prefHelper.getNewestWhatIf(); i++) {
+        for (int i = 1; i < prefHelper.getNewestWhatIf(); i++) {
             int size = prefHelper.getNewestWhatIf();
             try {
                 doc = Jsoup.connect("https://what-if.xkcd.com/" + String.valueOf(i)).get();
