@@ -186,10 +186,10 @@ public class OverviewListFragment extends android.support.v4.app.Fragment {
         if (prefHelper.subtitleEnabled()) {
             if (!prefHelper.fullOfflineEnabled()) {
                 ComicBrowserFragment comicBrowserFragment = (ComicBrowserFragment) getActivity().getSupportFragmentManager().findFragmentByTag(BROWSER_TAG);
-                ((MainActivity) getActivity()).getToolbar().setSubtitle(String.valueOf(comicBrowserFragment.sLastComicNumber));
+                ((MainActivity) getActivity()).getToolbar().setSubtitle(String.valueOf(comicBrowserFragment.lastComicNumber));
             } else {
                 OfflineFragment offlineFragment = (OfflineFragment) fragmentManager.findFragmentByTag(BROWSER_TAG);
-                ((MainActivity) getActivity()).getToolbar().setSubtitle(String.valueOf(offlineFragment.sLastComicNumber));
+                ((MainActivity) getActivity()).getToolbar().setSubtitle(String.valueOf(offlineFragment.lastComicNumber));
             }
         }
 
@@ -646,10 +646,10 @@ public class OverviewListFragment extends android.support.v4.app.Fragment {
                     list.setAdapter(listAdapter);
                     if (prefHelper.fullOfflineEnabled()) {
                         OfflineFragment offlineFragment = (OfflineFragment) getActivity().getSupportFragmentManager().findFragmentByTag(BROWSER_TAG);
-                        list.setSelection(titles.length - offlineFragment.sLastComicNumber);
+                        list.setSelection(titles.length - offlineFragment.lastComicNumber);
                     } else {
                         ComicBrowserFragment comicBrowserFragment = (ComicBrowserFragment) getActivity().getSupportFragmentManager().findFragmentByTag(BROWSER_TAG);
-                        list.setSelection(titles.length - comicBrowserFragment.sLastComicNumber);
+                        list.setSelection(titles.length - comicBrowserFragment.lastComicNumber);
                     }
                     list.setOnItemClickListener(new AdapterView.OnItemClickListener() {
                         @Override
@@ -670,10 +670,10 @@ public class OverviewListFragment extends android.support.v4.app.Fragment {
                     rv.setAdapter(rvAdapter);
                     if (prefHelper.fullOfflineEnabled()) {
                         OfflineFragment offlineFragment = (OfflineFragment) getActivity().getSupportFragmentManager().findFragmentByTag(BROWSER_TAG);
-                        rv.scrollToPosition(titles.length - offlineFragment.sLastComicNumber);
+                        rv.scrollToPosition(titles.length - offlineFragment.lastComicNumber);
                     } else {
                         ComicBrowserFragment comicBrowserFragment = (ComicBrowserFragment) getActivity().getSupportFragmentManager().findFragmentByTag(BROWSER_TAG);
-                        rv.scrollToPosition(titles.length - comicBrowserFragment.sLastComicNumber);
+                        rv.scrollToPosition(titles.length - comicBrowserFragment.lastComicNumber);
                     }
                     break;
             }

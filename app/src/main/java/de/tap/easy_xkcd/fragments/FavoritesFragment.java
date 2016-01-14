@@ -302,7 +302,7 @@ public class FavoritesFragment extends android.support.v4.app.Fragment {
             case R.id.action_random: {
                 return getRandomComic();
             }
-            case R.id.action_explain: {
+            /*case R.id.action_explain: {
                 return ((MainActivity) getActivity()).explainComic(sFavorites[sFavoriteIndex]);
             }
             case R.id.action_browser: {
@@ -310,7 +310,7 @@ public class FavoritesFragment extends android.support.v4.app.Fragment {
             }
             case R.id.action_trans: {
                 return ((MainActivity) getActivity()).showTranscript(mComicMap.get(sFavoriteIndex).getTranscript());
-            }
+            }*/
         }
         return super.onOptionsItemSelected(item);
     }

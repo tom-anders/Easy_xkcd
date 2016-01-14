@@ -27,7 +27,7 @@ import java.io.IOException;
 
 import de.tap.easy_xkcd.Activities.MainActivity;
 
-public class OfflineComic {
+public class OfflineComic extends Comic {
     private int mComicNumber;
     private Context mContext;
     private static final String OFFLINE_PATH = "/easy xkcd";
@@ -67,7 +67,6 @@ public class OfflineComic {
         }
         return mBitmap;
     }
-    public int getComicNumber() { return mComicNumber;}
 
     public String getTranscript() {
         if (prefHelper.databaseLoaded()) {
