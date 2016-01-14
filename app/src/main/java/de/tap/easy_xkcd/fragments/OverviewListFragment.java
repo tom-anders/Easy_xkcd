@@ -509,6 +509,8 @@ public class OverviewListFragment extends android.support.v4.app.Fragment {
     }
 
     public void notifyAdapter(int pos) {
+        if (listAdapter == null || rvAdapter == null)
+            return;
         switch (prefHelper.getOverviewStyle()) {
             case 0:
                 listAdapter.notifyDataSetChanged();
