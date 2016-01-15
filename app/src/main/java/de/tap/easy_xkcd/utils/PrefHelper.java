@@ -252,10 +252,6 @@ public class PrefHelper {
         return prefs.getStringSet(ALT_OPTIONS, new HashSet<String>()).contains(ALT_VIBRATION);
     }
 
-    public String getOrientation() {
-        return prefs.getString(ORIENTATION, "1");
-    }
-
     public boolean showAltTip() {
         return sharedPrefs.getBoolean(ALT_TIP, true);
     }

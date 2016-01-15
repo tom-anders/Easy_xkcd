@@ -146,7 +146,7 @@ public class NestedPreferenceFragment extends PreferenceFragment {
                         return true;
                     }
                 });
-                findPreference(ORIENTATION).setOnPreferenceChangeListener(new Preference.OnPreferenceChangeListener() {
+                /*findPreference(ORIENTATION).setOnPreferenceChangeListener(new Preference.OnPreferenceChangeListener() {
                     @Override
                     public boolean onPreferenceChange(Preference preference, Object newValue) {
                         switch (Integer.parseInt(prefHelper.getOrientation())) {
@@ -162,7 +162,7 @@ public class NestedPreferenceFragment extends PreferenceFragment {
                         }
                         return true;
                     }
-                });
+                });*/
                 findPreference(FULL_OFFLINE).setOnPreferenceChangeListener(new Preference.OnPreferenceChangeListener() {
                     @Override
                     public boolean onPreferenceChange(Preference preference, Object newValue) {

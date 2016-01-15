@@ -2,32 +2,44 @@ package de.tap.easy_xkcd.fragments;
 
 import android.content.Context;
 import android.content.Intent;
+import android.content.pm.ActivityInfo;
 import android.graphics.Bitmap;
+import android.graphics.ColorFilter;
+import android.graphics.ColorMatrixColorFilter;
+import android.graphics.RectF;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.os.Vibrator;
 import android.support.customtabs.CustomTabsIntent;
 import android.support.design.widget.Snackbar;
 import android.support.v4.view.PagerAdapter;
 import android.support.v4.view.ViewPager;
+import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.util.SparseArray;
 import android.util.TypedValue;
+import android.view.GestureDetector;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.load.engine.DiskCacheStrategy;
+import com.kogitune.activity_transition.ActivityTransition;
 import com.tap.xkcd_reader.R;
 
 import java.io.File;
 import java.io.FileOutputStream;
 import java.lang.reflect.Field;
+import java.util.Arrays;
 
 import de.tap.easy_xkcd.Activities.MainActivity;
 import de.tap.easy_xkcd.CustomTabHelpers.BrowserFallback;
@@ -37,6 +49,7 @@ import de.tap.easy_xkcd.utils.Comic;
 import de.tap.easy_xkcd.utils.Favorites;
 import de.tap.easy_xkcd.utils.PrefHelper;
 import uk.co.senab.photoview.PhotoView;
+import uk.co.senab.photoview.PhotoViewAttacher;
 
 /**
  * Superclass for ComicBrowserFragment, OfflineFragment & FavoritesFragment
@@ -73,6 +86,137 @@ public class ComicFragment extends android.support.v4.app.Fragment {
         //TODO Extend ComicBrowserPagerAdapter and OfflineBrowserPagerAdapter from a single class, extend FavortesFragment from ComicFragment
 
         return view;
+    }
+
+    abstract protected class ComicAdapter extends PagerAdapter {
+        Context mContext;
+        LayoutInflater mLayoutInflater;
+        Boolean fingerLifted = true;
+
+        public ComicAdapter(Context context) {
+            mContext = context;
+            mLayoutInflater = (LayoutInflater) mContext.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+        }
+
+        protected View setupPager(ViewGroup container, int position) {
+            final View itemView = mLayoutInflater.inflate(R.layout.pager_item, container, false);
+            itemView.setTag(position);
+            final PhotoView pvComic = (PhotoView) itemView.findViewById(R.id.ivComic);
+            final TextView tvAlt = (TextView) itemView.findViewById(R.id.tvAlt);
+
+            if (!prefHelper.defaultZoom()) {
+                pvComic.setScaleType(ImageView.ScaleType.CENTER_INSIDE);
+                pvComic.setMaximumScale(10f);
+            }
+
+            if (position == lastComicNumber - 1 && fromSearch) {
+                fromSearch = false;
+                ActivityTransition.with(getActivity().getIntent()).duration(300).to(pvComic).start(null);
+            }
+
+            if (prefHelper.altByDefault())
+                tvAlt.setVisibility(View.VISIBLE);
+
+            pvComic.setOnDoubleTapListener(new GestureDetector.OnDoubleTapListener() {
+                @Override
+                public boolean onDoubleTap(MotionEvent e) {
+                    if (pvComic.getScale() < 0.5f * pvComic.getMaximumScale()) {
+                        pvComic.setScale(0.5f * pvComic.getMaximumScale(), true);
+                    } else if (pvComic.getScale() < pvComic.getMaximumScale()) {
+                        pvComic.setScale(pvComic.getMaximumScale(), true);
+                    } else {
+                        pvComic.setScale(1.0f, true);
+                    }
+                    return true;
+                }
+
+                @Override
+                public boolean onSingleTapConfirmed(MotionEvent e) {
+                    if (!prefHelper.altLongTap()) {
+                        if (prefHelper.classicAltStyle()) {
+                            toggleVisibility(tvAlt);
+                        } else {
+                            android.support.v7.app.AlertDialog.Builder mDialog = new android.support.v7.app.AlertDialog.Builder(getActivity());
+                            mDialog.setMessage(tvAlt.getText());
+                            mDialog.show();
+                        }
+                    }
+                    return false;
+                }
+
+                @Override
+                public boolean onDoubleTapEvent(MotionEvent e) {
+                    if (e.getAction() == MotionEvent.ACTION_UP)
+                        fingerLifted = true;
+                    if (e.getAction() == MotionEvent.ACTION_DOWN)
+                        fingerLifted = false;
+                    return false;
+                }
+            });
+
+            pvComic.setOnLongClickListener(new View.OnLongClickListener() {
+                @Override
+                public boolean onLongClick(View v) {
+                    if (fingerLifted && prefHelper.altLongTap()) {
+                        if (prefHelper.altVibration())
+                            ((Vibrator) getActivity().getSystemService(MainActivity.VIBRATOR_SERVICE)).vibrate(10);
+                        setAltText(false);
+                    }
+                    return true;
+                }
+            });
+
+            if (prefHelper.invertColors()) {
+                float[] colorMatrix_Negative = {
+                        -1.0f, 0, 0, 0, 255, //red
+                        0, -1.0f, 0, 0, 255, //green
+                        0, 0, -1.0f, 0, 255, //blue
+                        0, 0, 0, 1.0f, 0 //alpha
+                };
+                pvComic.setColorFilter(new ColorMatrixColorFilter(colorMatrix_Negative));
+            }
+
+            if (Arrays.binarySearch(mContext.getResources().getIntArray(R.array.large_comics), lastComicNumber) >= 0)
+                pvComic.setMaximumScale(7.0f);
+
+            if (prefHelper.scrollDisabledWhileZoom() && prefHelper.defaultZoom())
+                pvComic.setOnMatrixChangeListener(new PhotoViewAttacher.OnMatrixChangedListener() {
+                    @Override
+                    public void onMatrixChanged(RectF rectF) {
+                        if (pvComic.getScale() > 1.4) {
+                            mPager.setLocked(true);
+                        } else {
+                            mPager.setLocked(false);
+                        }
+                    }
+                });
+
+            return itemView;
+        }
+
+        @Override
+        public boolean isViewFromObject(View view, Object object) {
+            return view == object;
+        }
+
+        @Override
+        public void destroyItem(ViewGroup container, int position, Object object) {
+            container.removeView((RelativeLayout) object);
+        }
+    }
+
+    protected void animateToolbar() {
+        Toolbar toolbar = ((MainActivity) getActivity()).getToolbar();
+        if (toolbar.getAlpha() == 0) {
+            toolbar.setTranslationY(-300);
+            toolbar.animate().setDuration(300).translationY(0).alpha(1);
+            View view;
+            for (int i = 0; i < toolbar.getChildCount(); i++) {
+                view = toolbar.getChildAt(i);
+                view.setTranslationY(-300);
+                view.animate().setStartDelay(50 * (i + 1)).setDuration(70 * (i + 1)).translationY(0);
+            }
+        }
     }
 
     protected class SaveComicImageTask extends AsyncTask<Boolean, Void, Void> {
@@ -275,7 +419,7 @@ public class ComicFragment extends android.support.v4.app.Fragment {
         }
     }
 
-    protected boolean setAltText() {
+    protected boolean setAltText(boolean fromMenu) {
         //If the user selected the menu item for the first time, show the toast
         if (prefHelper.showAltTip()) {
             Toast toast = Toast.makeText(getActivity(), R.string.action_alt_tip, Toast.LENGTH_LONG);
@@ -326,7 +470,7 @@ public class ComicFragment extends android.support.v4.app.Fragment {
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
             case R.id.action_alt:
-                return setAltText();
+                return setAltText(true);
 
             case R.id.action_explain:
                 return explainComic(lastComicNumber);
