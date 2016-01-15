@@ -2,9 +2,7 @@ package de.tap.easy_xkcd.fragments;
 
 import android.content.Context;
 import android.content.Intent;
-import android.content.pm.ActivityInfo;
 import android.graphics.Bitmap;
-import android.graphics.ColorFilter;
 import android.graphics.ColorMatrixColorFilter;
 import android.graphics.RectF;
 import android.net.Uri;
@@ -58,10 +56,15 @@ import uk.co.senab.photoview.PhotoViewAttacher;
 public class ComicFragment extends android.support.v4.app.Fragment {
     public int lastComicNumber;
     public int newestComicNumber;
+    public int favoriteIndex = 0;
     public SparseArray<Comic> comicMap = new SparseArray<>();
 
-    public HackyViewPager mPager;
+    protected HackyViewPager pager;
+    protected ComicAdapter adapter;
+
     public static boolean fromSearch = false;
+    static final String LAST_FAV = "last fav";
+    static final String LAST_COMIC = "Last Comic";
 
     protected PrefHelper prefHelper;
 
@@ -69,21 +72,21 @@ public class ComicFragment extends android.support.v4.app.Fragment {
         View view = inflater.inflate(resId, container, false);
         setHasOptionsMenu(true);
 
-        mPager = (HackyViewPager) view.findViewById(R.id.pager);
-        mPager.setOffscreenPageLimit(3);
+        pager = (HackyViewPager) view.findViewById(R.id.pager);
+        pager.setOffscreenPageLimit(2);
 
         prefHelper = ((MainActivity) getActivity()).getPrefHelper();
 
-        if (savedInstanceState != null) {
-            lastComicNumber = savedInstanceState.getInt("Last Comic");
-        } else if (lastComicNumber == 0) {
-            lastComicNumber = prefHelper.getLastComic();
+        if (!(this instanceof FavoritesFragment)) {
+            if (savedInstanceState != null) {
+                lastComicNumber = savedInstanceState.getInt(LAST_COMIC);
+            } else if (lastComicNumber == 0) {
+                lastComicNumber = prefHelper.getLastComic();
+            }
         }
 
         if (((MainActivity) getActivity()).getCurrentFragment() == R.id.nav_browser && prefHelper.subtitleEnabled())
             ((MainActivity) getActivity()).getToolbar().setSubtitle(String.valueOf(lastComicNumber));
-
-        //TODO Extend ComicBrowserPagerAdapter and OfflineBrowserPagerAdapter from a single class, extend FavortesFragment from ComicFragment
 
         return view;
     }
@@ -176,17 +179,14 @@ public class ComicFragment extends android.support.v4.app.Fragment {
                 pvComic.setColorFilter(new ColorMatrixColorFilter(colorMatrix_Negative));
             }
 
-            if (Arrays.binarySearch(mContext.getResources().getIntArray(R.array.large_comics), lastComicNumber) >= 0)
-                pvComic.setMaximumScale(7.0f);
-
             if (prefHelper.scrollDisabledWhileZoom() && prefHelper.defaultZoom())
                 pvComic.setOnMatrixChangeListener(new PhotoViewAttacher.OnMatrixChangedListener() {
                     @Override
                     public void onMatrixChanged(RectF rectF) {
                         if (pvComic.getScale() > 1.4) {
-                            mPager.setLocked(true);
+                            pager.setLocked(true);
                         } else {
-                            mPager.setLocked(false);
+                            pager.setLocked(false);
                         }
                     }
                 });
@@ -219,7 +219,7 @@ public class ComicFragment extends android.support.v4.app.Fragment {
         }
     }
 
-    protected class SaveComicImageTask extends AsyncTask<Boolean, Void, Void> {
+    public class SaveComicImageTask extends AsyncTask<Boolean, Void, Void> {
         protected int mAddedNumber = lastComicNumber;
         private Bitmap mBitmap;
         private Comic mAddedComic;
@@ -229,7 +229,7 @@ public class ComicFragment extends android.support.v4.app.Fragment {
         protected Void doInBackground(Boolean... downloadImage) {
             this.downloadImage = downloadImage[0];
             if (this.downloadImage) {
-               mAddedComic = comicMap.get(lastComicNumber);
+                mAddedComic = comicMap.get(lastComicNumber);
                 try {
                     String url = mAddedComic.getComicData()[2];
                     mBitmap = Glide
@@ -325,7 +325,12 @@ public class ComicFragment extends android.support.v4.app.Fragment {
     }
 
     public boolean zoomReset() {
-        PhotoView pv = (PhotoView) mPager.findViewWithTag(lastComicNumber - 1).findViewById(R.id.ivComic);
+        int index;
+        if (this instanceof FavoritesFragment)
+            index = favoriteIndex;
+        else
+            index = lastComicNumber - 1;
+        PhotoView pv = (PhotoView) pager.findViewWithTag(index).findViewById(R.id.ivComic);
         float scale = pv.getScale();
         if (scale != 1f) {
             pv.setScale(1f, true);
@@ -366,44 +371,51 @@ public class ComicFragment extends android.support.v4.app.Fragment {
         return true;
     }
 
-    protected void shareComicUrl() {
+    protected void shareComicUrl(Comic comic) {
         //shares the comics url along with its title
         Intent share = new Intent(android.content.Intent.ACTION_SEND);
         share.setType("text/plain");
-        share.putExtra(Intent.EXTRA_SUBJECT, comicMap.get(lastComicNumber).getComicData()[0]);
+        share.putExtra(Intent.EXTRA_SUBJECT, comic.getComicData()[0]);
         if (prefHelper.shareMobile()) {
-            share.putExtra(Intent.EXTRA_TEXT, "http://m.xkcd.com/" + String.valueOf(lastComicNumber));
+            share.putExtra(Intent.EXTRA_TEXT, "http://m.xkcd.com/" + comic.getComicNumber());
         } else {
-            share.putExtra(Intent.EXTRA_TEXT, "http://xkcd.com/" + String.valueOf(lastComicNumber));
+            share.putExtra(Intent.EXTRA_TEXT, "http://xkcd.com/" + comic.getComicNumber());
         }
         startActivity(Intent.createChooser(share, this.getResources().getString(R.string.share_url)));
     }
 
-    protected void shareComicImage(Uri uri) {
+    protected void shareComicImage(Uri uri, Comic comic) {
         Intent share = new Intent(Intent.ACTION_SEND);
         share.setType("image/*");
         share.putExtra(Intent.EXTRA_STREAM, uri);
-        share.putExtra(Intent.EXTRA_SUBJECT, comicMap.get(lastComicNumber).getComicData()[0]);
+        share.putExtra(Intent.EXTRA_SUBJECT, comic.getComicData()[0]);
         if (prefHelper.shareAlt()) {
-            share.putExtra(Intent.EXTRA_TEXT, comicMap.get(lastComicNumber).getComicData()[1]);
+            share.putExtra(Intent.EXTRA_TEXT, comic.getComicData()[1]);
         }
         startActivity(Intent.createChooser(share, this.getResources().getString(R.string.share_image)));
     }
 
+    protected Uri getURI() {
+        File sdCard = prefHelper.getOfflinePath();
+        File dir = new File(sdCard.getAbsolutePath() + "/easy xkcd");
+        File path = new File(dir, String.valueOf(lastComicNumber) + ".png");
+        return Uri.fromFile(path);
+    }
+
     protected boolean getRandomComic() {
         lastComicNumber = prefHelper.getRandomNumber(lastComicNumber);
-        mPager.setCurrentItem(lastComicNumber - 1, false);
+        pager.setCurrentItem(lastComicNumber - 1, false);
         return true;
     }
 
     protected void getPreviousRandom() {
         lastComicNumber = prefHelper.getPreviousRandom(lastComicNumber);
-        mPager.setCurrentItem(lastComicNumber - 1, false);
+        pager.setCurrentItem(lastComicNumber - 1, false);
     }
 
     protected boolean getLatestComic() {
         lastComicNumber = newestComicNumber;
-        mPager.setCurrentItem(lastComicNumber - 1, false);
+        pager.setCurrentItem(lastComicNumber - 1, false);
         return true;
     }
 
@@ -412,7 +424,7 @@ public class ComicFragment extends android.support.v4.app.Fragment {
             try {
                 Field field = ViewPager.class.getDeclaredField("mRestoredCurItem");
                 field.setAccessible(true);
-                field.set(mPager, lastComicNumber - 1);
+                field.set(pager, lastComicNumber - 1);
             } catch (Exception e) {
                 e.printStackTrace();
             }
@@ -421,13 +433,18 @@ public class ComicFragment extends android.support.v4.app.Fragment {
 
     protected boolean setAltText(boolean fromMenu) {
         //If the user selected the menu item for the first time, show the toast
-        if (prefHelper.showAltTip()) {
+        if (prefHelper.showAltTip() && fromMenu) {
             Toast toast = Toast.makeText(getActivity(), R.string.action_alt_tip, Toast.LENGTH_LONG);
             toast.show();
             prefHelper.setAltTip(false);
         }
         //Show alt text
-        TextView tvAlt = (TextView) mPager.findViewWithTag(lastComicNumber - 1).findViewById(R.id.tvAlt);
+        int index;
+        if (this instanceof FavoritesFragment)
+            index = favoriteIndex;
+        else
+            index = lastComicNumber - 1;
+        TextView tvAlt = (TextView) pager.findViewWithTag(index).findViewById(R.id.tvAlt);
         if (prefHelper.classicAltStyle()) {
             toggleVisibility(tvAlt);
         } else {
@@ -461,8 +478,8 @@ public class ComicFragment extends android.support.v4.app.Fragment {
 
     @Override
     public void onStop() {
-        //TODO check instanceof FavoritesFragment
-        prefHelper.setLastComic(lastComicNumber);
+        if (!(this instanceof FavoritesFragment))
+            prefHelper.setLastComic(lastComicNumber);
         super.onStop();
     }
 
@@ -507,17 +524,17 @@ public class ComicFragment extends android.support.v4.app.Fragment {
         } else {
             menu.findItem(R.id.action_random).setVisible(false);
         }
-        super.onPrepareOptionsMenu(menu);
     }
 
     @Override
     public void onSaveInstanceState(Bundle savedInstanceState) {
-        savedInstanceState.putInt("Last Comic", lastComicNumber);
+        savedInstanceState.putInt(LAST_COMIC, lastComicNumber);
+        savedInstanceState.putInt(LAST_FAV, favoriteIndex);
         super.onSaveInstanceState(savedInstanceState);
     }
 
     public void scrollTo(int pos, boolean smooth) {
-        mPager.setCurrentItem(pos, smooth);
+        pager.setCurrentItem(pos, smooth);
     }
 
 }

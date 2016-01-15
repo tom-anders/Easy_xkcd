@@ -23,7 +23,6 @@ import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.content.pm.ActivityInfo;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.graphics.ColorFilter;
@@ -34,17 +33,13 @@ import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Environment;
 import android.os.Vibrator;
-import android.provider.MediaStore;
-import android.support.customtabs.CustomTabsIntent;
 import android.support.design.widget.Snackbar;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
-import android.support.v4.content.FileProvider;
 import android.support.v4.view.PagerAdapter;
 import android.support.v4.view.ViewPager;
 import android.support.v7.widget.Toolbar;
-import android.util.SparseArray;
-import android.util.TypedValue;
+import android.util.Log;
 import android.view.GestureDetector;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -65,61 +60,33 @@ import java.io.IOException;
 import java.util.Arrays;
 import java.util.Random;
 
-import de.tap.easy_xkcd.CustomTabHelpers.BrowserFallback;
-import de.tap.easy_xkcd.CustomTabHelpers.CustomTabActivityHelper;
 import de.tap.easy_xkcd.utils.Favorites;
-import de.tap.easy_xkcd.misc.HackyViewPager;
 import de.tap.easy_xkcd.utils.OfflineComic;
-import de.tap.easy_xkcd.utils.PrefHelper;
 import de.tap.easy_xkcd.Activities.MainActivity;
 import uk.co.senab.photoview.PhotoView;
 import uk.co.senab.photoview.PhotoViewAttacher;
 
 
-public class FavoritesFragment extends android.support.v4.app.Fragment {
+public class FavoritesFragment extends ComicFragment {
 
-    public SparseArray<OfflineComic> mComicMap = new SparseArray<>();
-    static final String LAST_FAV = "last fav";
-    public static Integer sFavoriteIndex = 0;
-    private static HackyViewPager sPager;
-    private FavoritesPagerAdapter mPagerAdapter = null;
-    private String[] mFav;
-    public static int[] sFavorites;
-    private PrefHelper prefHelper;
+    public int[] favorites;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, final Bundle savedInstanceState) {
-        View v = inflater.inflate(R.layout.pager_layout, container, false);
-        prefHelper = ((MainActivity) getActivity()).getPrefHelper();
-        mFav = Favorites.getFavoriteList(this.getActivity());
-        setHasOptionsMenu(true);
+        View v = inflateLayout(R.layout.pager_layout, inflater, container, savedInstanceState);
+
         if (((MainActivity) getActivity()).getProgressDialog() != null) {
             ((MainActivity) getActivity()).getProgressDialog().dismiss();
         }
 
-        mPagerAdapter = new FavoritesPagerAdapter(getActivity());
-        sPager = (HackyViewPager) v.findViewById(R.id.pager);
-        setupPager(sPager);
-        if (savedInstanceState != null) {
-            sFavoriteIndex = savedInstanceState.getInt(LAST_FAV);
-            getActivity().invalidateOptionsMenu();
-        }
-
-        if (mFav != null) {
-            new pagerUpdate().execute();
-        }
-        return v;
-    }
-
-    private void setupPager(ViewPager pager) {
         pager.addOnPageChangeListener(new ViewPager.OnPageChangeListener() {
             @Override
             public void onPageSelected(int position) {
-                sFavoriteIndex = position;
+                favoriteIndex = position;
                 try {
                     //Update the ActionBar Subtitle
                     if (prefHelper.subtitleEnabled() && ((MainActivity) getActivity()).getCurrentFragment() == R.id.nav_favorites)
-                        ((MainActivity) getActivity()).getToolbar().setSubtitle(String.valueOf(sFavorites[position]));
+                        ((MainActivity) getActivity()).getToolbar().setSubtitle(String.valueOf(favorites[position]));
 
                     getActivity().invalidateOptionsMenu();
                 } catch (NullPointerException e) {
@@ -135,141 +102,69 @@ public class FavoritesFragment extends android.support.v4.app.Fragment {
             public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) {
             }
         });
+
+        if (savedInstanceState != null) {
+            favoriteIndex = savedInstanceState.getInt(LAST_FAV);
+            getActivity().invalidateOptionsMenu();
+        }
+
+        new updateFavorites().execute();
+        return v;
     }
 
-    private class FavoritesPagerAdapter extends PagerAdapter {
-        Context mContext;
-        LayoutInflater mLayoutInflater;
-        Boolean fingerLifted = true;
+    public class updateFavorites extends AsyncTask<Integer, Integer, Void> {
+        @Override
+        protected Void doInBackground(Integer... pos) {
+            String[] fav = Favorites.getFavoriteList(getActivity());
+            favorites = new int[fav.length];
 
+            for (int i = 0; i < favorites.length; i++) {
+                favorites[i] = Integer.parseInt(fav[i]);
+                comicMap.put(i, new OfflineComic(favorites[i], getActivity()));
+            }
+            return null;
+        }
+
+        @Override
+        protected void onPostExecute(Void v) {
+            adapter = new FavoritesPagerAdapter(getActivity());
+            pager.setAdapter(adapter);
+            pager.setCurrentItem(favoriteIndex);
+
+            Toolbar toolbar = ((MainActivity) getActivity()).getToolbar();
+            if (prefHelper.subtitleEnabled() && ((MainActivity) getActivity()).getCurrentFragment() == R.id.nav_favorites)
+                toolbar.setSubtitle(String.valueOf(favorites[favoriteIndex]));
+
+            animateToolbar();
+        }
+    }
+
+    private class FavoritesPagerAdapter extends ComicAdapter {
         public FavoritesPagerAdapter(Context context) {
-            mContext = context;
-            mLayoutInflater = (LayoutInflater) mContext.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+            super(context);
         }
 
         @Override
         public int getCount() {
-            return mComicMap.size();
-        }
-
-        @Override
-        public boolean isViewFromObject(View view, Object object) {
-            return view == object;
+            return comicMap.size();
         }
 
         @Override
         public Object instantiateItem(ViewGroup container, final int position) {
-            View itemView = mLayoutInflater.inflate(R.layout.pager_item, container, false);
+            View itemView = setupPager(container, position);
             final PhotoView pvComic = (PhotoView) itemView.findViewById(R.id.ivComic);
             final TextView tvAlt = (TextView) itemView.findViewById(R.id.tvAlt);
-            itemView.setTag(position);
+            final TextView tvTitle = (TextView) itemView.findViewById(R.id.tvTitle);
 
-            if (!prefHelper.defaultZoom()) {
-                pvComic.setScaleType(ImageView.ScaleType.CENTER_INSIDE);
-                pvComic.setMaximumScale(10f);
-            }
+            tvAlt.setText(prefHelper.getAlt(favorites[position]));
+            tvTitle.setText(prefHelper.getTitle(favorites[position]));
 
-            if (prefHelper.altByDefault())
-                tvAlt.setVisibility(View.VISIBLE);
-            tvAlt.setText(prefHelper.getAlt(sFavorites[position]));
-
-            //fix for issue #2
-            pvComic.setOnDoubleTapListener(new GestureDetector.OnDoubleTapListener() {
-                @Override
-                public boolean onDoubleTap(MotionEvent e) {
-                    if (pvComic.getScale() < 0.5f * pvComic.getMaximumScale()) {
-                        pvComic.setScale(0.5f * pvComic.getMaximumScale(), true);
-                    } else if (pvComic.getScale() < pvComic.getMaximumScale()) {
-                        pvComic.setScale(pvComic.getMaximumScale(), true);
-                    } else {
-                        pvComic.setScale(1.0f, true);
-                    }
-                    return true;
-                }
-
-                @Override
-                public boolean onSingleTapConfirmed(MotionEvent e) {
-                    if (!prefHelper.altLongTap()) {
-                        if (prefHelper.classicAltStyle()) {
-                            toggleVisibility(tvAlt);
-                        } else {
-                            android.support.v7.app.AlertDialog.Builder mDialog = new android.support.v7.app.AlertDialog.Builder(getActivity());
-                            mDialog.setMessage(tvAlt.getText());
-                            mDialog.show();
-                        }
-                    }
-                    return false;
-                }
-
-                @Override
-                public boolean onDoubleTapEvent(MotionEvent e) {
-                    if (e.getAction() == MotionEvent.ACTION_UP) {
-                        fingerLifted = true;
-                    }
-                    if (e.getAction() == MotionEvent.ACTION_DOWN) {
-                        fingerLifted = false;
-                    }
-                    return false;
-                }
-            });
-
-            pvComic.setOnLongClickListener(new View.OnLongClickListener() {
-                @Override
-                public boolean onLongClick(View v) {
-                    if (fingerLifted && prefHelper.altLongTap()) {
-                        if (prefHelper.altVibration()) {
-                            Vibrator vi = (Vibrator) getActivity().getSystemService(MainActivity.VIBRATOR_SERVICE);
-                            vi.vibrate(10);
-                        }
-                        if (prefHelper.classicAltStyle()) {
-                            toggleVisibility(tvAlt);
-                        } else {
-                            android.support.v7.app.AlertDialog.Builder mDialog = new android.support.v7.app.AlertDialog.Builder(getActivity());
-                            mDialog.setMessage(tvAlt.getText());
-                            mDialog.show();
-                        }
-                    }
-                    return true;
-                }
-            });
-
-            TextView tvTitle = (TextView) itemView.findViewById(R.id.tvTitle);
-            tvTitle.setText(prefHelper.getTitle(sFavorites[position]));
-
-            if (prefHelper.invertColors()) {
-                float[] colorMatrix_Negative = {
-                        -1.0f, 0, 0, 0, 255, //red
-                        0, -1.0f, 0, 0, 255, //green
-                        0, 0, -1.0f, 0, 255, //blue
-                        0, 0, 0, 1.0f, 0 //alpha
-                };
-                ColorFilter cf = new ColorMatrixColorFilter(colorMatrix_Negative);
-                pvComic.setColorFilter(cf);
-            }
-
-            pvComic.setImageBitmap(mComicMap.get(position).getBitmap());
-            if (Arrays.binarySearch(mContext.getResources().getIntArray(R.array.large_comics), sFavorites[sFavoriteIndex]) >= 0) {
+            pvComic.setImageBitmap(((OfflineComic) comicMap.get(position)).getBitmap());
+            if (Arrays.binarySearch(mContext.getResources().getIntArray(R.array.large_comics), favorites[favoriteIndex]) >= 0)
                 pvComic.setMaximumScale(7.0f);
-            }
-            //Disable ViewPager scrolling when the user zooms into an image
-            if (prefHelper.scrollDisabledWhileZoom() && prefHelper.defaultZoom())
-                pvComic.setOnMatrixChangeListener(new PhotoViewAttacher.OnMatrixChangedListener() {
-                    @Override
-                    public void onMatrixChanged(RectF rectF) {
-                        if (pvComic.getScale() > 1.4) {
-                            sPager.setLocked(true);
-                        } else {
-                            sPager.setLocked(false);
-                        }
-                    }
-                });
+
             container.addView(itemView);
             return itemView;
-        }
-
-        @Override
-        public void destroyItem(ViewGroup container, int position, Object object) {
-            container.removeView((RelativeLayout) object);
         }
     }
 
@@ -277,7 +172,7 @@ public class FavoritesFragment extends android.support.v4.app.Fragment {
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
             case R.id.action_alt: {
-                return setAltText();
+                return setAltText(true);
             }
             case R.id.delete_favorites: {
                 return deleteAllFavorites();
@@ -286,43 +181,22 @@ public class FavoritesFragment extends android.support.v4.app.Fragment {
                 return modifyFavorites();
             }
             case R.id.action_share: {
-                return shareComic();
+                return shareComic(false);
             }
             case R.id.action_random: {
                 return getRandomComic();
             }
-            /*case R.id.action_explain: {
-                return ((MainActivity) getActivity()).explainComic(sFavorites[sFavoriteIndex]);
+            case R.id.action_explain: {
+                return explainComic(favorites[favoriteIndex]);
             }
             case R.id.action_browser: {
-                return ((MainActivity) getActivity()).openComicInBrowser(sFavorites[sFavoriteIndex]);
+                return openComicInBrowser(favorites[favoriteIndex]);
             }
             case R.id.action_trans: {
-                return ((MainActivity) getActivity()).showTranscript(mComicMap.get(sFavoriteIndex).getTranscript());
-            }*/
+                return showTranscript(comicMap.get(favoriteIndex).getTranscript());
+            }
         }
         return super.onOptionsItemSelected(item);
-    }
-
-    private boolean setAltText() {
-        if (prefHelper.showAltTip()) {
-            Toast toast = Toast.makeText(getActivity(), R.string.action_alt_tip, Toast.LENGTH_LONG);
-            toast.show();
-            prefHelper.setAltTip(false);
-        }
-        TextView tvAlt = (TextView) sPager.findViewWithTag(sFavoriteIndex).findViewById(R.id.tvAlt);
-        if (prefHelper.classicAltStyle()) {
-            try {
-                toggleVisibility(tvAlt);
-            } catch (NullPointerException e) {
-                e.printStackTrace();
-            }
-        } else {
-            android.support.v7.app.AlertDialog.Builder mDialog = new android.support.v7.app.AlertDialog.Builder(getActivity());
-            mDialog.setMessage(tvAlt.getText());
-            mDialog.show();
-        }
-        return true;
     }
 
     private boolean deleteAllFavorites() {
@@ -352,7 +226,6 @@ public class FavoritesFragment extends android.support.v4.app.Fragment {
                 })
                 .setCancelable(true)
                 .show();
-
         return true;
     }
 
@@ -381,10 +254,10 @@ public class FavoritesFragment extends android.support.v4.app.Fragment {
     }
 
     private boolean modifyFavorites() {
-        final int mRemoved = sFavorites[sFavoriteIndex];
-        final Bitmap mRemovedBitmap = mComicMap.get(sFavoriteIndex).getBitmap();
-        final String mAlt = prefHelper.getAlt(sFavorites[sFavoriteIndex]);
-        final String mTitle = prefHelper.getTitle(sFavorites[sFavoriteIndex]);
+        final int mRemoved = favorites[favoriteIndex];
+        final Bitmap mRemovedBitmap = ((OfflineComic) comicMap.get(favoriteIndex)).getBitmap();
+        final String mAlt = prefHelper.getAlt(favorites[favoriteIndex]);
+        final String mTitle = prefHelper.getTitle(favorites[favoriteIndex]);
 
         new DeleteImageTask().execute(mRemoved);
 
@@ -393,11 +266,23 @@ public class FavoritesFragment extends android.support.v4.app.Fragment {
             public void onClick(View v) {
                 Favorites.addFavoriteItem(getActivity(), String.valueOf(mRemoved));
                 try {
-                    FileOutputStream fos = getActivity().openFileOutput(String.valueOf(mRemoved), Context.MODE_PRIVATE);
+                    File sdCard = prefHelper.getOfflinePath();
+                    File dir = new File(sdCard.getAbsolutePath() + "/easy xkcd");
+                    dir.mkdirs();
+                    File file = new File(dir, String.valueOf(mRemoved) + ".png");
+                    FileOutputStream fos = new FileOutputStream(file);
                     mRemovedBitmap.compress(Bitmap.CompressFormat.PNG, 100, fos);
+                    fos.flush();
                     fos.close();
                 } catch (Exception e) {
-                    e.printStackTrace();
+                    Log.e("Error", "Saving to external storage failed");
+                    try {
+                        FileOutputStream fos = getActivity().openFileOutput(String.valueOf(mRemoved), Context.MODE_PRIVATE);
+                        mRemovedBitmap.compress(Bitmap.CompressFormat.PNG, 100, fos);
+                        fos.close();
+                    } catch (Exception e2) {
+                        e2.printStackTrace();
+                    }
                 }
                 prefHelper.addTitle(mTitle, mRemoved);
                 prefHelper.addAlt(mAlt, mRemoved);
@@ -411,10 +296,9 @@ public class FavoritesFragment extends android.support.v4.app.Fragment {
         return true;
     }
 
-    private boolean shareComic() {
-
-        if (prefHelper.shareImage()) {
-            shareComicImage();
+    public boolean shareComic(boolean fromPermission) {
+        if (fromPermission || prefHelper.shareImage()) {
+            shareComicImage(getURI(), comicMap.get(favoriteIndex));
             return true;
         }
 
@@ -424,10 +308,10 @@ public class FavoritesFragment extends android.support.v4.app.Fragment {
             public void onClick(DialogInterface dialog, int which) {
                 switch (which) {
                     case 0:
-                        shareComicImage();
+                        shareComicImage(getURI(), comicMap.get(favoriteIndex));
                         break;
                     case 1:
-                        shareComicUrl();
+                        shareComicUrl(comicMap.get(favoriteIndex));
                         break;
                 }
             }
@@ -437,50 +321,11 @@ public class FavoritesFragment extends android.support.v4.app.Fragment {
         return true;
     }
 
-    @SuppressWarnings("ResultOfMethodCallIgnored")
-    public void shareComicImage() {
-        if (!(ContextCompat.checkSelfPermission(getActivity(), Manifest.permission.WRITE_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED)) {
-            ActivityCompat.requestPermissions(getActivity(), new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE}, 1);
-            return;
-        }
-        try {
-            Intent share = new Intent(Intent.ACTION_SEND);
-            share.setType("image/*");
-            Bitmap mBitmap = mComicMap.get(sFavoriteIndex).getBitmap();
-            String cachePath = Environment.getExternalStorageDirectory() + "/easy xkcd";
-            File dir = new File(cachePath);
-            dir.mkdirs();
-            File file = new File(dir, String.valueOf(mComicMap.get(sFavoriteIndex).getComicNumber()) + ".png");
-            FileOutputStream stream = new FileOutputStream(file);
-            mBitmap.compress(Bitmap.CompressFormat.PNG, 100, stream);
-            stream.close();
-            Uri uri = Uri.fromFile(file);
-            share.putExtra(Intent.EXTRA_STREAM, uri);
-            if (prefHelper.shareAlt())
-                share.putExtra(Intent.EXTRA_TEXT, prefHelper.getAlt(sFavorites[sFavoriteIndex]));
-            startActivity(Intent.createChooser(share, this.getResources().getString(R.string.share_image)));
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-    }
-
-    private void shareComicUrl() {
-        Intent share = new Intent(android.content.Intent.ACTION_SEND);
-        share.setType("text/plain");
-
-        share.putExtra(Intent.EXTRA_SUBJECT, prefHelper.getTitle(sFavorites[sFavoriteIndex]));
-        if (prefHelper.shareMobile()) {
-            share.putExtra(Intent.EXTRA_TEXT, "http://m.xkcd.com/" + String.valueOf(sFavorites[sFavoriteIndex]));
-        } else {
-            share.putExtra(Intent.EXTRA_TEXT, "http://xkcd.com/" + String.valueOf(sFavorites[sFavoriteIndex]));
-        }
-        startActivity(Intent.createChooser(share, this.getResources().getString(R.string.share_url)));
-    }
-
     @Override
     public void onPrepareOptionsMenu(Menu menu) {
         menu.findItem(R.id.action_latest).setVisible(false);
         menu.findItem(R.id.action_search).setVisible(false);
+        menu.findItem(R.id.action_boomark).setVisible(false);
         menu.findItem(R.id.action_overview).setVisible(false);
         menu.findItem(R.id.delete_favorites).setVisible(true);
         MenuItem fav = menu.findItem(R.id.action_favorite);
@@ -492,96 +337,30 @@ public class FavoritesFragment extends android.support.v4.app.Fragment {
         } else {
             menu.findItem(R.id.action_random).setVisible(false);
         }
-        super.onPrepareOptionsMenu(menu);
-    }
-
-    public class pagerUpdate extends AsyncTask<Integer, Integer, Void> {
-
-        @Override
-        protected Void doInBackground(Integer... pos) {
-            sFavorites = new int[mFav.length];
-
-            for (int i = 0; i < sFavorites.length; i++) {
-                sFavorites[i] = Integer.parseInt(mFav[i]);
-                mComicMap.put(i, new OfflineComic(sFavorites[i], getActivity()));
-            }
-            return null;
-        }
-
-        @Override
-        protected void onPostExecute(Void v) {
-            sPager.setAdapter(mPagerAdapter);
-            mPagerAdapter.notifyDataSetChanged();
-            sPager.setCurrentItem(sFavoriteIndex);
-
-            Toolbar toolbar = ((MainActivity) getActivity()).getToolbar();
-            if (prefHelper.subtitleEnabled() && ((MainActivity) getActivity()).getCurrentFragment() == R.id.nav_favorites)
-                toolbar.setSubtitle(String.valueOf(sFavorites[sFavoriteIndex]));
-
-            if (toolbar.getAlpha() == 0) {
-                toolbar.setTranslationY(-300);
-                toolbar.animate().setDuration(300).translationY(0).alpha(1);
-                View view;
-                for (int i = 0; i < toolbar.getChildCount(); i++) {
-                    view = toolbar.getChildAt(i);
-                    view.setTranslationY(-300);
-                    view.animate().setStartDelay(50 * (i + 1)).setDuration(70 * (i + 1)).translationY(0);
-                }
-            }
-        }
-
-    }
-
-    public static boolean zoomReset() {
-        PhotoView pv = (PhotoView) sPager.findViewWithTag(sFavoriteIndex).findViewById(R.id.ivComic);
-        float scale = pv.getScale();
-        if (scale != 1f) {
-            pv.setScale(1f, true);
-            return true;
-        } else {
-            return false;
-        }
     }
 
     public boolean getRandomComic() {
         //get a random number and update the pager
-        if (mFav.length > 1) {
+        if (favorites.length > 1) {
             Random rand = new Random();
-            Integer number = rand.nextInt(mFav.length);
-            while (number.equals(sFavoriteIndex)) {
-                number = rand.nextInt(mFav.length);
+            Integer number = rand.nextInt(favorites.length);
+            while (number.equals(favoriteIndex)) {
+                number = rand.nextInt(favorites.length);
             }
-            sPager.setCurrentItem(number);
+            pager.setCurrentItem(number);
         }
         return true;
     }
 
     public void refresh() {
         //Updates favorite list, pager and alt TextView
-        mFav = Favorites.getFavoriteList(this.getActivity());
-        mComicMap.clear();
-        if (mFav.length != 0) {
-            if (sFavoriteIndex == mFav.length) {
-                sFavoriteIndex--;
+        comicMap.clear();
+        String[] fav = Favorites.getFavoriteList(this.getActivity());
+        if (fav.length != 0) {
+            if (favoriteIndex == fav.length) {
+                favoriteIndex--;
             }
-            new pagerUpdate().execute();
-        }
-    }
-
-    @Override
-    public void onSaveInstanceState(Bundle savedInstanceState) {
-        if (sFavoriteIndex != null)
-            savedInstanceState.putInt(LAST_FAV, sFavoriteIndex);
-
-        super.onSaveInstanceState(savedInstanceState);
-    }
-
-    private void toggleVisibility(View view) {
-        // Switches a view's visibility between GONE and VISIBLE
-        if (view.getVisibility() == View.GONE) {
-            view.setVisibility(View.VISIBLE);
-        } else {
-            view.setVisibility(View.GONE);
+            new updateFavorites().execute();
         }
     }
 

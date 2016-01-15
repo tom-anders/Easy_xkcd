@@ -4,45 +4,28 @@ import android.app.AlertDialog;
 import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.DialogInterface;
-import android.content.Intent;
-import android.content.pm.ActivityInfo;
 import android.graphics.Bitmap;
-import android.graphics.ColorFilter;
-import android.graphics.ColorMatrixColorFilter;
-import android.graphics.RectF;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
-import android.os.Vibrator;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
-import android.support.v4.view.PagerAdapter;
 import android.support.v4.view.ViewPager;
-import android.support.v7.widget.Toolbar;
 import android.util.Log;
-import android.util.SparseArray;
-import android.view.GestureDetector;
 import android.view.LayoutInflater;
-import android.view.Menu;
 import android.view.MenuItem;
-import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
-import android.widget.ImageView;
-import android.widget.RelativeLayout;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.bumptech.glide.Glide;
-import com.kogitune.activity_transition.ActivityTransition;
 import com.tap.xkcd_reader.R;
 
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.lang.reflect.Field;
 import java.util.Arrays;
 
 import de.tap.easy_xkcd.Activities.MainActivity;
@@ -50,10 +33,8 @@ import de.tap.easy_xkcd.utils.Comic;
 import de.tap.easy_xkcd.utils.Favorites;
 import de.tap.easy_xkcd.utils.OfflineComic;
 import uk.co.senab.photoview.PhotoView;
-import uk.co.senab.photoview.PhotoViewAttacher;
 
 public class OfflineFragment extends ComicFragment {
-    private OfflineBrowserPagerAdapter adapter;
     private Boolean randomSelected = false;
 
     @Override
@@ -70,10 +51,10 @@ public class OfflineFragment extends ComicFragment {
             newestComicNumber = prefHelper.getHighestOffline();
             scrollViewPager();
             adapter = new OfflineBrowserPagerAdapter(getActivity());
-            mPager.setAdapter(adapter);
+            pager.setAdapter(adapter);
         }
 
-        mPager.addOnPageChangeListener(new ViewPager.OnPageChangeListener() {
+        pager.addOnPageChangeListener(new ViewPager.OnPageChangeListener() {
             @Override
             public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) {
 
@@ -126,6 +107,7 @@ public class OfflineFragment extends ComicFragment {
                                 .asBitmap()
                                 .into(-1, -1)
                                 .get();
+                        //TODO method to save comic
                         try {
                             File sdCard = prefHelper.getOfflinePath();
                             File dir = new File(sdCard.getAbsolutePath() + "/easy xkcd");
@@ -175,7 +157,7 @@ public class OfflineFragment extends ComicFragment {
                 ((MainActivity) getActivity()).getProgressDialog().dismiss();
             scrollViewPager();
             adapter = new OfflineBrowserPagerAdapter(getActivity());
-            mPager.setAdapter(adapter);
+            pager.setAdapter(adapter);
             if (showSnackbar) {
                 View.OnClickListener oc = new View.OnClickListener() {
                     @Override
@@ -207,14 +189,10 @@ public class OfflineFragment extends ComicFragment {
         return super.onOptionsItemSelected(item);
     }
 
-    private class OfflineBrowserPagerAdapter extends PagerAdapter {
-        Context mContext;
-        LayoutInflater mLayoutInflater;
-        Boolean fingerLifted = true;
+    private class OfflineBrowserPagerAdapter extends ComicAdapter {
 
         public OfflineBrowserPagerAdapter(Context context) {
-            mContext = context;
-            mLayoutInflater = (LayoutInflater) mContext.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+            super(context);
         }
 
         @Override
@@ -223,125 +201,17 @@ public class OfflineFragment extends ComicFragment {
         }
 
         @Override
-        public boolean isViewFromObject(View view, Object object) {
-            return view == object;
-        }
-
-        @Override
         public Object instantiateItem(ViewGroup container, final int position) {
-            final View itemView = mLayoutInflater.inflate(R.layout.pager_item, container, false);
-            final PhotoView pvComic = (PhotoView) itemView.findViewById(R.id.ivComic);
-            final TextView tvAlt = (TextView) itemView.findViewById(R.id.tvAlt);
-            itemView.setTag(position);
-
-            if (!prefHelper.defaultZoom()) {
-                pvComic.setScaleType(ImageView.ScaleType.CENTER_INSIDE);
-                pvComic.setMaximumScale(10f);
-            }
-
-            if (position == lastComicNumber - 1 && fromSearch) {
-                fromSearch = false;
-                ActivityTransition.with(getActivity().getIntent()).duration(300).to(pvComic).start(null);
-            }
-            if (prefHelper.altByDefault())
-                tvAlt.setVisibility(View.VISIBLE);
+            View itemView = setupPager(container, position);
+            PhotoView pvComic = (PhotoView) itemView.findViewById(R.id.ivComic);
+            TextView tvAlt = (TextView) itemView.findViewById(R.id.tvAlt);
+            TextView tvTitle = (TextView) itemView.findViewById(R.id.tvTitle);
 
             comicMap.put(position + 1, new OfflineComic(position + 1, getActivity()));
-            //Setup the title text view
-            TextView tvTitle = (TextView) itemView.findViewById(R.id.tvTitle);
+
             tvTitle.setText(comicMap.get(position + 1).getComicData()[0]);
             tvAlt.setText(comicMap.get(position + 1).getComicData()[1]);
-            //load the image
             pvComic.setImageBitmap(((OfflineComic) comicMap.get(position + 1)).getBitmap());
-
-            //fix for issue #2
-            pvComic.setOnDoubleTapListener(new GestureDetector.OnDoubleTapListener() {
-                @Override
-                public boolean onDoubleTap(MotionEvent e) {
-                    if (pvComic.getScale() < 0.5f * pvComic.getMaximumScale()) {
-                        pvComic.setScale(0.5f * pvComic.getMaximumScale(), true);
-                    } else if (pvComic.getScale() < pvComic.getMaximumScale()) {
-                        pvComic.setScale(pvComic.getMaximumScale(), true);
-                    } else {
-                        pvComic.setScale(1.0f, true);
-                    }
-                    return true;
-                }
-
-                @Override
-                public boolean onSingleTapConfirmed(MotionEvent e) {
-                    if (position == 1571) {
-                        String url = "https://docs.google.com/forms/d/1e8htNa3bn5OZIgv83dodjZAHcQ424pgQPcFqWz2xSG4/viewform?c=0&w=1";
-                        Intent intent = new Intent(Intent.ACTION_VIEW);
-                        intent.setData(Uri.parse(url));
-                        startActivity(intent);
-                    }
-                    if (!prefHelper.altLongTap()) {
-                        if (prefHelper.classicAltStyle()) {
-                            toggleVisibility(tvAlt);
-                        } else {
-                            android.support.v7.app.AlertDialog.Builder mDialog = new android.support.v7.app.AlertDialog.Builder(getActivity());
-                            mDialog.setMessage(tvAlt.getText());
-                            mDialog.show();
-                        }
-                    }
-                    return false;
-                }
-
-                @Override
-                public boolean onDoubleTapEvent(MotionEvent e) {
-                    if (e.getAction() == MotionEvent.ACTION_UP)
-                        fingerLifted = true;
-                    if (e.getAction() == MotionEvent.ACTION_DOWN)
-                        fingerLifted = false;
-                    return false;
-                }
-            });
-
-            pvComic.setOnLongClickListener(new View.OnLongClickListener() {
-                @Override
-                public boolean onLongClick(View v) {
-                    if (fingerLifted && prefHelper.altLongTap()) {
-                        if (prefHelper.altVibration()) {
-                            Vibrator vi = (Vibrator) getActivity().getSystemService(MainActivity.VIBRATOR_SERVICE);
-                            vi.vibrate(10);
-                        }
-                        if (prefHelper.classicAltStyle()) {
-                            toggleVisibility(tvAlt);
-                        } else {
-                            android.support.v7.app.AlertDialog.Builder mDialog = new android.support.v7.app.AlertDialog.Builder(getActivity());
-                            mDialog.setMessage(tvAlt.getText());
-                            mDialog.show();
-                        }
-                    }
-                    return true;
-                }
-            });
-            if (Arrays.binarySearch(mContext.getResources().getIntArray(R.array.large_comics), lastComicNumber) >= 0)
-                pvComic.setMaximumScale(7.0f);
-
-            if (prefHelper.invertColors()) {
-                float[] colorMatrix_Negative = {
-                        -1.0f, 0, 0, 0, 255, //red
-                        0, -1.0f, 0, 0, 255, //green
-                        0, 0, -1.0f, 0, 255, //blue
-                        0, 0, 0, 1.0f, 0 //alpha
-                };
-                ColorFilter cf = new ColorMatrixColorFilter(colorMatrix_Negative);
-                pvComic.setColorFilter(cf);
-            }
-            //Disable ViewPager scrolling when the user zooms into an image
-            if (prefHelper.scrollDisabledWhileZoom() && prefHelper.defaultZoom())
-                pvComic.setOnMatrixChangeListener(new PhotoViewAttacher.OnMatrixChangedListener() {
-                    @Override
-                    public void onMatrixChanged(RectF rectF) {
-                        if (pvComic.getScale() > 1.4) {
-                            mPager.setLocked(true);
-                        } else {
-                            mPager.setLocked(false);
-                        }
-                    }
-                });
 
             if (randomSelected && position == lastComicNumber - 1) {
                 Animation animation = AnimationUtils.loadAnimation(getActivity().getApplicationContext(), android.R.anim.fade_in);
@@ -349,40 +219,14 @@ public class OfflineFragment extends ComicFragment {
                 randomSelected = false;
             }
 
-            if (position == lastComicNumber - 1) {
-                Toolbar toolbar = ((MainActivity) getActivity()).getToolbar();
-                if (toolbar.getAlpha() == 0) {
-                    toolbar.setTranslationY(-300);
-                    toolbar.animate().setDuration(300).translationY(0).alpha(1);
-                    View view;
-                    for (int i = 0; i < toolbar.getChildCount(); i++) {
-                        view = toolbar.getChildAt(i);
-                        view.setTranslationY(-300);
-                        view.animate().setStartDelay(50 * (i + 1)).setDuration(70 * (i + 1)).translationY(0);
-                    }
-                }
-            }
+            if (Arrays.binarySearch(mContext.getResources().getIntArray(R.array.large_comics), lastComicNumber) >= 0)
+                pvComic.setMaximumScale(7.0f);
 
-            if (position == lastComicNumber + 2) {
-                switch (Integer.parseInt(prefHelper.getOrientation())) {
-                    case 1:
-                        getActivity().setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_USER);
-                        break;
-                    case 2:
-                        getActivity().setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
-                        break;
-                    case 3:
-                        getActivity().setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE);
-                        break;
-                }
-            }
+            if (position == lastComicNumber - 1)
+                animateToolbar();
+
             container.addView(itemView);
             return itemView;
-        }
-
-        @Override
-        public void destroyItem(ViewGroup container, int position, Object object) {
-            container.removeView((RelativeLayout) object);
         }
     }
 
@@ -423,7 +267,7 @@ public class OfflineFragment extends ComicFragment {
 
     protected boolean shareComic() {
         if (prefHelper.shareImage()) {
-            shareComicImage(getURI());
+            shareComicImage(getURI(), comicMap.get(lastComicNumber));
             return true;
         }
         AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
@@ -432,10 +276,10 @@ public class OfflineFragment extends ComicFragment {
             public void onClick(DialogInterface dialog, int which) {
                 switch (which) {
                     case 0:
-                        shareComicImage(getURI());
+                        shareComicImage(getURI(), comicMap.get(lastComicNumber));
                         break;
                     case 1:
-                        shareComicUrl();
+                        shareComicUrl(comicMap.get(lastComicNumber));
                         break;
                 }
             }
@@ -443,13 +287,6 @@ public class OfflineFragment extends ComicFragment {
         AlertDialog alert = builder.create();
         alert.show();
         return true;
-    }
-
-    private Uri getURI() {
-        File sdCard = prefHelper.getOfflinePath();
-        File dir = new File(sdCard.getAbsolutePath() + "/easy xkcd");
-        File path = new File(dir, String.valueOf(lastComicNumber) + ".png");
-        return Uri.fromFile(path);
     }
 
 }
