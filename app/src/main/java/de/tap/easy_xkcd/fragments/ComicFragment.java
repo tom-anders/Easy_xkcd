@@ -1,11 +1,16 @@
 package de.tap.easy_xkcd.fragments;
 
+import android.content.Context;
 import android.content.Intent;
+import android.graphics.Bitmap;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.customtabs.CustomTabsIntent;
+import android.support.design.widget.Snackbar;
+import android.support.v4.view.PagerAdapter;
 import android.support.v4.view.ViewPager;
+import android.util.Log;
 import android.util.SparseArray;
 import android.util.TypedValue;
 import android.view.LayoutInflater;
@@ -16,8 +21,12 @@ import android.view.ViewGroup;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.bumptech.glide.Glide;
+import com.bumptech.glide.load.engine.DiskCacheStrategy;
 import com.tap.xkcd_reader.R;
 
+import java.io.File;
+import java.io.FileOutputStream;
 import java.lang.reflect.Field;
 
 import de.tap.easy_xkcd.Activities.MainActivity;
@@ -28,6 +37,10 @@ import de.tap.easy_xkcd.utils.Comic;
 import de.tap.easy_xkcd.utils.Favorites;
 import de.tap.easy_xkcd.utils.PrefHelper;
 import uk.co.senab.photoview.PhotoView;
+
+/**
+ * Superclass for ComicBrowserFragment, OfflineFragment & FavoritesFragment
+ */
 
 public class ComicFragment extends android.support.v4.app.Fragment {
     public int lastComicNumber;
@@ -62,17 +75,61 @@ public class ComicFragment extends android.support.v4.app.Fragment {
         return view;
     }
 
-    protected class SaveComicImageTask extends AsyncTask<Void, Void, Void> {
+    protected class SaveComicImageTask extends AsyncTask<Boolean, Void, Void> {
         protected int mAddedNumber = lastComicNumber;
+        private Bitmap mBitmap;
+        private Comic mAddedComic;
+        private boolean downloadImage;
 
         @Override
-        protected Void doInBackground(Void... params) {
+        protected Void doInBackground(Boolean... downloadImage) {
+            this.downloadImage = downloadImage[0];
+            if (this.downloadImage) {
+               mAddedComic = comicMap.get(lastComicNumber);
+                try {
+                    String url = mAddedComic.getComicData()[2];
+                    mBitmap = Glide
+                            .with(getActivity())
+                            .load(url)
+                            .asBitmap()
+                            .diskCacheStrategy(DiskCacheStrategy.SOURCE)
+                            .into(-1, -1)
+                            .get();
+                } catch (Exception e) {
+                    Favorites.removeFavoriteItem(getActivity(), String.valueOf(mAddedNumber));
+                    Log.e("Saving Image failed!", e.toString());
+                }
+                prefHelper.addTitle(mAddedComic.getComicData()[0], mAddedNumber);
+                prefHelper.addAlt(mAddedComic.getComicData()[1], mAddedNumber);
+            }
+
             Favorites.addFavoriteItem(getActivity(), String.valueOf(mAddedNumber));
             return null;
         }
 
         @Override
         protected void onPostExecute(Void dummy) {
+            if (downloadImage) {
+                try {
+                    File sdCard = prefHelper.getOfflinePath();
+                    File dir = new File(sdCard.getAbsolutePath() + "/easy xkcd");
+                    dir.mkdirs();
+                    File file = new File(dir, String.valueOf(mAddedNumber) + ".png");
+                    FileOutputStream fos = new FileOutputStream(file);
+                    mBitmap.compress(Bitmap.CompressFormat.PNG, 100, fos);
+                    fos.flush();
+                    fos.close();
+                } catch (Exception e) {
+                    Log.e("Error", "Saving to external storage failed");
+                    try {
+                        FileOutputStream fos = getActivity().openFileOutput(String.valueOf(mAddedNumber), Context.MODE_PRIVATE);
+                        mBitmap.compress(Bitmap.CompressFormat.PNG, 100, fos);
+                        fos.close();
+                    } catch (Exception e2) {
+                        e2.printStackTrace();
+                    }
+                }
+            }
             //refresh the FavoritesFragment
             FavoritesFragment f = (FavoritesFragment) getActivity().getSupportFragmentManager().findFragmentByTag("favorites");
             if (f != null)
@@ -83,12 +140,36 @@ public class ComicFragment extends android.support.v4.app.Fragment {
         }
     }
 
-    abstract class DeleteComicImageTask extends AsyncTask<Integer, Void, Void> {
+    protected class DeleteComicImageTask extends AsyncTask<Boolean, Void, Void> {
         protected int mRemovedNumber = lastComicNumber;
         protected View.OnClickListener oc;
 
         @Override
-        abstract protected Void doInBackground(Integer... pos);
+        protected Void doInBackground(final Boolean... deleteImage) {
+            if (deleteImage[0]) {
+                //delete the image from internal storage
+                getActivity().deleteFile(String.valueOf(mRemovedNumber));
+                //delete from external storage
+                File sdCard = prefHelper.getOfflinePath();
+                File dir = new File(sdCard.getAbsolutePath() + "/easy xkcd");
+                File file = new File(dir, String.valueOf(mRemovedNumber) + ".png");
+                file.delete();
+
+                prefHelper.addTitle("", mRemovedNumber);
+                prefHelper.addAlt("", mRemovedNumber);
+            }
+            oc = new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    new SaveComicImageTask().execute(deleteImage[0]);
+                }
+            };
+            Favorites.removeFavoriteItem(getActivity(), String.valueOf(mRemovedNumber));
+            Snackbar.make(((MainActivity) getActivity()).getFab(), R.string.snackbar_remove, Snackbar.LENGTH_LONG)
+                    .setAction(R.string.snackbar_undo, oc)
+                    .show();
+            return null;
+        }
 
         @Override
         protected void onPostExecute(Void v) {
@@ -236,6 +317,7 @@ public class ComicFragment extends android.support.v4.app.Fragment {
 
     @Override
     public void onStop() {
+        //TODO check instanceof FavoritesFragment
         prefHelper.setLastComic(lastComicNumber);
         super.onStop();
     }

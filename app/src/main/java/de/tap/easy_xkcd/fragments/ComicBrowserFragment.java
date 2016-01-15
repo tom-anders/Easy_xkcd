@@ -420,98 +420,13 @@ public class ComicBrowserFragment extends ComicFragment {
             return true;
         }
         if (Favorites.checkFavorite(getActivity(), lastComicNumber)) {
-            new OnlineDeleteComicImageTask().execute();
+            new DeleteComicImageTask().execute(true);
             item.setIcon(R.drawable.ic_favorite_outline);
         } else {
-            new OnlineSaveComicImageTask().execute();
+            new SaveComicImageTask().execute(true);
             item.setIcon(R.drawable.ic_action_favorite);
         }
         return true;
-    }
-
-    private class OnlineSaveComicImageTask extends SaveComicImageTask {
-        private Bitmap mBitmap;
-        private Comic mAddedComic = comicMap.get(lastComicNumber);
-
-        @Override
-        protected Void doInBackground(Void... params) {
-            try {
-                String url = mAddedComic.getComicData()[2];
-                mBitmap = Glide
-                        .with(getActivity())
-                        .load(url)
-                        .asBitmap()
-                        .diskCacheStrategy(DiskCacheStrategy.SOURCE)
-                        .into(-1, -1)
-                        .get();
-            } catch (Exception e) {
-                Favorites.removeFavoriteItem(getActivity(), String.valueOf(mAddedNumber));
-                Log.e("Saving Image failed!", e.toString());
-            }
-            prefHelper.addTitle(mAddedComic.getComicData()[0], mAddedNumber);
-            prefHelper.addAlt(mAddedComic.getComicData()[1], mAddedNumber);
-            super.doInBackground(params);
-            return null;
-        }
-
-        @SuppressWarnings("ResultOfMethodCallIgnored")
-        @Override
-        protected void onPostExecute(Void dummy) {
-            try {
-                File sdCard = prefHelper.getOfflinePath();
-                File dir = new File(sdCard.getAbsolutePath() + "/easy xkcd");
-                dir.mkdirs();
-                File file = new File(dir, String.valueOf(mAddedNumber) + ".png");
-                FileOutputStream fos = new FileOutputStream(file);
-                mBitmap.compress(Bitmap.CompressFormat.PNG, 100, fos);
-                fos.flush();
-                fos.close();
-            } catch (Exception e) {
-                Log.e("Error", "Saving to external storage failed");
-                try {
-                    FileOutputStream fos = getActivity().openFileOutput(String.valueOf(mAddedNumber), Context.MODE_PRIVATE);
-                    mBitmap.compress(Bitmap.CompressFormat.PNG, 100, fos);
-                    fos.close();
-                } catch (Exception e2) {
-                    e2.printStackTrace();
-                }
-            }
-            super.onPostExecute(dummy);
-        }
-    }
-
-    private class OnlineDeleteComicImageTask extends DeleteComicImageTask {
-        @SuppressWarnings("ResultOfMethodCallIgnored")
-        @Override
-        protected Void doInBackground(Integer... pos) {
-            //delete the image from internal storage
-            getActivity().deleteFile(String.valueOf(mRemovedNumber));
-            //delete from external storage
-            File sdCard = prefHelper.getOfflinePath();
-            File dir = new File(sdCard.getAbsolutePath() + "/easy xkcd");
-            File file = new File(dir, String.valueOf(mRemovedNumber) + ".png");
-            file.delete();
-
-            prefHelper.addTitle("", mRemovedNumber);
-            prefHelper.addAlt("", mRemovedNumber);
-
-            oc = new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    new OnlineSaveComicImageTask().execute();
-                }
-            };
-            Favorites.removeFavoriteItem(getActivity(), String.valueOf(mRemovedNumber));
-            Snackbar.make(((MainActivity) getActivity()).getFab(), R.string.snackbar_remove, Snackbar.LENGTH_LONG)
-                    .setAction(R.string.snackbar_undo, oc)
-                    .show();
-            return null;
-        }
-
-        @Override
-        protected void onPostExecute(Void v) {
-            super.onPostExecute(v);
-        }
     }
 
     /*********************************

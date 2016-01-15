@@ -363,7 +363,7 @@ public class OfflineFragment extends ComicFragment {
                 }
             }
 
-            if (position == lastComicNumber + 1) {
+            if (position == lastComicNumber + 2) {
                 switch (Integer.parseInt(prefHelper.getOrientation())) {
                     case 1:
                         getActivity().setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_USER);
@@ -409,36 +409,14 @@ public class OfflineFragment extends ComicFragment {
 
     private boolean ModifyFavorites(MenuItem item) {
         if (Favorites.checkFavorite(getActivity(), lastComicNumber)) {
-            new OfflineDeleteComicImageTask().execute();
+            new DeleteComicImageTask().execute(false);
             item.setIcon(R.drawable.ic_favorite_outline);
         } else {
             //save image to internal storage
-            new SaveComicImageTask().execute();
+            new SaveComicImageTask().execute(false);
             item.setIcon(R.drawable.ic_action_favorite);
         }
         return true;
-    }
-
-    protected class OfflineDeleteComicImageTask extends DeleteComicImageTask {
-        @Override
-        protected Void doInBackground(Integer... pos) {
-            oc = new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    new SaveComicImageTask().execute();
-                }
-            };
-            Favorites.removeFavoriteItem(getActivity(), String.valueOf(mRemovedNumber));
-            Snackbar.make(((MainActivity) getActivity()).getFab(), R.string.snackbar_remove, Snackbar.LENGTH_LONG)
-                    .setAction(R.string.snackbar_undo, oc)
-                    .show();
-            return null;
-        }
-
-        @Override
-        protected void onPostExecute(Void v) {
-            super.onPostExecute(v);
-        }
     }
 
     /************************************Sharing*********************************/
