@@ -57,7 +57,10 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.bumptech.glide.Glide;
+import com.bumptech.glide.load.engine.DiskCacheStrategy;
+import com.kogitune.activity_transition.ActivityTransition;
 import com.kogitune.activity_transition.ActivityTransitionLauncher;
+import com.kogitune.activity_transition.ExitActivityTransition;
 import com.tap.xkcd_reader.R;
 
 import java.io.BufferedReader;
@@ -406,9 +409,10 @@ public class SearchResultsActivity extends AppCompatActivity {
             comicViewHolder.comicTitle.setText(title);
 
             if (!MainActivity.fullOffline) {
-                Glide.with(getApplicationContext())
+                Glide.with(SearchResultsActivity.this)
                         .load(comicsUrls.get(number))
                         .asBitmap()
+                        .diskCacheStrategy(DiskCacheStrategy.SOURCE)
                         .into(comicViewHolder.thumbnail);
             } else {
                 try {
@@ -515,7 +519,7 @@ public class SearchResultsActivity extends AppCompatActivity {
                 } else {
                     OfflineFragment.fromSearch = true;
                 }
-                ActivityTransitionLauncher.with(SearchResultsActivity.this).from(v.findViewById(R.id.comic_title)).from(v.findViewById(R.id.thumbnail)).image(bitmap).launch(intent);
+                ActivityTransitionLauncher.with(SearchResultsActivity.this).from(v.findViewById(R.id.thumbnail)).image(bitmap).launch(intent);
             }
         }
     }

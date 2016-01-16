@@ -12,11 +12,13 @@ import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Environment;
+import android.preference.PreferenceManager;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.view.ViewPager;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.View;
@@ -27,6 +29,9 @@ import android.widget.Toast;
 
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.load.engine.DiskCacheStrategy;
+import com.bumptech.glide.request.RequestListener;
+import com.bumptech.glide.request.target.Target;
+import com.kogitune.activity_transition.ActivityTransition;
 import com.tap.xkcd_reader.R;
 
 import org.json.JSONObject;
@@ -44,9 +49,8 @@ import uk.co.senab.photoview.PhotoView;
 
 public class ComicBrowserFragment extends ComicFragment {
 
-
     private static boolean loadingImages;
-    private static boolean newestUpdated = false;
+    public static boolean newestUpdated = false;
 
     private ComicBrowserPagerAdapter adapter;
 
@@ -87,6 +91,7 @@ public class ComicBrowserFragment extends ComicFragment {
         return v;
     }
 
+    @Override
     public void updatePager() {
         new updateNewest(false).execute();
     }
@@ -156,6 +161,9 @@ public class ComicBrowserFragment extends ComicFragment {
 
     private class ComicBrowserPagerAdapter extends ComicAdapter {
 
+        private String[] urls;
+        private String[] titles;
+
         public ComicBrowserPagerAdapter(Context context) {
             super(context);
         }
@@ -177,10 +185,54 @@ public class ComicBrowserFragment extends ComicFragment {
 
             class loadComic extends AsyncTask<Void, Void, Void> {
                 private Comic comic;
+                private boolean largeComic;
+
+                private void displayComic(String url, String title) {
+                    if (fromSearch && position == lastComicNumber-1) {
+                        fromSearch = false;
+                        ActivityTransition.with(getActivity().getIntent()).duration(300).to(pvComic).start(null);
+                    }
+                    Glide.with(getActivity())
+                            .load(url)
+                            .asBitmap()
+                            .diskCacheStrategy(DiskCacheStrategy.SOURCE)
+                            .listener(new RequestListener<String, Bitmap>() {
+                                @Override
+                                public boolean onException(Exception e, String model, Target<Bitmap> target, boolean isFirstResource) {
+                                    return false;
+                                }
+
+                                @Override
+                                public boolean onResourceReady(Bitmap resource, String model, Target<Bitmap> target, boolean isFromMemoryCache, boolean isFirstResource) {
+                                    if (position == lastComicNumber - 1) {
+                                        if (((MainActivity) getActivity()).getProgressDialog() != null)
+                                            ((MainActivity) getActivity()).getProgressDialog().dismiss();
+                                        animateToolbar();
+                                    }
+                                    return false;
+                                }
+                            })
+                            .into(pvComic);
+                    tvTitle.setText(title);
+                }
+
+                @Override
+                protected void onPreExecute() {
+                    largeComic = PreferenceManager.getDefaultSharedPreferences(getActivity()).getBoolean("pref_large", true) && Arrays.binarySearch(getResources().getIntArray(R.array.large_comics), position+1)>=0;
+                    if (!largeComic && prefHelper.databaseLoaded()) {
+                        if (urls == null) {
+                            urls = prefHelper.getComicUrls().split("&&");
+                            titles = prefHelper.getComicTitles().split("&&");
+                        }
+                        displayComic(urls[position], titles[position]);
+                        Log.d("info", "loading from database");
+                    }
+
+                }
 
                 @Override
                 protected Void doInBackground(Void... dummy) {
-                    comic = comicMap.get(position+1);
+                    comic = comicMap.get(position + 1);
                     if (comic == null) {
                         try {
                             comic = new Comic(position + 1, getActivity());
@@ -195,19 +247,9 @@ public class ComicBrowserFragment extends ComicFragment {
                 @Override
                 protected void onPostExecute(Void dummy) {
                     if (comic != null && getActivity() != null) {
-                        Glide.with(getActivity())
-                                .load(comic.getComicData()[2])
-                                .asBitmap()
-                                .into(pvComic);
-
+                        if (!prefHelper.databaseLoaded() || largeComic)
+                            displayComic(comic.getComicData()[2], comic.getComicData()[0]);
                         tvAlt.setText(comic.getComicData()[1]);
-                        tvTitle.setText(comic.getComicData()[0]);
-
-                        if (position == lastComicNumber - 1) {
-                            if (((MainActivity) getActivity()).getProgressDialog() != null)
-                                ((MainActivity) getActivity()).getProgressDialog().dismiss();
-                            animateToolbar();
-                        }
 
                         if (position == lastComicNumber + 1
                                 || (position == lastComicNumber - 1 && lastComicNumber == newestComicNumber)
@@ -230,8 +272,6 @@ public class ComicBrowserFragment extends ComicFragment {
         }
 
     }
-
-
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
@@ -300,7 +340,7 @@ public class ComicBrowserFragment extends ComicFragment {
     @Override
     public void getPreviousRandom() {
         if (prefHelper.isOnline(getActivity()) && newestComicNumber != 0)
-            super.getRandomComic();
+            super.getPreviousRandom();
         else
             Toast.makeText(getActivity(), R.string.no_connection, Toast.LENGTH_SHORT).show();
     }

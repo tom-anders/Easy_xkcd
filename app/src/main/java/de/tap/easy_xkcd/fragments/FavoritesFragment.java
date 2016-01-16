@@ -18,53 +18,32 @@
 
 package de.tap.easy_xkcd.fragments;
 
-import android.Manifest;
 import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
-import android.content.Intent;
-import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
-import android.graphics.ColorFilter;
-import android.graphics.ColorMatrixColorFilter;
-import android.graphics.RectF;
-import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
-import android.os.Environment;
-import android.os.Vibrator;
 import android.support.design.widget.Snackbar;
-import android.support.v4.app.ActivityCompat;
-import android.support.v4.content.ContextCompat;
-import android.support.v4.view.PagerAdapter;
 import android.support.v4.view.ViewPager;
 import android.support.v7.widget.Toolbar;
-import android.util.Log;
-import android.view.GestureDetector;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ImageView;
-import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import com.tap.xkcd_reader.R;
 
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.IOException;
 import java.util.Arrays;
 import java.util.Random;
 
+import de.tap.easy_xkcd.Activities.MainActivity;
 import de.tap.easy_xkcd.utils.Favorites;
 import de.tap.easy_xkcd.utils.OfflineComic;
-import de.tap.easy_xkcd.Activities.MainActivity;
 import uk.co.senab.photoview.PhotoView;
-import uk.co.senab.photoview.PhotoViewAttacher;
 
 
 public class FavoritesFragment extends ComicFragment {
@@ -265,25 +244,7 @@ public class FavoritesFragment extends ComicFragment {
             @Override
             public void onClick(View v) {
                 Favorites.addFavoriteItem(getActivity(), String.valueOf(mRemoved));
-                try {
-                    File sdCard = prefHelper.getOfflinePath();
-                    File dir = new File(sdCard.getAbsolutePath() + "/easy xkcd");
-                    dir.mkdirs();
-                    File file = new File(dir, String.valueOf(mRemoved) + ".png");
-                    FileOutputStream fos = new FileOutputStream(file);
-                    mRemovedBitmap.compress(Bitmap.CompressFormat.PNG, 100, fos);
-                    fos.flush();
-                    fos.close();
-                } catch (Exception e) {
-                    Log.e("Error", "Saving to external storage failed");
-                    try {
-                        FileOutputStream fos = getActivity().openFileOutput(String.valueOf(mRemoved), Context.MODE_PRIVATE);
-                        mRemovedBitmap.compress(Bitmap.CompressFormat.PNG, 100, fos);
-                        fos.close();
-                    } catch (Exception e2) {
-                        e2.printStackTrace();
-                    }
-                }
+               saveComic(mRemoved, mRemovedBitmap);
                 prefHelper.addTitle(mTitle, mRemoved);
                 prefHelper.addAlt(mAlt, mRemoved);
                 refresh();
@@ -363,5 +324,7 @@ public class FavoritesFragment extends ComicFragment {
             new updateFavorites().execute();
         }
     }
+
+    public void updatePager() {}
 
 }

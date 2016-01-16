@@ -37,7 +37,6 @@ import com.tap.xkcd_reader.R;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.lang.reflect.Field;
-import java.util.Arrays;
 
 import de.tap.easy_xkcd.Activities.MainActivity;
 import de.tap.easy_xkcd.CustomTabHelpers.BrowserFallback;
@@ -53,7 +52,7 @@ import uk.co.senab.photoview.PhotoViewAttacher;
  * Superclass for ComicBrowserFragment, OfflineFragment & FavoritesFragment
  */
 
-public class ComicFragment extends android.support.v4.app.Fragment {
+public abstract class ComicFragment extends android.support.v4.app.Fragment {
     public int lastComicNumber;
     public int newestComicNumber;
     public int favoriteIndex = 0;
@@ -110,11 +109,6 @@ public class ComicFragment extends android.support.v4.app.Fragment {
             if (!prefHelper.defaultZoom()) {
                 pvComic.setScaleType(ImageView.ScaleType.CENTER_INSIDE);
                 pvComic.setMaximumScale(10f);
-            }
-
-            if (position == lastComicNumber - 1 && fromSearch) {
-                fromSearch = false;
-                ActivityTransition.with(getActivity().getIntent()).duration(300).to(pvComic).start(null);
             }
 
             if (prefHelper.altByDefault())
@@ -219,6 +213,29 @@ public class ComicFragment extends android.support.v4.app.Fragment {
         }
     }
 
+    protected void saveComic(int number, Bitmap bitmap) {
+        try {
+            File sdCard = prefHelper.getOfflinePath();
+            File dir = new File(sdCard.getAbsolutePath() + "/easy xkcd");
+            //noinspection ResultOfMethodCallIgnored
+            dir.mkdirs();
+            File file = new File(dir, String.valueOf(number) + ".png");
+            FileOutputStream fos = new FileOutputStream(file);
+            bitmap.compress(Bitmap.CompressFormat.PNG, 100, fos);
+            fos.flush();
+            fos.close();
+        } catch (Exception e) {
+            Log.e("Error", "Saving to external storage failed");
+            try {
+                FileOutputStream fos = getActivity().openFileOutput(String.valueOf(number), Context.MODE_PRIVATE);
+                bitmap.compress(Bitmap.CompressFormat.PNG, 100, fos);
+                fos.close();
+            } catch (Exception e2) {
+                e2.printStackTrace();
+            }
+        }
+    }
+
     public class SaveComicImageTask extends AsyncTask<Boolean, Void, Void> {
         protected int mAddedNumber = lastComicNumber;
         private Bitmap mBitmap;
@@ -254,25 +271,7 @@ public class ComicFragment extends android.support.v4.app.Fragment {
         @Override
         protected void onPostExecute(Void dummy) {
             if (downloadImage) {
-                try {
-                    File sdCard = prefHelper.getOfflinePath();
-                    File dir = new File(sdCard.getAbsolutePath() + "/easy xkcd");
-                    dir.mkdirs();
-                    File file = new File(dir, String.valueOf(mAddedNumber) + ".png");
-                    FileOutputStream fos = new FileOutputStream(file);
-                    mBitmap.compress(Bitmap.CompressFormat.PNG, 100, fos);
-                    fos.flush();
-                    fos.close();
-                } catch (Exception e) {
-                    Log.e("Error", "Saving to external storage failed");
-                    try {
-                        FileOutputStream fos = getActivity().openFileOutput(String.valueOf(mAddedNumber), Context.MODE_PRIVATE);
-                        mBitmap.compress(Bitmap.CompressFormat.PNG, 100, fos);
-                        fos.close();
-                    } catch (Exception e2) {
-                        e2.printStackTrace();
-                    }
-                }
+                saveComic(mAddedNumber, mBitmap);
             }
             //refresh the FavoritesFragment
             FavoritesFragment f = (FavoritesFragment) getActivity().getSupportFragmentManager().findFragmentByTag("favorites");
@@ -297,6 +296,7 @@ public class ComicFragment extends android.support.v4.app.Fragment {
                 File sdCard = prefHelper.getOfflinePath();
                 File dir = new File(sdCard.getAbsolutePath() + "/easy xkcd");
                 File file = new File(dir, String.valueOf(mRemovedNumber) + ".png");
+                //noinspection ResultOfMethodCallIgnored
                 file.delete();
 
                 prefHelper.addTitle("", mRemovedNumber);
@@ -402,15 +402,15 @@ public class ComicFragment extends android.support.v4.app.Fragment {
         return Uri.fromFile(path);
     }
 
-    protected boolean getRandomComic() {
+    public void getPreviousRandom() {
+        lastComicNumber = prefHelper.getPreviousRandom(lastComicNumber);
+        pager.setCurrentItem(lastComicNumber - 1, false);
+    }
+
+    public boolean getRandomComic() {
         lastComicNumber = prefHelper.getRandomNumber(lastComicNumber);
         pager.setCurrentItem(lastComicNumber - 1, false);
         return true;
-    }
-
-    protected void getPreviousRandom() {
-        lastComicNumber = prefHelper.getPreviousRandom(lastComicNumber);
-        pager.setCurrentItem(lastComicNumber - 1, false);
     }
 
     protected boolean getLatestComic() {
@@ -430,6 +430,8 @@ public class ComicFragment extends android.support.v4.app.Fragment {
             }
         }
     }
+
+    abstract public void updatePager();
 
     protected boolean setAltText(boolean fromMenu) {
         //If the user selected the menu item for the first time, show the toast

@@ -5,7 +5,6 @@ import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.graphics.Bitmap;
-import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
@@ -21,10 +20,10 @@ import android.view.animation.AnimationUtils;
 import android.widget.TextView;
 
 import com.bumptech.glide.Glide;
+import com.kogitune.activity_transition.ActivityTransition;
 import com.tap.xkcd_reader.R;
 
 import java.io.File;
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.Arrays;
 
@@ -74,6 +73,7 @@ public class OfflineFragment extends ComicFragment {
         return v;
     }
 
+    @Override
     public void updatePager() {
         new updateImages().execute();
     }
@@ -107,26 +107,7 @@ public class OfflineFragment extends ComicFragment {
                                 .asBitmap()
                                 .into(-1, -1)
                                 .get();
-                        //TODO method to save comic
-                        try {
-                            File sdCard = prefHelper.getOfflinePath();
-                            File dir = new File(sdCard.getAbsolutePath() + "/easy xkcd");
-                            dir.mkdirs();
-                            File file = new File(dir, String.valueOf(i) + ".png");
-                            FileOutputStream fos = new FileOutputStream(file);
-                            mBitmap.compress(Bitmap.CompressFormat.PNG, 100, fos);
-                            fos.flush();
-                            fos.close();
-                        } catch (Exception e) {
-                            Log.e("Error", "Saving to external storage failed");
-                            try {
-                                FileOutputStream fos = getActivity().openFileOutput(String.valueOf(i), Context.MODE_PRIVATE);
-                                mBitmap.compress(Bitmap.CompressFormat.PNG, 100, fos);
-                                fos.close();
-                            } catch (Exception e2) {
-                                e2.printStackTrace();
-                            }
-                        }
+                        saveComic(i, mBitmap);
                         prefHelper.addTitle(comic.getComicData()[0], i);
                         prefHelper.addAlt(comic.getComicData()[1], i);
                         prefHelper.setHighestOffline(newestComicNumber);
@@ -212,6 +193,10 @@ public class OfflineFragment extends ComicFragment {
             tvTitle.setText(comicMap.get(position + 1).getComicData()[0]);
             tvAlt.setText(comicMap.get(position + 1).getComicData()[1]);
             pvComic.setImageBitmap(((OfflineComic) comicMap.get(position + 1)).getBitmap());
+            if (fromSearch) {
+                fromSearch = false;
+                ActivityTransition.with(getActivity().getIntent()).duration(300).to(pvComic).start(null);
+            }
 
             if (randomSelected && position == lastComicNumber - 1) {
                 Animation animation = AnimationUtils.loadAnimation(getActivity().getApplicationContext(), android.R.anim.fade_in);
