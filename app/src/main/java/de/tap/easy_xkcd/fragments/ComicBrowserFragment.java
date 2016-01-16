@@ -280,10 +280,8 @@ public class ComicBrowserFragment extends ComicFragment {
                 return ModifyFavorites(item);
             case R.id.action_share:
                 return shareComic();
-
             case R.id.action_latest:
                 return getLatestComic();
-
             case R.id.action_random:
                 return getRandomComic();
         }

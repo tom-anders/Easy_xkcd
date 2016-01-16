@@ -37,6 +37,7 @@ import com.tap.xkcd_reader.R;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.lang.reflect.Field;
+import java.util.Arrays;
 
 import de.tap.easy_xkcd.Activities.MainActivity;
 import de.tap.easy_xkcd.CustomTabHelpers.BrowserFallback;
@@ -526,6 +527,9 @@ public abstract class ComicFragment extends android.support.v4.app.Fragment {
         } else {
             menu.findItem(R.id.action_random).setVisible(false);
         }
+        menu.findItem(R.id.action_alt).setVisible(prefHelper.showAltTip());
+        if (Arrays.binarySearch(getResources().getIntArray(R.array.interactive_comics), lastComicNumber) >= 0)
+            menu.findItem(R.id.action_browser).setVisible(true);
     }
 
     @Override
