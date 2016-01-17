@@ -90,6 +90,7 @@ public class MainActivity extends AppCompatActivity {
     public static boolean fullOffline = false;
     public static boolean fullOfflineWhatIf = false;
     public static boolean fromSearch = false;
+    public static boolean overViewLaunch;
 
     public ActionBarDrawerToggle mDrawerToggle;
     private MenuItem searchMenuItem;
@@ -209,6 +210,9 @@ public class MainActivity extends AppCompatActivity {
             boolean showOverview = false;
             if (savedInstanceState != null)
                 showOverview = savedInstanceState.getBoolean(OVERVIEW_TAG, false);
+            else {
+                overViewLaunch = prefHelper.launchToOverview();
+            }
             selectDrawerItem(item, showOverview);
         } else if ((mCurrentFragment != R.id.nav_favorites)) { //Don't show the dialog if the user is currently browsing his favorites or full offline is enabled
             AlertDialog.Builder mDialog = new AlertDialog.Builder(this, prefHelper.getDialogTheme());
@@ -596,7 +600,7 @@ public class MainActivity extends AppCompatActivity {
         return super.onOptionsItemSelected(item);
     }
 
-    private void showOverview() {
+    public void showOverview() {
         android.support.v4.app.FragmentManager fragmentManager = getSupportFragmentManager();
 
         if (fragmentManager.findFragmentByTag(OVERVIEW_TAG) != null) {

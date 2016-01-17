@@ -112,6 +112,7 @@ public class PrefHelper {
     private static final String OVERVIEW_STYLE = "overview_style";
     private static final String BOOKMARK = "bookmark";
     private static final String WHAT_IF_SUNBEAM_LOADED = "sun_beam";
+    private static final String LAUNCH_TO_OVERVIEW = "pref_overview_default";
 
 
 
@@ -890,6 +891,10 @@ public class PrefHelper {
 
     public void setSunbeamLoaded() {
         sharedPrefs.edit().putBoolean(WHAT_IF_SUNBEAM_LOADED, true).apply();
+    }
+
+    public boolean launchToOverview() {
+        return prefs.getBoolean(LAUNCH_TO_OVERVIEW, false);
     }
 
 }

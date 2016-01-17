@@ -15,6 +15,7 @@ import android.support.v4.content.ContextCompat;
 import android.support.v7.widget.CardView;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.support.v7.widget.Toolbar;
 import android.transition.Transition;
 import android.transition.TransitionInflater;
 import android.util.Log;
@@ -50,9 +51,9 @@ import de.tap.easy_xkcd.utils.PrefHelper;
 import xyz.danoz.recyclerviewfastscroller.vertical.VerticalRecyclerViewFastScroller;
 
 public class OverviewListFragment extends android.support.v4.app.Fragment {
-    private String[] titles;
-    private String[] urls;
-    private int[] read;
+    private static String[] titles;
+    private static String[] urls;
+    private static int[] read;
     private ListAdapter listAdapter;
     private RVAdapter rvAdapter;
     private ListView list;
@@ -672,6 +673,18 @@ public class OverviewListFragment extends android.support.v4.app.Fragment {
 
                     break;
             }
+            Toolbar toolbar = ((MainActivity) getActivity()).getToolbar();
+            if (toolbar.getAlpha() == 0) {
+                toolbar.setTranslationY(-300);
+                toolbar.animate().setDuration(300).translationY(0).alpha(1);
+                View view;
+                for (int i = 0; i < toolbar.getChildCount(); i++) {
+                    view = toolbar.getChildAt(i);
+                    view.setTranslationY(-300);
+                    view.animate().setStartDelay(50 * (i + 1)).setDuration(70 * (i + 1)).translationY(0);
+                }
+            }
+
         }
     }
 

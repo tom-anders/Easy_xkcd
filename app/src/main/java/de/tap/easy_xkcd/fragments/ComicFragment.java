@@ -83,6 +83,10 @@ public abstract class ComicFragment extends android.support.v4.app.Fragment {
             } else if (lastComicNumber == 0) {
                 lastComicNumber = prefHelper.getLastComic();
             }
+            if (MainActivity.overViewLaunch) {
+                MainActivity.overViewLaunch = false;
+                ((MainActivity) getActivity()).showOverview();
+            }
         }
 
         if (((MainActivity) getActivity()).getCurrentFragment() == R.id.nav_browser && prefHelper.subtitleEnabled())
