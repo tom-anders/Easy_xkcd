@@ -259,7 +259,6 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-    //TODO this doesn't work for some reason
     @SuppressWarnings("unused")
     @OnLongClick(R.id.fab)
     boolean onLongClick() {
