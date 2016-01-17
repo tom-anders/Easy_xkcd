@@ -77,6 +77,7 @@
 
     <item android:id="@+id/action_browser"
         android:title="@string/action_browser"
+        android:visible="false"
         app:showAsAction="never" />
 
     <item android:id="@+id/action_unread"

@@ -262,5 +262,7 @@
     <string name="bookmark_toast">Du kannst in der Comic Übersicht zu deinem Lesezeichen zurückkehren. Es wird außerdem dort in der Liste markiert.</string>
     <string name="no_bookmark">Du hast noch kein Lesezeichen! Du kannst eins im Comic Browser hinzufügen oder einen Comic in der Liste lang antippen</string>
     <string name="bookmark_toast_2">Lesezeichen gesetzt</string>
+    <string name="pref_overview_default">Comic Übersicht beim Start</string>
+    <string name="pref_overview_default_sum">Gehe direkt zur Comic Übersicht, wenn die App gestartet wird</string>
 
 </resources>

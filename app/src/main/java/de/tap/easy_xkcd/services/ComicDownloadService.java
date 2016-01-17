@@ -47,7 +47,6 @@ public class ComicDownloadService extends IntentService {
 
         if (!BuildConfig.DEBUG) {
             for (int i = 1; i <= prefHelper.getNewest(); i++) {
-                Log.d("i", String.valueOf(i));
                 try {
                     Comic comic = new Comic(i, getApplicationContext());
                     String url = comic.getComicData()[2];

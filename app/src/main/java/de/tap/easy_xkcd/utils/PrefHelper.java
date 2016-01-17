@@ -112,6 +112,7 @@ public class PrefHelper {
     private static final String OVERVIEW_STYLE = "overview_style";
     private static final String BOOKMARK = "bookmark";
     private static final String WHAT_IF_SUNBEAM_LOADED = "sun_beam";
+    private static final String LAUNCH_TO_OVERVIEW = "pref_overview_default";
 
 
 
@@ -252,10 +253,6 @@ public class PrefHelper {
         return prefs.getStringSet(ALT_OPTIONS, new HashSet<String>()).contains(ALT_VIBRATION);
     }
 
-    public String getOrientation() {
-        return prefs.getString(ORIENTATION, "1");
-    }
-
     public boolean showAltTip() {
         return sharedPrefs.getBoolean(ALT_TIP, true);
     }
@@ -392,18 +389,14 @@ public class PrefHelper {
         editor.apply();
     }
 
-    public boolean checkComicRead(int number) {
+    public int[] getComicRead() {
         String read = sharedPrefs.getString(COMIC_READ, "");
-        if (read.equals("")) {
-            return false;
-        }
         String[] readList = Favorites.sortArray(read.split(","));
         int[] readInt = new int[readList.length];
         for (int i = 0; i < readInt.length; i++) {
             readInt[i] = Integer.parseInt(readList[i]);
         }
-        int a = Arrays.binarySearch(readInt, number);
-        return (a >= 0);
+        return readInt;
     }
 
     public void setWhatIfFavorite(String added) {
@@ -898,6 +891,10 @@ public class PrefHelper {
 
     public void setSunbeamLoaded() {
         sharedPrefs.edit().putBoolean(WHAT_IF_SUNBEAM_LOADED, true).apply();
+    }
+
+    public boolean launchToOverview() {
+        return prefs.getBoolean(LAUNCH_TO_OVERVIEW, false);
     }
 
 }

@@ -1,3 +1,16 @@
+## 4.0.1
+
+- Fixed crashes in 4.0
+
+## 4.0
+
+- Comics load noticeably faster in Online Mode
+- Improved Overview Mode scrolling performance
+- Option to always display Overview Mode at launch
+- Only show "Open in browser" when comic is interactive
+- Removed screen orientation setting (to buggy right now, will be rewritten)
+- Improved Search Mode performance
+
 ## 3.9.2
 
 - Added thumbnail for latest What-if, fixed offline download

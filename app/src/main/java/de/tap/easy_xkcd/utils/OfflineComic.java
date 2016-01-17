@@ -28,7 +28,6 @@ import java.io.IOException;
 import de.tap.easy_xkcd.Activities.MainActivity;
 
 public class OfflineComic extends Comic {
-    private int mComicNumber;
     private Context mContext;
     private static final String OFFLINE_PATH = "/easy xkcd";
     private PrefHelper prefHelper;

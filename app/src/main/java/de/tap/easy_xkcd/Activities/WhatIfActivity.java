@@ -168,18 +168,6 @@ public class WhatIfActivity extends AppCompatActivity {
                     if (mProgress != null)
                         mProgress.dismiss();
 
-                    switch (Integer.parseInt(prefHelper.getOrientation())) {
-                        case 1:
-                            setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_USER);
-                            break;
-                        case 2:
-                            setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
-                            break;
-                        case 3:
-                            setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE);
-                            break;
-                    }
-
                     if (leftSwipe) {
                         leftSwipe = false;
                         Animation animation = AnimationUtils.loadAnimation(WhatIfActivity.this, R.anim.slide_in_left);

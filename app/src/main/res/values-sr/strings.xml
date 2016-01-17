@@ -263,5 +263,7 @@
     <string name="bookmark_toast">You can return to your bookmark from overview mode. It will also be highlighted in the list</string>
     <string name="no_bookmark">You didn\'t add a bookmark yet! You can add one in the Comic Browser or by long pressing a comic in this list</string>
     <string name="bookmark_toast_2">Bookmark added</string>
+    <string name="pref_overview_default">Launch to Overview Mode</string>
+    <string name="pref_overview_default_sum">When launching the app, show Overview Mode by default</string>
 
 </resources>

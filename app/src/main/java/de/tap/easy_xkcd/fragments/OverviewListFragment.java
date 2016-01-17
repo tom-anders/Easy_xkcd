@@ -15,6 +15,7 @@ import android.support.v4.content.ContextCompat;
 import android.support.v7.widget.CardView;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.support.v7.widget.Toolbar;
 import android.transition.Transition;
 import android.transition.TransitionInflater;
 import android.util.Log;
@@ -41,6 +42,7 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.util.Arrays;
 
 import de.tap.easy_xkcd.Activities.MainActivity;
 import de.tap.easy_xkcd.utils.Comic;
@@ -51,6 +53,7 @@ import xyz.danoz.recyclerviewfastscroller.vertical.VerticalRecyclerViewFastScrol
 public class OverviewListFragment extends android.support.v4.app.Fragment {
     private static String[] titles;
     private static String[] urls;
+    private static int[] read;
     private ListAdapter listAdapter;
     private RVAdapter rvAdapter;
     private ListView list;
@@ -184,13 +187,8 @@ public class OverviewListFragment extends android.support.v4.app.Fragment {
         }
 
         if (prefHelper.subtitleEnabled()) {
-            if (!prefHelper.fullOfflineEnabled()) {
-                ComicBrowserFragment comicBrowserFragment = (ComicBrowserFragment) getActivity().getSupportFragmentManager().findFragmentByTag(BROWSER_TAG);
-                ((MainActivity) getActivity()).getToolbar().setSubtitle(String.valueOf(comicBrowserFragment.lastComicNumber));
-            } else {
-                OfflineFragment offlineFragment = (OfflineFragment) fragmentManager.findFragmentByTag(BROWSER_TAG);
-                ((MainActivity) getActivity()).getToolbar().setSubtitle(String.valueOf(offlineFragment.lastComicNumber));
-            }
+            ComicFragment comicFragment = (ComicFragment) getActivity().getSupportFragmentManager().findFragmentByTag(BROWSER_TAG);
+            ((MainActivity) getActivity()).getToolbar().setSubtitle(String.valueOf(comicFragment.lastComicNumber));
         }
 
         new Handler().postDelayed(new Runnable() {
@@ -249,7 +247,7 @@ public class OverviewListFragment extends android.support.v4.app.Fragment {
                 label = n + ": " + prefHelper.getTitle(n);
             } else {
                 label = String.valueOf(getCount() - position) + " " + titles[getCount() - position - 1];
-                if (prefHelper.checkComicRead(getCount() - position)) {
+                if (checkComicRead(getCount() - position)) {
                     if (prefHelper.nightThemeEnabled())
                         holder.textView.setTextColor(ContextCompat.getColor(getActivity(), android.R.color.tertiary_text_light));
                     else
@@ -303,7 +301,7 @@ public class OverviewListFragment extends android.support.v4.app.Fragment {
                 title = prefHelper.getTitle(number);
             } else {
                 title = titles[getItemCount() - i - 1];
-                if (prefHelper.checkComicRead(getItemCount() - i)) {
+                if (checkComicRead(getItemCount() - i)) {
                     if (prefHelper.nightThemeEnabled())
                         comicViewHolder.comicTitle.setTextColor(ContextCompat.getColor(getActivity(), android.R.color.tertiary_text_light));
                     else
@@ -333,7 +331,7 @@ public class OverviewListFragment extends android.support.v4.app.Fragment {
                     File sdCard = prefHelper.getOfflinePath();
                     File dir = new File(sdCard.getAbsolutePath() + "/easy xkcd");
                     File file = new File(dir, String.valueOf(number) + ".png");
-                    Glide.with(getActivity().getApplicationContext())
+                    Glide.with(getActivity())
                             .load(file)
                             .asBitmap()
                             .into(comicViewHolder.thumbnail);
@@ -383,6 +381,10 @@ public class OverviewListFragment extends android.support.v4.app.Fragment {
                 thumbnail = (ImageView) itemView.findViewById(R.id.thumbnail);
             }
         }
+    }
+
+    private boolean checkComicRead(int number) {
+        return Arrays.binarySearch(read, number) >= 0;
     }
 
     class CustomOnClickListener implements View.OnClickListener {
@@ -496,7 +498,7 @@ public class OverviewListFragment extends android.support.v4.app.Fragment {
                         count = rvAdapter.getItemCount();
                         break;
                 }
-                showComic(count-bookmark);
+                showComic(count - bookmark);
 
         }
         return super.onOptionsItemSelected(item);
@@ -509,8 +511,9 @@ public class OverviewListFragment extends android.support.v4.app.Fragment {
     }
 
     public void notifyAdapter(int pos) {
-        if (listAdapter == null || rvAdapter == null)
+        if (prefHelper == null)
             return;
+        read = prefHelper.getComicRead();
         switch (prefHelper.getOverviewStyle()) {
             case 0:
                 listAdapter.notifyDataSetChanged();
@@ -641,18 +644,14 @@ public class OverviewListFragment extends android.support.v4.app.Fragment {
         protected void onPostExecute(Void dummy) {
             titles = prefHelper.getComicTitles().split("&&");
             urls = prefHelper.getComicUrls().split("&&");
+            read = prefHelper.getComicRead();
             progress.dismiss();
+            ComicFragment comicFragment = (ComicFragment) getActivity().getSupportFragmentManager().findFragmentByTag(BROWSER_TAG);
             switch (prefHelper.getOverviewStyle()) {
                 case 0:
                     listAdapter = new ListAdapter();
                     list.setAdapter(listAdapter);
-                    if (prefHelper.fullOfflineEnabled()) {
-                        OfflineFragment offlineFragment = (OfflineFragment) getActivity().getSupportFragmentManager().findFragmentByTag(BROWSER_TAG);
-                        list.setSelection(titles.length - offlineFragment.lastComicNumber);
-                    } else {
-                        ComicBrowserFragment comicBrowserFragment = (ComicBrowserFragment) getActivity().getSupportFragmentManager().findFragmentByTag(BROWSER_TAG);
-                        list.setSelection(titles.length - comicBrowserFragment.lastComicNumber);
-                    }
+                    list.setSelection(titles.length - comicFragment.lastComicNumber);
                     list.setOnItemClickListener(new AdapterView.OnItemClickListener() {
                         @Override
                         public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
@@ -670,15 +669,22 @@ public class OverviewListFragment extends android.support.v4.app.Fragment {
                 case 1:
                     rvAdapter = new RVAdapter();
                     rv.setAdapter(rvAdapter);
-                    if (prefHelper.fullOfflineEnabled()) {
-                        OfflineFragment offlineFragment = (OfflineFragment) getActivity().getSupportFragmentManager().findFragmentByTag(BROWSER_TAG);
-                        rv.scrollToPosition(titles.length - offlineFragment.lastComicNumber);
-                    } else {
-                        ComicBrowserFragment comicBrowserFragment = (ComicBrowserFragment) getActivity().getSupportFragmentManager().findFragmentByTag(BROWSER_TAG);
-                        rv.scrollToPosition(titles.length - comicBrowserFragment.lastComicNumber);
-                    }
+                    rv.scrollToPosition(titles.length - comicFragment.lastComicNumber);
+
                     break;
             }
+            Toolbar toolbar = ((MainActivity) getActivity()).getToolbar();
+            if (toolbar.getAlpha() == 0) {
+                toolbar.setTranslationY(-300);
+                toolbar.animate().setDuration(300).translationY(0).alpha(1);
+                View view;
+                for (int i = 0; i < toolbar.getChildCount(); i++) {
+                    view = toolbar.getChildAt(i);
+                    view.setTranslationY(-300);
+                    view.animate().setStartDelay(50 * (i + 1)).setDuration(70 * (i + 1)).translationY(0);
+                }
+            }
+
         }
     }
 

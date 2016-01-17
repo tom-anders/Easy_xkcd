@@ -6,42 +6,31 @@ import android.app.AlertDialog;
 import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.DialogInterface;
-import android.content.Intent;
-import android.content.pm.ActivityInfo;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
-import android.graphics.ColorFilter;
-import android.graphics.ColorMatrixColorFilter;
-import android.graphics.RectF;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Environment;
-import android.os.Vibrator;
+import android.preference.PreferenceManager;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
-import android.support.v4.view.PagerAdapter;
 import android.support.v4.view.ViewPager;
-import android.support.v7.widget.Toolbar;
 import android.util.Log;
-import android.view.GestureDetector;
 import android.view.LayoutInflater;
-import android.view.Menu;
 import android.view.MenuItem;
-import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ImageView;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.load.engine.DiskCacheStrategy;
-import com.bumptech.glide.request.animation.GlideAnimation;
-import com.bumptech.glide.request.target.SimpleTarget;
+import com.bumptech.glide.request.RequestListener;
+import com.bumptech.glide.request.target.Target;
 import com.kogitune.activity_transition.ActivityTransition;
 import com.tap.xkcd_reader.R;
 
@@ -57,13 +46,11 @@ import de.tap.easy_xkcd.utils.Comic;
 import de.tap.easy_xkcd.utils.Favorites;
 import de.tap.easy_xkcd.utils.JsonParser;
 import uk.co.senab.photoview.PhotoView;
-import uk.co.senab.photoview.PhotoViewAttacher;
 
 public class ComicBrowserFragment extends ComicFragment {
 
-
     private static boolean loadingImages;
-    private static boolean newestUpdated = false;
+    public static boolean newestUpdated = false;
 
     private ComicBrowserPagerAdapter adapter;
 
@@ -80,10 +67,10 @@ public class ComicBrowserFragment extends ComicFragment {
             newestComicNumber = prefHelper.getNewest();
             scrollViewPager();
             adapter = new ComicBrowserPagerAdapter(getActivity());
-            mPager.setAdapter(adapter);
+            pager.setAdapter(adapter);
         }
 
-        mPager.addOnPageChangeListener(new ViewPager.OnPageChangeListener() {
+        pager.addOnPageChangeListener(new ViewPager.OnPageChangeListener() {
             @Override
             public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) {
             }
@@ -104,6 +91,7 @@ public class ComicBrowserFragment extends ComicFragment {
         return v;
     }
 
+    @Override
     public void updatePager() {
         new updateNewest(false).execute();
     }
@@ -151,8 +139,7 @@ public class ComicBrowserFragment extends ComicFragment {
             if (updatePager) {
                 scrollViewPager();
                 adapter = new ComicBrowserPagerAdapter(getActivity());
-                mPager.setAdapter(adapter);
-                mPager.setOffscreenPageLimit(3);
+                pager.setAdapter(adapter);
             }
             if (showSnackbar) {
                 View.OnClickListener oc = new View.OnClickListener() {
@@ -172,14 +159,13 @@ public class ComicBrowserFragment extends ComicFragment {
         }
     }
 
-    private class ComicBrowserPagerAdapter extends PagerAdapter {
-        Context mContext;
-        LayoutInflater mLayoutInflater;
-        Boolean fingerLifted = true;
+    private class ComicBrowserPagerAdapter extends ComicAdapter {
+
+        private String[] urls;
+        private String[] titles;
 
         public ComicBrowserPagerAdapter(Context context) {
-            mContext = context;
-            mLayoutInflater = (LayoutInflater) mContext.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+            super(context);
         }
 
         @Override
@@ -188,41 +174,78 @@ public class ComicBrowserFragment extends ComicFragment {
         }
 
         @Override
-        public boolean isViewFromObject(View view, Object object) {
-            return view == object;
-        }
-
-        @Override
         public Object instantiateItem(final ViewGroup container, final int position) {
-            final View itemView = mLayoutInflater.inflate(R.layout.pager_item, container, false);
-            itemView.setTag(position);
+            View itemView = setupPager(container, position);
             final PhotoView pvComic = (PhotoView) itemView.findViewById(R.id.ivComic);
             final TextView tvAlt = (TextView) itemView.findViewById(R.id.tvAlt);
             final TextView tvTitle = (TextView) itemView.findViewById(R.id.tvTitle);
 
-            if (!prefHelper.defaultZoom()) {
-                pvComic.setScaleType(ImageView.ScaleType.CENTER_INSIDE);
-                pvComic.setMaximumScale(10f);
-            }
-
-
-            if (position == lastComicNumber - 1 && fromSearch) {
-                fromSearch = false;
-                ActivityTransition.with(getActivity().getIntent()).duration(300).to(tvTitle).to(pvComic).start(null);
-            }
-
-            if (prefHelper.altByDefault())
-                tvAlt.setVisibility(View.VISIBLE);
+            if (Arrays.binarySearch(mContext.getResources().getIntArray(R.array.large_comics), lastComicNumber) >= 0)
+                pvComic.setMaximumScale(7.0f);
 
             class loadComic extends AsyncTask<Void, Void, Void> {
                 private Comic comic;
+                private boolean largeComic;
+                private boolean loadedFromDatabase;
+
+                private void displayComic(String url, String title) {
+                    if (fromSearch && position == lastComicNumber-1) {
+                        fromSearch = false;
+                        ActivityTransition.with(getActivity().getIntent()).duration(300).to(pvComic).start(null);
+                    }
+                    Glide.with(getActivity())
+                            .load(url)
+                            .asBitmap()
+                            .diskCacheStrategy(DiskCacheStrategy.SOURCE)
+                            .listener(new RequestListener<String, Bitmap>() {
+                                @Override
+                                public boolean onException(Exception e, String model, Target<Bitmap> target, boolean isFirstResource) {
+                                    return false;
+                                }
+
+                                @Override
+                                public boolean onResourceReady(Bitmap resource, String model, Target<Bitmap> target, boolean isFromMemoryCache, boolean isFirstResource) {
+                                    if (position == lastComicNumber - 1) {
+                                        if (((MainActivity) getActivity()).getProgressDialog() != null)
+                                            ((MainActivity) getActivity()).getProgressDialog().dismiss();
+                                        animateToolbar();
+                                    }
+                                    return false;
+                                }
+                            })
+                            .into(pvComic);
+                    tvTitle.setText(title);
+                }
+
+                @Override
+                protected void onPreExecute() {
+                    largeComic = PreferenceManager.getDefaultSharedPreferences(getActivity()).getBoolean("pref_large", true) && Arrays.binarySearch(getResources().getIntArray(R.array.large_comics), position+1)>=0;
+                    if (!largeComic && prefHelper.databaseLoaded()) {
+                        if (urls == null) {
+                            urls = prefHelper.getComicUrls().split("&&");
+                            titles = prefHelper.getComicTitles().split("&&");
+                        }
+                        try {
+                            displayComic(urls[position], titles[position]);
+                            loadedFromDatabase = true;
+                        } catch (IndexOutOfBoundsException e) {
+                            Log.d("Database error", e.getMessage());
+                            loadedFromDatabase = false;
+                        }
+                    }
+
+                }
 
                 @Override
                 protected Void doInBackground(Void... dummy) {
-                    try {
-                        comic = new Comic(position + 1, getActivity());
-                    } catch (IOException e) {
-                        e.printStackTrace();
+                    comic = comicMap.get(position + 1);
+                    if (comic == null) {
+                        try {
+                            comic = new Comic(position + 1, getActivity());
+                        } catch (Exception e) {
+                            e.printStackTrace();
+                        }
+                        comicMap.put(position + 1, comic);
                     }
                     return null;
                 }
@@ -230,149 +253,20 @@ public class ComicBrowserFragment extends ComicFragment {
                 @Override
                 protected void onPostExecute(Void dummy) {
                     if (comic != null && getActivity() != null) {
+                        if (!loadedFromDatabase || largeComic)
+                            displayComic(comic.getComicData()[2], comic.getComicData()[0]);
                         tvAlt.setText(comic.getComicData()[1]);
-                        //Setup the title text view
-                        tvTitle.setText(comic.getComicData()[0]);
-                        Glide.with(getActivity())
-                                .load(comic.getComicData()[2])
-                                .asBitmap()
-                                .diskCacheStrategy(DiskCacheStrategy.SOURCE)
-                                .into(new SimpleTarget<Bitmap>() {
-                                    @Override
-                                    public void onResourceReady(Bitmap resource, GlideAnimation<? super Bitmap> glideAnimation) {
-                                        pvComic.setImageBitmap(resource);
-                                        if (position == lastComicNumber - 1) {
-                                            if (((MainActivity) getActivity()).getProgressDialog() != null)
-                                                ((MainActivity) getActivity()).getProgressDialog().dismiss();
-                                            Toolbar toolbar = ((MainActivity) getActivity()).getToolbar();
-                                            if (toolbar.getAlpha() == 0) {
-                                                toolbar.setTranslationY(-300);
-                                                toolbar.animate().setDuration(300).translationY(0).alpha(1);
-                                                View view;
-                                                for (int i = 0; i < toolbar.getChildCount(); i++) {
-                                                    view = toolbar.getChildAt(i);
-                                                    view.setTranslationY(-300);
-                                                    view.animate().setStartDelay(50 * (i + 1)).setDuration(70 * (i + 1)).translationY(0);
-                                                }
-                                            }
-                                        }
-                                        if (position == lastComicNumber + 2) {
-                                            switch (Integer.parseInt(prefHelper.getOrientation())) {
-                                                case 1:
-                                                    getActivity().setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_USER);
-                                                    break;
-                                                case 2:
-                                                    getActivity().setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
-                                                    break;
-                                                case 3:
-                                                    getActivity().setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE);
-                                                    break;
-                                            }
-                                        }
-                                        if (position == lastComicNumber + 2
-                                                | (position == lastComicNumber - 1 && lastComicNumber == newestComicNumber)
-                                                | (position == lastComicNumber && lastComicNumber == newestComicNumber - 1)
-                                                | (position == lastComicNumber + 1 && lastComicNumber == newestComicNumber - 2)) {
-                                            loadingImages = false;
-                                        }
 
-                                    }
-                                });
-                        comicMap.put(position + 1, comic);
+                        if (position == lastComicNumber + 1
+                                || (position == lastComicNumber - 1 && lastComicNumber == newestComicNumber)
+                                || (position == lastComicNumber && lastComicNumber == newestComicNumber - 1)) {
+                            loadingImages = false;
+                        }
                     }
                 }
             }
             new loadComic().execute();
-            //fix for issue #2
-            pvComic.setOnDoubleTapListener(new GestureDetector.OnDoubleTapListener() {
-                @Override
-                public boolean onDoubleTap(MotionEvent e) {
-                    if (pvComic.getScale() < 0.5f * pvComic.getMaximumScale()) {
-                        pvComic.setScale(0.5f * pvComic.getMaximumScale(), true);
-                    } else if (pvComic.getScale() < pvComic.getMaximumScale()) {
-                        pvComic.setScale(pvComic.getMaximumScale(), true);
-                    } else {
-                        pvComic.setScale(1.0f, true);
-                    }
-                    return true;
-                }
 
-                @Override
-                public boolean onSingleTapConfirmed(MotionEvent e) {
-                    if (lastComicNumber - 1 + position == 1572) {
-                        String url = "https://docs.google.com/forms/d/1e8htNa3bn5OZIgv83dodjZAHcQ424pgQPcFqWz2xSG4/viewform?c=0&w=1";
-                        Intent intent = new Intent(Intent.ACTION_VIEW);
-                        intent.setData(Uri.parse(url));
-                        startActivity(intent);
-                    }
-                    if (!prefHelper.altLongTap()) {
-                        if (prefHelper.classicAltStyle()) {
-                            toggleVisibility(tvAlt);
-                        } else {
-                            android.support.v7.app.AlertDialog.Builder mDialog = new android.support.v7.app.AlertDialog.Builder(getActivity());
-                            mDialog.setMessage(tvAlt.getText());
-                            mDialog.show();
-                        }
-                    }
-                    return false;
-                }
-
-                @Override
-                public boolean onDoubleTapEvent(MotionEvent e) {
-                    if (e.getAction() == MotionEvent.ACTION_UP) {
-                        fingerLifted = true;
-                    }
-                    if (e.getAction() == MotionEvent.ACTION_DOWN) {
-                        fingerLifted = false;
-                    }
-                    return false;
-                }
-            });
-            //Setup alt text and LongClickListener
-            pvComic.setOnLongClickListener(new View.OnLongClickListener() {
-                @Override
-                public boolean onLongClick(View v) {
-                    if (fingerLifted && prefHelper.altLongTap()) {
-                        if (prefHelper.altVibration()) {
-                            Vibrator vi = (Vibrator) getActivity().getSystemService(MainActivity.VIBRATOR_SERVICE);
-                            vi.vibrate(10);
-                        }
-                        if (prefHelper.classicAltStyle()) {
-                            toggleVisibility(tvAlt);
-                        } else {
-                            android.support.v7.app.AlertDialog.Builder mDialog = new android.support.v7.app.AlertDialog.Builder(getActivity());
-                            mDialog.setMessage(tvAlt.getText());
-                            mDialog.show();
-                        }
-                    }
-                    return true;
-                }
-            });
-            if (prefHelper.invertColors()) {
-                float[] colorMatrix_Negative = {
-                        -1.0f, 0, 0, 0, 255, //red
-                        0, -1.0f, 0, 0, 255, //green
-                        0, 0, -1.0f, 0, 255, //blue
-                        0, 0, 0, 1.0f, 0 //alpha
-                };
-                ColorFilter cf = new ColorMatrixColorFilter(colorMatrix_Negative);
-                pvComic.setColorFilter(cf);
-            }
-            if (Arrays.binarySearch(mContext.getResources().getIntArray(R.array.large_comics), lastComicNumber) >= 0) {
-                pvComic.setMaximumScale(7.0f);
-            }
-            //Disable ViewPager scrolling when the user zooms into an image
-            if (prefHelper.scrollDisabledWhileZoom() && prefHelper.defaultZoom())
-                pvComic.setOnMatrixChangeListener(new PhotoViewAttacher.OnMatrixChangedListener() {
-                    @Override
-                    public void onMatrixChanged(RectF rectF) {
-                        if (pvComic.getScale() > 1.4) {
-                            mPager.setLocked(true);
-                        } else {
-                            mPager.setLocked(false);
-                        }
-                    }
-                });
             container.addView(itemView);
             return itemView;
         }
@@ -380,7 +274,9 @@ public class ComicBrowserFragment extends ComicFragment {
         @Override
         public void destroyItem(ViewGroup container, int position, Object object) {
             container.removeView((RelativeLayout) object);
+            Glide.clear(((RelativeLayout) object).findViewById(R.id.ivComic));
         }
+
     }
 
     @Override
@@ -390,10 +286,8 @@ public class ComicBrowserFragment extends ComicFragment {
                 return ModifyFavorites(item);
             case R.id.action_share:
                 return shareComic();
-
             case R.id.action_latest:
                 return getLatestComic();
-
             case R.id.action_random:
                 return getRandomComic();
         }
@@ -423,6 +317,10 @@ public class ComicBrowserFragment extends ComicFragment {
             new DeleteComicImageTask().execute(true);
             item.setIcon(R.drawable.ic_favorite_outline);
         } else {
+            if (!(ContextCompat.checkSelfPermission(getActivity(), Manifest.permission.WRITE_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED)) {
+                ActivityCompat.requestPermissions(getActivity(), new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE}, 2);
+                return true;
+            }
             new SaveComicImageTask().execute(true);
             item.setIcon(R.drawable.ic_action_favorite);
         }
@@ -446,7 +344,7 @@ public class ComicBrowserFragment extends ComicFragment {
     @Override
     public void getPreviousRandom() {
         if (prefHelper.isOnline(getActivity()) && newestComicNumber != 0)
-            super.getRandomComic();
+            super.getPreviousRandom();
         else
             Toast.makeText(getActivity(), R.string.no_connection, Toast.LENGTH_SHORT).show();
     }
@@ -457,7 +355,7 @@ public class ComicBrowserFragment extends ComicFragment {
 
     protected boolean shareComic() {
         if (prefHelper.shareImage()) {
-            shareComicImage(null);
+            shareComicImage();
             return true;
         }
         AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
@@ -466,10 +364,10 @@ public class ComicBrowserFragment extends ComicFragment {
             public void onClick(DialogInterface dialog, int which) {
                 switch (which) {
                     case 0:
-                        shareComicImage(null);
+                        shareComicImage();
                         break;
                     case 1:
-                        shareComicUrl();
+                        shareComicUrl(comicMap.get(lastComicNumber));
                         break;
                 }
             }
@@ -479,8 +377,7 @@ public class ComicBrowserFragment extends ComicFragment {
         return true;
     }
 
-    @Override
-    public void shareComicImage(Uri uri) {
+    public void shareComicImage() {
         if (!(ContextCompat.checkSelfPermission(getActivity(), Manifest.permission.WRITE_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED)) {
             ActivityCompat.requestPermissions(getActivity(), new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE}, 1);
             return;
@@ -493,8 +390,7 @@ public class ComicBrowserFragment extends ComicFragment {
         protected Bitmap doInBackground(String... params) {
             String url = params[0];
             try {
-                return Glide
-                        .with(getActivity())
+                return Glide.with(getActivity())
                         .load(url)
                         .asBitmap()
                         .diskCacheStrategy(DiskCacheStrategy.SOURCE)
@@ -521,7 +417,7 @@ public class ComicBrowserFragment extends ComicFragment {
                 result.compress(Bitmap.CompressFormat.PNG, 100, stream);
                 stream.close();
                 Uri uri = Uri.fromFile(file);
-                ComicBrowserFragment.super.shareComicImage(uri);
+                ComicBrowserFragment.super.shareComicImage(uri, comicMap.get(lastComicNumber));
             } catch (IOException e) {
                 e.printStackTrace();
             }

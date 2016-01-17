@@ -207,6 +207,7 @@
         <item>1416</item>
         <item>1506</item>
         <item>1525</item>
+        <item>1572</item>
         <item>1608</item>
     </integer-array>
 
@@ -337,6 +338,8 @@
     <string name="action_overview">Comic Overview</string>
     <string name="pref_zoom_scroll">Disable scrolling while zoomed into comic image</string>
     <string name="not_restart">Done. Tap to restart the app.</string>
+    <string name="pref_overview_default">Launch to Overview Mode</string>
+    <string name="pref_overview_default_sum">When launching the app, show Overview Mode by default</string>
 
     <string name="dialog_donate">How much would you like to donate?</string>
     <string name="update_database">Updating database&#8230;</string>

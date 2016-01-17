@@ -146,7 +146,7 @@ public class NestedPreferenceFragment extends PreferenceFragment {
                         return true;
                     }
                 });
-                findPreference(ORIENTATION).setOnPreferenceChangeListener(new Preference.OnPreferenceChangeListener() {
+                /*findPreference(ORIENTATION).setOnPreferenceChangeListener(new Preference.OnPreferenceChangeListener() {
                     @Override
                     public boolean onPreferenceChange(Preference preference, Object newValue) {
                         switch (Integer.parseInt(prefHelper.getOrientation())) {
@@ -162,7 +162,7 @@ public class NestedPreferenceFragment extends PreferenceFragment {
                         }
                         return true;
                     }
-                });
+                });*/
                 findPreference(FULL_OFFLINE).setOnPreferenceChangeListener(new Preference.OnPreferenceChangeListener() {
                     @Override
                     public boolean onPreferenceChange(Preference preference, Object newValue) {
@@ -449,104 +449,6 @@ public class NestedPreferenceFragment extends PreferenceFragment {
         }
     }
 
-    /*public class downloadComicsTask extends AsyncTask<Void, Integer, Void> {
-        private ProgressDialog progress;
-
-        @Override
-        protected void onPreExecute() {
-            progress = new ProgressDialog(getActivity());
-            progress.setTitle(getResources().getString(R.string.loading_offline));
-            progress.setMessage(getResources().getString(R.string.loading_offline_message));
-            progress.setIndeterminate(false);
-            progress.setProgressStyle(ProgressDialog.STYLE_HORIZONTAL);
-            progress.setCancelable(false);
-            progress.show();
-        }
-
-        @Override
-        protected Void doInBackground(Void... params) {
-            for (int i = 1; i <= prefHelper.getNewest(); i++) {
-                Log.d("i", String.valueOf(i));
-                try {
-                    Comic comic = new Comic(i, getActivity());
-                    String url = comic.getComicData()[2];
-                    Bitmap mBitmap = Glide.with(getActivity())
-                            .load(url)
-                            .asBitmap()
-                            .into(-1, -1)
-                            .get();
-                    try {
-                        File sdCard = prefHelper.getOfflinePath();
-                        File dir = new File(sdCard.getAbsolutePath() + OFFLINE_PATH);
-                        dir.mkdirs();
-                        File file = new File(dir, String.valueOf(i) + ".png");
-                        FileOutputStream fos = new FileOutputStream(file);
-                        mBitmap.compress(Bitmap.CompressFormat.PNG, 100, fos);
-                        fos.flush();
-                        fos.close();
-                    } catch (Exception e) {
-                        Log.e("Error", "Saving to external storage failed");
-                        try {
-                            FileOutputStream fos = getActivity().openFileOutput(String.valueOf(i), Context.MODE_PRIVATE);
-                            mBitmap.compress(Bitmap.CompressFormat.PNG, 100, fos);
-                            fos.close();
-                        } catch (Exception e2) {
-                            e2.printStackTrace();
-                        }
-                    }
-
-                    prefHelper.addTitle(comic.getComicData()[0], i);
-                    prefHelper.addAlt(comic.getComicData()[1], i);
-                    int p = (int) (i / ((float) prefHelper.getNewest()) * 100);
-                    publishProgress(p);
-                } catch (Exception e) {
-                    e.printStackTrace();
-                }
-            }
-            prefHelper.setHighestOffline(prefHelper.getNewest());
-            return null;
-        }
-
-        protected void onProgressUpdate(Integer... pro) {
-            progress.setProgress(pro[0]);
-            switch (pro[0]) {
-                case 2:
-                    progress.setMessage(getResources().getString(R.string.loading_offline_2));
-                    break;
-                case 20:
-                    progress.setMessage(getResources().getString(R.string.loading_offline_20));
-                    break;
-                case 50:
-                    progress.setMessage(getResources().getString(R.string.loading_offline_50));
-                    break;
-                case 80:
-                    progress.setMessage(getResources().getString(R.string.loading_offline_80));
-                    break;
-                case 95:
-                    progress.setMessage(getResources().getString(R.string.loading_offline_95));
-                    new Handler().postDelayed(new Runnable() {
-                        @Override
-                        public void run() {
-                            progress.setMessage(getResources().getString(R.string.loading_offline_96));
-                        }
-                    }, 1000);
-                    break;
-                case 97:
-                    progress.setMessage(getResources().getString(R.string.loading_offline_97));
-                    break;
-            }
-        }
-
-        @Override
-        protected void onPostExecute(Void dummy) {
-            progress.dismiss();
-            MainActivity.getInstance().finish();
-            SettingsActivity.getInstance().finish();
-            getActivity().finish();
-            startActivity(MainActivity.getInstance().getIntent());
-        }
-    }*/
-
     public class deleteComicsTask extends AsyncTask<Void, Integer, Void> {
         private ProgressDialog progress;
 
@@ -582,7 +484,7 @@ public class NestedPreferenceFragment extends PreferenceFragment {
                 prefHelper.deleteTitleAndAlt(newest, getActivity());
             }
             prefHelper.setHighestOffline(0);
-
+            prefHelper.setFullOffline(false);
             return null;
         }
 
@@ -599,129 +501,6 @@ public class NestedPreferenceFragment extends PreferenceFragment {
             startActivity(MainActivity.getInstance().getIntent());
         }
     }
-
-    /*public class downloadArticlesTask extends AsyncTask<Void, Integer, Void> {
-        private ProgressDialog progress;
-        private Document doc;
-
-        @Override
-        protected void onPreExecute() {
-            progress = new ProgressDialog(getActivity());
-            progress.setTitle(getResources().getString(R.string.loading_articles));
-            progress.setMessage(getResources().getString(R.string.loading_offline_message));
-            progress.setIndeterminate(false);
-            progress.setProgressStyle(ProgressDialog.STYLE_HORIZONTAL);
-            progress.setCancelable(false);
-            progress.show();
-        }
-
-        @Override
-        protected Void doInBackground(Void... params) {
-            Bitmap mBitmap;
-            File sdCard = prefHelper.getOfflinePath();
-            File dir;
-            //download overview
-            try {
-                doc = Jsoup.connect("https://what-if.xkcd.com/archive/")
-                        .userAgent("Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/32.0.1700.19 Safari/537.36")
-                        .get();
-                StringBuilder sb = new StringBuilder();
-                Elements titles = doc.select("h1");
-                prefHelper.setNewestWhatif(titles.size());
-
-                sb.append(titles.first().text());
-                titles.remove(0);
-                for (Element title : titles) {
-                    sb.append("&&");
-                    sb.append(title.text());
-                }
-                prefHelper.setWhatIfTitles(sb.toString());
-
-                Elements img = doc.select("img.archive-image");
-                int count = 1;
-                for (Element image : img) {
-                    String url = image.absUrl("src");
-                    try {
-                        mBitmap = Glide.with(getActivity())
-                                .load(url)
-                                .asBitmap()
-                                .into(-1, -1)
-                                .get();
-                        dir = new File(sdCard.getAbsolutePath() + OFFLINE_WHATIF_OVERVIEW_PATH);
-                        dir.mkdirs();
-                        File file = new File(dir, String.valueOf(count) + ".png");
-                        FileOutputStream fos = new FileOutputStream(file);
-                        mBitmap.compress(Bitmap.CompressFormat.PNG, 100, fos);
-                        fos.flush();
-                        fos.close();
-                    } catch (Exception e) {
-                        e.printStackTrace();
-                    }
-                    Log.d("count", String.valueOf(count));
-                    int p = (int) (count / ((float) img.size()) * 100);
-                    publishProgress(p);
-                    count++;
-                }
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-
-            //download html
-            for (int i = 1; i <= prefHelper.getNewestWhatIf(); i++) {
-                int size = prefHelper.getNewestWhatIf();
-                try {
-                    doc = Jsoup.connect("https://what-if.xkcd.com/" + String.valueOf(i)).get();
-                    dir = new File(sdCard.getAbsolutePath() + OFFLINE_WHATIF_PATH + String.valueOf(i));
-                    dir.mkdirs();
-                    File file = new File(dir, String.valueOf(i) + ".html");
-                    BufferedWriter writer = new BufferedWriter(new FileWriter(file));
-                    writer.write(doc.outerHtml());
-                    writer.close();
-                    //download images
-                    int count = 1;
-                    for (Element e : doc.select(".illustration")) {
-                        try {
-                            String url = "http://what-if.xkcd.com" + e.attr("src");
-                            mBitmap = Glide.with(getActivity())
-                                    .load(url)
-                                    .asBitmap()
-                                    .into(-1, -1)
-                                    .get();
-                            dir = new File(sdCard.getAbsolutePath() + OFFLINE_WHATIF_PATH + String.valueOf(i));
-                            dir.mkdirs();
-                            file = new File(dir, String.valueOf(count) + ".png");
-                            FileOutputStream fos = new FileOutputStream(file);
-                            mBitmap.compress(Bitmap.CompressFormat.PNG, 100, fos);
-                            fos.flush();
-                            fos.close();
-                            count++;
-                        } catch (Exception e2) {
-                            e2.printStackTrace();
-                        }
-                    }
-                    int p = (int) (i / ((float) size) * 100);
-                    publishProgress(p);
-                } catch (Exception e) {
-                    e.printStackTrace();
-                }
-            }
-
-            return null;
-        }
-
-        protected void onProgressUpdate(Integer... pro) {
-            progress.setProgress(pro[0]);
-        }
-
-        @Override
-        protected void onPostExecute(Void dummy) {
-            progress.dismiss();
-            MainActivity.getInstance().finish();
-            SettingsActivity.getInstance().finish();
-            getActivity().finish();
-            startActivity(MainActivity.getInstance().getIntent());
-        }
-    }*/
 
     public class deleteArticlesTask extends AsyncTask<Void, Void, Void> {
         private ProgressDialog progress;
@@ -749,6 +528,7 @@ public class NestedPreferenceFragment extends PreferenceFragment {
         @Override
         protected void onPostExecute(Void dummy) {
             progress.dismiss();
+            prefHelper.setFullOfflineWhatIf(false);
             MainActivity.getInstance().finish();
             SettingsActivity.getInstance().finish();
             getActivity().finish();
