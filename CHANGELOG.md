@@ -1,3 +1,7 @@
+## 4.0.1
+
+- Fixed crashes in 4.0
+
 ## 4.0
 
 - Comics load noticeably faster in Online Mode

@@ -186,6 +186,7 @@ public class ComicBrowserFragment extends ComicFragment {
             class loadComic extends AsyncTask<Void, Void, Void> {
                 private Comic comic;
                 private boolean largeComic;
+                private boolean loadedFromDatabase;
 
                 private void displayComic(String url, String title) {
                     if (fromSearch && position == lastComicNumber-1) {
@@ -224,7 +225,13 @@ public class ComicBrowserFragment extends ComicFragment {
                             urls = prefHelper.getComicUrls().split("&&");
                             titles = prefHelper.getComicTitles().split("&&");
                         }
-                        displayComic(urls[position], titles[position]);
+                        try {
+                            displayComic(urls[position], titles[position]);
+                            loadedFromDatabase = true;
+                        } catch (IndexOutOfBoundsException e) {
+                            Log.d("Database error", e.getMessage());
+                            loadedFromDatabase = false;
+                        }
                     }
 
                 }
@@ -246,7 +253,7 @@ public class ComicBrowserFragment extends ComicFragment {
                 @Override
                 protected void onPostExecute(Void dummy) {
                     if (comic != null && getActivity() != null) {
-                        if (!prefHelper.databaseLoaded() || largeComic)
+                        if (!loadedFromDatabase || largeComic)
                             displayComic(comic.getComicData()[2], comic.getComicData()[0]);
                         tvAlt.setText(comic.getComicData()[1]);
 
