@@ -41,6 +41,7 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.util.Arrays;
 
 import de.tap.easy_xkcd.Activities.MainActivity;
 import de.tap.easy_xkcd.utils.Comic;
@@ -49,8 +50,9 @@ import de.tap.easy_xkcd.utils.PrefHelper;
 import xyz.danoz.recyclerviewfastscroller.vertical.VerticalRecyclerViewFastScroller;
 
 public class OverviewListFragment extends android.support.v4.app.Fragment {
-    private static String[] titles;
-    private static String[] urls;
+    private String[] titles;
+    private String[] urls;
+    private int[] read;
     private ListAdapter listAdapter;
     private RVAdapter rvAdapter;
     private ListView list;
@@ -244,7 +246,7 @@ public class OverviewListFragment extends android.support.v4.app.Fragment {
                 label = n + ": " + prefHelper.getTitle(n);
             } else {
                 label = String.valueOf(getCount() - position) + " " + titles[getCount() - position - 1];
-                if (prefHelper.checkComicRead(getCount() - position)) {
+                if (checkComicRead(getCount() - position)) {
                     if (prefHelper.nightThemeEnabled())
                         holder.textView.setTextColor(ContextCompat.getColor(getActivity(), android.R.color.tertiary_text_light));
                     else
@@ -298,7 +300,7 @@ public class OverviewListFragment extends android.support.v4.app.Fragment {
                 title = prefHelper.getTitle(number);
             } else {
                 title = titles[getItemCount() - i - 1];
-                if (prefHelper.checkComicRead(getItemCount() - i)) {
+                if (checkComicRead(getItemCount() - i)) {
                     if (prefHelper.nightThemeEnabled())
                         comicViewHolder.comicTitle.setTextColor(ContextCompat.getColor(getActivity(), android.R.color.tertiary_text_light));
                     else
@@ -378,6 +380,10 @@ public class OverviewListFragment extends android.support.v4.app.Fragment {
                 thumbnail = (ImageView) itemView.findViewById(R.id.thumbnail);
             }
         }
+    }
+
+    private boolean checkComicRead(int number) {
+        return Arrays.binarySearch(read, number) >= 0;
     }
 
     class CustomOnClickListener implements View.OnClickListener {
@@ -506,6 +512,7 @@ public class OverviewListFragment extends android.support.v4.app.Fragment {
     public void notifyAdapter(int pos) {
         if (prefHelper == null)
             return;
+        read = prefHelper.getComicRead();
         switch (prefHelper.getOverviewStyle()) {
             case 0:
                 listAdapter.notifyDataSetChanged();
@@ -636,6 +643,7 @@ public class OverviewListFragment extends android.support.v4.app.Fragment {
         protected void onPostExecute(Void dummy) {
             titles = prefHelper.getComicTitles().split("&&");
             urls = prefHelper.getComicUrls().split("&&");
+            read = prefHelper.getComicRead();
             progress.dismiss();
             ComicFragment comicFragment = (ComicFragment) getActivity().getSupportFragmentManager().findFragmentByTag(BROWSER_TAG);
             switch (prefHelper.getOverviewStyle()) {

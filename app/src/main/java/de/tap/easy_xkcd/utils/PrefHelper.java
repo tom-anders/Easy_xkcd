@@ -388,18 +388,14 @@ public class PrefHelper {
         editor.apply();
     }
 
-    public boolean checkComicRead(int number) {
+    public int[] getComicRead() {
         String read = sharedPrefs.getString(COMIC_READ, "");
-        if (read.equals("")) {
-            return false;
-        }
         String[] readList = Favorites.sortArray(read.split(","));
         int[] readInt = new int[readList.length];
         for (int i = 0; i < readInt.length; i++) {
             readInt[i] = Integer.parseInt(readList[i]);
         }
-        int a = Arrays.binarySearch(readInt, number);
-        return (a >= 0);
+        return readInt;
     }
 
     public void setWhatIfFavorite(String added) {
