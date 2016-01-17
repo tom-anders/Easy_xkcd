@@ -32,7 +32,7 @@ import java.util.Arrays;
 public class Comic {
     private String[] mComicData;
     private String mJsonUrl;
-    private int mComicNumber;
+    protected int mComicNumber;
     private JSONObject json;
 
     public Comic(Integer number, Context context) throws IOException {

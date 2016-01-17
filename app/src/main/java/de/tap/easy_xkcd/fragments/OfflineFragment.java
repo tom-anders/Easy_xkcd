@@ -192,11 +192,11 @@ public class OfflineFragment extends ComicFragment {
 
             tvTitle.setText(comicMap.get(position + 1).getComicData()[0]);
             tvAlt.setText(comicMap.get(position + 1).getComicData()[1]);
-            pvComic.setImageBitmap(((OfflineComic) comicMap.get(position + 1)).getBitmap());
             if (fromSearch) {
                 fromSearch = false;
                 ActivityTransition.with(getActivity().getIntent()).duration(300).to(pvComic).start(null);
             }
+            pvComic.setImageBitmap(((OfflineComic) comicMap.get(position + 1)).getBitmap());
 
             if (randomSelected && position == lastComicNumber - 1) {
                 Animation animation = AnimationUtils.loadAnimation(getActivity().getApplicationContext(), android.R.anim.fade_in);
@@ -252,7 +252,7 @@ public class OfflineFragment extends ComicFragment {
 
     protected boolean shareComic() {
         if (prefHelper.shareImage()) {
-            shareComicImage(getURI(), comicMap.get(lastComicNumber));
+            shareComicImage(getURI(lastComicNumber), comicMap.get(lastComicNumber));
             return true;
         }
         AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
@@ -261,7 +261,7 @@ public class OfflineFragment extends ComicFragment {
             public void onClick(DialogInterface dialog, int which) {
                 switch (which) {
                     case 0:
-                        shareComicImage(getURI(), comicMap.get(lastComicNumber));
+                        shareComicImage(getURI(lastComicNumber), comicMap.get(lastComicNumber));
                         break;
                     case 1:
                         shareComicUrl(comicMap.get(lastComicNumber));

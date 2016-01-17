@@ -600,11 +600,7 @@ public class MainActivity extends AppCompatActivity {
         android.support.v4.app.FragmentManager fragmentManager = getSupportFragmentManager();
 
         if (fragmentManager.findFragmentByTag(OVERVIEW_TAG) != null) {
-            int pos;
-            if (!fullOffline)
-                pos = ((ComicBrowserFragment) fragmentManager.findFragmentByTag(BROWSER_TAG)).lastComicNumber;
-            else
-                pos = ((OfflineFragment) fragmentManager.findFragmentByTag(BROWSER_TAG)).lastComicNumber;
+            int pos = ((ComicFragment) fragmentManager.findFragmentByTag(BROWSER_TAG)).lastComicNumber;
             ((OverviewListFragment) fragmentManager.findFragmentByTag(OVERVIEW_TAG)).notifyAdapter(pos);
         }
 

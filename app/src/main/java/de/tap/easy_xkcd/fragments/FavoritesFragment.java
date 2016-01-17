@@ -27,6 +27,7 @@ import android.os.Bundle;
 import android.support.design.widget.Snackbar;
 import android.support.v4.view.ViewPager;
 import android.support.v7.widget.Toolbar;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -259,7 +260,7 @@ public class FavoritesFragment extends ComicFragment {
 
     public boolean shareComic(boolean fromPermission) {
         if (fromPermission || prefHelper.shareImage()) {
-            shareComicImage(getURI(), comicMap.get(favoriteIndex));
+            shareComicImage(getURI(comicMap.get(favoriteIndex).getComicNumber()), comicMap.get(favoriteIndex));
             return true;
         }
 
@@ -269,7 +270,7 @@ public class FavoritesFragment extends ComicFragment {
             public void onClick(DialogInterface dialog, int which) {
                 switch (which) {
                     case 0:
-                        shareComicImage(getURI(), comicMap.get(favoriteIndex));
+                        shareComicImage(getURI(comicMap.get(favoriteIndex).getComicNumber()), comicMap.get(favoriteIndex));
                         break;
                     case 1:
                         shareComicUrl(comicMap.get(favoriteIndex));

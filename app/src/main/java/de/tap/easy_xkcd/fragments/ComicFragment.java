@@ -396,10 +396,10 @@ public abstract class ComicFragment extends android.support.v4.app.Fragment {
         startActivity(Intent.createChooser(share, this.getResources().getString(R.string.share_image)));
     }
 
-    protected Uri getURI() {
+    protected Uri getURI(int number) {
         File sdCard = prefHelper.getOfflinePath();
         File dir = new File(sdCard.getAbsolutePath() + "/easy xkcd");
-        File path = new File(dir, String.valueOf(lastComicNumber) + ".png");
+        File path = new File(dir, String.valueOf(number) + ".png");
         return Uri.fromFile(path);
     }
 

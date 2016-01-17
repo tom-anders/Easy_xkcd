@@ -225,7 +225,6 @@ public class ComicBrowserFragment extends ComicFragment {
                             titles = prefHelper.getComicTitles().split("&&");
                         }
                         displayComic(urls[position], titles[position]);
-                        Log.d("info", "loading from database");
                     }
 
                 }
