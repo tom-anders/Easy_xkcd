@@ -209,6 +209,8 @@
     <string name="pref_zoom_sum">Kann Layout Probleme bei manchen Geräten beseitigen</string>
     <string name="pref_repair">Offline Comics reparieren</string>
     <string name="pref_repair_sum">Wenn du einige leere Comics siehst, benutze diese Option um sie neu herunterzuladen</string>
+    <string name="pref_export">Export Favoriten</string>
+    <string name="pref_export_sum">Exportieren Sie Ihre Favoriten-Liste als Text</string>
     <string name="action_donate">Spenden</string>
     <string name="dialog_donate">Wie viel möchtest du spenden?</string>
     <string name="pref_hide_donate">Spenden Button verstecken</string>
