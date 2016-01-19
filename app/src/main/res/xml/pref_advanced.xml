@@ -28,6 +28,12 @@
         android:summary="@string/pref_update_mobile_sum" />
 
     <Preference
+        android:key="pref_export"
+        android:title="@string/pref_export"
+        android:summary="@string/pref_export_sum"
+        />
+
+    <Preference
         android:key="pref_offline_path"
         android:persistent="false"
         android:title="@string/pref_offline_path"

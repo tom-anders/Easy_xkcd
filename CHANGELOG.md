@@ -1,3 +1,5 @@
+- Added ability to export Favorites list as text (in Advanced settings)
+
 ## 4.0.1
 
 - Fixed crashes in 4.0

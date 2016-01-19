@@ -10,6 +10,7 @@ A beautiful, fast, and easy to use [xkcd](http://xkcd.com/) reader for Android.
 * Notifications
 * Share comic url or image
 * Save a list of favorites
+* Export favorites list as text
 * Open links from xkcd.com and m.xkcd.com
 * Integration of [explain xkcd](http://www.explainxkcd.com) 
 * Night mode
