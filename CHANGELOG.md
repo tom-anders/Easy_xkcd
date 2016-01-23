@@ -1,4 +1,7 @@
+## 4.0.2
+
 - Added ability to export Favorites list as text (in Advanced settings)
+- Added latest What-if thumbnail
 
 ## 4.0.1
 
