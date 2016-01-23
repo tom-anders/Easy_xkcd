@@ -67,6 +67,7 @@ public class NestedPreferenceFragment extends PreferenceFragment {
     private static final String AUTO_NIGHT_END = "pref_auto_night_end";
     private static final String REPAIR = "pref_repair";
     private static final String MOBILE_ENABLED = "pref_update_mobile";
+	private static final String EXPORT = "pref_export";
     private static final String FAB_OPTIONS = "pref_random";
     private static final String OFFLINE_PATH_PREF = "pref_offline_path";
 
@@ -327,6 +328,27 @@ public class NestedPreferenceFragment extends PreferenceFragment {
                         } else {
                             Toast.makeText(getActivity(), R.string.no_connection, Toast.LENGTH_SHORT).show();
                         }
+                        return true;
+                    }
+                });
+                findPreference(EXPORT).setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
+                    @Override
+                    public boolean onPreferenceClick(Preference preference) {
+                        //Export the full favorites list as text                        
+                        String[] fav = Favorites.getFavoriteList(MainActivity.getInstance());
+                        StringBuilder sb = new StringBuilder();
+                        String newline = System.getProperty("line.separator");
+                        for (int i = 0; i < fav.length; i++) {
+                            sb.append(fav[i]).append(" - ");
+                            sb.append(prefHelper.getTitle(Integer.parseInt(fav[i])));
+                            sb.append(newline); 
+                        }
+                        //Provide option to send to any app that accepts text/plain content
+                        Intent sendIntent = new Intent(Intent.ACTION_SEND);
+                        sendIntent.putExtra(Intent.EXTRA_TEXT, sb.toString());
+                        sendIntent.setType("text/plain");
+                        //Always ask the user which app to send to, even if they've set a device default
+                        startActivity(Intent.createChooser(sendIntent, getResources().getString(R.string.pref_export)));
                         return true;
                     }
                 });

@@ -1,3 +1,4 @@
+<?xml version="1.0"?>
 <!--
   ~ Copyright 2015, Tom Praschan
   ~
@@ -45,7 +46,7 @@
     <string name="loading_offline_whatif">Stahování článků…</string>
     <string name="loading_offline_message">Nechat aplikaci otevřenou!</string>
     <string name="loading_offline_2">Chvilku to zabere, voraz si…</string>
-    <string name="loading_offline_20">Radši si skoč pro kafe nebo tak něco&#8230;</string>
+    <string name="loading_offline_20">Radši si skoč pro kafe nebo tak něco…</string>
     <string name="loading_offline_50">Už zbývá jen polovina!</string>
     <string name="loading_offline_80">Skoro hotovo…</string>
     <string name="loading_offline_95">Došlo k chybě! Zkusit znovu</string>
@@ -66,6 +67,7 @@
     <string name="action_unread">Označit vše jako nepřečtené</string>
     <string name="action_hide_read">Skrýt přečtené články</string>
     <string name="action_favorite">Přidat k oblíbeným</string>
+    <string name="action_favorite_remove">Odstranit z oblíbených</string>
     <string name="action_latest">Nejnovější komix</string>
     <string name="action_share">Sdílet komix</string>
     <string name="action_share_article">Sdílet článek</string>
@@ -88,6 +90,12 @@
     <string name="new_comic_view">Zobrazit</string>
     <string name="new_whatif">Nové What If!</string>
     <string name="apply_theme">Restartovat a použít nový vzhled?</string>
+
+    <string name="add_bookmark">Přidat záložku</string>
+    <string name="open_bookmark">Přejít na záložku</string>
+    <string name="bookmark_toast">Ke své záložce se můžete vrátit i z módu náhledu. Bude také zvýrazněna v seznamu komixů</string>
+    <string name="bookmark_toast_2">Záložka přidána</string>
+    <string name="no_bookmark">Zatím nebyla přidána žádná záložka! Můžete ji přidat z prohlížeče komixů nebo dlouhým označením komixu v tomto seznamu</string>
 
     <string-array name="share_dialog">
         <item>Sdílet obrázek</item>
@@ -193,6 +201,8 @@
     <string name="pref_advanced">Rozšířené</string>
     <string name="pref_repair">Opravit offline komixy</string>
     <string name="pref_repair_sum">Pokud vidíte prázdné komixy, tato možnost je napraví novým stažením</string>
+    <string name="pref_export">Exportovat oblíbené</string>
+    <string name="pref_export_sum">Exportovat seznam oblíbených jako text</string>
     <string name="pref_hide_donate">Skrýt tlačítko pro darování</string>
     <string name="title_activity_donate">Podpořit</string>
     <string name="pref_alt_title">Alternativní text</string>
@@ -218,6 +228,8 @@
     <string name="action_overview">Přehled komixů</string>
     <string name="pref_zoom_scroll">Vypnout posun při přihlížení zvětšených obrázků komixu</string>
     <string name="not_restart">Hotovo. Dotykem restartovat aplikaci.</string>
+    <string name="pref_overview_default">Spustit mód Náhledu</string>
+    <string name="pref_overview_default_sum">Při spuštění aplikace zobrazit jako výchozí mód Náhledu</string>
 
     <string name="dialog_donate">Kolik chcete přispět?</string>
     <string name="update_database">Aktualizace databáze…</string>
@@ -251,13 +263,5 @@
         <item>Krátký dotyk</item>
         <item>Dlouhý dotyk</item>
     </string-array>
-    <string name="action_favorite_remove">Remove from Favorites</string>
-    <string name="open_bookmark">Go to bookmark</string>
-    <string name="add_bookmark">Add bookmark</string>
-    <string name="bookmark_toast">You can return to your bookmark from overview mode. It will also be highlighted in the list</string>
-    <string name="no_bookmark">You didn\'t add a bookmark yet! You can add one in the Comic Browser or by long pressing a comic in this list</string>
-    <string name="bookmark_toast_2">Bookmark added</string>
-    <string name="pref_overview_default">Launch to Overview Mode</string>
-    <string name="pref_overview_default_sum">When launching the app, show Overview Mode by default</string>
 
 </resources>
