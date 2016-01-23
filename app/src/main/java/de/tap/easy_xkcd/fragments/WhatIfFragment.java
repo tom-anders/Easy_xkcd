@@ -330,25 +330,29 @@ public class WhatIfFragment extends android.support.v4.app.Fragment {
                     comicViewHolder.articleTitle.setTextColor(ContextCompat.getColor(getActivity(), android.R.color.tertiary_text_light));
             }
 
-
-            if (titles.get(i).equals("Jupiter Descending")) {
-                comicViewHolder.thumbnail.setImageDrawable(ContextCompat.getDrawable(getActivity(), R.mipmap.jupiter_descending));
-                return;
+            int id = 0;
+            switch (titles.get(i)) {
+                case "Jupiter Descending":
+                    id = R.mipmap.jupiter_descending;
+                    break;
+                case "Jupiter Submarine":
+                    id= R.mipmap.jupiter_submarine;
+                    break;
+                case "New Horizons":
+                    id=  R.mipmap.new_horizons;
+                    break;
+                case "Proton Earth, Electron Moon":
+                    id =  R.mipmap.proton_earth;
+                    break;
+                case "Sunbeam":
+                    id = R.mipmap.sun_beam;
+                    break;
+                case "Space Jetta":
+                    id = R.mipmap.jetta;
+                    break;
             }
-            if (titles.get(i).equals("Jupiter Submarine")) {
-                comicViewHolder.thumbnail.setImageDrawable(ContextCompat.getDrawable(getActivity(), R.mipmap.jupiter_submarine));
-                return;
-            }
-            if (titles.get(i).equals("New Horizons")) {
-                comicViewHolder.thumbnail.setImageDrawable(ContextCompat.getDrawable(getActivity(), R.mipmap.new_horizons));
-                return;
-            }
-            if (titles.get(i).equals("Proton Earth, Electron Moon")) {
-                comicViewHolder.thumbnail.setImageDrawable(ContextCompat.getDrawable(getActivity(), R.mipmap.proton_earth));
-                return;
-            }
-            if (titles.get(i).equals("Sunbeam")) {
-                comicViewHolder.thumbnail.setImageDrawable(ContextCompat.getDrawable(getActivity(), R.mipmap.sun_beam));
+            if (id != 0) {
+                comicViewHolder.thumbnail.setImageDrawable(ContextCompat.getDrawable(getActivity(), id));
                 return;
             }
             if (offlineMode) {
