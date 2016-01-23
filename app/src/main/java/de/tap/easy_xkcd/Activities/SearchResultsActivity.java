@@ -81,7 +81,7 @@ import de.tap.easy_xkcd.utils.PrefHelper;
 import jp.wasabeef.recyclerview.animators.adapters.SlideInBottomAnimationAdapter;
 
 
-public class SearchResultsActivity extends AppCompatActivity {
+public class SearchResultsActivity extends BaseActivity {
 
     private SparseArray<String> resultsTitle = new SparseArray<>();
     private SparseArray<String> resultsTranscript = new SparseArray<>();
@@ -95,32 +95,16 @@ public class SearchResultsActivity extends AppCompatActivity {
     private static String sComicTitles;
     private static String sComicTrans;
     private static String sComicUrls;
-    private PrefHelper prefHelper;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
-        prefHelper = new PrefHelper(getApplicationContext());
-        setTheme(prefHelper.getTheme());
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_search_results);
         ButterKnife.bind(this);
 
         //Setup toolbar and status bar color
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
-        setSupportActionBar(toolbar);
-        assert getSupportActionBar() != null;
-        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-
-        TypedValue typedValue = new TypedValue();
-        getTheme().resolveAttribute(R.attr.colorPrimaryDark, typedValue, true);
-        TypedValue typedValue2 = new TypedValue();
-        getTheme().resolveAttribute(R.attr.colorPrimary, typedValue2, true);
-        toolbar.setBackgroundColor(typedValue2.data);
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-            getWindow().setStatusBarColor(typedValue.data);
-            if (!prefHelper.colorNavbar())
-                getWindow().setNavigationBarColor(ContextCompat.getColor(this, R.color.ColorPrimaryBlack));
-        }
+        setupToolbar(toolbar);
 
         LinearLayoutManager llm = new LinearLayoutManager(this);
         rv.setLayoutManager(llm);

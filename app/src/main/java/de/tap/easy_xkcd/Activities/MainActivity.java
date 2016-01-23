@@ -75,15 +75,15 @@ import de.tap.easy_xkcd.fragments.WhatIfOverviewFragment;
 import de.tap.easy_xkcd.CustomTabHelpers.CustomTabActivityHelper;
 
 
-public class MainActivity extends AppCompatActivity {
+public class MainActivity extends BaseActivity {
     @Bind(R.id.fab)
     FloatingActionButton mFab;
     @Bind(R.id.nvView)
     NavigationView mNavView;
-    @Bind(R.id.toolbar)
-    Toolbar toolbar;
     @Bind(R.id.drawer_layout)
     DrawerLayout mDrawer;
+    @Bind(R.id.toolbar)
+    Toolbar toolbar;
 
     private static MainActivity instance;
 
@@ -97,7 +97,6 @@ public class MainActivity extends AppCompatActivity {
     private CustomTabActivityHelper customTabActivityHelper;
     private int mCurrentFragment;
     private ProgressDialog mProgress;
-    private PrefHelper prefHelper;
 
     private static final String COMIC_INTENT = "de.tap.easy_xkcd.ACTION_COMIC";
     private static final String WHATIF_INTENT = "de.tap.easy_xkcd.ACTION_WHAT_IF";
@@ -110,8 +109,6 @@ public class MainActivity extends AppCompatActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
-        prefHelper = new PrefHelper(this);
-        setTheme(prefHelper.getTheme());
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         ButterKnife.bind(this);
@@ -155,22 +152,8 @@ public class MainActivity extends AppCompatActivity {
                 WhatIfFragment.newIntent = true;
                 break;
         }
-        //On Lollipop, change the app's icon in the recents app screen
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP && !getIntent().getAction().equals(Intent.ACTION_VIEW)) {
-            TypedValue typedValue = new TypedValue();
-            Resources.Theme theme = getTheme();
-            theme.resolveAttribute(R.attr.colorPrimary, typedValue, true);
-            int color = typedValue.data;
-            Bitmap ic = BitmapFactory.decodeResource(getResources(), R.mipmap.ic_easy_xkcd_recents);
-            ActivityManager.TaskDescription description = new ActivityManager.TaskDescription("Easy xkcd", ic, color);
-            setTaskDescription(description);
-            if (!prefHelper.colorNavbar())
-                getWindow().setNavigationBarColor(ContextCompat.getColor(this, R.color.ColorPrimaryBlack));
-        }
-        setSupportActionBar(toolbar);
-        TypedValue typedValue2 = new TypedValue();
-        getTheme().resolveAttribute(R.attr.colorPrimary, typedValue2, true);
-        toolbar.setBackgroundColor(typedValue2.data);
+
+        setupToolbar(toolbar);
         if (savedInstanceState == null)
             toolbar.setAlpha(0);
 

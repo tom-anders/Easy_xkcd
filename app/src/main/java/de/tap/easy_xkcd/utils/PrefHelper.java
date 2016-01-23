@@ -641,7 +641,7 @@ public class PrefHelper {
 
     public void showSurveySnackbar(final Context context, FloatingActionButton fab) {
         int n = sharedPrefs.getInt("survey count", 0);
-        if (!sharedPrefs.getBoolean(SURVEY_SNACKBAR, false) && n == 4) {
+        if (!sharedPrefs.getBoolean(SURVEY_SNACKBAR, false) && n == 15) {
             View.OnClickListener oc = new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
@@ -656,7 +656,7 @@ public class PrefHelper {
             Snackbar.make(fab, R.string.snackbar_survey, Snackbar.LENGTH_LONG)
                     .setAction(R.string.snackbar_survey_oc, oc)
                     .show();
-        } else if (n < 4) {
+        } else if (n < 15) {
             SharedPreferences.Editor editor = sharedPrefs.edit();
             editor.putInt("survey count", n + 1);
             editor.apply();

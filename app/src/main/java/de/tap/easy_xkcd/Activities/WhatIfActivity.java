@@ -1,5 +1,6 @@
 package de.tap.easy_xkcd.Activities;
 
+import android.annotation.SuppressLint;
 import android.app.ProgressDialog;
 import android.content.Intent;
 import android.content.pm.ActivityInfo;
@@ -43,7 +44,7 @@ import de.tap.easy_xkcd.utils.PrefHelper;
 import de.tap.easy_xkcd.fragments.WhatIfFavoritesFragment;
 import de.tap.easy_xkcd.fragments.WhatIfFragment;
 
-public class WhatIfActivity extends AppCompatActivity {
+public class WhatIfActivity extends BaseActivity {
 
     @Bind(R.id.wv)
     WebView web;
@@ -52,32 +53,15 @@ public class WhatIfActivity extends AppCompatActivity {
     private boolean leftSwipe = false;
     private boolean rightSwipe = false;
     private Article loadedArticle;
-    private PrefHelper prefHelper;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
-        prefHelper = new PrefHelper(getApplicationContext());
-        setTheme(prefHelper.getTheme());
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_what_if);
         ButterKnife.bind(this);
 
         android.support.v7.widget.Toolbar toolbar = (android.support.v7.widget.Toolbar) findViewById(R.id.toolbar);
-        setSupportActionBar(toolbar);
-        assert getSupportActionBar() != null;
-        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-
-
-        TypedValue typedValue = new TypedValue();
-        getTheme().resolveAttribute(R.attr.colorPrimaryDark, typedValue, true);
-        TypedValue typedValue2 = new TypedValue();
-        getTheme().resolveAttribute(R.attr.colorPrimary, typedValue2, true);
-        toolbar.setBackgroundColor(typedValue2.data);
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-            getWindow().setStatusBarColor(typedValue.data);
-            if (!prefHelper.colorNavbar())
-                getWindow().setNavigationBarColor(ContextCompat.getColor(this, R.color.ColorPrimaryBlack));
-        }
+        setupToolbar(toolbar);
 
         web.addJavascriptInterface(new altObject(), "img");
         web.addJavascriptInterface(new refObject(), "ref");

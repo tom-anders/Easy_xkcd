@@ -29,33 +29,17 @@ import com.tap.xkcd_reader.R;
 
 import de.tap.easy_xkcd.utils.PrefHelper;
 
-public class SettingsActivity extends AppCompatActivity {
+public class SettingsActivity extends BaseActivity {
     private static SettingsActivity instance;
-    private PrefHelper prefHelper;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
-        prefHelper = new PrefHelper(getApplicationContext());
-        setTheme(prefHelper.getTheme());
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_settings);
         instance = this;
 
         android.support.v7.widget.Toolbar toolbar = (android.support.v7.widget.Toolbar) findViewById(R.id.toolbar);
-        setSupportActionBar(toolbar);
-        assert getSupportActionBar() != null;
-        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-
-        TypedValue typedValue = new TypedValue();
-        getTheme().resolveAttribute(R.attr.colorPrimaryDark, typedValue, true);
-        TypedValue typedValue2 = new TypedValue();
-        getTheme().resolveAttribute(R.attr.colorPrimary, typedValue2, true);
-        toolbar.setBackgroundColor(typedValue2.data);
-        if (Build.VERSION.SDK_INT >= 21) {
-            getWindow().setStatusBarColor(typedValue.data);
-            if (!prefHelper.colorNavbar())
-                getWindow().setNavigationBarColor(ContextCompat.getColor(this, R.color.ColorPrimaryBlack));
-        }
+        setupToolbar(toolbar);
 
         if (savedInstanceState==null)
             getFragmentManager().beginTransaction().replace(R.id.content_frame, new CustomPreferenceFragment(), "preferences").commit();
