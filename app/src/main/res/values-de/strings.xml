@@ -173,7 +173,7 @@
     <string name="pref_large">Große Bildateien</string>
     <string name="pref_large_sum">Lade große Bilder wenn verfügbar (z.B. #657). Kann die Performance auf älteren Geräten beeinträchtigen </string>
     <string name="pref_offline">Offline Modus </string>
-    <string name="pref_offline_sum">Sichert alle Comics im externen Speicher. Neue Comics werden automatisch hinzugefügt.</string>
+    <string name="pref_offline_sum">Sichert alle Comics im externen Speicher. Neue Comics werden automatisch hinzugefügt. Belegt ~150MB Speicher</string>
     <string name="loading_offline_97">Du hättest dein Gesicht sehen sollen!</string>
     <string name="delete_offline">Löscht Comics&#8230;</string>
     <string name="delete_offline_dialog">Willst du wirklich den Offline Modus deaktivieren? Alle Bilder (außer Favoriten) werden gelöscht.</string>
@@ -239,7 +239,7 @@
     <string name="pref_auto_night">Automatischer Nachtmodus</string>
     <string name="pref_auto_night_end">Ende</string>
     <string name="pref_auto_night_start">Start</string>
-    <string name="pref_behavior_sum">Aktiviere den Offline Modus und Benachrichtigungen, lege die Bildschirmausrichtung fest</string>
+    <string name="pref_behavior_sum">Aktiviere den Offline Modus und Benachrichtigungen</string>
     <string name="pref_night_options">Nacht Einstellungen</string>
     <string name="pref_night_options_sum">Richte den Nachtmodus ein</string>
     <string name="snackbar_feature">Neues Feature: Automatischer Nachtmodus!</string>
@@ -249,7 +249,7 @@
     <string name="search_hint_whatif">Suche einen Artikel</string>
     <string name="pref_offline_path">Pfad für Offline Daten (Experimentell)</string>
     <string name="pref_offline_path_sum">Standard ist das Basisverzeichnis des externen Speichers</string>
-    <string name="copy_folder">Verschiebe Ordner und Dateien...</string>
+    <string name="copy_folder">Verschiebe Ordner und Dateien&#8230;</string>
     <string name="action_overview">Comic Übersicht</string>
     <string name="pref_zoom_scroll">Scrollen deaktivieren während Comic Bild vergrößert ist</string>
     <string name="not_restart">Fertig. Tippe hier, um die App neu zu starten.</string>

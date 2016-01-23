@@ -171,7 +171,7 @@
     <string name="pref_share_alt">Vložit alternativní text při sdílení</string>
     <string name="pref_share_title">Sdílet</string>
     <string name="pref_behavior">Chování</string>
-    <string name="pref_behavior_sum">Povolit offline mód &amp; upozornění, orientaci obrazovky</string>
+    <string name="pref_behavior_sum">Povolit offline mód, upozornění></string>
     <string name="pref_appearance">Vzhled</string>
     <string name="pref_appearance_sum">Změnit vzhled aplikace</string>
     <string name="pref_large">Velké obrázky komixu</string>
