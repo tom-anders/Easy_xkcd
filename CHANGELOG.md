@@ -1,3 +1,8 @@
+## 4.03
+
+- Adjusted image margins according to Material Design
+- Fixed large comics 
+
 ## 4.0.2
 
 - Added ability to export Favorites list as text (in Advanced settings)
