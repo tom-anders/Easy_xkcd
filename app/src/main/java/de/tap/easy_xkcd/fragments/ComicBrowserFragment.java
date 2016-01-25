@@ -18,6 +18,7 @@ import android.support.design.widget.Snackbar;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.view.ViewPager;
+import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.MenuItem;
@@ -30,6 +31,8 @@ import android.widget.Toast;
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.load.engine.DiskCacheStrategy;
 import com.bumptech.glide.request.RequestListener;
+import com.bumptech.glide.request.animation.GlideAnimation;
+import com.bumptech.glide.request.target.SimpleTarget;
 import com.bumptech.glide.request.target.Target;
 import com.kogitune.activity_transition.ActivityTransition;
 import com.tap.xkcd_reader.R;
@@ -197,23 +200,17 @@ public class ComicBrowserFragment extends ComicFragment {
                             .load(url)
                             .asBitmap()
                             .diskCacheStrategy(DiskCacheStrategy.SOURCE)
-                            .listener(new RequestListener<String, Bitmap>() {
+                            .into(new SimpleTarget<Bitmap>() {
                                 @Override
-                                public boolean onException(Exception e, String model, Target<Bitmap> target, boolean isFirstResource) {
-                                    return false;
-                                }
-
-                                @Override
-                                public boolean onResourceReady(Bitmap resource, String model, Target<Bitmap> target, boolean isFromMemoryCache, boolean isFirstResource) {
+                                public void onResourceReady(Bitmap resource, GlideAnimation<? super Bitmap> glideAnimation) {
+                                    pvComic.setImageBitmap(resource);
                                     if (position == lastComicNumber - 1) {
                                         if (((MainActivity) getActivity()).getProgressDialog() != null)
                                             ((MainActivity) getActivity()).getProgressDialog().dismiss();
                                         animateToolbar();
                                     }
-                                    return false;
                                 }
-                            })
-                            .into(pvComic);
+                            });
                     tvTitle.setText(title);
                 }
 
