@@ -15,5 +15,6 @@
 
     <!-- activity_margin + design_fab_size_mini + activity_margin = 16dp + 40dp + 16dp = 72dp -->
     <dimen name="text_alt_margin_right">72dp</dimen> 
+    <dimen name="text_title_margin">8dp</dimen>
 
 </resources>

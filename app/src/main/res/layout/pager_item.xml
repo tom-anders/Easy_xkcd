@@ -25,7 +25,7 @@
         android:id="@+id/tvTitle"
         android:gravity="top|center"
         android:layout_height="wrap_content"
-        android:layout_margin="@dimen/activity_horizontal_margin"
+        android:layout_margin="@dimen/text_title_margin"
         android:layout_width="fill_parent"
         android:textSize="@dimen/text_title" >
     </TextView>
