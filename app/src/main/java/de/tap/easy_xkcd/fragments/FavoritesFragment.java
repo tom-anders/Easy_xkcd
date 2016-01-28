@@ -36,6 +36,8 @@ import android.view.ViewGroup;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.bumptech.glide.Glide;
+import com.bumptech.glide.request.target.GlideDrawableImageViewTarget;
 import com.tap.xkcd_reader.R;
 
 import java.util.Arrays;
@@ -139,7 +141,12 @@ public class FavoritesFragment extends ComicFragment {
             tvAlt.setText(prefHelper.getAlt(favorites[position]));
             tvTitle.setText(prefHelper.getTitle(favorites[position]));
 
-            pvComic.setImageBitmap(((OfflineComic) comicMap.get(position)).getBitmap());
+            if (getGifId(favorites[position]-1) != 0)
+                Glide.with(getActivity())
+                        .load(getGifId(favorites[position]-1))
+                        .into(new GlideDrawableImageViewTarget(pvComic));
+            else
+                pvComic.setImageBitmap(((OfflineComic) comicMap.get(position)).getBitmap());
             if (Arrays.binarySearch(mContext.getResources().getIntArray(R.array.large_comics), favorites[favoriteIndex]) >= 0)
                 pvComic.setMaximumScale(7.0f);
 
@@ -245,7 +252,7 @@ public class FavoritesFragment extends ComicFragment {
             @Override
             public void onClick(View v) {
                 Favorites.addFavoriteItem(getActivity(), String.valueOf(mRemoved));
-               saveComic(mRemoved, mRemovedBitmap);
+                saveComic(mRemoved, mRemovedBitmap);
                 prefHelper.addTitle(mTitle, mRemoved);
                 prefHelper.addAlt(mAlt, mRemoved);
                 refresh();
@@ -326,6 +333,7 @@ public class FavoritesFragment extends ComicFragment {
         }
     }
 
-    public void updatePager() {}
+    public void updatePager() {
+    }
 
 }

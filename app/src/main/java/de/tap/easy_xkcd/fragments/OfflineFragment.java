@@ -20,6 +20,10 @@ import android.view.animation.AnimationUtils;
 import android.widget.TextView;
 
 import com.bumptech.glide.Glide;
+import com.bumptech.glide.load.resource.drawable.GlideDrawable;
+import com.bumptech.glide.request.RequestListener;
+import com.bumptech.glide.request.target.GlideDrawableImageViewTarget;
+import com.bumptech.glide.request.target.Target;
 import com.kogitune.activity_transition.ActivityTransition;
 import com.tap.xkcd_reader.R;
 
@@ -196,7 +200,12 @@ public class OfflineFragment extends ComicFragment {
                 fromSearch = false;
                 ActivityTransition.with(getActivity().getIntent()).duration(300).to(pvComic).start(null);
             }
-            pvComic.setImageBitmap(((OfflineComic) comicMap.get(position + 1)).getBitmap());
+            if (getGifId(position) != 0)
+                Glide.with(getActivity())
+                        .load(getGifId(position))
+                        .into(new GlideDrawableImageViewTarget(pvComic));
+            else
+                pvComic.setImageBitmap(((OfflineComic) comicMap.get(position + 1)).getBitmap());
 
             if (randomSelected && position == lastComicNumber - 1) {
                 Animation animation = AnimationUtils.loadAnimation(getActivity().getApplicationContext(), android.R.anim.fade_in);
@@ -215,7 +224,9 @@ public class OfflineFragment extends ComicFragment {
         }
     }
 
-    /******************** Random Comics ***************************************/
+    /********************
+     * Random Comics
+     ***************************************/
 
     @Override
     public boolean getRandomComic() {
@@ -234,7 +245,9 @@ public class OfflineFragment extends ComicFragment {
         }
     }
 
-    /************************* Favorite Modification ************************/
+    /*************************
+     * Favorite Modification
+     ************************/
 
     private boolean ModifyFavorites(MenuItem item) {
         if (Favorites.checkFavorite(getActivity(), lastComicNumber)) {
@@ -248,7 +261,9 @@ public class OfflineFragment extends ComicFragment {
         return true;
     }
 
-    /************************************Sharing*********************************/
+    /************************************
+     * Sharing
+     *********************************/
 
     protected boolean shareComic() {
         if (prefHelper.shareImage()) {

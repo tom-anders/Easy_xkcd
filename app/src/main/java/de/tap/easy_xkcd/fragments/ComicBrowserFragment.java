@@ -297,19 +297,6 @@ public class ComicBrowserFragment extends ComicFragment {
             Glide.clear(((RelativeLayout) object).findViewById(R.id.ivComic));
         }
 
-        private int getGifId(int position) {
-            int gifId = 0;
-            switch (position + 1) {
-                case 961:
-                    gifId = R.raw.eternal_flame;
-                    break;
-                case 1116:
-                    gifId = R.raw.traffic_lights;
-                    break;
-            }
-            return gifId;
-        }
-
     }
 
     @Override
