@@ -1,4 +1,9 @@
-## 4.03
+## 4.0.5
+
+- Hide read comics in Overview Mode
+- Gif Support (#961 & #1116)
+
+## 4.0.3
 
 - Adjusted image margins according to Material Design
 - Fixed large comics 
