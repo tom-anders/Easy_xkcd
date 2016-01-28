@@ -153,7 +153,7 @@ public class WhatIfOverviewFragment extends android.support.v4.app.Fragment {
 
         menu.findItem(R.id.action_unread).setVisible(true);
         menu.findItem(R.id.action_hide_read).setVisible(true);
-        menu.findItem(R.id.action_hide_read).setChecked(prefHelper.hideRead());
+        menu.findItem(R.id.action_hide_read).setChecked(prefHelper.hideReadWhatIf());
 
         super.onCreateOptionsMenu(menu, inflater);
     }

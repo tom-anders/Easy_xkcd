@@ -29,7 +29,6 @@ import android.os.Environment;
 import android.preference.PreferenceManager;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
-import android.support.v4.content.ContextCompat;
 import android.util.Log;
 import android.view.View;
 
@@ -42,9 +41,6 @@ import java.util.Calendar;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
-
-import de.tap.easy_xkcd.Activities.NestedSettingsActivity;
-import de.tap.easy_xkcd.misc.ScrollAwareFABBehavior;
 
 public class PrefHelper {
     private SharedPreferences sharedPrefs;
@@ -80,7 +76,8 @@ public class PrefHelper {
     private static final String COMIC_READ = "comic_read";
     private static final String WHATIF_FAV = "whatif_fav";
     private static final String NEWEST_WHATIF = "whatif_newest";
-    private static final String HIDE_READ = "hide_read";
+    private static final String HIDE_READ_WHATIF = "hide_read";
+    private static final String HIDE_READ_OVERVIEW = "hide_read_overview";
     private static final String SWIPE_ENABLED = "whatif_swipe";
     private static final String RATE_SNACKBAR = "rate_snackbar";
     private static final String THEME = "pref_theme";
@@ -391,12 +388,15 @@ public class PrefHelper {
 
     public int[] getComicRead() {
         String read = sharedPrefs.getString(COMIC_READ, "");
-        String[] readList = Favorites.sortArray(read.split(","));
-        int[] readInt = new int[readList.length];
-        for (int i = 0; i < readInt.length; i++) {
-            readInt[i] = Integer.parseInt(readList[i]);
+        if (!read.equals("")) {
+            String[] readList = Favorites.sortArray(read.split(","));
+            int[] readInt = new int[readList.length];
+            for (int i = 0; i < readInt.length; i++) {
+                readInt[i] = Integer.parseInt(readList[i]);
+            }
+            return readInt;
         }
-        return readInt;
+        return null;
     }
 
     public void setWhatIfFavorite(String added) {
@@ -468,13 +468,23 @@ public class PrefHelper {
         editor.commit();
     }
 
+    public boolean hideReadWhatIf() {
+        return sharedPrefs.getBoolean(HIDE_READ_WHATIF, false);
+    }
+
+    public void setHideReadWhatIf(boolean value) {
+        SharedPreferences.Editor editor = sharedPrefs.edit();
+        editor.putBoolean(HIDE_READ_WHATIF, value);
+        editor.apply();
+    }
+
     public boolean hideRead() {
-        return sharedPrefs.getBoolean(HIDE_READ, false);
+        return sharedPrefs.getBoolean(HIDE_READ_OVERVIEW, false);
     }
 
     public void setHideRead(boolean value) {
         SharedPreferences.Editor editor = sharedPrefs.edit();
-        editor.putBoolean(HIDE_READ, value);
+        editor.putBoolean(HIDE_READ_OVERVIEW, value);
         editor.apply();
     }
 

@@ -19,6 +19,7 @@ import android.support.v7.widget.Toolbar;
 import android.transition.Transition;
 import android.transition.TransitionInflater;
 import android.util.Log;
+import android.util.SparseArray;
 import android.util.TypedValue;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -51,8 +52,8 @@ import de.tap.easy_xkcd.utils.PrefHelper;
 import xyz.danoz.recyclerviewfastscroller.vertical.VerticalRecyclerViewFastScroller;
 
 public class OverviewListFragment extends android.support.v4.app.Fragment {
-    private static String[] titles;
-    private static String[] urls;
+    private static SparseArray<String> titles = new SparseArray<>();
+    private static SparseArray<String> urls = new SparseArray<>();
     private static int[] read;
     private ListAdapter listAdapter;
     private RVAdapter rvAdapter;
@@ -63,8 +64,6 @@ public class OverviewListFragment extends android.support.v4.app.Fragment {
     public static int bookmark;
     private static final String BROWSER_TAG = "browser";
     private static final String OVERVIEW_TAG = "overview";
-
-    //TODO go to earliest unread comic
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
@@ -134,8 +133,9 @@ public class OverviewListFragment extends android.support.v4.app.Fragment {
         }
         if (bookmark == 0)
             Toast.makeText(getActivity(), R.string.bookmark_toast_2, Toast.LENGTH_LONG).show();
-        prefHelper.setBookmark(count - i);
-        bookmark = count - i;
+        int pos = count - i - 1;
+        prefHelper.setBookmark(titles.keyAt(pos));
+        bookmark = titles.keyAt(pos);
         switch (prefHelper.getOverviewStyle()) {
             case 0:
                 listAdapter.notifyDataSetChanged();
@@ -148,7 +148,7 @@ public class OverviewListFragment extends android.support.v4.app.Fragment {
 
     public void showComic(final int pos) {
         android.support.v4.app.FragmentManager fragmentManager = getActivity().getSupportFragmentManager();
-        android.support.v4.app.Fragment fragment = fragmentManager.findFragmentByTag(BROWSER_TAG);
+        ComicFragment fragment = (ComicFragment) fragmentManager.findFragmentByTag(BROWSER_TAG);
         int count = 0;
         switch (prefHelper.getOverviewStyle()) {
             case 0:
@@ -158,18 +158,9 @@ public class OverviewListFragment extends android.support.v4.app.Fragment {
                 count = rvAdapter.getItemCount();
                 break;
         }
-        if (!prefHelper.overviewFav()) {
-            if (!prefHelper.fullOfflineEnabled())
-                ((ComicBrowserFragment) fragment).scrollTo(count - pos - 1, false);
-            else
-                ((OfflineFragment) fragment).scrollTo(count - pos - 1, false);
-        } else {
-            int n = Integer.parseInt(Favorites.getFavoriteList(MainActivity.getInstance())[pos]);
-            if (!prefHelper.fullOfflineEnabled())
-                ((ComicBrowserFragment) fragment).scrollTo(n - 1, false);
-            else
-                ((OfflineFragment) fragment).scrollTo(n - 1, false);
-        }
+        int number = count - pos - 1;
+        fragment.scrollTo(titles.keyAt(number) - 1, false);
+
         if (Build.VERSION.SDK_INT < Build.VERSION_CODES.LOLLIPOP) {
             fragmentManager.beginTransaction().hide(fragmentManager.findFragmentByTag(OVERVIEW_TAG)).show(fragment).commitAllowingStateLoss();
         } else {
@@ -187,8 +178,7 @@ public class OverviewListFragment extends android.support.v4.app.Fragment {
         }
 
         if (prefHelper.subtitleEnabled()) {
-            ComicFragment comicFragment = (ComicFragment) getActivity().getSupportFragmentManager().findFragmentByTag(BROWSER_TAG);
-            ((MainActivity) getActivity()).getToolbar().setSubtitle(String.valueOf(comicFragment.lastComicNumber));
+            ((MainActivity) getActivity()).getToolbar().setSubtitle(String.valueOf(fragment.lastComicNumber));
         }
 
         new Handler().postDelayed(new Runnable() {
@@ -215,9 +205,7 @@ public class OverviewListFragment extends android.support.v4.app.Fragment {
 
         @Override
         public int getCount() {
-            if (prefHelper.overviewFav())
-                return Favorites.getFavoriteList(MainActivity.getInstance()).length;
-            return prefHelper.getNewest();
+            return titles.size();
         }
 
         @Override
@@ -242,27 +230,23 @@ public class OverviewListFragment extends android.support.v4.app.Fragment {
                 holder = (ViewHolder) view.getTag();
             }
             String label;
-            if (prefHelper.overviewFav()) {
-                int n = Integer.parseInt(Favorites.getFavoriteList(MainActivity.getInstance())[position]);
-                label = n + ": " + prefHelper.getTitle(n);
+            int number = titles.keyAt(getCount() - position - 1);
+            label = String.valueOf(number) + " " + titles.get(number);
+            if (checkComicRead(number) && !prefHelper.overviewFav()) {
+                if (prefHelper.nightThemeEnabled())
+                    holder.textView.setTextColor(ContextCompat.getColor(getActivity(), android.R.color.tertiary_text_light));
+                else
+                    holder.textView.setTextColor(ContextCompat.getColor(getActivity(), R.color.Read));
             } else {
-                label = String.valueOf(getCount() - position) + " " + titles[getCount() - position - 1];
-                if (checkComicRead(getCount() - position)) {
-                    if (prefHelper.nightThemeEnabled())
-                        holder.textView.setTextColor(ContextCompat.getColor(getActivity(), android.R.color.tertiary_text_light));
-                    else
-                        holder.textView.setTextColor(ContextCompat.getColor(getActivity(), R.color.Read));
-                } else {
-                    if (prefHelper.nightThemeEnabled())
-                        holder.textView.setTextColor(ContextCompat.getColor(getActivity(), R.color.Read));
-                    else
-                        holder.textView.setTextColor(ContextCompat.getColor(getActivity(), android.R.color.tertiary_text_light));
-                }
-                if (getCount() - position == bookmark) {
-                    TypedValue typedValue = new TypedValue();
-                    getActivity().getTheme().resolveAttribute(R.attr.colorAccent, typedValue, true);
-                    holder.textView.setTextColor(typedValue.data);
-                }
+                if (prefHelper.nightThemeEnabled())
+                    holder.textView.setTextColor(ContextCompat.getColor(getActivity(), R.color.Read));
+                else
+                    holder.textView.setTextColor(ContextCompat.getColor(getActivity(), android.R.color.tertiary_text_light));
+            }
+            if (number == bookmark) {
+                TypedValue typedValue = new TypedValue();
+                getActivity().getTheme().resolveAttribute(R.attr.colorAccent, typedValue, true);
+                holder.textView.setTextColor(typedValue.data);
             }
             holder.textView.setText(label);
             return view;
@@ -277,10 +261,7 @@ public class OverviewListFragment extends android.support.v4.app.Fragment {
 
         @Override
         public int getItemCount() {
-
-            if (prefHelper.overviewFav())
-                return Favorites.getFavoriteList(MainActivity.getInstance()).length;
-            return titles.length;
+            return titles.size();
         }
 
         @Override
@@ -293,37 +274,31 @@ public class OverviewListFragment extends android.support.v4.app.Fragment {
 
         @Override
         public void onBindViewHolder(final ComicViewHolder comicViewHolder, int i) {
-            int number = getItemCount() - i;
-            String title;
-
-            if (prefHelper.overviewFav()) {
-                number = Integer.parseInt(Favorites.getFavoriteList(MainActivity.getInstance())[i]);
-                title = prefHelper.getTitle(number);
+            int number = titles.keyAt(getItemCount() - i - 1);
+            String title = titles.get(number);
+            if (checkComicRead(number) && !prefHelper.overviewFav()) {
+                if (prefHelper.nightThemeEnabled())
+                    comicViewHolder.comicTitle.setTextColor(ContextCompat.getColor(getActivity(), android.R.color.tertiary_text_light));
+                else
+                    comicViewHolder.comicTitle.setTextColor(ContextCompat.getColor(getActivity(), R.color.Read));
             } else {
-                title = titles[getItemCount() - i - 1];
-                if (checkComicRead(getItemCount() - i)) {
-                    if (prefHelper.nightThemeEnabled())
-                        comicViewHolder.comicTitle.setTextColor(ContextCompat.getColor(getActivity(), android.R.color.tertiary_text_light));
-                    else
-                        comicViewHolder.comicTitle.setTextColor(ContextCompat.getColor(getActivity(), R.color.Read));
-                } else {
-                    if (prefHelper.nightThemeEnabled())
-                        comicViewHolder.comicTitle.setTextColor(ContextCompat.getColor(getActivity(), R.color.Read));
-                    else
-                        comicViewHolder.comicTitle.setTextColor(ContextCompat.getColor(getActivity(), android.R.color.tertiary_text_light));
-                }
-                if (getItemCount() - i == bookmark) {
-                    TypedValue typedValue = new TypedValue();
-                    getActivity().getTheme().resolveAttribute(R.attr.colorAccent, typedValue, true);
-                    comicViewHolder.comicTitle.setTextColor(typedValue.data);
-                }
+                if (prefHelper.nightThemeEnabled())
+                    comicViewHolder.comicTitle.setTextColor(ContextCompat.getColor(getActivity(), R.color.Read));
+                else
+                    comicViewHolder.comicTitle.setTextColor(ContextCompat.getColor(getActivity(), android.R.color.tertiary_text_light));
             }
+            if (number == bookmark) {
+                TypedValue typedValue = new TypedValue();
+                getActivity().getTheme().resolveAttribute(R.attr.colorAccent, typedValue, true);
+                comicViewHolder.comicTitle.setTextColor(typedValue.data);
+            }
+
             comicViewHolder.comicInfo.setText(String.valueOf(number));
             comicViewHolder.comicTitle.setText(title);
 
             if (!MainActivity.fullOffline) {
                 Glide.with(getActivity().getApplicationContext())
-                        .load(urls[number - 1])
+                        .load(urls.get(number))
                         .asBitmap()
                         .into(comicViewHolder.thumbnail);
             } else {
@@ -384,7 +359,7 @@ public class OverviewListFragment extends android.support.v4.app.Fragment {
     }
 
     private boolean checkComicRead(int number) {
-        return Arrays.binarySearch(read, number) >= 0;
+        return read != null && Arrays.binarySearch(read, number) >= 0;
     }
 
     class CustomOnClickListener implements View.OnClickListener {
@@ -408,6 +383,7 @@ public class OverviewListFragment extends android.support.v4.app.Fragment {
             menu.getItem(i).setVisible(false);
 
         menu.findItem(R.id.action_boomark).setVisible(prefHelper.getBookmark() != 0).setTitle(R.string.open_bookmark);
+        menu.findItem(R.id.action_hide_read).setVisible(true).setChecked(prefHelper.hideRead());
 
         MenuItem item = menu.findItem(R.id.action_favorite);
         item.setVisible(true);
@@ -440,35 +416,18 @@ public class OverviewListFragment extends android.support.v4.app.Fragment {
                     item.setTitle(R.string.action_overview);
                 }
                 prefHelper.setOverviewFav(!prefHelper.overviewFav());
-                switch (prefHelper.getOverviewStyle()) {
-                    case 0:
-                        listAdapter = new ListAdapter();
-                        list.setAdapter(listAdapter);
-                        break;
-                    case 1:
-                        rvAdapter = new RVAdapter();
-                        rv.setAdapter(rvAdapter);
-                        if (prefHelper.overviewFav()) {
-                            scroller.setVisibility(View.INVISIBLE);
-                            rv.setVerticalScrollBarEnabled(true);
-                        } else {
-                            scroller.setVisibility(View.VISIBLE);
-                            rv.setVerticalScrollBarEnabled(false);
-                        }
-                        break;
+                if (prefHelper.getOverviewStyle() == 1) {
+                    if (prefHelper.overviewFav())
+                        scroller.setVisibility(View.INVISIBLE);
+                    else
+                        scroller.setVisibility(View.VISIBLE);
                 }
+                setupAdapter();
                 getActivity().invalidateOptionsMenu();
                 break;
             case R.id.action_unread:
                 prefHelper.setComicsUnread();
-                switch (prefHelper.getOverviewStyle()) {
-                    case 0:
-                        listAdapter.notifyDataSetChanged();
-                        break;
-                    case 1:
-                        rvAdapter.notifyDataSetChanged();
-                        break;
-                }
+                setupAdapter();
                 break;
 
             case R.id.action_overview_style:
@@ -498,7 +457,14 @@ public class OverviewListFragment extends android.support.v4.app.Fragment {
                         count = rvAdapter.getItemCount();
                         break;
                 }
-                showComic(count - bookmark);
+                showComic(count - titles.indexOfKey(bookmark) - 1);
+                break;
+
+            case R.id.action_hide_read:
+                item.setChecked(!item.isChecked());
+                prefHelper.setHideRead(item.isChecked());
+                setupAdapter();
+                break;
 
         }
         return super.onOptionsItemSelected(item);
@@ -514,16 +480,19 @@ public class OverviewListFragment extends android.support.v4.app.Fragment {
         if (prefHelper == null)
             return;
         read = prefHelper.getComicRead();
-        switch (prefHelper.getOverviewStyle()) {
-            case 0:
-                listAdapter.notifyDataSetChanged();
-                list.setSelection(titles.length - pos);
-                break;
-            case 1:
-                rvAdapter.notifyDataSetChanged();
-                rv.scrollToPosition(titles.length - pos);
-                break;
-        }
+        if (prefHelper.hideRead())
+            setupAdapter();
+        else
+            switch (prefHelper.getOverviewStyle()) {
+                case 0:
+                    listAdapter.notifyDataSetChanged();
+                    list.setSelection(titles.size() - pos);
+                    break;
+                case 1:
+                    rvAdapter.notifyDataSetChanged();
+                    rv.scrollToPosition(titles.size() - pos);
+                    break;
+            }
     }
 
     private class updateDatabase extends AsyncTask<Void, Integer, Void> {
@@ -642,49 +611,74 @@ public class OverviewListFragment extends android.support.v4.app.Fragment {
 
         @Override
         protected void onPostExecute(Void dummy) {
-            titles = prefHelper.getComicTitles().split("&&");
-            urls = prefHelper.getComicUrls().split("&&");
-            read = prefHelper.getComicRead();
+            setupAdapter();
             progress.dismiss();
-            ComicFragment comicFragment = (ComicFragment) getActivity().getSupportFragmentManager().findFragmentByTag(BROWSER_TAG);
-            switch (prefHelper.getOverviewStyle()) {
-                case 0:
-                    listAdapter = new ListAdapter();
-                    list.setAdapter(listAdapter);
-                    list.setSelection(titles.length - comicFragment.lastComicNumber);
-                    list.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-                        @Override
-                        public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
-                            showComic(i);
-                        }
-                    });
-                    list.setOnItemLongClickListener(new AdapterView.OnItemLongClickListener() {
-                        @Override
-                        public boolean onItemLongClick(AdapterView<?> adapterView, View view, int i, long l) {
-                            updateBookmark(i);
-                            return true;
-                        }
-                    });
-                    break;
-                case 1:
-                    rvAdapter = new RVAdapter();
-                    rv.setAdapter(rvAdapter);
-                    rv.scrollToPosition(titles.length - comicFragment.lastComicNumber);
+            animateToolbar();
+        }
+    }
 
-                    break;
-            }
-            Toolbar toolbar = ((MainActivity) getActivity()).getToolbar();
-            if (toolbar.getAlpha() == 0) {
-                toolbar.setTranslationY(-300);
-                toolbar.animate().setDuration(300).translationY(0).alpha(1);
-                View view;
-                for (int i = 0; i < toolbar.getChildCount(); i++) {
-                    view = toolbar.getChildAt(i);
-                    view.setTranslationY(-300);
-                    view.animate().setStartDelay(50 * (i + 1)).setDuration(70 * (i + 1)).translationY(0);
+    private void setupAdapter() {
+        read = prefHelper.getComicRead();
+        String[] t = prefHelper.getComicTitles().split("&&");
+        String[] u = prefHelper.getComicUrls().split("&&");
+        boolean hideRead = prefHelper.hideRead();
+        titles.clear();
+        urls.clear();
+        for (int i = 1; i <= t.length; i++) {
+            if (prefHelper.overviewFav()) {
+                if (Favorites.checkFavorite(MainActivity.getInstance(), i)) {
+                    titles.put(i, t[i - 1]);
+                    urls.put(i, u[i - 1]);
                 }
+                continue;
             }
+            if (read == null || (!hideRead) || ((Arrays.binarySearch(read, i) < 0) || i == bookmark)) {
+                titles.put(i, t[i - 1]);
+                urls.put(i, u[i - 1]);
+            }
+        }
+        ComicFragment comicFragment = (ComicFragment) getActivity().getSupportFragmentManager().findFragmentByTag(BROWSER_TAG);
+        switch (prefHelper.getOverviewStyle()) {
+            case 0:
+                listAdapter = new ListAdapter();
+                list.setAdapter(listAdapter);
+                if (comicFragment.lastComicNumber <= titles.size())
+                    list.setSelection(titles.size() - comicFragment.lastComicNumber);
+                list.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+                    @Override
+                    public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
+                        showComic(i);
+                    }
+                });
+                list.setOnItemLongClickListener(new AdapterView.OnItemLongClickListener() {
+                    @Override
+                    public boolean onItemLongClick(AdapterView<?> adapterView, View view, int i, long l) {
+                        updateBookmark(i);
+                        return true;
+                    }
+                });
+                break;
+            case 1:
+                rvAdapter = new RVAdapter();
+                rv.setAdapter(rvAdapter);
+                if (comicFragment.lastComicNumber <= titles.size())
+                    rv.scrollToPosition(titles.size() - comicFragment.lastComicNumber);
 
+                break;
+        }
+    }
+
+    private void animateToolbar() {
+        Toolbar toolbar = ((MainActivity) getActivity()).getToolbar();
+        if (toolbar.getAlpha() == 0) {
+            toolbar.setTranslationY(-300);
+            toolbar.animate().setDuration(300).translationY(0).alpha(1);
+            View view;
+            for (int i = 0; i < toolbar.getChildCount(); i++) {
+                view = toolbar.getChildAt(i);
+                view.setTranslationY(-300);
+                view.animate().setStartDelay(50 * (i + 1)).setDuration(70 * (i + 1)).translationY(0);
+            }
         }
     }
 

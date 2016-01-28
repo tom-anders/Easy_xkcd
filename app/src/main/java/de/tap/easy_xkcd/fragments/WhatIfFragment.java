@@ -269,7 +269,7 @@ public class WhatIfFragment extends android.support.v4.app.Fragment {
         @Override
         protected void onPostExecute(Void dummy) {
             prefHelper.setNewestWhatif(mTitles.size());
-            setupAdapter(prefHelper.hideRead());
+            setupAdapter(prefHelper.hideReadWhatIf());
             progress.dismiss();
             Toolbar toolbar = ((MainActivity) getActivity()).getToolbar();
             if (toolbar.getAlpha() == 0) {
@@ -503,11 +503,11 @@ public class WhatIfFragment extends android.support.v4.app.Fragment {
         switch (item.getItemId()) {
             case R.id.action_unread:
                 prefHelper.setAllUnread();
-                setupAdapter(prefHelper.hideRead());
+                setupAdapter(prefHelper.hideReadWhatIf());
                 return true;
             case R.id.action_hide_read:
                 item.setChecked(!item.isChecked());
-                prefHelper.setHideRead(item.isChecked());
+                prefHelper.setHideReadWhatIf(item.isChecked());
                 setupAdapter(item.isChecked());
                 return true;
         }
@@ -540,7 +540,7 @@ public class WhatIfFragment extends android.support.v4.app.Fragment {
     }
 
     public void updateRv() {
-        setupAdapter(prefHelper.hideRead());
+        setupAdapter(prefHelper.hideReadWhatIf());
     }
 
     @Override
