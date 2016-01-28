@@ -156,7 +156,7 @@ public class WhatIfFragment extends android.support.v4.app.Fragment {
             } catch (IOException e) {
                 e.printStackTrace();
             }
-            for (int i = highestOffline + 1; i<=prefHelper.getNewestWhatIf(); i++) {
+            for (int i = highestOffline + 1; i <= prefHelper.getNewestWhatIf(); i++) {
                 downloadArticle(i);
             }
 
@@ -336,19 +336,22 @@ public class WhatIfFragment extends android.support.v4.app.Fragment {
                     id = R.mipmap.jupiter_descending;
                     break;
                 case "Jupiter Submarine":
-                    id= R.mipmap.jupiter_submarine;
+                    id = R.mipmap.jupiter_submarine;
                     break;
                 case "New Horizons":
-                    id=  R.mipmap.new_horizons;
+                    id = R.mipmap.new_horizons;
                     break;
                 case "Proton Earth, Electron Moon":
-                    id =  R.mipmap.proton_earth;
+                    id = R.mipmap.proton_earth;
                     break;
                 case "Sunbeam":
                     id = R.mipmap.sun_beam;
                     break;
                 case "Space Jetta":
                     id = R.mipmap.jetta;
+                    break;
+                case "Europa Water Siphon":
+                    id = R.mipmap.straw;
                     break;
             }
             if (id != 0) {
