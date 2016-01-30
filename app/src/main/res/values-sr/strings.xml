@@ -247,6 +247,7 @@
         <item>Увек прикажи алт текст</item>
         <item>Укључи алт текст приликом дељења</item>
         <item>Хаптички одзив</item>
+        <item>Back Button to show alt text</item>
     </string-array>
 
     <string-array name="alt_activation">

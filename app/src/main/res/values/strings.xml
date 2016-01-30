@@ -384,12 +384,14 @@
         <item>Always show alt text</item>
         <item>Include alt text when sharing</item>
         <item>Haptic feedback</item>
+        <item>Back Button to show alt text</item>
     </string-array>
 
     <string-array name="alt_options_values" translatable="false">
         <item>pref_show_alt</item>
         <item>pref_share_alt</item>
         <item>pref_alt</item>
+        <item>pref_alt_back</item>
     </string-array>
 
     <string-array name="alt_options_default" translatable="false">

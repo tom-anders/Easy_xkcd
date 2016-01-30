@@ -60,6 +60,7 @@ public class PrefHelper {
     private static final String NEWEST_COMIC = "Newest Comic";
     private static final String LAST_COMIC = "Last Comic";
     private static final String ALT_VIBRATION = "pref_alt";
+    private static final String ALT_BACK = "pref_alt_back";
     private static final String ORIENTATION = "pref_orientation";
     private static final String ALT_TIP = "alt_tip";
     private static final String SHARE_IMAGE = "pref_share";
@@ -248,6 +249,10 @@ public class PrefHelper {
 
     public boolean altVibration() {
         return prefs.getStringSet(ALT_OPTIONS, new HashSet<String>()).contains(ALT_VIBRATION);
+    }
+
+    public boolean altBackButton() {
+        return prefs.getStringSet(ALT_OPTIONS, new HashSet<String>()).contains(ALT_BACK);
     }
 
     public boolean showAltTip() {

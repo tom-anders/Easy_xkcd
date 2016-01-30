@@ -257,6 +257,7 @@
         <item>Vždy zobrazovat alternativní text</item>
         <item>Vložit alternativní text při sdílení</item>
         <item>Hmatová zpětná vazba</item>
+        <item>Back Button to show alt text</item>
     </string-array>
 
     <string-array name="alt_activation">

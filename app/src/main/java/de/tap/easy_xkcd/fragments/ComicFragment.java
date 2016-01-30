@@ -348,6 +348,10 @@ public abstract class ComicFragment extends android.support.v4.app.Fragment {
             index = favoriteIndex;
         else
             index = lastComicNumber - 1;
+
+        if (prefHelper.altBackButton() && !(pager.findViewWithTag(index).findViewById(R.id.tvAlt).getVisibility() == View.VISIBLE))
+            return setAltText(false);
+
         PhotoView pv = (PhotoView) pager.findViewWithTag(index).findViewById(R.id.ivComic);
         float scale = pv.getScale();
         if (scale != 1f) {
