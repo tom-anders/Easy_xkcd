@@ -1,3 +1,8 @@
+## 4.0.7
+
+- Added latest What-if thumbnail
+- Added Comic 930 to large comics
+
 ## 4.0.5
 
 - Hide read comics in Overview Mode
