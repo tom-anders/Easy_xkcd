@@ -65,6 +65,8 @@ import butterknife.OnClick;
 import butterknife.OnLongClick;
 import de.tap.easy_xkcd.fragments.ComicBrowserFragment;
 import de.tap.easy_xkcd.fragments.ComicFragment;
+import de.tap.easy_xkcd.fragments.OverviewBaseFragment;
+import de.tap.easy_xkcd.fragments.OverviewCardsFragment;
 import de.tap.easy_xkcd.fragments.OverviewListFragment;
 import de.tap.easy_xkcd.notifications.ComicListener;
 import de.tap.easy_xkcd.utils.Favorites;
@@ -225,10 +227,10 @@ public class MainActivity extends BaseActivity {
     @OnClick(R.id.fab)
     void onClick() {
         android.support.v4.app.FragmentManager fragmentManager = getSupportFragmentManager();
-        OverviewListFragment overviewListFragment = (OverviewListFragment) fragmentManager.findFragmentByTag(OVERVIEW_TAG);
-        if (overviewListFragment != null && overviewListFragment.isVisible()) {
+        OverviewBaseFragment overviewBaseFragment = (OverviewBaseFragment) fragmentManager.findFragmentByTag(OVERVIEW_TAG);
+        if (overviewBaseFragment != null && overviewBaseFragment.isVisible()) {
             ComicFragment comicFragment = (ComicFragment) fragmentManager.findFragmentByTag(BROWSER_TAG);
-            overviewListFragment.showComic(comicFragment.newestComicNumber - prefHelper.getRandomNumber(comicFragment.lastComicNumber));
+            overviewBaseFragment.showComic(comicFragment.newestComicNumber - prefHelper.getRandomNumber(comicFragment.lastComicNumber));
         } else {
             switch (mCurrentFragment) {
                 case R.id.nav_browser: {
@@ -247,8 +249,8 @@ public class MainActivity extends BaseActivity {
     @OnLongClick(R.id.fab)
     boolean onLongClick() {
         android.support.v4.app.FragmentManager fragmentManager = getSupportFragmentManager();
-        OverviewListFragment overviewListFragment = (OverviewListFragment) fragmentManager.findFragmentByTag(OVERVIEW_TAG);
-        if (overviewListFragment != null && overviewListFragment.isVisible()) {
+        OverviewBaseFragment overviewBaseFragment = (OverviewBaseFragment) fragmentManager.findFragmentByTag(OVERVIEW_TAG);
+        if (overviewBaseFragment != null && overviewBaseFragment.isVisible()) {
             return true;
         } else {
             if (mCurrentFragment == R.id.nav_browser) {
@@ -588,12 +590,22 @@ public class MainActivity extends BaseActivity {
 
         if (fragmentManager.findFragmentByTag(OVERVIEW_TAG) != null) {
             int pos = ((ComicFragment) fragmentManager.findFragmentByTag(BROWSER_TAG)).lastComicNumber;
-            ((OverviewListFragment) fragmentManager.findFragmentByTag(OVERVIEW_TAG)).notifyAdapter(pos);
+            ((OverviewBaseFragment) fragmentManager.findFragmentByTag(OVERVIEW_TAG)).notifyAdapter(pos);
         }
 
         if (Build.VERSION.SDK_INT < Build.VERSION_CODES.LOLLIPOP) {
-            if (fragmentManager.findFragmentByTag(OVERVIEW_TAG) == null)
-                fragmentManager.beginTransaction().add(R.id.flContent, new OverviewListFragment(), OVERVIEW_TAG).commitAllowingStateLoss();
+            if (fragmentManager.findFragmentByTag(OVERVIEW_TAG) == null) {
+                OverviewBaseFragment overviewBaseFragment = null;
+                switch (prefHelper.getOverviewStyle()) {
+                    case 0:
+                        overviewBaseFragment = new OverviewListFragment();
+                        break;
+                    case 1:
+                        overviewBaseFragment = new OverviewCardsFragment();
+                        break;
+                }
+                fragmentManager.beginTransaction().add(R.id.flContent, overviewBaseFragment, OVERVIEW_TAG).commitAllowingStateLoss();
+            }
             else
                 fragmentManager.beginTransaction().show(fragmentManager.findFragmentByTag(OVERVIEW_TAG)).commitAllowingStateLoss();
             fragmentManager.beginTransaction().hide(fragmentManager.findFragmentByTag(BROWSER_TAG)).commitAllowingStateLoss();
@@ -603,11 +615,19 @@ public class MainActivity extends BaseActivity {
             fragmentManager.findFragmentByTag(BROWSER_TAG).setExitTransition(right);
 
             if (fragmentManager.findFragmentByTag(OVERVIEW_TAG) == null) {
-                OverviewListFragment overviewListFragment = new OverviewListFragment();
-                overviewListFragment.setEnterTransition(left);
+                OverviewBaseFragment overviewBaseFragment = null;
+                switch (prefHelper.getOverviewStyle()) {
+                    case 0:
+                        overviewBaseFragment = new OverviewListFragment();
+                        break;
+                    case 1:
+                        overviewBaseFragment = new OverviewCardsFragment();
+                        break;
+                }
+                overviewBaseFragment.setEnterTransition(left);
                 getSupportFragmentManager().beginTransaction()
                         .hide(fragmentManager.findFragmentByTag(BROWSER_TAG))
-                        .add(R.id.flContent, overviewListFragment, OVERVIEW_TAG)
+                        .add(R.id.flContent, overviewBaseFragment, OVERVIEW_TAG)
                         .commit();
             } else {
                 fragmentManager.findFragmentByTag(OVERVIEW_TAG).setEnterTransition(left);
