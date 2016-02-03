@@ -44,6 +44,7 @@ public abstract class BaseActivity extends AppCompatActivity {
                 getWindow().setNavigationBarColor(ContextCompat.getColor(this, R.color.ColorPrimaryBlack));
         }
         setSupportActionBar(toolbar);
+        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         TypedValue typedValue2 = new TypedValue();
         getTheme().resolveAttribute(R.attr.colorPrimary, typedValue2, true);
         toolbar.setBackgroundColor(typedValue2.data);

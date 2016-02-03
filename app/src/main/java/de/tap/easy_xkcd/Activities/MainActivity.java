@@ -678,6 +678,8 @@ public class MainActivity extends BaseActivity {
         android.support.v4.app.FragmentManager fragmentManager = getSupportFragmentManager();
         if (getSearchMenuItem().isActionViewExpanded()) {
             getSearchMenuItem().collapseActionView();
+        } else if (mDrawer != null && mDrawer.isDrawerOpen(GravityCompat.START)) {
+            mDrawer.closeDrawer(GravityCompat.START);
         } else if (mCurrentFragment == R.id.nav_browser && (fragmentManager.findFragmentByTag(OVERVIEW_TAG) == null || !fragmentManager.findFragmentByTag(OVERVIEW_TAG).isVisible())) {
             boolean zoomReset;
             zoomReset = ((ComicFragment) fragmentManager.findFragmentByTag(BROWSER_TAG)).zoomReset();
@@ -691,8 +693,6 @@ public class MainActivity extends BaseActivity {
             FavoritesFragment favoritesFragment = (FavoritesFragment) fragmentManager.findFragmentByTag(FAV_TAG);
             if (!favoritesFragment.zoomReset())
                 super.onBackPressed();
-        } else if (mDrawer != null && mDrawer.isDrawerOpen(GravityCompat.START)) {
-            mDrawer.closeDrawer(GravityCompat.START);
         } else {
             super.onBackPressed();
         }
@@ -724,7 +724,7 @@ public class MainActivity extends BaseActivity {
     protected void onRestart() {
         ComicFragment fragment = (ComicFragment) getSupportFragmentManager().findFragmentByTag(BROWSER_TAG);
         if (fragment != null && prefHelper.isOnline(this) && !fromSearch)
-            if (!fullOffline || (prefHelper.isWifi(this) || prefHelper.mobileEnabled()) )
+            if (!fullOffline || (prefHelper.isWifi(this) || prefHelper.mobileEnabled()))
                 fragment.updatePager();
 
         if (fromSearch)
