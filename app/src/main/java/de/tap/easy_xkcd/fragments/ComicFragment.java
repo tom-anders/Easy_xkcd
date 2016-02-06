@@ -31,7 +31,6 @@ import android.widget.Toast;
 
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.load.engine.DiskCacheStrategy;
-import com.kogitune.activity_transition.ActivityTransition;
 import com.tap.xkcd_reader.R;
 
 import java.io.File;
@@ -83,13 +82,13 @@ public abstract class ComicFragment extends android.support.v4.app.Fragment {
             } else if (lastComicNumber == 0) {
                 lastComicNumber = prefHelper.getLastComic();
             }
-            if (MainActivity.overViewLaunch) {
-                MainActivity.overViewLaunch = false;
+            if (MainActivity.overviewLaunch) {
+                MainActivity.overviewLaunch = false;
                 ((MainActivity) getActivity()).showOverview();
             }
         }
 
-        if (((MainActivity) getActivity()).getCurrentFragment() == R.id.nav_browser && prefHelper.subtitleEnabled())
+        if (((MainActivity) getActivity()).getCurrentFragment() == R.id.nav_browser && prefHelper.subtitleEnabled() && (this instanceof ComicBrowserFragment || this instanceof OfflineFragment))
             ((MainActivity) getActivity()).getToolbar().setSubtitle(String.valueOf(lastComicNumber));
 
         return view;

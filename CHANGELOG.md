@@ -1,3 +1,7 @@
+## 4.1
+
+- Import/Export favorites
+
 ## 4.0.7
 
 - Added latest What-if thumbnail

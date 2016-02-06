@@ -18,13 +18,10 @@
 
 package de.tap.easy_xkcd.Activities;
 
-import android.app.ActivityManager;
 import android.app.ProgressDialog;
 import android.content.pm.PackageManager;
 import android.content.res.Configuration;
 import android.content.res.Resources;
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Handler;
@@ -36,13 +33,13 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
+import android.support.v4.app.FragmentTransaction;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.view.MenuItemCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AlertDialog;
-import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.transition.Transition;
 import android.transition.TransitionInflater;
@@ -93,13 +90,13 @@ public class MainActivity extends BaseActivity {
     public static boolean fullOffline = false;
     public static boolean fullOfflineWhatIf = false;
     public static boolean fromSearch = false;
-    public static boolean overViewLaunch;
+    public static boolean overviewLaunch;
 
-    public ActionBarDrawerToggle mDrawerToggle;
+    public ActionBarDrawerToggle drawerToggle;
     private MenuItem searchMenuItem;
     private CustomTabActivityHelper customTabActivityHelper;
-    private int mCurrentFragment;
-    private ProgressDialog mProgress;
+    private int currentFragment;
+    private ProgressDialog progress;
 
     private static final String COMIC_INTENT = "de.tap.easy_xkcd.ACTION_COMIC";
     private static final String WHATIF_INTENT = "de.tap.easy_xkcd.ACTION_WHAT_IF";
@@ -160,8 +157,8 @@ public class MainActivity extends BaseActivity {
         if (savedInstanceState == null)
             toolbar.setAlpha(0);
 
-        mDrawer.setDrawerListener(mDrawerToggle);
-        mDrawerToggle = setupDrawerToggle();
+        mDrawer.setDrawerListener(drawerToggle);
+        drawerToggle = setupDrawerToggle();
         if (prefHelper.nightThemeEnabled()) {
             mNavView.setBackgroundColor(ContextCompat.getColor(this, R.color.background_material_dark));
             toolbar.setPopupTheme(R.style.ThemeOverlay_AppCompat);
@@ -180,12 +177,11 @@ public class MainActivity extends BaseActivity {
         }
 
         //Load fragment
-        if (prefHelper.isOnline(this) | fullOffline | fullOfflineWhatIf) {
+        if (fullOffline || prefHelper.isOnline(this) || fullOfflineWhatIf) {
             MenuItem item;
             if (savedInstanceState != null) {
-                //Get last loaded fragment
-                mCurrentFragment = savedInstanceState.getInt(SAVED_INSTANCE_CURRENT_FRAGMENT);
-                item = mNavView.getMenu().findItem(mCurrentFragment);
+                currentFragment = savedInstanceState.getInt(SAVED_INSTANCE_CURRENT_FRAGMENT);
+                item = mNavView.getMenu().findItem(currentFragment);
             } else {
                 if (!whatIfIntent && fullOffline | prefHelper.isOnline(this)) {
                     item = mNavView.getMenu().findItem(R.id.nav_browser);
@@ -197,10 +193,10 @@ public class MainActivity extends BaseActivity {
             if (savedInstanceState != null)
                 showOverview = savedInstanceState.getBoolean(OVERVIEW_TAG, false);
             else {
-                overViewLaunch = prefHelper.launchToOverview();
+                overviewLaunch = prefHelper.launchToOverview();
             }
             selectDrawerItem(item, showOverview);
-        } else if ((mCurrentFragment != R.id.nav_favorites)) { //Don't show the dialog if the user is currently browsing his favorites or full offline is enabled
+        } else if ((currentFragment != R.id.nav_favorites)) { //Don't show the dialog if the user is currently browsing his favorites or full offline is enabled
             AlertDialog.Builder mDialog = new AlertDialog.Builder(this, prefHelper.getDialogTheme());
             mDialog.setMessage(R.string.no_connection)
                     .setPositiveButton(R.string.no_connection_retry, new DialogInterface.OnClickListener() {
@@ -232,7 +228,7 @@ public class MainActivity extends BaseActivity {
             ComicFragment comicFragment = (ComicFragment) fragmentManager.findFragmentByTag(BROWSER_TAG);
             overviewBaseFragment.showComic(comicFragment.newestComicNumber - prefHelper.getRandomNumber(comicFragment.lastComicNumber));
         } else {
-            switch (mCurrentFragment) {
+            switch (currentFragment) {
                 case R.id.nav_browser: {
                     ((ComicFragment) fragmentManager.findFragmentByTag(BROWSER_TAG)).getRandomComic();
                     break;
@@ -253,7 +249,7 @@ public class MainActivity extends BaseActivity {
         if (overviewBaseFragment != null && overviewBaseFragment.isVisible()) {
             return true;
         } else {
-            if (mCurrentFragment == R.id.nav_browser) {
+            if (currentFragment == R.id.nav_browser) {
                 ((ComicFragment) fragmentManager.findFragmentByTag(BROWSER_TAG)).getPreviousRandom();
             }
         }
@@ -355,13 +351,13 @@ public class MainActivity extends BaseActivity {
         }
         menuItem.setChecked(true);
         mDrawer.closeDrawers();
-        mCurrentFragment = menuItem.getItemId();
+        currentFragment = menuItem.getItemId();
         invalidateOptionsMenu();
     }
 
     private void showDrawerErrorToast(int errorId) {
         Toast.makeText(this, errorId, Toast.LENGTH_SHORT).show();
-        MenuItem m = mNavView.getMenu().findItem(mCurrentFragment);
+        MenuItem m = mNavView.getMenu().findItem(currentFragment);
         m.setChecked(true);
         mDrawer.closeDrawers();
     }
@@ -431,6 +427,7 @@ public class MainActivity extends BaseActivity {
                 }
                 case R.id.nav_browser: {
                     ComicFragment comicFragment = (ComicFragment) getSupportFragmentManager().findFragmentByTag(BROWSER_TAG);
+                    Log.d("test", "test");
                     if (comicFragment != null && comicFragment.lastComicNumber != 0)
                         getSupportActionBar().setSubtitle(String.valueOf(comicFragment.lastComicNumber));
                     else
@@ -441,12 +438,14 @@ public class MainActivity extends BaseActivity {
         } else if (itemId == R.id.nav_whatif) {
             getSupportActionBar().setSubtitle("");
         }
+        FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
         if (fragmentManager.findFragmentByTag(fragmentTagHide) != null)
-            fragmentManager.beginTransaction().hide(fragmentManager.findFragmentByTag(fragmentTagHide)).commitAllowingStateLoss();
+            fragmentTransaction.hide(fragmentManager.findFragmentByTag(fragmentTagHide));
         if (fragmentManager.findFragmentByTag(fragmentTagHide2) != null)
-            fragmentManager.beginTransaction().hide(fragmentManager.findFragmentByTag(fragmentTagHide2)).commitAllowingStateLoss();
+            fragmentTransaction.hide(fragmentManager.findFragmentByTag(fragmentTagHide2));
         if (fragmentManager.findFragmentByTag(OVERVIEW_TAG) != null)
-            fragmentManager.beginTransaction().hide(fragmentManager.findFragmentByTag(OVERVIEW_TAG)).commitAllowingStateLoss();
+            fragmentTransaction.hide(fragmentManager.findFragmentByTag(OVERVIEW_TAG));
+        fragmentTransaction.commitAllowingStateLoss();
 
         if (showOverview)
             showOverview();
@@ -484,7 +483,7 @@ public class MainActivity extends BaseActivity {
                 ComicFragment fragment = (ComicFragment) fm.findFragmentByTag(BROWSER_TAG);
                 fragment.lastComicNumber = number;
                 if (fragment instanceof ComicBrowserFragment)
-                    mProgress = ProgressDialog.show(this, "", this.getResources().getString(R.string.loading_comics), true);
+                    progress = ProgressDialog.show(this, "", this.getResources().getString(R.string.loading_comics), true);
                 fragment.updatePager();
                 break;
             case WHATIF_INTENT:
@@ -646,7 +645,7 @@ public class MainActivity extends BaseActivity {
     @Override
     public void onSaveInstanceState(Bundle savedInstanceState) {
         //Save the current fragment
-        savedInstanceState.putInt(SAVED_INSTANCE_CURRENT_FRAGMENT, mCurrentFragment);
+        savedInstanceState.putInt(SAVED_INSTANCE_CURRENT_FRAGMENT, currentFragment);
         if (getSupportFragmentManager().findFragmentByTag(OVERVIEW_TAG) != null)
             savedInstanceState.putBoolean(OVERVIEW_TAG, getSupportFragmentManager().findFragmentByTag(OVERVIEW_TAG).isVisible());
         else
@@ -671,15 +670,15 @@ public class MainActivity extends BaseActivity {
     }
 
     public int getCurrentFragment() {
-        return mCurrentFragment;
+        return currentFragment;
     }
 
     public ProgressDialog getProgressDialog() {
-        return mProgress;
+        return progress;
     }
 
     public void setProgressDialog(String message, boolean cancel) {
-        mProgress = ProgressDialog.show(this, "", message, cancel);
+        progress = ProgressDialog.show(this, "", message, cancel);
     }
 
     private ActionBarDrawerToggle setupDrawerToggle() {
@@ -690,7 +689,7 @@ public class MainActivity extends BaseActivity {
     public void onConfigurationChanged(Configuration newConfig) {
         super.onConfigurationChanged(newConfig);
         // Pass any configuration change to the drawer toggles
-        mDrawerToggle.onConfigurationChanged(newConfig);
+        drawerToggle.onConfigurationChanged(newConfig);
     }
 
     @Override
@@ -700,7 +699,7 @@ public class MainActivity extends BaseActivity {
             getSearchMenuItem().collapseActionView();
         } else if (mDrawer != null && mDrawer.isDrawerOpen(GravityCompat.START)) {
             mDrawer.closeDrawer(GravityCompat.START);
-        } else if (mCurrentFragment == R.id.nav_browser && (fragmentManager.findFragmentByTag(OVERVIEW_TAG) == null || !fragmentManager.findFragmentByTag(OVERVIEW_TAG).isVisible())) {
+        } else if (currentFragment == R.id.nav_browser && (fragmentManager.findFragmentByTag(OVERVIEW_TAG) == null || !fragmentManager.findFragmentByTag(OVERVIEW_TAG).isVisible())) {
             boolean zoomReset;
             zoomReset = ((ComicFragment) fragmentManager.findFragmentByTag(BROWSER_TAG)).zoomReset();
             if (!zoomReset) {
@@ -709,7 +708,7 @@ public class MainActivity extends BaseActivity {
                 else
                     super.onBackPressed();
             }
-        } else if (mCurrentFragment == R.id.nav_favorites) {
+        } else if (currentFragment == R.id.nav_favorites) {
             FavoritesFragment favoritesFragment = (FavoritesFragment) fragmentManager.findFragmentByTag(FAV_TAG);
             if (!favoritesFragment.zoomReset())
                 super.onBackPressed();
@@ -756,7 +755,7 @@ public class MainActivity extends BaseActivity {
     protected void onPostCreate(Bundle savedInstanceState) {
         super.onPostCreate(savedInstanceState);
         // Sync the toggle state after onRestoreInstanceState has occurred.
-        mDrawerToggle.syncState();
+        drawerToggle.syncState();
     }
 
     //TODO use onActivityResult() instead
@@ -769,7 +768,7 @@ public class MainActivity extends BaseActivity {
         switch (requestCode) {
             case 1:
                 if (grantResults[0] == PackageManager.PERMISSION_GRANTED)
-                    if (mCurrentFragment == R.id.nav_favorites) {
+                    if (currentFragment == R.id.nav_favorites) {
                         FavoritesFragment fragment = (FavoritesFragment) getSupportFragmentManager().findFragmentByTag(FAV_TAG);
                         fragment.shareComic(true);
                     } else {
