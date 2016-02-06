@@ -24,6 +24,9 @@ android {
         maven {
             url "https://repo.commonsware.com.s3.amazonaws.com"
         }
+        maven {
+            url  "http://dl.bintray.com/lukaville/maven"
+        }
     }
     lintOptions {
         disable 'InvalidPackage'
@@ -47,5 +50,6 @@ dependencies {
         transitive=true
     }
     compile 'xyz.danoz:recyclerviewfastscroller:0.1.3'
+    compile 'com.nbsp:library:1.03'
 
 }

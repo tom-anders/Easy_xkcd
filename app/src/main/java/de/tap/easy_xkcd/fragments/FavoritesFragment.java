@@ -19,9 +19,12 @@
 package de.tap.easy_xkcd.fragments;
 
 import android.app.AlertDialog;
+import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.DialogInterface;
+import android.content.Intent;
 import android.graphics.Bitmap;
+import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.design.widget.Snackbar;
@@ -37,13 +40,27 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.bumptech.glide.Glide;
+import com.bumptech.glide.load.engine.DiskCacheStrategy;
 import com.bumptech.glide.request.target.GlideDrawableImageViewTarget;
+import com.nbsp.materialfilepicker.ui.FilePickerActivity;
 import com.tap.xkcd_reader.R;
 
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.lang.reflect.Array;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Random;
+import java.util.Stack;
 
+import de.tap.easy_xkcd.Activities.CustomFilePickerActivity;
 import de.tap.easy_xkcd.Activities.MainActivity;
+import de.tap.easy_xkcd.utils.Comic;
 import de.tap.easy_xkcd.utils.Favorites;
 import de.tap.easy_xkcd.utils.OfflineComic;
 import uk.co.senab.photoview.PhotoView;
@@ -141,9 +158,9 @@ public class FavoritesFragment extends ComicFragment {
             tvAlt.setText(prefHelper.getAlt(favorites[position]));
             tvTitle.setText(prefHelper.getTitle(favorites[position]));
 
-            if (getGifId(favorites[position]-1) != 0)
+            if (getGifId(favorites[position] - 1) != 0)
                 Glide.with(getActivity())
-                        .load(getGifId(favorites[position]-1))
+                        .load(getGifId(favorites[position] - 1))
                         .into(new GlideDrawableImageViewTarget(pvComic));
             else
                 pvComic.setImageBitmap(((OfflineComic) comicMap.get(position)).getBitmap());
@@ -158,32 +175,165 @@ public class FavoritesFragment extends ComicFragment {
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
-            case R.id.action_alt: {
+            case R.id.action_alt:
                 return setAltText(true);
-            }
-            case R.id.delete_favorites: {
+
+            case R.id.delete_favorites:
                 return deleteAllFavorites();
-            }
-            case R.id.action_favorite: {
+
+            case R.id.action_favorite:
                 return modifyFavorites();
-            }
-            case R.id.action_share: {
+
+            case R.id.action_share:
                 return shareComic(false);
-            }
-            case R.id.action_random: {
+
+            case R.id.action_random:
                 return getRandomComic();
-            }
-            case R.id.action_explain: {
+
+            case R.id.action_explain:
                 return explainComic(favorites[favoriteIndex]);
-            }
-            case R.id.action_browser: {
+
+            case R.id.action_browser:
                 return openComicInBrowser(favorites[favoriteIndex]);
-            }
-            case R.id.action_trans: {
+
+            case R.id.action_trans:
                 return showTranscript(comicMap.get(favoriteIndex).getTranscript());
-            }
+
+            case R.id.export_import_favorites:
+                return exportImportFavorites();
         }
         return super.onOptionsItemSelected(item);
+    }
+
+    private boolean exportImportFavorites() {
+        AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
+        builder.setItems(R.array.export_import_dialog, new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                switch (which) {
+                    case 0:
+                        exportFavorites();
+                        break;
+                    case 1:
+                        if (prefHelper.isOnline(getActivity()) || prefHelper.fullOfflineEnabled())
+                            startActivityForResult(new Intent(getActivity(), CustomFilePickerActivity.class), 1);
+                        else
+                            Toast.makeText(getActivity(), getResources().getString(R.string.no_connection), Toast.LENGTH_SHORT).show();
+                        break;
+                }
+            }
+        });
+        builder.create().show();
+        return true;
+    }
+
+    private void importFavorites(Intent intent) {
+        String filePath = intent.getStringExtra(FilePickerActivity.RESULT_FILE_PATH);
+        try {
+            File file = new File(filePath);
+            InputStreamReader inputStreamReader = new InputStreamReader(new FileInputStream(file));
+            BufferedReader bufferedReader = new BufferedReader(inputStreamReader);
+            String line;
+
+            Stack<Integer> newFavorites = new Stack<>();
+            while ((line = bufferedReader.readLine()) != null) {
+                String[] numberTitle = line.split(" - ");
+                int number = Integer.parseInt(numberTitle[0]);
+                if (Arrays.binarySearch(favorites, number) < 0) {
+                    newFavorites.push(number);
+                    Favorites.addFavoriteItem(getActivity(), String.valueOf(number));
+                }
+                if (!prefHelper.fullOfflineEnabled()) {
+                    new DownloadImageTask(newFavorites).execute();
+                }
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+            Toast.makeText(getActivity(), "Import failed", Toast.LENGTH_SHORT).show();
+        }
+    }
+
+    private class DownloadImageTask extends AsyncTask<Void, Void, Void> {
+        private Bitmap mBitmap;
+        private Stack<Integer> favStack;
+        private ProgressDialog progress;
+
+        public DownloadImageTask(Stack<Integer> stack) {
+            favStack = stack;
+        }
+
+        @Override
+        protected void onPreExecute() {
+            progress = new ProgressDialog(getActivity());
+            progress.setTitle(getResources().getString(R.string.loading_comics));
+            progress.setCancelable(false);
+            progress.show();
+        }
+
+        @Override
+        protected Void doInBackground(Void... dummy) {
+            while (!favStack.isEmpty()) {
+                try {
+                    int num = favStack.pop();
+                    Comic comic = new Comic(num, getActivity());
+                    mBitmap = Glide
+                            .with(getActivity())
+                            .load(comic.getComicData()[2])
+                            .asBitmap()
+                            .diskCacheStrategy(DiskCacheStrategy.SOURCE)
+                            .into(-1, -1)
+                            .get();
+                    saveComic(num, mBitmap);
+                    prefHelper.addTitle(comic.getComicData()[0], num);
+                    prefHelper.addAlt(comic.getComicData()[1], num);
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            }
+            return null;
+        }
+
+        @Override
+        protected void onPostExecute(Void dummy) {
+            progress.dismiss();
+            Toast.makeText(getActivity(), getResources().getString(R.string.pref_import_success), Toast.LENGTH_SHORT).show();
+            refresh();
+        }
+
+    }
+
+    @Override
+    public void onActivityResult(int requestCode, int resultCode, Intent data) {
+        if (requestCode == 1 && resultCode == FilePickerActivity.RESULT_OK)
+            importFavorites(data);
+    }
+
+    private void exportFavorites() {
+        //Export the full favorites list as text
+        StringBuilder sb = new StringBuilder();
+        String newline = System.getProperty("line.separator");
+        for (int i = 0; i < favorites.length; i++) {
+            sb.append(favorites[i]).append(" - ");
+            sb.append(prefHelper.getTitle(favorites[i]));
+            sb.append(newline);
+        }
+        try {
+            File sdCard = prefHelper.getOfflinePath();
+            File dir = new File(sdCard.getAbsolutePath() + "/easy xkcd");
+            File file = new File(dir, "favorites.txt");
+            FileWriter writer = new FileWriter(file);
+            writer.append(sb.toString());
+            writer.flush();
+            writer.close();
+            //Provide option to send to any app that accepts text/plain content
+            Intent sendIntent = new Intent(Intent.ACTION_SEND);
+            sendIntent.setType("text/plain");
+            sendIntent.putExtra(Intent.EXTRA_STREAM, Uri.fromFile(file));
+            startActivity(Intent.createChooser(sendIntent, getResources().getString(R.string.pref_export)));
+        } catch (IOException e) {
+            e.printStackTrace();
+            Toast.makeText(getActivity(), "Export failed", Toast.LENGTH_SHORT).show();
+        }
     }
 
     private boolean deleteAllFavorites() {
@@ -297,6 +447,7 @@ public class FavoritesFragment extends ComicFragment {
         menu.findItem(R.id.action_boomark).setVisible(false);
         menu.findItem(R.id.action_overview).setVisible(false);
         menu.findItem(R.id.delete_favorites).setVisible(true);
+        menu.findItem(R.id.export_import_favorites).setVisible(true);
         MenuItem fav = menu.findItem(R.id.action_favorite);
         fav.setIcon(R.drawable.ic_action_favorite);
         fav.setTitle(R.string.action_favorite_remove);

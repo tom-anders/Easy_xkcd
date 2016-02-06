@@ -11,6 +11,7 @@ import android.content.pm.ActivityInfo;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
@@ -36,6 +37,8 @@ import com.turhanoz.android.reactivedirectorychooser.ui.DirectoryChooserFragment
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
+import java.io.FileWriter;
+import java.io.IOException;
 
 import de.tap.easy_xkcd.Activities.MainActivity;
 import de.tap.easy_xkcd.Activities.NestedSettingsActivity;
@@ -328,27 +331,6 @@ public class NestedPreferenceFragment extends PreferenceFragment {
                         } else {
                             Toast.makeText(getActivity(), R.string.no_connection, Toast.LENGTH_SHORT).show();
                         }
-                        return true;
-                    }
-                });
-                findPreference(EXPORT).setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
-                    @Override
-                    public boolean onPreferenceClick(Preference preference) {
-                        //Export the full favorites list as text                        
-                        String[] fav = Favorites.getFavoriteList(MainActivity.getInstance());
-                        StringBuilder sb = new StringBuilder();
-                        String newline = System.getProperty("line.separator");
-                        for (int i = 0; i < fav.length; i++) {
-                            sb.append(fav[i]).append(" - ");
-                            sb.append(prefHelper.getTitle(Integer.parseInt(fav[i])));
-                            sb.append(newline); 
-                        }
-                        //Provide option to send to any app that accepts text/plain content
-                        Intent sendIntent = new Intent(Intent.ACTION_SEND);
-                        sendIntent.putExtra(Intent.EXTRA_TEXT, sb.toString());
-                        sendIntent.setType("text/plain");
-                        //Always ask the user which app to send to, even if they've set a device default
-                        startActivity(Intent.createChooser(sendIntent, getResources().getString(R.string.pref_export)));
                         return true;
                     }
                 });

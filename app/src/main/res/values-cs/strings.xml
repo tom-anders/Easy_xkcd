@@ -102,6 +102,12 @@
         <item>Sdílet URL</item>
     </string-array>
 
+    <string-array
+        name="export_import_dialog">
+        <item>Export</item>
+        <item>Import</item>
+    </string-array>
+
     <string-array name="card_long_click">
         <item>Sdílet</item>
         <item>Otevřít v prohlížeči</item>
@@ -202,7 +208,6 @@
     <string name="pref_repair">Opravit offline komixy</string>
     <string name="pref_repair_sum">Pokud vidíte prázdné komixy, tato možnost je napraví novým stažením</string>
     <string name="pref_export">Exportovat oblíbené</string>
-    <string name="pref_export_sum">Exportovat seznam oblíbených jako text</string>
     <string name="pref_hide_donate">Skrýt tlačítko pro darování</string>
     <string name="title_activity_donate">Podpořit</string>
     <string name="pref_alt_title">Alternativní text</string>
@@ -264,5 +269,7 @@
         <item>Krátký dotyk</item>
         <item>Dlouhý dotyk</item>
     </string-array>
+    <string name="pref_export_import">Export/Import Favorites</string>
+    <string name="pref_import_success">Favorites imported!</string>
 
 </resources>

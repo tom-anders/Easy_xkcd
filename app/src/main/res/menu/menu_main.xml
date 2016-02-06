@@ -75,6 +75,11 @@
         android:title="@string/action_explain"
         app:showAsAction="never" />
 
+    <item android:id="@+id/export_import_favorites"
+        android:title="@string/pref_export_import"
+        android:visible="false"
+        app:showAsAction="never" />
+
     <item android:id="@+id/action_browser"
         android:title="@string/action_browser"
         android:visible="false"
