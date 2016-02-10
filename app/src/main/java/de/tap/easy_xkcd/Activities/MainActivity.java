@@ -193,7 +193,7 @@ public class MainActivity extends BaseActivity {
             if (savedInstanceState != null)
                 showOverview = savedInstanceState.getBoolean(OVERVIEW_TAG, false);
             else {
-                overviewLaunch = prefHelper.launchToOverview();
+                overviewLaunch = prefHelper.launchToOverview() && !getIntent().getAction().equals(Intent.ACTION_VIEW);
             }
             selectDrawerItem(item, showOverview);
         } else if ((currentFragment != R.id.nav_favorites)) { //Don't show the dialog if the user is currently browsing his favorites or full offline is enabled

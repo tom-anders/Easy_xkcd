@@ -1,3 +1,8 @@
+## 4.1.1
+
+- Improved What-If notifications
+- Some small bugs fixed
+
 ## 4.1
 
 - Import/Export favorites
