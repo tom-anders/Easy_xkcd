@@ -364,6 +364,11 @@ public class WhatIfFragment extends android.support.v4.app.Fragment {
                     break;
                 case "Saliva Pool":
                     id = R.mipmap.question;
+                    break;
+                case "Fire From Moonlight":
+                    id = R.mipmap.rabbit;
+                    break;
+
             }
             if (id != 0) {
                 comicViewHolder.thumbnail.setImageDrawable(ContextCompat.getDrawable(getActivity(), id));

@@ -192,7 +192,7 @@
     <string name="pref_notifications_sum">Sucht Montags, Mittwochs und Freitags nach neuen Comics, sucht Dienstags nach neuem What If</string>
     <string name="new_comic">Neuer Comic!</string>
     <string name="pref_show_alt">Alt Text immer anzeigen</string>
-    <string name="loading_articles">Lade Artikel&#8230;</string>
+    <string name="loading_articles">Lade neue Artikel…</string>
     <string name="action_night_mode">Nacht Modus</string>
     <string name="action_browser">Im Browser öffnen</string>
     <string name="action_hide_read">Verstecke gelesene</string>

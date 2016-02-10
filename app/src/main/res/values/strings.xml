@@ -33,7 +33,7 @@
     <string name="loading_random">Loading Random Comic&#8230;</string>
     <string name="no_favorites">You didn\'t add any Favorites yet!</string>
     <string name="loading_comics">Loading Comics&#8230;</string>
-    <string name="loading_articles">Loading articles&#8230;</string>
+    <string name="loading_articles">Downloading new articles&#8230;</string>
     <string name="loading_results">Loading Search Results&#8230;</string>
     <string name="no_connection">No connection&#8230;</string>
     <string name="no_connection_retry">Try again</string>
