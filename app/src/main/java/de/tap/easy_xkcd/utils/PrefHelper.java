@@ -69,7 +69,9 @@ public class PrefHelper {
     private static final String MONDAY_UPDATE = "monday_update";
     private static final String WEDNESDAY_UPDATE = "wednesday_update";
     private static final String FRIDAY_UPDATE = "friday_update";
-    private static final String TUESDAY_UPDATE = "tuesday_update";
+    private static final String TUESDAY_UPDATE_WHATIF = "tuesday_update_whatif";
+    private static final String WEDNESDAY_UPDATE_WHATIF = "wednesday_update_whatif";
+    private static final String THURSDAY_UPDATE_WHATIF = "thursday_update_whatif";
     private static final String ALT_DEFAULT = "pref_show_alt";
     private static final String LAST_WHATIF = "last_whatif";
     private static final String NIGHT_MODE = "night_mode";
@@ -111,7 +113,6 @@ public class PrefHelper {
     private static final String BOOKMARK = "bookmark";
     private static final String WHAT_IF_SUNBEAM_LOADED = "sun_beam";
     private static final String LAUNCH_TO_OVERVIEW = "pref_overview_default";
-
 
 
     public PrefHelper(Context context) {
@@ -284,7 +285,7 @@ public class PrefHelper {
         return Integer.parseInt(hours) * 60 * 60 * 1000;
     }
 
-    public boolean checkUpdated(int day) {
+    public boolean checkComicUpdated(int day) {
         switch (day) {
             case Calendar.MONDAY:
                 return sharedPrefs.getBoolean(MONDAY_UPDATE, false);
@@ -292,11 +293,45 @@ public class PrefHelper {
                 return sharedPrefs.getBoolean(WEDNESDAY_UPDATE, false);
             case Calendar.FRIDAY:
                 return sharedPrefs.getBoolean(FRIDAY_UPDATE, false);
-
-            case Calendar.TUESDAY:
-                return sharedPrefs.getBoolean(TUESDAY_UPDATE, false);
         }
         return true;
+    }
+
+    public boolean checkWhatIfUpdated(int day) {
+        switch (day) {
+            case Calendar.TUESDAY:
+                return sharedPrefs.getBoolean(TUESDAY_UPDATE_WHATIF, false);
+            case Calendar.WEDNESDAY:
+                return sharedPrefs.getBoolean(WEDNESDAY_UPDATE_WHATIF, false);
+            case Calendar.THURSDAY:
+                return sharedPrefs.getBoolean(THURSDAY_UPDATE_WHATIF, false);
+        }
+        return true;
+    }
+
+    public void setWhatIfUpdated(int day, boolean found) {
+        SharedPreferences.Editor editor = sharedPrefs.edit();
+        switch (day) {
+            case Calendar.TUESDAY:
+                editor.putBoolean(TUESDAY_UPDATE_WHATIF, found);
+                editor.putBoolean(WEDNESDAY_UPDATE_WHATIF, false);
+                editor.putBoolean(THURSDAY_UPDATE_WHATIF, false);
+                break;
+            case Calendar.WEDNESDAY:
+                editor.putBoolean(WEDNESDAY_UPDATE_WHATIF, found);
+                editor.putBoolean(TUESDAY_UPDATE_WHATIF, false);
+                editor.putBoolean(THURSDAY_UPDATE_WHATIF, false);
+                break;
+            case Calendar.THURSDAY:
+                editor.putBoolean(THURSDAY_UPDATE_WHATIF, found);
+                editor.putBoolean(TUESDAY_UPDATE_WHATIF, false);
+                editor.putBoolean(WEDNESDAY_UPDATE_WHATIF, false);
+                break;
+        }
+        editor.apply();
+        Log.d("Update Status WhatIf:", String.valueOf(sharedPrefs.getBoolean(TUESDAY_UPDATE_WHATIF, false))
+                + String.valueOf(sharedPrefs.getBoolean(WEDNESDAY_UPDATE_WHATIF, false))
+                + String.valueOf(sharedPrefs.getBoolean(THURSDAY_UPDATE_WHATIF, false)));
     }
 
     public void setUpdated(int day, boolean found) {
@@ -311,20 +346,15 @@ public class PrefHelper {
                 editor.putBoolean(WEDNESDAY_UPDATE, found);
                 editor.putBoolean(FRIDAY_UPDATE, false);
                 editor.putBoolean(MONDAY_UPDATE, false);
-                editor.putBoolean(TUESDAY_UPDATE, false);
                 break;
             case Calendar.FRIDAY:
                 editor.putBoolean(FRIDAY_UPDATE, found);
                 editor.putBoolean(MONDAY_UPDATE, false);
                 editor.putBoolean(WEDNESDAY_UPDATE, false);
-                editor.putBoolean(TUESDAY_UPDATE, false);
                 break;
-            case Calendar.TUESDAY:
-                editor.putBoolean(TUESDAY_UPDATE, found);
         }
         editor.apply();
         Log.d("Update Status:", String.valueOf(sharedPrefs.getBoolean(MONDAY_UPDATE, false))
-                + String.valueOf(sharedPrefs.getBoolean(TUESDAY_UPDATE, false))
                 + String.valueOf(sharedPrefs.getBoolean(WEDNESDAY_UPDATE, false))
                 + String.valueOf(sharedPrefs.getBoolean(FRIDAY_UPDATE, false)));
     }
@@ -621,8 +651,8 @@ public class PrefHelper {
     public boolean nomediaCreated() {
         SharedPreferences.Editor editor = sharedPrefs.edit();
         boolean created = sharedPrefs.getBoolean(NOMEDIA_CREATED, false);
-        editor.putBoolean(NOMEDIA_CREATED, true);
-        editor.apply();
+        if (!created)
+            editor.putBoolean(NOMEDIA_CREATED, true).apply();
         return created;
     }
 

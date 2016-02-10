@@ -427,7 +427,6 @@ public class MainActivity extends BaseActivity {
                 }
                 case R.id.nav_browser: {
                     ComicFragment comicFragment = (ComicFragment) getSupportFragmentManager().findFragmentByTag(BROWSER_TAG);
-                    Log.d("test", "test");
                     if (comicFragment != null && comicFragment.lastComicNumber != 0)
                         getSupportActionBar().setSubtitle(String.valueOf(comicFragment.lastComicNumber));
                     else
