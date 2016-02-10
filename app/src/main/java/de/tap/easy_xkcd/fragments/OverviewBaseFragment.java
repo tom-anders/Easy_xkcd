@@ -23,6 +23,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.util.Arrays;
+import java.util.Random;
 
 import de.tap.easy_xkcd.Activities.MainActivity;
 import de.tap.easy_xkcd.utils.Comic;
@@ -52,7 +53,12 @@ public abstract class OverviewBaseFragment extends android.support.v4.app.Fragme
     public void showComic(final int pos) {
         android.support.v4.app.FragmentManager fragmentManager = getActivity().getSupportFragmentManager();
         ComicFragment fragment = (ComicFragment) fragmentManager.findFragmentByTag(BROWSER_TAG);
-        fragment.scrollTo(titles.keyAt(pos) - 1, false);
+        if (!prefHelper.overviewFav())
+            fragment.scrollTo(titles.keyAt(pos) - 1, false);
+        else {
+            Random random = new Random();
+            fragment.scrollTo(titles.keyAt(random.nextInt(titles.size())), false);
+        }
 
         if (Build.VERSION.SDK_INT < Build.VERSION_CODES.LOLLIPOP) {
             fragmentManager.beginTransaction().hide(fragmentManager.findFragmentByTag(OVERVIEW_TAG)).show(fragment).commitAllowingStateLoss();
