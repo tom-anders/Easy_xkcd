@@ -61,7 +61,6 @@ public class PrefHelper {
     private static final String LAST_COMIC = "Last Comic";
     private static final String ALT_VIBRATION = "pref_alt";
     private static final String ALT_BACK = "pref_alt_back";
-    private static final String ORIENTATION = "pref_orientation";
     private static final String ALT_TIP = "alt_tip";
     private static final String SHARE_IMAGE = "pref_share";
     private static final String SHARE_MOBILE = "pref_mobile";
@@ -90,7 +89,7 @@ public class PrefHelper {
     private static final String SHARE_ALT = "pref_share_alt";
     private static final String PREF_ZOOM = "pref_zoom";
     private static final String PREF_DONATE = "pref_hide_donate";
-    private static final String DATABSE_LOADED = "database_loaded";
+    private static final String DATABASE_LOADED = "database_loaded";
     private static final String ALT_STYLE = "pref_alt_style";
     private static final String ALT_OPTIONS = "pref_alt_options";
     private static final String ALT_ACTIVATION = "pref_alt_activation";
@@ -125,9 +124,7 @@ public class PrefHelper {
     }
 
     public void setFullOffline(boolean value) {
-        SharedPreferences.Editor editor = prefs.edit();
-        editor.putBoolean(FULL_OFFLINE, value);
-        editor.commit();
+        prefs.edit().putBoolean(FULL_OFFLINE, value).apply();
     }
 
     public String getComicTitles() {
@@ -155,32 +152,23 @@ public class PrefHelper {
     }
 
     public boolean databaseLoaded() {
-        return sharedPrefs.getBoolean(DATABSE_LOADED, false);
+        return sharedPrefs.getBoolean(DATABASE_LOADED, false);
     }
 
     public void setDatabaseLoaded() {
-        SharedPreferences.Editor editor = sharedPrefs.edit();
-        editor.putBoolean(DATABSE_LOADED, true);
-        editor.apply();
+        sharedPrefs.edit().putBoolean(DATABASE_LOADED, true).apply();
     }
 
     public void setTitles(String titles) {
-        SharedPreferences.Editor editor = sharedPrefs.edit();
-        editor.putString(COMIC_TITLES, titles);
-        editor.commit();
+        sharedPrefs.edit().putString(COMIC_TITLES, titles).apply();
     }
 
     public void setUrls(String urls, int highest) {
-        SharedPreferences.Editor editor = sharedPrefs.edit();
-        editor.putString(COMIC_URLS, urls);
-        editor.putInt(HIGHEST_COMIC_URL, highest);
-        editor.commit();
+        sharedPrefs.edit().putString(COMIC_URLS, urls).putInt(HIGHEST_COMIC_URL, highest).apply();
     }
 
     public void setTrans(String trans) {
-        SharedPreferences.Editor editor = sharedPrefs.edit();
-        editor.putString(COMIC_TRANS, trans);
-        editor.commit();
+        sharedPrefs.edit().putString(COMIC_TRANS, trans).apply();
     }
 
     public int getHighestUrls() {
@@ -188,9 +176,7 @@ public class PrefHelper {
     }
 
     public void addTitle(String title, int i) {
-        SharedPreferences.Editor editor = sharedPrefs.edit();
-        editor.putString(OFFLINE_TITLE + String.valueOf(i), title);
-        editor.commit();
+        sharedPrefs.edit().putString(OFFLINE_TITLE + String.valueOf(i), title).apply();
     }
 
     public String getTitle(int number) {
@@ -198,9 +184,7 @@ public class PrefHelper {
     }
 
     public void addAlt(String alt, int i) {
-        SharedPreferences.Editor editor = sharedPrefs.edit();
-        editor.putString(OFFLINE_ALT + String.valueOf(i), alt);
-        editor.commit();
+        sharedPrefs.edit().putString(OFFLINE_ALT + String.valueOf(i), alt).apply();
     }
 
     public String getAlt(int number) {
@@ -208,9 +192,7 @@ public class PrefHelper {
     }
 
     public void setHighestOffline(int number) {
-        SharedPreferences.Editor editor = sharedPrefs.edit();
-        editor.putInt(OFFLINE_HIGHEST, number);
-        editor.commit();
+        sharedPrefs.edit().putInt(OFFLINE_HIGHEST, number).apply();
     }
 
     public int getHighestOffline() {
@@ -233,9 +215,7 @@ public class PrefHelper {
     }
 
     public void setLastComic(int number) {
-        SharedPreferences.Editor editor = sharedPrefs.edit();
-        editor.putInt(LAST_COMIC, number);
-        editor.commit();
+        sharedPrefs.edit().putInt(LAST_COMIC, number).apply();
     }
 
     public int getLastComic() {
@@ -243,9 +223,7 @@ public class PrefHelper {
     }
 
     public void setNewestComic(int number) {
-        SharedPreferences.Editor editor = sharedPrefs.edit();
-        editor.putInt(NEWEST_COMIC, number);
-        editor.commit();
+        sharedPrefs.edit().putInt(NEWEST_COMIC, number).apply();
     }
 
     public boolean altVibration() {
@@ -261,9 +239,7 @@ public class PrefHelper {
     }
 
     public void setAltTip(boolean value) {
-        SharedPreferences.Editor editor = sharedPrefs.edit();
-        editor.putBoolean(ALT_TIP, value);
-        editor.apply();
+        sharedPrefs.edit().putBoolean(ALT_TIP, value).apply();
     }
 
     public boolean shareImage() {
@@ -368,9 +344,7 @@ public class PrefHelper {
     }
 
     public void setLastWhatIf(int number) {
-        SharedPreferences.Editor editor = sharedPrefs.edit();
-        editor.putInt(LAST_WHATIF, number);
-        editor.apply();
+        sharedPrefs.edit().putInt(LAST_WHATIF, number).apply();
     }
 
     public boolean nightModeEnabled() {
@@ -378,9 +352,7 @@ public class PrefHelper {
     }
 
     public void setNightMode(boolean value) {
-        SharedPreferences.Editor editor = sharedPrefs.edit();
-        editor.putBoolean(NIGHT_MODE, value);
-        editor.commit();
+        sharedPrefs.edit().putBoolean(NIGHT_MODE, value).apply();
     }
 
     public void setWhatifRead(String added) {
@@ -390,9 +362,7 @@ public class PrefHelper {
         } else {
             read = added;
         }
-        SharedPreferences.Editor editor = sharedPrefs.edit();
-        editor.putString(WHATIF_READ, read);
-        editor.commit();
+        sharedPrefs.edit().putString(WHATIF_READ, read).apply();
     }
 
     public boolean checkRead(int number) {
@@ -441,9 +411,7 @@ public class PrefHelper {
         } else {
             fav = added;
         }
-        SharedPreferences.Editor editor = sharedPrefs.edit();
-        editor.putString(WHATIF_FAV, fav);
-        editor.commit();
+        sharedPrefs.edit().putString(WHATIF_FAV, fav).apply();
     }
 
     public boolean checkWhatIfFav(int number) {
@@ -469,8 +437,6 @@ public class PrefHelper {
         }
         int a = Arrays.binarySearch(oldInt, number);
         String[] out = new String[old.length - 1];
-        Log.d("favorites", sharedPrefs.getString(WHATIF_FAV, ""));
-        Log.d("a", String.valueOf(a));
         if (out.length != 0 && a >= 0) {
             System.arraycopy(old, 0, out, 0, a);
             System.arraycopy(old, a + 1, out, a, out.length - a);
@@ -480,27 +446,19 @@ public class PrefHelper {
                 sb.append(",");
                 sb.append(out[i]);
             }
-            SharedPreferences.Editor editor = sharedPrefs.edit();
-            editor.putString(WHATIF_FAV, sb.toString());
-            editor.commit();
+            sharedPrefs.edit().putString(WHATIF_FAV, sb.toString()).apply();
         } else {
-            SharedPreferences.Editor editor = sharedPrefs.edit();
-            editor.putString(WHATIF_FAV, "");
-            editor.commit();
+            sharedPrefs.edit().putString(WHATIF_FAV, "").apply();
         }
 
     }
 
     public void setAllUnread() {
-        SharedPreferences.Editor editor = sharedPrefs.edit();
-        editor.putString(WHATIF_READ, "");
-        editor.commit();
+        sharedPrefs.edit().putString(WHATIF_READ, "").apply();
     }
 
     public void setComicsUnread() {
-        SharedPreferences.Editor editor = sharedPrefs.edit();
-        editor.putString(COMIC_READ, "");
-        editor.commit();
+        sharedPrefs.edit().putString(COMIC_READ, "").apply();
     }
 
     public boolean hideReadWhatIf() {
@@ -508,9 +466,7 @@ public class PrefHelper {
     }
 
     public void setHideReadWhatIf(boolean value) {
-        SharedPreferences.Editor editor = sharedPrefs.edit();
-        editor.putBoolean(HIDE_READ_WHATIF, value);
-        editor.apply();
+        sharedPrefs.edit().putBoolean(HIDE_READ_WHATIF, value).apply();
     }
 
     public boolean hideRead() {
@@ -518,9 +474,7 @@ public class PrefHelper {
     }
 
     public void setHideRead(boolean value) {
-        SharedPreferences.Editor editor = sharedPrefs.edit();
-        editor.putBoolean(HIDE_READ_OVERVIEW, value);
-        editor.apply();
+        sharedPrefs.edit().putBoolean(HIDE_READ_OVERVIEW, value).apply();
     }
 
     public boolean swipeEnabled() {
@@ -528,9 +482,7 @@ public class PrefHelper {
     }
 
     public void setSwipeEnabled(boolean value) {
-        SharedPreferences.Editor editor = sharedPrefs.edit();
-        editor.putBoolean(SWIPE_ENABLED, value);
-        editor.apply();
+        sharedPrefs.edit().putBoolean(SWIPE_ENABLED, value).apply();
     }
 
     public boolean showRateDialog() {
@@ -622,15 +574,11 @@ public class PrefHelper {
     }
 
     public void setNewestWhatif(int number) {
-        SharedPreferences.Editor editor = sharedPrefs.edit();
-        editor.putInt(NEWEST_WHATIF, number);
-        editor.apply();
+        sharedPrefs.edit().putInt(NEWEST_WHATIF, number).apply();
     }
 
     public void setFullOfflineWhatIf(boolean value) {
-        SharedPreferences.Editor editor = prefs.edit();
-        editor.putBoolean(WHATIF_OFFLINE, value);
-        editor.commit();
+        prefs.edit().putBoolean(WHATIF_OFFLINE, value).apply();
     }
 
     public boolean fullOfflineWhatIf() {
@@ -638,9 +586,7 @@ public class PrefHelper {
     }
 
     public void setWhatIfTitles(String titles) {
-        SharedPreferences.Editor editor = sharedPrefs.edit();
-        editor.putString(WHATIF_TITLES, titles);
-        editor.commit();
+        sharedPrefs.edit().putString(WHATIF_TITLES, titles).apply();
     }
 
     public ArrayList<String> getWhatIfTitles() {
@@ -675,9 +621,7 @@ public class PrefHelper {
     }
 
     public void setHideDonate(boolean value) {
-        SharedPreferences.Editor editor = prefs.edit();
-        editor.putBoolean(PREF_DONATE, value);
-        editor.apply();
+        prefs.edit().putBoolean(PREF_DONATE, value).apply();
     }
 
     public boolean altLongTap() {
@@ -695,16 +639,12 @@ public class PrefHelper {
                     context.startActivity(intent);
                 }
             };
-            SharedPreferences.Editor editor = sharedPrefs.edit();
-            editor.putBoolean(SURVEY_SNACKBAR, true);
-            editor.apply();
+            sharedPrefs.edit().putBoolean(SURVEY_SNACKBAR, true).apply();
             Snackbar.make(fab, R.string.snackbar_survey, Snackbar.LENGTH_LONG)
                     .setAction(R.string.snackbar_survey_oc, oc)
                     .show();
         } else if (n < 15) {
-            SharedPreferences.Editor editor = sharedPrefs.edit();
-            editor.putInt("survey count", n + 1);
-            editor.apply();
+            sharedPrefs.edit().putInt("survey count", n + 1).apply();
         }
     }
 
@@ -829,17 +769,17 @@ public class PrefHelper {
     }
 
     public void setAutoNightStart(int[] time) {
-        SharedPreferences.Editor editor = sharedPrefs.edit();
-        editor.putInt(AUTO_NIGHT_START_HOUR, time[0]);
-        editor.putInt(AUTO_NIGHT_START_MIN, time[1]);
-        editor.apply();
+        sharedPrefs.edit()
+                .putInt(AUTO_NIGHT_START_HOUR, time[0])
+                .putInt(AUTO_NIGHT_START_MIN, time[1])
+                .apply();
     }
 
     public void setAutoNightEnd(int[] time) {
-        SharedPreferences.Editor editor = sharedPrefs.edit();
-        editor.putInt(AUTO_NIGHT_END_HOUR, time[0]);
-        editor.putInt(AUTO_NIGHT_END_MIN, time[1]);
-        editor.apply();
+        sharedPrefs.edit()
+                .putInt(AUTO_NIGHT_END_HOUR, time[0])
+                .putInt(AUTO_NIGHT_END_MIN, time[1])
+                .apply();
     }
 
     public String getStartSummary() {
@@ -870,9 +810,7 @@ public class PrefHelper {
     }
 
     public void setOfflinePath(String path) {
-        SharedPreferences.Editor editor = prefs.edit();
-        editor.putString(OFFLINE_PATH, path);
-        editor.apply();
+        prefs.edit().putString(OFFLINE_PATH, path).apply();
     }
 
     public boolean isWifi(Context context) {
@@ -901,9 +839,7 @@ public class PrefHelper {
     }
 
     public void setOverviewFav(boolean value) {
-        SharedPreferences.Editor editor = sharedPrefs.edit();
-        editor.putBoolean(OVERVIEW_FAV, value);
-        editor.apply();
+        sharedPrefs.edit().putBoolean(OVERVIEW_FAV, value).apply();
     }
 
     public boolean defaultZoom() {
@@ -915,15 +851,11 @@ public class PrefHelper {
     }
 
     public void setOverviewStyle(int style) {
-        SharedPreferences.Editor editor = sharedPrefs.edit();
-        editor.putInt(OVERVIEW_STYLE, style);
-        editor.apply();
+        sharedPrefs.edit().putInt(OVERVIEW_STYLE, style).apply();
     }
 
     public void setBookmark(int number) {
-        SharedPreferences.Editor editor = sharedPrefs.edit();
-        editor.putInt(BOOKMARK, number);
-        editor.apply();
+        sharedPrefs.edit().putInt(BOOKMARK, number).apply();
     }
 
     public int getBookmark() {
