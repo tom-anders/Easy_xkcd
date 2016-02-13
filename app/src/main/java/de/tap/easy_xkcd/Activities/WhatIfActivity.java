@@ -112,12 +112,14 @@ public class WhatIfActivity extends BaseActivity {
 
         @Override
         protected void onPreExecute() {
-            mProgress = new ProgressDialog(WhatIfActivity.this);
-            mProgress.setTitle(getResources().getString(R.string.loading_articles));
-            mProgress.setIndeterminate(false);
-            mProgress.setProgressStyle(ProgressDialog.STYLE_HORIZONTAL);
-            mProgress.setCancelable(false);
-            mProgress.show();
+            if (!prefHelper.fullOfflineWhatIf()) {
+                mProgress = new ProgressDialog(WhatIfActivity.this);
+                mProgress.setTitle(getResources().getString(R.string.loading_articles));
+                mProgress.setIndeterminate(false);
+                mProgress.setProgressStyle(ProgressDialog.STYLE_HORIZONTAL);
+                mProgress.setCancelable(false);
+                mProgress.show();
+            }
         }
 
         @Override
@@ -136,7 +138,8 @@ public class WhatIfActivity extends BaseActivity {
             web.loadDataWithBaseURL("file:///android_asset/.", doc.html(), "text/html", "UTF-8", null);
             web.setWebChromeClient(new WebChromeClient() {
                 public void onProgressChanged(WebView view, int progress) {
-                    mProgress.setProgress(progress);
+                    if (!prefHelper.fullOfflineWhatIf())
+                        mProgress.setProgress(progress);
                 }
             });
             web.setWebViewClient(new WebViewClient() {
