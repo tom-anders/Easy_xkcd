@@ -253,7 +253,8 @@ public class ComicBrowserFragment extends ComicFragment {
                             loadedFromDatabase = false;
                         }
                     }
-
+                    if (largeComic)
+                        animateToolbar();
                 }
 
                 @Override
