@@ -1,3 +1,8 @@
+## 4.2
+
+- Favorites Export fixed
+- Offline comics/articles load up to 2x faster
+
 ## 4.1.1
 
 - Improved What-If notifications
