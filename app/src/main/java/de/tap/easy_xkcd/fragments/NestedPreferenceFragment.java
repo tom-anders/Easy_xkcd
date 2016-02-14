@@ -49,6 +49,11 @@ import de.tap.easy_xkcd.services.ComicDownloadService;
 import de.tap.easy_xkcd.utils.Comic;
 import de.tap.easy_xkcd.utils.Favorites;
 import de.tap.easy_xkcd.utils.PrefHelper;
+import okhttp3.OkHttpClient;
+import okhttp3.Request;
+import okhttp3.Response;
+import okio.BufferedSink;
+import okio.Okio;
 
 public class NestedPreferenceFragment extends PreferenceFragment {
     private static final String APPEARANCE = "appearance";
@@ -61,7 +66,6 @@ public class NestedPreferenceFragment extends PreferenceFragment {
     private static final String COLORED_NAVBAR = "pref_navbar";
     private static final String THEME = "pref_theme";
     private static final String NOTIFICATIONS_INTERVAL = "pref_notifications";
-    private static final String ORIENTATION = "pref_orientation";
     private static final String FULL_OFFLINE = "pref_offline";
     private static final String WHATIF_OFFLINE = "pref_offline_whatif";
     private static final String NIGHT_THEME = "pref_night";
@@ -70,13 +74,11 @@ public class NestedPreferenceFragment extends PreferenceFragment {
     private static final String AUTO_NIGHT_END = "pref_auto_night_end";
     private static final String REPAIR = "pref_repair";
     private static final String MOBILE_ENABLED = "pref_update_mobile";
-	private static final String EXPORT = "pref_export";
     private static final String FAB_OPTIONS = "pref_random";
     private static final String OFFLINE_PATH_PREF = "pref_offline_path";
 
     private static final String OFFLINE_PATH = "/easy xkcd";
     private static final String OFFLINE_WHATIF_PATH = "/easy xkcd/what if/";
-    private static final String OFFLINE_WHATIF_OVERVIEW_PATH = "/easy xkcd/what if/overview";
 
 
     public static boolean themeSettingChanged;
@@ -150,23 +152,6 @@ public class NestedPreferenceFragment extends PreferenceFragment {
                         return true;
                     }
                 });
-                /*findPreference(ORIENTATION).setOnPreferenceChangeListener(new Preference.OnPreferenceChangeListener() {
-                    @Override
-                    public boolean onPreferenceChange(Preference preference, Object newValue) {
-                        switch (Integer.parseInt(prefHelper.getOrientation())) {
-                            case 1:
-                                MainActivity.getInstance().setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_USER);
-                                break;
-                            case 2:
-                                MainActivity.getInstance().setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
-                                break;
-                            case 3:
-                                MainActivity.getInstance().setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE);
-                                break;
-                        }
-                        return true;
-                    }
-                });*/
                 findPreference(FULL_OFFLINE).setOnPreferenceChangeListener(new Preference.OnPreferenceChangeListener() {
                     @Override
                     public boolean onPreferenceChange(Preference preference, Object newValue) {
@@ -376,24 +361,22 @@ public class NestedPreferenceFragment extends PreferenceFragment {
             } catch (Exception e) {
                 newest = prefHelper.getNewest();
             }
-            Bitmap mBitmap = null;
             for (int i = 1; i <= newest; i++) {
                 Log.d("i", String.valueOf(i));
                 try {
-                    FileInputStream fis = getActivity().openFileInput(String.valueOf(i));
-                    //mBitmap = BitmapFactory.decodeStream(fis);
+                    File sdCard = prefHelper.getOfflinePath();
+                    File dir = new File(sdCard.getAbsolutePath() + OFFLINE_PATH);
+                    File file = new File(dir, String.valueOf(i) + ".png");
+                    FileInputStream fis = new FileInputStream(file);
+                    BitmapFactory.decodeStream(fis);
                     fis.close();
                 } catch (Exception e) {
-                    Log.e("error", "not found in internal");
+                    Log.e("error", i + " not found in external");
                     try {
-                        File sdCard = prefHelper.getOfflinePath();
-                        File dir = new File(sdCard.getAbsolutePath() + OFFLINE_PATH);
-                        File file = new File(dir, String.valueOf(i) + ".png");
-                        FileInputStream fis = new FileInputStream(file);
-                        mBitmap = BitmapFactory.decodeStream(fis);
+                        FileInputStream fis = getActivity().openFileInput(String.valueOf(i));
                         fis.close();
                     } catch (Exception e2) {
-                        Log.e("error", "not found in external");
+                        Log.e("error", i + " not found in internal");
                         redownloadComic(i);
                     }
                 }
@@ -405,33 +388,33 @@ public class NestedPreferenceFragment extends PreferenceFragment {
         }
 
         private void redownloadComic(int i) {
+            OkHttpClient client = new OkHttpClient();
+            File sdCard = prefHelper.getOfflinePath();
+            File dir = new File(sdCard.getAbsolutePath() + OFFLINE_PATH);
             try {
                 Comic comic = new Comic(i, getActivity());
-                String url = comic.getComicData()[2];
-                Bitmap mBitmap = Glide.with(getActivity())
-                        .load(url)
-                        .asBitmap()
-                        .into(-1, -1)
-                        .get();
+                Request request = new Request.Builder()
+                        .url(comic.getComicData()[2])
+                        .build();
+                Response response = client.newCall(request).execute();
                 try {
-                    File sdCard = prefHelper.getOfflinePath();
-                    File dir = new File(sdCard.getAbsolutePath() + OFFLINE_PATH);
-                    dir.mkdirs();
                     File file = new File(dir, String.valueOf(i) + ".png");
-                    FileOutputStream fos = new FileOutputStream(file);
-                    mBitmap.compress(Bitmap.CompressFormat.PNG, 100, fos);
-                    fos.flush();
-                    fos.close();
+                    BufferedSink sink = Okio.buffer(Okio.sink(file));
+                    sink.writeAll(response.body().source());
+                    sink.close();
                 } catch (Exception e) {
-                    Log.e("Error", "Saving to external storage failed");
+                    Log.e("Error at comic" + i, "Saving to external storage failed");
                     try {
                         FileOutputStream fos = getActivity().openFileOutput(String.valueOf(i), Context.MODE_PRIVATE);
-                        mBitmap.compress(Bitmap.CompressFormat.PNG, 100, fos);
+                        BufferedSink sink = Okio.buffer(Okio.sink(fos));
+                        sink.writeAll(response.body().source());
                         fos.close();
+                        sink.close();
                     } catch (Exception e2) {
-                        e2.printStackTrace();
+                        Log.e("Error at comic" + i, "Saving to internal storage failed");
                     }
                 }
+                response.body().close();
                 prefHelper.addTitle(comic.getComicData()[0], i);
                 prefHelper.addAlt(comic.getComicData()[1], i);
             } catch (Exception e) {
