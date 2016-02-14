@@ -26,6 +26,7 @@ import java.io.FileInputStream;
 import java.io.IOException;
 
 import de.tap.easy_xkcd.Activities.MainActivity;
+import okio.Okio;
 
 public class OfflineComic extends Comic {
     private Context mContext;

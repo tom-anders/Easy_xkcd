@@ -10,6 +10,7 @@ import org.json.JSONObject;
 
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
+import okhttp3.Response;
 
 public class JsonParser {
 
@@ -23,8 +24,10 @@ public class JsonParser {
             Request request = new Request.Builder()
                     .url(url)
                     .build();
-            String json = client.newCall(request).execute().body().string();
+            Response response = client.newCall(request).execute();
+            String json = response.body().string();
             jObj = new JSONObject(json);
+            response.body().close();
         } catch (JSONException e) {
             e.printStackTrace();
         }

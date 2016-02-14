@@ -262,7 +262,8 @@ public abstract class OverviewBaseFragment extends android.support.v4.app.Fragme
                 String trans;
                 String url;
                 Comic comic;
-                for (int i = prefHelper.getHighestUrls(); i < newest; i++) {
+                int highestUrls = prefHelper.getHighestUrls();
+                for (int i = highestUrls; i < newest; i++) {
                     try {
                         comic = new Comic(i + 1);
                         title = comic.getComicData()[0];
@@ -283,8 +284,8 @@ public abstract class OverviewBaseFragment extends android.support.v4.app.Fragme
                     } else {
                         sbTrans.append("n.a.");
                     }
-                    float x = newest - prefHelper.getHighestUrls();
-                    int y = i - prefHelper.getHighestUrls();
+                    float x = newest - highestUrls;
+                    int y = i - highestUrls;
                     int p = (int) ((y / x) * 50);
                     publishProgress(p + 50);
                 }

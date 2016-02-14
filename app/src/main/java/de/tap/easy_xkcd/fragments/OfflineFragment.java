@@ -28,6 +28,7 @@ import com.kogitune.activity_transition.ActivityTransition;
 import com.tap.xkcd_reader.R;
 
 import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.Arrays;
 
@@ -35,10 +36,16 @@ import de.tap.easy_xkcd.Activities.MainActivity;
 import de.tap.easy_xkcd.utils.Comic;
 import de.tap.easy_xkcd.utils.Favorites;
 import de.tap.easy_xkcd.utils.OfflineComic;
+import okhttp3.OkHttpClient;
+import okhttp3.Request;
+import okhttp3.Response;
+import okio.BufferedSink;
+import okio.Okio;
 import uk.co.senab.photoview.PhotoView;
 
 public class OfflineFragment extends ComicFragment {
     private Boolean randomSelected = false;
+    private static final String OFFLINE_PATH = "/easy xkcd";
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
@@ -102,16 +109,34 @@ public class OfflineFragment extends ComicFragment {
                 newestComicNumber = new Comic(0).getComicNumber();
                 if (newestComicNumber > prefHelper.getHighestOffline()) {
                     showSnackbar = prefHelper.getNotificationInterval() == 0 && lastComicNumber != newestComicNumber;
+                    OkHttpClient client = new OkHttpClient();
+                    File sdCard = prefHelper.getOfflinePath();
+                    File dir = new File(sdCard.getAbsolutePath() + OFFLINE_PATH);
                     for (int i = prefHelper.getHighestOffline(); i <= newestComicNumber; i++) {
                         Log.d("comic added", String.valueOf(i));
                         Comic comic = new Comic(i, getActivity());
-                        String url = comic.getComicData()[2];
-                        Bitmap mBitmap = Glide.with(getActivity())
-                                .load(url)
-                                .asBitmap()
-                                .into(-1, -1)
-                                .get();
-                        saveComic(i, mBitmap);
+                        Request request = new Request.Builder()
+                                .url(comic.getComicData()[2])
+                                .build();
+                        Response response = client.newCall(request).execute();
+                        try {
+                            File file = new File(dir, String.valueOf(i) + ".png");
+                            BufferedSink sink = Okio.buffer(Okio.sink(file));
+                            sink.writeAll(response.body().source());
+                            sink.close();
+                        } catch (Exception e) {
+                            Log.e("Error at comic" + i, "Saving to external storage failed");
+                            try {
+                                FileOutputStream fos = getActivity().openFileOutput(String.valueOf(i), Context.MODE_PRIVATE);
+                                BufferedSink sink = Okio.buffer(Okio.sink(fos));
+                                sink.writeAll(response.body().source());
+                                fos.close();
+                                sink.close();
+                            } catch (Exception e2) {
+                                e2.printStackTrace();
+                            }
+                        }
+                        response.body().close();
                         prefHelper.addTitle(comic.getComicData()[0], i);
                         prefHelper.addAlt(comic.getComicData()[1], i);
                         prefHelper.setHighestOffline(newestComicNumber);

@@ -5,11 +5,9 @@ import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.content.Intent;
 import android.graphics.Bitmap;
-import android.os.Build;
 import android.support.v4.app.NotificationCompat;
 import android.util.Log;
 
-import com.bumptech.glide.Glide;
 import com.tap.xkcd_reader.BuildConfig;
 import com.tap.xkcd_reader.R;
 
@@ -20,11 +18,15 @@ import org.jsoup.select.Elements;
 
 import java.io.BufferedWriter;
 import java.io.File;
-import java.io.FileOutputStream;
 import java.io.FileWriter;
 import java.io.IOException;
 
 import de.tap.easy_xkcd.utils.PrefHelper;
+import okhttp3.OkHttpClient;
+import okhttp3.Request;
+import okhttp3.Response;
+import okio.BufferedSink;
+import okio.Okio;
 
 public class ArticleDownloadService extends IntentService {
 
@@ -40,7 +42,7 @@ public class ArticleDownloadService extends IntentService {
         NotificationCompat.Builder mBuilder =
                 new NotificationCompat.Builder(this)
                         .setSmallIcon(R.drawable.ic_notification)
-                        .setProgress(100, 0 , false)
+                        .setProgress(100, 0, false)
                         .setOngoing(true)
                         .setContentTitle(getResources().getString(R.string.loading_offline_whatif))
                         .setAutoCancel(true);
@@ -49,10 +51,11 @@ public class ArticleDownloadService extends IntentService {
         mNotificationManager.notify(0, mBuilder.build());
 
         PrefHelper prefHelper = new PrefHelper(getApplicationContext());
-        Bitmap mBitmap;
         File sdCard = prefHelper.getOfflinePath();
-        File dir;
+        File dir = new File(sdCard.getAbsolutePath() + OFFLINE_WHATIF_OVERVIEW_PATH);
+        OkHttpClient client = new OkHttpClient();
         Document doc;
+        if (!dir.exists()) dir.mkdirs();
         //download overview
         if (!BuildConfig.DEBUG) {
             try {
@@ -76,22 +79,18 @@ public class ArticleDownloadService extends IntentService {
                 for (Element image : img) {
                     String url = image.absUrl("src");
                     try {
-                        mBitmap = Glide.with(this)
-                                .load(url)
-                                .asBitmap()
-                                .into(-1, -1)
-                                .get();
-                        dir = new File(sdCard.getAbsolutePath() + OFFLINE_WHATIF_OVERVIEW_PATH);
-                        dir.mkdirs();
+                        Request request = new Request.Builder()
+                                .url(url)
+                                .build();
+                        Response response = client.newCall(request).execute();
                         File file = new File(dir, String.valueOf(count) + ".png");
-                        FileOutputStream fos = new FileOutputStream(file);
-                        mBitmap.compress(Bitmap.CompressFormat.PNG, 100, fos);
-                        fos.flush();
-                        fos.close();
+                        BufferedSink sink = Okio.buffer(Okio.sink(file));
+                        sink.writeAll(response.body().source());
+                        sink.close();
+                        response.body().close();
                     } catch (Exception e) {
                         e.printStackTrace();
                     }
-                    Log.d("count", String.valueOf(count));
                     int p = (int) (count / ((float) img.size()) * 100);
                     mBuilder.setProgress(100, p, false);
                     mNotificationManager.notify(0, mBuilder.build());
@@ -104,8 +103,8 @@ public class ArticleDownloadService extends IntentService {
             }
 
             //download html
-            for (int i = 1; i <= prefHelper.getNewestWhatIf(); i++) {
-                int size = prefHelper.getNewestWhatIf();
+            int size = prefHelper.getNewestWhatIf();
+            for (int i = 1; i <= size; i++) {
                 try {
                     doc = Jsoup.connect("https://what-if.xkcd.com/" + String.valueOf(i)).get();
                     dir = new File(sdCard.getAbsolutePath() + OFFLINE_WHATIF_PATH + String.valueOf(i));
@@ -119,38 +118,37 @@ public class ArticleDownloadService extends IntentService {
                     for (Element e : doc.select(".illustration")) {
                         try {
                             String url = "http://what-if.xkcd.com" + e.attr("src");
-                            mBitmap = Glide.with(getApplicationContext())
-                                    .load(url)
-                                    .asBitmap()
-                                    .into(-1, -1)
-                                    .get();
+                            Request request = new Request.Builder()
+                                    .url(url)
+                                    .build();
+                            Response response = client.newCall(request).execute();
                             dir = new File(sdCard.getAbsolutePath() + OFFLINE_WHATIF_PATH + String.valueOf(i));
-                            dir.mkdirs();
+                            if (!dir.exists()) dir.mkdirs();
                             file = new File(dir, String.valueOf(count) + ".png");
-                            FileOutputStream fos = new FileOutputStream(file);
-                            mBitmap.compress(Bitmap.CompressFormat.PNG, 100, fos);
-                            fos.flush();
-                            fos.close();
+                            BufferedSink sink = Okio.buffer(Okio.sink(file));
+                            sink.writeAll(response.body().source());
+                            sink.close();
+                            response.body().close();
                             count++;
                         } catch (Exception e2) {
-                            e2.printStackTrace();
+                            Log.e("article" + i, e2.getMessage());
                         }
                     }
                     int p = (int) (i / ((float) size) * 100);
                     mBuilder.setProgress(100, p, false);
-                    mBuilder.setContentText(i + "/" + prefHelper.getNewestWhatIf());
+                    mBuilder.setContentText(i + "/" + size);
                     mNotificationManager.notify(0, mBuilder.build());
                 } catch (Exception e) {
-                    e.printStackTrace();
+                    Log.e("article" + i, e.getMessage());
                 }
             }
         }
 
         Intent restart = new Intent("de.tap.easy_xkcd.ACTION_COMIC");
         restart.putExtra("number", prefHelper.getLastComic());
-        PendingIntent pendingIntent = PendingIntent.getActivity(getApplicationContext(), 1, restart, PendingIntent.FLAG_UPDATE_CURRENT);
-        mBuilder.setContentIntent(pendingIntent);
-        mBuilder.setContentText(getResources().getString(R.string.not_restart));
+        PendingIntent pendingIntent = PendingIntent.getActivity(this, 1, restart, PendingIntent.FLAG_UPDATE_CURRENT);
+        mBuilder.setContentIntent(pendingIntent)
+                .setContentText(getResources().getString(R.string.not_restart));
         mNotificationManager.notify(0, mBuilder.build());
     }
 

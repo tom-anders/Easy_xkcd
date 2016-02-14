@@ -55,6 +55,11 @@ import de.tap.easy_xkcd.utils.PrefHelper;
 import de.tap.easy_xkcd.Activities.MainActivity;
 import de.tap.easy_xkcd.Activities.WhatIfActivity;
 import jp.wasabeef.recyclerview.animators.adapters.SlideInBottomAnimationAdapter;
+import okhttp3.OkHttpClient;
+import okhttp3.Request;
+import okhttp3.Response;
+import okio.BufferedSink;
+import okio.Okio;
 
 public class WhatIfFragment extends android.support.v4.app.Fragment {
 
@@ -98,6 +103,7 @@ public class WhatIfFragment extends android.support.v4.app.Fragment {
     private class UpdateArticles extends AsyncTask<Void, Void, Void> {
         private ProgressDialog progress;
         private boolean showProgress;
+        private OkHttpClient client;
 
         @Override
         protected void onPreExecute() {
@@ -109,6 +115,7 @@ public class WhatIfFragment extends android.support.v4.app.Fragment {
                 progress.setCancelable(false);
                 progress.show();
             }
+            client = new OkHttpClient();
         }
 
         @SuppressWarnings("ResultOfMethodCallIgnored")
@@ -134,28 +141,25 @@ public class WhatIfFragment extends android.support.v4.app.Fragment {
                     }
                     prefHelper.setWhatIfTitles(sb.toString());
 
-                    Bitmap mBitmap;
+                    File sdCard = prefHelper.getOfflinePath();
+                    File dir = new File(sdCard.getAbsolutePath() + OFFLINE_WHATIF_OVERVIEW_PATH);
+                    if (!dir.exists()) dir.mkdirs();
                     for (int i = prefHelper.getNewestWhatIf(); i < titles.size() + 1; i++) {
                         String url = img.get(i).absUrl("src");
                         try {
-                            mBitmap = Glide.with(getActivity())
-                                    .load(url)
-                                    .asBitmap()
-                                    .into(-1, -1)
-                                    .get();
-                            File sdCard = prefHelper.getOfflinePath();
-                            File dir = new File(sdCard.getAbsolutePath() + OFFLINE_WHATIF_OVERVIEW_PATH);
-                            dir.mkdirs();
                             File file = new File(dir, String.valueOf(i + 1) + ".png");
-                            FileOutputStream fos = new FileOutputStream(file);
-                            mBitmap.compress(Bitmap.CompressFormat.PNG, 100, fos);
-                            fos.flush();
-                            fos.close();
+                            Request request = new Request.Builder()
+                                    .url(url)
+                                    .build();
+                            Response response = client.newCall(request).execute();
+                            BufferedSink sink = Okio.buffer(Okio.sink(file));
+                            sink.writeAll(response.body().source());
+                            sink.close();
+                            response.body().close();
                         } catch (Exception e) {
                             e.printStackTrace();
                         }
                     }
-
                 }
             } catch (IOException e) {
                 e.printStackTrace();
@@ -186,14 +190,13 @@ public class WhatIfFragment extends android.support.v4.app.Fragment {
             Log.d("what if", "downloading " + i);
             if (i == 141)
                 prefHelper.setSunbeamLoaded();
-            Bitmap mBitmap;
             Document doc;
             File sdCard = prefHelper.getOfflinePath();
             File dir;
             try {
                 doc = Jsoup.connect("https://what-if.xkcd.com/" + String.valueOf(i)).get();
                 dir = new File(sdCard.getAbsolutePath() + OFFLINE_WHATIF_PATH + String.valueOf(i));
-                dir.mkdirs();
+                if (!dir.exists()) dir.mkdirs();
                 File file = new File(dir, String.valueOf(i) + ".html");
                 BufferedWriter writer = new BufferedWriter(new FileWriter(file));
                 writer.write(doc.outerHtml());
@@ -203,21 +206,18 @@ public class WhatIfFragment extends android.support.v4.app.Fragment {
                 for (Element e : doc.select(".illustration")) {
                     try {
                         String url = "http://what-if.xkcd.com" + e.attr("src");
-                        mBitmap = Glide.with(getActivity())
-                                .load(url)
-                                .asBitmap()
-                                .into(-1, -1)
-                                .get();
-                        dir = new File(sdCard.getAbsolutePath() + OFFLINE_WHATIF_PATH + String.valueOf(i));
-                        dir.mkdirs();
+                        Request request = new Request.Builder()
+                                .url(url)
+                                .build();
+                        Response response = client.newCall(request).execute();
                         file = new File(dir, String.valueOf(count) + ".png");
-                        FileOutputStream fos = new FileOutputStream(file);
-                        mBitmap.compress(Bitmap.CompressFormat.PNG, 100, fos);
-                        fos.flush();
-                        fos.close();
+                        BufferedSink sink = Okio.buffer(Okio.sink(file));
+                        sink.writeAll(response.body().source());
+                        sink.close();
+                        response.body().close();
                         count++;
                     } catch (Exception e2) {
-                        e2.printStackTrace();
+                        Log.e("article" + i, e2.getMessage());
                     }
                 }
             } catch (Exception e) {

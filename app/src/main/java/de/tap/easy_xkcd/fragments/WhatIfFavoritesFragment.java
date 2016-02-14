@@ -200,6 +200,12 @@ public class WhatIfFavoritesFragment extends android.support.v4.app.Fragment {
                 case "Europa Water Siphon":
                     id = R.mipmap.straw;
                     break;
+                case "Saliva Pool":
+                    id = R.mipmap.question;
+                    break;
+                case "Fire From Moonlight":
+                    id = R.mipmap.rabbit;
+                    break;
             }
             if (id != 0) {
                 comicViewHolder.thumbnail.setImageDrawable(ContextCompat.getDrawable(getActivity(), id));

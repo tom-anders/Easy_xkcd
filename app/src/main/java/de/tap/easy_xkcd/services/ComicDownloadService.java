@@ -6,6 +6,7 @@ import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.support.v4.app.NotificationCompat;
 import android.util.Log;
 
@@ -19,9 +20,16 @@ import com.tap.xkcd_reader.R;
 
 import java.io.File;
 import java.io.FileOutputStream;
+import java.io.InputStream;
 
 import de.tap.easy_xkcd.utils.Comic;
 import de.tap.easy_xkcd.utils.PrefHelper;
+import okhttp3.CacheControl;
+import okhttp3.OkHttpClient;
+import okhttp3.Request;
+import okhttp3.Response;
+import okio.BufferedSink;
+import okio.Okio;
 
 public class ComicDownloadService extends IntentService {
 
@@ -46,34 +54,35 @@ public class ComicDownloadService extends IntentService {
         mNotificationManager.notify(0, mBuilder.build());
 
         if (!BuildConfig.DEBUG) {
+            File sdCard = prefHelper.getOfflinePath();
+            File dir = new File(sdCard.getAbsolutePath() + OFFLINE_PATH);
+            OkHttpClient client = new OkHttpClient();
+            if (!dir.exists()) dir.mkdirs();
             for (int i = 1; i <= prefHelper.getNewest(); i++) {
                 try {
-                    Comic comic = new Comic(i, getApplicationContext());
-                    String url = comic.getComicData()[2];
-                    Bitmap mBitmap = Glide.with(this)
-                            .load(url)
-                            .asBitmap()
-                            .into(-1, -1)
-                            .get();
+                    Comic comic = new Comic(i, this);
+                    Request request = new Request.Builder()
+                            .url(comic.getComicData()[2])
+                            .build();
+                    Response response = client.newCall(request).execute();
                     try {
-                        File sdCard = prefHelper.getOfflinePath();
-                        File dir = new File(sdCard.getAbsolutePath() + OFFLINE_PATH);
-                        dir.mkdirs();
                         File file = new File(dir, String.valueOf(i) + ".png");
-                        FileOutputStream fos = new FileOutputStream(file);
-                        mBitmap.compress(Bitmap.CompressFormat.PNG, 100, fos);
-                        fos.flush();
-                        fos.close();
+                        BufferedSink sink = Okio.buffer(Okio.sink(file));
+                        sink.writeAll(response.body().source());
+                        sink.close();
                     } catch (Exception e) {
-                        Log.e("Error", "Saving to external storage failed");
+                        Log.e("Error at comic" + i, "Saving to external storage failed");
                         try {
                             FileOutputStream fos = getApplicationContext().openFileOutput(String.valueOf(i), Context.MODE_PRIVATE);
-                            mBitmap.compress(Bitmap.CompressFormat.PNG, 100, fos);
+                            BufferedSink sink = Okio.buffer(Okio.sink(fos));
+                            sink.writeAll(response.body().source());
                             fos.close();
+                            sink.close();
                         } catch (Exception e2) {
                             e2.printStackTrace();
                         }
                     }
+                    response.body().close();
                     prefHelper.addTitle(comic.getComicData()[0], i);
                     prefHelper.addAlt(comic.getComicData()[1], i);
                     int p = (int) (i / ((float) prefHelper.getNewest()) * 100);
@@ -81,7 +90,7 @@ public class ComicDownloadService extends IntentService {
                     mBuilder.setContentText(i + "/" + prefHelper.getNewest());
                     mNotificationManager.notify(0, mBuilder.build());
                 } catch (Exception e) {
-                    e.printStackTrace();
+                    Log.e("Error at comic" + i, e.getMessage());
                 }
             }
         }
@@ -89,7 +98,7 @@ public class ComicDownloadService extends IntentService {
         prefHelper.setHighestOffline(prefHelper.getNewest());
         Intent restart = new Intent("de.tap.easy_xkcd.ACTION_COMIC");
         restart.putExtra("number", prefHelper.getLastComic());
-        PendingIntent pendingIntent = PendingIntent.getActivity(getApplicationContext(), 1, restart, PendingIntent.FLAG_UPDATE_CURRENT);
+        PendingIntent pendingIntent = PendingIntent.getActivity(this, 1, restart, PendingIntent.FLAG_UPDATE_CURRENT);
         mBuilder.setContentIntent(pendingIntent);
         mBuilder.setContentText(getResources().getString(R.string.not_restart));
         mNotificationManager.notify(0, mBuilder.build());
