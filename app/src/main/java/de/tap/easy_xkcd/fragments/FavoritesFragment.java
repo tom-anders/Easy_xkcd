@@ -28,6 +28,7 @@ import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.design.widget.Snackbar;
+import android.support.v4.content.FileProvider;
 import android.support.v4.view.ViewPager;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
@@ -328,7 +329,9 @@ public class FavoritesFragment extends ComicFragment {
             //Provide option to send to any app that accepts text/plain content
             Intent sendIntent = new Intent(Intent.ACTION_SEND);
             sendIntent.setType("text/plain");
-            sendIntent.putExtra(Intent.EXTRA_STREAM, Uri.fromFile(file));
+            Uri uri = FileProvider.getUriForFile(getActivity(), "de.tap.easy_xkcd.fileProvider", file);
+            sendIntent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
+            sendIntent.putExtra(Intent.EXTRA_STREAM, uri);
             startActivity(Intent.createChooser(sendIntent, getResources().getString(R.string.pref_export)));
         } catch (IOException e) {
             e.printStackTrace();
