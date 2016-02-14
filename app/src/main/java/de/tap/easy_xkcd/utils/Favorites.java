@@ -17,6 +17,7 @@
 package de.tap.easy_xkcd.utils;
 
 import android.app.Activity;
+import android.content.Context;
 import android.content.SharedPreferences;
 
 import java.util.Arrays;
@@ -28,9 +29,11 @@ public class Favorites {
      * Adapted from http://androidopentutorials.com/android-how-to-store-list-of-values-in-sharedpreferences/
      */
 
-    public static boolean addFavoriteItem(Activity activity, String favoriteItem) {
+    private static final String FAVORITES = "favorites";
+
+    public static boolean addFavoriteItem(Context context, String favoriteItem) {
         //Get previous favorite items
-        String favoriteList = getStringFromPreferences(activity, null, "favorites");
+        String favoriteList = getStringFromPreferences(context, null, FAVORITES);
         // Append new Favorite item
         if (favoriteList != null) {
             favoriteList = favoriteList + "," + favoriteItem;
@@ -38,11 +41,11 @@ public class Favorites {
             favoriteList = favoriteItem;
         }
         // Save in Shared Preferences
-        return putStringInPreferences(activity, favoriteList, "favorites");
+        return putStringInPreferences(context, favoriteList, FAVORITES);
     }
 
-    public static boolean removeFavoriteItem(Activity activity, String favoriteItem) {
-        String[] old = getFavoriteList(activity);
+    public static boolean removeFavoriteItem(Context context, String favoriteItem) {
+        String[] old = getFavoriteList(context);
         int[] oldInt = new int[old.length];
         for (int i = 0; i < old.length; i++) {
             oldInt[i] = Integer.parseInt(old[i]);
@@ -59,19 +62,19 @@ public class Favorites {
                 sb.append(",");
                 sb.append(out[i]);
             }
-            return putStringInPreferences(activity, sb.toString(), "favorites");
+            return putStringInPreferences(context, sb.toString(), FAVORITES);
         } else {
-            return putStringInPreferences(activity, null, "favorites");
+            return putStringInPreferences(context, null, FAVORITES);
         }
     }
 
-    public static String[] getFavoriteList(Activity activity) {
-        String favoriteList = getStringFromPreferences(activity, null, "favorites");
+    public static String[] getFavoriteList(Context context) {
+        String favoriteList = getStringFromPreferences(context, null, FAVORITES);
         return sortArray(convertStringToArray(favoriteList));
     }
 
-    public static boolean checkFavorite(Activity activity, int number) {
-        String[] favoriteList = sortArray(getFavoriteList(activity));
+    public static boolean checkFavorite(Context context, int number) {
+        String[] favoriteList = sortArray(getFavoriteList(context));
         int[] favoriteListInt = new int[favoriteList.length];
         for (int i = 0; i < favoriteList.length; i++) {
             favoriteListInt[i] = Integer.parseInt(favoriteList[i]);
@@ -95,16 +98,17 @@ public class Favorites {
         return array;
     }
 
-    public static boolean putStringInPreferences(Activity activity, String nick, String key) {
-        SharedPreferences sharedPreferences = activity.getPreferences(Activity.MODE_PRIVATE);
+    public static boolean putStringInPreferences(Context context, String nick, String key) {
+        SharedPreferences sharedPreferences = context.getSharedPreferences("MainActivity", Activity.MODE_PRIVATE);
         SharedPreferences.Editor editor = sharedPreferences.edit();
         editor.putString(key, nick);
         editor.commit();
         return true;
     }
 
-    private static String getStringFromPreferences(Activity activity, String defaultValue, String key) {
-        SharedPreferences sharedPreferences = activity.getPreferences(Activity.MODE_PRIVATE);
+    private static String getStringFromPreferences(Context context, String defaultValue, String key) {
+        //SharedPreferences sharedPreferences = activity.getPreferences(Activity.MODE_PRIVATE);
+        SharedPreferences sharedPreferences = context.getSharedPreferences("MainActivity", Activity.MODE_PRIVATE);
         return sharedPreferences.getString(key, defaultValue);
     }
 

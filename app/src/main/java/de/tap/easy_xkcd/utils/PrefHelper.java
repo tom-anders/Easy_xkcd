@@ -112,6 +112,7 @@ public class PrefHelper {
     private static final String BOOKMARK = "bookmark";
     private static final String WHAT_IF_SUNBEAM_LOADED = "sun_beam";
     private static final String LAUNCH_TO_OVERVIEW = "pref_overview_default";
+    private static final String FAVORITES_MOVED = "fav_moved";
 
 
     public PrefHelper(Context context) {
@@ -872,6 +873,15 @@ public class PrefHelper {
 
     public boolean launchToOverview() {
         return prefs.getBoolean(LAUNCH_TO_OVERVIEW, false);
+    }
+
+    public void moveFavorites(Activity activity) {
+        //Move the favorites list so that it can be accessed outside of MainActivity
+        if (!sharedPrefs.getBoolean(FAVORITES_MOVED,false)) {
+            String fav = activity.getPreferences(Activity.MODE_PRIVATE).getString("favorites", "");
+            sharedPrefs.edit().putString("favorites", fav).putBoolean(FAVORITES_MOVED, true).apply();
+            Log.d("moved", "moved");
+        }
     }
 
 }
