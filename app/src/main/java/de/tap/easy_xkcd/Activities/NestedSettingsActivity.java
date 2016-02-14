@@ -1,7 +1,9 @@
 package de.tap.easy_xkcd.Activities;
 
+import android.app.Activity;
 import android.app.ProgressDialog;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.os.AsyncTask;
 import android.os.Build;
@@ -11,6 +13,7 @@ import android.support.v4.app.DialogFragment;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
+import android.util.Log;
 import android.util.TypedValue;
 import android.widget.Toast;
 
@@ -210,10 +213,8 @@ public class NestedSettingsActivity extends BaseActivity implements OnDirectoryC
         @Override
         protected void onPostExecute(Void dummy) {
             progress.dismiss();
-            MainActivity.getInstance().finish();
-            SettingsActivity.getInstance().finish();
-            NestedSettingsActivity.this.finish();
-            startActivity(MainActivity.getInstance().getIntent());
+            setResult(Activity.RESULT_OK);
+            finish();
         }
     }
 
@@ -221,17 +222,4 @@ public class NestedSettingsActivity extends BaseActivity implements OnDirectoryC
     public void onEvent(OnDirectoryCancelEvent event) {
     }
 
-    @Override
-    public void onPause() {
-        if (NestedPreferenceFragment.themeSettingChanged) {
-            MainActivity.getInstance().finish();
-            try {
-                SettingsActivity.getInstance().finish();
-            } catch (NullPointerException e) {
-                //only happens when entered via the snackbar
-            }
-            startActivity(MainActivity.getInstance().getIntent());
-        }
-        super.onPause();
-    }
 }

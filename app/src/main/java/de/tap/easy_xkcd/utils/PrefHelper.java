@@ -878,7 +878,7 @@ public class PrefHelper {
     public void moveFavorites(Activity activity) {
         //Move the favorites list so that it can be accessed outside of MainActivity
         if (!sharedPrefs.getBoolean(FAVORITES_MOVED,false)) {
-            String fav = activity.getPreferences(Activity.MODE_PRIVATE).getString("favorites", "");
+            String fav = activity.getPreferences(Activity.MODE_PRIVATE).getString("favorites", null);
             sharedPrefs.edit().putString("favorites", fav).putBoolean(FAVORITES_MOVED, true).apply();
             Log.d("moved", "moved");
         }

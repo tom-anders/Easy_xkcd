@@ -2,6 +2,7 @@ package de.tap.easy_xkcd.fragments;
 
 
 import android.Manifest;
+import android.app.Activity;
 import android.app.ProgressDialog;
 import android.app.TimePickerDialog;
 import android.content.Context;
@@ -80,8 +81,6 @@ public class NestedPreferenceFragment extends PreferenceFragment {
     private static final String OFFLINE_PATH = "/easy xkcd";
     private static final String OFFLINE_WHATIF_PATH = "/easy xkcd/what if/";
 
-
-    public static boolean themeSettingChanged;
     private PrefHelper prefHelper;
 
     public static NestedPreferenceFragment newInstance(String key) {
@@ -90,7 +89,6 @@ public class NestedPreferenceFragment extends PreferenceFragment {
         Bundle args = new Bundle();
         args.putString(TAG_KEY, key);
         fragment.setArguments(args);
-        themeSettingChanged = false;
         return fragment;
     }
 
@@ -112,21 +110,21 @@ public class NestedPreferenceFragment extends PreferenceFragment {
                 findPreference(COLORED_NAVBAR).setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
                     @Override
                     public boolean onPreferenceClick(Preference preference) {
-                        themeSettingChanged = true;
+                        getActivity().setResult(Activity.RESULT_OK);
                         return true;
                     }
                 });
                 findPreference(THEME).setOnPreferenceChangeListener(new Preference.OnPreferenceChangeListener() {
                     @Override
                     public boolean onPreferenceChange(Preference preference, Object newValue) {
-                        themeSettingChanged = true;
+                        getActivity().setResult(Activity.RESULT_OK);
                         return true;
                     }
                 });
                 findPreference(FAB_OPTIONS).setOnPreferenceChangeListener(new Preference.OnPreferenceChangeListener() {
                     @Override
                     public boolean onPreferenceChange(Preference preference, Object o) {
-                        themeSettingChanged = true;
+                        getActivity().setResult(Activity.RESULT_OK);
                         return true;
                     }
                 });
@@ -137,18 +135,7 @@ public class NestedPreferenceFragment extends PreferenceFragment {
                 findPreference(NOTIFICATIONS_INTERVAL).setOnPreferenceChangeListener(new Preference.OnPreferenceChangeListener() {
                     @Override
                     public boolean onPreferenceChange(final Preference preference, Object o) {
-                        final int newValue = Integer.parseInt(o.toString());
-                        //Wait a few seconds for the new value to be written to memory
-                        new Handler().postDelayed(new Runnable() {
-                            @Override
-                            public void run() {
-                                if (newValue != 0) {
-                                    WakefulIntentService.scheduleAlarms(new ComicListener(), MainActivity.getInstance(), true);
-                                } else {
-                                    WakefulIntentService.cancelAlarms(MainActivity.getInstance());
-                                }
-                            }
-                        }, 5000);
+                        getActivity().setResult(MainActivity.UPDATE_ALARM);
                         return true;
                     }
                 });
@@ -252,14 +239,14 @@ public class NestedPreferenceFragment extends PreferenceFragment {
                     @Override
                     public boolean onPreferenceChange(Preference preference, Object newValue) {
                         prefHelper.setNightMode(Boolean.valueOf(newValue.toString()));
-                        themeSettingChanged = true;
+                        getActivity().setResult(Activity.RESULT_OK);
                         return true;
                     }
                 });
                 findPreference(AUTO_NIGHT).setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
                     @Override
                     public boolean onPreferenceClick(Preference preference) {
-                        themeSettingChanged = true;
+                        getActivity().setResult(Activity.RESULT_OK);
                         return true;
                     }
                 });
@@ -270,7 +257,7 @@ public class NestedPreferenceFragment extends PreferenceFragment {
                             @Override
                             public void onTimeSet(TimePicker timePicker, int hourOfDay, int minute) {
                                 prefHelper.setAutoNightStart(new int[]{hourOfDay, minute});
-                                themeSettingChanged = true;
+                                getActivity().setResult(Activity.RESULT_OK);
                                 start.setSummary(prefHelper.getStartSummary());
                             }
                         }, startTime[0], startTime[1], android.text.format.DateFormat.is24HourFormat(getActivity()));
@@ -285,7 +272,7 @@ public class NestedPreferenceFragment extends PreferenceFragment {
                             @Override
                             public void onTimeSet(TimePicker timePicker, int hourOfDay, int minute) {
                                 prefHelper.setAutoNightEnd(new int[]{hourOfDay, minute});
-                                themeSettingChanged = true;
+                                getActivity().setResult(Activity.RESULT_OK);
                                 end.setSummary(prefHelper.getEndSummary());
                             }
                         }, endTime[0], endTime[1], android.text.format.DateFormat.is24HourFormat(getActivity()));
@@ -429,10 +416,8 @@ public class NestedPreferenceFragment extends PreferenceFragment {
         @Override
         protected void onPostExecute(Void dummy) {
             progress.dismiss();
-            MainActivity.getInstance().finish();
-            SettingsActivity.getInstance().finish();
+            getActivity().setResult(Activity.RESULT_OK);
             getActivity().finish();
-            startActivity(MainActivity.getInstance().getIntent());
         }
     }
 
@@ -453,9 +438,9 @@ public class NestedPreferenceFragment extends PreferenceFragment {
         @Override
         protected Void doInBackground(Void... params) {
             int newest = prefHelper.getNewest();
-            if (!BuildConfig.DEBUG) {
+            //if (!BuildConfig.DEBUG) {
                 for (int i = 1; i <= newest; i++) {
-                    if (!Favorites.checkFavorite(MainActivity.getInstance(), i)) {
+                    if (!Favorites.checkFavorite(getActivity(), i)) {
                         //delete from internal storage
                         getActivity().deleteFile(String.valueOf(i));
                         //delete from external storage
@@ -469,7 +454,7 @@ public class NestedPreferenceFragment extends PreferenceFragment {
                     }
                 }
                 prefHelper.deleteTitleAndAlt(newest, getActivity());
-            }
+            //}
             prefHelper.setHighestOffline(0);
             prefHelper.setFullOffline(false);
             return null;
@@ -482,10 +467,8 @@ public class NestedPreferenceFragment extends PreferenceFragment {
         @Override
         protected void onPostExecute(Void dummy) {
             progress.dismiss();
-            MainActivity.getInstance().finish();
-            SettingsActivity.getInstance().finish();
+            getActivity().setResult(Activity.RESULT_OK);
             getActivity().finish();
-            startActivity(MainActivity.getInstance().getIntent());
         }
     }
 
@@ -516,10 +499,8 @@ public class NestedPreferenceFragment extends PreferenceFragment {
         protected void onPostExecute(Void dummy) {
             progress.dismiss();
             prefHelper.setFullOfflineWhatIf(false);
-            MainActivity.getInstance().finish();
-            SettingsActivity.getInstance().finish();
+            getActivity().setResult(Activity.RESULT_OK);
             getActivity().finish();
-            startActivity(MainActivity.getInstance().getIntent());
         }
     }
 

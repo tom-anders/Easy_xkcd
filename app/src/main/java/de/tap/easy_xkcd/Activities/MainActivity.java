@@ -105,11 +105,13 @@ public class MainActivity extends BaseActivity {
     private static final String FAV_TAG = "favorites";
     private static final String WHATIF_TAG = "whatif";
     private static final String OVERVIEW_TAG = "overview";
+    public static final int UPDATE_ALARM = 2;
 
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        prefHelper.moveFavorites(this);
         setContentView(R.layout.activity_main);
         ButterKnife.bind(this);
         PreferenceManager.setDefaultValues(this, R.xml.pref_alt_sharing, false);
@@ -322,7 +324,7 @@ public class MainActivity extends BaseActivity {
                     @Override
                     public void run() {
                         Intent i = new Intent(MainActivity.this, SettingsActivity.class);
-                        startActivity(i);
+                        startActivityForResult(i, 1);
                     }
                 }, 200);
                 return;
@@ -603,8 +605,7 @@ public class MainActivity extends BaseActivity {
                         break;
                 }
                 fragmentManager.beginTransaction().add(R.id.flContent, overviewBaseFragment, OVERVIEW_TAG).commitAllowingStateLoss();
-            }
-            else
+            } else
                 fragmentManager.beginTransaction().show(fragmentManager.findFragmentByTag(OVERVIEW_TAG)).commitAllowingStateLoss();
             fragmentManager.beginTransaction().hide(fragmentManager.findFragmentByTag(BROWSER_TAG)).commitAllowingStateLoss();
         } else {
@@ -757,9 +758,22 @@ public class MainActivity extends BaseActivity {
         drawerToggle.syncState();
     }
 
-    //TODO use onActivityResult() instead
-    public static MainActivity getInstance() {
-        return instance;
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        if (requestCode == 1) {
+            switch (resultCode) {
+                case RESULT_OK:
+                    finish();
+                    startActivity(getIntent());
+                    break;
+                case UPDATE_ALARM:
+                    if (prefHelper.getNotificationInterval() != 0)
+                        WakefulIntentService.scheduleAlarms(new ComicListener(), this, true);
+                    else
+                        WakefulIntentService.cancelAlarms(this);
+                    break;
+            }
+        }
     }
 
     @Override

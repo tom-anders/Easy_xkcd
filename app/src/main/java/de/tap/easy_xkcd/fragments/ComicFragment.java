@@ -497,6 +497,8 @@ public abstract class ComicFragment extends android.support.v4.app.Fragment {
         lastComicNumber = position + 1;
         if (prefHelper.subtitleEnabled() && ((MainActivity) getActivity()).getCurrentFragment() == R.id.nav_browser)
             ((MainActivity) getActivity()).getToolbar().setSubtitle(String.valueOf(lastComicNumber));
+
+        animateToolbar();
     }
 
     @Override

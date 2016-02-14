@@ -23,6 +23,7 @@ import android.preference.PreferenceFragment;
 import android.os.Bundle;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
+import android.util.Log;
 import android.util.TypedValue;
 
 import com.tap.xkcd_reader.R;
@@ -48,7 +49,21 @@ public class SettingsActivity extends BaseActivity {
     public void showPrefFragment(String key) {
         Intent intent = new Intent(SettingsActivity.this, NestedSettingsActivity.class);
         intent.putExtra("key", key);
-        startActivity(intent);
+        startActivityForResult(intent, 1);
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        if (requestCode == 1)
+            switch (resultCode) {
+                case RESULT_OK:
+                    setResult(RESULT_OK);
+                    finish();
+                    break;
+                case MainActivity.UPDATE_ALARM:
+                    setResult(MainActivity.UPDATE_ALARM);
+                    break;
+            }
     }
 
     @Override
@@ -67,6 +82,7 @@ public class SettingsActivity extends BaseActivity {
         private static final String ALT_SHARING = "altSharing";
         private static final String ADVANCED = "advanced";
         private static final String NIGHT = "night";
+
         @Override
         public void onCreate(final Bundle savedInstanceState) {
             super.onCreate(savedInstanceState);
@@ -85,10 +101,6 @@ public class SettingsActivity extends BaseActivity {
             ((SettingsActivity) getActivity()).showPrefFragment(preference.getKey());
             return false;
         }
-    }
-
-    public static SettingsActivity getInstance() {
-        return instance;
     }
 
 }

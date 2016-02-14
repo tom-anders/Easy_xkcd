@@ -158,7 +158,7 @@ public abstract class OverviewBaseFragment extends android.support.v4.app.Fragme
         urls.clear();
         for (int i = 1; i <= t.length; i++) {
             if (prefHelper.overviewFav()) {
-                if (Favorites.checkFavorite(MainActivity.getInstance(), i)) {
+                if (Favorites.checkFavorite(getActivity(), i)) {
                     titles.put(i, t[i - 1]);
                     urls.put(i, u[i - 1]);
                 }
