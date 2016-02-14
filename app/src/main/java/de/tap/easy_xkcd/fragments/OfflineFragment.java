@@ -112,7 +112,7 @@ public class OfflineFragment extends ComicFragment {
                     OkHttpClient client = new OkHttpClient();
                     File sdCard = prefHelper.getOfflinePath();
                     File dir = new File(sdCard.getAbsolutePath() + OFFLINE_PATH);
-                    for (int i = prefHelper.getHighestOffline(); i <= newestComicNumber; i++) {
+                    for (int i = prefHelper.getHighestOffline()+1; i <= newestComicNumber; i++) {
                         Log.d("comic added", String.valueOf(i));
                         Comic comic = new Comic(i, getActivity());
                         Request request = new Request.Builder()
