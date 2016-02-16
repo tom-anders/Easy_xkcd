@@ -53,12 +53,7 @@ public abstract class OverviewBaseFragment extends android.support.v4.app.Fragme
     public void showComic(final int pos) {
         android.support.v4.app.FragmentManager fragmentManager = getActivity().getSupportFragmentManager();
         ComicFragment fragment = (ComicFragment) fragmentManager.findFragmentByTag(BROWSER_TAG);
-        if (!prefHelper.overviewFav())
-            fragment.scrollTo(titles.keyAt(pos) - 1, false);
-        else {
-            Random random = new Random();
-            fragment.scrollTo(titles.keyAt(random.nextInt(titles.size())), false);
-        }
+        fragment.scrollTo(titles.keyAt(pos) - 1, false);
 
         if (Build.VERSION.SDK_INT < Build.VERSION_CODES.LOLLIPOP) {
             fragmentManager.beginTransaction().hide(fragmentManager.findFragmentByTag(OVERVIEW_TAG)).show(fragment).commitAllowingStateLoss();

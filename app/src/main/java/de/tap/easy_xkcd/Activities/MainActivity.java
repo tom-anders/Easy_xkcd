@@ -56,6 +56,8 @@ import android.widget.Toast;
 import com.commonsware.cwac.wakeful.WakefulIntentService;
 import com.tap.xkcd_reader.R;
 
+import java.util.Random;
+
 import butterknife.Bind;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
@@ -228,7 +230,10 @@ public class MainActivity extends BaseActivity {
         OverviewBaseFragment overviewBaseFragment = (OverviewBaseFragment) fragmentManager.findFragmentByTag(OVERVIEW_TAG);
         if (overviewBaseFragment != null && overviewBaseFragment.isVisible()) {
             ComicFragment comicFragment = (ComicFragment) fragmentManager.findFragmentByTag(BROWSER_TAG);
-            overviewBaseFragment.showComic(comicFragment.newestComicNumber - prefHelper.getRandomNumber(comicFragment.lastComicNumber));
+            if (!prefHelper.overviewFav())
+                overviewBaseFragment.showComic(comicFragment.newestComicNumber - prefHelper.getRandomNumber(comicFragment.lastComicNumber));
+            else
+                overviewBaseFragment.showComic(new Random().nextInt(Favorites.getFavoriteList(MainActivity.this).length));
         } else {
             switch (currentFragment) {
                 case R.id.nav_browser: {
