@@ -31,13 +31,11 @@ import com.tap.xkcd_reader.R;
 import de.tap.easy_xkcd.utils.PrefHelper;
 
 public class SettingsActivity extends BaseActivity {
-    private static SettingsActivity instance;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_settings);
-        instance = this;
 
         android.support.v7.widget.Toolbar toolbar = (android.support.v7.widget.Toolbar) findViewById(R.id.toolbar);
         setupToolbar(toolbar);

@@ -87,8 +87,6 @@ public class MainActivity extends BaseActivity {
     @Bind(R.id.toolbar)
     Toolbar toolbar;
 
-    private static MainActivity instance;
-
     public static boolean fullOffline = false;
     public static boolean fullOfflineWhatIf = false;
     public static boolean fromSearch = false;
@@ -118,7 +116,6 @@ public class MainActivity extends BaseActivity {
         ButterKnife.bind(this);
         PreferenceManager.setDefaultValues(this, R.xml.pref_alt_sharing, false);
 
-        instance = this;
         customTabActivityHelper = new CustomTabActivityHelper();
 
         if (savedInstanceState == null) {
@@ -272,6 +269,7 @@ public class MainActivity extends BaseActivity {
                         return true;
                     }
                 });
+
     }
 
     public void selectDrawerItem(final MenuItem menuItem, final boolean showOverview) {

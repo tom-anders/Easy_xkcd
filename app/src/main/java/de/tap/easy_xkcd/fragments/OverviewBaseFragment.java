@@ -110,7 +110,7 @@ public abstract class OverviewBaseFragment extends android.support.v4.app.Fragme
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
-            case R.id.action_overview_style:
+            case R.id.action_overview_style: //TODO apply dialog style
                 android.support.v7.app.AlertDialog.Builder mDialog = new android.support.v7.app.AlertDialog.Builder(getActivity());
                 mDialog.setTitle(R.string.overview_style_title)
                         .setSingleChoiceItems(R.array.overview_style, prefHelper.getOverviewStyle(), new DialogInterface.OnClickListener() {
