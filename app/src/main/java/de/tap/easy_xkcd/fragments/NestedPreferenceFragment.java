@@ -14,13 +14,18 @@ import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
+import android.os.Handler;
 import android.preference.Preference;
 import android.preference.PreferenceFragment;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.DialogFragment;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v4.content.ContextCompat;
+import android.support.v7.app.AlertDialog;
 import android.util.Log;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.widget.TextView;
 import android.widget.TimePicker;
 import android.widget.Toast;
 
@@ -31,6 +36,7 @@ import com.turhanoz.android.reactivedirectorychooser.ui.DirectoryChooserFragment
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
+import java.io.StreamCorruptedException;
 
 import de.tap.easy_xkcd.Activities.MainActivity;
 import de.tap.easy_xkcd.Activities.NestedSettingsActivity;
@@ -45,6 +51,7 @@ import okhttp3.Request;
 import okhttp3.Response;
 import okio.BufferedSink;
 import okio.Okio;
+import uz.shift.colorpicker.LineColorPicker;
 
 public class NestedPreferenceFragment extends PreferenceFragment {
     private static final String APPEARANCE = "appearance";
@@ -56,6 +63,8 @@ public class NestedPreferenceFragment extends PreferenceFragment {
 
     private static final String COLORED_NAVBAR = "pref_navbar";
     private static final String THEME = "pref_theme";
+    private static final String COLOR_PRIMARY = "pref_color_primary";
+    private static final String COLOR_ACCENT = "pref_color_accent";
     private static final String NOTIFICATIONS_INTERVAL = "pref_notifications";
     private static final String FULL_OFFLINE = "pref_offline";
     private static final String WHATIF_OFFLINE = "pref_offline_whatif";
@@ -106,13 +115,92 @@ public class NestedPreferenceFragment extends PreferenceFragment {
                         return true;
                     }
                 });
-                findPreference(THEME).setOnPreferenceChangeListener(new Preference.OnPreferenceChangeListener() {
+                /*findPreference(THEME).setOnPreferenceChangeListener(new Preference.OnPreferenceChangeListener() {
                     @Override
                     public boolean onPreferenceChange(Preference preference, Object newValue) {
                         getActivity().setResult(Activity.RESULT_OK);
                         return true;
                     }
+                });*/
+                findPreference(COLOR_ACCENT).setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
+                    @Override
+                    public boolean onPreferenceClick(Preference preference) {
+                        final View dialog = getActivity().getLayoutInflater().inflate(R.layout.color_chooser, null);
+                        final TextView title = (TextView) dialog.findViewById(R.id.title);
+                        title.setText(getResources().getString(R.string.theme_accent_color_dialog));
+                        title.setBackgroundColor(themePrefs.getPrimaryColor());
+                        final AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
+                        final LineColorPicker lineColorPicker = (LineColorPicker) dialog.findViewById(R.id.picker3);
+                        lineColorPicker.setColors(themePrefs.getAccentColors());
+                        lineColorPicker.setSelectedColor(themePrefs.getAccentColor()); //TODO
+
+                        builder.setView(dialog);
+                        final AlertDialog alertDialog = builder.show();
+                        dialog.findViewById(R.id.ok).setOnClickListener(new View.OnClickListener() {
+                            @Override
+                            public void onClick(View view) {
+                                themePrefs.setNewTheme(lineColorPicker.getColor());
+                                getActivity().setResult(Activity.RESULT_OK);
+                                new Handler().post(new Runnable() {
+                                    @Override
+                                    public void run() {
+                                        alertDialog.dismiss();
+                                        Intent intent = getActivity().getIntent();
+                                        intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK
+                                                | Intent.FLAG_ACTIVITY_NO_ANIMATION);
+                                        getActivity().overridePendingTransition(0, 0);
+                                        getActivity().finish();
+
+                                        getActivity().overridePendingTransition(0, 0);
+                                        startActivity(intent);
+                                    }
+                                });
+                            }
+                        });
+                        return true;
+                    }
                 });
+                findPreference(COLOR_PRIMARY).setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
+                    @Override
+                    public boolean onPreferenceClick(Preference preference) {
+                        final LayoutInflater inflater = getActivity().getLayoutInflater();
+                        final View dialog = inflater.inflate(R.layout.color_chooser, null);
+                        AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
+                        final TextView title = (TextView) dialog.findViewById(R.id.title);
+                        title.setText(getResources().getString(R.string.theme_primary_color_dialog));
+                        title.setBackgroundColor(themePrefs.getPrimaryColor());
+                        final LineColorPicker lineColorPicker = (LineColorPicker) dialog.findViewById(R.id.picker3);
+                        lineColorPicker.setColors(themePrefs.getPrimaryColors());
+                        lineColorPicker.setSelectedColor(themePrefs.getPrimaryColor());
+
+                        builder.setView(dialog);
+                        final AlertDialog alertDialog = builder.show();
+                        dialog.findViewById(R.id.ok).setOnClickListener(new View.OnClickListener() {
+                            @Override
+                            public void onClick(View view) {
+                                themePrefs.setPrimaryColor(lineColorPicker.getColor());
+                                getActivity().setResult(Activity.RESULT_OK);
+                                new Handler().post(new Runnable() {
+                                    @Override
+                                    public void run() {
+                                        alertDialog.dismiss();
+                                        Intent intent = getActivity().getIntent();
+                                        intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK
+                                                | Intent.FLAG_ACTIVITY_NO_ANIMATION);
+                                        getActivity().overridePendingTransition(0, 0);
+                                        getActivity().finish();
+
+                                        getActivity().overridePendingTransition(0, 0);
+                                        startActivity(intent);
+                                    }
+                                });
+
+                            }
+                        });
+                        return true;
+                    }
+                });
+
                 findPreference(FAB_OPTIONS).setOnPreferenceChangeListener(new Preference.OnPreferenceChangeListener() {
                     @Override
                     public boolean onPreferenceChange(Preference preference, Object o) {

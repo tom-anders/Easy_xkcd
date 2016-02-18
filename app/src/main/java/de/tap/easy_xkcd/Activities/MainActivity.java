@@ -277,15 +277,13 @@ public class MainActivity extends BaseActivity {
                 new int[] {-android.R.attr.state_checked},
                 new int[] {}
         };
-        TypedValue typedValue = new TypedValue();
-        getTheme().resolveAttribute(R.attr.colorAccent, typedValue, true);
         int[] color = new int[] {
                 Color.BLACK,
-                typedValue.data
+                themePrefs.getPrimaryColor()
         };
         int[] colorIcon = new int[] {
                 ContextCompat.getColor(this, android.R.color.tertiary_text_light),
-                typedValue.data
+                themePrefs.getPrimaryColor()
         };
 
         navigationView.setItemTextColor(new ColorStateList(state, color));

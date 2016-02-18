@@ -5,6 +5,7 @@ import android.content.Intent;
 import android.content.res.Resources;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.graphics.Color;
 import android.os.Build;
 import android.os.Bundle;
 import android.support.v4.content.ContextCompat;
@@ -25,32 +26,25 @@ public abstract class BaseActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         prefHelper = new PrefHelper(this);
         themePrefs = new ThemePrefs(this);
-        setTheme(themePrefs.getOldTheme());
+        //setTheme(themePrefs.getOldTheme());
+        setTheme(themePrefs.getNewTheme());
         super.onCreate(savedInstanceState);
     }
 
     protected void setupToolbar(Toolbar toolbar) {
         //On Lollipop, change the app's icon in the recents app screen
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-            TypedValue typedValue = new TypedValue();
-            Resources.Theme theme = getTheme();
-            theme.resolveAttribute(R.attr.colorPrimary, typedValue, true);
-            int color = typedValue.data;
             Bitmap ic = BitmapFactory.decodeResource(getResources(), R.mipmap.ic_easy_xkcd_recents);
+            int color = themePrefs.getPrimaryColor();
             ActivityManager.TaskDescription description = new ActivityManager.TaskDescription("Easy xkcd", ic, color);
             setTaskDescription(description);
-            if (!(this instanceof MainActivity)) {
-                getTheme().resolveAttribute(R.attr.colorPrimaryDark, typedValue, true);
-                getWindow().setStatusBarColor(typedValue.data);
-            }
-            if (!prefHelper.colorNavbar())
-                getWindow().setNavigationBarColor(ContextCompat.getColor(this, R.color.ColorPrimaryBlack));
+            getWindow().setStatusBarColor(themePrefs.getPrimaryDarkColor());
+            if (prefHelper.colorNavbar())
+                getWindow().setNavigationBarColor(themePrefs.getPrimaryColor());
         }
         setSupportActionBar(toolbar);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-        TypedValue typedValue2 = new TypedValue();
-        getTheme().resolveAttribute(R.attr.colorPrimary, typedValue2, true);
-        toolbar.setBackgroundColor(typedValue2.data);
+        toolbar.setBackgroundColor(themePrefs.getPrimaryColor());
     }
 
 }

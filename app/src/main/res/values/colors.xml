@@ -1,36 +1,61 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <color name="ColorPrimary">#607D8B</color>
-    <color name="ColorPrimaryDark">#455A64</color>
-    <color name="AccentDefault">#CDDC39</color>
     <color name="Read">#BDBDBD</color>
 
-    <color name="ColorPrimaryRed">#F44336</color>
-    <color name="ColorPrimaryDarkRed">#D32F2F</color>
-    <color name="AccentRed">#536DFE</color>
+    <!-- Primary colors -->
+    <color name="PrimaryPurple">#7B1FA2</color>
+    <color name="PrimaryDarkPurple">#9C27B0</color>
+    <color name="PrimaryDeepPurple">#512DA8</color>
+    <color name="PrimaryDarkDeepPurple">#512DA8</color>
+    <color name="PrimaryIndigo">#3F51B5</color>
+    <color name="PrimaryDarkIndigo">#303F9F</color>
+    <color name="PrimaryBlue">#2196F3</color>
+    <color name="PrimaryDarkBlue">#1976D2</color>
+    <color name="PrimaryLightBlue">#03A9F4</color>
+    <color name="PrimaryDarkLightBlue">#0288D1</color>
+    <color name="PrimaryCyan">#00BCD4</color>
+    <color name="PrimaryDarkCyan">#00BCD4</color>
+    <color name="PrimaryTeal">#009688</color>
+    <color name="PrimaryDarkTeal">#009688</color>
+    <color name="PrimaryGreen">#4CAF50</color>
+    <color name="PrimaryDarkGreen">#388E3C</color>
+    <color name="PrimaryLightGreen">#8BC34A</color>
+    <color name="PrimaryDarkLightGreen">#689F38</color>
+    <color name="PrimaryLime">#CDDC39</color>
+    <color name="PrimaryDarkLime">#AFB42B</color>
+    <color name="PrimaryYellow">#FFEB3B</color>
+    <color name="PrimaryDarkYellow">#FBC02D</color>
+    <color name="PrimaryAmber">#FFC107</color>
+    <color name="PrimaryDarkAmber">#FFA000</color>
+    <color name="PrimaryOrange">#FF9800</color>
+    <color name="PrimaryDarkOrange">#F57C00</color>
+    <color name="PrimaryDeepOrange">#FF5722</color>
+    <color name="PrimaryDarkDeepOrange">#E64A19</color>
+    <color name="PrimaryRed">#F44336</color>
+    <color name="PrimaryDarkRed">#D32F2F</color>
+    <color name="PrimaryBrown">#795548</color>
+    <color name="PrimaryDarkBrown">#5D4037</color>
+    <color name="PrimaryGrey">#9E9E9E</color>
+    <color name="PrimaryDarkGrey">#616161</color>
+    <color name="PrimaryBlueGrey">#607D8B</color>
+    <color name="PrimaryDarkBlueGrey">#455A64</color>
+    <color name="PrimaryBlack">#000</color>
+    <color name="PrimaryDarkBlack">#000</color>
 
-    <color name="ColorPrimaryBlue">#2196F3</color>
-    <color name="ColorPrimaryDarkBlue">#1976D2</color>
-    <color name="AccentBlue">#FF9800</color>
-
-    <color name="ColorPrimaryBlack">#000</color>
-    <color name="ColorPrimaryDarkBlack">#000</color>
-    <color name="AccentBlack">#FF9800</color>
-
-    <color name="ColorPrimaryPurple">#673AB7</color>
-    <color name="ColorPrimaryDarkPurple">#512DA8</color>
-    <color name="AccentPurple">#FF5252</color>
-
-    <color name="ColorPrimaryLime">#CDDC39</color>
-    <color name="ColorPrimaryDarkLime">#AFB42B</color>
-    <color name="AccentLime">#9E9E9E</color>
-
-    <color name="ColorPrimaryGreen">#4CAF50</color>
-    <color name="ColorPrimaryDarkGreen">#388E3C</color>
-    <color name="AccentGreen">#FF5252</color>
-
-    <color name="DarkBackground">#727272</color>
-
-
-
+    <!-- Accent colors -->
+    <color name="AccentPurple">#7B1FA2</color>
+    <color name="AccentDeepPurple">#512DA8</color>
+    <color name="AccentIndigo">#3F51B5</color>
+    <color name="AccentBlue">#2196F3</color>
+    <color name="AccentLightBlue">#03A9F4</color>
+    <color name="AccentCyan">#00BCD4</color>
+    <color name="AccentTeal">#009688</color>
+    <color name="AccentGreen">#4CAF50</color>
+    <color name="AccentLightGreen">#8BC34A</color>
+    <color name="AccentLime">#CDDC39</color>
+    <color name="AccentYellow">#FFEB3B</color>
+    <color name="AccentAmber">#FFC107</color>
+    <color name="AccentOrange">#FF9800</color>
+    <color name="AccentDeepOrange">#FF5722</color>
+    <color name="AccentRed">#F44336</color>
 </resources>

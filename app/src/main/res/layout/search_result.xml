@@ -10,7 +10,7 @@
         card_view:cardElevation="4dp"
         card_view:cardUseCompatPadding="true"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"> <!--135-->
+        android:layout_height="wrap_content">
 
         <RelativeLayout
             android:background="?android:attr/selectableItemBackground"

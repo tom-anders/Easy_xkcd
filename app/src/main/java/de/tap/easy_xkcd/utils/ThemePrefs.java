@@ -1,9 +1,31 @@
+/**
+ * *******************************************************************************
+ * Copyright 2015 Tom Praschan
+ * <p/>
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ * <p/>
+ * http://www.apache.org/licenses/LICENSE-2.0
+ * <p/>
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ * ******************************************************************************
+ *
+ * Inspired by the excellent Reddit App Slide: https://github.com/ccrama/Slide
+ *
+ */
+
 package de.tap.easy_xkcd.utils;
 
 import android.app.Activity;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.preference.PreferenceManager;
+import android.support.v4.content.ContextCompat;
 import android.util.Log;
 
 import com.tap.xkcd_reader.R;
@@ -14,6 +36,9 @@ public class ThemePrefs {
     private Context context;
 
     private static final String THEME = "pref_theme";
+    private static final String COLOR_PRIMARY = "pref_color_primary";
+    private static final String COLOR_PRIMARY_DARK = "pref_color_primary_dark";
+    private static final String COLOR_ACCENT = "pref_color_accent";
     private static final String NIGHT_THEME = "pref_night";
     private static final String WHATIF_NIGHT_MODE = "night_mode";
     private static final String AUTO_NIGHT = "pref_auto_night";
@@ -23,7 +48,7 @@ public class ThemePrefs {
     private static final String AUTO_NIGHT_END_HOUR = "pref_auto_night_end_hour";
     private static final String INVERT_COLORS = "pref_invert";
 
-    public ThemePrefs (Context context) {
+    public ThemePrefs(Context context) {
         this.context = context;
     }
 
@@ -117,8 +142,68 @@ public class ThemePrefs {
         }
     }
 
+    public int getNewTheme() {
+        //TODO import old theme
+        int accent = getSharedPrefs().getInt(COLOR_ACCENT, -1);
+        if (accent == ContextCompat.getColor(context, R.color.AccentPurple))
+            return R.style.PurpleTheme;
+        if (accent == ContextCompat.getColor(context, R.color.AccentIndigo))
+            return R.style.IndigoTheme;
+        if (accent == ContextCompat.getColor(context, R.color.AccentBlue))
+            return R.style.BlueTheme;
+        if (accent == ContextCompat.getColor(context, R.color.AccentLightBlue))
+            return R.style.LightBlueTheme;
+        if (accent == ContextCompat.getColor(context, R.color.AccentCyan))
+            return R.style.CyanTheme;
+        if (accent == ContextCompat.getColor(context, R.color.AccentTeal))
+            return R.style.TealTheme;
+        if (accent == ContextCompat.getColor(context, R.color.AccentGreen))
+            return R.style.GreenTheme;
+        if (accent == ContextCompat.getColor(context, R.color.AccentLightGreen))
+            return R.style.LightBlueTheme;
+        if (accent == ContextCompat.getColor(context, R.color.AccentLime))
+            return R.style.LimeTheme;
+        if (accent == ContextCompat.getColor(context, R.color.AccentYellow))
+            return R.style.YellowTheme;
+        if (accent == ContextCompat.getColor(context, R.color.AccentAmber))
+            return R.style.AmberTheme;
+        if (accent == ContextCompat.getColor(context, R.color.AccentOrange))
+            return R.style.OrangeTheme;
+        if (accent == ContextCompat.getColor(context, R.color.AccentDeepOrange))
+            return R.style.DeepOrangeTheme;
+        if (accent == ContextCompat.getColor(context, R.color.AccentRed))
+            return R.style.RedTheme;
+        return R.style.LimeTheme;
+    }
+
+    public void setNewTheme(int accentColor) {
+        editSharedPrefs().putInt(COLOR_ACCENT, accentColor).apply();
+    }
+
+    public int getPrimaryColor() {
+        return getSharedPrefs().getInt(COLOR_PRIMARY, ContextCompat.getColor(context, R.color.PrimaryBlueGrey));
+    }
+
+    public int getAccentColor() {
+        return getSharedPrefs().getInt(COLOR_ACCENT, ContextCompat.getColor(context, R.color.AccentLime));
+    }
+
+    public void setPrimaryColor(int color) {
+        editSharedPrefs().putInt(COLOR_PRIMARY, color).apply();
+        int[] colors = getPrimaryColors();
+        for (int i = 0; i < colors.length; i++)
+            if (colors[i] == color)
+                editSharedPrefs().putInt(COLOR_PRIMARY_DARK, getPrimaryDarkColors()[i]).apply();
+    }
+
+    public int getPrimaryDarkColor() {
+        return getSharedPrefs().getInt(COLOR_PRIMARY_DARK, ContextCompat.getColor(context, R.color.PrimaryDarkBlueGrey));
+    }
+
+
     public int getOldTheme() {
-        if (nightThemeEnabled())
+        return R.style.LimeTheme;
+        /*if (nightThemeEnabled())
             return R.style.NightTheme;
 
         int n = Integer.parseInt(getPrefs().getString(THEME, "1"));
@@ -139,11 +224,13 @@ public class ThemePrefs {
                 return R.style.GreenTheme;
             default:
                 return R.style.DefaultTheme;
-        }
+        }*/
     }
 
+
     public int getDialogTheme() {
-        if (nightThemeEnabled())
+        return 0;
+        /*if (nightThemeEnabled())
             return R.style.AlertDialogNight;
         int n = Integer.parseInt(getPrefs().getString(THEME, "1"));
         switch (n) {
@@ -163,12 +250,80 @@ public class ThemePrefs {
                 return R.style.AlertDialogGreen;
             default:
                 return R.style.AlertDialog;
-        }
+        }*/
     }
 
     public boolean invertColors() {
         return getPrefs().getBoolean(INVERT_COLORS, true) && nightThemeEnabled();
     }
+
+    public int[] getAccentColors() {
+        return new int[]{
+                ContextCompat.getColor(context, R.color.AccentPurple),
+                ContextCompat.getColor(context, R.color.AccentIndigo),
+                ContextCompat.getColor(context, R.color.AccentBlue),
+                ContextCompat.getColor(context, R.color.AccentLightBlue),
+                ContextCompat.getColor(context, R.color.AccentCyan),
+                ContextCompat.getColor(context, R.color.AccentTeal),
+                ContextCompat.getColor(context, R.color.AccentGreen),
+                ContextCompat.getColor(context, R.color.AccentLightGreen),
+                ContextCompat.getColor(context, R.color.AccentLime),
+                ContextCompat.getColor(context, R.color.AccentYellow),
+                ContextCompat.getColor(context, R.color.AccentAmber),
+                ContextCompat.getColor(context, R.color.AccentOrange),
+                ContextCompat.getColor(context, R.color.AccentDeepOrange),
+                ContextCompat.getColor(context, R.color.AccentRed)
+        };
+    }
+
+    public int[] getPrimaryColors() {
+        return new int[]{
+                ContextCompat.getColor(context, R.color.PrimaryPurple),
+                ContextCompat.getColor(context, R.color.PrimaryDeepPurple),
+                ContextCompat.getColor(context, R.color.PrimaryIndigo),
+                ContextCompat.getColor(context, R.color.PrimaryBlue),
+                ContextCompat.getColor(context, R.color.PrimaryLightBlue),
+                ContextCompat.getColor(context, R.color.PrimaryCyan),
+                ContextCompat.getColor(context, R.color.PrimaryTeal),
+                ContextCompat.getColor(context, R.color.PrimaryGreen),
+                ContextCompat.getColor(context, R.color.PrimaryLightGreen),
+                ContextCompat.getColor(context, R.color.PrimaryLime),
+                ContextCompat.getColor(context, R.color.PrimaryYellow),
+                ContextCompat.getColor(context, R.color.PrimaryAmber),
+                ContextCompat.getColor(context, R.color.PrimaryOrange),
+                ContextCompat.getColor(context, R.color.PrimaryDeepOrange),
+                ContextCompat.getColor(context, R.color.PrimaryRed),
+                ContextCompat.getColor(context, R.color.PrimaryBrown),
+                ContextCompat.getColor(context, R.color.PrimaryGrey),
+                ContextCompat.getColor(context, R.color.PrimaryBlueGrey),
+                ContextCompat.getColor(context, R.color.PrimaryBlack)
+        };
+    }
+
+    public int[] getPrimaryDarkColors() {
+        return new int[]{
+                ContextCompat.getColor(context, R.color.PrimaryDarkPurple),
+                ContextCompat.getColor(context, R.color.PrimaryDarkDeepPurple),
+                ContextCompat.getColor(context, R.color.PrimaryDarkIndigo),
+                ContextCompat.getColor(context, R.color.PrimaryDarkBlue),
+                ContextCompat.getColor(context, R.color.PrimaryDarkLightBlue),
+                ContextCompat.getColor(context, R.color.PrimaryDarkCyan),
+                ContextCompat.getColor(context, R.color.PrimaryDarkTeal),
+                ContextCompat.getColor(context, R.color.PrimaryDarkGreen),
+                ContextCompat.getColor(context, R.color.PrimaryDarkLightGreen),
+                ContextCompat.getColor(context, R.color.PrimaryDarkLime),
+                ContextCompat.getColor(context, R.color.PrimaryDarkYellow),
+                ContextCompat.getColor(context, R.color.PrimaryDarkAmber),
+                ContextCompat.getColor(context, R.color.PrimaryDarkOrange),
+                ContextCompat.getColor(context, R.color.PrimaryDarkDeepOrange),
+                ContextCompat.getColor(context, R.color.PrimaryDarkRed),
+                ContextCompat.getColor(context, R.color.PrimaryDarkBrown),
+                ContextCompat.getColor(context, R.color.PrimaryDarkGrey),
+                ContextCompat.getColor(context, R.color.PrimaryDarkBlueGrey),
+                ContextCompat.getColor(context, R.color.PrimaryDarkBlack)
+        };
+    }
+
 
     private SharedPreferences getSharedPrefs() {
         return context.getSharedPreferences("MainActivity", Activity.MODE_PRIVATE);

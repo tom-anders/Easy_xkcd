@@ -361,6 +361,13 @@
 
     <string name="overview_style_title">Pick your preferred style</string>
 
+    <string name="theme_primary_color">Primary color</string>
+    <string name="theme_primary_color_dialog">Select a primary color</string>
+    <string name="theme_accent_color">Accent color</string>
+    <string name="theme_accent_color_dialog">Select an accent color</string>
+    <string name="pref_edit_theme">Customize theme</string>
+    <string name="pref_theme_ok">OK</string>
+
     <string-array name="overview_style">
         <item>List</item>
         <item>Small Cards</item>

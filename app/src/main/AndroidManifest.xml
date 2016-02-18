@@ -31,7 +31,7 @@
         android:allowBackup="true"
         android:icon="@mipmap/ic_easy_xkcd_def"
         android:label="@string/app_name"
-        android:theme="@style/DefaultTheme"
+        android:theme="@style/LimeTheme"
         tools:replace="android:theme, android:label" >
         <activity
             android:name="de.tap.easy_xkcd.Activities.MainActivity"
@@ -181,7 +181,6 @@
                 android:value="de.tap.easy_xkcd.Activities.MainActivity" />
         </activity>
         <activity android:name="de.tap.easy_xkcd.Activities.CustomFilePickerActivity" />
-
 
         <service android:name="de.tap.easy_xkcd.services.ComicDownloadService" />
         <service android:name="de.tap.easy_xkcd.services.ArticleDownloadService" />
