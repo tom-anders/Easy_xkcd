@@ -114,7 +114,7 @@ public class WhatIfActivity extends BaseActivity {
         protected void onPreExecute() {
             if (!prefHelper.fullOfflineWhatIf()) {
                 mProgress = new ProgressDialog(WhatIfActivity.this);
-                mProgress.setTitle(getResources().getString(R.string.loading_articles));
+                mProgress.setTitle(getResources().getString(R.string.loading_article));
                 mProgress.setIndeterminate(false);
                 mProgress.setProgressStyle(ProgressDialog.STYLE_HORIZONTAL);
                 mProgress.setCancelable(false);

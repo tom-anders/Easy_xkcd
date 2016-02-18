@@ -274,5 +274,6 @@
     <string name="pref_overview_default_sum">Gehe direkt zur Comic Übersicht, wenn die App gestartet wird</string>
     <string name="pref_export_import">Favoriten Export/Import</string>
     <string name="pref_import_success">Favoriten importiert!</string>
+    <string name="loading_article">Lade Artikel…</string>
 
 </resources>

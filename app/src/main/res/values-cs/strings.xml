@@ -271,5 +271,6 @@
     </string-array>
     <string name="pref_export_import">Export/Import Favorites</string>
     <string name="pref_import_success">Favorites imported!</string>
+    <string name="loading_article">Loading article…</string>
 
 </resources>

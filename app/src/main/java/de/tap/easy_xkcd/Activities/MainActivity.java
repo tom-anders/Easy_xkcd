@@ -20,8 +20,11 @@ package de.tap.easy_xkcd.Activities;
 
 import android.app.ProgressDialog;
 import android.content.pm.PackageManager;
+import android.content.res.ColorStateList;
 import android.content.res.Configuration;
 import android.content.res.Resources;
+import android.graphics.Color;
+import android.graphics.ColorMatrixColorFilter;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Handler;
@@ -269,7 +272,23 @@ public class MainActivity extends BaseActivity {
                         return true;
                     }
                 });
+        int[][] state = new int[][] {
+                new int[] {-android.R.attr.state_checked},
+                new int[] {}
+        };
+        TypedValue typedValue = new TypedValue();
+        getTheme().resolveAttribute(R.attr.colorAccent, typedValue, true);
+        int[] color = new int[] {
+                Color.BLACK,
+                typedValue.data
+        };
+        int[] colorIcon = new int[] {
+                ContextCompat.getColor(this, android.R.color.tertiary_text_light),
+                typedValue.data
+        };
 
+        navigationView.setItemTextColor(new ColorStateList(state, color));
+        navigationView.setItemIconTintList(new ColorStateList(state, colorIcon));
     }
 
     public void selectDrawerItem(final MenuItem menuItem, final boolean showOverview) {
