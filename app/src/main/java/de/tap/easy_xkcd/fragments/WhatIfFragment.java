@@ -54,6 +54,7 @@ import butterknife.ButterKnife;
 import de.tap.easy_xkcd.utils.PrefHelper;
 import de.tap.easy_xkcd.Activities.MainActivity;
 import de.tap.easy_xkcd.Activities.WhatIfActivity;
+import de.tap.easy_xkcd.utils.ThemePrefs;
 import jp.wasabeef.recyclerview.animators.adapters.SlideInBottomAnimationAdapter;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
@@ -75,6 +76,7 @@ public class WhatIfFragment extends android.support.v4.app.Fragment {
     private static final String OFFLINE_WHATIF_OVERVIEW_PATH = "/easy xkcd/what if/overview";
     private static final String OFFLINE_WHATIF_PATH = "/easy xkcd/what if/";
     private PrefHelper prefHelper;
+    private ThemePrefs themePrefs;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
@@ -82,6 +84,7 @@ public class WhatIfFragment extends android.support.v4.app.Fragment {
         ButterKnife.bind(this, v);
         setHasOptionsMenu(true);
         prefHelper = ((MainActivity) getActivity()).getPrefHelper();
+        themePrefs = ((MainActivity) getActivity()).getThemePrefs();
 
         LinearLayoutManager llm = new LinearLayoutManager(getActivity());
         rv.setLayoutManager(llm);
@@ -328,12 +331,12 @@ public class WhatIfFragment extends android.support.v4.app.Fragment {
             int n = mTitles.size() - mTitles.indexOf(title);
 
             if (prefHelper.checkRead(n)) {
-                if (prefHelper.nightThemeEnabled())
+                if (themePrefs.nightThemeEnabled())
                     comicViewHolder.articleTitle.setTextColor(ContextCompat.getColor(getActivity(), android.R.color.tertiary_text_light));
                 else
                     comicViewHolder.articleTitle.setTextColor(ContextCompat.getColor(getActivity(), R.color.Read));
             } else {
-                if (prefHelper.nightThemeEnabled())
+                if (themePrefs.nightThemeEnabled())
                     comicViewHolder.articleTitle.setTextColor(ContextCompat.getColor(getActivity(), R.color.Read));
                 else
                     comicViewHolder.articleTitle.setTextColor(ContextCompat.getColor(getActivity(), android.R.color.tertiary_text_light));
@@ -387,7 +390,7 @@ public class WhatIfFragment extends android.support.v4.app.Fragment {
                         .load(imgs.get(i))
                         .into(comicViewHolder.thumbnail);
             }
-            if (prefHelper.invertColors()) {
+            if (themePrefs.invertColors()) {
                 float[] colorMatrix_Negative = {
                         -1.0f, 0, 0, 0, 255, //red
                         0, -1.0f, 0, 0, 255, //green
@@ -412,7 +415,7 @@ public class WhatIfFragment extends android.support.v4.app.Fragment {
             ComicViewHolder(View itemView) {
                 super(itemView);
                 cv = (CardView) itemView.findViewById(R.id.cv);
-                if (prefHelper.nightThemeEnabled())
+                if (themePrefs.nightThemeEnabled())
                     cv.setCardBackgroundColor(ContextCompat.getColor(getActivity(), R.color.background_material_dark));
                 articleTitle = (TextView) itemView.findViewById(R.id.article_title);
                 thumbnail = (ImageView) itemView.findViewById(R.id.thumbnail);

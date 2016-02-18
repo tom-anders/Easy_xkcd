@@ -419,7 +419,7 @@ public class SearchResultsActivity extends BaseActivity {
                     }
                 }
             }
-            if (prefHelper.invertColors()) {
+            if (themePrefs.invertColors()) {
                 float[] colorMatrix_Negative = {
                         -1.0f, 0, 0, 0, 255, //red
                         0, -1.0f, 0, 0, 255, //green
@@ -446,7 +446,7 @@ public class SearchResultsActivity extends BaseActivity {
             ComicViewHolder(View itemView) {
                 super(itemView);
                 cv = (CardView) itemView.findViewById(R.id.cv);
-                if (prefHelper.nightThemeEnabled())
+                if (themePrefs.nightThemeEnabled())
                     cv.setCardBackgroundColor(ContextCompat.getColor(SearchResultsActivity.this, R.color.background_material_dark));
                 comicTitle = (TextView) itemView.findViewById(R.id.comic_title);
                 comicInfo = (TextView) itemView.findViewById(R.id.comic_info);

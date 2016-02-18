@@ -160,12 +160,12 @@ public class OverviewCardsFragment extends OverviewBaseFragment {
             int number = titles.keyAt(getItemCount() - i - 1);
             String title = titles.get(number);
             if (checkComicRead(number) && !prefHelper.overviewFav()) {
-                if (prefHelper.nightThemeEnabled())
+                if (themePrefs.nightThemeEnabled())
                     comicViewHolder.comicTitle.setTextColor(ContextCompat.getColor(getActivity(), android.R.color.tertiary_text_light));
                 else
                     comicViewHolder.comicTitle.setTextColor(ContextCompat.getColor(getActivity(), R.color.Read));
             } else {
-                if (prefHelper.nightThemeEnabled())
+                if (themePrefs.nightThemeEnabled())
                     comicViewHolder.comicTitle.setTextColor(ContextCompat.getColor(getActivity(), R.color.Read));
                 else
                     comicViewHolder.comicTitle.setTextColor(ContextCompat.getColor(getActivity(), android.R.color.tertiary_text_light));
@@ -205,7 +205,7 @@ public class OverviewCardsFragment extends OverviewBaseFragment {
                     }
                 }
             }
-            if (prefHelper.invertColors()) {
+            if (themePrefs.invertColors()) {
                 float[] colorMatrix_Negative = {
                         -1.0f, 0, 0, 0, 255, //red
                         0, -1.0f, 0, 0, 255, //green
@@ -232,7 +232,7 @@ public class OverviewCardsFragment extends OverviewBaseFragment {
             ComicViewHolder(View itemView) {
                 super(itemView);
                 cv = (CardView) itemView.findViewById(R.id.cv);
-                if (prefHelper.nightThemeEnabled())
+                if (themePrefs.nightThemeEnabled())
                     cv.setCardBackgroundColor(ContextCompat.getColor(getActivity(), R.color.background_material_dark));
                 comicTitle = (TextView) itemView.findViewById(R.id.comic_title);
                 comicInfo = (TextView) itemView.findViewById(R.id.comic_info);

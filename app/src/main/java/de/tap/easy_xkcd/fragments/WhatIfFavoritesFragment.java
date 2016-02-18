@@ -39,6 +39,7 @@ import butterknife.ButterKnife;
 import de.tap.easy_xkcd.Activities.MainActivity;
 import de.tap.easy_xkcd.utils.PrefHelper;
 import de.tap.easy_xkcd.Activities.WhatIfActivity;
+import de.tap.easy_xkcd.utils.ThemePrefs;
 import jp.wasabeef.recyclerview.animators.adapters.SlideInBottomAnimationAdapter;
 
 public class WhatIfFavoritesFragment extends android.support.v4.app.Fragment {
@@ -50,6 +51,7 @@ public class WhatIfFavoritesFragment extends android.support.v4.app.Fragment {
     public static RVAdapter adapter;
     private boolean fullOffline;
     private PrefHelper prefHelper;
+    private ThemePrefs themePrefs;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
@@ -57,6 +59,7 @@ public class WhatIfFavoritesFragment extends android.support.v4.app.Fragment {
         ButterKnife.bind(this, v);
         setHasOptionsMenu(true);
         prefHelper = ((MainActivity) getActivity()).getPrefHelper();
+        themePrefs = ((MainActivity) getActivity()).getThemePrefs();
 
         instance = this;
         LinearLayoutManager llm = new LinearLayoutManager(getActivity());
@@ -226,7 +229,7 @@ public class WhatIfFavoritesFragment extends android.support.v4.app.Fragment {
                         .into(comicViewHolder.thumbnail);
             }
 
-            if (prefHelper.invertColors()) {
+            if (themePrefs.invertColors()) {
                 float[] colorMatrix_Negative = {
                         -1.0f, 0, 0, 0, 255, //red
                         0, -1.0f, 0, 0, 255, //green
@@ -251,7 +254,7 @@ public class WhatIfFavoritesFragment extends android.support.v4.app.Fragment {
             ComicViewHolder(View itemView) {
                 super(itemView);
                 cv = (CardView) itemView.findViewById(R.id.cv);
-                if (prefHelper.nightThemeEnabled())
+                if (themePrefs.nightThemeEnabled())
                     cv.setCardBackgroundColor(ContextCompat.getColor(getActivity(), R.color.background_material_dark));
                 articleTitle = (TextView) itemView.findViewById(R.id.article_title);
                 thumbnail = (ImageView) itemView.findViewById(R.id.thumbnail);

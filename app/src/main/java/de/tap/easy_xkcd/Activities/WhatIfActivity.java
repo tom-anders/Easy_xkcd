@@ -196,7 +196,7 @@ public class WhatIfActivity extends BaseActivity {
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
         getMenuInflater().inflate(R.menu.menu_what_if, menu);
-        menu.findItem(R.id.action_night_mode).setChecked(prefHelper.nightModeEnabled());
+        menu.findItem(R.id.action_night_mode).setChecked(themePrefs.nightModeEnabled());
         menu.findItem(R.id.action_swipe).setChecked(prefHelper.swipeEnabled());
         return true;
     }
@@ -212,7 +212,7 @@ public class WhatIfActivity extends BaseActivity {
 
             case R.id.action_night_mode:
                 item.setChecked(!item.isChecked());
-                prefHelper.setNightMode(item.isChecked());
+                themePrefs.setNightMode(item.isChecked());
                 new LoadWhatIf().execute();
                 return true;
 

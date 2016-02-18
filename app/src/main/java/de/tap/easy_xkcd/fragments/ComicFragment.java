@@ -45,6 +45,7 @@ import de.tap.easy_xkcd.misc.HackyViewPager;
 import de.tap.easy_xkcd.utils.Comic;
 import de.tap.easy_xkcd.utils.Favorites;
 import de.tap.easy_xkcd.utils.PrefHelper;
+import de.tap.easy_xkcd.utils.ThemePrefs;
 import uk.co.senab.photoview.PhotoView;
 import uk.co.senab.photoview.PhotoViewAttacher;
 
@@ -66,6 +67,7 @@ public abstract class ComicFragment extends android.support.v4.app.Fragment {
     static final String LAST_COMIC = "Last Comic";
 
     protected PrefHelper prefHelper;
+    protected ThemePrefs themePrefs;
 
     protected View inflateLayout(int resId, LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View view = inflater.inflate(resId, container, false);
@@ -75,6 +77,7 @@ public abstract class ComicFragment extends android.support.v4.app.Fragment {
         pager.setOffscreenPageLimit(2);
 
         prefHelper = ((MainActivity) getActivity()).getPrefHelper();
+        themePrefs = ((MainActivity) getActivity()).getThemePrefs();
 
         if (!(this instanceof FavoritesFragment)) {
             if (savedInstanceState != null) {
@@ -167,7 +170,7 @@ public abstract class ComicFragment extends android.support.v4.app.Fragment {
                 }
             });
 
-            if (prefHelper.invertColors()) {
+            if (themePrefs.invertColors()) {
                 float[] colorMatrix_Negative = {
                         -1.0f, 0, 0, 0, 255, //red
                         0, -1.0f, 0, 0, 255, //green

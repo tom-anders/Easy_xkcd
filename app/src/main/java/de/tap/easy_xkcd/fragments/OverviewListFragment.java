@@ -117,12 +117,12 @@ public class OverviewListFragment extends OverviewBaseFragment {
             int number = titles.keyAt(getCount() - position - 1);
             label = String.valueOf(number) + " " + titles.get(number);
             if (checkComicRead(number) && !prefHelper.overviewFav()) {
-                if (prefHelper.nightThemeEnabled())
+                if (themePrefs.nightThemeEnabled())
                     holder.textView.setTextColor(ContextCompat.getColor(getActivity(), android.R.color.tertiary_text_light));
                 else
                     holder.textView.setTextColor(ContextCompat.getColor(getActivity(), R.color.Read));
             } else {
-                if (prefHelper.nightThemeEnabled())
+                if (themePrefs.nightThemeEnabled())
                     holder.textView.setTextColor(ContextCompat.getColor(getActivity(), R.color.Read));
                 else
                     holder.textView.setTextColor(ContextCompat.getColor(getActivity(), android.R.color.tertiary_text_light));

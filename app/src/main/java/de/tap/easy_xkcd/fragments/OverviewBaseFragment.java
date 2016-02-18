@@ -29,18 +29,21 @@ import de.tap.easy_xkcd.Activities.MainActivity;
 import de.tap.easy_xkcd.utils.Comic;
 import de.tap.easy_xkcd.utils.Favorites;
 import de.tap.easy_xkcd.utils.PrefHelper;
+import de.tap.easy_xkcd.utils.ThemePrefs;
 
 public abstract class OverviewBaseFragment extends android.support.v4.app.Fragment {
     protected static SparseArray<String> titles = new SparseArray<>();
     protected static SparseArray<String> urls = new SparseArray<>();
     protected static int[] read;
     protected PrefHelper prefHelper;
+    protected ThemePrefs themePrefs;
     public static int bookmark;
     protected static final String BROWSER_TAG = "browser";
     protected static final String OVERVIEW_TAG = "overview";
 
     protected void setupVariables() {
         prefHelper = ((MainActivity) getActivity()).getPrefHelper();
+        themePrefs = ((MainActivity) getActivity()).getThemePrefs();
         bookmark = prefHelper.getBookmark();
         setHasOptionsMenu(true);
     }
@@ -110,8 +113,8 @@ public abstract class OverviewBaseFragment extends android.support.v4.app.Fragme
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
-            case R.id.action_overview_style: //TODO apply dialog style
-                android.support.v7.app.AlertDialog.Builder mDialog = new android.support.v7.app.AlertDialog.Builder(getActivity());
+            case R.id.action_overview_style:
+                android.support.v7.app.AlertDialog.Builder mDialog = new android.support.v7.app.AlertDialog.Builder(getActivity(), themePrefs.getDialogTheme());
                 mDialog.setTitle(R.string.overview_style_title)
                         .setSingleChoiceItems(R.array.overview_style, prefHelper.getOverviewStyle(), new DialogInterface.OnClickListener() {
                             @Override

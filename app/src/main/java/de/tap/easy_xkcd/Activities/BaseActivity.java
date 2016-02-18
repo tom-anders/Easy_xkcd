@@ -15,14 +15,17 @@ import android.util.TypedValue;
 import com.tap.xkcd_reader.R;
 
 import de.tap.easy_xkcd.utils.PrefHelper;
+import de.tap.easy_xkcd.utils.ThemePrefs;
 
 public abstract class BaseActivity extends AppCompatActivity {
     protected PrefHelper prefHelper;
+    protected ThemePrefs themePrefs;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         prefHelper = new PrefHelper(this);
-        setTheme(prefHelper.getTheme());
+        themePrefs = new ThemePrefs(this);
+        setTheme(themePrefs.getOldTheme());
         super.onCreate(savedInstanceState);
     }
 

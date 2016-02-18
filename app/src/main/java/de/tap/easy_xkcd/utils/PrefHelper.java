@@ -73,7 +73,7 @@ public class PrefHelper {
     private static final String THURSDAY_UPDATE_WHATIF = "thursday_update_whatif";
     private static final String ALT_DEFAULT = "pref_show_alt";
     private static final String LAST_WHATIF = "last_whatif";
-    private static final String NIGHT_MODE = "night_mode";
+    //private static final String WHATIF_NIGHT_MODE = "night_mode";
     private static final String WHATIF_READ = "whatif_read";
     private static final String COMIC_READ = "comic_read";
     private static final String WHATIF_FAV = "whatif_fav";
@@ -82,7 +82,7 @@ public class PrefHelper {
     private static final String HIDE_READ_OVERVIEW = "hide_read_overview";
     private static final String SWIPE_ENABLED = "whatif_swipe";
     private static final String RATE_SNACKBAR = "rate_snackbar";
-    private static final String THEME = "pref_theme";
+    //private static final String THEME = "pref_theme";
     private static final String WHATIF_OFFLINE = "pref_offline_whatif";
     private static final String WHATIF_TITLES = "whatif_titles";
     private static final String NOMEDIA_CREATED = "nomedia_created";
@@ -95,15 +95,15 @@ public class PrefHelper {
     private static final String ALT_ACTIVATION = "pref_alt_activation";
     private static final String SURVEY_SNACKBAR = "survey_snackbar";
     private static final String NEW_FEATURE_SNACKBAR = "new_feature_snackbar";
-    private static final String NIGHT_THEME = "pref_night";
-    private static final String INVERT_COLORS = "pref_invert";
+    //private static final String NIGHT_THEME = "pref_night";
+    //private static final String INVERT_COLORS = "pref_invert";
     private static final String COLORED_NAVBAR = "pref_navbar";
     private static final String MOBILE_ENABLED = "pref_update_mobile";
-    private static final String AUTO_NIGHT = "pref_auto_night";
+    /*private static final String AUTO_NIGHT = "pref_auto_night";
     private static final String AUTO_NIGHT_START_MIN = "pref_auto_night_start_min";
     private static final String AUTO_NIGHT_START_HOUR = "pref_auto_night_start_hour";
     private static final String AUTO_NIGHT_END_MIN = "pref_auto_night_end_min";
-    private static final String AUTO_NIGHT_END_HOUR = "pref_auto_night_end_hour";
+    private static final String AUTO_NIGHT_END_HOUR = "pref_auto_night_end_hour";*/
     private static final String OFFLINE_PATH = "pref_offline_path";
     private static final String ZOOM_SCROLL = "pref_zoom_scroll";
     private static final String OVERVIEW_FAV = "overview_fav";
@@ -348,13 +348,13 @@ public class PrefHelper {
         sharedPrefs.edit().putInt(LAST_WHATIF, number).apply();
     }
 
-    public boolean nightModeEnabled() {
-        return sharedPrefs.getBoolean(NIGHT_MODE, false);
+    /*public boolean nightModeEnabled() {
+        return sharedPrefs.getBoolean(WHATIF_NIGHT_MODE, false);
     }
 
     public void setNightMode(boolean value) {
-        sharedPrefs.edit().putBoolean(NIGHT_MODE, value).apply();
-    }
+        sharedPrefs.edit().putBoolean(WHATIF_NIGHT_MODE, value).apply();
+    }*/
 
     public void setWhatifRead(String added) {
         String read = sharedPrefs.getString(WHATIF_READ, "");
@@ -521,7 +521,7 @@ public class PrefHelper {
         }
     }
 
-    public int getTheme() {
+    /*public int getTheme() {
         if (nightThemeEnabled())
             return R.style.NightTheme;
 
@@ -544,9 +544,9 @@ public class PrefHelper {
             default:
                 return R.style.DefaultTheme;
         }
-    }
+    }*/
 
-    public int getDialogTheme() {
+    /*public int getDialogTheme() {
         if (nightThemeEnabled())
             return R.style.AlertDialogNight;
         int n = Integer.parseInt(prefs.getString(THEME, "1"));
@@ -568,7 +568,7 @@ public class PrefHelper {
             default:
                 return R.style.AlertDialog;
         }
-    }
+    }*/
 
     public int getNewestWhatIf() {
         return sharedPrefs.getInt(NEWEST_WHATIF, 1);
@@ -668,9 +668,9 @@ public class PrefHelper {
         }*/
     }
 
-    public boolean invertColors() {
+    /*public boolean invertColors() {
         return prefs.getBoolean(INVERT_COLORS, true) && nightThemeEnabled();
-    }
+    }*/
 
     public int getRandomNumber(int current) {
         if (randList == null) {
@@ -716,11 +716,11 @@ public class PrefHelper {
         return prefs.getBoolean(MOBILE_ENABLED, true);
     }
 
-    public boolean autoNightEnabled() {
+    /*public boolean autoNightEnabled() {
         return prefs.getBoolean(AUTO_NIGHT, false);
-    }
+    }*/
 
-    public boolean nightThemeEnabled() {
+    /*public boolean nightThemeEnabled() {
         try {
             if (prefs.getBoolean(NIGHT_THEME, false) && autoNightEnabled()) {
                 int hour = Calendar.getInstance().get(Calendar.HOUR_OF_DAY);
@@ -736,13 +736,13 @@ public class PrefHelper {
                 if (hour > start[0] && hour > end[0] && end[0] >= start[0]) {
                     return false;
                 }
-                if (hour > start[0]) {
+                if (hour > start[0]) {*/
                 /*if (end[0] > start[0]) {
                     return hour < end[0];
                 } else {
                     return true;
                 } */
-                    return end[0] <= start[0] || hour < end[0];
+                /*    return end[0] <= start[0] || hour < end[0];
                 } else {
                     return hour < end[0];
                 }
@@ -753,9 +753,9 @@ public class PrefHelper {
             Log.e("error", "night theme null pointer");
             return false;
         }
-    }
+    }*/
 
-    public int[] getAutoNightStart() {
+    /*public int[] getAutoNightStart() {
         return new int[]{
                 sharedPrefs.getInt(AUTO_NIGHT_START_HOUR, 21),
                 sharedPrefs.getInt(AUTO_NIGHT_START_MIN, 0)
@@ -781,9 +781,9 @@ public class PrefHelper {
                 .putInt(AUTO_NIGHT_END_HOUR, time[0])
                 .putInt(AUTO_NIGHT_END_MIN, time[1])
                 .apply();
-    }
+    }*/
 
-    public String getStartSummary() {
+    /*public String getStartSummary() {
         int[] start = getAutoNightStart();
         String suffix = "";
         String minute = String.valueOf(start[1]);
@@ -801,7 +801,7 @@ public class PrefHelper {
             minute = "0" + minute;
         }
         return end[0] + ":" + minute + suffix;
-    }
+    } */
 
     public File getOfflinePath() {
         String path = prefs.getString(OFFLINE_PATH, "default");

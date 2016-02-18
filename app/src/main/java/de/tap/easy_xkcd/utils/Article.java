@@ -18,10 +18,11 @@ public class Article {
     private String title;
     private static final String OFFLINE_WHATIF_PATH = "/easy xkcd/what if/";
     private PrefHelper prefHelper;
+    private ThemePrefs themePrefs;
 
     public Article (Integer number, boolean offlineArticle, Context context) {
-        if (prefHelper == null)
-            prefHelper = new PrefHelper(context.getApplicationContext());
+        prefHelper = new PrefHelper(context);
+        themePrefs = new ThemePrefs(context);
         mNumber = number;
         offline = offlineArticle;
     }
@@ -46,7 +47,7 @@ public class Article {
         }
         //append custom css
         doc.head().getElementsByTag("link").remove();
-        if (!prefHelper.nightModeEnabled()) {
+        if (!themePrefs.nightModeEnabled()) {
             doc.head().appendElement("link").attr("rel", "stylesheet").attr("type", "text/css").attr("href", "style.css");
         } else {
             doc.head().appendElement("link").attr("rel", "stylesheet").attr("type", "text/css").attr("href", "night.css");

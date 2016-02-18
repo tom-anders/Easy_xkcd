@@ -39,6 +39,7 @@ import de.tap.easy_xkcd.services.ComicDownloadService;
 import de.tap.easy_xkcd.utils.Comic;
 import de.tap.easy_xkcd.utils.Favorites;
 import de.tap.easy_xkcd.utils.PrefHelper;
+import de.tap.easy_xkcd.utils.ThemePrefs;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.Response;
@@ -71,6 +72,7 @@ public class NestedPreferenceFragment extends PreferenceFragment {
     private static final String OFFLINE_WHATIF_PATH = "/easy xkcd/what if/";
 
     private PrefHelper prefHelper;
+    private ThemePrefs themePrefs;
 
     public static NestedPreferenceFragment newInstance(String key) {
         NestedPreferenceFragment fragment = new NestedPreferenceFragment();
@@ -84,7 +86,8 @@ public class NestedPreferenceFragment extends PreferenceFragment {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        prefHelper = new PrefHelper(getActivity().getApplicationContext());
+        prefHelper = new PrefHelper(getActivity());
+        themePrefs = new ThemePrefs(getActivity());
         checkPreferenceResource();
     }
 
@@ -145,7 +148,7 @@ public class NestedPreferenceFragment extends PreferenceFragment {
                             }
                             return false;
                         } else {
-                            android.support.v7.app.AlertDialog.Builder mDialog = new android.support.v7.app.AlertDialog.Builder(getActivity(), prefHelper.getDialogTheme());
+                            android.support.v7.app.AlertDialog.Builder mDialog = new android.support.v7.app.AlertDialog.Builder(getActivity(), themePrefs.getDialogTheme());
                             mDialog.setMessage(R.string.delete_offline_dialog)
                                     .setNegativeButton(R.string.dialog_cancel, new DialogInterface.OnClickListener() {
                                         public void onClick(DialogInterface dialog, int which) {
@@ -189,7 +192,7 @@ public class NestedPreferenceFragment extends PreferenceFragment {
                             }
 
                         } else {
-                            android.support.v7.app.AlertDialog.Builder mDialog = new android.support.v7.app.AlertDialog.Builder(getActivity(), prefHelper.getDialogTheme());
+                            android.support.v7.app.AlertDialog.Builder mDialog = new android.support.v7.app.AlertDialog.Builder(getActivity(), themePrefs.getDialogTheme());
                             mDialog.setMessage(R.string.delete_offline_whatif_dialog)
                                     .setNegativeButton(R.string.dialog_cancel, new DialogInterface.OnClickListener() {
                                         public void onClick(DialogInterface dialog, int which) {
@@ -218,16 +221,16 @@ public class NestedPreferenceFragment extends PreferenceFragment {
                 addPreferencesFromResource(R.xml.pref_night);
                 final Preference start = findPreference(AUTO_NIGHT_START);
                 final Preference end = findPreference(AUTO_NIGHT_END);
-                final int[] startTime = prefHelper.getAutoNightStart();
-                final int[] endTime = prefHelper.getAutoNightEnd();
-                start.setSummary(prefHelper.getStartSummary());
-                end.setSummary(prefHelper.getEndSummary());
+                final int[] startTime = themePrefs.getAutoNightStart();
+                final int[] endTime = themePrefs.getAutoNightEnd();
+                start.setSummary(themePrefs.getStartSummary());
+                end.setSummary(themePrefs.getEndSummary());
 
 
                 findPreference(NIGHT_THEME).setOnPreferenceChangeListener(new Preference.OnPreferenceChangeListener() {
                     @Override
                     public boolean onPreferenceChange(Preference preference, Object newValue) {
-                        prefHelper.setNightMode(Boolean.valueOf(newValue.toString()));
+                        themePrefs.setNightMode(Boolean.valueOf(newValue.toString()));
                         getActivity().setResult(Activity.RESULT_OK);
                         return true;
                     }
@@ -245,9 +248,9 @@ public class NestedPreferenceFragment extends PreferenceFragment {
                         TimePickerDialog tpd = new TimePickerDialog(getActivity(), new TimePickerDialog.OnTimeSetListener() {
                             @Override
                             public void onTimeSet(TimePicker timePicker, int hourOfDay, int minute) {
-                                prefHelper.setAutoNightStart(new int[]{hourOfDay, minute});
+                                themePrefs.setAutoNightStart(new int[]{hourOfDay, minute});
                                 getActivity().setResult(Activity.RESULT_OK);
-                                start.setSummary(prefHelper.getStartSummary());
+                                start.setSummary(themePrefs.getStartSummary());
                             }
                         }, startTime[0], startTime[1], android.text.format.DateFormat.is24HourFormat(getActivity()));
                         tpd.show();
@@ -260,9 +263,9 @@ public class NestedPreferenceFragment extends PreferenceFragment {
                         TimePickerDialog tpd = new TimePickerDialog(getActivity(), new TimePickerDialog.OnTimeSetListener() {
                             @Override
                             public void onTimeSet(TimePicker timePicker, int hourOfDay, int minute) {
-                                prefHelper.setAutoNightEnd(new int[]{hourOfDay, minute});
+                                themePrefs.setAutoNightEnd(new int[]{hourOfDay, minute});
                                 getActivity().setResult(Activity.RESULT_OK);
-                                end.setSummary(prefHelper.getEndSummary());
+                                end.setSummary(themePrefs.getEndSummary());
                             }
                         }, endTime[0], endTime[1], android.text.format.DateFormat.is24HourFormat(getActivity()));
                         tpd.show();
