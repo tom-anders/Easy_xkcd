@@ -247,7 +247,7 @@ public abstract class OverviewBaseFragment extends android.support.v4.app.Fragme
                 prefHelper.setDatabaseLoaded();
             }
             publishProgress(50);
-            if (prefHelper.isOnline(getActivity())) {  //TODO update database
+            if (prefHelper.isOnline(getActivity())) {
                 int newest;
                 try {
                     newest = new Comic(0).getComicNumber();

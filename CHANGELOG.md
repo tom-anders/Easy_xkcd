@@ -1,3 +1,7 @@
+## 4.3
+
+- Custom themes
+
 ## 4.2
 
 - Favorites Export fixed
