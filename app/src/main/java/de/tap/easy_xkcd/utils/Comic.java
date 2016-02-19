@@ -104,6 +104,10 @@ public class Comic {
                 break;
             case 1193: result[2] = "https://www.explainxkcd.com/wiki/images/0/0b/externalities.png";
                 break;
+            case 1054: result[0] = "The Bacon";
+                break;
+            case 1137: result[0] = "RTL";
+                break;
         }
         return result;
     }

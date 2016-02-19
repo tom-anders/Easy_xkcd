@@ -6,6 +6,7 @@ import android.content.DialogInterface;
 import android.os.AsyncTask;
 import android.os.Build;
 import android.support.v4.app.FragmentTransaction;
+import android.support.v4.app.NotificationCompat;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.widget.Toolbar;
 import android.transition.Transition;
@@ -20,6 +21,8 @@ import android.view.View;
 import com.tap.xkcd_reader.R;
 
 import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -239,12 +242,12 @@ public abstract class OverviewBaseFragment extends android.support.v4.app.Fragme
                 } catch (IOException e) {
                     Log.e("error:", e.getMessage());
                 }
-                prefHelper.setUrls(sb.toString(), 1579);
+                prefHelper.setUrls(sb.toString(), 1645);
                 Log.d("info", "urls loaded");
                 prefHelper.setDatabaseLoaded();
             }
             publishProgress(50);
-            if (prefHelper.isOnline(getActivity())) {
+            if (prefHelper.isOnline(getActivity())) {  //TODO update database
                 int newest;
                 try {
                     newest = new Comic(0).getComicNumber();

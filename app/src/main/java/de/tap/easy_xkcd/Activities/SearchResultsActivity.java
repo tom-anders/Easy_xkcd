@@ -181,7 +181,7 @@ public class SearchResultsActivity extends BaseActivity {
                 } catch (IOException e) {
                     Log.e("error:", e.getMessage());
                 }
-                prefHelper.setUrls(sb.toString(), 1627);
+                prefHelper.setUrls(sb.toString(), 1645);
                 Log.d("info", "urls loaded");
                 prefHelper.setDatabaseLoaded();
             }
