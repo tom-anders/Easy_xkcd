@@ -135,57 +135,61 @@ public class WhatIfActivity extends BaseActivity {
 
         @Override
         protected void onPostExecute(Void dummy) {
-            web.loadDataWithBaseURL("file:///android_asset/.", doc.html(), "text/html", "UTF-8", null);
-            web.setWebChromeClient(new WebChromeClient() {
-                public void onProgressChanged(WebView view, int progress) {
-                    if (!prefHelper.fullOfflineWhatIf())
-                        mProgress.setProgress(progress);
-                }
-            });
-            web.setWebViewClient(new WebViewClient() {
-                @Override
-                public boolean shouldOverrideUrlLoading(WebView view, String url) {
-                    Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(url));
-                    startActivity(intent);
-                    return true;
-                }
-
-                public void onPageFinished(WebView view, String url) {
-                    WhatIfFragment.getInstance().updateRv();
-                    if (mProgress != null)
-                        mProgress.dismiss();
-
-                    if (leftSwipe) {
-                        leftSwipe = false;
-                        Animation animation = AnimationUtils.loadAnimation(WhatIfActivity.this, R.anim.slide_in_left);
-                        web.startAnimation(animation);
-                        web.setVisibility(View.VISIBLE);
-                    } else if (rightSwipe) {
-                        rightSwipe = false;
-                        Animation animation = AnimationUtils.loadAnimation(WhatIfActivity.this, R.anim.slide_in_right);
-                        web.startAnimation(animation);
-                        web.setVisibility(View.VISIBLE);
+            if (doc != null) {
+                web.loadDataWithBaseURL("file:///android_asset/.", doc.html(), "text/html", "UTF-8", null);
+                web.setWebChromeClient(new WebChromeClient() {
+                    public void onProgressChanged(WebView view, int progress) {
+                        if (!prefHelper.fullOfflineWhatIf())
+                            mProgress.setProgress(progress);
+                    }
+                });
+                web.setWebViewClient(new WebViewClient() {
+                    @Override
+                    public boolean shouldOverrideUrlLoading(WebView view, String url) {
+                        Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(url));
+                        startActivity(intent);
+                        return true;
                     }
 
-                    web.setOnTouchListener(new OnSwipeTouchListener(WhatIfActivity.this) {
-                        @Override
-                        public void onSwipeRight() {
-                            if (WhatIfIndex != 1 && prefHelper.swipeEnabled()) {
-                                nextWhatIf(true);
-                            }
+                    public void onPageFinished(WebView view, String url) {
+                        WhatIfFragment.getInstance().updateRv();
+                        if (mProgress != null)
+                            mProgress.dismiss();
+
+                        if (leftSwipe) {
+                            leftSwipe = false;
+                            Animation animation = AnimationUtils.loadAnimation(WhatIfActivity.this, R.anim.slide_in_left);
+                            web.startAnimation(animation);
+                            web.setVisibility(View.VISIBLE);
+                        } else if (rightSwipe) {
+                            rightSwipe = false;
+                            Animation animation = AnimationUtils.loadAnimation(WhatIfActivity.this, R.anim.slide_in_right);
+                            web.startAnimation(animation);
+                            web.setVisibility(View.VISIBLE);
                         }
 
-                        @Override
-                        public void onSwipeLeft() {
-                            if (WhatIfIndex != WhatIfFragment.mTitles.size() && prefHelper.swipeEnabled()) {
-                                nextWhatIf(false);
+                        web.setOnTouchListener(new OnSwipeTouchListener(WhatIfActivity.this) {
+                            @Override
+                            public void onSwipeRight() {
+                                if (WhatIfIndex != 1 && prefHelper.swipeEnabled()) {
+                                    nextWhatIf(true);
+                                }
                             }
 
-                        }
-                    });
+                            @Override
+                            public void onSwipeLeft() {
+                                if (WhatIfIndex != WhatIfFragment.mTitles.size() && prefHelper.swipeEnabled()) {
+                                    nextWhatIf(false);
+                                }
 
-                }
-            });
+                            }
+                        });
+
+                    }
+                });
+            } else {
+                mProgress.dismiss();
+            }
             assert getSupportActionBar() != null;
             getSupportActionBar().setSubtitle(loadedArticle.getTitle());
         }

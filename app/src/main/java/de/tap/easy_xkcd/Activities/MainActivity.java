@@ -491,7 +491,7 @@ public class MainActivity extends BaseActivity {
                 int number = getIntent().getIntExtra("number", 0);
                 ComicFragment fragment = (ComicFragment) fm.findFragmentByTag(BROWSER_TAG);
                 fragment.lastComicNumber = number;
-                if (fragment instanceof ComicBrowserFragment)
+                if (fragment instanceof ComicBrowserFragment && fragment.isVisible())
                     progress = ProgressDialog.show(this, "", this.getResources().getString(R.string.loading_comics), true);
                 fragment.updatePager();
                 break;
