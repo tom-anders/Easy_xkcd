@@ -10,6 +10,7 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.BitmapFactory;
+import android.graphics.Color;
 import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
@@ -22,6 +23,7 @@ import android.support.v4.app.DialogFragment;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AlertDialog;
+import android.support.v7.widget.CardView;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -112,16 +114,18 @@ public class NestedPreferenceFragment extends PreferenceFragment {
                     @Override
                     public boolean onPreferenceClick(Preference preference) {
                         getActivity().setResult(Activity.RESULT_OK);
+                        Intent intent = getActivity().getIntent();
+                        intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK
+                                | Intent.FLAG_ACTIVITY_NO_ANIMATION);
+                        getActivity().overridePendingTransition(0, 0);
+                        getActivity().finish();
+
+                        getActivity().overridePendingTransition(0, 0);
+                        startActivity(intent);
                         return true;
                     }
                 });
-                /*findPreference(THEME).setOnPreferenceChangeListener(new Preference.OnPreferenceChangeListener() {
-                    @Override
-                    public boolean onPreferenceChange(Preference preference, Object newValue) {
-                        getActivity().setResult(Activity.RESULT_OK);
-                        return true;
-                    }
-                });*/
+
                 findPreference(COLOR_ACCENT).setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
                     @Override
                     public boolean onPreferenceClick(Preference preference) {
@@ -132,7 +136,9 @@ public class NestedPreferenceFragment extends PreferenceFragment {
                         final AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
                         final LineColorPicker lineColorPicker = (LineColorPicker) dialog.findViewById(R.id.picker3);
                         lineColorPicker.setColors(themePrefs.getAccentColors());
-                        lineColorPicker.setSelectedColor(themePrefs.getAccentColor()); //TODO
+                        lineColorPicker.setSelectedColor(themePrefs.getAccentColor());
+                        if (themePrefs.nightThemeEnabled())
+                            ((CardView) dialog.findViewById(R.id.dialog_card_view)).setCardBackgroundColor(ContextCompat.getColor(getActivity(), R.color.background_material_dark));
 
                         builder.setView(dialog);
                         final AlertDialog alertDialog = builder.show();
@@ -172,6 +178,9 @@ public class NestedPreferenceFragment extends PreferenceFragment {
                         final LineColorPicker lineColorPicker = (LineColorPicker) dialog.findViewById(R.id.picker3);
                         lineColorPicker.setColors(themePrefs.getPrimaryColors());
                         lineColorPicker.setSelectedColor(themePrefs.getPrimaryColor());
+                        if (themePrefs.nightThemeEnabled())
+                            ((CardView) dialog.findViewById(R.id.dialog_card_view)).setCardBackgroundColor(ContextCompat.getColor(getActivity(), R.color.background_material_dark));
+
 
                         builder.setView(dialog);
                         final AlertDialog alertDialog = builder.show();
@@ -236,7 +245,7 @@ public class NestedPreferenceFragment extends PreferenceFragment {
                             }
                             return false;
                         } else {
-                            android.support.v7.app.AlertDialog.Builder mDialog = new android.support.v7.app.AlertDialog.Builder(getActivity(), themePrefs.getDialogTheme());
+                            android.support.v7.app.AlertDialog.Builder mDialog = new android.support.v7.app.AlertDialog.Builder(getActivity());
                             mDialog.setMessage(R.string.delete_offline_dialog)
                                     .setNegativeButton(R.string.dialog_cancel, new DialogInterface.OnClickListener() {
                                         public void onClick(DialogInterface dialog, int which) {
@@ -280,7 +289,7 @@ public class NestedPreferenceFragment extends PreferenceFragment {
                             }
 
                         } else {
-                            android.support.v7.app.AlertDialog.Builder mDialog = new android.support.v7.app.AlertDialog.Builder(getActivity(), themePrefs.getDialogTheme());
+                            android.support.v7.app.AlertDialog.Builder mDialog = new android.support.v7.app.AlertDialog.Builder(getActivity());
                             mDialog.setMessage(R.string.delete_offline_whatif_dialog)
                                     .setNegativeButton(R.string.dialog_cancel, new DialogInterface.OnClickListener() {
                                         public void onClick(DialogInterface dialog, int which) {

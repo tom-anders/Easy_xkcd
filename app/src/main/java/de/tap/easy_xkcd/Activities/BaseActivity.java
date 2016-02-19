@@ -40,7 +40,7 @@ public abstract class BaseActivity extends AppCompatActivity {
             setTaskDescription(description);
             getWindow().setStatusBarColor(themePrefs.getPrimaryDarkColor());
             if (prefHelper.colorNavbar())
-                getWindow().setNavigationBarColor(themePrefs.getPrimaryColor());
+                getWindow().setNavigationBarColor(themePrefs.getPrimaryColor()); //TODO text color
         }
         setSupportActionBar(toolbar);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);

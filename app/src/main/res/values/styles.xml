@@ -14,6 +14,9 @@
   ~ limitations under the License.
   -->
 <resources>
+
+    <!-- Standard themes -->
+
     <style name="RedTheme" parent="Theme.AppCompat.Light.NoActionBar">
         <item name="colorAccent">@color/AccentRed</item>
     </style>
@@ -73,6 +76,71 @@
     <style name="DeepOrangeTheme" parent="Theme.AppCompat.Light.NoActionBar">
         <item name="colorAccent">@color/AccentDeepOrange</item>
     </style>
+
+    <!-- Night themes -->
+
+    <style name="RedNightTheme" parent="Theme.AppCompat.NoActionBar">
+        <item name="colorAccent">@color/AccentRed</item>
+    </style>
+
+    <style name="PurpleNightTheme" parent="Theme.AppCompat.NoActionBar">
+        <item name="colorAccent">@color/AccentPurple</item>
+    </style>
+
+    <style name="DeepPurpleNightTheme" parent="Theme.AppCompat.NoActionBar">
+        <item name="colorAccent">@color/AccentDeepPurple</item>
+    </style>
+
+    <style name="IndigoNightTheme" parent="Theme.AppCompat.NoActionBar">
+        <item name="colorAccent">@color/AccentIndigo</item>
+    </style>
+
+    <style name="BlueNightTheme" parent="Theme.AppCompat.NoActionBar">
+        <item name="colorAccent">@color/AccentBlue</item>
+    </style>
+
+    <style name="LightBlueNightTheme" parent="Theme.AppCompat.NoActionBar">
+        <item name="colorAccent">@color/AccentLightBlue</item>
+    </style>
+
+    <style name="CyanNightTheme" parent="Theme.AppCompat.NoActionBar">
+        <item name="colorAccent">@color/AccentCyan</item>
+    </style>
+
+    <style name="TealNightTheme" parent="Theme.AppCompat.NoActionBar">
+        <item name="colorAccent">@color/AccentTeal</item>
+    </style>
+
+    <style name="GreenNightTheme" parent="Theme.AppCompat.NoActionBar">
+        <item name="colorAccent">@color/AccentGreen</item>
+    </style>
+
+    <style name="LightGreenNightTheme" parent="Theme.AppCompat.NoActionBar">
+        <item name="colorAccent">@color/AccentLightGreen</item>
+    </style>
+
+    <style name="LimeNightTheme" parent="Theme.AppCompat.NoActionBar">
+        <item name="colorAccent">@color/AccentLime</item>
+    </style>
+
+    <style name="YellowNightTheme" parent="Theme.AppCompat.NoActionBar">
+        <item name="colorAccent">@color/AccentYellow</item>
+    </style>
+
+    <style name="AmberNightTheme" parent="Theme.AppCompat.NoActionBar">
+        <item name="colorAccent">@color/AccentAmber</item>
+    </style>
+
+    <style name="OrangeNightTheme" parent="Theme.AppCompat.NoActionBar">
+        <item name="colorAccent">@color/AccentOrange</item>
+    </style>
+
+    <style name="DeepOrangeNightTheme" parent="Theme.AppCompat.NoActionBar">
+        <item name="colorAccent">@color/AccentDeepOrange</item>
+    </style>
+
+
+
 </resources>
 
 

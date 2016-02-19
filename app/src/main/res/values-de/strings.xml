@@ -275,5 +275,11 @@
     <string name="pref_export_import">Favoriten Export/Import</string>
     <string name="pref_import_success">Favoriten importiert!</string>
     <string name="loading_article">Lade Artikel…</string>
+    <string name="pref_edit_theme">Theme anpassen</string>
+    <string name="pref_theme_ok">OK</string>
+    <string name="theme_accent_color">Akzent Farbe</string>
+    <string name="theme_accent_color_dialog">Wähle eine Akzent Farbe</string>
+    <string name="theme_primary_color">Hauptfarbe</string>
+    <string name="theme_primary_color_dialog">Wähle eine Hauptfarbe</string>
 
 </resources>

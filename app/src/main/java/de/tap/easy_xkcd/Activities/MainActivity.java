@@ -202,7 +202,7 @@ public class MainActivity extends BaseActivity {
             }
             selectDrawerItem(item, showOverview);
         } else if ((currentFragment != R.id.nav_favorites)) { //Don't show the dialog if the user is currently browsing his favorites or full offline is enabled
-            AlertDialog.Builder mDialog = new AlertDialog.Builder(this, themePrefs.getDialogTheme());
+            AlertDialog.Builder mDialog = new AlertDialog.Builder(this);
             mDialog.setMessage(R.string.no_connection)
                     .setPositiveButton(R.string.no_connection_retry, new DialogInterface.OnClickListener() {
                         public void onClick(DialogInterface dialog, int which) {
@@ -273,21 +273,7 @@ public class MainActivity extends BaseActivity {
                         return true;
                     }
                 });
-        int[][] state = new int[][] {
-                new int[] {-android.R.attr.state_checked},
-                new int[] {}
-        };
-        int[] color = new int[] {
-                Color.BLACK,
-                themePrefs.getPrimaryColor()
-        };
-        int[] colorIcon = new int[] {
-                ContextCompat.getColor(this, android.R.color.tertiary_text_light),
-                themePrefs.getPrimaryColor()
-        };
-
-        navigationView.setItemTextColor(new ColorStateList(state, color));
-        navigationView.setItemIconTintList(new ColorStateList(state, colorIcon));
+        themePrefs.setupNavdrawerColor(navigationView);
     }
 
     public void selectDrawerItem(final MenuItem menuItem, final boolean showOverview) {
