@@ -224,7 +224,7 @@
     <string name="pref_auto_night">Automatické noční téma</string>
     <string name="pref_auto_night_start">Odkdy</string>
     <string name="pref_auto_night_end">Dokdy</string>
-    <string name="snackbar_feature">Nová možnost: Automatický noční mód!</string>
+    <string name="snackbar_feature">Nová možnost: Custom Themes!</string>
     <string name="snackbar_feature_oc">Vyzkoušejte ji</string>
     <string name="whatif_overview">Přehled</string>
     <string name="pref_offline_path">Cesta pro offline data (experimentální)</string>

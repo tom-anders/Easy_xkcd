@@ -42,6 +42,8 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 
+import de.tap.easy_xkcd.Activities.NestedSettingsActivity;
+
 public class PrefHelper {
     private SharedPreferences sharedPrefs;
     private SharedPreferences prefs;
@@ -94,7 +96,7 @@ public class PrefHelper {
     private static final String ALT_OPTIONS = "pref_alt_options";
     private static final String ALT_ACTIVATION = "pref_alt_activation";
     private static final String SURVEY_SNACKBAR = "survey_snackbar";
-    private static final String NEW_FEATURE_SNACKBAR = "new_feature_snackbar";
+    private static final String CUSTOM_THEMES_SNACKBAR = "custom_themes_snackbar";
     //private static final String NIGHT_THEME = "pref_night";
     //private static final String INVERT_COLORS = "pref_invert";
     private static final String COLORED_NAVBAR = "pref_navbar";
@@ -649,28 +651,24 @@ public class PrefHelper {
         }
     }
 
-    public void showFeatureSnackbar(final Context context, FloatingActionButton fab) {
-        /*if (!sharedPrefs.getBoolean(NEW_FEATURE_SNACKBAR, false)) {
+    public void showFeatureSnackbar(final Activity activity, FloatingActionButton fab) {
+        if (!sharedPrefs.getBoolean(CUSTOM_THEMES_SNACKBAR, false)) {
             View.OnClickListener oc = new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    Intent intent = new Intent(context, NestedSettingsActivity.class);
-                    intent.putExtra("key", "night");
-                    context.startActivity(intent);
+                    Intent intent = new Intent(activity, NestedSettingsActivity.class);
+                    intent.putExtra("key", "appearance");
+                    activity.startActivityForResult(intent, 1);
                 }
             };
             SharedPreferences.Editor editor = sharedPrefs.edit();
-            editor.putBoolean(NEW_FEATURE_SNACKBAR, true);
+            editor.putBoolean(CUSTOM_THEMES_SNACKBAR, true);
             editor.apply();
             Snackbar.make(fab, R.string.snackbar_feature, Snackbar.LENGTH_LONG)
                     .setAction(R.string.snackbar_feature_oc, oc)
                     .show();
-        }*/
+        }
     }
-
-    /*public boolean invertColors() {
-        return prefs.getBoolean(INVERT_COLORS, true) && nightThemeEnabled();
-    }*/
 
     public int getRandomNumber(int current) {
         if (randList == null) {
@@ -880,7 +878,7 @@ public class PrefHelper {
         if (!sharedPrefs.getBoolean(FAVORITES_MOVED,false)) {
             String fav = activity.getPreferences(Activity.MODE_PRIVATE).getString("favorites", null);
             sharedPrefs.edit().putString("favorites", fav).putBoolean(FAVORITES_MOVED, true).apply();
-            Log.d("moved", "moved");
+            Log.d("prefHelper", "moved favorites");
         }
     }
 

@@ -28,6 +28,7 @@ import android.graphics.Color;
 import android.preference.PreferenceManager;
 import android.support.design.widget.NavigationView;
 import android.support.v4.content.ContextCompat;
+import android.support.v4.util.CircularArray;
 import android.util.Log;
 
 import com.tap.xkcd_reader.R;
@@ -146,69 +147,112 @@ public class ThemePrefs {
     }
 
     public int getNewTheme() {
-        //TODO import old theme
         int accent = getSharedPrefs().getInt(COLOR_ACCENT, -1);
+        if (accent == -1)
+            accent = importOldTheme();
+
         if (nightThemeEnabled()) {
-            if (accent == ContextCompat.getColor(context, R.color.AccentPurple))
+            if (accent == getColor(R.color.AccentPurple))
                 return R.style.PurpleNightTheme;
-            if (accent == ContextCompat.getColor(context, R.color.AccentIndigo))
+            if (accent == getColor(R.color.AccentIndigo))
                 return R.style.IndigoNightTheme;
-            if (accent == ContextCompat.getColor(context, R.color.AccentBlue))
+            if (accent == getColor(R.color.AccentBlue))
                 return R.style.BlueNightTheme;
-            if (accent == ContextCompat.getColor(context, R.color.AccentLightBlue))
+            if (accent == getColor(R.color.AccentLightBlue))
                 return R.style.LightBlueNightTheme;
-            if (accent == ContextCompat.getColor(context, R.color.AccentCyan))
+            if (accent == getColor(R.color.AccentCyan))
                 return R.style.CyanNightTheme;
-            if (accent == ContextCompat.getColor(context, R.color.AccentTeal))
+            if (accent == getColor(R.color.AccentTeal))
                 return R.style.TealNightTheme;
-            if (accent == ContextCompat.getColor(context, R.color.AccentGreen))
+            if (accent == getColor(R.color.AccentGreen))
                 return R.style.GreenNightTheme;
-            if (accent == ContextCompat.getColor(context, R.color.AccentLightGreen))
+            if (accent == getColor(R.color.AccentLightGreen))
                 return R.style.LightBlueNightTheme;
-            if (accent == ContextCompat.getColor(context, R.color.AccentLime))
+            if (accent == getColor(R.color.AccentLime))
                 return R.style.LimeNightTheme;
-            if (accent == ContextCompat.getColor(context, R.color.AccentYellow))
+            if (accent == getColor(R.color.AccentYellow))
                 return R.style.YellowNightTheme;
-            if (accent == ContextCompat.getColor(context, R.color.AccentAmber))
+            if (accent == getColor(R.color.AccentAmber))
                 return R.style.AmberNightTheme;
-            if (accent == ContextCompat.getColor(context, R.color.AccentOrange))
+            if (accent == getColor(R.color.AccentOrange))
                 return R.style.OrangeNightTheme;
-            if (accent == ContextCompat.getColor(context, R.color.AccentDeepOrange))
+            if (accent == getColor(R.color.AccentDeepOrange))
                 return R.style.DeepOrangeNightTheme;
-            if (accent == ContextCompat.getColor(context, R.color.AccentRed))
+            if (accent == getColor(R.color.AccentRed))
                 return R.style.RedNightTheme;
             return R.style.LimeNightTheme;
         } else {
-            if (accent == ContextCompat.getColor(context, R.color.AccentPurple))
+            if (accent == getColor(R.color.AccentPurple))
                 return R.style.PurpleTheme;
-            if (accent == ContextCompat.getColor(context, R.color.AccentIndigo))
+            if (accent == getColor(R.color.AccentIndigo))
                 return R.style.IndigoTheme;
-            if (accent == ContextCompat.getColor(context, R.color.AccentBlue))
+            if (accent == getColor(R.color.AccentBlue))
                 return R.style.BlueTheme;
-            if (accent == ContextCompat.getColor(context, R.color.AccentLightBlue))
+            if (accent == getColor(R.color.AccentLightBlue))
                 return R.style.LightBlueTheme;
-            if (accent == ContextCompat.getColor(context, R.color.AccentCyan))
+            if (accent == getColor(R.color.AccentCyan))
                 return R.style.CyanTheme;
-            if (accent == ContextCompat.getColor(context, R.color.AccentTeal))
+            if (accent == getColor(R.color.AccentTeal))
                 return R.style.TealTheme;
-            if (accent == ContextCompat.getColor(context, R.color.AccentGreen))
+            if (accent == getColor(R.color.AccentGreen))
                 return R.style.GreenTheme;
-            if (accent == ContextCompat.getColor(context, R.color.AccentLightGreen))
+            if (accent == getColor(R.color.AccentLightGreen))
                 return R.style.LightBlueTheme;
-            if (accent == ContextCompat.getColor(context, R.color.AccentLime))
+            if (accent == getColor(R.color.AccentLime))
                 return R.style.LimeTheme;
-            if (accent == ContextCompat.getColor(context, R.color.AccentYellow))
+            if (accent == getColor(R.color.AccentYellow))
                 return R.style.YellowTheme;
-            if (accent == ContextCompat.getColor(context, R.color.AccentAmber))
+            if (accent == getColor(R.color.AccentAmber))
                 return R.style.AmberTheme;
-            if (accent == ContextCompat.getColor(context, R.color.AccentOrange))
+            if (accent == getColor(R.color.AccentOrange))
                 return R.style.OrangeTheme;
-            if (accent == ContextCompat.getColor(context, R.color.AccentDeepOrange))
+            if (accent == getColor(R.color.AccentDeepOrange))
                 return R.style.DeepOrangeTheme;
-            if (accent == ContextCompat.getColor(context, R.color.AccentRed))
+            if (accent == getColor(R.color.AccentRed))
                 return R.style.RedTheme;
             return R.style.LimeTheme;
         }
+    }
+
+    public int importOldTheme() {
+        int oldTheme = getOldTheme();
+        int oldAccent, oldPrimary;
+        switch (oldTheme) {
+            case 2:
+                oldAccent = R.color.AccentBlue;
+                oldPrimary = R.color.PrimaryRed;
+                break;
+            case 3:
+                oldAccent = R.color.AccentOrange;
+                oldPrimary = R.color.PrimaryBlue;
+                break;
+            case 4:
+                oldAccent = R.color.AccentOrange;
+                oldPrimary = R.color.PrimaryBlack;
+                break;
+            case 5:
+                oldAccent = R.color.AccentRed;
+                oldPrimary = R.color.PrimaryPurple;
+                break;
+            case 6:
+                oldAccent = R.color.AccentRed;
+                oldPrimary = R.color.PrimaryLime;
+                break;
+            case 7:
+                oldAccent = R.color.AccentRed;
+                oldPrimary = R.color.PrimaryGreen;
+                break;
+            default:
+                oldAccent = R.color.AccentLime;
+                oldPrimary = R.color.PrimaryBlueGrey;
+        }
+        setNewTheme(getColor(oldAccent));
+        setPrimaryColor(getColor(oldPrimary));
+        return getColor(oldAccent);
+    }
+
+    public int getOldTheme() {
+        return Integer.parseInt(getPrefs().getString(THEME, "1"));
     }
 
     public void setNewTheme(int accentColor) {
@@ -216,20 +260,20 @@ public class ThemePrefs {
     }
 
     public int getAccentColorNight() {
-        return getSharedPrefs().getInt(COLOR_ACCENT_NIGHT, getAccentColor());
+        return getSharedPrefs().getInt(COLOR_ACCENT_NIGHT, getAccentColor()); //TODO
     }
 
     public void setupNavdrawerColor(NavigationView navigationView) {
-        int[][] state = new int[][] {
-                new int[] {-android.R.attr.state_checked},
-                new int[] {}
+        int[][] state = new int[][]{
+                new int[]{-android.R.attr.state_checked},
+                new int[]{}
         };
-        int[] color = new int[] {
+        int[] color = new int[]{
                 getNavDrawerTextColor(),
                 getNavDrawerHightlightColor()
         };
-        int[] colorIcon = new int[] {
-                ContextCompat.getColor(context, android.R.color.tertiary_text_light),
+        int[] colorIcon = new int[]{
+                getColor(android.R.color.tertiary_text_light),
                 getNavDrawerHightlightColor()
         };
         navigationView.setItemTextColor(new ColorStateList(state, color));
@@ -238,7 +282,7 @@ public class ThemePrefs {
 
     public int getNavDrawerHightlightColor() {
         if (!nightThemeEnabled())
-            return getPrimaryColor();
+            return getPrimaryColor(true);
         return getAccentColorNight();
     }
 
@@ -248,14 +292,14 @@ public class ThemePrefs {
         return Color.WHITE;
     }
 
-    public int getPrimaryColor() {
-        if (!nightThemeEnabled())
-            return getSharedPrefs().getInt(COLOR_PRIMARY, ContextCompat.getColor(context, R.color.PrimaryBlueGrey));
+    public int getPrimaryColor(boolean ignoreNightTheme) {
+        if (ignoreNightTheme || !nightThemeEnabled())
+            return getSharedPrefs().getInt(COLOR_PRIMARY, getColor(R.color.PrimaryBlueGrey));
         return Color.BLACK;
     }
 
     public int getAccentColor() {
-        return getSharedPrefs().getInt(COLOR_ACCENT, ContextCompat.getColor(context, R.color.AccentLime));
+        return getSharedPrefs().getInt(COLOR_ACCENT, getColor(R.color.AccentLime));
     }
 
     public void setPrimaryColor(int color) {
@@ -268,35 +312,8 @@ public class ThemePrefs {
 
     public int getPrimaryDarkColor() {
         if (!nightThemeEnabled())
-            return getSharedPrefs().getInt(COLOR_PRIMARY_DARK, ContextCompat.getColor(context, R.color.PrimaryDarkBlueGrey));
+            return getSharedPrefs().getInt(COLOR_PRIMARY_DARK, getColor(R.color.PrimaryDarkBlueGrey));
         return Color.BLACK;
-    }
-
-
-    public int getOldTheme() {
-        return R.style.LimeTheme;
-        /*if (nightThemeEnabled())
-            return R.style.NightTheme;
-
-        int n = Integer.parseInt(getPrefs().getString(THEME, "1"));
-        switch (n) {
-            case 1:
-                return R.style.DefaultTheme;
-            case 2:
-                return R.style.RedTheme;
-            case 3:
-                return R.style.BlueTheme;
-            case 4:
-                return R.style.BlackTheme;
-            case 5:
-                return R.style.PurpleTheme;
-            case 6:
-                return R.style.LimeTheme;
-            case 7:
-                return R.style.GreenTheme;
-            default:
-                return R.style.DefaultTheme;
-        }*/
     }
 
 
@@ -306,71 +323,74 @@ public class ThemePrefs {
 
     public int[] getAccentColors() {
         return new int[]{
-                ContextCompat.getColor(context, R.color.AccentPurple),
-                ContextCompat.getColor(context, R.color.AccentIndigo),
-                ContextCompat.getColor(context, R.color.AccentBlue),
-                ContextCompat.getColor(context, R.color.AccentLightBlue),
-                ContextCompat.getColor(context, R.color.AccentCyan),
-                ContextCompat.getColor(context, R.color.AccentTeal),
-                ContextCompat.getColor(context, R.color.AccentGreen),
-                ContextCompat.getColor(context, R.color.AccentLightGreen),
-                ContextCompat.getColor(context, R.color.AccentLime),
-                ContextCompat.getColor(context, R.color.AccentYellow),
-                ContextCompat.getColor(context, R.color.AccentAmber),
-                ContextCompat.getColor(context, R.color.AccentOrange),
-                ContextCompat.getColor(context, R.color.AccentDeepOrange),
-                ContextCompat.getColor(context, R.color.AccentRed)
+                getColor(R.color.AccentPurple),
+                getColor(R.color.AccentIndigo),
+                getColor(R.color.AccentBlue),
+                getColor(R.color.AccentLightBlue),
+                getColor(R.color.AccentCyan),
+                getColor(R.color.AccentTeal),
+                getColor(R.color.AccentGreen),
+                getColor(R.color.AccentLightGreen),
+                getColor(R.color.AccentLime),
+                getColor(R.color.AccentYellow),
+                getColor(R.color.AccentAmber),
+                getColor(R.color.AccentOrange),
+                getColor(R.color.AccentDeepOrange),
+                getColor(R.color.AccentRed)
         };
     }
 
     public int[] getPrimaryColors() {
         return new int[]{
-                ContextCompat.getColor(context, R.color.PrimaryPurple),
-                ContextCompat.getColor(context, R.color.PrimaryDeepPurple),
-                ContextCompat.getColor(context, R.color.PrimaryIndigo),
-                ContextCompat.getColor(context, R.color.PrimaryBlue),
-                ContextCompat.getColor(context, R.color.PrimaryLightBlue),
-                ContextCompat.getColor(context, R.color.PrimaryCyan),
-                ContextCompat.getColor(context, R.color.PrimaryTeal),
-                ContextCompat.getColor(context, R.color.PrimaryGreen),
-                ContextCompat.getColor(context, R.color.PrimaryLightGreen),
-                ContextCompat.getColor(context, R.color.PrimaryLime),
-                ContextCompat.getColor(context, R.color.PrimaryYellow),
-                ContextCompat.getColor(context, R.color.PrimaryAmber),
-                ContextCompat.getColor(context, R.color.PrimaryOrange),
-                ContextCompat.getColor(context, R.color.PrimaryDeepOrange),
-                ContextCompat.getColor(context, R.color.PrimaryRed),
-                ContextCompat.getColor(context, R.color.PrimaryBrown),
-                ContextCompat.getColor(context, R.color.PrimaryGrey),
-                ContextCompat.getColor(context, R.color.PrimaryBlueGrey),
-                ContextCompat.getColor(context, R.color.PrimaryBlack)
+                getColor(R.color.PrimaryPurple),
+                getColor(R.color.PrimaryDeepPurple),
+                getColor(R.color.PrimaryIndigo),
+                getColor(R.color.PrimaryBlue),
+                getColor(R.color.PrimaryLightBlue),
+                getColor(R.color.PrimaryCyan),
+                getColor(R.color.PrimaryTeal),
+                getColor(R.color.PrimaryGreen),
+                getColor(R.color.PrimaryLightGreen),
+                getColor(R.color.PrimaryLime),
+                getColor(R.color.PrimaryYellow),
+                getColor(R.color.PrimaryAmber),
+                getColor(R.color.PrimaryOrange),
+                getColor(R.color.PrimaryDeepOrange),
+                getColor(R.color.PrimaryRed),
+                getColor(R.color.PrimaryBrown),
+                getColor(R.color.PrimaryGrey),
+                getColor(R.color.PrimaryBlueGrey),
+                getColor(R.color.PrimaryBlack)
         };
     }
 
     public int[] getPrimaryDarkColors() {
         return new int[]{
-                ContextCompat.getColor(context, R.color.PrimaryDarkPurple),
-                ContextCompat.getColor(context, R.color.PrimaryDarkDeepPurple),
-                ContextCompat.getColor(context, R.color.PrimaryDarkIndigo),
-                ContextCompat.getColor(context, R.color.PrimaryDarkBlue),
-                ContextCompat.getColor(context, R.color.PrimaryDarkLightBlue),
-                ContextCompat.getColor(context, R.color.PrimaryDarkCyan),
-                ContextCompat.getColor(context, R.color.PrimaryDarkTeal),
-                ContextCompat.getColor(context, R.color.PrimaryDarkGreen),
-                ContextCompat.getColor(context, R.color.PrimaryDarkLightGreen),
-                ContextCompat.getColor(context, R.color.PrimaryDarkLime),
-                ContextCompat.getColor(context, R.color.PrimaryDarkYellow),
-                ContextCompat.getColor(context, R.color.PrimaryDarkAmber),
-                ContextCompat.getColor(context, R.color.PrimaryDarkOrange),
-                ContextCompat.getColor(context, R.color.PrimaryDarkDeepOrange),
-                ContextCompat.getColor(context, R.color.PrimaryDarkRed),
-                ContextCompat.getColor(context, R.color.PrimaryDarkBrown),
-                ContextCompat.getColor(context, R.color.PrimaryDarkGrey),
-                ContextCompat.getColor(context, R.color.PrimaryDarkBlueGrey),
-                ContextCompat.getColor(context, R.color.PrimaryDarkBlack)
+                getColor(R.color.PrimaryDarkPurple),
+                getColor(R.color.PrimaryDarkDeepPurple),
+                getColor(R.color.PrimaryDarkIndigo),
+                getColor(R.color.PrimaryDarkBlue),
+                getColor(R.color.PrimaryDarkLightBlue),
+                getColor(R.color.PrimaryDarkCyan),
+                getColor(R.color.PrimaryDarkTeal),
+                getColor(R.color.PrimaryDarkGreen),
+                getColor(R.color.PrimaryDarkLightGreen),
+                getColor(R.color.PrimaryDarkLime),
+                getColor(R.color.PrimaryDarkYellow),
+                getColor(R.color.PrimaryDarkAmber),
+                getColor(R.color.PrimaryDarkOrange),
+                getColor(R.color.PrimaryDarkDeepOrange),
+                getColor(R.color.PrimaryDarkRed),
+                getColor(R.color.PrimaryDarkBrown),
+                getColor(R.color.PrimaryDarkGrey),
+                getColor(R.color.PrimaryDarkBlueGrey),
+                getColor(R.color.PrimaryDarkBlack)
         };
     }
 
+    private int getColor(int color) {
+        return ContextCompat.getColor(context, color);
+    }
 
     private SharedPreferences getSharedPrefs() {
         return context.getSharedPreferences("MainActivity", Activity.MODE_PRIVATE);

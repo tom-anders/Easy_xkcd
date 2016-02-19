@@ -58,7 +58,7 @@ public class WhatIfOverviewFragment extends android.support.v4.app.Fragment {
         tabLayout.addTab(tabLayout.newTab().setText(getResources().getString(R.string.whatif_overview)));
         tabLayout.addTab(tabLayout.newTab().setText(getResources().getString(R.string.nv_favorites)));
         tabLayout.setTabGravity(TabLayout.GRAVITY_FILL);
-        tabLayout.setBackgroundColor(((MainActivity) getActivity()).getThemePrefs().getPrimaryColor());
+        tabLayout.setBackgroundColor(((MainActivity) getActivity()).getThemePrefs().getPrimaryColor(false));
 
         if (doc == null && !prefHelper.fullOfflineWhatIf()) {
             new GetDoc().execute();

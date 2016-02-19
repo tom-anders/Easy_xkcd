@@ -250,7 +250,7 @@
     <string name="pref_behavior_sum">Aktiviere den Offline Modus und Benachrichtigungen</string>
     <string name="pref_night_options">Nacht Einstellungen</string>
     <string name="pref_night_options_sum">Richte den Nachtmodus ein</string>
-    <string name="snackbar_feature">Neues Feature: Automatischer Nachtmodus!</string>
+    <string name="snackbar_feature">Neues Feature: Theme anpassen!</string>
     <string name="snackbar_feature_oc">Ausprobieren</string>
     <string name="new_comic_view">Ansehen</string>
     <string name="whatif_overview">Übersicht</string>

@@ -228,7 +228,7 @@
     <string name="pref_auto_night">Аутоматско активирање</string>
     <string name="pref_auto_night_start">Почетак</string>
     <string name="pref_auto_night_end">Завршетак</string>
-    <string name="snackbar_feature">Нова функција: Аутоматско активирање ноћног режима!</string>
+    <string name="snackbar_feature">Нова функција: Custom Themes!</string>
     <string name="snackbar_feature_oc">Баците поглед</string>
     <string name="whatif_overview">Преглед</string>
     <string name="pref_offline_path">Путања за податке ван везе (експериментално)</string>

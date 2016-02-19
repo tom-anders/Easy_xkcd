@@ -163,6 +163,7 @@ public class MainActivity extends BaseActivity {
             toolbar.setAlpha(0);
 
         mDrawer.setDrawerListener(drawerToggle);
+        mDrawer.setStatusBarBackgroundColor(themePrefs.getPrimaryDarkColor());
         drawerToggle = setupDrawerToggle();
         if (themePrefs.nightThemeEnabled()) {
             mNavView.setBackgroundColor(ContextCompat.getColor(this, R.color.background_material_dark));

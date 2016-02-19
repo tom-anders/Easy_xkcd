@@ -12,6 +12,7 @@ import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.util.TypedValue;
+import android.view.View;
 
 import com.tap.xkcd_reader.R;
 
@@ -26,25 +27,25 @@ public abstract class BaseActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         prefHelper = new PrefHelper(this);
         themePrefs = new ThemePrefs(this);
-        //setTheme(themePrefs.getOldTheme());
         setTheme(themePrefs.getNewTheme());
         super.onCreate(savedInstanceState);
     }
 
     protected void setupToolbar(Toolbar toolbar) {
-        //On Lollipop, change the app's icon in the recents app screen
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
             Bitmap ic = BitmapFactory.decodeResource(getResources(), R.mipmap.ic_easy_xkcd_recents);
-            int color = themePrefs.getPrimaryColor();
+            int color = themePrefs.getPrimaryColor(false);
             ActivityManager.TaskDescription description = new ActivityManager.TaskDescription("Easy xkcd", ic, color);
             setTaskDescription(description);
-            getWindow().setStatusBarColor(themePrefs.getPrimaryDarkColor());
+
+            if (!(this instanceof MainActivity))
+                getWindow().setStatusBarColor(themePrefs.getPrimaryDarkColor());
             if (prefHelper.colorNavbar())
-                getWindow().setNavigationBarColor(themePrefs.getPrimaryColor()); //TODO text color
+                getWindow().setNavigationBarColor(themePrefs.getPrimaryColor(false));
         }
         setSupportActionBar(toolbar);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-        toolbar.setBackgroundColor(themePrefs.getPrimaryColor());
+        toolbar.setBackgroundColor(themePrefs.getPrimaryColor(false));
     }
 
 }

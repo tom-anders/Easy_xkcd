@@ -342,7 +342,7 @@
     <string name="pref_auto_night">Auto night theme</string>
     <string name="pref_auto_night_start">Start time</string>
     <string name="pref_auto_night_end">End time</string>
-    <string name="snackbar_feature">New feature: Auto night mode!</string>
+    <string name="snackbar_feature">New feature: Custom themes!</string>
     <string name="snackbar_feature_oc">Check it out</string>
     <string name="whatif_overview">Overview</string>
     <string name="pref_offline_path">Path for offline data (Experimental)</string>

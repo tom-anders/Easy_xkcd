@@ -132,7 +132,7 @@ public class NestedPreferenceFragment extends PreferenceFragment {
                         final View dialog = getActivity().getLayoutInflater().inflate(R.layout.color_chooser, null);
                         final TextView title = (TextView) dialog.findViewById(R.id.title);
                         title.setText(getResources().getString(R.string.theme_accent_color_dialog));
-                        title.setBackgroundColor(themePrefs.getPrimaryColor());
+                        title.setBackgroundColor(themePrefs.getPrimaryColor(false));
                         final AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
                         final LineColorPicker lineColorPicker = (LineColorPicker) dialog.findViewById(R.id.picker3);
                         lineColorPicker.setColors(themePrefs.getAccentColors());
@@ -174,10 +174,10 @@ public class NestedPreferenceFragment extends PreferenceFragment {
                         AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
                         final TextView title = (TextView) dialog.findViewById(R.id.title);
                         title.setText(getResources().getString(R.string.theme_primary_color_dialog));
-                        title.setBackgroundColor(themePrefs.getPrimaryColor());
+                        title.setBackgroundColor(themePrefs.getPrimaryColor(false));
                         final LineColorPicker lineColorPicker = (LineColorPicker) dialog.findViewById(R.id.picker3);
                         lineColorPicker.setColors(themePrefs.getPrimaryColors());
-                        lineColorPicker.setSelectedColor(themePrefs.getPrimaryColor());
+                        lineColorPicker.setSelectedColor(themePrefs.getPrimaryColor(true));
                         if (themePrefs.nightThemeEnabled())
                             ((CardView) dialog.findViewById(R.id.dialog_card_view)).setCardBackgroundColor(ContextCompat.getColor(getActivity(), R.color.background_material_dark));
 
