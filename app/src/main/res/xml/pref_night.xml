@@ -5,6 +5,13 @@
         android:title="@string/pref_night"
         android:defaultValue="false" />
 
+    <Preference
+        android:key="pref_color_accent"
+        android:title="@string/theme_accent_color"
+        android:dependency="pref_night"
+        android:persistent="false"
+        />
+
     <CheckBoxPreference
         android:key="pref_invert"
         android:title="@string/pref_invert"

@@ -3,9 +3,9 @@
     <color name="Read">#BDBDBD</color>
 
     <!-- Primary colors -->
-    <color name="PrimaryPurple">#7B1FA2</color>
-    <color name="PrimaryDarkPurple">#9C27B0</color>
-    <color name="PrimaryDeepPurple">#512DA8</color>
+    <color name="PrimaryPurple">#9C27B0</color>
+    <color name="PrimaryDarkPurple">#7B1FA2</color>
+    <color name="PrimaryDeepPurple">#673AB7</color>
     <color name="PrimaryDarkDeepPurple">#512DA8</color>
     <color name="PrimaryIndigo">#3F51B5</color>
     <color name="PrimaryDarkIndigo">#303F9F</color>
@@ -14,9 +14,9 @@
     <color name="PrimaryLightBlue">#03A9F4</color>
     <color name="PrimaryDarkLightBlue">#0288D1</color>
     <color name="PrimaryCyan">#00BCD4</color>
-    <color name="PrimaryDarkCyan">#00BCD4</color>
+    <color name="PrimaryDarkCyan">#0097A7</color>
     <color name="PrimaryTeal">#009688</color>
-    <color name="PrimaryDarkTeal">#009688</color>
+    <color name="PrimaryDarkTeal">#00796B</color>
     <color name="PrimaryGreen">#4CAF50</color>
     <color name="PrimaryDarkGreen">#388E3C</color>
     <color name="PrimaryLightGreen">#8BC34A</color>

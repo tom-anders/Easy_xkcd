@@ -329,6 +329,14 @@ public class NestedPreferenceFragment extends PreferenceFragment {
                     public boolean onPreferenceChange(Preference preference, Object newValue) {
                         themePrefs.setNightMode(Boolean.valueOf(newValue.toString()));
                         getActivity().setResult(Activity.RESULT_OK);
+                        Intent intent = getActivity().getIntent();
+                        intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK
+                                | Intent.FLAG_ACTIVITY_NO_ANIMATION);
+                        getActivity().overridePendingTransition(0, 0);
+                        getActivity().finish();
+
+                        getActivity().overridePendingTransition(0, 0);
+                        startActivity(intent);
                         return true;
                     }
                 });
@@ -366,6 +374,46 @@ public class NestedPreferenceFragment extends PreferenceFragment {
                             }
                         }, endTime[0], endTime[1], android.text.format.DateFormat.is24HourFormat(getActivity()));
                         tpd.show();
+                        return true;
+                    }
+                });
+                findPreference(COLOR_ACCENT).setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
+                    @Override
+                    public boolean onPreferenceClick(Preference preference) {
+                        final View dialog = getActivity().getLayoutInflater().inflate(R.layout.color_chooser, null);
+                        final TextView title = (TextView) dialog.findViewById(R.id.title);
+                        title.setText(getResources().getString(R.string.theme_accent_color_dialog));
+                        title.setBackgroundColor(themePrefs.getPrimaryColor(false));
+                        final AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
+                        final LineColorPicker lineColorPicker = (LineColorPicker) dialog.findViewById(R.id.picker3);
+                        lineColorPicker.setColors(themePrefs.getAccentColors());
+                        lineColorPicker.setSelectedColor(themePrefs.getAccentColor());
+                        if (themePrefs.nightThemeEnabled())
+                            ((CardView) dialog.findViewById(R.id.dialog_card_view)).setCardBackgroundColor(ContextCompat.getColor(getActivity(), R.color.background_material_dark));
+
+                        builder.setView(dialog);
+                        final AlertDialog alertDialog = builder.show();
+                        dialog.findViewById(R.id.ok).setOnClickListener(new View.OnClickListener() {
+                            @Override
+                            public void onClick(View view) {
+                                themePrefs.setAccentColorNight(lineColorPicker.getColor());
+                                getActivity().setResult(Activity.RESULT_OK);
+                                new Handler().post(new Runnable() {
+                                    @Override
+                                    public void run() {
+                                        alertDialog.dismiss();
+                                        Intent intent = getActivity().getIntent();
+                                        intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK
+                                                | Intent.FLAG_ACTIVITY_NO_ANIMATION);
+                                        getActivity().overridePendingTransition(0, 0);
+                                        getActivity().finish();
+
+                                        getActivity().overridePendingTransition(0, 0);
+                                        startActivity(intent);
+                                    }
+                                });
+                            }
+                        });
                         return true;
                     }
                 });

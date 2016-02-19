@@ -152,6 +152,7 @@ public class ThemePrefs {
             accent = importOldTheme();
 
         if (nightThemeEnabled()) {
+            accent = getAccentColorNight();
             if (accent == getColor(R.color.AccentPurple))
                 return R.style.PurpleNightTheme;
             if (accent == getColor(R.color.AccentIndigo))
@@ -260,7 +261,11 @@ public class ThemePrefs {
     }
 
     public int getAccentColorNight() {
-        return getSharedPrefs().getInt(COLOR_ACCENT_NIGHT, getAccentColor()); //TODO
+        return getSharedPrefs().getInt(COLOR_ACCENT_NIGHT, getAccentColor());
+    }
+
+    public void setAccentColorNight(int color) {
+        editSharedPrefs().putInt(COLOR_ACCENT_NIGHT, color).apply();
     }
 
     public void setupNavdrawerColor(NavigationView navigationView) {
