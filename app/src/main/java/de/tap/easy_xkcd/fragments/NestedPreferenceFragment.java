@@ -575,7 +575,7 @@ public class NestedPreferenceFragment extends PreferenceFragment {
         @Override
         protected Void doInBackground(Void... params) {
             int newest = prefHelper.getNewest();
-            //if (!BuildConfig.DEBUG) {
+            if (!BuildConfig.DEBUG) {
                 for (int i = 1; i <= newest; i++) {
                     if (!Favorites.checkFavorite(getActivity(), i)) {
                         //delete from internal storage
@@ -591,7 +591,7 @@ public class NestedPreferenceFragment extends PreferenceFragment {
                     }
                 }
                 prefHelper.deleteTitleAndAlt(newest, getActivity());
-            //}
+            }
             prefHelper.setHighestOffline(0);
             prefHelper.setFullOffline(false);
             return null;

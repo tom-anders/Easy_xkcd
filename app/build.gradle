@@ -7,8 +7,8 @@ android {
         applicationId "de.tap.easy_xkcd"
         minSdkVersion 15
         targetSdkVersion 23
-        versionCode 110
-        versionName "4.3"
+        versionCode 111
+        versionName "4.3.1"
     }
     /*buildTypes {
         release {
@@ -34,6 +34,9 @@ android {
     lintOptions {
         disable 'InvalidPackage'
     }
+    packagingOptions {
+        exclude 'META-INF/services/javax.annotation.processing.Processor' // for realm
+    }
 }
 dependencies {
     compile fileTree(dir: 'libs', include: ['*.jar'])
@@ -56,4 +59,5 @@ dependencies {
     compile 'com.nbsp:library:1.03'
     compile 'com.squareup.okhttp3:okhttp:3.1.2'
     compile 'uz.shift:colorpicker:0.5@aar'
+    compile 'io.realm:realm-android:0.87.4'
 }

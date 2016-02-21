@@ -46,6 +46,7 @@ import java.io.IOException;
 import java.util.Arrays;
 
 import de.tap.easy_xkcd.Activities.MainActivity;
+import de.tap.easy_xkcd.database.DatabaseManager;
 import de.tap.easy_xkcd.utils.Comic;
 import de.tap.easy_xkcd.utils.Favorites;
 import de.tap.easy_xkcd.utils.JsonParser;
@@ -307,6 +308,8 @@ public class ComicBrowserFragment extends ComicFragment {
                 return ModifyFavorites(item);
             case R.id.action_share:
                 return shareComic();
+                //DatabaseManager databaseManager = new DatabaseManager(getActivity());
+                //return true;
             case R.id.action_latest:
                 return getLatestComic();
             case R.id.action_random:
