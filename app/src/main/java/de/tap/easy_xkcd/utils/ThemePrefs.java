@@ -335,13 +335,13 @@ public class ThemePrefs {
                 getColor(R.color.AccentCyan),
                 getColor(R.color.AccentTeal),
                 getColor(R.color.AccentGreen),
-                getColor(R.color.AccentLightGreen),
+                //getColor(R.color.AccentLightGreen), this color didn't work for some reason
                 getColor(R.color.AccentLime),
                 getColor(R.color.AccentYellow),
                 getColor(R.color.AccentAmber),
                 getColor(R.color.AccentOrange),
                 getColor(R.color.AccentDeepOrange),
-                getColor(R.color.AccentRed)
+                getColor(R.color.AccentRed),
         };
     }
 
