@@ -22,7 +22,7 @@ android {
         mavenCentral()
         jcenter()
         maven {
-            url "https://repo.commonsware.com.s3.amazonaws.com"
+            url "https://s3.amazonaws.com/repo.commonsware.com"
         }
         maven {
             url  "http://dl.bintray.com/lukaville/maven"
