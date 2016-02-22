@@ -22,6 +22,8 @@ import android.content.SharedPreferences;
 
 import java.util.Arrays;
 
+import de.tap.easy_xkcd.database.DatabaseManager;
+
 
 public class Favorites {
 

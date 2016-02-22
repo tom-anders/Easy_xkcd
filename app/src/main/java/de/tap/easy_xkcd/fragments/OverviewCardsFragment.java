@@ -27,6 +27,7 @@ import java.io.File;
 import java.io.FileInputStream;
 
 import de.tap.easy_xkcd.Activities.MainActivity;
+import de.tap.easy_xkcd.database.RealmComic;
 import xyz.danoz.recyclerviewfastscroller.vertical.VerticalRecyclerViewFastScroller;
 
 public class OverviewCardsFragment extends OverviewBaseFragment {
@@ -60,38 +61,21 @@ public class OverviewCardsFragment extends OverviewBaseFragment {
 
     @Override
     protected void updateBookmark(int i) {
-        int count = rvAdapter.getItemCount();
         if (bookmark == 0)
             Toast.makeText(getActivity(), R.string.bookmark_toast_2, Toast.LENGTH_LONG).show();
-        super.updateBookmark(count - i - 1);
+        super.updateBookmark(i);
         rvAdapter.notifyDataSetChanged();
     }
 
     @Override
-    public void showComic(final int pos) {
-        int number = rvAdapter.getItemCount() - pos - 1;
-        super.showComic(number);
-
-        new Handler().postDelayed(new Runnable() {
-            @Override
-            public void run() {
-                rv.scrollToPosition(pos);
-            }
-        }, 250);
-    }
-
-    @Override
-    public void notifyAdapter(int pos) {
+    public void notifyAdapter(int number) {
         if (prefHelper == null)
             return;
-        super.notifyAdapter(pos);
-        if (prefHelper.hideRead())
-            setupAdapter();
-        else {
-            rvAdapter.notifyDataSetChanged();
-            rv.scrollToPosition(titles.size() - pos);
-        }
-
+        rvAdapter.notifyDataSetChanged();
+        if (!prefHelper.hideRead())
+            rv.scrollToPosition(comics.size() - number);
+        else
+            rv.scrollToPosition(comics.size() - databaseManager.getNextUnread(number, comics));
     }
 
     @Override
@@ -114,8 +98,7 @@ public class OverviewCardsFragment extends OverviewBaseFragment {
                 setupAdapter();
                 break;
             case R.id.action_boomark:
-                int count = rvAdapter.getItemCount();
-                showComic(count - titles.indexOfKey(bookmark) - 1);
+                super.showComic(bookmark - 1);
                 break;
             case R.id.action_unread:
                 prefHelper.setComicsUnread();
@@ -136,15 +119,15 @@ public class OverviewCardsFragment extends OverviewBaseFragment {
         ComicFragment comicFragment = (ComicFragment) getActivity().getSupportFragmentManager().findFragmentByTag(BROWSER_TAG);
         rvAdapter = new RVAdapter();
         rv.setAdapter(rvAdapter);
-        if (comicFragment.lastComicNumber <= titles.size())
-            rv.scrollToPosition(titles.size() - comicFragment.lastComicNumber);
+        if (comicFragment.lastComicNumber <= comics.size())
+            rv.scrollToPosition(comics.size() - comicFragment.lastComicNumber);
     }
 
     public class RVAdapter extends RecyclerView.Adapter<RVAdapter.ComicViewHolder> {
 
         @Override
         public int getItemCount() {
-            return titles.size();
+            return comics.size();
         }
 
         @Override
@@ -157,9 +140,13 @@ public class OverviewCardsFragment extends OverviewBaseFragment {
 
         @Override
         public void onBindViewHolder(final ComicViewHolder comicViewHolder, int i) {
-            int number = titles.keyAt(getItemCount() - i - 1);
-            String title = titles.get(number);
-            if (checkComicRead(number) && !prefHelper.overviewFav()) {
+            RealmComic comic = comics.get(i);
+            int number = comic.getComicNumber();
+            String title = comic.getTitle();
+
+            if (title.equals("Toasts//TODO fix transcripts"))
+                title = "Toasts";
+            if (comic.isRead() && !prefHelper.overviewFav()) {
                 if (themePrefs.nightThemeEnabled())
                     comicViewHolder.comicTitle.setTextColor(ContextCompat.getColor(getActivity(), android.R.color.tertiary_text_light));
                 else
@@ -180,8 +167,8 @@ public class OverviewCardsFragment extends OverviewBaseFragment {
             comicViewHolder.comicTitle.setText(title);
 
             if (!MainActivity.fullOffline) {
-                Glide.with(getActivity().getApplicationContext())
-                        .load(urls.get(number))
+                Glide.with(getActivity())
+                        .load(comic.getUrl())
                         .asBitmap()
                         .into(comicViewHolder.thumbnail);
             } else {

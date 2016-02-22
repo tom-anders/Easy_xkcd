@@ -24,6 +24,7 @@ import com.tap.xkcd_reader.R;
 import java.util.Arrays;
 
 import de.tap.easy_xkcd.Activities.MainActivity;
+import de.tap.easy_xkcd.database.RealmComic;
 import de.tap.easy_xkcd.utils.Favorites;
 
 public class OverviewListFragment extends OverviewBaseFragment {
@@ -61,23 +62,10 @@ public class OverviewListFragment extends OverviewBaseFragment {
 
     @Override
     protected void updateBookmark(int i) {
-        int count = listAdapter.getCount();
         if (bookmark == 0)
             Toast.makeText(getActivity(), R.string.bookmark_toast_2, Toast.LENGTH_LONG).show();
-        super.updateBookmark(count - i - 1);
+        super.updateBookmark(i);
         listAdapter.notifyDataSetChanged();
-    }
-
-    @Override
-    public void showComic(final int pos) {
-        int number = listAdapter.getCount() - pos - 1;
-        super.showComic(number);
-        new Handler().postDelayed(new Runnable() {
-            @Override
-            public void run() {
-                list.setSelection(pos);
-            }
-        }, 250);
     }
 
     private class ListAdapter extends BaseAdapter {
@@ -89,7 +77,7 @@ public class OverviewListFragment extends OverviewBaseFragment {
 
         @Override
         public int getCount() {
-            return titles.size();
+            return comics.size();
         }
 
         @Override
@@ -113,10 +101,9 @@ public class OverviewListFragment extends OverviewBaseFragment {
             } else {
                 holder = (ViewHolder) view.getTag();
             }
-            String label;
-            int number = titles.keyAt(getCount() - position - 1);
-            label = String.valueOf(number) + " " + titles.get(number);
-            if (checkComicRead(number) && !prefHelper.overviewFav()) {
+            RealmComic comic = comics.get(position);
+            String label = comic.getComicNumber() + " " + comic.getTitle();
+            if (comic.isRead() && !prefHelper.overviewFav()) {
                 if (themePrefs.nightThemeEnabled())
                     holder.textView.setTextColor(ContextCompat.getColor(getActivity(), android.R.color.tertiary_text_light));
                 else
@@ -127,7 +114,7 @@ public class OverviewListFragment extends OverviewBaseFragment {
                 else
                     holder.textView.setTextColor(ContextCompat.getColor(getActivity(), android.R.color.tertiary_text_light));
             }
-            if (number == bookmark) {
+            if (comic.getComicNumber() == bookmark) {
                 TypedValue typedValue = new TypedValue();
                 getActivity().getTheme().resolveAttribute(R.attr.colorAccent, typedValue, true);
                 holder.textView.setTextColor(typedValue.data);
@@ -145,8 +132,7 @@ public class OverviewListFragment extends OverviewBaseFragment {
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
             case R.id.action_boomark:
-                int count = listAdapter.getCount();
-                showComic(count - titles.indexOfKey(bookmark) - 1);
+                super.showComic(bookmark - 1);
                 break;
             case R.id.action_unread:
                 prefHelper.setComicsUnread();
@@ -180,16 +166,14 @@ public class OverviewListFragment extends OverviewBaseFragment {
     }
 
     @Override
-    public void notifyAdapter(int pos) {
+    public void notifyAdapter(int number) {
         if (prefHelper == null)
             return;
-        super.notifyAdapter(pos);
-        if (prefHelper.hideRead())
-            setupAdapter();
-        else {
-            listAdapter.notifyDataSetChanged();
-            list.setSelection(titles.size() - pos);
-        }
+        listAdapter.notifyDataSetChanged();
+        if (!prefHelper.hideRead())
+            list.setSelection(comics.size() - number);
+        else
+            list.setSelection(comics.size() - databaseManager.getNextUnread(number, comics));
     }
 
     @Override
@@ -198,8 +182,8 @@ public class OverviewListFragment extends OverviewBaseFragment {
         ComicFragment comicFragment = (ComicFragment) getActivity().getSupportFragmentManager().findFragmentByTag(BROWSER_TAG);
         listAdapter = new ListAdapter();
         list.setAdapter(listAdapter);
-        if (comicFragment.lastComicNumber <= titles.size())
-            list.setSelection(titles.size() - comicFragment.lastComicNumber);
+        if (comicFragment.lastComicNumber <= comics.size())
+            list.setSelection(comics.size() - comicFragment.lastComicNumber);
         list.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {

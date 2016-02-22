@@ -47,9 +47,12 @@ import java.util.Arrays;
 
 import de.tap.easy_xkcd.Activities.MainActivity;
 import de.tap.easy_xkcd.database.DatabaseManager;
+import de.tap.easy_xkcd.database.RealmComic;
 import de.tap.easy_xkcd.utils.Comic;
 import de.tap.easy_xkcd.utils.Favorites;
 import de.tap.easy_xkcd.utils.JsonParser;
+import io.realm.Realm;
+import io.realm.RealmResults;
 import uk.co.senab.photoview.PhotoView;
 
 public class ComicBrowserFragment extends ComicFragment {
@@ -166,8 +169,7 @@ public class ComicBrowserFragment extends ComicFragment {
 
     private class ComicBrowserPagerAdapter extends ComicAdapter {
 
-        private String[] urls;
-        private String[] titles;
+        private RealmResults<RealmComic> comics;
 
         public ComicBrowserPagerAdapter(Context context) {
             super(context);
@@ -191,7 +193,7 @@ public class ComicBrowserFragment extends ComicFragment {
             class loadComic extends AsyncTask<Void, Void, Void> {
                 private Comic comic;
                 private boolean largeComic;
-                private boolean loadedFromDatabase;
+                private boolean loadedFromDatabase = false;
 
                 private void displayComic(String url, String title) {
                     if (fromSearch && position == lastComicNumber - 1) {
@@ -235,27 +237,25 @@ public class ComicBrowserFragment extends ComicFragment {
                                     }
                                 });
 
+                    if (title.equals("Toasts//TODO fix transcripts"))
+                        title = "Toasts";
                     tvTitle.setText(title);
                 }
 
                 @Override
                 protected void onPreExecute() {
                     largeComic = PreferenceManager.getDefaultSharedPreferences(getActivity()).getBoolean("pref_large", true) && Arrays.binarySearch(getResources().getIntArray(R.array.large_comics), position + 1) >= 0;
-                    if (!largeComic && prefHelper.databaseLoaded()) {
-                        if (urls == null) {
-                            urls = prefHelper.getComicUrls().split("&&");
-                            titles = prefHelper.getComicTitles().split("&&");
-                        }
-                        try {
-                            displayComic(urls[position], titles[position]);
-                            loadedFromDatabase = true;
-                        } catch (IndexOutOfBoundsException e) {
-                            Log.d("Database error", e.getMessage());
-                            loadedFromDatabase = false;
-                        }
+                    if (!largeComic && databaseManager.databaseLoaded()) {
+                        if (comics == null)
+                            comics = databaseManager.realm.where(RealmComic.class).findAll();
+                        RealmComic realmComic = comics.where().equalTo("comicNumber", position + 1).findFirst();
+                        loadedFromDatabase = realmComic != null;
+                        if (loadedFromDatabase)
+                            displayComic(realmComic.getUrl(), realmComic.getTitle());
                     }
                     if (largeComic)
                         animateToolbar();
+                    Log.d("from database", String.valueOf(loadedFromDatabase));
                 }
 
                 @Override
@@ -308,8 +308,6 @@ public class ComicBrowserFragment extends ComicFragment {
                 return ModifyFavorites(item);
             case R.id.action_share:
                 return shareComic();
-                //DatabaseManager databaseManager = new DatabaseManager(getActivity());
-                //return true;
             case R.id.action_latest:
                 return getLatestComic();
             case R.id.action_random:

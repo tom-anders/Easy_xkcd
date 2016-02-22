@@ -65,6 +65,7 @@ import butterknife.Bind;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
 import butterknife.OnLongClick;
+import de.tap.easy_xkcd.database.DatabaseManager;
 import de.tap.easy_xkcd.fragments.ComicBrowserFragment;
 import de.tap.easy_xkcd.fragments.ComicFragment;
 import de.tap.easy_xkcd.fragments.OverviewBaseFragment;
@@ -101,6 +102,7 @@ public class MainActivity extends BaseActivity {
     private CustomTabActivityHelper customTabActivityHelper;
     private int currentFragment;
     private ProgressDialog progress;
+    private DatabaseManager databaseManager;
 
     private static final String COMIC_INTENT = "de.tap.easy_xkcd.ACTION_COMIC";
     private static final String WHATIF_INTENT = "de.tap.easy_xkcd.ACTION_WHAT_IF";
@@ -121,6 +123,7 @@ public class MainActivity extends BaseActivity {
         PreferenceManager.setDefaultValues(this, R.xml.pref_alt_sharing, false);
 
         customTabActivityHelper = new CustomTabActivityHelper();
+        databaseManager = new DatabaseManager(this);
 
         if (savedInstanceState == null) {
             if (prefHelper.getNotificationInterval() != 0) {
@@ -233,7 +236,7 @@ public class MainActivity extends BaseActivity {
         if (overviewBaseFragment != null && overviewBaseFragment.isVisible()) {
             ComicFragment comicFragment = (ComicFragment) fragmentManager.findFragmentByTag(BROWSER_TAG);
             if (!prefHelper.overviewFav())
-                overviewBaseFragment.showComic(comicFragment.newestComicNumber - prefHelper.getRandomNumber(comicFragment.lastComicNumber));
+                overviewBaseFragment.showRandomComic(comicFragment.newestComicNumber - prefHelper.getRandomNumber(comicFragment.lastComicNumber));
             else
                 overviewBaseFragment.showComic(new Random().nextInt(Favorites.getFavoriteList(MainActivity.this).length));
         } else {
@@ -810,6 +813,7 @@ public class MainActivity extends BaseActivity {
         return prefHelper;
     }
     public ThemePrefs getThemePrefs() {return themePrefs;}
+    public DatabaseManager getDatabaseManager() {return databaseManager;}
 
 }
 

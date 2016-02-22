@@ -16,6 +16,7 @@ import android.view.View;
 
 import com.tap.xkcd_reader.R;
 
+import de.tap.easy_xkcd.database.DatabaseManager;
 import de.tap.easy_xkcd.utils.PrefHelper;
 import de.tap.easy_xkcd.utils.ThemePrefs;
 
@@ -27,6 +28,7 @@ public abstract class BaseActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         prefHelper = new PrefHelper(this);
         themePrefs = new ThemePrefs(this);
+
         setTheme(themePrefs.getNewTheme());
         super.onCreate(savedInstanceState);
     }

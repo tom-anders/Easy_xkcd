@@ -41,6 +41,7 @@ import java.util.Arrays;
 import de.tap.easy_xkcd.Activities.MainActivity;
 import de.tap.easy_xkcd.CustomTabHelpers.BrowserFallback;
 import de.tap.easy_xkcd.CustomTabHelpers.CustomTabActivityHelper;
+import de.tap.easy_xkcd.database.DatabaseManager;
 import de.tap.easy_xkcd.misc.HackyViewPager;
 import de.tap.easy_xkcd.utils.Comic;
 import de.tap.easy_xkcd.utils.Favorites;
@@ -68,6 +69,7 @@ public abstract class ComicFragment extends android.support.v4.app.Fragment {
 
     protected PrefHelper prefHelper;
     protected ThemePrefs themePrefs;
+    protected DatabaseManager databaseManager;
 
     protected View inflateLayout(int resId, LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View view = inflater.inflate(resId, container, false);
@@ -78,6 +80,7 @@ public abstract class ComicFragment extends android.support.v4.app.Fragment {
 
         prefHelper = ((MainActivity) getActivity()).getPrefHelper();
         themePrefs = ((MainActivity) getActivity()).getThemePrefs();
+        databaseManager = ((MainActivity) getActivity()).getDatabaseManager();
 
         if (!(this instanceof FavoritesFragment)) {
             if (savedInstanceState != null) {
@@ -290,6 +293,8 @@ public abstract class ComicFragment extends android.support.v4.app.Fragment {
 
         @Override
         protected void onPostExecute(Void dummy) {
+            if (mAddedNumber <= ((MainActivity) getActivity()).getDatabaseManager().getHighestInDatabase())
+                ((MainActivity) getActivity()).getDatabaseManager().setFavorite(mAddedNumber, true);
             if (downloadImage) {
                 saveComic(mAddedNumber, mBitmap);
             }
@@ -341,6 +346,8 @@ public abstract class ComicFragment extends android.support.v4.app.Fragment {
             FavoritesFragment f = (FavoritesFragment) getActivity().getSupportFragmentManager().findFragmentByTag("favorites");
             if (f != null)
                 f.refresh();
+            if (mRemovedNumber <= ((MainActivity) getActivity()).getDatabaseManager().getHighestInDatabase())
+                ((MainActivity) getActivity()).getDatabaseManager().setFavorite(mRemovedNumber, false);
         }
     }
 
@@ -496,7 +503,7 @@ public abstract class ComicFragment extends android.support.v4.app.Fragment {
         } catch (NullPointerException e) {
             e.printStackTrace();
         }
-        prefHelper.setComicRead(String.valueOf(position + 1));
+        databaseManager.setRead(position + 1, true);
         lastComicNumber = position + 1;
         if (prefHelper.subtitleEnabled() && ((MainActivity) getActivity()).getCurrentFragment() == R.id.nav_browser)
             ((MainActivity) getActivity()).getToolbar().setSubtitle(String.valueOf(lastComicNumber));

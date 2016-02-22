@@ -31,7 +31,6 @@ import android.support.design.widget.Snackbar;
 import android.support.v4.content.FileProvider;
 import android.support.v4.view.ViewPager;
 import android.support.v7.widget.Toolbar;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -51,10 +50,7 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.lang.reflect.Array;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Random;
 import java.util.Stack;
@@ -243,6 +239,8 @@ public class FavoritesFragment extends ComicFragment {
                 if (Arrays.binarySearch(favorites, number) < 0) {
                     newFavorites.push(number);
                     Favorites.addFavoriteItem(getActivity(), String.valueOf(number));
+                    if (number <= ((MainActivity) getActivity()).getDatabaseManager().getHighestInDatabase())
+                        ((MainActivity) getActivity()).getDatabaseManager().setFavorite(number,true);
                 }
                 if (!prefHelper.fullOfflineEnabled()) {
                     new DownloadImageTask(newFavorites).execute();
@@ -370,9 +368,10 @@ public class FavoritesFragment extends ComicFragment {
     }
 
     public class DeleteImageTask extends AsyncTask<Integer, Integer, Void> {
-
+        int number;
         @Override
         protected Void doInBackground(Integer... pos) {
+            number = pos[0];
             if (!MainActivity.fullOffline)
                 getActivity().deleteFile(String.valueOf(pos[0]));
 
@@ -382,6 +381,8 @@ public class FavoritesFragment extends ComicFragment {
 
         @Override
         protected void onPostExecute(Void v) {
+            if (number <= ((MainActivity) getActivity()).getDatabaseManager().getHighestInDatabase())
+                ((MainActivity) getActivity()).getDatabaseManager().setFavorite(number, false);
             String[] fav = Favorites.getFavoriteList(getActivity());
             if (fav.length == 0) {
                 //If there are no favorites left, show ComicBrowserFragment
@@ -405,6 +406,8 @@ public class FavoritesFragment extends ComicFragment {
             @Override
             public void onClick(View v) {
                 Favorites.addFavoriteItem(getActivity(), String.valueOf(mRemoved));
+                if (mRemoved <= ((MainActivity) getActivity()).getDatabaseManager().getHighestInDatabase())
+                    ((MainActivity) getActivity()).getDatabaseManager().setFavorite(mRemoved,true);
                 saveComic(mRemoved, mRemovedBitmap);
                 prefHelper.addTitle(mTitle, mRemoved);
                 prefHelper.addAlt(mAlt, mRemoved);

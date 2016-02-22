@@ -1,18 +1,14 @@
 package de.tap.easy_xkcd.fragments;
 
-import android.app.Fragment;
 import android.app.ProgressDialog;
 import android.content.DialogInterface;
 import android.os.AsyncTask;
 import android.os.Build;
 import android.support.v4.app.FragmentTransaction;
-import android.support.v4.app.NotificationCompat;
-import android.support.v7.app.AlertDialog;
 import android.support.v7.widget.Toolbar;
 import android.transition.Transition;
 import android.transition.TransitionInflater;
 import android.util.Log;
-import android.util.SparseArray;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
@@ -21,26 +17,26 @@ import android.view.View;
 import com.tap.xkcd_reader.R;
 
 import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.util.Arrays;
-import java.util.Random;
 
 import de.tap.easy_xkcd.Activities.MainActivity;
+import de.tap.easy_xkcd.database.DatabaseManager;
+import de.tap.easy_xkcd.database.RealmComic;
 import de.tap.easy_xkcd.utils.Comic;
-import de.tap.easy_xkcd.utils.Favorites;
 import de.tap.easy_xkcd.utils.PrefHelper;
 import de.tap.easy_xkcd.utils.ThemePrefs;
+import io.realm.Realm;
+import io.realm.RealmResults;
+import io.realm.Sort;
 
 public abstract class OverviewBaseFragment extends android.support.v4.app.Fragment {
-    protected static SparseArray<String> titles = new SparseArray<>();
-    protected static SparseArray<String> urls = new SparseArray<>();
-    protected static int[] read;
+    protected static RealmResults<RealmComic> comics;
     protected PrefHelper prefHelper;
     protected ThemePrefs themePrefs;
+    protected DatabaseManager databaseManager;
     public static int bookmark;
     protected static final String BROWSER_TAG = "browser";
     protected static final String OVERVIEW_TAG = "overview";
@@ -48,19 +44,28 @@ public abstract class OverviewBaseFragment extends android.support.v4.app.Fragme
     protected void setupVariables() {
         prefHelper = ((MainActivity) getActivity()).getPrefHelper();
         themePrefs = ((MainActivity) getActivity()).getThemePrefs();
+        databaseManager = ((MainActivity) getActivity()).getDatabaseManager();
         bookmark = prefHelper.getBookmark();
         setHasOptionsMenu(true);
     }
 
     protected void updateBookmark(int i) {
-        prefHelper.setBookmark(titles.keyAt(i));
-        bookmark = titles.keyAt(i);
+        bookmark = comics.get(i).getComicNumber();
+        prefHelper.setBookmark(bookmark);
     }
 
     public void showComic(final int pos) {
+        goToComic(comics.get(pos).getComicNumber() - 1);
+    }
+
+    public void showRandomComic(final int number) {
+        goToComic(number-1);
+    }
+
+    public void goToComic(final int number) {
         android.support.v4.app.FragmentManager fragmentManager = getActivity().getSupportFragmentManager();
         ComicFragment fragment = (ComicFragment) fragmentManager.findFragmentByTag(BROWSER_TAG);
-        fragment.scrollTo(titles.keyAt(pos) - 1, false);
+        fragment.scrollTo(number, false);
 
         if (Build.VERSION.SDK_INT < Build.VERSION_CODES.LOLLIPOP) {
             fragmentManager.beginTransaction().hide(fragmentManager.findFragmentByTag(OVERVIEW_TAG)).show(fragment).commitAllowingStateLoss();
@@ -81,10 +86,6 @@ public abstract class OverviewBaseFragment extends android.support.v4.app.Fragme
         if (prefHelper.subtitleEnabled()) {
             ((MainActivity) getActivity()).getToolbar().setSubtitle(String.valueOf(fragment.lastComicNumber));
         }
-    }
-
-    protected boolean checkComicRead(int number) {
-        return read != null && Arrays.binarySearch(read, number) >= 0;
     }
 
     @Override
@@ -145,32 +146,18 @@ public abstract class OverviewBaseFragment extends android.support.v4.app.Fragme
         return super.onOptionsItemSelected(item);
     }
 
-    public void notifyAdapter(int pos) {
-        if (prefHelper == null)
-            return;
-        read = prefHelper.getComicRead();
-    }
+    public abstract void notifyAdapter(int number);
 
     protected void setupAdapter() {
-        read = prefHelper.getComicRead();
-        String[] t = prefHelper.getComicTitles().split("&&");
-        String[] u = prefHelper.getComicUrls().split("&&");
-        boolean hideRead = prefHelper.hideRead();
-        titles.clear();
-        urls.clear();
-        for (int i = 1; i <= t.length; i++) {
-            if (prefHelper.overviewFav()) {
-                if (Favorites.checkFavorite(getActivity(), i)) {
-                    titles.put(i, t[i - 1]);
-                    urls.put(i, u[i - 1]);
-                }
-                continue;
-            }
-            if (read == null || (!hideRead) || ((Arrays.binarySearch(read, i) < 0) || i == bookmark)) {
-                titles.put(i, t[i - 1]);
-                urls.put(i, u[i - 1]);
-            }
+        Realm realm = databaseManager.realm;
+        if (prefHelper.overviewFav()) {
+            comics = realm.where(RealmComic.class).equalTo("isFavorite", true).findAll();
+        } else if (prefHelper.hideRead()) {
+            comics = realm.where(RealmComic.class).equalTo("isRead", false).findAll();
+        } else {
+            comics = realm.where(RealmComic.class).findAll();
         }
+        comics.sort("comicNumber", Sort.DESCENDING);
     }
 
     private void animateToolbar() {
@@ -187,114 +174,90 @@ public abstract class OverviewBaseFragment extends android.support.v4.app.Fragme
         }
     }
 
-    protected abstract class updateDatabase extends AsyncTask<Void, Integer, Void> {
+    public abstract class updateDatabase extends AsyncTask<Void, Integer, Void> {
         private ProgressDialog progress;
 
         @Override
         protected void onPreExecute() {
             progress = new ProgressDialog(getActivity());
-            progress.setTitle(getResources().getString(R.string.update_database));
+            progress.setTitle(getActivity().getResources().getString(R.string.update_database));
             progress.setIndeterminate(false);
             progress.setProgressStyle(ProgressDialog.STYLE_HORIZONTAL);
             progress.setCancelable(false);
             progress.show();
         }
 
+        private String getFile(int rawId) {
+            InputStream is = getActivity().getResources().openRawResource(rawId);
+            BufferedReader br = new BufferedReader(new InputStreamReader(is));
+            StringBuilder sb = new StringBuilder();
+            String line;
+            try {
+                while ((line = br.readLine()) != null) {
+                    sb.append(line);
+                }
+            } catch (IOException e) {
+                Log.e("error:", e.getMessage());
+            }
+            return sb.toString();
+        }
+
         @Override
         protected Void doInBackground(Void... params) {
-            if (!prefHelper.databaseLoaded()) {
-                InputStream is = getResources().openRawResource(R.raw.comic_titles);
-                BufferedReader br = new BufferedReader(new InputStreamReader(is));
-                StringBuilder sb = new StringBuilder();
-                String line;
-                try {
-                    while ((line = br.readLine()) != null) {
-                        sb.append(line);
-                    }
-                } catch (IOException e) {
-                    Log.e("error:", e.getMessage());
+            Realm realm = Realm.getInstance(getActivity());
+            int[] read = databaseManager.getReadComics();
+            int[] fav = databaseManager.getFavComics();
+            if (!databaseManager.databaseLoaded()) {
+                String[] titles = getFile(R.raw.comic_titles).split("&&");
+                String[] trans = getFile(R.raw.comic_trans).split("&&");
+                String[] urls = getFile(R.raw.comic_urls).split("&&");
+                realm.beginTransaction();
+                for (int i = 0; i < 1645; i++) {
+                    RealmComic comic = realm.createObject(RealmComic.class);
+                    comic.setComicNumber(i + 1);
+                    comic.setTitle(titles[i]);
+                    comic.setTranscript(trans[i]);
+                    comic.setUrl(urls[i]);
+                    comic.setRead(Arrays.binarySearch(read, i + 1) >= 0);
+                    comic.setFavorite(Arrays.binarySearch(fav, i + 1) >= 0);
                 }
-                prefHelper.setTitles(sb.toString());
-                publishProgress(15);
-                Log.d("info", "titles loaded");
-
-                is = getResources().openRawResource(R.raw.comic_trans);
-                br = new BufferedReader(new InputStreamReader(is));
-                sb = new StringBuilder();
-                try {
-                    while ((line = br.readLine()) != null) {
-                        sb.append(line);
-                    }
-                } catch (IOException e) {
-                    Log.e("error:", e.getMessage());
-                }
-                prefHelper.setTrans(sb.toString());
-                publishProgress(30);
-                Log.d("info", "trans loaded");
-
-                is = getResources().openRawResource(R.raw.comic_urls);
-                br = new BufferedReader(new InputStreamReader(is));
-                sb = new StringBuilder();
-                try {
-                    while ((line = br.readLine()) != null) {
-                        sb.append(line);
-                    }
-                } catch (IOException e) {
-                    Log.e("error:", e.getMessage());
-                }
-                prefHelper.setUrls(sb.toString(), 1645);
-                Log.d("info", "urls loaded");
-                prefHelper.setDatabaseLoaded();
+                realm.commitTransaction();
+                databaseManager.setHighestDatabase(1645);
             }
-            publishProgress(50);
             if (prefHelper.isOnline(getActivity())) {
                 int newest;
                 try {
-                    newest = new Comic(0).getComicNumber();
+                    Comic comic = new Comic(0);
+                    newest = comic.getComicNumber();
                 } catch (IOException e) {
                     newest = prefHelper.getNewest();
                 }
-                StringBuilder sbTitle = new StringBuilder();
-                sbTitle.append(prefHelper.getComicTitles());
-                StringBuilder sbTrans = new StringBuilder();
-                sbTrans.append(prefHelper.getComicTrans());
-                StringBuilder sbUrl = new StringBuilder();
-                sbUrl.append(prefHelper.getComicUrls());
-                String title;
-                String trans;
-                String url;
-                Comic comic;
-                int highestUrls = prefHelper.getHighestUrls();
-                for (int i = highestUrls; i < newest; i++) {
+                realm.beginTransaction();
+                int highest = databaseManager.getHighestInDatabase() + 1;
+                for (int i = highest; i <= newest; i++) {
                     try {
-                        comic = new Comic(i + 1);
-                        title = comic.getComicData()[0];
-                        trans = comic.getTranscript();
-                        url = comic.getComicData()[2];
+                        Comic comic = new Comic(i);
+                        RealmComic realmComic = realm.createObject(RealmComic.class);
+                        realmComic.setComicNumber(i);
+                        realmComic.setTitle(comic.getComicData()[0]);
+                        realmComic.setTranscript(comic.getTranscript());
+                        realmComic.setUrl(comic.getComicData()[2]);
+                        realmComic.setRead(Arrays.binarySearch(read, i) >= 0);
+                        realmComic.setFavorite(Arrays.binarySearch(fav, i + 1) >= 0);
+                        float x = newest - highest;
+                        int y = i - highest;
+                        int p = (int) ((y / x) * 100);
+                        publishProgress(p);
                     } catch (IOException e) {
-                        title = "";
-                        trans = "";
-                        url = "";
+                        Log.d("error at " + i, e.getMessage());
                     }
-                    sbTitle.append("&&");
-                    sbTitle.append(title);
-                    sbUrl.append("&&");
-                    sbUrl.append(url);
-                    sbTrans.append("&&");
-                    if (!trans.equals("")) {
-                        sbTrans.append(trans);
-                    } else {
-                        sbTrans.append("n.a.");
-                    }
-                    float x = newest - highestUrls;
-                    int y = i - highestUrls;
-                    int p = (int) ((y / x) * 50);
-                    publishProgress(p + 50);
                 }
-                prefHelper.setTitles(sbTitle.toString());
-                prefHelper.setTrans(sbTrans.toString());
-                prefHelper.setUrls(sbUrl.toString(), newest);
+
+                realm.commitTransaction();
+                databaseManager.setHighestDatabase(newest);
             }
+            databaseManager.setDatabaseLoaded(true);
+            realm.close();
             return null;
         }
 
@@ -307,7 +270,6 @@ public abstract class OverviewBaseFragment extends android.support.v4.app.Fragme
             progress.dismiss();
             animateToolbar();
         }
-
     }
 
 }

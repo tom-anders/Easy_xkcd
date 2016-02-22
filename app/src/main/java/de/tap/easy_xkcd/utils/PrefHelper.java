@@ -382,7 +382,7 @@ public class PrefHelper {
         return (a >= 0);
     }
 
-    public void setComicRead(String added) {
+    /*public void setComicRead(String added) {
         String read = sharedPrefs.getString(COMIC_READ, "");
         if (!read.equals("")) {
             read = read + "," + added;
@@ -392,9 +392,9 @@ public class PrefHelper {
         SharedPreferences.Editor editor = sharedPrefs.edit();
         editor.putString(COMIC_READ, read);
         editor.apply();
-    }
+    }*/
 
-    public int[] getComicRead() {
+    /*public int[] getComicRead() {
         String read = sharedPrefs.getString(COMIC_READ, "");
         if (!read.equals("")) {
             String[] readList = Favorites.sortArray(read.split(","));
@@ -405,7 +405,7 @@ public class PrefHelper {
             return readInt;
         }
         return null;
-    }
+    } */
 
     public void setWhatIfFavorite(String added) {
         String fav = sharedPrefs.getString(WHATIF_FAV, "");
