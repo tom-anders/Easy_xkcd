@@ -193,6 +193,7 @@ public class ComicBrowserFragment extends ComicFragment {
             class loadComic extends AsyncTask<Void, Void, Void> {
                 private Comic comic;
                 private boolean largeComic;
+                private boolean interactiveComic;
                 private boolean loadedFromDatabase = false;
 
                 private void displayComic(String url, String title) {
@@ -245,7 +246,8 @@ public class ComicBrowserFragment extends ComicFragment {
                 @Override
                 protected void onPreExecute() {
                     largeComic = PreferenceManager.getDefaultSharedPreferences(getActivity()).getBoolean("pref_large", true) && Arrays.binarySearch(getResources().getIntArray(R.array.large_comics), position + 1) >= 0;
-                    if (!largeComic && databaseManager.databaseLoaded()) {
+                    interactiveComic = Arrays.binarySearch(getResources().getIntArray(R.array.interactive_comics), position + 1) >= 0;
+                    if (!largeComic && !interactiveComic && databaseManager.databaseLoaded()) {
                         if (comics == null)
                             comics = databaseManager.realm.where(RealmComic.class).findAll();
                         RealmComic realmComic = comics.where().equalTo("comicNumber", position + 1).findFirst();
@@ -275,7 +277,7 @@ public class ComicBrowserFragment extends ComicFragment {
                 @Override
                 protected void onPostExecute(Void dummy) {
                     if (comic != null && getActivity() != null) {
-                        if (!loadedFromDatabase || largeComic)
+                        if (!loadedFromDatabase || largeComic ||interactiveComic)
                             displayComic(comic.getComicData()[2], comic.getComicData()[0]);
                         tvAlt.setText(comic.getComicData()[1]);
 
