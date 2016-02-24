@@ -14,6 +14,7 @@ public class RealmComic extends RealmObject {
     private String title;
     private String transcript;
     private String url;
+    private String preview;
 
     public int getComicNumber() {
         return comicNumber;
@@ -61,6 +62,14 @@ public class RealmComic extends RealmObject {
 
     public void setFavorite(boolean favorite) {
         isFavorite = favorite;
+    }
+
+    public String getPreview() {
+        return preview;
+    }
+
+    public void setPreview(String preview) {
+        this.preview = preview;
     }
 
 }

@@ -199,7 +199,7 @@ public class ComicBrowserFragment extends ComicFragment {
                 private void displayComic(String url, String title) {
                     if (fromSearch && position == lastComicNumber - 1) {
                         fromSearch = false;
-                        ActivityTransition.with(getActivity().getIntent()).duration(300).to(pvComic).start(null);
+                        transition = ActivityTransition.with(getActivity().getIntent()).duration(300).to(pvComic).start(null);
                     }
                     if (getGifId(position) != 0) {
                         Glide.with(getActivity())
@@ -257,7 +257,7 @@ public class ComicBrowserFragment extends ComicFragment {
                     }
                     if (largeComic)
                         animateToolbar();
-                    Log.d("from database", String.valueOf(loadedFromDatabase));
+
                 }
 
                 @Override

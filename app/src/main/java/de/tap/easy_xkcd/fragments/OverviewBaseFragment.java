@@ -187,30 +187,15 @@ public abstract class OverviewBaseFragment extends android.support.v4.app.Fragme
             progress.show();
         }
 
-        private String getFile(int rawId) {
-            InputStream is = getActivity().getResources().openRawResource(rawId);
-            BufferedReader br = new BufferedReader(new InputStreamReader(is));
-            StringBuilder sb = new StringBuilder();
-            String line;
-            try {
-                while ((line = br.readLine()) != null) {
-                    sb.append(line);
-                }
-            } catch (IOException e) {
-                Log.e("error:", e.getMessage());
-            }
-            return sb.toString();
-        }
-
         @Override
         protected Void doInBackground(Void... params) {
             Realm realm = Realm.getInstance(getActivity());
             int[] read = databaseManager.getReadComics();
             int[] fav = databaseManager.getFavComics();
             if (!databaseManager.databaseLoaded()) {
-                String[] titles = getFile(R.raw.comic_titles).split("&&");
-                String[] trans = getFile(R.raw.comic_trans).split("&&");
-                String[] urls = getFile(R.raw.comic_urls).split("&&");
+                String[] titles = databaseManager.getFile(R.raw.comic_titles).split("&&");
+                String[] trans = databaseManager.getFile(R.raw.comic_trans).split("&&");
+                String[] urls = databaseManager.getFile(R.raw.comic_urls).split("&&");
                 realm.beginTransaction();
                 for (int i = 0; i < 1645; i++) {
                     RealmComic comic = realm.createObject(RealmComic.class);

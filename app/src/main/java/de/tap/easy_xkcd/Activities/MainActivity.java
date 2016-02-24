@@ -162,7 +162,7 @@ public class MainActivity extends BaseActivity {
         }
 
         setupToolbar(toolbar);
-        if (savedInstanceState == null)
+        if (savedInstanceState == null && !SearchResultsActivity.isOpen)
             toolbar.setAlpha(0);
 
         mDrawer.setDrawerListener(drawerToggle);
@@ -716,8 +716,12 @@ public class MainActivity extends BaseActivity {
             if (!zoomReset) {
                 if (!SearchResultsActivity.isOpen && !getIntent().getAction().equals(Intent.ACTION_VIEW))
                     showOverview();
-                else
-                    super.onBackPressed();
+                else {
+                    if (((ComicFragment) fragmentManager.findFragmentByTag(BROWSER_TAG)).transition != null)
+                        ((ComicFragment) fragmentManager.findFragmentByTag(BROWSER_TAG)).transition.exit(MainActivity.this);
+                    else
+                        super.onBackPressed();
+                }
             }
         } else if (currentFragment == R.id.nav_favorites) {
             FavoritesFragment favoritesFragment = (FavoritesFragment) fragmentManager.findFragmentByTag(FAV_TAG);
@@ -812,8 +816,14 @@ public class MainActivity extends BaseActivity {
     public PrefHelper getPrefHelper() {
         return prefHelper;
     }
-    public ThemePrefs getThemePrefs() {return themePrefs;}
-    public DatabaseManager getDatabaseManager() {return databaseManager;}
+
+    public ThemePrefs getThemePrefs() {
+        return themePrefs;
+    }
+
+    public DatabaseManager getDatabaseManager() {
+        return databaseManager;
+    }
 
 }
 

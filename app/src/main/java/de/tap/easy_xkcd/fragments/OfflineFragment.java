@@ -223,7 +223,7 @@ public class OfflineFragment extends ComicFragment {
             tvAlt.setText(comicMap.get(position + 1).getComicData()[1]);
             if (fromSearch) {
                 fromSearch = false;
-                ActivityTransition.with(getActivity().getIntent()).duration(300).to(pvComic).start(null);
+                transition = ActivityTransition.with(getActivity().getIntent()).duration(300).to(pvComic).start(null);
             }
             if (getGifId(position) != 0)
                 Glide.with(getActivity())

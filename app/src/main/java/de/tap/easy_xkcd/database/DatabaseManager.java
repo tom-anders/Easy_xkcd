@@ -114,4 +114,19 @@ public class DatabaseManager {
         return comic.getComicNumber();
     }
 
+    public String getFile(int rawId) {
+        InputStream is = context.getResources().openRawResource(rawId);
+        BufferedReader br = new BufferedReader(new InputStreamReader(is));
+        StringBuilder sb = new StringBuilder();
+        String line;
+        try {
+            while ((line = br.readLine()) != null) {
+                sb.append(line);
+            }
+        } catch (IOException e) {
+            Log.e("error:", e.getMessage());
+        }
+        return sb.toString();
+    }
+
 }

@@ -31,6 +31,8 @@ import android.widget.Toast;
 
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.load.engine.DiskCacheStrategy;
+import com.kogitune.activity_transition.ActivityTransition;
+import com.kogitune.activity_transition.ExitActivityTransition;
 import com.tap.xkcd_reader.R;
 
 import java.io.File;
@@ -70,6 +72,7 @@ public abstract class ComicFragment extends android.support.v4.app.Fragment {
     protected PrefHelper prefHelper;
     protected ThemePrefs themePrefs;
     protected DatabaseManager databaseManager;
+    public ExitActivityTransition transition;
 
     protected View inflateLayout(int resId, LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View view = inflater.inflate(resId, container, false);
