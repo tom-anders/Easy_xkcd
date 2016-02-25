@@ -50,7 +50,8 @@ public class OverviewCardsFragment extends OverviewBaseFragment {
         rv.addOnScrollListener(scroller.getOnScrollListener());
 
         if (savedInstanceState == null) {
-            new updateCardsDatabase().execute();
+
+            databaseManager.new updateDatabase(null, this, prefHelper).execute();
         } else {
             rvAdapter = new RVAdapter();
             rv.setAdapter(rvAdapter);
@@ -243,12 +244,10 @@ public class OverviewCardsFragment extends OverviewBaseFragment {
         }
     }
 
-    protected class updateCardsDatabase extends updateDatabase {
-        @Override
-        protected void onPostExecute(Void dummy) {
-            setupAdapter();
-            super.onPostExecute(dummy);
-        }
+    @Override
+    public void updateDatabasePostExecute() {
+        setupAdapter();
+        super.updateDatabasePostExecute();
     }
 
 }

@@ -39,7 +39,7 @@ public class OverviewListFragment extends OverviewBaseFragment {
         list.setFastScrollEnabled(true);
 
         if (savedInstanceState == null) {
-            new updateListDatabase().execute();
+            databaseManager.new updateDatabase (null, this, prefHelper).execute();
         } else {
             listAdapter = new ListAdapter();
             list.setAdapter(listAdapter);
@@ -199,12 +199,10 @@ public class OverviewListFragment extends OverviewBaseFragment {
         });
     }
 
-    protected class updateListDatabase extends updateDatabase {
-        @Override
-        protected void onPostExecute(Void dummy) {
-            setupAdapter();
-            super.onPostExecute(dummy);
-        }
+    @Override
+    public void updateDatabasePostExecute() {
+        setupAdapter();
+        super.updateDatabasePostExecute();
     }
 
 }

@@ -44,7 +44,6 @@ import android.view.ViewGroup;
 import android.view.animation.DecelerateInterpolator;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.ImageView;
-import android.widget.ProgressBar;
 import android.widget.SearchView;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -116,97 +115,16 @@ public class SearchResultsActivity extends BaseActivity {
         mProgress = ProgressDialog.show(this, "", getResources().getString(R.string.loading_results), true);
 
         if (savedInstanceState == null) {
-            new updateDatabase().execute();
+            databaseManager.new updateDatabase(this, null, prefHelper).execute();
         } else {
             task = new searchTask();
             task.execute(query);
         }
     }
 
-    private class updateDatabase extends AsyncTask<Void, Integer, Void> {
-        private ProgressDialog progress;
-
-        @Override
-        protected void onPreExecute() {
-            progress = new ProgressDialog(SearchResultsActivity.this);
-            progress.setTitle(getResources().getString(R.string.update_database));
-            progress.setIndeterminate(false);
-            progress.setProgressStyle(ProgressDialog.STYLE_HORIZONTAL);
-            progress.setCancelable(false);
-            progress.show();
-        }
-
-        @Override
-        protected Void doInBackground(Void... params) {
-            Realm realm = Realm.getInstance(SearchResultsActivity.this);
-            int[] read = databaseManager.getReadComics();
-            int[] fav = databaseManager.getFavComics();
-            if (!databaseManager.databaseLoaded()) {
-                String[] titles = databaseManager.getFile(R.raw.comic_titles).split("&&");
-                String[] trans = databaseManager.getFile(R.raw.comic_trans).split("&&");
-                String[] urls = databaseManager.getFile(R.raw.comic_urls).split("&&");
-                realm.beginTransaction();
-                for (int i = 0; i < 1645; i++) {
-                    RealmComic comic = realm.createObject(RealmComic.class);
-                    comic.setComicNumber(i + 1);
-                    comic.setTitle(titles[i]);
-                    comic.setTranscript(trans[i]);
-                    comic.setUrl(urls[i]);
-                    comic.setRead(Arrays.binarySearch(read, i + 1) >= 0);
-                    comic.setFavorite(Arrays.binarySearch(fav, i + 1) >= 0);
-                }
-                realm.commitTransaction();
-                databaseManager.setHighestDatabase(1645);
-            }
-            if (prefHelper.isOnline(SearchResultsActivity.this)) {
-                int newest;
-                try {
-                    Comic comic = new Comic(0);
-                    newest = comic.getComicNumber();
-                } catch (IOException e) {
-                    newest = prefHelper.getNewest();
-                }
-                realm.beginTransaction();
-                int highest = databaseManager.getHighestInDatabase() + 1;
-                for (int i = highest; i <= newest; i++) {
-                    try {
-                        Comic comic = new Comic(i);
-                        RealmComic realmComic = realm.createObject(RealmComic.class);
-                        realmComic.setComicNumber(i);
-                        realmComic.setTitle(comic.getComicData()[0]);
-                        realmComic.setTranscript(comic.getTranscript());
-                        realmComic.setUrl(comic.getComicData()[2]);
-                        realmComic.setRead(Arrays.binarySearch(read, i) >= 0);
-                        realmComic.setFavorite(Arrays.binarySearch(fav, i + 1) >= 0);
-                        float x = newest - highest;
-                        int y = i - highest;
-                        int p = (int) ((y / x) * 100);
-                        publishProgress(p);
-                    } catch (IOException e) {
-                        Log.d("error at " + i, e.getMessage());
-                    }
-                }
-
-                realm.commitTransaction();
-                databaseManager.setHighestDatabase(newest);
-            }
-            databaseManager.setDatabaseLoaded(true);
-            realm.close();
-            return null;
-        }
-
-        protected void onProgressUpdate(Integer... pro) {
-            progress.setProgress(pro[0]);
-        }
-
-        @Override
-        protected void onPostExecute(Void dummy) {
-            if (mProgress != null) {
-                progress.dismiss();
-            }
-            task = new searchTask();
-            task.execute(query);
-        }
+    public void updateDatabasePostExecute() {
+        task = new searchTask();
+        task.execute(query);
     }
 
     private boolean performSearch(String query) {
@@ -241,10 +159,6 @@ public class SearchResultsActivity extends BaseActivity {
         for (RealmComic comic : title)
             resultsTitle.add(comic.getComicNumber());
         RealmResults<RealmComic> trans = realm.where(RealmComic.class).contains("transcript", query, Case.INSENSITIVE).not().contains("title", query, Case.INSENSITIVE).findAll();
-        /*realm.beginTransaction();
-        for (int i = 0; i < trans.size(); i++)
-            trans.get(i).setPreview(getPreview(query, trans.get(i).getTranscript()));
-        realm.commitTransaction();*/
         for (RealmComic comic : trans)
             this.resultsTranscript.add(comic.getComicNumber());
         realm.close();

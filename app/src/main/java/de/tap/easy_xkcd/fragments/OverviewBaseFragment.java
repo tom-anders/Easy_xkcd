@@ -16,10 +16,7 @@ import android.view.View;
 
 import com.tap.xkcd_reader.R;
 
-import java.io.BufferedReader;
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
 import java.util.Arrays;
 
 import de.tap.easy_xkcd.Activities.MainActivity;
@@ -174,87 +171,10 @@ public abstract class OverviewBaseFragment extends android.support.v4.app.Fragme
         }
     }
 
-    public abstract class updateDatabase extends AsyncTask<Void, Integer, Void> {
-        private ProgressDialog progress;
 
-        @Override
-        protected void onPreExecute() {
-            progress = new ProgressDialog(getActivity());
-            progress.setTitle(getActivity().getResources().getString(R.string.update_database));
-            progress.setIndeterminate(false);
-            progress.setProgressStyle(ProgressDialog.STYLE_HORIZONTAL);
-            progress.setCancelable(false);
-            progress.show();
-        }
 
-        @Override
-        protected Void doInBackground(Void... params) {
-            Realm realm = Realm.getInstance(getActivity());
-            int[] read = databaseManager.getReadComics();
-            int[] fav = databaseManager.getFavComics();
-            if (!databaseManager.databaseLoaded()) {
-                String[] titles = databaseManager.getFile(R.raw.comic_titles).split("&&");
-                String[] trans = databaseManager.getFile(R.raw.comic_trans).split("&&");
-                String[] urls = databaseManager.getFile(R.raw.comic_urls).split("&&");
-                realm.beginTransaction();
-                for (int i = 0; i < 1645; i++) {
-                    RealmComic comic = realm.createObject(RealmComic.class);
-                    comic.setComicNumber(i + 1);
-                    comic.setTitle(titles[i]);
-                    comic.setTranscript(trans[i]);
-                    comic.setUrl(urls[i]);
-                    comic.setRead(Arrays.binarySearch(read, i + 1) >= 0);
-                    comic.setFavorite(Arrays.binarySearch(fav, i + 1) >= 0);
-                }
-                realm.commitTransaction();
-                databaseManager.setHighestDatabase(1645);
-            }
-            if (prefHelper.isOnline(getActivity())) {
-                int newest;
-                try {
-                    Comic comic = new Comic(0);
-                    newest = comic.getComicNumber();
-                } catch (IOException e) {
-                    newest = prefHelper.getNewest();
-                }
-                realm.beginTransaction();
-                int highest = databaseManager.getHighestInDatabase() + 1;
-                for (int i = highest; i <= newest; i++) {
-                    try {
-                        Comic comic = new Comic(i);
-                        RealmComic realmComic = realm.createObject(RealmComic.class);
-                        realmComic.setComicNumber(i);
-                        realmComic.setTitle(comic.getComicData()[0]);
-                        realmComic.setTranscript(comic.getTranscript());
-                        realmComic.setUrl(comic.getComicData()[2]);
-                        realmComic.setRead(Arrays.binarySearch(read, i) >= 0);
-                        realmComic.setFavorite(Arrays.binarySearch(fav, i + 1) >= 0);
-                        float x = newest - highest;
-                        int y = i - highest;
-                        int p = (int) ((y / x) * 100);
-                        publishProgress(p);
-                    } catch (IOException e) {
-                        Log.d("error at " + i, e.getMessage());
-                    }
-                }
-
-                realm.commitTransaction();
-                databaseManager.setHighestDatabase(newest);
-            }
-            databaseManager.setDatabaseLoaded(true);
-            realm.close();
-            return null;
-        }
-
-        protected void onProgressUpdate(Integer... pro) {
-            progress.setProgress(pro[0]);
-        }
-
-        @Override
-        protected void onPostExecute(Void dummy) {
-            progress.dismiss();
-            animateToolbar();
-        }
+    public void updateDatabasePostExecute() {
+        animateToolbar();
     }
 
 }
