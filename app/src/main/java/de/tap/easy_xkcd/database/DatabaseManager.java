@@ -18,7 +18,6 @@ import java.util.Arrays;
 import de.tap.easy_xkcd.Activities.SearchResultsActivity;
 import de.tap.easy_xkcd.fragments.OverviewBaseFragment;
 import de.tap.easy_xkcd.utils.Comic;
-import de.tap.easy_xkcd.utils.Favorites;
 import de.tap.easy_xkcd.utils.PrefHelper;
 import io.realm.Realm;
 import io.realm.RealmResults;
@@ -30,6 +29,8 @@ public class DatabaseManager {
     private static final String REALM_DATABASE_LOADED = "pref_realm_database_loaded";
     private static final String COMIC_READ = "comic_read";
     private static final String HIGHEST_DATABASE = "highest_database";
+    private static final String FAVORITES_MOVED = "fav_moved";
+    private static final String FAVORITES = "favorites";
 
 
     public DatabaseManager(Context context) {
@@ -37,33 +38,21 @@ public class DatabaseManager {
         realm = Realm.getInstance(context);
     }
 
-    public int getHighestInDatabase() {
-        return getSharedPrefs().getInt(HIGHEST_DATABASE, 1);
+    private SharedPreferences getSharedPrefs() {
+        return context.getSharedPreferences("MainActivity", Activity.MODE_PRIVATE);
     }
 
-    public void setHighestInDatabase(int i) {
-        getSharedPrefs().edit().putInt(HIGHEST_DATABASE, i).apply();
-    }
+    /////////////////////// FAVORITES /////////////////////////////////////////
 
-    public boolean databaseLoaded() {
-        return getSharedPrefs().getBoolean(REALM_DATABASE_LOADED, false);
-    }
-
-    public void setDatabaseLoaded(boolean loaded) {
-        getSharedPrefs().edit().putBoolean(REALM_DATABASE_LOADED, loaded).apply();
-    }
-
-    public int[] getReadComics() {
-        String[] r = getSharedPrefs().getString(COMIC_READ, "").split(",");
-        int[] read = new int[r.length];
-        for (int i = 0; i < r.length; i++)
-            read[i] = Integer.parseInt(r[i]);
-        Arrays.sort(read);
-        return read;
+    public boolean noFavorites() {
+        return getSharedPrefs().getString(FAVORITES, null) == null;
     }
 
     public int[] getFavComics() {
-        String[] f = Favorites.getFavoriteList(context);
+        String fs = getSharedPrefs().getString(FAVORITES, null);
+        if (fs == null)
+            return null;
+        String[] f = fs.split(",");
         int[] fav = new int[f.length];
         for (int i = 0; i < f.length; i++)
             fav[i] = Integer.parseInt(f[i]);
@@ -71,13 +60,67 @@ public class DatabaseManager {
         return fav;
     }
 
-    public void setFavorite(int fav, boolean isFav) {
-        realm.beginTransaction();
-        RealmComic comic = realm.where(RealmComic.class).equalTo("comicNumber", fav).findFirst();
-        comic.setFavorite(isFav);
-        realm.copyToRealmOrUpdate(comic);
-        realm.commitTransaction();
+    public boolean checkFavorite(int fav) {
+        return getFavComics() != null && Arrays.binarySearch(getFavComics(), fav) >= 0;
     }
+
+    public void setFavorite(int fav, boolean isFav) {
+        if (fav <= getHighestInDatabase()) {
+            realm.beginTransaction();
+            RealmComic comic = realm.where(RealmComic.class).equalTo("comicNumber", fav).findFirst();
+            comic.setFavorite(isFav);
+            realm.copyToRealmOrUpdate(comic);
+            realm.commitTransaction();
+        }
+        if (isFav)
+            addFavorite(fav);
+        else
+            removeFavorite(fav);
+    }
+
+    private void addFavorite(int fav) {
+        String favorites = getSharedPrefs().getString(FAVORITES, null);
+        if (favorites == null)
+            favorites = String.valueOf(fav);
+        else
+            favorites += "," + String.valueOf(fav);
+        getSharedPrefs().edit().putString(FAVORITES, favorites).apply();
+    }
+
+    private void removeFavorite(int favToRemove) {
+        int[] old = getFavComics();
+
+        int a = Arrays.binarySearch(old, favToRemove);
+        int[] out = new int[old.length - 1];
+        if (out.length != 0 && a >= 0) {
+            System.arraycopy(old, 0, out, 0, a);
+            System.arraycopy(old, a + 1, out, a, out.length - a);
+            StringBuilder sb = new StringBuilder();
+            sb.append(out[0]);
+            for (int i = 1; i < out.length; i++) {
+                sb.append(",");
+                sb.append(out[i]);
+            }
+            getSharedPrefs().edit().putString(FAVORITES, sb.toString()).apply();
+        } else {
+            getSharedPrefs().edit().putString(FAVORITES, null).apply();
+        }
+    }
+
+    public void removeAllFavorites() {
+        getSharedPrefs().edit().putString(FAVORITES, null).apply();
+    }
+
+    public void moveFavorites(Activity activity) {
+        //Move the favorites list so that it can be accessed outside of MainActivity
+        if (!getSharedPrefs().getBoolean(FAVORITES_MOVED, false)) {
+            String fav = activity.getPreferences(Activity.MODE_PRIVATE).getString("favorites", null);
+            getSharedPrefs().edit().putString(FAVORITES, fav).putBoolean(FAVORITES_MOVED, true).apply();
+            Log.d("prefHelper", "moved favorites");
+        }
+    }
+
+    ///////////////// READ COMICS //////////////////////////////////////////
 
     public void setRead(int number, boolean isRead) {
         if (number <= getHighestInDatabase()) {
@@ -97,6 +140,15 @@ public class DatabaseManager {
         }
     }
 
+    public int[] getReadComics() {
+        String[] r = getSharedPrefs().getString(COMIC_READ, "").split(",");
+        int[] read = new int[r.length];
+        for (int i = 0; i < r.length; i++)
+            read[i] = Integer.parseInt(r[i]);
+        Arrays.sort(read);
+        return read;
+    }
+
     public int getNextUnread(int number, RealmResults<RealmComic> comics) {
         RealmComic comic;
         try {
@@ -113,20 +165,7 @@ public class DatabaseManager {
         return comic.getComicNumber();
     }
 
-    public String getFile(int rawId) {
-        InputStream is = context.getResources().openRawResource(rawId);
-        BufferedReader br = new BufferedReader(new InputStreamReader(is));
-        StringBuilder sb = new StringBuilder();
-        String line;
-        try {
-            while ((line = br.readLine()) != null) {
-                sb.append(line);
-            }
-        } catch (IOException e) {
-            Log.e("error:", e.getMessage());
-        }
-        return sb.toString();
-    }
+    //////////////// COMIC DATABASE //////////////////////////////////////////
 
     public class updateComicDatabase extends AsyncTask<Void, Integer, Void> {
         private ProgressDialog progress;
@@ -208,6 +247,21 @@ public class DatabaseManager {
             return null;
         }
 
+        private String getFile(int rawId) {
+            InputStream is = context.getResources().openRawResource(rawId);
+            BufferedReader br = new BufferedReader(new InputStreamReader(is));
+            StringBuilder sb = new StringBuilder();
+            String line;
+            try {
+                while ((line = br.readLine()) != null) {
+                    sb.append(line);
+                }
+            } catch (IOException e) {
+                Log.e("error:", e.getMessage());
+            }
+            return sb.toString();
+        }
+
         protected void onProgressUpdate(Integer... pro) {
             progress.setProgress(pro[0]);
         }
@@ -222,7 +276,19 @@ public class DatabaseManager {
         }
     }
 
-    private SharedPreferences getSharedPrefs() {
-        return context.getSharedPreferences("MainActivity", Activity.MODE_PRIVATE);
+    public int getHighestInDatabase() {
+        return getSharedPrefs().getInt(HIGHEST_DATABASE, 1);
+    }
+
+    public void setHighestInDatabase(int i) {
+        getSharedPrefs().edit().putInt(HIGHEST_DATABASE, i).apply();
+    }
+
+    public boolean databaseLoaded() {
+        return getSharedPrefs().getBoolean(REALM_DATABASE_LOADED, false);
+    }
+
+    public void setDatabaseLoaded(boolean loaded) {
+        getSharedPrefs().edit().putBoolean(REALM_DATABASE_LOADED, loaded).apply();
     }
 }

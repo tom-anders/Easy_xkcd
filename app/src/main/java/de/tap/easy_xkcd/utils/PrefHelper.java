@@ -43,6 +43,7 @@ import java.util.HashSet;
 import java.util.List;
 
 import de.tap.easy_xkcd.Activities.NestedSettingsActivity;
+import de.tap.easy_xkcd.database.DatabaseManager;
 
 public class PrefHelper {
     private SharedPreferences sharedPrefs;
@@ -114,7 +115,6 @@ public class PrefHelper {
     private static final String BOOKMARK = "bookmark";
     private static final String WHAT_IF_SUNBEAM_LOADED = "sun_beam";
     private static final String LAUNCH_TO_OVERVIEW = "pref_overview_default";
-    private static final String FAVORITES_MOVED = "fav_moved";
 
 
     public PrefHelper(Context context) {
@@ -206,10 +206,10 @@ public class PrefHelper {
         return sharedPrefs.getInt(NEWEST_COMIC, 0);
     }
 
-    public void deleteTitleAndAlt(int newest, Activity activity) {
+    public void deleteTitleAndAlt(int newest, DatabaseManager databaseManager) {
         SharedPreferences.Editor editor = sharedPrefs.edit();
         for (int i = 1; i <= newest; i++) {
-            if (!Favorites.checkFavorite(activity, i)) {
+            if (databaseManager.checkFavorite(i)) {
                 editor.putString(OFFLINE_TITLE, "");
                 editor.putString(OFFLINE_ALT, "");
             }
@@ -373,11 +373,12 @@ public class PrefHelper {
         if (read.equals("")) {
             return false;
         }
-        String[] readList = Favorites.sortArray(read.split(","));
+        String[] readList = read.split(",");
         int[] readInt = new int[readList.length];
-        for (int i = 0; i < readInt.length; i++) {
+        for (int i = 0; i < readInt.length; i++)
             readInt[i] = Integer.parseInt(readList[i]);
-        }
+        Arrays.sort(readInt);
+
         int a = Arrays.binarySearch(readInt, number);
         return (a >= 0);
     }
@@ -422,22 +423,23 @@ public class PrefHelper {
         if (fav.equals("")) {
             return false;
         }
-        String[] favList = Favorites.sortArray(fav.split(","));
+        String[] favList = fav.split(",");
         int[] favInt = new int[favList.length];
-        for (int i = 0; i < favInt.length; i++) {
+        for (int i = 0; i < favInt.length; i++)
             favInt[i] = Integer.parseInt(favList[i]);
-        }
+        Arrays.sort(favInt);
+
         int a = Arrays.binarySearch(favInt, number);
         return (a >= 0);
     }
 
     public void removeWhatifFav(int number) {
         String[] old = sharedPrefs.getString(WHATIF_FAV, "").split(",");
-        old = Favorites.sortArray(old);
         int[] oldInt = new int[old.length];
-        for (int i = 0; i < old.length; i++) {
+        for (int i = 0; i < old.length; i++)
             oldInt[i] = Integer.parseInt(old[i]);
-        }
+        Arrays.sort(oldInt);
+
         int a = Arrays.binarySearch(oldInt, number);
         String[] out = new String[old.length - 1];
         if (out.length != 0 && a >= 0) {
@@ -873,14 +875,6 @@ public class PrefHelper {
         return prefs.getBoolean(LAUNCH_TO_OVERVIEW, false);
     }
 
-    public void moveFavorites(Activity activity) {
-        //Move the favorites list so that it can be accessed outside of MainActivity
-        if (!sharedPrefs.getBoolean(FAVORITES_MOVED,false)) {
-            String fav = activity.getPreferences(Activity.MODE_PRIVATE).getString("favorites", null);
-            sharedPrefs.edit().putString("favorites", fav).putBoolean(FAVORITES_MOVED, true).apply();
-            Log.d("prefHelper", "moved favorites");
-        }
-    }
 
 }
 

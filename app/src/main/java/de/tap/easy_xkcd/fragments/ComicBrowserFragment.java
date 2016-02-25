@@ -18,7 +18,6 @@ import android.support.design.widget.Snackbar;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.view.ViewPager;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.View;
@@ -46,12 +45,9 @@ import java.io.IOException;
 import java.util.Arrays;
 
 import de.tap.easy_xkcd.Activities.MainActivity;
-import de.tap.easy_xkcd.database.DatabaseManager;
 import de.tap.easy_xkcd.database.RealmComic;
 import de.tap.easy_xkcd.utils.Comic;
-import de.tap.easy_xkcd.utils.Favorites;
 import de.tap.easy_xkcd.utils.JsonParser;
-import io.realm.Realm;
 import io.realm.RealmResults;
 import uk.co.senab.photoview.PhotoView;
 
@@ -337,7 +333,7 @@ public class ComicBrowserFragment extends ComicFragment {
             Toast.makeText(getActivity(), R.string.no_connection, Toast.LENGTH_SHORT).show();
             return true;
         }
-        if (Favorites.checkFavorite(getActivity(), lastComicNumber)) {
+        if (databaseManager.checkFavorite(lastComicNumber)) {
             new DeleteComicImageTask().execute(true);
             item.setIcon(R.drawable.ic_favorite_outline);
         } else {

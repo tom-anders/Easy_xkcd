@@ -10,7 +10,6 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.BitmapFactory;
-import android.graphics.Color;
 import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
@@ -38,14 +37,13 @@ import com.turhanoz.android.reactivedirectorychooser.ui.DirectoryChooserFragment
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
-import java.io.StreamCorruptedException;
 
 import de.tap.easy_xkcd.Activities.MainActivity;
 import de.tap.easy_xkcd.Activities.NestedSettingsActivity;
+import de.tap.easy_xkcd.database.DatabaseManager;
 import de.tap.easy_xkcd.services.ArticleDownloadService;
 import de.tap.easy_xkcd.services.ComicDownloadService;
 import de.tap.easy_xkcd.utils.Comic;
-import de.tap.easy_xkcd.utils.Favorites;
 import de.tap.easy_xkcd.utils.PrefHelper;
 import de.tap.easy_xkcd.utils.ThemePrefs;
 import okhttp3.OkHttpClient;
@@ -576,8 +574,9 @@ public class NestedPreferenceFragment extends PreferenceFragment {
         protected Void doInBackground(Void... params) {
             int newest = prefHelper.getNewest();
             if (!BuildConfig.DEBUG) {
+                DatabaseManager databaseManager = new DatabaseManager(getActivity());
                 for (int i = 1; i <= newest; i++) {
-                    if (!Favorites.checkFavorite(getActivity(), i)) {
+                    if (databaseManager.checkFavorite(i)) {
                         //delete from internal storage
                         getActivity().deleteFile(String.valueOf(i));
                         //delete from external storage
@@ -590,7 +589,7 @@ public class NestedPreferenceFragment extends PreferenceFragment {
                         publishProgress(p);
                     }
                 }
-                prefHelper.deleteTitleAndAlt(newest, getActivity());
+                prefHelper.deleteTitleAndAlt(newest, databaseManager);
             }
             prefHelper.setHighestOffline(0);
             prefHelper.setFullOffline(false);

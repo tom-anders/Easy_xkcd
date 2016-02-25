@@ -44,7 +44,6 @@ import de.tap.easy_xkcd.CustomTabHelpers.CustomTabActivityHelper;
 import de.tap.easy_xkcd.database.DatabaseManager;
 import de.tap.easy_xkcd.misc.HackyViewPager;
 import de.tap.easy_xkcd.utils.Comic;
-import de.tap.easy_xkcd.utils.Favorites;
 import de.tap.easy_xkcd.utils.PrefHelper;
 import de.tap.easy_xkcd.utils.ThemePrefs;
 import uk.co.senab.photoview.PhotoView;
@@ -274,14 +273,14 @@ public abstract class ComicFragment extends android.support.v4.app.Fragment {
                             .into(-1, -1)
                             .get();
                 } catch (Exception e) {
-                    Favorites.removeFavoriteItem(getActivity(), String.valueOf(mAddedNumber));
+                    databaseManager.setFavorite(mAddedNumber, false);
                     Log.e("Saving Image failed!", e.toString());
                 }
                 prefHelper.addTitle(mAddedComic.getComicData()[0], mAddedNumber);
                 prefHelper.addAlt(mAddedComic.getComicData()[1], mAddedNumber);
             }
 
-            Favorites.addFavoriteItem(getActivity(), String.valueOf(mAddedNumber));
+            databaseManager.setFavorite(mAddedNumber, true);
             return null;
         }
 
@@ -327,7 +326,7 @@ public abstract class ComicFragment extends android.support.v4.app.Fragment {
                     new SaveComicImageTask().execute(deleteImage[0]);
                 }
             };
-            Favorites.removeFavoriteItem(getActivity(), String.valueOf(mRemovedNumber));
+            databaseManager.setFavorite(mRemovedNumber, false);
             Snackbar.make(((MainActivity) getActivity()).getFab(), R.string.snackbar_remove, Snackbar.LENGTH_LONG)
                     .setAction(R.string.snackbar_undo, oc)
                     .show();
@@ -540,7 +539,7 @@ public abstract class ComicFragment extends android.support.v4.app.Fragment {
     public void onPrepareOptionsMenu(Menu menu) {
         //Update the favorites icon
         MenuItem fav = menu.findItem(R.id.action_favorite);
-        if (Favorites.checkFavorite(getActivity(), lastComicNumber)) {
+        if (databaseManager.checkFavorite(lastComicNumber)) {
             fav.setIcon(R.drawable.ic_action_favorite);
             fav.setTitle(R.string.action_favorite_remove);
         } else {

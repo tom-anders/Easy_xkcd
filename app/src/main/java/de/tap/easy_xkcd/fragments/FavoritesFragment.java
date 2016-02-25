@@ -58,7 +58,6 @@ import java.util.Stack;
 import de.tap.easy_xkcd.Activities.CustomFilePickerActivity;
 import de.tap.easy_xkcd.Activities.MainActivity;
 import de.tap.easy_xkcd.utils.Comic;
-import de.tap.easy_xkcd.utils.Favorites;
 import de.tap.easy_xkcd.utils.OfflineComic;
 import uk.co.senab.photoview.PhotoView;
 
@@ -111,13 +110,10 @@ public class FavoritesFragment extends ComicFragment {
     public class updateFavorites extends AsyncTask<Integer, Integer, Void> {
         @Override
         protected Void doInBackground(Integer... pos) {
-            String[] fav = Favorites.getFavoriteList(getActivity());
-            favorites = new int[fav.length];
-
-            for (int i = 0; i < favorites.length; i++) {
-                favorites[i] = Integer.parseInt(fav[i]);
+            favorites = databaseManager.getFavComics();
+            for (int i = 0; i < favorites.length; i++)
                 comicMap.put(i, new OfflineComic(favorites[i], getActivity()));
-            }
+
             return null;
         }
 
@@ -238,7 +234,7 @@ public class FavoritesFragment extends ComicFragment {
                 int number = Integer.parseInt(numberTitle[0]);
                 if (Arrays.binarySearch(favorites, number) < 0) {
                     newFavorites.push(number);
-                    Favorites.addFavoriteItem(getActivity(), String.valueOf(number));
+                    databaseManager.setFavorite(number, true);
                     if (number <= ((MainActivity) getActivity()).getDatabaseManager().getHighestInDatabase())
                         ((MainActivity) getActivity()).getDatabaseManager().setFavorite(number,true);
                 }
@@ -342,16 +338,16 @@ public class FavoritesFragment extends ComicFragment {
                 .setMessage(R.string.delete_favorites_dialog)
                 .setPositiveButton(R.string.dialog_yes, new DialogInterface.OnClickListener() {
                     public void onClick(DialogInterface dialog, int which) {
-                        final String[] fav = Favorites.getFavoriteList(getActivity());
 
-                        Favorites.putStringInPreferences(getActivity(), null, "favorites");
+                        final int[] fav = databaseManager.getFavComics();
+                        databaseManager.removeAllFavorites();
 
                         MenuItem mBrowser = ((MainActivity) getActivity()).getNavView().getMenu().findItem(R.id.nav_browser);
                         ((MainActivity) getActivity()).selectDrawerItem(mBrowser, false);
 
                         if (!prefHelper.fullOfflineEnabled())
-                            for (String i : fav)
-                                getActivity().deleteFile(i);
+                            for (int i : fav)
+                                getActivity().deleteFile(String.valueOf(i));
 
                         Toast toast = Toast.makeText(getActivity(), R.string.favorites_cleared, Toast.LENGTH_SHORT);
                         toast.show();
@@ -375,7 +371,7 @@ public class FavoritesFragment extends ComicFragment {
             if (!MainActivity.fullOffline)
                 getActivity().deleteFile(String.valueOf(pos[0]));
 
-            Favorites.removeFavoriteItem(getActivity(), String.valueOf(pos[0]));
+            databaseManager.setFavorite(pos[0], false);
             return null;
         }
 
@@ -383,8 +379,7 @@ public class FavoritesFragment extends ComicFragment {
         protected void onPostExecute(Void v) {
             if (number <= ((MainActivity) getActivity()).getDatabaseManager().getHighestInDatabase())
                 ((MainActivity) getActivity()).getDatabaseManager().setFavorite(number, false);
-            String[] fav = Favorites.getFavoriteList(getActivity());
-            if (fav.length == 0) {
+            if (databaseManager.noFavorites()) {
                 //If there are no favorites left, show ComicBrowserFragment
                 MenuItem mBrowser = ((MainActivity) getActivity()).getNavView().getMenu().findItem(R.id.nav_browser);
                 ((MainActivity) getActivity()).selectDrawerItem(mBrowser, false);
@@ -405,7 +400,7 @@ public class FavoritesFragment extends ComicFragment {
         View.OnClickListener oc = new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Favorites.addFavoriteItem(getActivity(), String.valueOf(mRemoved));
+                databaseManager.setFavorite(mRemoved, true);
                 if (mRemoved <= ((MainActivity) getActivity()).getDatabaseManager().getHighestInDatabase())
                     ((MainActivity) getActivity()).getDatabaseManager().setFavorite(mRemoved,true);
                 saveComic(mRemoved, mRemovedBitmap);
@@ -481,11 +476,10 @@ public class FavoritesFragment extends ComicFragment {
     public void refresh() {
         //Updates favorite list, pager and alt TextView
         comicMap.clear();
-        String[] fav = Favorites.getFavoriteList(this.getActivity());
-        if (fav.length != 0) {
-            if (favoriteIndex == fav.length) {
+        if (!databaseManager.noFavorites()) {
+            if (favoriteIndex == databaseManager.getFavComics().length)
                 favoriteIndex--;
-            }
+
             new updateFavorites().execute();
         }
     }

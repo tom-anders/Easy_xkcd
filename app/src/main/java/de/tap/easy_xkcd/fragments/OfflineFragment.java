@@ -4,7 +4,6 @@ import android.app.AlertDialog;
 import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.DialogInterface;
-import android.graphics.Bitmap;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
@@ -20,10 +19,7 @@ import android.view.animation.AnimationUtils;
 import android.widget.TextView;
 
 import com.bumptech.glide.Glide;
-import com.bumptech.glide.load.resource.drawable.GlideDrawable;
-import com.bumptech.glide.request.RequestListener;
 import com.bumptech.glide.request.target.GlideDrawableImageViewTarget;
-import com.bumptech.glide.request.target.Target;
 import com.kogitune.activity_transition.ActivityTransition;
 import com.tap.xkcd_reader.R;
 
@@ -34,7 +30,6 @@ import java.util.Arrays;
 
 import de.tap.easy_xkcd.Activities.MainActivity;
 import de.tap.easy_xkcd.utils.Comic;
-import de.tap.easy_xkcd.utils.Favorites;
 import de.tap.easy_xkcd.utils.OfflineComic;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
@@ -275,7 +270,7 @@ public class OfflineFragment extends ComicFragment {
      ************************/
 
     private boolean ModifyFavorites(MenuItem item) {
-        if (Favorites.checkFavorite(getActivity(), lastComicNumber)) {
+        if (databaseManager.checkFavorite(lastComicNumber)) {
             new DeleteComicImageTask().execute(false);
             item.setIcon(R.drawable.ic_favorite_outline);
         } else {

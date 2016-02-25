@@ -73,7 +73,6 @@ import de.tap.easy_xkcd.fragments.OverviewListFragment;
 import de.tap.easy_xkcd.fragments.WhatIfFragment;
 import de.tap.easy_xkcd.fragments.WhatIfOverviewFragment;
 import de.tap.easy_xkcd.notifications.ComicListener;
-import de.tap.easy_xkcd.utils.Favorites;
 import de.tap.easy_xkcd.utils.PrefHelper;
 import de.tap.easy_xkcd.utils.ThemePrefs;
 
@@ -113,13 +112,13 @@ public class MainActivity extends BaseActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        prefHelper.moveFavorites(this);
         setContentView(R.layout.activity_main);
         ButterKnife.bind(this);
         PreferenceManager.setDefaultValues(this, R.xml.pref_alt_sharing, false);
 
         customTabActivityHelper = new CustomTabActivityHelper();
         databaseManager = new DatabaseManager(this);
+        databaseManager.moveFavorites(this);
 
         if (savedInstanceState == null) {
             if (prefHelper.getNotificationInterval() != 0) {
@@ -211,7 +210,7 @@ public class MainActivity extends BaseActivity {
                         }
                     })
                     .setCancelable(false);
-            if (Favorites.getFavoriteList(this).length != 0) {
+            if (!databaseManager.noFavorites()) {
                 mDialog.setNegativeButton(R.string.no_connection_favorites, new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
@@ -234,7 +233,7 @@ public class MainActivity extends BaseActivity {
             if (!prefHelper.overviewFav())
                 overviewBaseFragment.showRandomComic(comicFragment.newestComicNumber - prefHelper.getRandomNumber(comicFragment.lastComicNumber));
             else
-                overviewBaseFragment.showComic(new Random().nextInt(Favorites.getFavoriteList(MainActivity.this).length));
+                overviewBaseFragment.showComic(new Random().nextInt(databaseManager.getFavComics().length));
         } else {
             switch (currentFragment) {
                 case R.id.nav_browser: {
@@ -298,7 +297,7 @@ public class MainActivity extends BaseActivity {
                 break;
             case R.id.nav_favorites:
                 //Check if there are any Favorites
-                if (Favorites.getFavoriteList(this).length == 0) {
+                if (databaseManager.noFavorites()) {
                     showDrawerErrorToast(R.string.no_favorites);
                     return;
                 }
