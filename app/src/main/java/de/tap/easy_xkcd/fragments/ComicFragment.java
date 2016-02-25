@@ -192,16 +192,16 @@ public abstract class ComicFragment extends android.support.v4.app.Fragment {
         }
 
         protected int getGifId(int position) {
-            int gifId = 0;
             switch (position + 1) {
                 case 961:
-                    gifId = R.raw.eternal_flame;
-                    break;
+                    return R.raw.eternal_flame;
                 case 1116:
-                    gifId = R.raw.traffic_lights;
-                    break;
+                    return R.raw.traffic_lights;
+                case 1264:
+                    return R.raw.slideshow;
+                default:
+                    return 0;
             }
-            return gifId;
         }
 
         @Override
