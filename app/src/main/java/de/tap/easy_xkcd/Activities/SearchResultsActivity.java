@@ -111,7 +111,7 @@ public class SearchResultsActivity extends BaseActivity {
         mProgress = ProgressDialog.show(this, "", getResources().getString(R.string.loading_results), true);
 
         if (savedInstanceState == null) {
-            databaseManager.new updateDatabase(this, null, prefHelper).execute();
+            databaseManager.new updateComicDatabase(this, null, prefHelper).execute();
         } else {
             task = new searchTask();
             task.execute(query);

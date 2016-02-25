@@ -37,10 +37,6 @@ public class DatabaseManager {
         realm = Realm.getInstance(context);
     }
 
-    private SharedPreferences getSharedPrefs() {
-        return context.getSharedPreferences("MainActivity", Activity.MODE_PRIVATE);
-    }
-
     public int getHighestInDatabase() {
         return getSharedPrefs().getInt(HIGHEST_DATABASE, 1);
     }
@@ -132,13 +128,13 @@ public class DatabaseManager {
         return sb.toString();
     }
 
-    public class updateDatabase extends AsyncTask<Void, Integer, Void> {
+    public class updateComicDatabase extends AsyncTask<Void, Integer, Void> {
         private ProgressDialog progress;
         private SearchResultsActivity activity;
         private OverviewBaseFragment fragment;
         private PrefHelper prefHelper;
 
-        public updateDatabase(SearchResultsActivity activity, OverviewBaseFragment fragment, PrefHelper prefHelper) {
+        public updateComicDatabase(SearchResultsActivity activity, OverviewBaseFragment fragment, PrefHelper prefHelper) {
             this.activity = activity;
             this.fragment = fragment;
             this.prefHelper = prefHelper;
@@ -226,4 +222,7 @@ public class DatabaseManager {
         }
     }
 
+    private SharedPreferences getSharedPrefs() {
+        return context.getSharedPreferences("MainActivity", Activity.MODE_PRIVATE);
+    }
 }

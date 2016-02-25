@@ -1,15 +1,11 @@
 package de.tap.easy_xkcd.fragments;
 
 import android.content.Context;
-import android.content.DialogInterface;
 import android.os.Bundle;
-import android.os.Handler;
 import android.support.v4.content.ContextCompat;
-import android.support.v7.widget.Toolbar;
 import android.util.TypedValue;
 import android.view.LayoutInflater;
 import android.view.Menu;
-import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
@@ -21,11 +17,7 @@ import android.widget.Toast;
 
 import com.tap.xkcd_reader.R;
 
-import java.util.Arrays;
-
-import de.tap.easy_xkcd.Activities.MainActivity;
 import de.tap.easy_xkcd.database.RealmComic;
-import de.tap.easy_xkcd.utils.Favorites;
 
 public class OverviewListFragment extends OverviewBaseFragment {
     private ListAdapter listAdapter;
@@ -39,7 +31,7 @@ public class OverviewListFragment extends OverviewBaseFragment {
         list.setFastScrollEnabled(true);
 
         if (savedInstanceState == null) {
-            databaseManager.new updateDatabase (null, this, prefHelper).execute();
+            databaseManager.new updateComicDatabase(null, this, prefHelper).execute();
         } else {
             listAdapter = new ListAdapter();
             list.setAdapter(listAdapter);

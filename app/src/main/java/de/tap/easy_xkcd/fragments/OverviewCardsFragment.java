@@ -48,7 +48,7 @@ public class OverviewCardsFragment extends OverviewBaseFragment {
 
         if (savedInstanceState == null) {
 
-            databaseManager.new updateDatabase(null, this, prefHelper).execute();
+            databaseManager.new updateComicDatabase(null, this, prefHelper).execute();
         } else {
             rvAdapter = new RVAdapter();
             rv.setAdapter(rvAdapter);

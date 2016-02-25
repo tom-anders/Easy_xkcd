@@ -367,7 +367,9 @@ public class WhatIfFragment extends android.support.v4.app.Fragment {
                 case "Fire From Moonlight":
                     id = R.mipmap.rabbit;
                     break;
-
+                case "Stop Jupiter":
+                    id = R.mipmap.burlap;
+                    break;
             }
             if (id != 0) {
                 comicViewHolder.thumbnail.setImageDrawable(ContextCompat.getDrawable(getActivity(), id));
