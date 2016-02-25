@@ -5,9 +5,6 @@ import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.graphics.Bitmap;
-import android.graphics.ColorFilter;
-import android.graphics.ColorMatrixColorFilter;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -41,19 +38,17 @@ import org.jsoup.select.Elements;
 
 import java.io.BufferedWriter;
 import java.io.File;
-import java.io.FileOutputStream;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Random;
 
-
 import butterknife.Bind;
 import butterknife.ButterKnife;
-import de.tap.easy_xkcd.utils.PrefHelper;
 import de.tap.easy_xkcd.Activities.MainActivity;
 import de.tap.easy_xkcd.Activities.WhatIfActivity;
+import de.tap.easy_xkcd.utils.PrefHelper;
 import de.tap.easy_xkcd.utils.ThemePrefs;
 import jp.wasabeef.recyclerview.animators.adapters.SlideInBottomAnimationAdapter;
 import okhttp3.OkHttpClient;
@@ -103,6 +98,7 @@ public class WhatIfFragment extends android.support.v4.app.Fragment {
         return v;
     }
 
+    //TODO saveToRealm
     private class UpdateArticles extends AsyncTask<Void, Void, Void> {
         private ProgressDialog progress;
         private boolean showProgress;
@@ -390,16 +386,9 @@ public class WhatIfFragment extends android.support.v4.app.Fragment {
                         .load(imgs.get(i))
                         .into(comicViewHolder.thumbnail);
             }
-            if (themePrefs.invertColors()) {
-                float[] colorMatrix_Negative = {
-                        -1.0f, 0, 0, 0, 255, //red
-                        0, -1.0f, 0, 0, 255, //green
-                        0, 0, -1.0f, 0, 255, //blue
-                        0, 0, 0, 1.0f, 0 //alpha
-                };
-                ColorFilter cf = new ColorMatrixColorFilter(colorMatrix_Negative);
-                comicViewHolder.thumbnail.setColorFilter(cf);
-            }
+            if (themePrefs.invertColors())
+                comicViewHolder.thumbnail.setColorFilter(themePrefs.getNegativeColorFilter());
+
         }
 
         @Override

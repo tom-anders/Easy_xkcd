@@ -3,7 +3,6 @@ package de.tap.easy_xkcd.fragments;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
-import android.graphics.ColorMatrixColorFilter;
 import android.graphics.RectF;
 import android.net.Uri;
 import android.os.AsyncTask;
@@ -31,7 +30,6 @@ import android.widget.Toast;
 
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.load.engine.DiskCacheStrategy;
-import com.kogitune.activity_transition.ActivityTransition;
 import com.kogitune.activity_transition.ExitActivityTransition;
 import com.tap.xkcd_reader.R;
 
@@ -176,15 +174,8 @@ public abstract class ComicFragment extends android.support.v4.app.Fragment {
                 }
             });
 
-            if (themePrefs.invertColors()) {
-                float[] colorMatrix_Negative = {
-                        -1.0f, 0, 0, 0, 255, //red
-                        0, -1.0f, 0, 0, 255, //green
-                        0, 0, -1.0f, 0, 255, //blue
-                        0, 0, 0, 1.0f, 0 //alpha
-                };
-                pvComic.setColorFilter(new ColorMatrixColorFilter(colorMatrix_Negative));
-            }
+            if (themePrefs.invertColors())
+                pvComic.setColorFilter(themePrefs.getNegativeColorFilter());
 
             if (prefHelper.scrollDisabledWhileZoom() && prefHelper.defaultZoom())
                 pvComic.setOnMatrixChangeListener(new PhotoViewAttacher.OnMatrixChangedListener() {

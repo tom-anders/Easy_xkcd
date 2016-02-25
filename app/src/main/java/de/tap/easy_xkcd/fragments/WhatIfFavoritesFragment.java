@@ -4,8 +4,6 @@ import android.app.AlertDialog;
 import android.app.ProgressDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.graphics.ColorFilter;
-import android.graphics.ColorMatrixColorFilter;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -37,8 +35,8 @@ import java.util.Collections;
 import butterknife.Bind;
 import butterknife.ButterKnife;
 import de.tap.easy_xkcd.Activities.MainActivity;
-import de.tap.easy_xkcd.utils.PrefHelper;
 import de.tap.easy_xkcd.Activities.WhatIfActivity;
+import de.tap.easy_xkcd.utils.PrefHelper;
 import de.tap.easy_xkcd.utils.ThemePrefs;
 import jp.wasabeef.recyclerview.animators.adapters.SlideInBottomAnimationAdapter;
 
@@ -229,16 +227,9 @@ public class WhatIfFavoritesFragment extends android.support.v4.app.Fragment {
                         .into(comicViewHolder.thumbnail);
             }
 
-            if (themePrefs.invertColors()) {
-                float[] colorMatrix_Negative = {
-                        -1.0f, 0, 0, 0, 255, //red
-                        0, -1.0f, 0, 0, 255, //green
-                        0, 0, -1.0f, 0, 255, //blue
-                        0, 0, 0, 1.0f, 0 //alpha
-                };
-                ColorFilter cf = new ColorMatrixColorFilter(colorMatrix_Negative);
-                comicViewHolder.thumbnail.setColorFilter(cf);
-            }
+            if (themePrefs.invertColors())
+                comicViewHolder.thumbnail.setColorFilter(themePrefs.getNegativeColorFilter());
+
         }
 
         @Override

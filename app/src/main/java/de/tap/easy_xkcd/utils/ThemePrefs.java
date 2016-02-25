@@ -25,6 +25,8 @@ import android.content.Context;
 import android.content.SharedPreferences;
 import android.content.res.ColorStateList;
 import android.graphics.Color;
+import android.graphics.ColorFilter;
+import android.graphics.ColorMatrixColorFilter;
 import android.preference.PreferenceManager;
 import android.support.design.widget.NavigationView;
 import android.support.v4.content.ContextCompat;
@@ -391,6 +393,16 @@ public class ThemePrefs {
                 getColor(R.color.PrimaryDarkBlueGrey),
                 getColor(R.color.PrimaryDarkBlack)
         };
+    }
+
+    public ColorFilter getNegativeColorFilter() {
+        float[] colorMatrix_Negative = {
+                -1.0f, 0, 0, 0, 255, //red
+                0, -1.0f, 0, 0, 255, //green
+                0, 0, -1.0f, 0, 255, //blue
+                0, 0, 0, 1.0f, 0 //alpha
+        };
+        return new ColorMatrixColorFilter(colorMatrix_Negative);
     }
 
     private int getColor(int color) {

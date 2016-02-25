@@ -23,8 +23,6 @@ import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
-import android.graphics.ColorFilter;
-import android.graphics.ColorMatrixColorFilter;
 import android.graphics.drawable.BitmapDrawable;
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -55,7 +53,6 @@ import com.tap.xkcd_reader.R;
 
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 
@@ -63,7 +60,6 @@ import butterknife.Bind;
 import butterknife.ButterKnife;
 import de.tap.easy_xkcd.database.DatabaseManager;
 import de.tap.easy_xkcd.database.RealmComic;
-import de.tap.easy_xkcd.utils.Comic;
 import de.tap.easy_xkcd.fragments.ComicBrowserFragment;
 import de.tap.easy_xkcd.fragments.OfflineFragment;
 import io.realm.Case;
@@ -260,16 +256,9 @@ public class SearchResultsActivity extends BaseActivity {
                     }
                 }
             }
-            if (themePrefs.invertColors()) {
-                float[] colorMatrix_Negative = {
-                        -1.0f, 0, 0, 0, 255, //red
-                        0, -1.0f, 0, 0, 255, //green
-                        0, 0, -1.0f, 0, 255, //blue
-                        0, 0, 0, 1.0f, 0 //alpha
-                };
-                ColorFilter cf = new ColorMatrixColorFilter(colorMatrix_Negative);
-                comicViewHolder.thumbnail.setColorFilter(cf);
-            }
+            if (themePrefs.invertColors())
+                comicViewHolder.thumbnail.setColorFilter(themePrefs.getNegativeColorFilter());
+
         }
 
         @Override

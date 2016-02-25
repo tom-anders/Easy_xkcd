@@ -2,10 +2,7 @@ package de.tap.easy_xkcd.fragments;
 
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
-import android.graphics.ColorFilter;
-import android.graphics.ColorMatrixColorFilter;
 import android.os.Bundle;
-import android.os.Handler;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.widget.CardView;
 import android.support.v7.widget.LinearLayoutManager;
@@ -193,16 +190,9 @@ public class OverviewCardsFragment extends OverviewBaseFragment {
                     }
                 }
             }
-            if (themePrefs.invertColors()) {
-                float[] colorMatrix_Negative = {
-                        -1.0f, 0, 0, 0, 255, //red
-                        0, -1.0f, 0, 0, 255, //green
-                        0, 0, -1.0f, 0, 255, //blue
-                        0, 0, 0, 1.0f, 0 //alpha
-                };
-                ColorFilter cf = new ColorMatrixColorFilter(colorMatrix_Negative);
-                comicViewHolder.thumbnail.setColorFilter(cf);
-            }
+            if (themePrefs.invertColors())
+                comicViewHolder.thumbnail.setColorFilter(themePrefs.getNegativeColorFilter());
+
         }
 
         @Override
