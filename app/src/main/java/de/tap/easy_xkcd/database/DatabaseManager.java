@@ -9,26 +9,46 @@ import android.util.Log;
 
 import com.tap.xkcd_reader.R;
 
+import org.jsoup.Jsoup;
+import org.jsoup.nodes.Document;
+import org.jsoup.nodes.Element;
+import org.jsoup.select.Elements;
+
 import java.io.BufferedReader;
+import java.io.BufferedWriter;
+import java.io.File;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.util.Arrays;
 
+import de.tap.easy_xkcd.Activities.MainActivity;
 import de.tap.easy_xkcd.Activities.SearchResultsActivity;
 import de.tap.easy_xkcd.fragments.OverviewBaseFragment;
+import de.tap.easy_xkcd.fragments.WhatIfFragment;
 import de.tap.easy_xkcd.utils.Comic;
 import de.tap.easy_xkcd.utils.PrefHelper;
 import io.realm.Realm;
 import io.realm.RealmResults;
+import okhttp3.OkHttpClient;
+import okhttp3.Request;
+import okhttp3.Response;
+import okio.BufferedSink;
+import okio.Okio;
 
 public class DatabaseManager {
 
     private Context context;
     public Realm realm;
     private static final String REALM_DATABASE_LOADED = "pref_realm_database_loaded";
-    private static final String COMIC_READ = "comic_read";
     private static final String HIGHEST_DATABASE = "highest_database";
+    private static final String WHATIF_DATABASE_LOADED = "whatif_database_loaded";
+    private static final String HIGHEST_WHATIF_DATABASE = "highest_whatif_database";
+    private static final String OFFLINE_WHATIF_OVERVIEW_PATH = "/easy xkcd/what if/overview";
+    private static final String OFFLINE_WHATIF_PATH = "/easy xkcd/what if/";
+
+    private static final String COMIC_READ = "comic_read";
     private static final String FAVORITES_MOVED = "fav_moved";
     private static final String FAVORITES = "favorites";
 
@@ -205,8 +225,8 @@ public class DatabaseManager {
                     comic.setTitle(titles[i]);
                     comic.setTranscript(trans[i]);
                     comic.setUrl(urls[i]);
-                    comic.setRead(Arrays.binarySearch(read, i + 1) >= 0);
-                    comic.setFavorite(Arrays.binarySearch(fav, i + 1) >= 0);
+                    comic.setRead(read != null && Arrays.binarySearch(read, i + 1) >= 0);
+                    comic.setFavorite(fav != null && Arrays.binarySearch(fav, i + 1) >= 0);
                 }
                 realm.commitTransaction();
                 setHighestInDatabase(1645);
@@ -229,8 +249,8 @@ public class DatabaseManager {
                         realmComic.setTitle(comic.getComicData()[0]);
                         realmComic.setTranscript(comic.getTranscript());
                         realmComic.setUrl(comic.getComicData()[2]);
-                        realmComic.setRead(Arrays.binarySearch(read, i) >= 0);
-                        realmComic.setFavorite(Arrays.binarySearch(fav, i + 1) >= 0);
+                        realmComic.setRead(read != null && Arrays.binarySearch(read, i) >= 0);
+                        realmComic.setFavorite(fav != null && Arrays.binarySearch(fav, i + 1) >= 0);
                         float x = newest - highest;
                         int y = i - highest;
                         int p = (int) ((y / x) * 100);
@@ -290,5 +310,56 @@ public class DatabaseManager {
 
     public void setDatabaseLoaded(boolean loaded) {
         getSharedPrefs().edit().putBoolean(REALM_DATABASE_LOADED, loaded).apply();
+    }
+
+    ////////////////// WHAT IF DATABASE /////////////////////////
+
+    public int getHighestWhatIfInDatabase() {
+        return getSharedPrefs().getInt(HIGHEST_WHATIF_DATABASE, 1);
+    }
+
+    public void setHighestWhatIfInDatabase(int highest) {
+        getSharedPrefs().edit().putInt(HIGHEST_WHATIF_DATABASE, highest).apply();
+    }
+
+    public boolean whatIfDataBaseLoaded() {
+        return getSharedPrefs().getBoolean(WHATIF_DATABASE_LOADED, false);
+    }
+
+    public void setWhatifDatabaseLoaded(boolean value) {
+        getSharedPrefs().edit().putBoolean(WHATIF_DATABASE_LOADED, value).apply();
+    }
+
+    public void downloadWhatIfOverview() {
+        if (!whatIfDataBaseLoaded()) {
+
+        }
+    }
+
+    public int getWhatIfMissingThumbnailId(String title) {
+        switch (title) {
+            case "Jupiter Descending":
+                return R.mipmap.jupiter_descending;
+            case "Jupiter Submarine":
+                return R.mipmap.jupiter_submarine;
+            case "New Horizons":
+                return R.mipmap.new_horizons;
+            case "Proton Earth, Electron Moon":
+                return R.mipmap.proton_earth;
+            case "Sunbeam":
+                return R.mipmap.sun_beam;
+            case "Space Jetta":
+                return R.mipmap.jetta;
+            case "Europa Water Siphon":
+                return R.mipmap.straw;
+            case "Saliva Pool":
+                return R.mipmap.question;
+            case "Fire From Moonlight":
+                return R.mipmap.rabbit;
+            case "Stop Jupiter":
+                return R.mipmap.burlap;
+            default:
+                return 0;
+        }
     }
 }

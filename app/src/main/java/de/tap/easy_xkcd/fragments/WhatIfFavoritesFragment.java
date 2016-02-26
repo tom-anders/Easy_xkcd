@@ -36,6 +36,7 @@ import butterknife.Bind;
 import butterknife.ButterKnife;
 import de.tap.easy_xkcd.Activities.MainActivity;
 import de.tap.easy_xkcd.Activities.WhatIfActivity;
+import de.tap.easy_xkcd.database.DatabaseManager;
 import de.tap.easy_xkcd.utils.PrefHelper;
 import de.tap.easy_xkcd.utils.ThemePrefs;
 import jp.wasabeef.recyclerview.animators.adapters.SlideInBottomAnimationAdapter;
@@ -50,6 +51,7 @@ public class WhatIfFavoritesFragment extends android.support.v4.app.Fragment {
     private boolean fullOffline;
     private PrefHelper prefHelper;
     private ThemePrefs themePrefs;
+    private DatabaseManager databaseManager;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
@@ -58,6 +60,7 @@ public class WhatIfFavoritesFragment extends android.support.v4.app.Fragment {
         setHasOptionsMenu(true);
         prefHelper = ((MainActivity) getActivity()).getPrefHelper();
         themePrefs = ((MainActivity) getActivity()).getThemePrefs();
+        databaseManager = ((MainActivity) getActivity()).getDatabaseManager();
 
         instance = this;
         LinearLayoutManager llm = new LinearLayoutManager(getActivity());
@@ -178,39 +181,8 @@ public class WhatIfFavoritesFragment extends android.support.v4.app.Fragment {
             String title = titles.get(i);
             int n = mTitles.size() - mTitles.indexOf(title);
 
-            int id = 0;
-            switch (titles.get(i)) {
-                case "Jupiter Descending":
-                    id = R.mipmap.jupiter_descending;
-                    break;
-                case "Jupiter Submarine":
-                    id = R.mipmap.jupiter_submarine;
-                    break;
-                case "New Horizons":
-                    id = R.mipmap.new_horizons;
-                    break;
-                case "Proton Earth, Electron Moon":
-                    id = R.mipmap.proton_earth;
-                    break;
-                case "Sunbeam":
-                    id = R.mipmap.sun_beam;
-                    break;
-                case "Space Jetta":
-                    id = R.mipmap.jetta;
-                    break;
-                case "Europa Water Siphon":
-                    id = R.mipmap.straw;
-                    break;
-                case "Saliva Pool":
-                    id = R.mipmap.question;
-                    break;
-                case "Fire From Moonlight":
-                    id = R.mipmap.rabbit;
-                    break;
-                case "Stop Jupiter":
-                    id = R.mipmap.burlap;
-                    break;
-            }
+            int id = databaseManager.getWhatIfMissingThumbnailId(title);
+
             if (id != 0) {
                 comicViewHolder.thumbnail.setImageDrawable(ContextCompat.getDrawable(getActivity(), id));
                 return;
