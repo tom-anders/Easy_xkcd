@@ -119,7 +119,7 @@ public class FavoritesFragment extends ComicFragment {
 
         @Override
         protected void onPostExecute(Void v) {
-            adapter = new FavoritesPagerAdapter(getActivity());
+            adapter = new FavoritesPagerAdapter(getActivity(), 0);
             pager.setAdapter(adapter);
             pager.setCurrentItem(favoriteIndex);
 
@@ -132,8 +132,8 @@ public class FavoritesFragment extends ComicFragment {
     }
 
     private class FavoritesPagerAdapter extends ComicAdapter {
-        public FavoritesPagerAdapter(Context context) {
-            super(context);
+        public FavoritesPagerAdapter(Context context, int count) {
+            super(context, count);
         }
 
         @Override

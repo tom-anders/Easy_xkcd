@@ -70,7 +70,7 @@ public class ComicBrowserFragment extends ComicFragment {
         } else {
             newestComicNumber = prefHelper.getNewest();
             scrollViewPager();
-            adapter = new ComicBrowserPagerAdapter(getActivity());
+            adapter = new ComicBrowserPagerAdapter(getActivity(), newestComicNumber);
             pager.setAdapter(adapter);
         }
 
@@ -142,7 +142,7 @@ public class ComicBrowserFragment extends ComicFragment {
         protected void onPostExecute(Boolean showSnackbar) {
             if (updatePager) {
                 scrollViewPager();
-                adapter = new ComicBrowserPagerAdapter(getActivity());
+                adapter = new ComicBrowserPagerAdapter(getActivity(), newestComicNumber);
                 pager.setAdapter(adapter);
             }
             if (showSnackbar) {
@@ -167,13 +167,13 @@ public class ComicBrowserFragment extends ComicFragment {
 
         private RealmResults<RealmComic> comics;
 
-        public ComicBrowserPagerAdapter(Context context) {
-            super(context);
+        public ComicBrowserPagerAdapter(Context context, int count) {
+            super(context, count);
         }
 
         @Override
         public int getCount() {
-            return newestComicNumber;
+            return count;
         }
 
         @Override

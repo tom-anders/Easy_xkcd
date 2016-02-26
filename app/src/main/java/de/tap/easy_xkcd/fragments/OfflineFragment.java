@@ -55,7 +55,7 @@ public class OfflineFragment extends ComicFragment {
         } else {
             newestComicNumber = prefHelper.getHighestOffline();
             scrollViewPager();
-            adapter = new OfflineBrowserPagerAdapter(getActivity());
+            adapter = new OfflineBrowserPagerAdapter(getActivity(), newestComicNumber);
             pager.setAdapter(adapter);
         }
 
@@ -161,7 +161,7 @@ public class OfflineFragment extends ComicFragment {
             if (((MainActivity) getActivity()).getProgressDialog() != null)
                 ((MainActivity) getActivity()).getProgressDialog().dismiss();
             scrollViewPager();
-            adapter = new OfflineBrowserPagerAdapter(getActivity());
+            adapter = new OfflineBrowserPagerAdapter(getActivity(), newestComicNumber);
             pager.setAdapter(adapter);
             if (showSnackbar) {
                 View.OnClickListener oc = new View.OnClickListener() {
@@ -196,13 +196,13 @@ public class OfflineFragment extends ComicFragment {
 
     private class OfflineBrowserPagerAdapter extends ComicAdapter {
 
-        public OfflineBrowserPagerAdapter(Context context) {
-            super(context);
+        public OfflineBrowserPagerAdapter(Context context, int count) {
+            super(context, count);
         }
 
         @Override
         public int getCount() {
-            return newestComicNumber;
+            return count;
         }
 
         @Override

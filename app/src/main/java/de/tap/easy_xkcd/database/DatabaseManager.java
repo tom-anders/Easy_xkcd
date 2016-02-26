@@ -314,28 +314,6 @@ public class DatabaseManager {
 
     ////////////////// WHAT IF DATABASE /////////////////////////
 
-    public int getHighestWhatIfInDatabase() {
-        return getSharedPrefs().getInt(HIGHEST_WHATIF_DATABASE, 1);
-    }
-
-    public void setHighestWhatIfInDatabase(int highest) {
-        getSharedPrefs().edit().putInt(HIGHEST_WHATIF_DATABASE, highest).apply();
-    }
-
-    public boolean whatIfDataBaseLoaded() {
-        return getSharedPrefs().getBoolean(WHATIF_DATABASE_LOADED, false);
-    }
-
-    public void setWhatifDatabaseLoaded(boolean value) {
-        getSharedPrefs().edit().putBoolean(WHATIF_DATABASE_LOADED, value).apply();
-    }
-
-    public void downloadWhatIfOverview() {
-        if (!whatIfDataBaseLoaded()) {
-
-        }
-    }
-
     public int getWhatIfMissingThumbnailId(String title) {
         switch (title) {
             case "Jupiter Descending":

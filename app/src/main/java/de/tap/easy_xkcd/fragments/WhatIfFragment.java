@@ -190,8 +190,7 @@ public class WhatIfFragment extends android.support.v4.app.Fragment {
 
         private void downloadArticle(int i) {
             Log.d("what if", "downloading " + i);
-            if (i == 141)
-                prefHelper.setSunbeamLoaded();
+            if (i == 141) prefHelper.setSunbeamLoaded();
             Document doc;
             File sdCard = prefHelper.getOfflinePath();
             File dir;
@@ -237,19 +236,6 @@ public class WhatIfFragment extends android.support.v4.app.Fragment {
     }
 
     private class DisplayOverview extends AsyncTask<Void, Void, Void> {
-        private ProgressDialog progress;
-        private boolean showProgress;
-
-        @Override
-        protected void onPreExecute() {
-            if (showProgress) {
-                progress = new ProgressDialog(getActivity());
-                progress.setMessage(getResources().getString(R.string.loading_articles));
-                progress.setIndeterminate(true);
-                progress.setCancelable(false);
-                progress.show();
-            }
-        }
 
         @Override
         protected Void doInBackground(Void... dummy) {
@@ -280,8 +266,7 @@ public class WhatIfFragment extends android.support.v4.app.Fragment {
         protected void onPostExecute(Void dummy) {
             prefHelper.setNewestWhatif(mTitles.size());
             setupAdapter(prefHelper.hideReadWhatIf());
-            if (showProgress)
-                progress.dismiss();
+
             Toolbar toolbar = ((MainActivity) getActivity()).getToolbar();
             if (toolbar.getAlpha() == 0) {
                 toolbar.setTranslationY(-300);

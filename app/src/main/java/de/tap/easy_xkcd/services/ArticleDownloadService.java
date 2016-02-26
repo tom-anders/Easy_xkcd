@@ -143,6 +143,7 @@ public class ArticleDownloadService extends IntentService {
                 }
             }
         }
+        prefHelper.setSunbeamLoaded();
 
         Intent restart = new Intent("de.tap.easy_xkcd.ACTION_COMIC");
         restart.putExtra("number", prefHelper.getLastComic());

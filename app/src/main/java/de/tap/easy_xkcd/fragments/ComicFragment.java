@@ -101,11 +101,13 @@ public abstract class ComicFragment extends android.support.v4.app.Fragment {
     }
 
     abstract protected class ComicAdapter extends PagerAdapter {
-        Context mContext;
-        LayoutInflater mLayoutInflater;
-        Boolean fingerLifted = true;
+        protected Context mContext;
+        protected LayoutInflater mLayoutInflater;
+        protected Boolean fingerLifted = true;
+        protected int count;
 
-        public ComicAdapter(Context context) {
+        public ComicAdapter(Context context, int count) {
+            this.count = count;
             mContext = context;
             mLayoutInflater = (LayoutInflater) mContext.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
         }
