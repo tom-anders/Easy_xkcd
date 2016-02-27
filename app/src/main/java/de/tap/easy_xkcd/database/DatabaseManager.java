@@ -9,35 +9,19 @@ import android.util.Log;
 
 import com.tap.xkcd_reader.R;
 
-import org.jsoup.Jsoup;
-import org.jsoup.nodes.Document;
-import org.jsoup.nodes.Element;
-import org.jsoup.select.Elements;
-
 import java.io.BufferedReader;
-import java.io.BufferedWriter;
-import java.io.File;
-import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.Random;
 
-import de.tap.easy_xkcd.Activities.MainActivity;
 import de.tap.easy_xkcd.Activities.SearchResultsActivity;
 import de.tap.easy_xkcd.fragments.OverviewBaseFragment;
-import de.tap.easy_xkcd.fragments.WhatIfFragment;
 import de.tap.easy_xkcd.utils.Comic;
 import de.tap.easy_xkcd.utils.PrefHelper;
 import io.realm.Realm;
 import io.realm.RealmResults;
-import okhttp3.OkHttpClient;
-import okhttp3.Request;
-import okhttp3.Response;
-import okio.BufferedSink;
-import okio.Okio;
 
 public class DatabaseManager {
 
@@ -45,10 +29,6 @@ public class DatabaseManager {
     public Realm realm;
     private static final String REALM_DATABASE_LOADED = "pref_realm_database_loaded";
     private static final String HIGHEST_DATABASE = "highest_database";
-    private static final String WHATIF_DATABASE_LOADED = "whatif_database_loaded";
-    private static final String HIGHEST_WHATIF_DATABASE = "highest_whatif_database";
-    private static final String OFFLINE_WHATIF_OVERVIEW_PATH = "/easy xkcd/what if/overview";
-    private static final String OFFLINE_WHATIF_PATH = "/easy xkcd/what if/";
 
     private static final String COMIC_READ = "comic_read";
     private static final String FAVORITES_MOVED = "fav_moved";
@@ -300,7 +280,7 @@ public class DatabaseManager {
 
     public int getRandomUnread() {
         RealmResults<RealmComic> unread = realm.where(RealmComic.class).equalTo("isRead", false).findAll();
-        int n = new Random().nextInt(unread.size())+1;
+        int n = new Random().nextInt(unread.size());
         return unread.get(n).getComicNumber();
     }
 

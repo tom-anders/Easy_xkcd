@@ -278,5 +278,8 @@
     <string name="theme_accent_color_dialog">Select an accent color</string>
     <string name="theme_primary_color">Primary color</string>
     <string name="theme_primary_color_dialog">Select a primary color</string>
+    <string name="action_earliest_unread">Earliest unread</string>
+    <string name="action_reddit">Reddit thread</string>
+    <string name="action_xkcd_forum">Forum thread</string>
 
 </resources>

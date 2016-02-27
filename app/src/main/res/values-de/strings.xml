@@ -281,5 +281,8 @@
     <string name="theme_accent_color_dialog">Wähle eine Akzent Farbe</string>
     <string name="theme_primary_color">Hauptfarbe</string>
     <string name="theme_primary_color_dialog">Wähle eine Hauptfarbe</string>
+    <string name="action_earliest_unread">Ältester ungelesener</string>
+    <string name="action_reddit">Reddit Thread</string>
+    <string name="action_xkcd_forum">Forum Thread</string>
 
 </resources>

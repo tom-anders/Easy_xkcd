@@ -56,7 +56,7 @@ public abstract class OverviewBaseFragment extends android.support.v4.app.Fragme
     }
 
     public void showRandomComic(final int number) {
-        goToComic(number-1);
+        goToComic(number - 1);
     }
 
     public void goToComic(final int number) {
@@ -80,11 +80,11 @@ public abstract class OverviewBaseFragment extends android.support.v4.app.Fragme
                     .commit();
         }
 
-        if (prefHelper.subtitleEnabled()) {
+        if (prefHelper.subtitleEnabled())
             ((MainActivity) getActivity()).getToolbar().setSubtitle(String.valueOf(fragment.lastComicNumber));
-        }
     }
 
+    //TODO own menu for fragments
     @Override
     public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
         for (int i = 0; i < menu.size() - 2; i++)
@@ -108,6 +108,7 @@ public abstract class OverviewBaseFragment extends android.support.v4.app.Fragme
 
         menu.findItem(R.id.action_unread).setVisible(true);
         menu.findItem(R.id.action_overview_style).setVisible(true);
+        menu.findItem(R.id.action_earliest_unread).setVisible(true);
 
         super.onCreateOptionsMenu(menu, inflater);
     }
@@ -137,8 +138,14 @@ public abstract class OverviewBaseFragment extends android.support.v4.app.Fragme
                             }
                         }).show();
                 break;
-            case R.id.action_hide_read:
-                break;
+            case R.id.action_earliest_unread:
+                if (prefHelper.hideRead())
+                    showComic(comics.size() - 1);
+                else {
+                    RealmComic comic = comics.where().equalTo("isRead", false).findAllSorted("comicNumber", Sort.ASCENDING).first();
+                    if (comic != null)
+                        goToComic(comic.getComicNumber() - 1);
+                }
         }
         return super.onOptionsItemSelected(item);
     }
@@ -170,7 +177,6 @@ public abstract class OverviewBaseFragment extends android.support.v4.app.Fragme
             }
         }
     }
-
 
 
     public void updateDatabasePostExecute() {

@@ -47,7 +47,6 @@ public class OverviewCardsFragment extends OverviewBaseFragment {
         rv.addOnScrollListener(scroller.getOnScrollListener());
 
         if (savedInstanceState == null) {
-
             databaseManager.new updateComicDatabase(null, this, prefHelper).execute();
         } else {
             rvAdapter = new RVAdapter();
@@ -107,7 +106,6 @@ public class OverviewCardsFragment extends OverviewBaseFragment {
                 prefHelper.setHideRead(item.isChecked());
                 setupAdapter();
                 break;
-
         }
         return super.onOptionsItemSelected(item);
     }

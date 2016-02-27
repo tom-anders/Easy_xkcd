@@ -368,6 +368,10 @@
     <string name="pref_edit_theme">Customize theme</string>
     <string name="pref_theme_ok">OK</string>
 
+    <string name="action_earliest_unread">Earliest unread</string>
+    <string name="action_xkcd_forum">Forum thread</string>
+    <string name="action_reddit">Reddit thread</string>
+
     <string-array name="overview_style">
         <item>List</item>
         <item>Small Cards</item>
