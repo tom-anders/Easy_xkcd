@@ -40,4 +40,8 @@
         android:title="@string/action_random_article"
         app:showAsAction="never" />
 
+    <item android:id="@+id/action_thread"
+        android:title="@string/action_thread"
+        app:showAsAction="never" />
+
 </menu>

@@ -1,3 +1,10 @@
+## 5.0
+
+- Open the Reddit or xkcd-Forum thread for comics and articles
+- Go to earliest unread comic in overview mode
+- New Database, search performance improved
+
+
 ## 4.3
 
 - Custom themes

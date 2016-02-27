@@ -58,6 +58,7 @@ import java.util.Stack;
 
 import de.tap.easy_xkcd.Activities.CustomFilePickerActivity;
 import de.tap.easy_xkcd.Activities.MainActivity;
+import de.tap.easy_xkcd.database.DatabaseManager;
 import de.tap.easy_xkcd.utils.Comic;
 import de.tap.easy_xkcd.utils.OfflineComic;
 import uk.co.senab.photoview.PhotoView;
@@ -197,7 +198,7 @@ public class FavoritesFragment extends ComicFragment {
                 return exportImportFavorites();
 
             case R.id.action_thread:
-                return showThread(favorites[favoriteIndex]);
+                return DatabaseManager.showThread(comicMap.get(favorites[favoriteIndex]).getComicData()[0], getActivity(), false);
         }
         return super.onOptionsItemSelected(item);
     }

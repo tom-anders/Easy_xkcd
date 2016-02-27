@@ -29,6 +29,7 @@ import java.io.IOException;
 import java.util.Arrays;
 
 import de.tap.easy_xkcd.Activities.MainActivity;
+import de.tap.easy_xkcd.database.DatabaseManager;
 import de.tap.easy_xkcd.utils.Comic;
 import de.tap.easy_xkcd.utils.OfflineComic;
 import okhttp3.OkHttpClient;
@@ -192,7 +193,7 @@ public class OfflineFragment extends ComicFragment {
                 return getRandomComic();
 
             case R.id.action_thread:
-                return showThread(lastComicNumber);
+                return DatabaseManager.showThread(comicMap.get(lastComicNumber).getComicData()[0], getActivity(), false);
         }
         return super.onOptionsItemSelected(item);
     }

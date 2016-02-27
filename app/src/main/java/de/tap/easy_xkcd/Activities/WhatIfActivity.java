@@ -2,12 +2,14 @@ package de.tap.easy_xkcd.Activities;
 
 import android.annotation.SuppressLint;
 import android.app.ProgressDialog;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.ActivityInfo;
 import android.media.Image;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Build;
+import android.support.customtabs.CustomTabsIntent;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
@@ -28,16 +30,22 @@ import android.webkit.WebViewClient;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.tap.xkcd_reader.R;
 
+import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
+import org.jsoup.nodes.Element;
 
 import java.io.IOException;
 import java.util.Random;
 
 import butterknife.Bind;
 import butterknife.ButterKnife;
+import de.tap.easy_xkcd.CustomTabHelpers.BrowserFallback;
+import de.tap.easy_xkcd.CustomTabHelpers.CustomTabActivityHelper;
+import de.tap.easy_xkcd.database.DatabaseManager;
 import de.tap.easy_xkcd.misc.OnSwipeTouchListener;
 import de.tap.easy_xkcd.utils.Article;
 import de.tap.easy_xkcd.utils.PrefHelper;
@@ -257,6 +265,10 @@ public class WhatIfActivity extends BaseActivity {
                 WhatIfFavoritesFragment.getInstance().updateFavorites();
                 invalidateOptionsMenu();
                 return true;
+
+            case R.id.action_thread:
+                return DatabaseManager.showThread(loadedArticle.getTitle(), this, true);
+
         }
         return super.onOptionsItemSelected(item);
     }

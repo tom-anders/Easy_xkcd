@@ -1,13 +1,21 @@
 package de.tap.easy_xkcd.database;
 
 import android.app.Activity;
+import android.app.AlertDialog;
 import android.app.ProgressDialog;
 import android.content.Context;
+import android.content.DialogInterface;
+import android.content.Intent;
 import android.content.SharedPreferences;
+import android.net.Uri;
 import android.os.AsyncTask;
+import android.support.customtabs.CustomTabsIntent;
 import android.util.Log;
+import android.widget.Toast;
 
 import com.tap.xkcd_reader.R;
+
+import org.jsoup.Jsoup;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -17,9 +25,12 @@ import java.util.Arrays;
 import java.util.Random;
 
 import de.tap.easy_xkcd.Activities.SearchResultsActivity;
+import de.tap.easy_xkcd.CustomTabHelpers.BrowserFallback;
+import de.tap.easy_xkcd.CustomTabHelpers.CustomTabActivityHelper;
 import de.tap.easy_xkcd.fragments.OverviewBaseFragment;
 import de.tap.easy_xkcd.utils.Comic;
 import de.tap.easy_xkcd.utils.PrefHelper;
+import de.tap.easy_xkcd.utils.ThemePrefs;
 import io.realm.Realm;
 import io.realm.RealmResults;
 
@@ -160,7 +171,7 @@ public class DatabaseManager {
         getSharedPrefs().edit().putString(COMIC_READ, "").apply();
         realm.beginTransaction();
         RealmResults<RealmComic> comics = realm.where(RealmComic.class).findAll();
-        for (int i = 0; i<comics.size(); i++) {
+        for (int i = 0; i < comics.size(); i++) {
             RealmComic comic = comics.get(i);
             comic.setRead(false);
             realm.copyToRealmOrUpdate(comic);
@@ -341,8 +352,118 @@ public class DatabaseManager {
                 return R.mipmap.rabbit;
             case "Stop Jupiter":
                 return R.mipmap.burlap;
+            case "Niagara Straw":
+                return R.mipmap.barrel;
             default:
                 return 0;
         }
     }
+
+    public static boolean showThread(final String title, final Context context, final boolean whatIf) {
+        new AlertDialog.Builder(context)
+                .setItems(R.array.forum_thread, new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        switch (which) {
+                            case 0:
+                                new GetRedditLinkTask(context).execute(title);
+                                break;
+                            case 1:
+                                new GetForumLinkTask(context, whatIf).execute(title);
+                                break;
+                        }
+                    }
+                }).create().show();
+        return true;
+    }
+
+    private static class GetRedditLinkTask extends AsyncTask<String, Void, String> {
+        private ProgressDialog progress;
+        private Context context;
+
+        public GetRedditLinkTask(Context context) {
+            this.context = context;
+        }
+
+        @Override
+        protected void onPreExecute() {
+            progress = new ProgressDialog(context);
+            progress.setIndeterminate(true);
+            progress.setMessage(context.getResources().getString(R.string.loading_thread));
+            progress.setCancelable(false);
+            progress.show();
+        }
+
+        @Override
+        protected String doInBackground(String... title) {
+            try {
+                return Jsoup.connect("https://www.reddit.com/r/xkcd/search?q=title%3A\"" + title[0] + "\"&restrict_sr=on&sort=relevance&t=all").get()
+                        .select(".search-result-meta").first()
+                        .select("a[href]").first().absUrl("href");
+            } catch (Exception e) {
+                Log.e("error at " + title[0], e.getMessage());
+                return "";
+            }
+        }
+
+        @Override
+        protected void onPostExecute(String url) {
+            progress.dismiss();
+            if (url.equals(""))
+                Toast.makeText(context, context.getString(R.string.thread_not_found), Toast.LENGTH_SHORT).show();
+            else
+                context.startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse(url)));
+        }
+    }
+
+    protected static class GetForumLinkTask extends AsyncTask<String, Void, String> {
+        private ProgressDialog progress;
+        private Context context;
+        private boolean whatIf;
+
+        public GetForumLinkTask(Context context, boolean whatIf) {
+            this.context = context;
+            this.whatIf = whatIf;
+        }
+
+        @Override
+        protected void onPreExecute() {
+            progress = new ProgressDialog(context);
+            progress.setIndeterminate(true);
+            progress.setMessage(context.getResources().getString(R.string.loading_thread));
+            progress.setCancelable(false);
+            progress.show();
+        }
+
+        @Override
+        protected String doInBackground(String... title) {
+            String end;
+            if (whatIf)
+                end = "&terms=all&author=&fid%5B%5D=60&sc=1&sf=titleonly&sr=posts&sk=t&sd=d&st=0&ch=300&t=0&submit=Search"; //Comic forum
+            else
+                end = "&terms=all&author=&fid%5B%5D=7&sc=1&sf=titleonly&sr=posts&sk=t&sd=d&st=0&ch=300&t=0&submit=Search"; //What-if forum
+            try {
+                return Jsoup.connect("http://forums.xkcd.com/search.php?keywords=" + title[0] + end).get()
+                        .select("div#wrap").select("div#page-body")
+                        .first().select(".postbody").first().select("a[href]").first().absUrl("href");
+            } catch (Exception e) {
+                Log.e("error at " + title[0], e.getMessage());
+                return "";
+            }
+        }
+
+        @Override
+        protected void onPostExecute(String url) {
+            progress.dismiss();
+            if (url.equals(""))
+                Toast.makeText(context, context.getResources().getString(R.string.thread_not_found), Toast.LENGTH_SHORT).show();
+            else {
+                CustomTabsIntent.Builder intentBuilder = new CustomTabsIntent.Builder();
+                intentBuilder.setToolbarColor(new ThemePrefs(context).getPrimaryColor(false));
+                CustomTabActivityHelper.openCustomTab(((Activity) context), intentBuilder.build(), Uri.parse(url), new BrowserFallback());
+            }
+
+        }
+    }
+
 }
