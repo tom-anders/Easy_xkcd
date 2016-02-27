@@ -84,10 +84,9 @@ public abstract class OverviewBaseFragment extends android.support.v4.app.Fragme
             ((MainActivity) getActivity()).getToolbar().setSubtitle(String.valueOf(fragment.lastComicNumber));
     }
 
-    //TODO own menu for fragments
     @Override
     public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
-        for (int i = 0; i < menu.size() - 2; i++)
+        /*for (int i = 0; i < menu.size() - 2; i++)
             menu.getItem(i).setVisible(false);
 
         menu.findItem(R.id.action_boomark).setVisible(prefHelper.getBookmark() != 0).setTitle(R.string.open_bookmark);
@@ -108,7 +107,22 @@ public abstract class OverviewBaseFragment extends android.support.v4.app.Fragme
 
         menu.findItem(R.id.action_unread).setVisible(true);
         menu.findItem(R.id.action_overview_style).setVisible(true);
-        menu.findItem(R.id.action_earliest_unread).setVisible(true);
+        menu.findItem(R.id.action_earliest_unread).setVisible(true); */
+
+        inflater.inflate(R.menu.menu_overview_fragment, menu);
+        menu.findItem(R.id.action_boomark).setVisible(prefHelper.getBookmark() != 0).setTitle(R.string.open_bookmark);
+        menu.findItem(R.id.action_hide_read).setChecked(prefHelper.hideRead());
+        menu.findItem(R.id.action_search).setVisible(false);
+        menu.findItem(R.id.action_boomark).setVisible(bookmark!=0);
+
+        MenuItem fav = menu.findItem(R.id.action_favorite);
+        if (!prefHelper.overviewFav()) {
+            fav.setIcon(R.drawable.ic_favorite_outline);
+            fav.setTitle(R.string.nv_favorites);
+        } else {
+            fav.setIcon(R.drawable.ic_action_favorite);
+            fav.setTitle(R.string.action_overview);
+        }
 
         super.onCreateOptionsMenu(menu, inflater);
     }
@@ -139,9 +153,11 @@ public abstract class OverviewBaseFragment extends android.support.v4.app.Fragme
                         }).show();
                 break;
             case R.id.action_earliest_unread:
-                if (prefHelper.hideRead())
-                    showComic(comics.size() - 1);
-                else {
+                if (prefHelper.hideRead()) {
+                    int n = comics.size() - 1;
+                    if (n > 0)
+                        showComic(n);
+                } else {
                     RealmComic comic = comics.where().equalTo("isRead", false).findAllSorted("comicNumber", Sort.ASCENDING).first();
                     if (comic != null)
                         goToComic(comic.getComicNumber() - 1);

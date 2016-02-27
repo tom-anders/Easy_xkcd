@@ -175,7 +175,7 @@ public class MainActivity extends BaseActivity {
                 public void run() {
                     prefHelper.showRateSnackbar(MainActivity.this.getPackageName(), MainActivity.this, mFab);
                     prefHelper.showSurveySnackbar(MainActivity.this, mFab);
-                    prefHelper.showFeatureSnackbar(MainActivity.this, mFab);
+                    //prefHelper.showFeatureSnackbar(MainActivity.this, mFab);
                 }
             }, 1500);
         }

@@ -33,6 +33,7 @@ import android.support.v4.view.ViewPager;
 import android.support.v7.widget.Toolbar;
 import android.view.LayoutInflater;
 import android.view.Menu;
+import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
@@ -443,7 +444,7 @@ public class FavoritesFragment extends ComicFragment {
 
     @Override
     public void onPrepareOptionsMenu(Menu menu) {
-        menu.findItem(R.id.action_latest).setVisible(false);
+        /*menu.findItem(R.id.action_latest).setVisible(false);
         menu.findItem(R.id.action_search).setVisible(false);
         menu.findItem(R.id.action_boomark).setVisible(false);
         menu.findItem(R.id.action_overview).setVisible(false);
@@ -451,13 +452,21 @@ public class FavoritesFragment extends ComicFragment {
         menu.findItem(R.id.export_import_favorites).setVisible(true);
         MenuItem fav = menu.findItem(R.id.action_favorite);
         fav.setIcon(R.drawable.ic_action_favorite);
-        fav.setTitle(R.string.action_favorite_remove);
+        fav.setTitle(R.string.action_favorite_remove);*/
+
         //If the FAB is visible, hide the random comic menu item
         if (((MainActivity) getActivity()).getFab().getVisibility() == View.GONE) {
             menu.findItem(R.id.action_random).setVisible(true);
         } else {
             menu.findItem(R.id.action_random).setVisible(false);
         }
+    }
+
+    @Override
+    public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
+        inflater.inflate(R.menu.menu_favorites_fragment, menu);
+        menu.findItem(R.id.action_search).setVisible(false);
+        super.onCreateOptionsMenu(menu, inflater);
     }
 
     public boolean getRandomComic() {

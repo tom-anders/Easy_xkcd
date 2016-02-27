@@ -101,7 +101,6 @@ public class WhatIfFragment extends android.support.v4.app.Fragment {
         return v;
     }
 
-    //TODO saveToRealm
     private class UpdateArticles extends AsyncTask<Void, Void, Void> {
         private ProgressDialog progress;
         private boolean showProgress;

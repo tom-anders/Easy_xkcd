@@ -65,7 +65,7 @@
     <!-- ActionBar strings -->
     <string name="action_settings">Nastavení</string>
     <string name="action_unread">Označit vše jako nepřečtené</string>
-    <string name="action_hide_read">Skrýt přečtené články</string>
+    <string name="action_hide_read_articles">Skrýt přečtené články</string>
     <string name="action_favorite">Přidat k oblíbeným</string>
     <string name="action_favorite_remove">Odstranit z oblíbených</string>
     <string name="action_latest">Nejnovější komix</string>
@@ -281,5 +281,6 @@
     <string name="action_earliest_unread">Earliest unread</string>
     <string name="action_reddit">Reddit thread</string>
     <string name="action_xkcd_forum">Forum thread</string>
+    <string name="action_hide_read_comics">Hide read comics</string>
 
 </resources>

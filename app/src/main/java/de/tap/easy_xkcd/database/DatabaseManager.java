@@ -68,11 +68,13 @@ public class DatabaseManager {
 
     public void setFavorite(int fav, boolean isFav) {
         if (fav <= getHighestInDatabase()) {
+            Realm realm = Realm.getInstance(context);
             realm.beginTransaction();
             RealmComic comic = realm.where(RealmComic.class).equalTo("comicNumber", fav).findFirst();
             comic.setFavorite(isFav);
             realm.copyToRealmOrUpdate(comic);
             realm.commitTransaction();
+            realm.close();
         }
         if (isFav)
             addFavorite(fav);
@@ -143,12 +145,27 @@ public class DatabaseManager {
     }
 
     public int[] getReadComics() {
-        String[] r = getSharedPrefs().getString(COMIC_READ, "").split(",");
-        int[] read = new int[r.length];
-        for (int i = 0; i < r.length; i++)
-            read[i] = Integer.parseInt(r[i]);
+        String r = getSharedPrefs().getString(COMIC_READ, "");
+        if (r.equals(""))
+            return new int[0];
+        String[] re = r.split(",");
+        int[] read = new int[re.length];
+        for (int i = 0; i < re.length; i++)
+            read[i] = Integer.parseInt(re[i]);
         Arrays.sort(read);
         return read;
+    }
+
+    public void setComicsUnread() {
+        getSharedPrefs().edit().putString(COMIC_READ, "").apply();
+        realm.beginTransaction();
+        RealmResults<RealmComic> comics = realm.where(RealmComic.class).findAll();
+        for (int i = 0; i<comics.size(); i++) {
+            RealmComic comic = comics.get(i);
+            comic.setRead(false);
+            realm.copyToRealmOrUpdate(comic);
+        }
+        realm.commitTransaction();
     }
 
     public int getNextUnread(int number, RealmResults<RealmComic> comics) {

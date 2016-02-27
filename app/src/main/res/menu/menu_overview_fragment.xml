@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+    <item android:id="@+id/action_favorite"
+        android:title="@string/nv_favorites"
+        app:showAsAction="always"
+        android:icon="@drawable/ic_favorite_outline"/>
+
+    <item android:id="@+id/action_overview_style"
+        app:showAsAction="always"
+        android:icon="@drawable/ic_action_sort" />
+
+    <item android:id="@+id/action_boomark"
+        app:showAsAction="never"
+        android:title="@string/open_bookmark" />
+
+    <item android:id="@+id/action_unread"
+        android:title="@string/action_unread"
+        app:showAsAction="never" />
+
+    <item android:id="@+id/action_earliest_unread"
+        android:title="@string/action_earliest_unread"
+        app:showAsAction="never" />
+
+    <item android:id="@+id/action_hide_read"
+        android:title="@string/action_hide_read_comics"
+        android:checkable="true"
+        app:showAsAction="never" />
+</menu>

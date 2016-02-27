@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+    <item android:id="@+id/action_favorite"
+        android:title="@string/action_favorite_remove"
+        app:showAsAction="ifRoom"
+        android:icon="@drawable/ic_action_favorite"/>
+
+    <item android:id="@+id/action_share"
+        android:title="@string/action_share"
+        android:icon="@drawable/ic_action_share"
+        app:showAsAction="ifRoom" />
+
+    <item android:id="@+id/action_random"
+        android:title="@string/action_random"
+        app:showAsAction="ifRoom"
+        android:icon="@mipmap/ic_shuffle"/>
+
+    <item android:id="@+id/action_alt"
+        android:title="@string/action_alt"
+        app:showAsAction="never" />
+
+    <item android:id="@+id/action_trans"
+        android:title="@string/action_trans"
+        app:showAsAction="never" />
+
+    <item android:id="@+id/action_explain"
+        android:title="@string/action_explain"
+        app:showAsAction="never" />
+
+    <item android:id="@+id/export_import_favorites"
+        android:title="@string/pref_export_import"
+        app:showAsAction="never" />
+
+    <item android:id="@+id/delete_favorites"
+        android:title="@string/delete_favorites"
+        app:showAsAction="never" />
+</menu>

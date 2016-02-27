@@ -95,10 +95,10 @@ public class OverviewCardsFragment extends OverviewBaseFragment {
                 setupAdapter();
                 break;
             case R.id.action_boomark:
-                super.showComic(bookmark - 1);
+                super.goToComic(bookmark-1);
                 break;
             case R.id.action_unread:
-                prefHelper.setComicsUnread();
+                databaseManager.setComicsUnread();
                 setupAdapter();
                 break;
             case R.id.action_hide_read:

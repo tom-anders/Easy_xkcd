@@ -29,7 +29,7 @@ public class DonateActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_donate);
-        prefHelper = new PrefHelper(getApplicationContext());
+        prefHelper = new PrefHelper(this);
 
         mBillingProcessor = new BillingProcessor(this, publicKey, new BillingProcessor.IBillingHandler() {
             @Override

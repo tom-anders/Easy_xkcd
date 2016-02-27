@@ -195,7 +195,7 @@
     <string name="loading_articles">Lade neue Artikel…</string>
     <string name="action_night_mode">Nacht Modus</string>
     <string name="action_browser">Im Browser öffnen</string>
-    <string name="action_hide_read">Verstecke gelesene</string>
+    <string name="action_hide_read_articles">Verstecke gelesene</string>
     <string name="action_share_article">Artikel teilen</string>
     <string name="action_unread">Alle ungelesen</string>
     <string name="action_swipe">Gesten zum Navigieren</string>
@@ -284,5 +284,6 @@
     <string name="action_earliest_unread">Ältester ungelesener</string>
     <string name="action_reddit">Reddit Thread</string>
     <string name="action_xkcd_forum">Forum Thread</string>
+    <string name="action_hide_read_comics">Verstecke gelesene</string>
 
 </resources>

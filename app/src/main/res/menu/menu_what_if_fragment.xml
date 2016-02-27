@@ -4,14 +4,17 @@
     xmlns:tools="http://schemas.android.com/tools"
     tools:context=".MainActivity">
 
-    <item android:id="@+id/action_favorite"
-        android:title="@string/action_favorite"
-        app:showAsAction="ifRoom"
-        android:icon="@drawable/ic_favorite_outline"/>
+    <item android:id="@+id/action_unread"
+        android:title="@string/action_unread"
+        app:showAsAction="never" />
 
-    <item android:id="@+id/action_share"
-        android:title="@string/action_share"
-        android:icon="@drawable/ic_action_share"
-        app:showAsAction="ifRoom" />
+    <item android:id="@+id/action_hide_read"
+        android:title="@string/action_hide_read_articles"
+        android:checkable="true"
+        app:showAsAction="never" />
+
+    <item android:id="@+id/action_browser"
+        android:title="@string/action_browser"
+        app:showAsAction="never" />
 
 </menu>

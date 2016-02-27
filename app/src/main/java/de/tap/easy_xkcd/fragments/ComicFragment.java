@@ -19,6 +19,7 @@ import android.util.TypedValue;
 import android.view.GestureDetector;
 import android.view.LayoutInflater;
 import android.view.Menu;
+import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.MotionEvent;
 import android.view.View;
@@ -369,9 +370,7 @@ public abstract class ComicFragment extends android.support.v4.app.Fragment {
     protected boolean explainComic(int number) {
         String url = "http://explainxkcd.com/" + String.valueOf(number);
         CustomTabsIntent.Builder intentBuilder = new CustomTabsIntent.Builder();
-        TypedValue typedValue = new TypedValue();
-        getActivity().getTheme().resolveAttribute(R.attr.colorPrimary, typedValue, true);
-        intentBuilder.setToolbarColor(typedValue.data);
+        intentBuilder.setToolbarColor(themePrefs.getPrimaryColor(false));
         CustomTabActivityHelper.openCustomTab(getActivity(), intentBuilder.build(), Uri.parse(url), new BrowserFallback());
         return true;
     }
@@ -557,6 +556,13 @@ public abstract class ComicFragment extends android.support.v4.app.Fragment {
         menu.findItem(R.id.action_alt).setVisible(prefHelper.showAltTip());
         if (Arrays.binarySearch(getResources().getIntArray(R.array.interactive_comics), lastComicNumber) >= 0)
             menu.findItem(R.id.action_browser).setVisible(true);
+    }
+
+    @Override
+    public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
+        if (!(this instanceof FavoritesFragment))
+            inflater.inflate(R.menu.menu_comic_fragment, menu);
+        super.onCreateOptionsMenu(menu, inflater);
     }
 
     @Override

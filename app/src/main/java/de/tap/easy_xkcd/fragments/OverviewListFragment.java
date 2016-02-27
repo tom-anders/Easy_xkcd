@@ -124,10 +124,10 @@ public class OverviewListFragment extends OverviewBaseFragment {
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
             case R.id.action_boomark:
-                super.showComic(bookmark - 1);
+                super.goToComic(bookmark - 1);
                 break;
             case R.id.action_unread:
-                prefHelper.setComicsUnread();
+                databaseManager.setComicsUnread();
                 setupAdapter();
                 break;
             case R.id.action_favorite:

@@ -462,9 +462,9 @@ public class PrefHelper {
         sharedPrefs.edit().putString(WHATIF_READ, "").apply();
     }
 
-    public void setComicsUnread() {
+    /*public void setComicsUnread() {
         sharedPrefs.edit().putString(COMIC_READ, "").apply();
-    }
+    }*/
 
     public boolean hideReadWhatIf() {
         return sharedPrefs.getBoolean(HIDE_READ_WHATIF, false);

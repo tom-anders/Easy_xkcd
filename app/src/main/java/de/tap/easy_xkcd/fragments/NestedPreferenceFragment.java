@@ -76,6 +76,7 @@ public class NestedPreferenceFragment extends PreferenceFragment {
     private static final String MOBILE_ENABLED = "pref_update_mobile";
     private static final String FAB_OPTIONS = "pref_random";
     private static final String OFFLINE_PATH_PREF = "pref_offline_path";
+    private static final String DONATE = "pref_hide_donate";
 
     private static final String OFFLINE_PATH = "/easy xkcd";
     private static final String OFFLINE_WHATIF_PATH = "/easy xkcd/what if/";
@@ -204,6 +205,14 @@ public class NestedPreferenceFragment extends PreferenceFragment {
 
                             }
                         });
+                        return true;
+                    }
+                });
+
+                findPreference(DONATE).setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
+                    @Override
+                    public boolean onPreferenceClick(Preference preference) {
+                        getActivity().setResult(Activity.RESULT_OK);
                         return true;
                     }
                 });
