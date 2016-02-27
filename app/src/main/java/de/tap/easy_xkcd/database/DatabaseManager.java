@@ -22,6 +22,8 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.util.Arrays;
+import java.util.Collections;
+import java.util.Random;
 
 import de.tap.easy_xkcd.Activities.MainActivity;
 import de.tap.easy_xkcd.Activities.SearchResultsActivity;
@@ -294,6 +296,12 @@ public class DatabaseManager {
             else
                 fragment.updateDatabasePostExecute();
         }
+    }
+
+    public int getRandomUnread() {
+        RealmResults<RealmComic> unread = realm.where(RealmComic.class).equalTo("isRead", false).findAll();
+        int n = new Random().nextInt(unread.size())+1;
+        return unread.get(n).getComicNumber();
     }
 
     public int getHighestInDatabase() {

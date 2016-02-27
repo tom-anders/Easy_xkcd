@@ -230,9 +230,12 @@ public class MainActivity extends BaseActivity {
         OverviewBaseFragment overviewBaseFragment = (OverviewBaseFragment) fragmentManager.findFragmentByTag(OVERVIEW_TAG);
         if (overviewBaseFragment != null && overviewBaseFragment.isVisible()) {
             ComicFragment comicFragment = (ComicFragment) fragmentManager.findFragmentByTag(BROWSER_TAG);
-            if (!prefHelper.overviewFav())
-                overviewBaseFragment.showRandomComic(comicFragment.newestComicNumber - prefHelper.getRandomNumber(comicFragment.lastComicNumber));
-            else
+            if (!prefHelper.overviewFav()) {
+                if (!prefHelper.hideRead())
+                    overviewBaseFragment.showRandomComic(prefHelper.getRandomNumber(comicFragment.lastComicNumber));
+                else
+                    overviewBaseFragment.showRandomComic(databaseManager.getRandomUnread());
+            } else
                 overviewBaseFragment.showComic(new Random().nextInt(databaseManager.getFavComics().length));
         } else {
             switch (currentFragment) {
