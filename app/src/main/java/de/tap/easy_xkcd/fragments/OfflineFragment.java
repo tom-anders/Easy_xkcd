@@ -190,6 +190,9 @@ public class OfflineFragment extends ComicFragment {
 
             case R.id.action_random:
                 return getRandomComic();
+
+            case R.id.action_thread:
+                return showThread(lastComicNumber);
         }
         return super.onOptionsItemSelected(item);
     }

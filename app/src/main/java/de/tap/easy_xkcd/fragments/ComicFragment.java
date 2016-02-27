@@ -1,6 +1,9 @@
 package de.tap.easy_xkcd.fragments;
 
+import android.app.AlertDialog;
+import android.app.ProgressDialog;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.RectF;
@@ -15,7 +18,6 @@ import android.support.v4.view.ViewPager;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.util.SparseArray;
-import android.util.TypedValue;
 import android.view.GestureDetector;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -33,6 +35,10 @@ import com.bumptech.glide.Glide;
 import com.bumptech.glide.load.engine.DiskCacheStrategy;
 import com.kogitune.activity_transition.ExitActivityTransition;
 import com.tap.xkcd_reader.R;
+
+import org.jsoup.Jsoup;
+import org.jsoup.nodes.Document;
+import org.jsoup.nodes.Element;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -481,6 +487,106 @@ public abstract class ComicFragment extends android.support.v4.app.Fragment {
         }
         return true;
     }
+
+    protected boolean showThread(final int number) {
+        new AlertDialog.Builder(getActivity())
+                .setItems(R.array.forum_thread, new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        switch (which) {
+                            case 0:
+                                new GetRedditLinkTask().execute(number);
+                                break;
+                            case 1:
+                                new GetForumLinkTask().execute(number);
+                                break;
+                        }
+                    }
+                }).create().show();
+        return true;
+    }
+
+    protected class GetRedditLinkTask extends AsyncTask<Integer, Void, String> {
+        private ProgressDialog progress;
+
+        @Override
+        protected void onPreExecute() {
+            progress = new ProgressDialog(getActivity());
+            progress.setIndeterminate(true);
+            progress.setMessage(getResources().getString(R.string.loading_thread));
+            progress.setCancelable(false);
+            progress.show();
+        }
+
+        @Override
+        protected String doInBackground(Integer... params) {
+            try {
+                Document doc = Jsoup.connect("https://www.reddit.com/r/xkcd/search?q=title%3A\"xkcd+" + params[0] + "\"&restrict_sr=on&sort=relevance&t=all").get();
+                Element result = doc.select(".search-result-meta").first();
+                if (result == null) {
+                    Log.d("test", "test");
+                    doc = Jsoup.connect("https://www.reddit.com/r/xkcd/search?q=title%3A\"" + params[0] + "\"&restrict_sr=on&sort=relevance&t=all").get();
+                    result = doc.select(".search-result-meta").first();
+                }
+                return result.select("a[href]").first().absUrl("href");
+            } catch (Exception e) {
+                Log.e("error at " + params[0], e.getMessage());
+                return "";
+            }
+        }
+
+        @Override
+        protected void onPostExecute(String url) {
+            progress.dismiss();
+            if (url.equals(""))
+                Toast.makeText(getActivity(), getResources().getString(R.string.thread_not_found), Toast.LENGTH_SHORT).show();
+            else
+                startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse(url)));
+        }
+    }
+
+    protected class GetForumLinkTask extends AsyncTask<Integer, Void, String> {
+        private ProgressDialog progress;
+
+        @Override
+        protected void onPreExecute() {
+            progress = new ProgressDialog(getActivity());
+            progress.setIndeterminate(true);
+            progress.setMessage(getResources().getString(R.string.loading_thread));
+            progress.setCancelable(false);
+            progress.show();
+        }
+
+        @Override
+        protected String doInBackground(Integer... number) {
+            try {
+                String query = String.valueOf(number[0]);
+                if (number[0] < 1000) //on the xkcd forum comics smaller than 1000 are labeled 0xxx instead of xxx
+                    query = "0" + query;
+
+                return Jsoup.connect("http://forums.xkcd.com/search.php?keywords=" + query + "&terms=all&author=&fid%5B%5D=7&sc=1&sf=titleonly&sr=posts&sk=t&sd=d&st=0&ch=300&t=0&submit=Search").get()
+                        .select("div#wrap").select("div#page-body")
+                        .first().select(".postbody").first().select("a[href]").first().absUrl("href");
+            } catch (Exception e) {
+                Log.e("error at " + number[0], e.getMessage());
+                return "";
+            }
+        }
+
+        @Override
+        protected void onPostExecute(String url) {
+            progress.dismiss();
+            if (url.equals(""))
+                Toast.makeText(getActivity(), getResources().getString(R.string.thread_not_found), Toast.LENGTH_SHORT).show();
+            else {
+                CustomTabsIntent.Builder intentBuilder = new CustomTabsIntent.Builder();
+                intentBuilder.setToolbarColor(themePrefs.getPrimaryColor(false));
+                CustomTabActivityHelper.openCustomTab(getActivity(), intentBuilder.build(), Uri.parse(url), new BrowserFallback());
+            }
+
+        }
+    }
+
 
     protected void toggleVisibility(View view) {
         // Switches a view's visibility between GONE and VISIBLE

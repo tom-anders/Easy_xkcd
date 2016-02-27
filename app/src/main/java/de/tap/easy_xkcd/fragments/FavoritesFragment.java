@@ -195,6 +195,9 @@ public class FavoritesFragment extends ComicFragment {
 
             case R.id.export_import_favorites:
                 return exportImportFavorites();
+
+            case R.id.action_thread:
+                return showThread(favorites[favoriteIndex]);
         }
         return super.onOptionsItemSelected(item);
     }

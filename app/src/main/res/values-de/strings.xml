@@ -282,8 +282,9 @@
     <string name="theme_primary_color">Hauptfarbe</string>
     <string name="theme_primary_color_dialog">Wähle eine Hauptfarbe</string>
     <string name="action_earliest_unread">Ältester ungelesener</string>
-    <string name="action_reddit">Reddit Thread</string>
-    <string name="action_xkcd_forum">Forum Thread</string>
     <string name="action_hide_read_comics">Verstecke gelesene</string>
+    <string name="thread_not_found">Thread nicht gefunden!</string>
+    <string name="loading_thread">Lade Thread…</string>
+    <string name="action_thread">Öffne Reddit/Forum Thread</string>
 
 </resources>

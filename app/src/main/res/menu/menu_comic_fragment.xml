@@ -45,4 +45,9 @@
         android:title="@string/action_browser"
         android:visible="false"
         app:showAsAction="never" />
+
+    <item android:id="@+id/action_thread"
+        android:title="@string/action_thread"
+        app:showAsAction="never" />
+
 </menu>

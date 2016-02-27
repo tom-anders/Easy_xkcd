@@ -279,8 +279,9 @@
     <string name="theme_primary_color">Primary color</string>
     <string name="theme_primary_color_dialog">Select a primary color</string>
     <string name="action_earliest_unread">Earliest unread</string>
-    <string name="action_reddit">Reddit thread</string>
-    <string name="action_xkcd_forum">Forum thread</string>
     <string name="action_hide_read_comics">Hide read comics</string>
+    <string name="thread_not_found">Thread not found!</string>
+    <string name="loading_thread">Loading thread…</string>
+    <string name="action_thread">Open Reddit/Forum thread</string>
 
 </resources>

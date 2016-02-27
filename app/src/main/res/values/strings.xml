@@ -98,49 +98,42 @@
     <string name="bookmark_toast_2">Bookmark added</string>
     <string name="no_bookmark">You didn\'t add a bookmark yet! You can add one in the Comic Browser or by long pressing a comic in this list</string>
 
-    <string-array
-        name="share_dialog">
+    <string-array name="share_dialog">
         <item>Share Image</item>
         <item>Share URL</item>
     </string-array>
 
-    <string-array
-        name="export_import_dialog">
+    <string-array name="export_import_dialog">
         <item>Export</item>
         <item>Import</item>
     </string-array>
 
-    <string-array
-        name="card_long_click">
+    <string-array name="card_long_click">
         <item>Share</item>
         <item>Open in Browser</item>
         <item>Add to Favorites</item>
     </string-array>
 
-    <string-array
-        name="card_long_click_remove">
+    <string-array name="card_long_click_remove">
         <item>Share</item>
         <item>Open in Browser</item>
         <item>Remove from Favorites</item>
     </string-array>
 
-    <string-array
-        name="pref_orientation">
+    <string-array name="pref_orientation">
         <item>Default</item>
         <item>Portrait</item>
         <item>Landscape</item>
     </string-array>
 
-    <string-array
-        name="pref_notifications">
+    <string-array name="pref_notifications">
         <item>1 hour</item>
         <item>3 hours</item>
         <item>5 hours</item>
         <item>never</item>
     </string-array>
 
-    <string-array
-        name="pref_theme">
+    <string-array name="pref_theme">
         <item>Blue/Grey (Default)</item>
         <item>Red</item>
         <item>Bright Blue</item>
@@ -150,9 +143,7 @@
         <item>Green</item>
     </string-array>
 
-    <string-array
-        name="pref_theme_entries"
-        translatable="false">
+    <string-array name="pref_theme_entries" translatable="false">
         <item>1</item>
         <item>2</item>
         <item>3</item>
@@ -162,8 +153,7 @@
         <item>7</item>
     </string-array>
 
-    <string-array
-        name="pref_zoom">
+    <string-array name="pref_zoom">
         <item>40%</item>
         <item>70%</item>
         <item>100%</item>
@@ -173,9 +163,7 @@
         <item>WebView default</item>
     </string-array>
 
-    <string-array
-        name="pref_zoom_entries"
-        translatable="false">
+    <string-array name="pref_zoom_entries" translatable="false">
         <item>40</item>
         <item>70</item>
         <item>100</item>
@@ -185,26 +173,20 @@
         <item>default</item>
     </string-array>
 
-    <string-array
-        name="pref_notifications_entries"
-        translatable="false">
+    <string-array name="pref_notifications_entries" translatable="false">
         <item>1</item>
         <item>3</item>
         <item>5</item>
         <item>0</item>
     </string-array>
 
-    <string-array
-        name="pref_orientation_entries"
-        translatable="false">
+    <string-array name="pref_orientation_entries" translatable="false">
         <item>1</item>
         <item>2</item>
         <item>3</item>
     </string-array>
 
-    <integer-array
-        name="interactive_comics"
-        translatable="false">
+    <integer-array name="interactive_comics" translatable="false">
         <item>826</item>
         <item>1037</item>
         <item>1110</item>
@@ -219,9 +201,7 @@
         <item>1608</item>
     </integer-array>
 
-    <integer-array
-        name="large_comics"
-        translatable="false">
+    <integer-array name="large_comics" translatable="false">
         <item>256</item>
         <item>482</item>
         <item>657</item>
@@ -243,9 +223,7 @@
         <item>1491</item>
     </integer-array>
 
-    <string-array
-        name="large_comics_urls"
-        translatable="false">
+    <string-array name="large_comics_urls" translatable="false">
         <item>http://imgs.xkcd.com/comics/online_communities.png</item>
         <item>http://imgs.xkcd.com/comics/height.png</item>
         <item>http://imgs.xkcd.com/comics/movie_narrative_charts_large.png</item>
@@ -370,8 +348,14 @@
     <string name="pref_theme_ok">OK</string>
 
     <string name="action_earliest_unread">Earliest unread</string>
-    <string name="action_xkcd_forum">Forum thread</string>
-    <string name="action_reddit">Reddit thread</string>
+    <string name="action_thread">Open Reddit/Forum thread</string>
+    <string name="thread_not_found">Thread not found!</string>
+    <string name="loading_thread">Loading thread&#8230;</string>
+
+    <string-array name="forum_thread" translatable="false">
+        <item>Reddit</item>
+        <item>xkcd Forum</item>
+    </string-array>
 
     <string-array name="overview_style">
         <item>List</item>
