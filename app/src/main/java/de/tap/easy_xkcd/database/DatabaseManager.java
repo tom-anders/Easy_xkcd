@@ -33,6 +33,7 @@ import de.tap.easy_xkcd.utils.PrefHelper;
 import de.tap.easy_xkcd.utils.ThemePrefs;
 import io.realm.Realm;
 import io.realm.RealmResults;
+import io.realm.exceptions.RealmPrimaryKeyConstraintException;
 
 public class DatabaseManager {
 
@@ -230,13 +231,17 @@ public class DatabaseManager {
                 String[] urls = getFile(R.raw.comic_urls).split("&&");
                 realm.beginTransaction();
                 for (int i = 0; i < 1645; i++) {
-                    RealmComic comic = realm.createObject(RealmComic.class);
-                    comic.setComicNumber(i + 1);
-                    comic.setTitle(titles[i]);
-                    comic.setTranscript(trans[i]);
-                    comic.setUrl(urls[i]);
-                    comic.setRead(read != null && Arrays.binarySearch(read, i + 1) >= 0);
-                    comic.setFavorite(fav != null && Arrays.binarySearch(fav, i + 1) >= 0);
+                    try {
+                        RealmComic comic = realm.createObject(RealmComic.class);
+                        comic.setComicNumber(i + 1);
+                        comic.setTitle(titles[i]);
+                        comic.setTranscript(trans[i]);
+                        comic.setUrl(urls[i]);
+                        comic.setRead(read != null && Arrays.binarySearch(read, i + 1) >= 0);
+                        comic.setFavorite(fav != null && Arrays.binarySearch(fav, i + 1) >= 0);
+                    } catch (RealmPrimaryKeyConstraintException e) {
+                        Log.d("error at " + i, e.getMessage());
+                    }
                 }
                 realm.commitTransaction();
                 setHighestInDatabase(1645);
@@ -265,7 +270,7 @@ public class DatabaseManager {
                         int y = i - highest;
                         int p = (int) ((y / x) * 100);
                         publishProgress(p);
-                    } catch (IOException e) {
+                    } catch (IOException | RealmPrimaryKeyConstraintException e) {
                         Log.d("error at " + i, e.getMessage());
                     }
                 }
