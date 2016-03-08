@@ -142,8 +142,10 @@ public class DatabaseManager {
         if (number <= getHighestInDatabase()) {
             realm.beginTransaction();
             RealmComic comic = realm.where(RealmComic.class).equalTo("comicNumber", number).findFirst();
-            comic.setRead(isRead);
-            realm.copyToRealmOrUpdate(comic);
+            if (comic != null) {
+                comic.setRead(isRead);
+                realm.copyToRealmOrUpdate(comic);
+            }
             realm.commitTransaction();
         } else {
             String read = getSharedPrefs().getString(COMIC_READ, "");
