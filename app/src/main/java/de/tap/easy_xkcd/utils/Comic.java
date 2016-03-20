@@ -28,6 +28,8 @@ import org.json.JSONObject;
 import java.io.IOException;
 import java.util.Arrays;
 
+import de.tap.easy_xkcd.database.DatabaseManager;
+
 
 public class Comic {
     private String[] mComicData;

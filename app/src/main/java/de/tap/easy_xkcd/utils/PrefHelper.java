@@ -65,6 +65,7 @@ public class PrefHelper {
     private static final String ALT_VIBRATION = "pref_alt";
     private static final String ALT_BACK = "pref_alt_back";
     private static final String ALT_TIP = "alt_tip";
+    private static final String WHAT_IF_TIP = "whatif_tip";
     private static final String SHARE_IMAGE = "pref_share";
     private static final String SHARE_MOBILE = "pref_mobile";
     private static final String NOTIFICATIONS_INTERVAL = "pref_notifications";
@@ -76,16 +77,13 @@ public class PrefHelper {
     private static final String THURSDAY_UPDATE_WHATIF = "thursday_update_whatif";
     private static final String ALT_DEFAULT = "pref_show_alt";
     private static final String LAST_WHATIF = "last_whatif";
-    //private static final String WHATIF_NIGHT_MODE = "night_mode";
     private static final String WHATIF_READ = "whatif_read";
-    private static final String COMIC_READ = "comic_read";
     private static final String WHATIF_FAV = "whatif_fav";
     private static final String NEWEST_WHATIF = "whatif_newest";
     private static final String HIDE_READ_WHATIF = "hide_read";
     private static final String HIDE_READ_OVERVIEW = "hide_read_overview";
     private static final String SWIPE_ENABLED = "whatif_swipe";
     private static final String RATE_SNACKBAR = "rate_snackbar";
-    //private static final String THEME = "pref_theme";
     private static final String WHATIF_OFFLINE = "pref_offline_whatif";
     private static final String WHATIF_TITLES = "whatif_titles";
     private static final String NOMEDIA_CREATED = "nomedia_created";
@@ -98,15 +96,8 @@ public class PrefHelper {
     private static final String ALT_ACTIVATION = "pref_alt_activation";
     private static final String SURVEY_SNACKBAR = "survey_snackbar";
     private static final String CUSTOM_THEMES_SNACKBAR = "custom_themes_snackbar";
-    //private static final String NIGHT_THEME = "pref_night";
-    //private static final String INVERT_COLORS = "pref_invert";
     private static final String COLORED_NAVBAR = "pref_navbar";
     private static final String MOBILE_ENABLED = "pref_update_mobile";
-    /*private static final String AUTO_NIGHT = "pref_auto_night";
-    private static final String AUTO_NIGHT_START_MIN = "pref_auto_night_start_min";
-    private static final String AUTO_NIGHT_START_HOUR = "pref_auto_night_start_hour";
-    private static final String AUTO_NIGHT_END_MIN = "pref_auto_night_end_min";
-    private static final String AUTO_NIGHT_END_HOUR = "pref_auto_night_end_hour";*/
     private static final String OFFLINE_PATH = "pref_offline_path";
     private static final String ZOOM_SCROLL = "pref_zoom_scroll";
     private static final String OVERVIEW_FAV = "overview_fav";
@@ -128,18 +119,6 @@ public class PrefHelper {
 
     public void setFullOffline(boolean value) {
         prefs.edit().putBoolean(FULL_OFFLINE, value).apply();
-    }
-
-    public String getComicTitles() {
-        return sharedPrefs.getString(COMIC_TITLES, "");
-    }
-
-    public String getComicTrans() {
-        return sharedPrefs.getString(COMIC_TRANS, "");
-    }
-
-    public String getComicUrls() {
-        return sharedPrefs.getString(COMIC_URLS, "");
     }
 
     public boolean fabEnabled(String prefTag) {
@@ -241,8 +220,16 @@ public class PrefHelper {
         return sharedPrefs.getBoolean(ALT_TIP, true);
     }
 
+    public boolean showWhatIfTip() {
+        return sharedPrefs.getBoolean(WHAT_IF_TIP, true);
+    }
+
     public void setAltTip(boolean value) {
         sharedPrefs.edit().putBoolean(ALT_TIP, value).apply();
+    }
+
+    public void setWhatIfTip(boolean value) {
+        sharedPrefs.edit().putBoolean(WHAT_IF_TIP, value).apply();
     }
 
     public boolean shareImage() {
@@ -524,55 +511,6 @@ public class PrefHelper {
                     .show();
         }
     }
-
-    /*public int getTheme() {
-        if (nightThemeEnabled())
-            return R.style.NightTheme;
-
-        int n = Integer.parseInt(prefs.getString(THEME, "1"));
-        switch (n) {
-            case 1:
-                return R.style.DefaultTheme;
-            case 2:
-                return R.style.RedTheme;
-            case 3:
-                return R.style.BlueTheme;
-            case 4:
-                return R.style.BlackTheme;
-            case 5:
-                return R.style.PurpleTheme;
-            case 6:
-                return R.style.LimeTheme;
-            case 7:
-                return R.style.GreenTheme;
-            default:
-                return R.style.DefaultTheme;
-        }
-    }*/
-
-    /*public int getDialogTheme() {
-        if (nightThemeEnabled())
-            return R.style.AlertDialogNight;
-        int n = Integer.parseInt(prefs.getString(THEME, "1"));
-        switch (n) {
-            case 1:
-                return R.style.AlertDialog;
-            case 2:
-                return R.style.AlertDialogRed;
-            case 3:
-                return R.style.AlertDialogBlue;
-            case 4:
-                return R.style.AlertDialogBlack;
-            case 5:
-                return R.style.AlertDialogPurple;
-            case 6:
-                return R.style.AlertDialogLime;
-            case 7:
-                return R.style.AlertDialogGreen;
-            default:
-                return R.style.AlertDialog;
-        }
-    }*/
 
     public int getNewestWhatIf() {
         return sharedPrefs.getInt(NEWEST_WHATIF, 1);

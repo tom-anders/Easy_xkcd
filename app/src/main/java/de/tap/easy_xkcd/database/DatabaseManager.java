@@ -335,6 +335,13 @@ public class DatabaseManager {
         getSharedPrefs().edit().putBoolean(REALM_DATABASE_LOADED, loaded).apply();
     }
 
+    public static String getTranscript(int number, Context context) {
+        RealmComic comic = Realm.getInstance(context).where(RealmComic.class).equalTo("comicNumber", number).findFirst();
+        if (comic != null)
+            return comic.getTranscript();
+        return " ";
+    }
+
     ////////////////// WHAT IF DATABASE /////////////////////////
 
     public int getWhatIfMissingThumbnailId(String title) {

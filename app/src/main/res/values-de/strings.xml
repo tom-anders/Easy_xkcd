@@ -286,5 +286,6 @@
     <string name="thread_not_found">Thread nicht gefunden!</string>
     <string name="loading_thread">Lade Thread…</string>
     <string name="action_thread">Öffne Reddit/Forum Thread</string>
+    <string name="what_if_tip">Schon gewusst? Tippe ein Bild an, um den mouseover Text anzuzeigen!</string>
 
 </resources>

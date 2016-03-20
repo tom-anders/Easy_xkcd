@@ -161,6 +161,10 @@ public class WhatIfActivity extends BaseActivity {
 
                     public void onPageFinished(WebView view, String url) {
                         WhatIfFragment.getInstance().updateRv();
+                        if (prefHelper.showWhatIfTip()) {
+                            Toast.makeText(WhatIfActivity.this, getResources().getString(R.string.what_if_tip), Toast.LENGTH_LONG).show();
+                            prefHelper.setWhatIfTip(false);
+                        }
                         if (mProgress != null)
                             mProgress.dismiss();
 
@@ -192,11 +196,11 @@ public class WhatIfActivity extends BaseActivity {
 
                             }
                         });
-
                     }
                 });
             } else {
-                mProgress.dismiss();
+                if (mProgress != null)
+                    mProgress.dismiss();
             }
             assert getSupportActionBar() != null;
             getSupportActionBar().setSubtitle(loadedArticle.getTitle());

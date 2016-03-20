@@ -82,6 +82,7 @@
     <string name="action_donate">Donate</string>
     <string name="action_trans">View Transcript</string>
     <string name="action_alt_tip">Tip: You can also view the alt text by long pressing the comic image.</string>
+    <string name="what_if_tip">Did you know? Tap an image to view its mouseover text!</string>
     <string name="search_title">Search</string>
     <string name="search_hint">Search a Comic</string>
     <string name="search_hint_whatif">Search an Article</string>

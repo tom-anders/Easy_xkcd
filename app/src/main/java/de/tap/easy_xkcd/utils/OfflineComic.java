@@ -26,6 +26,7 @@ import java.io.FileInputStream;
 import java.io.IOException;
 
 import de.tap.easy_xkcd.Activities.MainActivity;
+import de.tap.easy_xkcd.database.DatabaseManager;
 import okio.Okio;
 
 public class OfflineComic extends Comic {
@@ -69,13 +70,7 @@ public class OfflineComic extends Comic {
     }
 
     public String getTranscript() {
-        if (prefHelper.databaseLoaded()) {
-            String t = prefHelper.getComicTrans();
-            String[] trans = t.split("&&");
-            return trans[mComicNumber-1];
-        } else {
-            return " ";
-        }
+        return DatabaseManager.getTranscript(mComicNumber, mContext);
     }
 
 }
