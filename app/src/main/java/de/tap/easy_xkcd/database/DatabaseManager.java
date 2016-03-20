@@ -361,6 +361,8 @@ public class DatabaseManager {
                 return R.mipmap.burlap;
             case "Niagara Straw":
                 return R.mipmap.barrel;
+            case "Eat the Sun":
+                return R.mipmap.snakemeat;
             default:
                 return 0;
         }
