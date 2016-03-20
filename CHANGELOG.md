@@ -1,9 +1,13 @@
+## 5.0.3
+
+- Added 1509 to large comics
+- Added toast to let the user know about mouseover text in What-if
+
 ## 5.0
 
 - Open the Reddit or xkcd-Forum thread for comics and articles
 - Go to earliest unread comic in overview mode
 - New Database, search performance improved
-
 
 ## 4.3
 

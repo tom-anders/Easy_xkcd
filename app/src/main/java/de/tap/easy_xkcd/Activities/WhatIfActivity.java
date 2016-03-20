@@ -296,7 +296,11 @@ public class WhatIfActivity extends BaseActivity {
         new LoadWhatIf().execute();
         invalidateOptionsMenu();
 
-        WhatIfFragment.getInstance().getRv().scrollToPosition(WhatIfFragment.mTitles.size() - WhatIfIndex);
+        try {
+            WhatIfFragment.getInstance().getRv().scrollToPosition(WhatIfFragment.mTitles.size() - WhatIfIndex);
+        } catch (NullPointerException e) {
+            e.printStackTrace();
+        }
 
         prefHelper.setWhatifRead(String.valueOf(WhatIfIndex));
         invalidateOptionsMenu();
