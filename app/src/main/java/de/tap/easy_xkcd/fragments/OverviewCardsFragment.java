@@ -140,8 +140,6 @@ public class OverviewCardsFragment extends OverviewBaseFragment {
             int number = comic.getComicNumber();
             String title = comic.getTitle();
 
-            if (title.equals("Toasts//TODO fix transcripts"))
-                title = "Toasts";
             if (comic.isRead() && !prefHelper.overviewFav()) {
                 if (themePrefs.nightThemeEnabled())
                     comicViewHolder.comicTitle.setTextColor(ContextCompat.getColor(getActivity(), android.R.color.tertiary_text_light));

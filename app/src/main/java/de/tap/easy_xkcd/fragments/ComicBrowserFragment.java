@@ -226,7 +226,12 @@ public class ComicBrowserFragment extends ComicFragment {
                                 .into(new SimpleTarget<Bitmap>() {
                                     @Override
                                     public void onResourceReady(Bitmap resource, GlideAnimation<? super Bitmap> glideAnimation) {
+                                        pvComic.setAlpha(0f);
                                         pvComic.setImageBitmap(resource);
+                                        pvComic.animate()
+                                                .alpha(1f)
+                                                .setDuration(200);
+
                                         if (position == lastComicNumber - 1) {
                                             if (((MainActivity) getActivity()).getProgressDialog() != null)
                                                 ((MainActivity) getActivity()).getProgressDialog().dismiss();
@@ -234,9 +239,6 @@ public class ComicBrowserFragment extends ComicFragment {
                                         }
                                     }
                                 });
-
-                    if (title.equals("Toasts//TODO fix transcripts"))
-                        title = "Toasts";
                     tvTitle.setText(title);
                 }
 
@@ -274,7 +276,7 @@ public class ComicBrowserFragment extends ComicFragment {
                 @Override
                 protected void onPostExecute(Void dummy) {
                     if (comic != null && getActivity() != null) {
-                        if (!loadedFromDatabase || largeComic ||interactiveComic)
+                        if (!loadedFromDatabase || largeComic || interactiveComic)
                             displayComic(comic.getComicData()[2], comic.getComicData()[0]);
                         tvAlt.setText(comic.getComicData()[1]);
 

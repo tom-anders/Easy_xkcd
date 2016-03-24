@@ -596,57 +596,30 @@ public class MainActivity extends BaseActivity {
 
     public void showOverview() {
         android.support.v4.app.FragmentManager fragmentManager = getSupportFragmentManager();
+        FragmentTransaction transaction = fragmentManager.beginTransaction();
 
         if (fragmentManager.findFragmentByTag(OVERVIEW_TAG) != null) {
             int pos = ((ComicFragment) fragmentManager.findFragmentByTag(BROWSER_TAG)).lastComicNumber;
             ((OverviewBaseFragment) fragmentManager.findFragmentByTag(OVERVIEW_TAG)).notifyAdapter(pos);
         }
 
-        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.LOLLIPOP) {
-            if (fragmentManager.findFragmentByTag(OVERVIEW_TAG) == null) {
-                OverviewBaseFragment overviewBaseFragment = null;
-                switch (prefHelper.getOverviewStyle()) {
-                    case 0:
-                        overviewBaseFragment = new OverviewListFragment();
-                        break;
-                    case 1:
-                        overviewBaseFragment = new OverviewCardsFragment();
-                        break;
-                }
-                fragmentManager.beginTransaction().add(R.id.flContent, overviewBaseFragment, OVERVIEW_TAG).commitAllowingStateLoss();
-            } else
-                fragmentManager.beginTransaction().show(fragmentManager.findFragmentByTag(OVERVIEW_TAG)).commitAllowingStateLoss();
-            fragmentManager.beginTransaction().hide(fragmentManager.findFragmentByTag(BROWSER_TAG)).commitAllowingStateLoss();
-        } else {
-            Transition left = TransitionInflater.from(this).inflateTransition(android.R.transition.slide_left);
-            Transition right = TransitionInflater.from(this).inflateTransition(android.R.transition.fade);
-            fragmentManager.findFragmentByTag(BROWSER_TAG).setExitTransition(right);
-
-            if (fragmentManager.findFragmentByTag(OVERVIEW_TAG) == null) {
-                OverviewBaseFragment overviewBaseFragment = null;
-                switch (prefHelper.getOverviewStyle()) {
-                    case 0:
-                        overviewBaseFragment = new OverviewListFragment();
-                        break;
-                    case 1:
-                        overviewBaseFragment = new OverviewCardsFragment();
-                        break;
-                }
-                overviewBaseFragment.setEnterTransition(left);
-                getSupportFragmentManager().beginTransaction()
-                        .hide(fragmentManager.findFragmentByTag(BROWSER_TAG))
-                        .add(R.id.flContent, overviewBaseFragment, OVERVIEW_TAG)
-                        .commit();
-            } else {
-                fragmentManager.findFragmentByTag(OVERVIEW_TAG).setEnterTransition(left);
-                getSupportFragmentManager().beginTransaction()
-                        .hide(fragmentManager.findFragmentByTag(BROWSER_TAG))
-                        .show(fragmentManager.findFragmentByTag(OVERVIEW_TAG))
-
-                        .commit();
+        transaction.setCustomAnimations(R.anim.slide_in_left, R.anim.slide_out_right);
+        if (fragmentManager.findFragmentByTag(OVERVIEW_TAG) == null) {
+            OverviewBaseFragment overviewBaseFragment = null;
+            switch (prefHelper.getOverviewStyle()) {
+                case 0:
+                    overviewBaseFragment = new OverviewListFragment();
+                    break;
+                case 1:
+                    overviewBaseFragment = new OverviewCardsFragment();
+                    break;
             }
-            fragmentManager.findFragmentByTag(BROWSER_TAG).setExitTransition(null);
-        }
+            transaction.add(R.id.flContent, overviewBaseFragment, OVERVIEW_TAG);
+        } else
+            transaction.show(fragmentManager.findFragmentByTag(OVERVIEW_TAG));
+        transaction.hide(fragmentManager.findFragmentByTag(BROWSER_TAG)).commitAllowingStateLoss();
+
+
         assert getSupportActionBar() != null;
         getSupportActionBar().setSubtitle("");
     }

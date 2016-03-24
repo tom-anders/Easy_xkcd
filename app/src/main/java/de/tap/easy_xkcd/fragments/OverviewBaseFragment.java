@@ -1,14 +1,11 @@
 package de.tap.easy_xkcd.fragments;
 
-import android.app.ProgressDialog;
 import android.content.DialogInterface;
-import android.os.AsyncTask;
 import android.os.Build;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v7.widget.Toolbar;
 import android.transition.Transition;
 import android.transition.TransitionInflater;
-import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
@@ -16,13 +13,9 @@ import android.view.View;
 
 import com.tap.xkcd_reader.R;
 
-import java.io.IOException;
-import java.util.Arrays;
-
 import de.tap.easy_xkcd.Activities.MainActivity;
 import de.tap.easy_xkcd.database.DatabaseManager;
 import de.tap.easy_xkcd.database.RealmComic;
-import de.tap.easy_xkcd.utils.Comic;
 import de.tap.easy_xkcd.utils.PrefHelper;
 import de.tap.easy_xkcd.utils.ThemePrefs;
 import io.realm.Realm;
@@ -64,21 +57,13 @@ public abstract class OverviewBaseFragment extends android.support.v4.app.Fragme
         ComicFragment fragment = (ComicFragment) fragmentManager.findFragmentByTag(BROWSER_TAG);
         fragment.scrollTo(number, false);
 
-        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.LOLLIPOP) {
-            fragmentManager.beginTransaction().hide(fragmentManager.findFragmentByTag(OVERVIEW_TAG)).show(fragment).commitAllowingStateLoss();
-        } else {
-            Transition left = TransitionInflater.from(getActivity()).inflateTransition(android.R.transition.slide_left);
-            Transition right = TransitionInflater.from(getActivity()).inflateTransition(android.R.transition.slide_right);
 
-            OverviewBaseFragment.this.setExitTransition(left);
+        getFragmentManager().beginTransaction()
+                .setCustomAnimations(R.anim.slide_in_right, R.anim.slide_out_left)
+                .hide(fragmentManager.findFragmentByTag(OVERVIEW_TAG))
+                .show(fragment)
+                .commit();
 
-            fragment.setEnterTransition(right);
-
-            getFragmentManager().beginTransaction()
-                    .hide(fragmentManager.findFragmentByTag(OVERVIEW_TAG))
-                    .show(fragment)
-                    .commit();
-        }
 
         if (prefHelper.subtitleEnabled())
             ((MainActivity) getActivity()).getToolbar().setSubtitle(String.valueOf(fragment.lastComicNumber));
@@ -113,7 +98,7 @@ public abstract class OverviewBaseFragment extends android.support.v4.app.Fragme
         menu.findItem(R.id.action_boomark).setVisible(prefHelper.getBookmark() != 0).setTitle(R.string.open_bookmark);
         menu.findItem(R.id.action_hide_read).setChecked(prefHelper.hideRead());
         menu.findItem(R.id.action_search).setVisible(false);
-        menu.findItem(R.id.action_boomark).setVisible(bookmark!=0);
+        menu.findItem(R.id.action_boomark).setVisible(bookmark != 0);
 
         MenuItem fav = menu.findItem(R.id.action_favorite);
         if (!prefHelper.overviewFav()) {
