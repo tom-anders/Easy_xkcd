@@ -1,3 +1,8 @@
+## 5.0.4
+
+- Smoother animations for overview mode
+- Switched to m.reddit.com links
+
 ## 5.0.3
 
 - Added 1509 to large comics
