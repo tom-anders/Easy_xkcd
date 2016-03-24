@@ -427,8 +427,10 @@ public class DatabaseManager {
             progress.dismiss();
             if (url.equals(""))
                 Toast.makeText(context, context.getString(R.string.thread_not_found), Toast.LENGTH_SHORT).show();
-            else
+            else {
+                url = url.replace("www", "m");
                 context.startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse(url)));
+            }
         }
     }
 
