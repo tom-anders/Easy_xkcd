@@ -48,7 +48,7 @@ public class ArticleDownloadService extends IntentService {
                         .setAutoCancel(true);
 
         NotificationManager mNotificationManager = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
-        mNotificationManager.notify(0, mBuilder.build());
+        mNotificationManager.notify(1, mBuilder.build());
 
         PrefHelper prefHelper = new PrefHelper(getApplicationContext());
         File sdCard = prefHelper.getOfflinePath();
