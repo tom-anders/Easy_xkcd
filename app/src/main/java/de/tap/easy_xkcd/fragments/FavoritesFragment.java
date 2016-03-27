@@ -31,6 +31,7 @@ import android.support.design.widget.Snackbar;
 import android.support.v4.content.FileProvider;
 import android.support.v4.view.ViewPager;
 import android.support.v7.widget.Toolbar;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -214,7 +215,7 @@ public class FavoritesFragment extends ComicFragment {
                         break;
                     case 1:
                         if (prefHelper.isOnline(getActivity()) || prefHelper.fullOfflineEnabled())
-                            startActivityForResult(new Intent(getActivity(), CustomFilePickerActivity.class), 1);
+                            getActivity().startActivityForResult(new Intent(getActivity(), CustomFilePickerActivity.class), 2);
                         else
                             Toast.makeText(getActivity(), getResources().getString(R.string.no_connection), Toast.LENGTH_SHORT).show();
                         break;
@@ -225,7 +226,7 @@ public class FavoritesFragment extends ComicFragment {
         return true;
     }
 
-    private void importFavorites(Intent intent) {
+    public void importFavorites(Intent intent) {
         String filePath = intent.getStringExtra(FilePickerActivity.RESULT_FILE_PATH);
         try {
             File file = new File(filePath);
@@ -300,12 +301,6 @@ public class FavoritesFragment extends ComicFragment {
             refresh();
         }
 
-    }
-
-    @Override
-    public void onActivityResult(int requestCode, int resultCode, Intent data) {
-        if (requestCode == 1 && resultCode == FilePickerActivity.RESULT_OK)
-            importFavorites(data);
     }
 
     private void exportFavorites() {

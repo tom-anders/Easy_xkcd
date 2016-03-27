@@ -100,7 +100,6 @@ public class DatabaseManager {
     }
 
     private void addFavorite(int fav) {
-        Log.d("test", "test");
         String favorites = getSharedPrefs().getString(FAVORITES, null);
         if (favorites == null)
             favorites = String.valueOf(fav);

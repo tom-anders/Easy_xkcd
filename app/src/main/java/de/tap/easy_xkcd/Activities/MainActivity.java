@@ -43,6 +43,7 @@ import android.support.v7.app.AlertDialog;
 import android.support.v7.widget.Toolbar;
 import android.transition.Transition;
 import android.transition.TransitionInflater;
+import android.util.Log;
 import android.util.TypedValue;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -53,6 +54,7 @@ import android.widget.SearchView;
 import android.widget.Toast;
 
 import com.commonsware.cwac.wakeful.WakefulIntentService;
+import com.nbsp.materialfilepicker.ui.FilePickerActivity;
 import com.tap.xkcd_reader.R;
 
 import java.util.Random;
@@ -759,6 +761,8 @@ public class MainActivity extends BaseActivity {
                         WakefulIntentService.cancelAlarms(this);
                     break;
             }
+        } else if (requestCode == 2 && resultCode == FilePickerActivity.RESULT_OK) {
+            ((FavoritesFragment) getSupportFragmentManager().findFragmentByTag(FAV_TAG)).importFavorites(data);
         }
     }
 
