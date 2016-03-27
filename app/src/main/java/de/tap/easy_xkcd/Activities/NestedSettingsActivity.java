@@ -135,7 +135,8 @@ public class NestedSettingsActivity extends BaseActivity implements OnDirectoryC
         File path = event.getFile();
         File oldPath = prefHelper.getOfflinePath();
         prefHelper.setOfflinePath(path.getAbsolutePath());
-        if (MainActivity.fullOffline | MainActivity.fullOfflineWhatIf)
+        //if (MainActivity.fullOffline | MainActivity.fullOfflineWhatIf)
+        if (oldPath.exists())
             new moveData().execute(new String[]{oldPath.getAbsolutePath(), path.getAbsolutePath()});
     }
 
