@@ -295,8 +295,6 @@ public abstract class ComicFragment extends android.support.v4.app.Fragment {
 
         @Override
         protected void onPostExecute(Void dummy) {
-            if (mAddedNumber <= ((MainActivity) getActivity()).getDatabaseManager().getHighestInDatabase())
-                ((MainActivity) getActivity()).getDatabaseManager().setFavorite(mAddedNumber, true);
             if (downloadImage) {
                 saveComic(mAddedNumber, mBitmap);
             }
