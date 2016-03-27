@@ -22,7 +22,9 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.util.Arrays;
+import java.util.HashSet;
 import java.util.Random;
+import java.util.Set;
 
 import de.tap.easy_xkcd.Activities.SearchResultsActivity;
 import de.tap.easy_xkcd.CustomTabHelpers.BrowserFallback;
@@ -66,11 +68,14 @@ public class DatabaseManager {
         String fs = getSharedPrefs().getString(FAVORITES, null);
         if (fs == null)
             return null;
-        String[] f = fs.split(",");
+        HashSet<String> fSet = new HashSet<>(Arrays.asList(fs.split(","))); // HashSet automatically removes duplicate Items.
+        String[] f = new String[fSet.size()];                               // (There was a bug before where favorites would be added twice,
+        fSet.toArray(f);                                                    // so this fixes it while not risking to lose any data
         int[] fav = new int[f.length];
         for (int i = 0; i < f.length; i++)
             fav[i] = Integer.parseInt(f[i]);
         Arrays.sort(fav);
+
         return fav;
     }
 
