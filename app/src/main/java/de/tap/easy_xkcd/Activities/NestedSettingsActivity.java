@@ -117,7 +117,8 @@ public class NestedSettingsActivity extends BaseActivity implements OnDirectoryC
                     new Timer().schedule(new TimerTask() {
                         @Override
                         public void run() {
-                            DialogFragment directoryChooserFragment = DirectoryChooserFragment.newInstance(Environment.getExternalStorageDirectory());
+                            //DialogFragment directoryChooserFragment = DirectoryChooserFragment.newInstance(Environment.getExternalStorageDirectory());
+                            DialogFragment directoryChooserFragment = DirectoryChooserFragment.newInstance(new File("/"));
                             FragmentTransaction transaction = getManger().beginTransaction();
                             directoryChooserFragment.show(transaction, "RDC");
                         }

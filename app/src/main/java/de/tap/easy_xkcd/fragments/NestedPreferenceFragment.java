@@ -454,7 +454,8 @@ public class NestedPreferenceFragment extends PreferenceFragment {
                     @Override
                     public boolean onPreferenceClick(Preference preference) {
                         if (ContextCompat.checkSelfPermission(getActivity(), Manifest.permission.WRITE_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED) {
-                            DialogFragment directoryChooserFragment = DirectoryChooserFragment.newInstance(Environment.getExternalStorageDirectory());
+                            //DialogFragment directoryChooserFragment = DirectoryChooserFragment.newInstance(Environment.getExternalStorageDirectory());
+                            DialogFragment directoryChooserFragment = DirectoryChooserFragment.newInstance(new File("/"));
 
                             FragmentTransaction transaction = ((NestedSettingsActivity) getActivity()).getManger().beginTransaction();
                             directoryChooserFragment.show(transaction, "RDC");

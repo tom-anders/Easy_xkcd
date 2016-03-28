@@ -1,3 +1,7 @@
+## 5.0.5
+
+- Fixed bug where favorites would appear twice
+
 ## 5.0.4
 
 - Smoother animations for overview mode
