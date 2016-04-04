@@ -10,7 +10,6 @@ import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.view.MenuItemCompat;
-import android.support.v7.widget.CardView;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
@@ -23,13 +22,9 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.animation.DecelerateInterpolator;
 import android.view.inputmethod.InputMethodManager;
-import android.widget.ImageView;
 import android.widget.SearchView;
-import android.widget.TextClock;
-import android.widget.TextView;
 import android.widget.Toast;
 
-import com.bumptech.glide.Glide;
 import com.tap.xkcd_reader.R;
 
 import org.jsoup.Jsoup;
@@ -49,7 +44,6 @@ import butterknife.Bind;
 import butterknife.ButterKnife;
 import de.tap.easy_xkcd.Activities.MainActivity;
 import de.tap.easy_xkcd.Activities.WhatIfActivity;
-import de.tap.easy_xkcd.database.DatabaseManager;
 import de.tap.easy_xkcd.utils.PrefHelper;
 import de.tap.easy_xkcd.utils.ThemePrefs;
 import jp.wasabeef.recyclerview.animators.adapters.SlideInBottomAnimationAdapter;
@@ -66,7 +60,7 @@ public class WhatIfFragment extends android.support.v4.app.Fragment {
     @Bind(R.id.rv)
     RecyclerView rv;
     private MenuItem searchMenuItem;
-    public static RVAdapter adapter;
+    public static WhatIfRVAdapter adapter;
     private static WhatIfFragment instance;
     public static boolean newIntent;
     private boolean offlineMode;
@@ -74,7 +68,6 @@ public class WhatIfFragment extends android.support.v4.app.Fragment {
     private static final String OFFLINE_WHATIF_PATH = "/easy xkcd/what if/";
     private PrefHelper prefHelper;
     private ThemePrefs themePrefs;
-    private DatabaseManager databaseManager;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
@@ -83,7 +76,6 @@ public class WhatIfFragment extends android.support.v4.app.Fragment {
         setHasOptionsMenu(true);
         prefHelper = ((MainActivity) getActivity()).getPrefHelper();
         themePrefs = ((MainActivity) getActivity()).getThemePrefs();
-        databaseManager = ((MainActivity) getActivity()).getDatabaseManager();
 
         LinearLayoutManager llm = new LinearLayoutManager(getActivity());
         rv.setLayoutManager(llm);
@@ -286,18 +278,9 @@ public class WhatIfFragment extends android.support.v4.app.Fragment {
         }
     }
 
-    public class RVAdapter extends RecyclerView.Adapter<RVAdapter.ComicViewHolder> {
-        public ArrayList<String> titles; //TODO merge with WhatIfFavoritesFragment Adapter
-        private ArrayList<String> imgs;
-
-        @Override
-        public int getItemCount() {
-            return titles.size();
-        }
-
-        public RVAdapter(ArrayList<String> t, ArrayList<String> i) {
-            this.titles = t;
-            this.imgs = i;
+    public class WhatIfRVAdapter extends WhatIfOverviewFragment.RVAdapter {
+        public WhatIfRVAdapter(ArrayList<String> t, ArrayList<String> i, MainActivity activity) {
+            super(t,i, activity);
         }
 
         @Override
@@ -310,12 +293,7 @@ public class WhatIfFragment extends android.support.v4.app.Fragment {
 
         @Override
         public void onBindViewHolder(final ComicViewHolder comicViewHolder, int i) {
-            comicViewHolder.articleTitle.setText(titles.get(i));
-            String title = titles.get(i);
-            int n = mTitles.size() - mTitles.indexOf(title);
-            comicViewHolder.articleNumber.setText(String.valueOf(n));
-
-            if (prefHelper.checkRead(n)) {
+            if (prefHelper.checkRead(titles.size() - titles.indexOf(titles.get(i)))) {
                 if (themePrefs.nightThemeEnabled())
                     comicViewHolder.articleTitle.setTextColor(ContextCompat.getColor(getActivity(), android.R.color.tertiary_text_light));
                 else
@@ -326,54 +304,11 @@ public class WhatIfFragment extends android.support.v4.app.Fragment {
                 else
                     comicViewHolder.articleTitle.setTextColor(ContextCompat.getColor(getActivity(), android.R.color.tertiary_text_light));
             }
-
-            int id = databaseManager.getWhatIfMissingThumbnailId(title);
-            if (id != 0) {
-                comicViewHolder.thumbnail.setImageDrawable(ContextCompat.getDrawable(getActivity(), id));
-                return;
-            }
-            if (offlineMode) {
-                File offlinePath = prefHelper.getOfflinePath();
-                File dir = new File(offlinePath.getAbsolutePath() + OFFLINE_WHATIF_OVERVIEW_PATH);
-                File file = new File(dir, String.valueOf(n) + ".png");
-
-                Glide.with(getActivity())
-                        .load(file)
-                        .into(comicViewHolder.thumbnail);
-            } else {
-                Glide.with(getActivity())
-                        .load(imgs.get(i))
-                        .into(comicViewHolder.thumbnail);
-            }
-            if (themePrefs.invertColors())
-                comicViewHolder.thumbnail.setColorFilter(themePrefs.getNegativeColorFilter());
-
-        }
-
-        @Override
-        public void onAttachedToRecyclerView(RecyclerView recyclerView) {
-            super.onAttachedToRecyclerView(recyclerView);
-        }
-
-        public class ComicViewHolder extends RecyclerView.ViewHolder {
-            CardView cv;
-            TextView articleTitle;
-            TextView articleNumber;
-            ImageView thumbnail;
-
-            ComicViewHolder(View itemView) {
-                super(itemView);
-                cv = (CardView) itemView.findViewById(R.id.cv);
-                if (themePrefs.nightThemeEnabled())
-                    cv.setCardBackgroundColor(ContextCompat.getColor(getActivity(), R.color.background_material_dark));
-                articleTitle = (TextView) itemView.findViewById(R.id.article_title);
-                articleNumber = (TextView) itemView.findViewById(R.id.article_info);
-                thumbnail = (ImageView) itemView.findViewById(R.id.thumbnail);
-            }
+            super.onBindViewHolder(comicViewHolder, i);
         }
     }
 
-    class CustomOnClickListener implements View.OnClickListener {
+    private class CustomOnClickListener implements View.OnClickListener {
         @Override
         public void onClick(View v) {
             if (!prefHelper.isOnline(getActivity()) && !offlineMode) {
@@ -497,13 +432,13 @@ public class WhatIfFragment extends android.support.v4.app.Fragment {
                         imgUnread.add(mImgs.get(i));
                 }
             }
-            adapter = new RVAdapter(titleUnread, imgUnread);
+            adapter = new WhatIfRVAdapter(titleUnread, imgUnread, (MainActivity) getActivity());
             SlideInBottomAnimationAdapter slideAdapter = new SlideInBottomAnimationAdapter(adapter);
             slideAdapter.setInterpolator(new DecelerateInterpolator());
             rv.setAdapter(slideAdapter);
             rv.scrollToPosition(titleUnread.size() - prefHelper.getLastWhatIf());
         } else {
-            adapter = new RVAdapter(mTitles, mImgs);
+            adapter = new WhatIfRVAdapter(mTitles, mImgs, (MainActivity) getActivity());
             SlideInBottomAnimationAdapter slideAdapter = new SlideInBottomAnimationAdapter(adapter);
             slideAdapter.setInterpolator(new DecelerateInterpolator());
             rv.setAdapter(slideAdapter);
@@ -540,7 +475,7 @@ public class WhatIfFragment extends android.support.v4.app.Fragment {
                             imgResults.add(mImgs.get(i));
                     }
                 }
-                adapter = new RVAdapter(titleResults, imgResults);
+                adapter = new WhatIfRVAdapter(titleResults, imgResults, (MainActivity) getActivity());
                 SlideInBottomAnimationAdapter slideAdapter = new SlideInBottomAnimationAdapter(adapter);
                 slideAdapter.setInterpolator(new DecelerateInterpolator());
                 rv.setAdapter(slideAdapter);
@@ -568,7 +503,7 @@ public class WhatIfFragment extends android.support.v4.app.Fragment {
                     InputMethodManager imm = (InputMethodManager) getActivity().getSystemService(Context.INPUT_METHOD_SERVICE);
                     imm.hideSoftInputFromWindow(view.getWindowToken(), 0);
                 }
-                adapter = new RVAdapter(mTitles, mImgs);
+                adapter = new WhatIfRVAdapter(mTitles, mImgs, (MainActivity) getActivity());
                 SlideInBottomAnimationAdapter slideAdapter = new SlideInBottomAnimationAdapter(adapter);
                 slideAdapter.setInterpolator(new DecelerateInterpolator());
                 rv.setAdapter(slideAdapter);

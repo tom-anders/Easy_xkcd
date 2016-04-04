@@ -1,6 +1,8 @@
 package de.tap.easy_xkcd.fragments;
 
 import android.app.ProgressDialog;
+import android.content.Context;
+import android.content.Intent;
 import android.content.res.Resources;
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -9,26 +11,38 @@ import android.support.design.widget.TabLayout;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentPagerAdapter;
+import android.support.v4.content.ContextCompat;
 import android.support.v4.view.ViewPager;
+import android.support.v7.widget.CardView;
+import android.support.v7.widget.RecyclerView;
 import android.util.TypedValue;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
+import android.widget.TextView;
+import android.widget.Toast;
 
+import com.bumptech.glide.Glide;
 import com.tap.xkcd_reader.R;
 
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 
+import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
 
 import butterknife.Bind;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
 import de.tap.easy_xkcd.Activities.MainActivity;
+import de.tap.easy_xkcd.Activities.WhatIfActivity;
+import de.tap.easy_xkcd.database.DatabaseManager;
 import de.tap.easy_xkcd.utils.PrefHelper;
+import de.tap.easy_xkcd.utils.ThemePrefs;
 
 public class WhatIfOverviewFragment extends android.support.v4.app.Fragment {
 
@@ -37,14 +51,14 @@ public class WhatIfOverviewFragment extends android.support.v4.app.Fragment {
     @Bind(R.id.fab) FloatingActionButton fab;
     private FragmentAdapter adapter;
     public static Document doc;
-    private PrefHelper prefHelper;
+    private static final String OFFLINE_WHATIF_OVERVIEW_PATH = "/easy xkcd/what if/overview";
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View v = inflater.inflate(R.layout.whatif_pager, container, false);
         ButterKnife.bind(this, v);
         setHasOptionsMenu(true);
-        prefHelper = ((MainActivity) getActivity()).getPrefHelper();
+        PrefHelper prefHelper = ((MainActivity) getActivity()).getPrefHelper();
 
         if (savedInstanceState==null) {
             TypedValue typedValue = new TypedValue();
@@ -144,20 +158,82 @@ public class WhatIfOverviewFragment extends android.support.v4.app.Fragment {
         }
     }
 
+    public abstract static class RVAdapter extends RecyclerView.Adapter<RVAdapter.ComicViewHolder> {
+        public ArrayList<String> titles;
+        private ArrayList<String> imgs;
+
+        private PrefHelper prefHelper;
+        private DatabaseManager databaseManager;
+        private ThemePrefs themePrefs;
+        private Context context;
+
+        public RVAdapter(ArrayList<String> t, ArrayList<String> i, MainActivity activity) {
+            this.titles = t;
+            this.imgs = i;
+            this.context = activity;
+            prefHelper = activity.getPrefHelper();
+            databaseManager = activity.getDatabaseManager();
+            themePrefs = activity.getThemePrefs();
+        }
+
+        @Override
+        public void onBindViewHolder(final ComicViewHolder comicViewHolder, int i) {
+            comicViewHolder.articleTitle.setText(titles.get(i));
+            String title = titles.get(i);
+            int n = WhatIfFragment.mTitles.size() - WhatIfFragment.mTitles.indexOf(title);
+
+            comicViewHolder.articleNumber.setText(String.valueOf(n));
+
+            int id = databaseManager.getWhatIfMissingThumbnailId(title);
+            if (id != 0) {
+                comicViewHolder.thumbnail.setImageDrawable(ContextCompat.getDrawable(context, id));
+                return;
+            }
+            if (prefHelper.fullOfflineWhatIf()) {
+                File offlinePath = prefHelper.getOfflinePath();
+                File dir = new File(offlinePath.getAbsolutePath() + OFFLINE_WHATIF_OVERVIEW_PATH);
+                File file = new File(dir, String.valueOf(n) + ".png");
+
+                Glide.with(context)
+                        .load(file)
+                        .into(comicViewHolder.thumbnail);
+            } else {
+                Glide.with(context)
+                        .load(imgs.get(i))
+                        .into(comicViewHolder.thumbnail);
+            }
+            if (themePrefs.invertColors())
+                comicViewHolder.thumbnail.setColorFilter(themePrefs.getNegativeColorFilter());
+        }
+
+        @Override
+        public int getItemCount() {
+            return titles.size();
+        }
+
+        public class ComicViewHolder extends RecyclerView.ViewHolder {
+            CardView cv;
+            TextView articleTitle;
+            TextView articleNumber;
+            ImageView thumbnail;
+
+            ComicViewHolder(View itemView) {
+                super(itemView);
+                cv = (CardView) itemView.findViewById(R.id.cv);
+                if (themePrefs.nightThemeEnabled())
+                    cv.setCardBackgroundColor(ContextCompat.getColor(context, R.color.background_material_dark));
+                articleTitle = (TextView) itemView.findViewById(R.id.article_title);
+                articleNumber = (TextView) itemView.findViewById(R.id.article_info);
+                thumbnail = (ImageView) itemView.findViewById(R.id.thumbnail);
+            }
+        }
+    }
+
+
+
     @Override
     public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
-        /*for (int i = 0; i < menu.size() - 2; i++)
-            menu.getItem(i).setVisible(false);
-
-        if (prefHelper.hideDonate())
-            menu.findItem(R.id.action_donate).setVisible(false);
-
-        menu.findItem(R.id.action_unread).setVisible(true);
-        menu.findItem(R.id.action_hide_read).setVisible(true);
-        menu.findItem(R.id.action_hide_read).setChecked(prefHelper.hideReadWhatIf());*/
-
         inflater.inflate(R.menu.menu_what_if_fragment, menu);
-
         super.onCreateOptionsMenu(menu, inflater);
     }
 }

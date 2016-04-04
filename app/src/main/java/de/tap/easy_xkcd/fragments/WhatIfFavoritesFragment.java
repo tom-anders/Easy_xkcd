@@ -7,8 +7,6 @@ import android.content.Intent;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
-import android.support.v4.content.ContextCompat;
-import android.support.v7.widget.CardView;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
@@ -17,18 +15,14 @@ import android.view.MenuInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.animation.DecelerateInterpolator;
-import android.widget.ImageView;
-import android.widget.TextView;
 import android.widget.Toast;
 
-import com.bumptech.glide.Glide;
 import com.tap.xkcd_reader.R;
 
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 
-import java.io.File;
 import java.util.ArrayList;
 import java.util.Collections;
 
@@ -36,9 +30,7 @@ import butterknife.Bind;
 import butterknife.ButterKnife;
 import de.tap.easy_xkcd.Activities.MainActivity;
 import de.tap.easy_xkcd.Activities.WhatIfActivity;
-import de.tap.easy_xkcd.database.DatabaseManager;
 import de.tap.easy_xkcd.utils.PrefHelper;
-import de.tap.easy_xkcd.utils.ThemePrefs;
 import jp.wasabeef.recyclerview.animators.adapters.SlideInBottomAnimationAdapter;
 
 public class WhatIfFavoritesFragment extends android.support.v4.app.Fragment {
@@ -47,11 +39,9 @@ public class WhatIfFavoritesFragment extends android.support.v4.app.Fragment {
     private static WhatIfFavoritesFragment instance;
     @Bind(R.id.rv)
     RecyclerView rv;
-    public static RVAdapter adapter;
-    private boolean fullOffline;
+    public static WhatIfFavoritesRVAdapter adapter;
+    private boolean offlineMode;
     private PrefHelper prefHelper;
-    private ThemePrefs themePrefs;
-    private DatabaseManager databaseManager;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
@@ -59,15 +49,13 @@ public class WhatIfFavoritesFragment extends android.support.v4.app.Fragment {
         ButterKnife.bind(this, v);
         setHasOptionsMenu(true);
         prefHelper = ((MainActivity) getActivity()).getPrefHelper();
-        themePrefs = ((MainActivity) getActivity()).getThemePrefs();
-        databaseManager = ((MainActivity) getActivity()).getDatabaseManager();
 
         instance = this;
         LinearLayoutManager llm = new LinearLayoutManager(getActivity());
         rv.setLayoutManager(llm);
         rv.setHasFixedSize(false);
 
-        fullOffline = prefHelper.fullOfflineWhatIf();
+        offlineMode = prefHelper.fullOfflineWhatIf();
         new DisplayOverview().execute();
 
         return v;
@@ -87,7 +75,7 @@ public class WhatIfFavoritesFragment extends android.support.v4.app.Fragment {
 
         @Override
         protected Void doInBackground(Void... dummy) {
-            if (!fullOffline) {
+            if (!offlineMode) {
                 mTitles.clear();
                 mImgs.clear();
 
@@ -119,12 +107,12 @@ public class WhatIfFavoritesFragment extends android.support.v4.app.Fragment {
             for (int i = 0; i < mTitles.size(); i++) {
                 if (prefHelper.checkWhatIfFav(mTitles.size() - i)) {
                     titleFav.add(mTitles.get(i));
-                    if (!fullOffline) {
+                    if (!offlineMode) {
                         imgFav.add(mImgs.get(i));
                     }
                 }
             }
-            adapter = new RVAdapter(titleFav, imgFav);
+            adapter = new WhatIfFavoritesRVAdapter(titleFav, imgFav, (MainActivity) getActivity());
             SlideInBottomAnimationAdapter slideAdapter = new SlideInBottomAnimationAdapter(adapter);
             slideAdapter.setInterpolator(new DecelerateInterpolator());
             rv.setAdapter(slideAdapter);
@@ -142,29 +130,20 @@ public class WhatIfFavoritesFragment extends android.support.v4.app.Fragment {
         for (int i = 0; i < mTitles.size(); i++) {
             if (prefHelper.checkWhatIfFav(mTitles.size() - i)) {
                 titleFav.add(mTitles.get(i));
-                if (!fullOffline) {
+                if (!offlineMode) {
                     imgFav.add(mImgs.get(i));
                 }
             }
         }
-        adapter = new RVAdapter(titleFav, imgFav);
+        adapter = new WhatIfFavoritesRVAdapter(titleFav, imgFav, (MainActivity) getActivity());
         SlideInBottomAnimationAdapter slideAdapter = new SlideInBottomAnimationAdapter(adapter);
         slideAdapter.setInterpolator(new DecelerateInterpolator());
         rv.setAdapter(slideAdapter);
     }
 
-    public class RVAdapter extends RecyclerView.Adapter<RVAdapter.ComicViewHolder> {
-        public ArrayList<String> titles;
-        public ArrayList<String> imgs;
-
-        @Override
-        public int getItemCount() {
-            return titles.size();
-        }
-
-        public RVAdapter(ArrayList<String> t, ArrayList<String> i) {
-            this.titles = t;
-            this.imgs = i;
+    public class WhatIfFavoritesRVAdapter extends WhatIfOverviewFragment.RVAdapter {
+        public WhatIfFavoritesRVAdapter(ArrayList<String> t, ArrayList<String> i, MainActivity activity) {
+            super(t, i, activity);
         }
 
         @Override
@@ -175,63 +154,12 @@ public class WhatIfFavoritesFragment extends android.support.v4.app.Fragment {
             return new ComicViewHolder(v);
         }
 
-        @Override
-        public void onBindViewHolder(final ComicViewHolder comicViewHolder, int i) {
-            comicViewHolder.articleTitle.setText(titles.get(i));
-            String title = titles.get(i);
-            int n = mTitles.size() - mTitles.indexOf(title);
-
-            int id = databaseManager.getWhatIfMissingThumbnailId(title);
-
-            if (id != 0) {
-                comicViewHolder.thumbnail.setImageDrawable(ContextCompat.getDrawable(getActivity(), id));
-                return;
-            }
-
-            if (!prefHelper.fullOfflineWhatIf()) {
-                Glide.with(getActivity())
-                        .load(imgs.get(i))
-                        .into(comicViewHolder.thumbnail);
-            } else {
-                File sdCard = prefHelper.getOfflinePath();
-                File dir = new File(sdCard.getAbsolutePath() + "/easy xkcd/what if/overview");
-                File file = new File(dir, String.valueOf(n) + ".png");
-
-                Glide.with(getActivity())
-                        .load(file)
-                        .into(comicViewHolder.thumbnail);
-            }
-
-            if (themePrefs.invertColors())
-                comicViewHolder.thumbnail.setColorFilter(themePrefs.getNegativeColorFilter());
-
-        }
-
-        @Override
-        public void onAttachedToRecyclerView(RecyclerView recyclerView) {
-            super.onAttachedToRecyclerView(recyclerView);
-        }
-
-        public class ComicViewHolder extends RecyclerView.ViewHolder {
-            CardView cv;
-            public TextView articleTitle;
-            ImageView thumbnail;
-
-            ComicViewHolder(View itemView) {
-                super(itemView);
-                cv = (CardView) itemView.findViewById(R.id.cv);
-                if (themePrefs.nightThemeEnabled())
-                    cv.setCardBackgroundColor(ContextCompat.getColor(getActivity(), R.color.background_material_dark));
-                articleTitle = (TextView) itemView.findViewById(R.id.article_title);
-                thumbnail = (ImageView) itemView.findViewById(R.id.thumbnail);
-            }
-        }
     }
 
-    class CustomOnClickListener implements View.OnClickListener {
+    private class CustomOnClickListener implements View.OnClickListener {
         @Override
         public void onClick(View v) {
-            if (!prefHelper.isOnline(getActivity()) && !fullOffline) {
+            if (!prefHelper.isOnline(getActivity()) && !offlineMode) {
                 Toast.makeText(getActivity(), R.string.no_connection, Toast.LENGTH_SHORT).show();
                 return;
             }
@@ -244,6 +172,7 @@ public class WhatIfFavoritesFragment extends android.support.v4.app.Fragment {
             prefHelper.setLastWhatIf(n);
         }
     }
+
 
     class CustomOnLongClickListener implements View.OnLongClickListener {
         @Override
@@ -284,11 +213,11 @@ public class WhatIfFavoritesFragment extends android.support.v4.app.Fragment {
                             for (int i = 0; i < mTitles.size(); i++) {
                                 if (prefHelper.checkWhatIfFav(mTitles.size() - i)) {
                                     titleFav.add(mTitles.get(i));
-                                    if (!fullOffline)
+                                    if (!offlineMode)
                                         imgFav.add(mImgs.get(i));
                                 }
                             }
-                            adapter = new RVAdapter(titleFav, imgFav);
+                            adapter = new WhatIfFavoritesRVAdapter(titleFav, imgFav, (MainActivity) getActivity());
                             SlideInBottomAnimationAdapter slideAdapter = new SlideInBottomAnimationAdapter(adapter);
                             slideAdapter.setInterpolator(new DecelerateInterpolator());
                             rv.setAdapter(slideAdapter);
