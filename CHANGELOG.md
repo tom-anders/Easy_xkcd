@@ -1,3 +1,7 @@
+## 5.0.6
+
+- Added article number to What-if overview
+
 ## 5.0.5
 
 - Fixed bug where favorites would appear twice
