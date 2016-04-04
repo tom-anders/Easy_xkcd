@@ -325,7 +325,7 @@ public class WhatIfActivity extends BaseActivity {
             menu.findItem(R.id.action_next).setVisible(false);
         }
         if (prefHelper.checkWhatIfFav(WhatIfIndex)) {
-            menu.findItem(R.id.action_favorite).setIcon(ContextCompat.getDrawable(this, R.drawable.ic_action_favorite));
+            menu.findItem(R.id.action_favorite).setIcon(ContextCompat.getDrawable(this, R.drawable.ic_action_favorite)).setTitle(R.string.action_favorite_remove);
         }
         return super.onPrepareOptionsMenu(menu);
     }

@@ -25,6 +25,7 @@ import android.view.animation.DecelerateInterpolator;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.ImageView;
 import android.widget.SearchView;
+import android.widget.TextClock;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -286,7 +287,7 @@ public class WhatIfFragment extends android.support.v4.app.Fragment {
     }
 
     public class RVAdapter extends RecyclerView.Adapter<RVAdapter.ComicViewHolder> {
-        public ArrayList<String> titles;
+        public ArrayList<String> titles; //TODO merge with WhatIfFavoritesFragment Adapter
         private ArrayList<String> imgs;
 
         @Override
@@ -312,6 +313,7 @@ public class WhatIfFragment extends android.support.v4.app.Fragment {
             comicViewHolder.articleTitle.setText(titles.get(i));
             String title = titles.get(i);
             int n = mTitles.size() - mTitles.indexOf(title);
+            comicViewHolder.articleNumber.setText(String.valueOf(n));
 
             if (prefHelper.checkRead(n)) {
                 if (themePrefs.nightThemeEnabled())
@@ -356,6 +358,7 @@ public class WhatIfFragment extends android.support.v4.app.Fragment {
         public class ComicViewHolder extends RecyclerView.ViewHolder {
             CardView cv;
             TextView articleTitle;
+            TextView articleNumber;
             ImageView thumbnail;
 
             ComicViewHolder(View itemView) {
@@ -364,6 +367,7 @@ public class WhatIfFragment extends android.support.v4.app.Fragment {
                 if (themePrefs.nightThemeEnabled())
                     cv.setCardBackgroundColor(ContextCompat.getColor(getActivity(), R.color.background_material_dark));
                 articleTitle = (TextView) itemView.findViewById(R.id.article_title);
+                articleNumber = (TextView) itemView.findViewById(R.id.article_info);
                 thumbnail = (ImageView) itemView.findViewById(R.id.thumbnail);
             }
         }
