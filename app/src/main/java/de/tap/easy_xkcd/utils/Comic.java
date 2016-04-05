@@ -104,6 +104,8 @@ public class Comic {
                 break;
             case 80: result[2] = "http://i.imgur.com/lWmI1lB.jpg";
                 break;
+            case 1663: result[2] = "http://explainxkcd.com/wiki/images/c/ce/garden.png";
+                break;
             case 1193: result[2] = "https://www.explainxkcd.com/wiki/images/0/0b/externalities.png";
                 break;
             case 1054: result[0] = "The Bacon";
