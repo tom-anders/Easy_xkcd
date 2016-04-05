@@ -1,20 +1,31 @@
+/**
+ * *******************************************************************************
+ * Copyright 2016 Tom Praschan
+ * <p/>
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ * <p/>
+ * http://www.apache.org/licenses/LICENSE-2.0
+ * <p/>
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ * ******************************************************************************
+ */
+
 package de.tap.easy_xkcd.Activities;
 
 import android.app.Activity;
 import android.app.ProgressDialog;
 import android.content.Intent;
-import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.os.AsyncTask;
-import android.os.Build;
 import android.os.Bundle;
-import android.os.Environment;
 import android.support.v4.app.DialogFragment;
 import android.support.v4.app.FragmentTransaction;
-import android.support.v4.content.ContextCompat;
-import android.support.v7.app.AppCompatActivity;
-import android.util.Log;
-import android.util.TypedValue;
 import android.widget.Toast;
 
 import com.tap.xkcd_reader.R;
@@ -35,7 +46,6 @@ import java.util.TimerTask;
 import de.tap.easy_xkcd.fragments.NestedPreferenceFragment;
 import de.tap.easy_xkcd.services.ArticleDownloadService;
 import de.tap.easy_xkcd.services.ComicDownloadService;
-import de.tap.easy_xkcd.utils.PrefHelper;
 
 public class NestedSettingsActivity extends BaseActivity implements OnDirectoryChooserFragmentInteraction  {
     private static final String APPEARANCE = "appearance";
@@ -56,6 +66,7 @@ public class NestedSettingsActivity extends BaseActivity implements OnDirectoryC
         if (savedInstanceState==null) {
             String key = getIntent().getStringExtra("key");
             getFragmentManager().beginTransaction().replace(R.id.content_frame, NestedPreferenceFragment.newInstance(key), "nested").commit();
+            assert getSupportActionBar() != null;
             switch (key) {
                 case APPEARANCE:
                     getSupportActionBar().setTitle(getResources().getString(R.string.pref_appearance));
@@ -82,42 +93,37 @@ public class NestedSettingsActivity extends BaseActivity implements OnDirectoryC
         switch (requestCode) {
             case 1:
                 if (grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                    //fragment.new downloadComicsTask().execute();
                     Toast.makeText(getApplicationContext(), getResources().getString(R.string.loading_comics), Toast.LENGTH_SHORT).show();
                     startService(new Intent(this, ComicDownloadService.class));
                 }
                 break;
             case 2:
-                if (grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                if (grantResults[0] == PackageManager.PERMISSION_GRANTED)
                     fragment.new deleteComicsTask().execute();
-                } else {
+                else
                     prefHelper.setFullOffline(true);
-                }
                 break;
             case 3:
                 if (grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                    //fragment.new downloadArticlesTask().execute();
                     Toast.makeText(this, getResources().getString(R.string.loading_articles), Toast.LENGTH_SHORT).show();
                     startService(new Intent(this, ArticleDownloadService.class));
                     prefHelper.setFullOfflineWhatIf(true);
                 }
                 break;
             case 4:
-                if (grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                if (grantResults[0] == PackageManager.PERMISSION_GRANTED)
                     fragment.new deleteArticlesTask().execute();
-                } else {
+                else
                     prefHelper.setFullOfflineWhatIf(true);
-                } break;
+                break;
             case 5:
-                if (grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                if (grantResults[0] == PackageManager.PERMISSION_GRANTED)
                     fragment.new repairComicsTask().execute();
-                }
             case 12:
                 if (grantResults[0] == PackageManager.PERMISSION_GRANTED) {
                     new Timer().schedule(new TimerTask() {
                         @Override
                         public void run() {
-                            //DialogFragment directoryChooserFragment = DirectoryChooserFragment.newInstance(Environment.getExternalStorageDirectory());
                             DialogFragment directoryChooserFragment = DirectoryChooserFragment.newInstance(new File("/"));
                             FragmentTransaction transaction = getManger().beginTransaction();
                             directoryChooserFragment.show(transaction, "RDC");
@@ -141,6 +147,9 @@ public class NestedSettingsActivity extends BaseActivity implements OnDirectoryC
             new moveData().execute(new String[]{oldPath.getAbsolutePath(), path.getAbsolutePath()});
     }
 
+    /**
+     * moves the folder for offline data to a new directory
+     */
     public class moveData extends AsyncTask<String[], Void, Void> {
         private ProgressDialog progress;
 
@@ -164,9 +173,7 @@ public class NestedSettingsActivity extends BaseActivity implements OnDirectoryC
             } catch (IOException e) {
                 e.printStackTrace();
             }
-
             deleteFolder(oldPath);
-
             return null;
         }
 

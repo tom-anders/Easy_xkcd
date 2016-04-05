@@ -83,6 +83,9 @@ public class WhatIfActivity extends BaseActivity {
         new LoadWhatIf().execute();
     }
 
+    /**
+     * JavaScript Object to display an image's alt text
+     */
     private class altObject {
         @JavascriptInterface
         public void performClick(String alt) {
@@ -92,11 +95,13 @@ public class WhatIfActivity extends BaseActivity {
         }
     }
 
+    /**
+     * JavaScript Object to display the footnotes
+     */
     private class refObject {
         @JavascriptInterface
         public void performClick(String n) {
-            Log.d("n", n);
-            if (WhatIfIndex == 141 && n.equals("2")) {
+            if (WhatIfIndex == 141 && n.equals("2")) { //This footnote contains an image
                 ImageView image = new ImageView(WhatIfActivity.this);
                 image.setImageResource(R.mipmap.brda);
                 image.setScaleType(ImageView.ScaleType.CENTER_INSIDE);
@@ -111,7 +116,7 @@ public class WhatIfActivity extends BaseActivity {
                     .setMessage(Html.fromHtml(loadedArticle.getRefs().get(Integer.parseInt(n))))
                     .show()
                     .findViewById(android.R.id.message))
-                    .setMovementMethod(LinkMovementMethod.getInstance());
+                    .setMovementMethod(LinkMovementMethod.getInstance()); //enable hyperlinks
         }
     }
 
@@ -210,7 +215,6 @@ public class WhatIfActivity extends BaseActivity {
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
-        // Inflate the menu; this adds items to the action bar if it is present.
         getMenuInflater().inflate(R.menu.menu_what_if, menu);
         menu.findItem(R.id.action_night_mode).setChecked(themePrefs.nightModeEnabled());
         menu.findItem(R.id.action_swipe).setChecked(prefHelper.swipeEnabled());
@@ -277,6 +281,11 @@ public class WhatIfActivity extends BaseActivity {
         return super.onOptionsItemSelected(item);
     }
 
+    /**
+     * Loads the next what-if
+     *
+     * @param left true if the user chose the previous what-if
+     */
     private boolean nextWhatIf(boolean left) {
         Animation animation;
         if (left) {
@@ -309,24 +318,23 @@ public class WhatIfActivity extends BaseActivity {
 
     @Override
     public boolean onPrepareOptionsMenu(Menu menu) {
-        if (WhatIfIndex == 1) {
+        if (WhatIfIndex == 1)
             menu.findItem(R.id.action_back).setVisible(false);
-        } else {
+        else
             menu.findItem(R.id.action_back).setVisible(true);
-        }
-        if (WhatIfIndex == WhatIfFragment.mTitles.size()) {
+
+        if (WhatIfIndex == WhatIfFragment.mTitles.size())
             menu.findItem(R.id.action_next).setVisible(false);
-        } else {
+        else
             menu.findItem(R.id.action_next).setVisible(true);
-        }
 
         if (menu.findItem(R.id.action_swipe).isChecked()) {
             menu.findItem(R.id.action_back).setVisible(false);
             menu.findItem(R.id.action_next).setVisible(false);
         }
-        if (prefHelper.checkWhatIfFav(WhatIfIndex)) {
+        if (prefHelper.checkWhatIfFav(WhatIfIndex))
             menu.findItem(R.id.action_favorite).setIcon(ContextCompat.getDrawable(this, R.drawable.ic_action_favorite)).setTitle(R.string.action_favorite_remove);
-        }
+
         return super.onPrepareOptionsMenu(menu);
     }
 

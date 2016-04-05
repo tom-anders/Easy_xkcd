@@ -17,18 +17,11 @@
 package de.tap.easy_xkcd.Activities;
 
 import android.content.Intent;
-import android.os.Build;
+import android.os.Bundle;
 import android.preference.Preference;
 import android.preference.PreferenceFragment;
-import android.os.Bundle;
-import android.support.v4.content.ContextCompat;
-import android.support.v7.app.AppCompatActivity;
-import android.util.Log;
-import android.util.TypedValue;
 
 import com.tap.xkcd_reader.R;
-
-import de.tap.easy_xkcd.utils.PrefHelper;
 
 public class SettingsActivity extends BaseActivity {
 

@@ -69,32 +69,23 @@ import jp.wasabeef.recyclerview.animators.adapters.SlideInBottomAnimationAdapter
 
 
 public class SearchResultsActivity extends BaseActivity {
-
-    /*private SparseArray<String> resultsTitle = new SparseArray<>();
-    private SparseArray<String> resultsTranscript = new SparseArray<>();
-    private SparseArray<String> resultsUrls = new SparseArray<>();
-    private SparseArray<String> resultsPreview = new SparseArray<>();*/
     private ArrayList<Integer> resultsTitle = new ArrayList<>();
     private ArrayList<Integer> resultsTranscript = new ArrayList<>();
     @Bind(R.id.rv)
     RecyclerView rv;
+    @Bind(R.id.toolbar)
+    Toolbar toolbar;
     private searchTask task;
     private ProgressDialog mProgress;
     private String query;
-    /*private static String sComicTitles;
-    private static String sComicTrans;
-    private static String sComicUrls;*/
-    private DatabaseManager databaseManager;
+    public static boolean isOpen;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_search_results);
         ButterKnife.bind(this);
-        databaseManager = new DatabaseManager(this);
-
-        //Setup toolbar and status bar color
-        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
+        DatabaseManager databaseManager = new DatabaseManager(this);
         setupToolbar(toolbar);
 
         LinearLayoutManager llm = new LinearLayoutManager(this);
@@ -102,42 +93,56 @@ public class SearchResultsActivity extends BaseActivity {
         rv.setHasFixedSize(true);
 
         Intent intent = getIntent();
-        if (savedInstanceState == null) {
+        if (savedInstanceState == null)
             query = intent.getStringExtra(SearchManager.QUERY);
-        } else {
+        else
             query = savedInstanceState.getString("query");
-        }
+
         getSupportActionBar().setTitle(getResources().getString(R.string.title_activity_search_results) + " " + query);
         mProgress = ProgressDialog.show(this, "", getResources().getString(R.string.loading_results), true);
 
-        if (savedInstanceState == null) {
+        if (savedInstanceState == null)
             databaseManager.new updateComicDatabase(this, null, prefHelper).execute();
-        } else {
+        else {
             task = new searchTask();
             task.execute(query);
         }
     }
 
+    /**
+     * Called by the databaseManager in order to start the search after the database has been updated
+     */
     public void updateDatabasePostExecute() {
         task = new searchTask();
         task.execute(query);
     }
 
+    /**
+     * Checks if the query is integer or text and invokes the according search algorithm
+     *
+     * @param query the query entered by the user
+     * @return false if there haven't been any search results
+     */
     private boolean performSearch(String query) {
         if (checkInteger(query)) {
             return getComicByNumber(Integer.parseInt(query));
         } else {
-            return searchComicTitle(query);
+            return searchComicTitleOrTranscript(query);
         }
     }
 
+    /**
+     * Shows the comic in the Comic Browser
+     *
+     * @param number the comic to be shown
+     * @return always true to let the activity know that it doesn't have to do any more work
+     */
     private boolean getComicByNumber(int number) {
         Intent intent = new Intent("de.tap.easy_xkcd.ACTION_COMIC");
-        if ((number > prefHelper.getNewest() && number > prefHelper.getHighestOffline()) | number < 1) {
+        if ((number > prefHelper.getNewest() && number > prefHelper.getHighestOffline()) | number < 1) //check if the number is a valid comic
             intent.putExtra("number", prefHelper.getNewest());
-        } else {
+        else
             intent.putExtra("number", number);
-        }
         mProgress.dismiss();
         startActivity(intent);
         if (task != null)
@@ -145,8 +150,12 @@ public class SearchResultsActivity extends BaseActivity {
         return true;
     }
 
+    /**
+     * Searches the database for the comics containing the query
+     * @return false if there haven't been any search results
+     */
 
-    private boolean searchComicTitle(String query) {
+    private boolean searchComicTitleOrTranscript(String query) {
         Realm realm = Realm.getInstance(SearchResultsActivity.this);
         query = query.trim();
         resultsTitle.clear();
@@ -162,34 +171,31 @@ public class SearchResultsActivity extends BaseActivity {
     }
 
     private class searchTask extends AsyncTask<String, Void, Void> {
-        private Boolean done;
+        private Boolean searchSuccessful;
 
         @Override
         protected Void doInBackground(String... params) {
             query = params[0];
-            done = performSearch(params[0]);
+            searchSuccessful = performSearch(params[0]);
             return null;
         }
 
         @Override
         protected void onPostExecute(Void dummy) {
-            if (!done) {
+            if (!searchSuccessful) {
                 RVAdapter adapter = new RVAdapter();
                 SlideInBottomAnimationAdapter slideAdapter = new SlideInBottomAnimationAdapter(adapter);
                 slideAdapter.setInterpolator(new DecelerateInterpolator());
                 rv.setAdapter(slideAdapter);
-                mProgress.dismiss();
                 assert getSupportActionBar() != null;
                 getSupportActionBar().setTitle(getResources().getString(R.string.title_activity_search_results) + " " + query);
-            } else {
-                mProgress.dismiss();
+            } else
                 Toast.makeText(SearchResultsActivity.this, R.string.search_error, Toast.LENGTH_SHORT).show();
-            }
+            mProgress.dismiss();
         }
     }
 
     public class RVAdapter extends RecyclerView.Adapter<RVAdapter.ComicViewHolder> {
-
         private Realm realm;
 
         public RVAdapter() {
@@ -218,7 +224,6 @@ public class SearchResultsActivity extends BaseActivity {
 
             int number = comic.getComicNumber();
             String title = comic.getTitle();
-            //String preview = comic.getPreview();
             String preview = getPreview(query, comic.getTranscript());
             String url = comic.getUrl();
 
@@ -228,7 +233,7 @@ public class SearchResultsActivity extends BaseActivity {
             else
                 comicViewHolder.comicInfo.setText(Html.fromHtml(preview));
 
-
+            //Load the thumbnail
             if (!MainActivity.fullOffline) {
                 Glide.with(SearchResultsActivity.this)
                         .load(url)
@@ -286,6 +291,12 @@ public class SearchResultsActivity extends BaseActivity {
 
     }
 
+    /**
+     * Creates a preview for the transcript of comics that contain the query
+     * @param query the users's query
+     * @param transcript the comic's transcript
+     * @return a short preview of the transcript with the query highlighted
+     */
     private String getPreview(String query, String transcript) {
         String firstWord = query.split(" ")[0].toLowerCase();
         transcript = transcript.replace(".", ". ").replace("?", "? ").replace("]]", " ").replace("[[", " ").replace("{{", " ").replace("}}", " ");
@@ -293,11 +304,11 @@ public class SearchResultsActivity extends BaseActivity {
         int i = 0;
         boolean found = false;
         while (!found && i < words.size()) {
-            if (query.length() < 5) {
+            if (query.length() < 5)
                 found = words.get(i).matches(".*\\b" + firstWord + "\\b.*");
-            } else {
+            else
                 found = words.get(i).contains(firstWord);
-            }
+
             if (!found) i++;
         }
         int start = i - 6;
@@ -322,17 +333,15 @@ public class SearchResultsActivity extends BaseActivity {
             if (imageView.getDrawable() != null) {
                 int pos = rv.getChildAdapterPosition(v);
                 Intent intent = new Intent("de.tap.easy_xkcd.ACTION_COMIC");
-                if (pos < resultsTitle.size()) {
+                if (pos < resultsTitle.size())
                     intent.putExtra("number", resultsTitle.get(pos));
-                } else {
+                else
                     intent.putExtra("number", resultsTranscript.get(pos - resultsTitle.size()));
-                }
                 Bitmap bitmap = ((BitmapDrawable) imageView.getDrawable()).getBitmap();
-                if (!prefHelper.fullOfflineEnabled()) {
+                if (!prefHelper.fullOfflineEnabled())
                     ComicBrowserFragment.fromSearch = true;
-                } else {
+                else
                     OfflineFragment.fromSearch = true;
-                }
                 ActivityTransitionLauncher.with(SearchResultsActivity.this).from(v.findViewById(R.id.thumbnail)).image(bitmap).launch(intent);
             }
         }
@@ -420,9 +429,6 @@ public class SearchResultsActivity extends BaseActivity {
         MainActivity.fromSearch = true;
         super.onBackPressed();
     }
-
-
-    public static boolean isOpen;
 
     @Override
     protected void onStart() {

@@ -17,14 +17,10 @@
  */
 package de.tap.easy_xkcd.Activities;
 
-import android.os.Build;
 import android.os.Bundle;
-import android.support.v4.content.ContextCompat;
-import android.support.v7.app.AppCompatActivity;
 import android.text.Html;
 import android.text.method.LinkMovementMethod;
 import android.util.Log;
-import android.util.TypedValue;
 import android.widget.TextView;
 
 import com.tap.xkcd_reader.R;
@@ -33,8 +29,6 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
-
-import de.tap.easy_xkcd.utils.PrefHelper;
 
 
 public class AboutActivity extends BaseActivity {

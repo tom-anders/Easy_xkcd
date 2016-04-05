@@ -1,3 +1,7 @@
+## 5.0.7
+
+- Some fixes for the April Fools Comic (1663)
+
 ## 5.0.6
 
 - Added article number to What-if overview
