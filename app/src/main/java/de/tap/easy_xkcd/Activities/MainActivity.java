@@ -41,9 +41,6 @@ import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.widget.Toolbar;
-import android.transition.Transition;
-import android.transition.TransitionInflater;
-import android.util.Log;
 import android.util.TypedValue;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -123,11 +120,11 @@ public class MainActivity extends BaseActivity {
         databaseManager.moveFavorites(this);
 
         if (savedInstanceState == null) {
-            if (prefHelper.getNotificationInterval() != 0) {
+            //Setup the notifications in case the device was restarted
+            if (prefHelper.getNotificationInterval() != 0)
                 WakefulIntentService.scheduleAlarms(new ComicListener(), this, true);
-            } else {
+            else
                 WakefulIntentService.cancelAlarms(this);
-            }
         }
 
         fullOffline = prefHelper.fullOfflineEnabled();
@@ -142,9 +139,8 @@ public class MainActivity extends BaseActivity {
                     prefHelper.setLastWhatIf(WhatIfActivity.WhatIfIndex);
                     whatIfIntent = true;
                     WhatIfFragment.newIntent = true;
-                } else {
-                    prefHelper.setLastComic(getNumberFromUrl(getIntent().getDataString(), 0));
-                }
+                } else
+                    prefHelper.setLastComic(getNumberFromUrl(getIntent().getDataString(), prefHelper.getLastComic()));
                 break;
             case COMIC_INTENT:
                 int number = getIntent().getIntExtra("number", 0);
@@ -162,7 +158,7 @@ public class MainActivity extends BaseActivity {
         if (savedInstanceState == null && !SearchResultsActivity.isOpen)
             toolbar.setAlpha(0);
 
-        mDrawer.setDrawerListener(drawerToggle);
+        mDrawer.addDrawerListener(drawerToggle);
         mDrawer.setStatusBarBackgroundColor(themePrefs.getPrimaryDarkColor());
         drawerToggle = setupDrawerToggle();
         if (themePrefs.nightThemeEnabled()) {
@@ -183,28 +179,26 @@ public class MainActivity extends BaseActivity {
         }
 
         //Load fragment
-        if (fullOffline || prefHelper.isOnline(this) || fullOfflineWhatIf) {
+        if (fullOffline || prefHelper.isOnline(this) || fullOfflineWhatIf) { //Do we have internet or are in offline mode?
             MenuItem item;
-            if (savedInstanceState != null) {
+            boolean showOverview = false;
+            if (savedInstanceState != null) { //Show the current Fragment
                 currentFragment = savedInstanceState.getInt(SAVED_INSTANCE_CURRENT_FRAGMENT);
                 item = mNavView.getMenu().findItem(currentFragment);
             } else {
-                if (!whatIfIntent && fullOffline | prefHelper.isOnline(this)) {
+                if (!whatIfIntent && fullOffline | prefHelper.isOnline(this))
                     item = mNavView.getMenu().findItem(R.id.nav_browser);
-                } else {
+                else
                     item = mNavView.getMenu().findItem(R.id.nav_whatif);
-                }
             }
-            boolean showOverview = false;
             if (savedInstanceState != null)
-                showOverview = savedInstanceState.getBoolean(OVERVIEW_TAG, false);
-            else {
-                overviewLaunch = prefHelper.launchToOverview() && !getIntent().getAction().equals(Intent.ACTION_VIEW);
-            }
+                showOverview = savedInstanceState.getBoolean(OVERVIEW_TAG, false); //Check if overview mode was active before the device was rotated
+            else
+                overviewLaunch = prefHelper.launchToOverview() && !getIntent().getAction().equals(Intent.ACTION_VIEW); //Check if the user chose overview to be shown by default
             selectDrawerItem(item, showOverview);
         } else if ((currentFragment != R.id.nav_favorites)) { //Don't show the dialog if the user is currently browsing his favorites or full offline is enabled
-            AlertDialog.Builder mDialog = new AlertDialog.Builder(this);
-            mDialog.setMessage(R.string.no_connection)
+            AlertDialog.Builder dialog = new AlertDialog.Builder(this);
+            dialog.setMessage(R.string.no_connection)
                     .setPositiveButton(R.string.no_connection_retry, new DialogInterface.OnClickListener() {
                         public void onClick(DialogInterface dialog, int which) {
                             finish();
@@ -213,7 +207,7 @@ public class MainActivity extends BaseActivity {
                     })
                     .setCancelable(false);
             if (!databaseManager.noFavorites()) {
-                mDialog.setNegativeButton(R.string.no_connection_favorites, new DialogInterface.OnClickListener() {
+                dialog.setNegativeButton(R.string.no_connection_favorites, new DialogInterface.OnClickListener() { //We have favorites, so let give the user the option to view them
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
                         MenuItem m = mNavView.getMenu().findItem(R.id.nav_favorites);
@@ -221,7 +215,7 @@ public class MainActivity extends BaseActivity {
                     }
                 });
             }
-            mDialog.show();
+            dialog.show();
         }
     }
 
@@ -230,16 +224,17 @@ public class MainActivity extends BaseActivity {
     void onClick() {
         android.support.v4.app.FragmentManager fragmentManager = getSupportFragmentManager();
         OverviewBaseFragment overviewBaseFragment = (OverviewBaseFragment) fragmentManager.findFragmentByTag(OVERVIEW_TAG);
-        if (overviewBaseFragment != null && overviewBaseFragment.isVisible()) {
+
+        if (overviewBaseFragment != null && overviewBaseFragment.isVisible()) { //The user is in overview mode
             ComicFragment comicFragment = (ComicFragment) fragmentManager.findFragmentByTag(BROWSER_TAG);
-            if (!prefHelper.overviewFav())
+            if (!prefHelper.overviewFav()) //Only favorites?
                 if (!prefHelper.hideRead())
                     overviewBaseFragment.showRandomComic(prefHelper.getRandomNumber(comicFragment.lastComicNumber));
                 else
                     overviewBaseFragment.showRandomComic(databaseManager.getRandomUnread());
             else
                 overviewBaseFragment.showComic(new Random().nextInt(databaseManager.getFavComics().length));
-        } else {
+        } else { // The user is browsing comics or favorites
             switch (currentFragment) {
                 case R.id.nav_browser: {
                     ((ComicFragment) fragmentManager.findFragmentByTag(BROWSER_TAG)).getRandomComic();
@@ -258,16 +253,16 @@ public class MainActivity extends BaseActivity {
     boolean onLongClick() {
         android.support.v4.app.FragmentManager fragmentManager = getSupportFragmentManager();
         OverviewBaseFragment overviewBaseFragment = (OverviewBaseFragment) fragmentManager.findFragmentByTag(OVERVIEW_TAG);
-        if (overviewBaseFragment != null && overviewBaseFragment.isVisible()) {
-            return true;
-        } else {
-            if (currentFragment == R.id.nav_browser) {
-                ((ComicFragment) fragmentManager.findFragmentByTag(BROWSER_TAG)).getPreviousRandom();
-            }
-        }
+        if (overviewBaseFragment != null && overviewBaseFragment.isVisible())
+            return false; // Long click does not work in overview
+        else if (currentFragment == R.id.nav_browser)
+            ((ComicFragment) fragmentManager.findFragmentByTag(BROWSER_TAG)).getPreviousRandom();
         return true;
     }
 
+    /**
+     * Adds the listener for the navigationView and adjusts the colors according to our theme
+     */
     private void setupDrawerContent(NavigationView navigationView) {
         navigationView.setNavigationItemSelectedListener(
                 new NavigationView.OnNavigationItemSelectedListener() {
@@ -280,8 +275,14 @@ public class MainActivity extends BaseActivity {
         themePrefs.setupNavdrawerColor(navigationView);
     }
 
+    /**
+     * Selects a item from the navigation Drawer
+     *
+     * @param menuItem     the pressed menu item
+     * @param showOverview should be true when the user selected "Launch to Overview Mode" in the settings
+     */
     public void selectDrawerItem(final MenuItem menuItem, final boolean showOverview) {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) { //Setup the toolbar elevation for WhatIf overview
             if (menuItem.getItemId() == R.id.nav_whatif)
                 toolbar.setElevation(0);
             else {
@@ -293,49 +294,44 @@ public class MainActivity extends BaseActivity {
         switch (menuItem.getItemId()) {
             case R.id.nav_browser:
                 if (!prefHelper.isOnline(this) && !fullOffline) {
-                    showDrawerErrorToast(R.string.no_connection);
+                    showDrawerErrorToast(R.string.no_connection); //No connection, so show Error toast and return
                     return;
                 }
-                //showComicBrowserFragment
                 animateToolbar(-300);
                 showFragment("pref_random_comics", menuItem.getItemId(), "Comics", BROWSER_TAG, FAV_TAG, WHATIF_TAG, showOverview);
                 break;
             case R.id.nav_favorites:
-                //Check if there are any Favorites
                 if (databaseManager.noFavorites()) {
-                    showDrawerErrorToast(R.string.no_favorites);
+                    showDrawerErrorToast(R.string.no_favorites); //No favorites, so show Error Toast and return
                     return;
                 }
-                //showFavoritesFragment
                 animateToolbar(300);
                 showFragment("pref_random_favorites", menuItem.getItemId(), getResources().getString(R.string.nv_favorites), FAV_TAG, BROWSER_TAG, WHATIF_TAG, showOverview);
                 break;
             case R.id.nav_whatif:
                 if (!prefHelper.isOnline(this) && !fullOfflineWhatIf) {
-                    showDrawerErrorToast(R.string.no_connection);
+                    showDrawerErrorToast(R.string.no_connection); //No connection, so show Error toast and return
                     return;
                 }
                 animateToolbar(300);
                 if (getSupportFragmentManager().findFragmentByTag(WHATIF_TAG) == null) {
                     mDrawer.closeDrawers();
-                    new Handler().postDelayed(new Runnable() {
+                    new Handler().postDelayed(new Runnable() { //If the fragment is not added yet, add a small delay to avoid lag
                         @Override
                         public void run() {
                             showFragment("", menuItem.getItemId(), "What if?", WHATIF_TAG, FAV_TAG, BROWSER_TAG, showOverview);
                         }
                     }, 150);
-                } else {
+                } else
                     showFragment("", menuItem.getItemId(), "What if?", WHATIF_TAG, FAV_TAG, BROWSER_TAG, showOverview);
-                }
                 break;
 
             case R.id.nav_settings:
                 mDrawer.closeDrawers();
-                new Handler().postDelayed(new Runnable() {
+                new Handler().postDelayed(new Runnable() { //Wait for the drawer to be closed to avoid lag
                     @Override
                     public void run() {
-                        Intent i = new Intent(MainActivity.this, SettingsActivity.class);
-                        startActivityForResult(i, 1);
+                        startActivityForResult(new Intent(MainActivity.this, SettingsActivity.class), 1);
                     }
                 }, 200);
                 return;
@@ -356,8 +352,7 @@ public class MainActivity extends BaseActivity {
                 new Handler().postDelayed(new Runnable() {
                     @Override
                     public void run() {
-                        Intent i = new Intent(MainActivity.this, AboutActivity.class);
-                        startActivity(i);
+                        startActivity(new Intent(MainActivity.this, AboutActivity.class));
                     }
                 }, 250);
                 return;
@@ -368,6 +363,11 @@ public class MainActivity extends BaseActivity {
         invalidateOptionsMenu();
     }
 
+    /**
+     * Shows an error toast and resets the navigationDrawer to the previous item
+     *
+     * @param errorId the string resource to be shown
+     */
     private void showDrawerErrorToast(int errorId) {
         Toast.makeText(this, errorId, Toast.LENGTH_SHORT).show();
         MenuItem m = mNavView.getMenu().findItem(currentFragment);
@@ -375,6 +375,11 @@ public class MainActivity extends BaseActivity {
         mDrawer.closeDrawers();
     }
 
+    /**
+     * Animates the toolbar and its childs
+     *
+     * @param translation The initial vertical translation of the menu items
+     */
     private void animateToolbar(int translation) {
         View view;
         for (int i = 2; i < toolbar.getChildCount(); i++) {
@@ -386,31 +391,40 @@ public class MainActivity extends BaseActivity {
         toolbar.getChildAt(0).animate().alpha(1).setDuration(200).setInterpolator(new AccelerateInterpolator());
     }
 
-    private void showFragment(String prefTag, int itemId, String actionBarTitle, String fragmentTagShow, String fragmentTagHide, String fragmentTagHide2, boolean showOverview) {
+    /**
+     * Shows a new fragment and adjusts toolbar and FAB accordingly
+     *
+     * @param prefTag          the preference tag that specifies whether the FAB should be hidden (Only in ComicBrowser or Favorites)
+     * @param itemId           the id of the pressed menu item
+     * @param toolbarTitle     the new title of the toolbar
+     * @param fragmentTagShow  the tag of the fragment to be shown (Comic Browser, Favorites, WhatIf)
+     * @param fragmentTagHide  the tag of the fragment to be hidden
+     * @param fragmentTagHide2 the tag of the second fragment to be hidden
+     * @param showOverview     should be true when the user selected "Launch to Overview Mode" in the settings
+     */
+
+    private void showFragment(String prefTag, int itemId, String toolbarTitle, String fragmentTagShow, String fragmentTagHide, String fragmentTagHide2, boolean showOverview) {
         android.support.v4.app.FragmentManager fragmentManager = getSupportFragmentManager();
         assert getSupportActionBar() != null;  //We always have an ActionBar available, so this stops Android Studio from complaining about possible NullPointerExceptions
         //Setup FAB
-        if (prefHelper.fabEnabled(prefTag)) {
-            mFab.setVisibility(View.GONE);
-        } else if (!fragmentTagShow.equals(WHATIF_TAG)) {
+        if (prefHelper.fabEnabled(prefTag) || fragmentTagShow.equals(WHATIF_TAG))
+            mFab.setVisibility(View.GONE); //User chose to hide fab or is is viewing WhatIf
+        else
             mFab.setVisibility(View.VISIBLE);
-        } else {
-            mFab.setVisibility(View.GONE);
-        }
-        getSupportActionBar().setTitle(actionBarTitle);
+
+        getSupportActionBar().setTitle(toolbarTitle);
         if (fragmentManager.findFragmentByTag(fragmentTagShow) != null) {
             //if the fragment exists, show it.
             android.support.v4.app.FragmentTransaction ft = fragmentManager.beginTransaction();
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP)
                 fragmentManager.findFragmentByTag(fragmentTagShow).setEnterTransition(null);
-            if (fragmentTagShow.equals(BROWSER_TAG)) {
-                ft.setCustomAnimations(R.anim.abc_slide_in_top, R.anim.abc_slide_in_top);
-            } else {
-                ft.setCustomAnimations(R.anim.abc_slide_in_bottom, R.anim.abc_slide_in_bottom);
-            }
+            if (fragmentTagShow.equals(BROWSER_TAG))
+                ft.setCustomAnimations(R.anim.abc_slide_in_top, R.anim.abc_slide_in_top); //ComicBrowser slide in from the top
+            else
+                ft.setCustomAnimations(R.anim.abc_slide_in_bottom, R.anim.abc_slide_in_bottom); //Favorites & WhatIf from the bottom
+
             ft.show(fragmentManager.findFragmentByTag(fragmentTagShow));
             ft.commitAllowingStateLoss();
-            //Update action bar
         } else {
             //if the fragment does not exist, add it to fragment manager.
             switch (itemId) {
@@ -450,6 +464,8 @@ public class MainActivity extends BaseActivity {
         } else if (itemId == R.id.nav_whatif) {
             getSupportActionBar().setSubtitle("");
         }
+
+        //Hide the other fragments
         FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
         if (fragmentManager.findFragmentByTag(fragmentTagHide) != null)
             fragmentTransaction.hide(fragmentManager.findFragmentByTag(fragmentTagHide));
@@ -474,7 +490,6 @@ public class MainActivity extends BaseActivity {
         android.support.v4.app.FragmentManager fm = getSupportFragmentManager();
         switch (intent.getAction()) {
             case Intent.ACTION_VIEW:
-                //Get the ComicBrowserFragment and update it
                 if (intent.getDataString().contains("what")) {
                     MenuItem item = mNavView.getMenu().findItem(R.id.nav_whatif);
                     selectDrawerItem(item, false);
@@ -486,7 +501,7 @@ public class MainActivity extends BaseActivity {
                     MenuItem item = mNavView.getMenu().findItem(R.id.nav_browser);
                     selectDrawerItem(item, false);
                     ComicFragment comicFragment = (ComicFragment) getSupportFragmentManager().findFragmentByTag(BROWSER_TAG);
-                    comicFragment.lastComicNumber = getNumberFromUrl(intent.getDataString(), 0);
+                    comicFragment.lastComicNumber = getNumberFromUrl(intent.getDataString(), comicFragment.lastComicNumber);
                     comicFragment.scrollTo(comicFragment.lastComicNumber - 1, false);
                 }
                 break;
@@ -509,14 +524,21 @@ public class MainActivity extends BaseActivity {
         }
     }
 
+    /**
+     * Extracts the number from xkcd links
+     *
+     * @param url the xkcd.com or m.xkcd.com url
+     * @param defaultNumber the number to be returned when something went wrong (usually lastComicNumber)
+     * @return the number of the comic that the url links to
+     */
     private int getNumberFromUrl(String url, int defaultNumber) {
-        //Extracts the comic number from xkcd urls
         StringBuilder sb = new StringBuilder();
         for (int i = 0; i < url.length(); i++) {
             char c = url.charAt(i);
-            if (c >= '0' && c <= '9') {
+            if (c >= '0' && c <= '9')
                 sb.append(c);
-            }
+            else if (c == '/' && sb.length() > 0) //Fix for comic 1663
+                break;
         }
         try {
             return Integer.parseInt(sb.toString());
@@ -558,6 +580,7 @@ public class MainActivity extends BaseActivity {
         MenuItemCompat.setOnActionExpandListener(searchMenuItem, new MenuItemCompat.OnActionExpandListener() {
             @Override
             public boolean onMenuItemActionExpand(MenuItem item) {
+                //Show keyboard
                 View view = getCurrentFocus();
                 if (view != null) {
                     InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
@@ -569,6 +592,7 @@ public class MainActivity extends BaseActivity {
 
             @Override
             public boolean onMenuItemActionCollapse(MenuItem item) {
+                //Hide keyboard
                 View view = getCurrentFocus();
                 if (view != null) {
                     InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
@@ -600,7 +624,7 @@ public class MainActivity extends BaseActivity {
         android.support.v4.app.FragmentManager fragmentManager = getSupportFragmentManager();
         FragmentTransaction transaction = fragmentManager.beginTransaction();
 
-        if (fragmentManager.findFragmentByTag(OVERVIEW_TAG) != null) {
+        if (fragmentManager.findFragmentByTag(OVERVIEW_TAG) != null) { //Scroll to the current comic
             int pos = ((ComicFragment) fragmentManager.findFragmentByTag(BROWSER_TAG)).lastComicNumber;
             ((OverviewBaseFragment) fragmentManager.findFragmentByTag(OVERVIEW_TAG)).notifyAdapter(pos);
         }
@@ -621,7 +645,6 @@ public class MainActivity extends BaseActivity {
             transaction.show(fragmentManager.findFragmentByTag(OVERVIEW_TAG));
         transaction.hide(fragmentManager.findFragmentByTag(BROWSER_TAG)).commitAllowingStateLoss();
 
-
         assert getSupportActionBar() != null;
         getSupportActionBar().setSubtitle("");
     }
@@ -630,6 +653,7 @@ public class MainActivity extends BaseActivity {
     public void onSaveInstanceState(Bundle savedInstanceState) {
         //Save the current fragment
         savedInstanceState.putInt(SAVED_INSTANCE_CURRENT_FRAGMENT, currentFragment);
+        //Remember if overview is currently visible
         if (getSupportFragmentManager().findFragmentByTag(OVERVIEW_TAG) != null)
             savedInstanceState.putBoolean(OVERVIEW_TAG, getSupportFragmentManager().findFragmentByTag(OVERVIEW_TAG).isVisible());
         else
@@ -637,43 +661,18 @@ public class MainActivity extends BaseActivity {
         super.onSaveInstanceState(savedInstanceState);
     }
 
-    public MenuItem getSearchMenuItem() {
-        return searchMenuItem;
-    }
-
-    public FloatingActionButton getFab() {
-        return mFab;
-    }
-
-    public Toolbar getToolbar() {
-        return toolbar;
-    }
-
-    public NavigationView getNavView() {
-        return mNavView;
-    }
-
-    public int getCurrentFragment() {
-        return currentFragment;
-    }
-
-    public ProgressDialog getProgressDialog() {
-        return progress;
-    }
-
-    public void setProgressDialog(String message, boolean cancel) {
-        progress = ProgressDialog.show(this, "", message, cancel);
-    }
-
-    private ActionBarDrawerToggle setupDrawerToggle() {
-        return new ActionBarDrawerToggle(this, mDrawer, toolbar, R.string.drawer_open, R.string.drawer_close);
-    }
-
     @Override
     public void onConfigurationChanged(Configuration newConfig) {
         super.onConfigurationChanged(newConfig);
         // Pass any configuration change to the drawer toggles
         drawerToggle.onConfigurationChanged(newConfig);
+    }
+
+    @Override
+    protected void onPostCreate(Bundle savedInstanceState) {
+        super.onPostCreate(savedInstanceState);
+        // Sync the toggle state after onRestoreInstanceState has occurred.
+        drawerToggle.syncState();
     }
 
     @Override
@@ -685,13 +684,13 @@ public class MainActivity extends BaseActivity {
             mDrawer.closeDrawer(GravityCompat.START);
         } else if (currentFragment == R.id.nav_browser && (fragmentManager.findFragmentByTag(OVERVIEW_TAG) == null || !fragmentManager.findFragmentByTag(OVERVIEW_TAG).isVisible())) {
             boolean zoomReset;
-            zoomReset = ((ComicFragment) fragmentManager.findFragmentByTag(BROWSER_TAG)).zoomReset();
+            zoomReset = ((ComicFragment) fragmentManager.findFragmentByTag(BROWSER_TAG)).zoomReset(); //Reset the zoom level of the current image
             if (!zoomReset) {
                 if (!SearchResultsActivity.isOpen && !getIntent().getAction().equals(Intent.ACTION_VIEW))
                     showOverview();
                 else {
                     if (((ComicFragment) fragmentManager.findFragmentByTag(BROWSER_TAG)).transition != null)
-                        ((ComicFragment) fragmentManager.findFragmentByTag(BROWSER_TAG)).transition.exit(MainActivity.this);
+                        ((ComicFragment) fragmentManager.findFragmentByTag(BROWSER_TAG)).transition.exit(MainActivity.this); //return to the SearchResultsActivity
                     else
                         super.onBackPressed();
                 }
@@ -732,7 +731,7 @@ public class MainActivity extends BaseActivity {
         ComicFragment fragment = (ComicFragment) getSupportFragmentManager().findFragmentByTag(BROWSER_TAG);
         if (fragment != null && prefHelper.isOnline(this) && !fromSearch)
             if (!fullOffline || (prefHelper.isWifi(this) || prefHelper.mobileEnabled()))
-                fragment.updatePager();
+                fragment.updatePager(); //Update the pager in case a new comic has ben posted while the app was still active in the background
 
         if (fromSearch)
             fromSearch = false;
@@ -740,17 +739,10 @@ public class MainActivity extends BaseActivity {
     }
 
     @Override
-    protected void onPostCreate(Bundle savedInstanceState) {
-        super.onPostCreate(savedInstanceState);
-        // Sync the toggle state after onRestoreInstanceState has occurred.
-        drawerToggle.syncState();
-    }
-
-    @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         if (requestCode == 1) {
             switch (resultCode) {
-                case RESULT_OK:
+                case RESULT_OK: //restart the activity when something major was changed in the settings
                     finish();
                     startActivity(getIntent());
                     break;
@@ -788,6 +780,32 @@ public class MainActivity extends BaseActivity {
         }
     }
 
+    // Getters/Setters
+
+    public MenuItem getSearchMenuItem() {
+        return searchMenuItem;
+    }
+
+    public FloatingActionButton getFab() {
+        return mFab;
+    }
+
+    public Toolbar getToolbar() {
+        return toolbar;
+    }
+
+    public NavigationView getNavView() {
+        return mNavView;
+    }
+
+    public int getCurrentFragment() {
+        return currentFragment;
+    }
+
+    public ProgressDialog getProgressDialog() {
+        return progress;
+    }
+
     public PrefHelper getPrefHelper() {
         return prefHelper;
     }
@@ -798,6 +816,14 @@ public class MainActivity extends BaseActivity {
 
     public DatabaseManager getDatabaseManager() {
         return databaseManager;
+    }
+
+    public void setProgressDialog(String message, boolean cancel) {
+        progress = ProgressDialog.show(this, "", message, cancel);
+    }
+
+    private ActionBarDrawerToggle setupDrawerToggle() {
+        return new ActionBarDrawerToggle(this, mDrawer, toolbar, R.string.drawer_open, R.string.drawer_close);
     }
 
 }
