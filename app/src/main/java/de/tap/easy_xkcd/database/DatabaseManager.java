@@ -75,7 +75,6 @@ public class DatabaseManager {
         for (int i = 0; i < f.length; i++)
             fav[i] = Integer.parseInt(f[i]);
         Arrays.sort(fav);
-
         return fav;
     }
 

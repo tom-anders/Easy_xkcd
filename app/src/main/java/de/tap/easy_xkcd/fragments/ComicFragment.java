@@ -346,8 +346,6 @@ public abstract class ComicFragment extends android.support.v4.app.Fragment {
             FavoritesFragment f = (FavoritesFragment) getActivity().getSupportFragmentManager().findFragmentByTag("favorites");
             if (f != null)
                 f.refresh();
-            if (mRemovedNumber <= ((MainActivity) getActivity()).getDatabaseManager().getHighestInDatabase())
-                ((MainActivity) getActivity()).getDatabaseManager().setFavorite(mRemovedNumber, false);
         }
     }
 

@@ -377,8 +377,6 @@ public class FavoritesFragment extends ComicFragment {
 
         @Override
         protected void onPostExecute(Void v) {
-            if (number <= ((MainActivity) getActivity()).getDatabaseManager().getHighestInDatabase())
-                ((MainActivity) getActivity()).getDatabaseManager().setFavorite(number, false);
             if (databaseManager.noFavorites()) {
                 //If there are no favorites left, show ComicBrowserFragment
                 MenuItem mBrowser = ((MainActivity) getActivity()).getNavView().getMenu().findItem(R.id.nav_browser);
