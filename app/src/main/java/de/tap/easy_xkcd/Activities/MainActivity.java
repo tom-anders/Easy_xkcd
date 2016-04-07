@@ -69,6 +69,7 @@ import de.tap.easy_xkcd.fragments.OfflineFragment;
 import de.tap.easy_xkcd.fragments.OverviewBaseFragment;
 import de.tap.easy_xkcd.fragments.OverviewCardsFragment;
 import de.tap.easy_xkcd.fragments.OverviewListFragment;
+import de.tap.easy_xkcd.fragments.OverviewStaggeredGridFragment;
 import de.tap.easy_xkcd.fragments.WhatIfFragment;
 import de.tap.easy_xkcd.fragments.WhatIfOverviewFragment;
 import de.tap.easy_xkcd.notifications.ComicListener;
@@ -638,6 +639,9 @@ public class MainActivity extends BaseActivity {
                     break;
                 case 1:
                     overviewBaseFragment = new OverviewCardsFragment();
+                    break;
+                case 2:
+                    overviewBaseFragment = new OverviewStaggeredGridFragment();
                     break;
             }
             transaction.add(R.id.flContent, overviewBaseFragment, OVERVIEW_TAG);

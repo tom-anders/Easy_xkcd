@@ -69,6 +69,7 @@
     <string-array name="overview_style">
         <item>Liste</item>
         <item>Karten</item>
+        <item>Raster (funktioniert am besten im Offline Modus)</item>
     </string-array>
 
     <string-array

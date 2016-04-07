@@ -246,6 +246,7 @@
     <string-array name="overview_style">
         <item>Seznam</item>
         <item>Malé karty</item>
+        <item>Grid (works best in offline mode)</item>
     </string-array>
 
     <string-array name="random_entries">

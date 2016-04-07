@@ -92,6 +92,7 @@
     <string-array name="overview_style">
         <item>List</item>
         <item>Small Cards</item>
+        <item>Grid (works best in offline mode)</item>
     </string-array>
 
     <string-array

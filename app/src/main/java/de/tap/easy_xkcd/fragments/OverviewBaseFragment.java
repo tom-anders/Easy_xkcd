@@ -22,7 +22,7 @@ import io.realm.Realm;
 import io.realm.RealmResults;
 import io.realm.Sort;
 
-public abstract class OverviewBaseFragment extends android.support.v4.app.Fragment {
+public abstract class OverviewBaseFragment extends android.support.v4.app.Fragment { //TODO no animation when rotating device!
     protected static RealmResults<RealmComic> comics;
     protected PrefHelper prefHelper;
     protected ThemePrefs themePrefs;
@@ -132,6 +132,8 @@ public abstract class OverviewBaseFragment extends android.support.v4.app.Fragme
                                     case 1:
                                         transaction.add(R.id.flContent, new OverviewCardsFragment(), OVERVIEW_TAG);
                                         break;
+                                    case 2:
+                                        transaction.add(R.id.flContent, new OverviewStaggeredGridFragment(), OVERVIEW_TAG);
                                 }
                                 transaction.commit();
                             }
@@ -165,7 +167,7 @@ public abstract class OverviewBaseFragment extends android.support.v4.app.Fragme
         comics.sort("comicNumber", Sort.DESCENDING);
     }
 
-    private void animateToolbar() {
+    protected void animateToolbar() {
         Toolbar toolbar = ((MainActivity) getActivity()).getToolbar();
         if (toolbar.getAlpha() == 0) {
             toolbar.setTranslationY(-300);
