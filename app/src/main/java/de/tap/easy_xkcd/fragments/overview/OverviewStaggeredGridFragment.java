@@ -1,4 +1,4 @@
-package de.tap.easy_xkcd.fragments;
+package de.tap.easy_xkcd.fragments.overview;
 
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;

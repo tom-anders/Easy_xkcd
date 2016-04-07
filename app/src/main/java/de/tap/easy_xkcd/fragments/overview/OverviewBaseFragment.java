@@ -1,11 +1,8 @@
-package de.tap.easy_xkcd.fragments;
+package de.tap.easy_xkcd.fragments.overview;
 
 import android.content.DialogInterface;
-import android.os.Build;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v7.widget.Toolbar;
-import android.transition.Transition;
-import android.transition.TransitionInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
@@ -16,6 +13,7 @@ import com.tap.xkcd_reader.R;
 import de.tap.easy_xkcd.Activities.MainActivity;
 import de.tap.easy_xkcd.database.DatabaseManager;
 import de.tap.easy_xkcd.database.RealmComic;
+import de.tap.easy_xkcd.fragments.comics.ComicFragment;
 import de.tap.easy_xkcd.utils.PrefHelper;
 import de.tap.easy_xkcd.utils.ThemePrefs;
 import io.realm.Realm;

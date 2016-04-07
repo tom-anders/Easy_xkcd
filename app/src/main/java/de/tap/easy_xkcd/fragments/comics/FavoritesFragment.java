@@ -16,7 +16,7 @@
  * ******************************************************************************
  */
 
-package de.tap.easy_xkcd.fragments;
+package de.tap.easy_xkcd.fragments.comics;
 
 import android.app.AlertDialog;
 import android.app.ProgressDialog;
@@ -31,7 +31,6 @@ import android.support.design.widget.Snackbar;
 import android.support.v4.content.FileProvider;
 import android.support.v4.view.ViewPager;
 import android.support.v7.widget.Toolbar;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;

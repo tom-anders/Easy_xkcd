@@ -1,4 +1,4 @@
-package de.tap.easy_xkcd.fragments;
+package de.tap.easy_xkcd.fragments.whatIf;
 
 import android.app.AlertDialog;
 import android.app.ProgressDialog;

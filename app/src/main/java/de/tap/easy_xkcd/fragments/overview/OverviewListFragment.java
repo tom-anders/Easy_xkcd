@@ -1,4 +1,4 @@
-package de.tap.easy_xkcd.fragments;
+package de.tap.easy_xkcd.fragments.overview;
 
 import android.content.Context;
 import android.os.Bundle;
@@ -18,6 +18,7 @@ import android.widget.Toast;
 import com.tap.xkcd_reader.R;
 
 import de.tap.easy_xkcd.database.RealmComic;
+import de.tap.easy_xkcd.fragments.comics.ComicFragment;
 
 public class OverviewListFragment extends OverviewBaseFragment {
     private ListAdapter listAdapter;

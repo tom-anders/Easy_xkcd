@@ -1,4 +1,4 @@
-package de.tap.easy_xkcd.fragments;
+package de.tap.easy_xkcd.fragments.overview;
 
 import android.support.v4.content.ContextCompat;
 import android.support.v7.widget.CardView;

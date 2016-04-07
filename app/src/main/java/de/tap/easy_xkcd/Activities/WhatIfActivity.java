@@ -1,23 +1,15 @@
 package de.tap.easy_xkcd.Activities;
 
-import android.annotation.SuppressLint;
 import android.app.ProgressDialog;
-import android.content.DialogInterface;
 import android.content.Intent;
-import android.content.pm.ActivityInfo;
-import android.media.Image;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Build;
-import android.support.customtabs.CustomTabsIntent;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AlertDialog;
-import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.text.Html;
 import android.text.method.LinkMovementMethod;
-import android.util.Log;
-import android.util.TypedValue;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -28,29 +20,23 @@ import android.webkit.WebChromeClient;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
 import android.widget.ImageView;
-import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import com.tap.xkcd_reader.R;
 
-import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
-import org.jsoup.nodes.Element;
 
 import java.io.IOException;
 import java.util.Random;
 
 import butterknife.Bind;
 import butterknife.ButterKnife;
-import de.tap.easy_xkcd.CustomTabHelpers.BrowserFallback;
-import de.tap.easy_xkcd.CustomTabHelpers.CustomTabActivityHelper;
 import de.tap.easy_xkcd.database.DatabaseManager;
 import de.tap.easy_xkcd.misc.OnSwipeTouchListener;
 import de.tap.easy_xkcd.utils.Article;
-import de.tap.easy_xkcd.utils.PrefHelper;
-import de.tap.easy_xkcd.fragments.WhatIfFavoritesFragment;
-import de.tap.easy_xkcd.fragments.WhatIfFragment;
+import de.tap.easy_xkcd.fragments.whatIf.WhatIfFavoritesFragment;
+import de.tap.easy_xkcd.fragments.whatIf.WhatIfFragment;
 
 public class WhatIfActivity extends BaseActivity {
 
