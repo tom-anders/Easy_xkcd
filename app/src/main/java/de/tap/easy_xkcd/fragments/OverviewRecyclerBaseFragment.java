@@ -1,28 +1,17 @@
 package de.tap.easy_xkcd.fragments;
 
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
-import android.os.Bundle;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.widget.CardView;
 import android.support.v7.widget.RecyclerView;
-import android.util.Log;
 import android.util.TypedValue;
-import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.View;
-import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.bumptech.glide.Glide;
 import com.tap.xkcd_reader.R;
 
-import java.io.File;
-import java.io.FileInputStream;
-
-import de.tap.easy_xkcd.Activities.MainActivity;
 import de.tap.easy_xkcd.database.RealmComic;
 
 public abstract class OverviewRecyclerBaseFragment extends OverviewBaseFragment {
@@ -85,14 +74,14 @@ public abstract class OverviewRecyclerBaseFragment extends OverviewBaseFragment 
         }
     }
 
-    class CustomOnClickListener implements View.OnClickListener {
+    protected class CustomOnClickListener implements View.OnClickListener {
         @Override
         public void onClick(View v) {
             showComic(rv.getChildAdapterPosition(v));
         }
     }
 
-    class CustomOnLongClickListener implements View.OnLongClickListener {
+    protected class CustomOnLongClickListener implements View.OnLongClickListener {
         @Override
         public boolean onLongClick(View v) {
             updateBookmark(rv.getChildAdapterPosition(v));

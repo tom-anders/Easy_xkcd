@@ -97,7 +97,7 @@ public abstract class ComicFragment extends android.support.v4.app.Fragment {
             }
             if (MainActivity.overviewLaunch) {
                 MainActivity.overviewLaunch = false;
-                ((MainActivity) getActivity()).showOverview();
+                ((MainActivity) getActivity()).showOverview(false);
             }
         }
 

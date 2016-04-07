@@ -196,7 +196,7 @@ public class MainActivity extends BaseActivity {
                 showOverview = savedInstanceState.getBoolean(OVERVIEW_TAG, false); //Check if overview mode was active before the device was rotated
             else
                 overviewLaunch = prefHelper.launchToOverview() && !getIntent().getAction().equals(Intent.ACTION_VIEW); //Check if the user chose overview to be shown by default
-            selectDrawerItem(item, showOverview);
+            selectDrawerItem(item, showOverview, !showOverview);
         } else if ((currentFragment != R.id.nav_favorites)) { //Don't show the dialog if the user is currently browsing his favorites or full offline is enabled
             AlertDialog.Builder dialog = new AlertDialog.Builder(this);
             dialog.setMessage(R.string.no_connection)
@@ -212,7 +212,7 @@ public class MainActivity extends BaseActivity {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
                         MenuItem m = mNavView.getMenu().findItem(R.id.nav_favorites);
-                        selectDrawerItem(m, false);
+                        selectDrawerItem(m, false, false);
                     }
                 });
             }
@@ -269,7 +269,7 @@ public class MainActivity extends BaseActivity {
                 new NavigationView.OnNavigationItemSelectedListener() {
                     @Override
                     public boolean onNavigationItemSelected(MenuItem menuItem) {
-                        selectDrawerItem(menuItem, false);
+                        selectDrawerItem(menuItem, false, false);
                         return true;
                     }
                 });
@@ -281,8 +281,9 @@ public class MainActivity extends BaseActivity {
      *
      * @param menuItem     the pressed menu item
      * @param showOverview should be true when the user selected "Launch to Overview Mode" in the settings
+     * @param animateOverview  should be false when the device was rotated and the app showed overview mode before the rotation
      */
-    public void selectDrawerItem(final MenuItem menuItem, final boolean showOverview) {
+    public void selectDrawerItem(final MenuItem menuItem, final boolean showOverview, final boolean animateOverview) {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) { //Setup the toolbar elevation for WhatIf overview
             if (menuItem.getItemId() == R.id.nav_whatif)
                 toolbar.setElevation(0);
@@ -299,7 +300,7 @@ public class MainActivity extends BaseActivity {
                     return;
                 }
                 animateToolbar(-300);
-                showFragment("pref_random_comics", menuItem.getItemId(), "Comics", BROWSER_TAG, FAV_TAG, WHATIF_TAG, showOverview);
+                showFragment("pref_random_comics", menuItem.getItemId(), "Comics", BROWSER_TAG, FAV_TAG, WHATIF_TAG, showOverview, animateOverview);
                 break;
             case R.id.nav_favorites:
                 if (databaseManager.noFavorites()) {
@@ -307,7 +308,7 @@ public class MainActivity extends BaseActivity {
                     return;
                 }
                 animateToolbar(300);
-                showFragment("pref_random_favorites", menuItem.getItemId(), getResources().getString(R.string.nv_favorites), FAV_TAG, BROWSER_TAG, WHATIF_TAG, showOverview);
+                showFragment("pref_random_favorites", menuItem.getItemId(), getResources().getString(R.string.nv_favorites), FAV_TAG, BROWSER_TAG, WHATIF_TAG, showOverview, animateOverview);
                 break;
             case R.id.nav_whatif:
                 if (!prefHelper.isOnline(this) && !fullOfflineWhatIf) {
@@ -320,11 +321,11 @@ public class MainActivity extends BaseActivity {
                     new Handler().postDelayed(new Runnable() { //If the fragment is not added yet, add a small delay to avoid lag
                         @Override
                         public void run() {
-                            showFragment("", menuItem.getItemId(), "What if?", WHATIF_TAG, FAV_TAG, BROWSER_TAG, showOverview);
+                            showFragment("", menuItem.getItemId(), "What if?", WHATIF_TAG, FAV_TAG, BROWSER_TAG, showOverview, animateOverview);
                         }
                     }, 150);
                 } else
-                    showFragment("", menuItem.getItemId(), "What if?", WHATIF_TAG, FAV_TAG, BROWSER_TAG, showOverview);
+                    showFragment("", menuItem.getItemId(), "What if?", WHATIF_TAG, FAV_TAG, BROWSER_TAG, showOverview, animateOverview);
                 break;
 
             case R.id.nav_settings:
@@ -402,9 +403,10 @@ public class MainActivity extends BaseActivity {
      * @param fragmentTagHide  the tag of the fragment to be hidden
      * @param fragmentTagHide2 the tag of the second fragment to be hidden
      * @param showOverview     should be true when the user selected "Launch to Overview Mode" in the settings
+     * @param animateOverview  should be false when the device was rotated and the app showed overview mode before the rotation
      */
 
-    private void showFragment(String prefTag, int itemId, String toolbarTitle, String fragmentTagShow, String fragmentTagHide, String fragmentTagHide2, boolean showOverview) {
+    private void showFragment(String prefTag, int itemId, String toolbarTitle, String fragmentTagShow, String fragmentTagHide, String fragmentTagHide2, boolean showOverview, boolean animateOverview) {
         android.support.v4.app.FragmentManager fragmentManager = getSupportFragmentManager();
         assert getSupportActionBar() != null;  //We always have an ActionBar available, so this stops Android Studio from complaining about possible NullPointerExceptions
         //Setup FAB
@@ -477,7 +479,7 @@ public class MainActivity extends BaseActivity {
         fragmentTransaction.commitAllowingStateLoss();
 
         if (showOverview)
-            showOverview();
+            showOverview(animateOverview);
     }
 
 
@@ -493,14 +495,14 @@ public class MainActivity extends BaseActivity {
             case Intent.ACTION_VIEW:
                 if (intent.getDataString().contains("what")) {
                     MenuItem item = mNavView.getMenu().findItem(R.id.nav_whatif);
-                    selectDrawerItem(item, false);
+                    selectDrawerItem(item, false, false);
                     WhatIfActivity.WhatIfIndex = getNumberFromUrl(intent.getDataString(), 1);
                     Intent whatIf = new Intent(MainActivity.this, WhatIfActivity.class);
                     prefHelper.setLastWhatIf(WhatIfActivity.WhatIfIndex);
                     startActivity(whatIf);
                 } else {
                     MenuItem item = mNavView.getMenu().findItem(R.id.nav_browser);
-                    selectDrawerItem(item, false);
+                    selectDrawerItem(item, false, false);
                     ComicFragment comicFragment = (ComicFragment) getSupportFragmentManager().findFragmentByTag(BROWSER_TAG);
                     comicFragment.lastComicNumber = getNumberFromUrl(intent.getDataString(), comicFragment.lastComicNumber);
                     comicFragment.scrollTo(comicFragment.lastComicNumber - 1, false);
@@ -516,7 +518,7 @@ public class MainActivity extends BaseActivity {
                 break;
             case WHATIF_INTENT:
                 MenuItem item = mNavView.getMenu().findItem(R.id.nav_whatif);
-                selectDrawerItem(item, false);
+                selectDrawerItem(item, false, false);
                 WhatIfActivity.WhatIfIndex = intent.getIntExtra("number", 1);
                 Intent whatIf = new Intent(MainActivity.this, WhatIfActivity.class);
                 prefHelper.setLastWhatIf(WhatIfActivity.WhatIfIndex);
@@ -528,7 +530,7 @@ public class MainActivity extends BaseActivity {
     /**
      * Extracts the number from xkcd links
      *
-     * @param url the xkcd.com or m.xkcd.com url
+     * @param url           the xkcd.com or m.xkcd.com url
      * @param defaultNumber the number to be returned when something went wrong (usually lastComicNumber)
      * @return the number of the comic that the url links to
      */
@@ -615,13 +617,13 @@ public class MainActivity extends BaseActivity {
                 return true;
 
             case R.id.action_overview:
-                showOverview();
+                showOverview(true);
                 return true;
         }
         return super.onOptionsItemSelected(item);
     }
 
-    public void showOverview() {
+    public void showOverview(boolean animate) {
         android.support.v4.app.FragmentManager fragmentManager = getSupportFragmentManager();
         FragmentTransaction transaction = fragmentManager.beginTransaction();
 
@@ -630,7 +632,8 @@ public class MainActivity extends BaseActivity {
             ((OverviewBaseFragment) fragmentManager.findFragmentByTag(OVERVIEW_TAG)).notifyAdapter(pos);
         }
 
-        transaction.setCustomAnimations(R.anim.slide_in_left, R.anim.slide_out_right);
+        if (animate)
+            transaction.setCustomAnimations(R.anim.slide_in_left, R.anim.slide_out_right);
         if (fragmentManager.findFragmentByTag(OVERVIEW_TAG) == null) {
             OverviewBaseFragment overviewBaseFragment = null;
             switch (prefHelper.getOverviewStyle()) {
@@ -691,7 +694,7 @@ public class MainActivity extends BaseActivity {
             zoomReset = ((ComicFragment) fragmentManager.findFragmentByTag(BROWSER_TAG)).zoomReset(); //Reset the zoom level of the current image
             if (!zoomReset) {
                 if (!SearchResultsActivity.isOpen && !getIntent().getAction().equals(Intent.ACTION_VIEW))
-                    showOverview();
+                    showOverview(true);
                 else {
                     if (((ComicFragment) fragmentManager.findFragmentByTag(BROWSER_TAG)).transition != null)
                         ((ComicFragment) fragmentManager.findFragmentByTag(BROWSER_TAG)).transition.exit(MainActivity.this); //return to the SearchResultsActivity
