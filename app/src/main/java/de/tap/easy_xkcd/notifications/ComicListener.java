@@ -1,6 +1,5 @@
 package de.tap.easy_xkcd.notifications;
 
-
 import android.app.AlarmManager;
 import android.app.PendingIntent;
 import android.content.Context;
@@ -20,7 +19,6 @@ public class ComicListener implements WakefulIntentService.AlarmListener {
     private PrefHelper prefHelper;
 
     public void scheduleAlarms(AlarmManager mgr, PendingIntent pi, Context context) {
-        Log.e("Info", "Alarm Set!");
         prefHelper = new PrefHelper(context.getApplicationContext());
         Calendar calendar = Calendar.getInstance();
         mgr.setInexactRepeating(AlarmManager.RTC, calendar.getTimeInMillis(), prefHelper.getNotificationInterval(), pi);
@@ -32,7 +30,7 @@ public class ComicListener implements WakefulIntentService.AlarmListener {
                 .getSystemService(Context.CONNECTIVITY_SERVICE);
         NetworkInfo netInfo = cm.getActiveNetworkInfo();
 
-        Log.e("info", "Wakeful work sent");
+        Log.d("info", "Wakeful work sent");
 
         // only when connected or while connecting...
         if (netInfo != null && netInfo.isConnectedOrConnecting()) {

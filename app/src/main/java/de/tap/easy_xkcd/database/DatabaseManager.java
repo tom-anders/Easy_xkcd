@@ -37,16 +37,13 @@ import io.realm.RealmResults;
 import io.realm.exceptions.RealmPrimaryKeyConstraintException;
 
 public class DatabaseManager {
-
     private Context context;
     public Realm realm;
     private static final String REALM_DATABASE_LOADED = "pref_realm_database_loaded";
     private static final String HIGHEST_DATABASE = "highest_database";
-
     private static final String COMIC_READ = "comic_read";
     private static final String FAVORITES_MOVED = "fav_moved";
     private static final String FAVORITES = "favorites";
-
 
     public DatabaseManager(Context context) {
         this.context = context;
@@ -63,6 +60,10 @@ public class DatabaseManager {
         return getSharedPrefs().getString(FAVORITES, null) == null;
     }
 
+    /**
+     * Gets an array of all favorite comics
+     * @return an int array containing the numbers of all favorite comics, null if there are no favorites
+     */
     public int[] getFavComics() {
         String fs = getSharedPrefs().getString(FAVORITES, null);
         if (fs == null)
@@ -81,7 +82,13 @@ public class DatabaseManager {
         return getFavComics() != null && Arrays.binarySearch(getFavComics(), fav) >= 0;
     }
 
+    /**
+     * Adds or removes a favorite to realm and sharedPreferences
+     * @param fav the comic number of the fac to be modified
+     * @param isFav if the comic has been added or removed from favorites
+     */
     public void setFavorite(int fav, boolean isFav) {
+        //Save to realm
         if (fav <= getHighestInDatabase()) {
             Realm realm = Realm.getInstance(context);
             realm.beginTransaction();
@@ -91,6 +98,7 @@ public class DatabaseManager {
             realm.commitTransaction();
             realm.close();
         }
+        //Save to sharedPrefs
         if (isFav)
             addFavorite(fav);
         else
@@ -108,7 +116,6 @@ public class DatabaseManager {
 
     private void removeFavorite(int favToRemove) {
         int[] old = getFavComics();
-
         int a = Arrays.binarySearch(old, favToRemove);
         int[] out = new int[old.length - 1];
         if (out.length != 0 && a >= 0) {
@@ -130,8 +137,15 @@ public class DatabaseManager {
         getSharedPrefs().edit().putString(FAVORITES, null).apply();
     }
 
+
+    /**
+     * In previous versions the favorite list would be only accessible from MainActivity,
+     * so this moves the favorites list to regular sharedPreferences
+     *
+     * @param activity should be MainActivity
+     */
     public void moveFavorites(Activity activity) {
-        //Move the favorites list so that it can be accessed outside of MainActivity
+
         if (!getSharedPrefs().getBoolean(FAVORITES_MOVED, false)) {
             String fav = activity.getPreferences(Activity.MODE_PRIVATE).getString("favorites", null);
             getSharedPrefs().edit().putString(FAVORITES, fav).putBoolean(FAVORITES_MOVED, true).apply();
@@ -141,8 +155,13 @@ public class DatabaseManager {
 
     ///////////////// READ COMICS //////////////////////////////////////////
 
+    /**
+     * Sets a comic read or unread
+     * @param number the comic number
+     * @param isRead if the comic is read or unread
+     */
     public void setRead(int number, boolean isRead) {
-        if (number <= getHighestInDatabase()) {
+        if (number <= getHighestInDatabase()) { //Save to realm
             realm.beginTransaction();
             RealmComic comic = realm.where(RealmComic.class).equalTo("comicNumber", number).findFirst();
             if (comic != null) {
@@ -150,7 +169,7 @@ public class DatabaseManager {
                 realm.copyToRealmOrUpdate(comic);
             }
             realm.commitTransaction();
-        } else {
+        } else { //Save to sharedPrefs
             String read = getSharedPrefs().getString(COMIC_READ, "");
             if (!read.equals("")) {
                 read = read + "," + String.valueOf(number);
@@ -161,6 +180,10 @@ public class DatabaseManager {
         }
     }
 
+    /**
+     * Gets an array of read comics
+     * @return an int array containing the numbers of all read comics
+     */
     public int[] getReadComics() {
         String r = getSharedPrefs().getString(COMIC_READ, "");
         if (r.equals(""))
@@ -185,6 +208,12 @@ public class DatabaseManager {
         realm.commitTransaction();
     }
 
+    /**
+     * Interpolates the number of the next unread comic when "hide read" is checked in overview mode
+     * @param number the selected comic
+     * @param comics all comics in the realm database
+     * @return the comic number that the list should scroll to
+     */
     public int getNextUnread(int number, RealmResults<RealmComic> comics) {
         RealmComic comic;
         try {
@@ -230,7 +259,7 @@ public class DatabaseManager {
             Realm realm = Realm.getInstance(context);
             int[] read = getReadComics();
             int[] fav = getFavComics();
-            if (!databaseLoaded()) {
+            if (!databaseLoaded()) { //Save preloaded comic data to realm
                 String[] titles = getFile(R.raw.comic_titles).split("&&");
                 String[] trans = getFile(R.raw.comic_trans).split("&&");
                 String[] urls = getFile(R.raw.comic_urls).split("&&");
@@ -338,6 +367,11 @@ public class DatabaseManager {
         getSharedPrefs().edit().putBoolean(REALM_DATABASE_LOADED, loaded).apply();
     }
 
+    /**
+     * Gets the transcript of a comic
+     * @param number the comic number
+     * @return the comics transcript or " " if the comic does not exist in the database
+     */
     public static String getTranscript(int number, Context context) {
         RealmComic comic = Realm.getInstance(context).where(RealmComic.class).equalTo("comicNumber", number).findFirst();
         if (comic != null)
@@ -347,6 +381,11 @@ public class DatabaseManager {
 
     ////////////////// WHAT IF DATABASE /////////////////////////
 
+    /**
+     * Randall doesn't seem to update the thumbnails for what-if articles at http://what-if.xkcd.com/archive/ anymore.
+     * @param title the title of the what-if
+     * @return the resource id of the custom thumbnail or 0 if the article already has a thumbnail
+     */
     public int getWhatIfMissingThumbnailId(String title) {
         switch (title) {
             case "Jupiter Descending":
@@ -378,7 +417,11 @@ public class DatabaseManager {
         }
     }
 
-    public static boolean showThread(final String title, final Context context, final boolean whatIf) {
+    /**
+     * Shows the reddit or forum thread for comics or WhatIf
+     * @param title of the comic or WhatIf
+     */
+    public static boolean showThread(final String title, final Context context, final boolean isWhatIf) {
         new AlertDialog.Builder(context)
                 .setItems(R.array.forum_thread, new DialogInterface.OnClickListener() {
                     @Override
@@ -388,7 +431,7 @@ public class DatabaseManager {
                                 new GetRedditLinkTask(context).execute(title);
                                 break;
                             case 1:
-                                new GetForumLinkTask(context, whatIf).execute(title);
+                                new GetForumLinkTask(context, isWhatIf).execute(title);
                                 break;
                         }
                     }
@@ -440,11 +483,11 @@ public class DatabaseManager {
     protected static class GetForumLinkTask extends AsyncTask<String, Void, String> {
         private ProgressDialog progress;
         private Context context;
-        private boolean whatIf;
+        private boolean isWhatIf;
 
-        public GetForumLinkTask(Context context, boolean whatIf) {
+        public GetForumLinkTask(Context context, boolean isWhatIf) {
             this.context = context;
-            this.whatIf = whatIf;
+            this.isWhatIf = isWhatIf;
         }
 
         @Override
@@ -459,7 +502,7 @@ public class DatabaseManager {
         @Override
         protected String doInBackground(String... title) {
             String end;
-            if (whatIf)
+            if (isWhatIf)
                 end = "&terms=all&author=&fid%5B%5D=60&sc=1&sf=titleonly&sr=posts&sk=t&sd=d&st=0&ch=300&t=0&submit=Search"; //Comic forum
             else
                 end = "&terms=all&author=&fid%5B%5D=7&sc=1&sf=titleonly&sr=posts&sk=t&sd=d&st=0&ch=300&t=0&submit=Search"; //What-if forum

@@ -49,12 +49,12 @@ public class Comic {
             e.printStackTrace();
         }
         if (context != null) {
-            if (Arrays.binarySearch(context.getResources().getIntArray(R.array.interactive_comics), mComicNumber) >= 0) {
+            if (Arrays.binarySearch(context.getResources().getIntArray(R.array.interactive_comics), mComicNumber) >= 0) { //Check for interactive comic
                 mComicData[0] = mComicData[0] + " " + context.getResources().getString(R.string.title_interactive);
             }
 
             int i = Arrays.binarySearch(context.getResources().getIntArray(R.array.large_comics), mComicNumber);
-            if (i >= 0 && PreferenceManager.getDefaultSharedPreferences(context).getBoolean("pref_large", true)) {
+            if (i >= 0 && PreferenceManager.getDefaultSharedPreferences(context).getBoolean("pref_large", true)) { //Check for large comic
                 mComicData[2] = context.getResources().getStringArray(R.array.large_comics_urls)[i];
             }
         }
@@ -83,7 +83,7 @@ public class Comic {
             result[1] = new String(json.getString("alt").getBytes("ISO-8859-1"), "UTF-8");
             result[2] = json.getString("img");
             mComicNumber = Integer.parseInt(json.getString("num"));
-        } else {
+        } else { //xkcd.com/404 doesn't have a json object
             result[0] = "404";
             result[1] = "404";
             result[2] = "http://i.imgur.com/p0eKxKs.png";

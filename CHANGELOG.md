@@ -1,3 +1,9 @@
+## 5.1
+
+- New grid layout for overview mode
+- Added "mark all as read" to What If
+- Various bug fixes
+
 ## 5.0.7
 
 - Some fixes for the April Fools Comic (1663)
