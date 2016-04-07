@@ -65,6 +65,7 @@
     <!-- ActionBar strings -->
     <string name="action_settings">Settings</string>
     <string name="action_unread">Mark all as unread</string>
+    <string name="action_all_read">Mark all as read</string>
     <string name="action_hide_read_articles">Hide read articles</string>
     <string name="action_hide_read_comics">Hide read comics</string>
     <string name="action_favorite">Add to Favorites</string>

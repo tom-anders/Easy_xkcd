@@ -412,6 +412,9 @@ public class WhatIfFragment extends android.support.v4.app.Fragment {
                 prefHelper.setAllUnread();
                 setupAdapter(prefHelper.hideReadWhatIf());
                 return true;
+            case R.id.action_all_read:
+                prefHelper.setAllWhatIfRead();
+                setupAdapter(prefHelper.hideReadWhatIf());
             case R.id.action_hide_read:
                 item.setChecked(!item.isChecked());
                 prefHelper.setHideReadWhatIf(item.isChecked());
@@ -452,6 +455,7 @@ public class WhatIfFragment extends android.support.v4.app.Fragment {
 
     @Override
     public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
+        menu.findItem(R.id.action_hide_read).setChecked(prefHelper.hideReadWhatIf());
         final SearchView searchView = (SearchView) menu.findItem(R.id.action_search).getActionView();
         searchView.setIconifiedByDefault(false);
         searchView.setQueryHint(getResources().getString(R.string.search_hint_whatif));

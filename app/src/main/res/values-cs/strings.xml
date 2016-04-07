@@ -285,5 +285,6 @@
     <string name="loading_thread">Loading thread…</string>
     <string name="action_thread">Open Reddit/Forum thread</string>
     <string name="what_if_tip">Did you know? Tap an image to view its mouseover text!</string>
+    <string name="action_all_read">Mark all as read</string>
 
 </resources>

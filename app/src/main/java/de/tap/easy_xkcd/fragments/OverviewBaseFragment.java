@@ -22,7 +22,7 @@ import io.realm.Realm;
 import io.realm.RealmResults;
 import io.realm.Sort;
 
-public abstract class OverviewBaseFragment extends android.support.v4.app.Fragment { //TODO no animation when rotating device!
+public abstract class OverviewBaseFragment extends android.support.v4.app.Fragment {
     protected static RealmResults<RealmComic> comics;
     protected PrefHelper prefHelper;
     protected ThemePrefs themePrefs;
