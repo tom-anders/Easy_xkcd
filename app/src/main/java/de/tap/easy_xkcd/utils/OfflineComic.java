@@ -27,7 +27,6 @@ import java.io.IOException;
 
 import de.tap.easy_xkcd.Activities.MainActivity;
 import de.tap.easy_xkcd.database.DatabaseManager;
-import okio.Okio;
 
 public class OfflineComic extends Comic {
     private Context mContext;
@@ -37,13 +36,13 @@ public class OfflineComic extends Comic {
     public OfflineComic(Integer number, Context context){
         prefHelper = ((MainActivity) context).getPrefHelper();
         mContext = context;
-        mComicNumber = number;
+        comicNumber = number;
     }
 
     public String[] getComicData() {
         String[] result = new String[2];
-        result[0] = prefHelper.getTitle(mComicNumber);
-        result[1] = prefHelper.getAlt(mComicNumber);
+        result[0] = prefHelper.getTitle(comicNumber);
+        result[1] = prefHelper.getAlt(comicNumber);
         return result;
     }
 
@@ -52,14 +51,14 @@ public class OfflineComic extends Comic {
         try {
             File sdCard = prefHelper.getOfflinePath();
             File dir = new File(sdCard.getAbsolutePath() + OFFLINE_PATH);
-            File file = new File(dir, String.valueOf(mComicNumber) + ".png");
+            File file = new File(dir, String.valueOf(comicNumber) + ".png");
             FileInputStream fis = new FileInputStream(file);
             mBitmap = BitmapFactory.decodeStream(fis);
             fis.close();
         } catch (IOException e) {
             Log.e("Error", "Image not found, looking in internal storage");
             try {
-                FileInputStream fis = mContext.openFileInput(String.valueOf(mComicNumber));
+                FileInputStream fis = mContext.openFileInput(String.valueOf(comicNumber));
                 mBitmap = BitmapFactory.decodeStream(fis);
                 fis.close();
             } catch (Exception e2) {
@@ -70,7 +69,7 @@ public class OfflineComic extends Comic {
     }
 
     public String getTranscript() {
-        return DatabaseManager.getTranscript(mComicNumber, mContext);
+        return DatabaseManager.getTranscript(comicNumber, mContext);
     }
 
 }

@@ -28,46 +28,44 @@ import org.json.JSONObject;
 import java.io.IOException;
 import java.util.Arrays;
 
-import de.tap.easy_xkcd.database.DatabaseManager;
-
 
 public class Comic {
-    private String[] mComicData;
-    private String mJsonUrl;
-    protected int mComicNumber;
+    private String[] comicData;
+    private String jsonUrl;
+    protected int comicNumber;
     private JSONObject json;
 
     public Comic(Integer number, Context context) throws IOException {
         if (number != 0) {
-            mJsonUrl = "http://xkcd.com/" + number.toString() + "/info.0.json";
+            jsonUrl = "http://xkcd.com/" + number.toString() + "/info.0.json";
         } else {
-            mJsonUrl = "http://xkcd.com/info.0.json";
+            jsonUrl = "http://xkcd.com/info.0.json";
         }
         try {
-            mComicData = loadComicData(mJsonUrl);
+            comicData = loadComicData(jsonUrl);
         } catch (JSONException e) {
             e.printStackTrace();
         }
         if (context != null) {
-            if (Arrays.binarySearch(context.getResources().getIntArray(R.array.interactive_comics), mComicNumber) >= 0) { //Check for interactive comic
-                mComicData[0] = mComicData[0] + " " + context.getResources().getString(R.string.title_interactive);
+            if (Arrays.binarySearch(context.getResources().getIntArray(R.array.interactive_comics), comicNumber) >= 0) { //Check for interactive comic
+                comicData[0] = comicData[0] + " " + context.getResources().getString(R.string.title_interactive);
             }
 
-            int i = Arrays.binarySearch(context.getResources().getIntArray(R.array.large_comics), mComicNumber);
+            int i = Arrays.binarySearch(context.getResources().getIntArray(R.array.large_comics), comicNumber);
             if (i >= 0 && PreferenceManager.getDefaultSharedPreferences(context).getBoolean("pref_large", true)) { //Check for large comic
-                mComicData[2] = context.getResources().getStringArray(R.array.large_comics_urls)[i];
+                comicData[2] = context.getResources().getStringArray(R.array.large_comics_urls)[i];
             }
         }
     }
 
     public Comic(Integer number) throws IOException {
         if (number != 0) {
-            mJsonUrl = "http://xkcd.com/" + number.toString() + "/info.0.json";
+            jsonUrl = "http://xkcd.com/" + number.toString() + "/info.0.json";
         } else {
-            mJsonUrl = "http://xkcd.com/info.0.json";
+            jsonUrl = "http://xkcd.com/info.0.json";
         }
         try {
-            mComicData = loadComicData(mJsonUrl);
+            comicData = loadComicData(jsonUrl);
         } catch (JSONException e) {
             e.printStackTrace();
         }
@@ -82,16 +80,17 @@ public class Comic {
             result[0] = new String(json.getString("title").getBytes("ISO-8859-1"), "UTF-8");
             result[1] = new String(json.getString("alt").getBytes("ISO-8859-1"), "UTF-8");
             result[2] = json.getString("img");
-            mComicNumber = Integer.parseInt(json.getString("num"));
-        } else { //xkcd.com/404 doesn't have a json object
+            comicNumber = Integer.parseInt(json.getString("num"));
+        } else if (comicNumber == 404) { //xkcd.com/404 doesn't have a json object
             result[0] = "404";
             result[1] = "404";
             result[2] = "http://i.imgur.com/p0eKxKs.png";
-            mComicNumber = 404;
-        }
+            comicNumber = 404;
+            Log.d("test", "loadComicData: ");
+        } else throw new IOException();
 
         // some image fixes
-        switch (mComicNumber) {
+        switch (comicNumber) {
             case 1037: result[2] = "http://www.explainxkcd.com/wiki/images/f/ff/umwelt_the_void.jpg";
                 break;
             case 1608: result[2] = "http://www.explainxkcd.com/wiki/images/4/41/hoverboard.png";
@@ -125,11 +124,11 @@ public class Comic {
     }
 
     public String[] getComicData() {
-        return mComicData;
+        return comicData;
     }
 
     public int getComicNumber() {
-        return mComicNumber;
+        return comicNumber;
     }
 
 }
