@@ -412,6 +412,8 @@ public class DatabaseManager {
                 return R.mipmap.barrel;
             case "Eat the Sun":
                 return R.mipmap.snakemeat;
+            case "Pizza Bird":
+                return R.mipmap.pickup;
             default:
                 return 0;
         }
