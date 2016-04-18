@@ -1,3 +1,7 @@
+## 5.1.3
+
+- Fixed duplicate what-if article
+
 ## 5.1
 
 - New grid layout for overview mode

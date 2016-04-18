@@ -242,8 +242,14 @@ public class WhatIfFragment extends android.support.v4.app.Fragment {
                 Elements titles = doc.select("h1");
                 Elements imagelinks = doc.select("img.archive-image");
 
-                for (Element title : titles)
-                    mTitles.add(title.text());
+                boolean bowlingFixed = false; //This title appears twice, so add " " to one of the titles to make everything work later
+                    for (Element title : titles) {
+                        if (!bowlingFixed && title.text().equals("Bowling Ball")) {
+                            mTitles.add(title.text() + " ");
+                            bowlingFixed = true;
+                        } else
+                            mTitles.add(title.text());
+                    }
 
                 for (Element image : imagelinks)
                     mImgs.add(image.absUrl("src"));
