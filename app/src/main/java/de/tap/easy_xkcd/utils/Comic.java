@@ -86,8 +86,8 @@ public class Comic {
             result[1] = "404";
             result[2] = "http://i.imgur.com/p0eKxKs.png";
             comicNumber = 404;
-            Log.d("test", "loadComicData: ");
-        } else throw new IOException();
+
+        } else throw new IOException("json not found");
 
         // some image fixes
         switch (comicNumber) {
