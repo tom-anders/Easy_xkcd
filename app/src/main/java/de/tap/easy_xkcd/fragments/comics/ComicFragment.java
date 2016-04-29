@@ -382,7 +382,7 @@ public abstract class ComicFragment extends android.support.v4.app.Fragment {
     }
 
     protected boolean explainComic(int number) {
-        String url = "http://explainxkcd.com/" + String.valueOf(number);
+        String url = "https://explainxkcd.com/" + String.valueOf(number);
         CustomTabsIntent.Builder intentBuilder = new CustomTabsIntent.Builder();
         intentBuilder.setToolbarColor(themePrefs.getPrimaryColor(false));
         CustomTabActivityHelper.openCustomTab(getActivity(), intentBuilder.build(), Uri.parse(url), new BrowserFallback());
@@ -390,7 +390,7 @@ public abstract class ComicFragment extends android.support.v4.app.Fragment {
     }
 
     protected boolean openComicInBrowser(int number) {
-        Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse("http://xkcd.com/" + String.valueOf(number)));
+        Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse("https://xkcd.com/" + String.valueOf(number)));
         startActivity(intent);
         return true;
     }
@@ -416,9 +416,9 @@ public abstract class ComicFragment extends android.support.v4.app.Fragment {
         share.setType("text/plain");
         share.putExtra(Intent.EXTRA_SUBJECT, comic.getComicData()[0]);
         if (prefHelper.shareMobile()) {
-            share.putExtra(Intent.EXTRA_TEXT, "http://m.xkcd.com/" + comic.getComicNumber());
+            share.putExtra(Intent.EXTRA_TEXT, "https://m.xkcd.com/" + comic.getComicNumber() + "/");
         } else {
-            share.putExtra(Intent.EXTRA_TEXT, "http://xkcd.com/" + comic.getComicNumber());
+            share.putExtra(Intent.EXTRA_TEXT, "https://xkcd.com/" + comic.getComicNumber() + "/");
         }
         startActivity(Intent.createChooser(share, this.getResources().getString(R.string.share_url)));
     }

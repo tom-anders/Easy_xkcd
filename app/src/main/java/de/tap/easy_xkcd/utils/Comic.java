@@ -37,9 +37,9 @@ public class Comic {
 
     public Comic(Integer number, Context context) throws IOException {
         if (number != 0) {
-            jsonUrl = "http://xkcd.com/" + number.toString() + "/info.0.json";
+            jsonUrl = "https://xkcd.com/" + number.toString() + "/info.0.json";
         } else {
-            jsonUrl = "http://xkcd.com/info.0.json";
+            jsonUrl = "https://xkcd.com/info.0.json";
         }
         try {
             comicData = loadComicData(jsonUrl);
@@ -60,9 +60,9 @@ public class Comic {
 
     public Comic(Integer number) throws IOException {
         if (number != 0) {
-            jsonUrl = "http://xkcd.com/" + number.toString() + "/info.0.json";
+            jsonUrl = "https://xkcd.com/" + number.toString() + "/info.0.json";
         } else {
-            jsonUrl = "http://xkcd.com/info.0.json";
+            jsonUrl = "https://xkcd.com/info.0.json";
         }
         try {
             comicData = loadComicData(jsonUrl);
