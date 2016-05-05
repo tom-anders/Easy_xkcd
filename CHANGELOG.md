@@ -1,3 +1,10 @@
+## 5.1.5
+
+- Individual comics can be marked as read/unread in overview
+- Switched to https
+- Fixed a bug in offline mode where the latest comics wouldn't be downloaded
+- Fixed some crashes
+
 ## 5.1.3
 
 - Fixed duplicate what-if article
