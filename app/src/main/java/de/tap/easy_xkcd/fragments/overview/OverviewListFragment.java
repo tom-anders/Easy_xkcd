@@ -52,6 +52,7 @@ public class OverviewListFragment extends OverviewBaseFragment {
         if (savedInstanceState == null) {
             databaseManager.new updateComicDatabase(null, this, prefHelper).execute();
         } else {
+            super.setupAdapter();
             listAdapter = new ListAdapter();
             list.setAdapter(listAdapter);
             list.setOnItemClickListener(new AdapterView.OnItemClickListener() {

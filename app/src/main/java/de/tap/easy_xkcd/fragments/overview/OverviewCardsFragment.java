@@ -60,6 +60,7 @@ public class OverviewCardsFragment extends OverviewRecyclerBaseFragment {
         if (savedInstanceState == null) {
             databaseManager.new updateComicDatabase(null, this, prefHelper).execute();
         } else {
+            super.setupAdapter();
             rvAdapter = new CardsAdapter();
             rv.setAdapter(rvAdapter);
         }

@@ -56,6 +56,7 @@ public class OverviewStaggeredGridFragment extends OverviewRecyclerBaseFragment 
         if (savedInstanceState == null) {
             databaseManager.new updateComicDatabase(null, this, prefHelper).execute();
         } else {
+            super.setupAdapter();
             rvAdapter = new GridAdapter();
             rv.setAdapter(rvAdapter);
         }
