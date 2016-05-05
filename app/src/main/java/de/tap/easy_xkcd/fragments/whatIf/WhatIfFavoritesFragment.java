@@ -179,7 +179,7 @@ public class WhatIfFavoritesFragment extends android.support.v4.app.Fragment {
         public boolean onLongClick(View v) {
             final View view = v;
             AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
-            builder.setItems(R.array.card_long_click_remove, new DialogInterface.OnClickListener() {
+            builder.setItems(R.array.whatif_card_long_click_remove, new DialogInterface.OnClickListener() {
                 @Override
                 public void onClick(DialogInterface dialog, int which) {
                     int pos;

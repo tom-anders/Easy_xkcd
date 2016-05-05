@@ -85,17 +85,27 @@
     </string-array>
 
     <string-array
-        name="card_long_click">
+        name="whatif_card_long_click">
         <item>Teilen</item>
         <item>Im Browser öffnen</item>
         <item>Zu Favoriten hinzufügen</item>
     </string-array>
 
     <string-array
-        name="card_long_click_remove">
+        name="whatif_card_long_click_remove">
         <item>Teilen</item>
         <item>Im Browser öffnen</item>
         <item>Aus Favoriten entfernen</item>
+    </string-array>
+
+    <string-array name="card_long_click">
+        <item>Lesezeichen hinzufügen</item>
+        <item>Als gelesen markieren</item>
+    </string-array>
+
+    <string-array name="card_long_click_remove">
+        <item>Lesezeichen hinzufügen</item>
+        <item>Als ungelesen markieren</item>
     </string-array>
 
     <string-array

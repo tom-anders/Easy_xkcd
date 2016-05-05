@@ -18,9 +18,12 @@
 
 package de.tap.easy_xkcd.fragments.overview;
 
+import android.content.DialogInterface;
 import android.support.v4.content.ContextCompat;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.widget.CardView;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.util.TypedValue;
 import android.view.MenuItem;
 import android.view.View;
@@ -29,6 +32,8 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.tap.xkcd_reader.R;
+
+import java.util.Arrays;
 
 import de.tap.easy_xkcd.database.RealmComic;
 
@@ -101,8 +106,25 @@ public abstract class OverviewRecyclerBaseFragment extends OverviewBaseFragment 
 
     protected class CustomOnLongClickListener implements View.OnLongClickListener {
         @Override
-        public boolean onLongClick(View v) {
-            updateBookmark(rv.getChildAdapterPosition(v));
+        public boolean onLongClick(final View v) {
+            AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
+            final int number = comics.get(rv.getChildAdapterPosition(v)).getComicNumber();
+            final boolean isRead = comics.get(rv.getChildAdapterPosition(v)).isRead();
+            int array = isRead ? R.array.card_long_click_remove : R.array.card_long_click;
+            builder.setItems(array, new DialogInterface.OnClickListener() {
+                @Override
+                public void onClick(DialogInterface dialogInterface, int i) {
+                    switch (i) {
+                        case 0:
+                            updateBookmark(rv.getChildAdapterPosition(v));
+                            break;
+                        case 1:
+                            databaseManager.setRead(number, !isRead);
+                            rvAdapter.notifyDataSetChanged();
+                            break;
+                    }
+                }
+            }).create().show();
             return true;
         }
     }

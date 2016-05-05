@@ -110,16 +110,26 @@
         <item>Import</item>
     </string-array>
 
-    <string-array name="card_long_click">
+    <string-array name="whatif_card_long_click">
         <item>Share</item>
         <item>Open in Browser</item>
         <item>Add to Favorites</item>
     </string-array>
 
-    <string-array name="card_long_click_remove">
+    <string-array name="whatif_card_long_click_remove">
         <item>Share</item>
         <item>Open in Browser</item>
         <item>Remove from Favorites</item>
+    </string-array>
+
+    <string-array name="card_long_click">
+        <item>Add bookmark</item>
+        <item>Mark as read</item>
+    </string-array>
+
+    <string-array name="card_long_click_remove">
+        <item>Add bookmark</item>
+        <item>Mark as unread</item>
     </string-array>
 
     <string-array name="pref_orientation">

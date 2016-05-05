@@ -87,29 +87,6 @@ public abstract class OverviewBaseFragment extends android.support.v4.app.Fragme
 
     @Override
     public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
-        /*for (int i = 0; i < menu.size() - 2; i++)
-            menu.getItem(i).setVisible(false);
-
-        menu.findItem(R.id.action_boomark).setVisible(prefHelper.getBookmark() != 0).setTitle(R.string.open_bookmark);
-        menu.findItem(R.id.action_hide_read).setVisible(true).setChecked(prefHelper.hideRead());
-
-        MenuItem item = menu.findItem(R.id.action_favorite);
-        item.setVisible(true);
-        if (!prefHelper.overviewFav()) {
-            item.setIcon(R.drawable.ic_favorite_outline);
-            item.setTitle(R.string.nv_favorites);
-        } else {
-            item.setIcon(R.drawable.ic_action_favorite);
-            item.setTitle(R.string.action_overview);
-        }
-
-        if (prefHelper.hideDonate())
-            menu.findItem(R.id.action_donate).setVisible(false);
-
-        menu.findItem(R.id.action_unread).setVisible(true);
-        menu.findItem(R.id.action_overview_style).setVisible(true);
-        menu.findItem(R.id.action_earliest_unread).setVisible(true); */
-
         inflater.inflate(R.menu.menu_overview_fragment, menu);
         menu.findItem(R.id.action_boomark).setVisible(prefHelper.getBookmark() != 0).setTitle(R.string.open_bookmark);
         menu.findItem(R.id.action_hide_read).setChecked(prefHelper.hideRead());

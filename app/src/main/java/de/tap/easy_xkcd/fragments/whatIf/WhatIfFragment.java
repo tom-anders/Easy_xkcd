@@ -355,18 +355,12 @@ public class WhatIfFragment extends android.support.v4.app.Fragment {
 
     class CustomOnLongClickListener implements View.OnLongClickListener {
         @Override
-        public boolean onLongClick(View v) {
-            final View view = v;
+        public boolean onLongClick(final View v) {
             AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
-            int pos = rv.getChildAdapterPosition(view);
+            int pos = rv.getChildAdapterPosition(v);
             final String title = adapter.titles.get(pos);
             final int n = mTitles.size() - mTitles.indexOf(title);
-            int array;
-            if (prefHelper.checkWhatIfFav(n)) {
-                array = R.array.card_long_click_remove;
-            } else {
-                array = R.array.card_long_click;
-            }
+            int array = prefHelper.checkWhatIfFav(n) ? R.array.whatif_card_long_click_remove : R.array.whatif_card_long_click;
             builder.setItems(array, new DialogInterface.OnClickListener() {
                 @Override
                 public void onClick(DialogInterface dialog, int which) {
@@ -375,7 +369,7 @@ public class WhatIfFragment extends android.support.v4.app.Fragment {
                     String title;
                     switch (which) {
                         case 0:
-                            pos = rv.getChildAdapterPosition(view);
+                            pos = rv.getChildAdapterPosition(v);
                             title = adapter.titles.get(pos);
                             n = mTitles.size() - mTitles.indexOf(title);
                             Intent share = new Intent(Intent.ACTION_SEND);
@@ -385,14 +379,14 @@ public class WhatIfFragment extends android.support.v4.app.Fragment {
                             startActivity(share);
                             break;
                         case 1:
-                            pos = rv.getChildAdapterPosition(view);
+                            pos = rv.getChildAdapterPosition(v);
                             title = adapter.titles.get(pos);
                             n = mTitles.size() - mTitles.indexOf(title);
                             Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse("http://what-if.xkcd.com/" + String.valueOf(n)));
                             startActivity(intent);
                             break;
                         case 2:
-                            pos = rv.getChildAdapterPosition(view);
+                            pos = rv.getChildAdapterPosition(v);
                             title = adapter.titles.get(pos);
                             n = mTitles.size() - mTitles.indexOf(title);
                             if (!prefHelper.checkWhatIfFav(n)) {
