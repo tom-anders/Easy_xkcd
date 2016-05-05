@@ -737,7 +737,7 @@ public class MainActivity extends BaseActivity {
     protected void onRestart() {
         ComicFragment fragment = (ComicFragment) getSupportFragmentManager().findFragmentByTag(BROWSER_TAG);
         if (fragment != null && prefHelper.isOnline(this) && !fromSearch)
-            if (!fullOffline || (prefHelper.isWifi(this) || prefHelper.mobileEnabled()))
+            if (fullOffline || (prefHelper.isWifi(this) || prefHelper.mobileEnabled()))
                 fragment.updatePager(); //Update the pager in case a new comic has ben posted while the app was still active in the background
 
         if (fromSearch)
