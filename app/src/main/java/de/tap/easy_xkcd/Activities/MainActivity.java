@@ -41,6 +41,7 @@ import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.widget.Toolbar;
+import android.util.Log;
 import android.util.TypedValue;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -509,15 +510,20 @@ public class MainActivity extends BaseActivity {
                 }
                 break;
             case COMIC_INTENT:
-                int number = getIntent().getIntExtra("number", 0);
+                /*int number = getIntent().getIntExtra("number", 0);
                 ComicFragment fragment = (ComicFragment) fm.findFragmentByTag(BROWSER_TAG);
                 fragment.lastComicNumber = number;
                 if (fragment instanceof ComicBrowserFragment && fragment.isVisible())
                     progress = ProgressDialog.show(this, "", this.getResources().getString(R.string.loading_comics), true);
-                fragment.updatePager();
+                fragment.updatePager();*/
+                MenuItem item = mNavView.getMenu().findItem(R.id.nav_browser);
+                selectDrawerItem(item, false, false);
+                ComicFragment comicFragment = (ComicFragment) getSupportFragmentManager().findFragmentByTag(BROWSER_TAG);
+                comicFragment.lastComicNumber = intent.getIntExtra("number", 1);
+                comicFragment.scrollTo(comicFragment.lastComicNumber - 1, false);
                 break;
             case WHATIF_INTENT:
-                MenuItem item = mNavView.getMenu().findItem(R.id.nav_whatif);
+                item = mNavView.getMenu().findItem(R.id.nav_whatif);
                 selectDrawerItem(item, false, false);
                 WhatIfActivity.WhatIfIndex = intent.getIntExtra("number", 1);
                 Intent whatIf = new Intent(MainActivity.this, WhatIfActivity.class);

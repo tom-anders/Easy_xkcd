@@ -33,8 +33,8 @@ public class OfflineComic extends Comic {
     private static final String OFFLINE_PATH = "/easy xkcd";
     private PrefHelper prefHelper;
 
-    public OfflineComic(Integer number, Context context){
-        prefHelper = ((MainActivity) context).getPrefHelper();
+    public OfflineComic(Integer number, Context context, PrefHelper prefHelper){
+        this.prefHelper = prefHelper;
         mContext = context;
         comicNumber = number;
     }

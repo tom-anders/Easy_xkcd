@@ -234,7 +234,7 @@ public class OfflineFragment extends ComicFragment {
             TextView tvAlt = (TextView) itemView.findViewById(R.id.tvAlt);
             TextView tvTitle = (TextView) itemView.findViewById(R.id.tvTitle);
 
-            comicMap.put(position + 1, new OfflineComic(position + 1, getActivity()));
+            comicMap.put(position + 1, new OfflineComic(position + 1, getActivity(), ((MainActivity)getActivity()).getPrefHelper()));
 
             tvTitle.setText(comicMap.get(position + 1).getComicData()[0]);
             tvAlt.setText(comicMap.get(position + 1).getComicData()[1]);

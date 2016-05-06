@@ -195,6 +195,24 @@
                 android:resource="@xml/file_provider_paths" />
         </provider>
 
+        <receiver android:name="de.tap.easy_xkcd.widget.WidgetRandomProvider"
+            android:label="@string/widget_random">
+            <intent-filter>
+                <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
+            </intent-filter>
+            <meta-data android:name="android.appwidget.provider"
+                android:resource="@xml/widget_random_info" />
+        </receiver>
+
+        <receiver android:name="de.tap.easy_xkcd.widget.WidgetLatestProvider"
+            android:label="@string/widget_latest">
+            <intent-filter>
+                <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
+            </intent-filter>
+            <meta-data android:name="android.appwidget.provider"
+                android:resource="@xml/widget_latest_info" />
+        </receiver>
+
     </application>
 
 </manifest>

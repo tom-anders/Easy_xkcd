@@ -114,7 +114,7 @@ public class FavoritesFragment extends ComicFragment {
         protected Void doInBackground(Integer... pos) {
             favorites = databaseManager.getFavComics();
             for (int i = 0; i < favorites.length; i++)
-                comicMap.put(i, new OfflineComic(favorites[i], getActivity()));
+                comicMap.put(i, new OfflineComic(favorites[i], getActivity(), ((MainActivity) getActivity()).getPrefHelper()));
 
             return null;
         }
@@ -241,7 +241,7 @@ public class FavoritesFragment extends ComicFragment {
                     newFavorites.push(number);
                     databaseManager.setFavorite(number, true);
                     if (number <= ((MainActivity) getActivity()).getDatabaseManager().getHighestInDatabase())
-                        ((MainActivity) getActivity()).getDatabaseManager().setFavorite(number,true);
+                        ((MainActivity) getActivity()).getDatabaseManager().setFavorite(number, true);
                 }
                 if (!prefHelper.fullOfflineEnabled()) {
                     new DownloadImageTask(newFavorites).execute();
@@ -364,6 +364,7 @@ public class FavoritesFragment extends ComicFragment {
 
     public class DeleteImageTask extends AsyncTask<Integer, Integer, Void> {
         int number;
+
         @Override
         protected Void doInBackground(Integer... pos) {
             number = pos[0];
@@ -399,7 +400,7 @@ public class FavoritesFragment extends ComicFragment {
             public void onClick(View v) {
                 databaseManager.setFavorite(mRemoved, true);
                 if (mRemoved <= ((MainActivity) getActivity()).getDatabaseManager().getHighestInDatabase())
-                    ((MainActivity) getActivity()).getDatabaseManager().setFavorite(mRemoved,true);
+                    ((MainActivity) getActivity()).getDatabaseManager().setFavorite(mRemoved, true);
                 saveComic(mRemoved, mRemovedBitmap);
                 prefHelper.addTitle(mTitle, mRemoved);
                 prefHelper.addAlt(mAlt, mRemoved);
