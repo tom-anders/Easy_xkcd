@@ -15,7 +15,7 @@
     <item android:id="@+id/action_random"
         android:title="@string/action_random"
         app:showAsAction="ifRoom"
-        android:icon="@mipmap/ic_shuffle"/>
+        android:icon="@drawable/ic_action_shuffle"/>
 
     <item android:id="@+id/action_alt"
         android:title="@string/action_alt"
