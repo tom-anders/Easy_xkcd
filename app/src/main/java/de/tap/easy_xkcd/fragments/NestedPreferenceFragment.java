@@ -79,7 +79,6 @@ public class NestedPreferenceFragment extends PreferenceFragment {
     private static final String TAG_KEY = "NESTED_KEY";
 
     private static final String COLORED_NAVBAR = "pref_navbar";
-    private static final String THEME = "pref_theme";
     private static final String COLOR_PRIMARY = "pref_color_primary";
     private static final String COLOR_ACCENT = "pref_color_accent";
     private static final String NOTIFICATIONS_INTERVAL = "pref_notifications";
@@ -89,6 +88,7 @@ public class NestedPreferenceFragment extends PreferenceFragment {
     private static final String AUTO_NIGHT = "pref_auto_night";
     private static final String AUTO_NIGHT_START = "pref_auto_night_start";
     private static final String AUTO_NIGHT_END = "pref_auto_night_end";
+    private static final String INVERT_COLORS = "pref_invert";
     private static final String REPAIR = "pref_repair";
     private static final String MOBILE_ENABLED = "pref_update_mobile";
     private static final String FAB_OPTIONS = "pref_random";
@@ -365,6 +365,13 @@ public class NestedPreferenceFragment extends PreferenceFragment {
                     }
                 });
                 findPreference(AUTO_NIGHT).setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
+                    @Override
+                    public boolean onPreferenceClick(Preference preference) {
+                        getActivity().setResult(Activity.RESULT_OK);
+                        return true;
+                    }
+                });
+                findPreference(INVERT_COLORS).setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
                     @Override
                     public boolean onPreferenceClick(Preference preference) {
                         getActivity().setResult(Activity.RESULT_OK);
