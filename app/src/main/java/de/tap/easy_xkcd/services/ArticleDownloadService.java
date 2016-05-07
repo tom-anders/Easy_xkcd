@@ -111,7 +111,7 @@ public class ArticleDownloadService extends IntentService {
                     }
                     int p = (int) (count / ((float) img.size()) * 100);
                     mBuilder.setProgress(100, p, false);
-                    mNotificationManager.notify(0, mBuilder.build());
+                    mNotificationManager.notify(1, mBuilder.build());
                     count++;
                 }
                 if (prefHelper.getNewestWhatIf() == 0)
@@ -155,7 +155,7 @@ public class ArticleDownloadService extends IntentService {
                     int p = (int) (i / ((float) size) * 100);
                     mBuilder.setProgress(100, p, false);
                     mBuilder.setContentText(i + "/" + size);
-                    mNotificationManager.notify(0, mBuilder.build());
+                    mNotificationManager.notify(1, mBuilder.build());
                 } catch (Exception e) {
                     Log.e("article" + i, e.getMessage());
                 }
@@ -168,7 +168,7 @@ public class ArticleDownloadService extends IntentService {
         PendingIntent pendingIntent = PendingIntent.getActivity(this, 1, restart, PendingIntent.FLAG_UPDATE_CURRENT);
         mBuilder.setContentIntent(pendingIntent)
                 .setContentText(getResources().getString(R.string.not_restart));
-        mNotificationManager.notify(0, mBuilder.build());
+        mNotificationManager.notify(1, mBuilder.build());
     }
 
 }
