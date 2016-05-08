@@ -298,5 +298,6 @@
     <string name="action_all_read">Mark all as read</string>
     <string name="widget_latest">Latest Comic</string>
     <string name="widget_random">Random Comic</string>
+    <string name="random_tip">Did you know? Long press the button to get to the previous comic!</string>
 
 </resources>

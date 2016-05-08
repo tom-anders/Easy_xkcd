@@ -1,3 +1,8 @@
+## 5.2
+
+- Added two widgets (Random comic, latest comic)
+- Added tooltip for long pressing the random button
+
 ## 5.1.5
 
 - Individual comics can be marked as read/unread in overview

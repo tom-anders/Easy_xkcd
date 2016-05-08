@@ -301,5 +301,6 @@
     <string name="action_all_read">Alle gelesen</string>
     <string name="widget_latest">Neuester Comic</string>
     <string name="widget_random">Zufälliger Comic</string>
+    <string name="random_tip">Schon gewusst? Halte den Button gedrückt um zum vorherigen Comic zurückzukehren!</string>
 
 </resources>

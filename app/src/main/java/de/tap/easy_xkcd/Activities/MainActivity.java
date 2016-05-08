@@ -41,7 +41,6 @@ import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.widget.Toolbar;
-import android.util.Log;
 import android.util.TypedValue;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -240,6 +239,10 @@ public class MainActivity extends BaseActivity {
             switch (currentFragment) {
                 case R.id.nav_browser: {
                     ((ComicFragment) fragmentManager.findFragmentByTag(BROWSER_TAG)).getRandomComic();
+                    if (prefHelper.showRandomTip()) {
+                        Toast.makeText(this, getResources().getString(R.string.random_tip), Toast.LENGTH_LONG).show();
+                        prefHelper.setRandomTip(false);
+                    }
                     break;
                 }
                 case R.id.nav_favorites: {

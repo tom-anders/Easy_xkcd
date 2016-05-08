@@ -66,6 +66,7 @@ public class PrefHelper {
     private static final String ALT_BACK = "pref_alt_back";
     private static final String ALT_TIP = "alt_tip";
     private static final String WHAT_IF_TIP = "whatif_tip";
+    private static final String RANDOM_TIP = "random_tip";
     private static final String SHARE_IMAGE = "pref_share";
     private static final String SHARE_MOBILE = "pref_mobile";
     private static final String NOTIFICATIONS_INTERVAL = "pref_notifications";
@@ -224,6 +225,10 @@ public class PrefHelper {
         return sharedPrefs.getBoolean(WHAT_IF_TIP, true);
     }
 
+    public boolean showRandomTip() {
+        return sharedPrefs.getBoolean(RANDOM_TIP, true);
+    }
+
     public void setAltTip(boolean value) {
         sharedPrefs.edit().putBoolean(ALT_TIP, value).apply();
     }
@@ -231,6 +236,12 @@ public class PrefHelper {
     public void setWhatIfTip(boolean value) {
         sharedPrefs.edit().putBoolean(WHAT_IF_TIP, value).apply();
     }
+
+    public void setRandomTip(boolean value) {
+        sharedPrefs.edit().putBoolean(RANDOM_TIP, value).apply();
+    }
+
+
 
     public boolean shareImage() {
         return prefs.getBoolean(SHARE_IMAGE, false);
