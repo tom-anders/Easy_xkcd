@@ -41,6 +41,7 @@ import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.widget.Toolbar;
+import android.util.Log;
 import android.util.TypedValue;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -753,6 +754,7 @@ public class MainActivity extends BaseActivity {
             fromSearch = false;
         super.onRestart();
     }
+
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {

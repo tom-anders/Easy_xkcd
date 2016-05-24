@@ -35,6 +35,7 @@ import android.support.design.widget.Snackbar;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.view.ViewPager;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.View;
@@ -87,9 +88,10 @@ public class ComicBrowserFragment extends ComicFragment {
             new updateNewest(true).execute();
         } else {
             newestComicNumber = prefHelper.getNewest();
-            scrollViewPager();
+            new updateNewest(false).execute();
+            /*scrollViewPager();
             adapter = new ComicBrowserPagerAdapter(getActivity(), newestComicNumber);
-            pager.setAdapter(adapter);
+            pager.setAdapter(adapter);*/
         }
 
         pager.addOnPageChangeListener(new ViewPager.OnPageChangeListener() {

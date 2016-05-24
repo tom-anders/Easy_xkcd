@@ -70,12 +70,13 @@ public class OfflineFragment extends ComicFragment {
 
 
         if (savedInstanceState == null && prefHelper.isOnline(getActivity()) && (prefHelper.isWifi(getActivity()) | prefHelper.mobileEnabled()) && !fromSearch) {
-            new updateImages().execute();
+            new updateImages(true).execute();
         } else {
             newestComicNumber = prefHelper.getHighestOffline();
             scrollViewPager();
             adapter = new OfflineBrowserPagerAdapter(getActivity(), newestComicNumber);
             pager.setAdapter(adapter);
+            new updateImages(false).execute();
         }
 
         pager.addOnPageChangeListener(new ViewPager.OnPageChangeListener() {
@@ -100,18 +101,25 @@ public class OfflineFragment extends ComicFragment {
 
     @Override
     public void updatePager() {
-        new updateImages().execute();
+        new updateImages(false).execute();
     }
 
     public class updateImages extends AsyncTask<Void, Void, Boolean> {
         private ProgressDialog progress;
+        private boolean showProgress;
+
+        public updateImages(boolean showProgress) {
+            this.showProgress = showProgress;
+        }
 
         @Override
         protected void onPreExecute() {
-            progress = new ProgressDialog(getActivity());
-            progress.setTitle(getResources().getString(R.string.loading_comics));
-            progress.setCancelable(false);
-            progress.show();
+            if (showProgress) {
+                progress = new ProgressDialog(getActivity());
+                progress.setTitle(getResources().getString(R.string.loading_comics));
+                progress.setCancelable(false);
+                progress.show();
+            }
             Log.d("info", "updateImages started");
         }
 
@@ -126,7 +134,7 @@ public class OfflineFragment extends ComicFragment {
                     OkHttpClient client = new OkHttpClient();
                     File sdCard = prefHelper.getOfflinePath();
                     File dir = new File(sdCard.getAbsolutePath() + OFFLINE_PATH);
-                    for (int i = prefHelper.getHighestOffline()+1; i <= newestComicNumber; i++) {
+                    for (int i = prefHelper.getHighestOffline() + 1; i <= newestComicNumber; i++) {
                         Log.d("comic added", String.valueOf(i));
                         Comic comic = new Comic(i, getActivity());
                         Request request = new Request.Builder()
@@ -176,7 +184,8 @@ public class OfflineFragment extends ComicFragment {
 
         @Override
         protected void onPostExecute(Boolean showSnackbar) {
-            progress.dismiss();
+            if (showProgress)
+                progress.dismiss();
             if (((MainActivity) getActivity()).getProgressDialog() != null)
                 ((MainActivity) getActivity()).getProgressDialog().dismiss();
             scrollViewPager();
@@ -234,7 +243,7 @@ public class OfflineFragment extends ComicFragment {
             TextView tvAlt = (TextView) itemView.findViewById(R.id.tvAlt);
             TextView tvTitle = (TextView) itemView.findViewById(R.id.tvTitle);
 
-            comicMap.put(position + 1, new OfflineComic(position + 1, getActivity(), ((MainActivity)getActivity()).getPrefHelper()));
+            comicMap.put(position + 1, new OfflineComic(position + 1, getActivity(), ((MainActivity) getActivity()).getPrefHelper()));
 
             tvTitle.setText(comicMap.get(position + 1).getComicData()[0]);
             tvAlt.setText(comicMap.get(position + 1).getComicData()[1]);

@@ -411,7 +411,7 @@ public class SearchResultsActivity extends BaseActivity {
     private boolean checkInteger(String s) {
         boolean isInteger = true;
         try {
-            Integer.parseInt(s);
+            Integer.parseInt(s.trim());
         } catch (Exception e) {
             isInteger = false;
         }
