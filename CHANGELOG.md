@@ -1,3 +1,7 @@
+## 5.2.2
+
+- Fixed a bug where comics would disappear when the device is rotated
+
 ## 5.2
 
 - Added two widgets (Random comic, latest comic)

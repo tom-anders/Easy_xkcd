@@ -89,9 +89,9 @@ public class ComicBrowserFragment extends ComicFragment {
         } else {
             newestComicNumber = prefHelper.getNewest();
             new updateNewest(false).execute();
-            /*scrollViewPager();
+            scrollViewPager();
             adapter = new ComicBrowserPagerAdapter(getActivity(), newestComicNumber);
-            pager.setAdapter(adapter);*/
+            pager.setAdapter(adapter);
         }
 
         pager.addOnPageChangeListener(new ViewPager.OnPageChangeListener() {
