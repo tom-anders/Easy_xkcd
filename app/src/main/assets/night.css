@@ -42,7 +42,7 @@ blockquote {
 }
 
 a:link {
-    color: #005994;
+    color: #6bc4ff;
     text-decoration: underline;
     font-weight: 700;
 }
@@ -161,7 +161,7 @@ header img {
 #question, #attribute {
     font-style: italic;
     font-weight: 700;
-    color: #005994;
+    color: #6bc4ff;
 }
 
 #question {
@@ -283,7 +283,7 @@ footer {
     bottom: 1ex;
     /*font-family: Verdana, sans-serif;*/
     font-family Roboto Regular, Roboto Regular;
-    color: #005994;
+    color: #6bc4ff;
     font-size: .7em;
     font-weight: bold;
     text-decoration: underline;
