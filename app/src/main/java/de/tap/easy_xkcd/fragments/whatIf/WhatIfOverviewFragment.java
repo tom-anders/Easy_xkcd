@@ -199,8 +199,6 @@ public class WhatIfOverviewFragment extends android.support.v4.app.Fragment {
                         .load(imgs.get(i))
                         .into(comicViewHolder.thumbnail);
             }
-            if (themePrefs.invertColors())
-                comicViewHolder.thumbnail.setColorFilter(themePrefs.getNegativeColorFilter());
         }
 
         @Override
@@ -222,6 +220,8 @@ public class WhatIfOverviewFragment extends android.support.v4.app.Fragment {
                 articleTitle = (TextView) itemView.findViewById(R.id.article_title);
                 articleNumber = (TextView) itemView.findViewById(R.id.article_info);
                 thumbnail = (ImageView) itemView.findViewById(R.id.thumbnail);
+                if (themePrefs.invertColors())
+                    thumbnail.setColorFilter(themePrefs.getNegativeColorFilter());
             }
         }
     }
