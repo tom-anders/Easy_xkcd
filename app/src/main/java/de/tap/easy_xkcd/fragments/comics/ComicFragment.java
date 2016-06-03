@@ -371,12 +371,17 @@ public abstract class ComicFragment extends android.support.v4.app.Fragment {
         if (prefHelper.altBackButton() && !(pager.findViewWithTag(index).findViewById(R.id.tvAlt).getVisibility() == View.VISIBLE))
             return setAltText(false);
 
-        PhotoView pv = (PhotoView) pager.findViewWithTag(index).findViewById(R.id.ivComic);
-        float scale = pv.getScale();
-        if (scale != 1f) {
-            pv.setScale(1f, true);
-            return true;
-        } else {
+        try {
+            PhotoView pv = (PhotoView) pager.findViewWithTag(index).findViewById(R.id.ivComic);
+            float scale = pv.getScale();
+            if (scale != 1f) {
+                pv.setScale(1f, true);
+                return true;
+            } else {
+                return false;
+            }
+        } catch (NullPointerException e) {
+            Log.e("error", "pv nullPointer");
             return false;
         }
     }
