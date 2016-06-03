@@ -644,8 +644,9 @@ public class MainActivity extends BaseActivity {
 
         if (animate)
             transaction.setCustomAnimations(R.anim.slide_in_left, R.anim.slide_out_right);
-        if (fragmentManager.findFragmentByTag(OVERVIEW_TAG) == null) {
-            OverviewBaseFragment overviewBaseFragment = null;
+        OverviewBaseFragment overviewBaseFragment = (OverviewBaseFragment) fragmentManager.findFragmentByTag(OVERVIEW_TAG);
+        if (overviewBaseFragment == null || (overviewBaseFragment.overViewFav() != (currentFragment == R.id.nav_favorites)) ) {
+            Log.d("test", "new fragment created");
             switch (prefHelper.getOverviewStyle()) {
                 case 0:
                     overviewBaseFragment = new OverviewListFragment();
@@ -660,7 +661,11 @@ public class MainActivity extends BaseActivity {
             transaction.add(R.id.flContent, overviewBaseFragment, OVERVIEW_TAG);
         } else
             transaction.show(fragmentManager.findFragmentByTag(OVERVIEW_TAG));
-        transaction.hide(fragmentManager.findFragmentByTag(BROWSER_TAG)).commitAllowingStateLoss();
+        if (fragmentManager.findFragmentByTag(BROWSER_TAG) != null)
+            transaction.hide(fragmentManager.findFragmentByTag(BROWSER_TAG));
+        if (fragmentManager.findFragmentByTag(FAV_TAG) != null)
+            transaction.hide(fragmentManager.findFragmentByTag(FAV_TAG));
+        transaction.commitAllowingStateLoss();
 
         assert getSupportActionBar() != null;
         getSupportActionBar().setSubtitle("");
@@ -699,13 +704,22 @@ public class MainActivity extends BaseActivity {
             getSearchMenuItem().collapseActionView();
         } else if (mDrawer != null && mDrawer.isDrawerOpen(GravityCompat.START)) {
             mDrawer.closeDrawer(GravityCompat.START);
-        } else if (currentFragment == R.id.nav_browser && (fragmentManager.findFragmentByTag(OVERVIEW_TAG) == null || !fragmentManager.findFragmentByTag(OVERVIEW_TAG).isVisible())) {
+        } else if ((currentFragment == R.id.nav_browser || currentFragment == R.id.nav_favorites) && (fragmentManager.findFragmentByTag(OVERVIEW_TAG) == null || !fragmentManager.findFragmentByTag(OVERVIEW_TAG).isVisible())) {
             boolean zoomReset;
             zoomReset = ((ComicFragment) fragmentManager.findFragmentByTag(BROWSER_TAG)).zoomReset(); //Reset the zoom level of the current image
             if (!zoomReset) {
-                if (!SearchResultsActivity.isOpen && !getIntent().getAction().equals(Intent.ACTION_VIEW))
-                    showOverview(true);
-                else {
+                if (!SearchResultsActivity.isOpen && !getIntent().getAction().equals(Intent.ACTION_VIEW)) {
+                    prefHelper.setOverviewFav(currentFragment == R.id.nav_favorites);
+                    if (currentFragment == R.id.nav_favorites && (prefHelper.isOnline(this) || prefHelper.fullOfflineEnabled())) {
+                        showOverview(true);
+                        currentFragment = R.id.nav_browser;
+                        getSupportActionBar().setTitle("Comics");
+                        getSupportActionBar().setSubtitle(String.valueOf(((ComicFragment) fragmentManager.findFragmentByTag(BROWSER_TAG)).lastComicNumber));
+                        mNavView.getMenu().findItem(R.id.nav_browser).setChecked(true);
+                    } else {
+                        showOverview(true);
+                    }
+                } else {
                     if (((ComicFragment) fragmentManager.findFragmentByTag(BROWSER_TAG)).transition != null)
                         ((ComicFragment) fragmentManager.findFragmentByTag(BROWSER_TAG)).transition.exit(MainActivity.this); //return to the SearchResultsActivity
                     else

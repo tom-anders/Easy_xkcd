@@ -21,6 +21,7 @@ package de.tap.easy_xkcd.fragments.overview;
 import android.content.DialogInterface;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v7.widget.Toolbar;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
@@ -174,6 +175,10 @@ public abstract class OverviewBaseFragment extends android.support.v4.app.Fragme
         }
     }
 
+    public boolean overViewFav() {
+        Log.d("test", String.valueOf(comics == null || comics.size() == prefHelper.getNewest()));
+        return comics == null || comics.size() != prefHelper.getNewest();
+    }
 
     public void updateDatabasePostExecute() {
         animateToolbar();
