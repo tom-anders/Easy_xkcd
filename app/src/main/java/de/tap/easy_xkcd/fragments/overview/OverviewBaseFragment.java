@@ -29,10 +29,13 @@ import android.view.View;
 
 import com.tap.xkcd_reader.R;
 
+import java.util.Arrays;
+
 import de.tap.easy_xkcd.Activities.MainActivity;
 import de.tap.easy_xkcd.database.DatabaseManager;
 import de.tap.easy_xkcd.database.RealmComic;
 import de.tap.easy_xkcd.fragments.comics.ComicFragment;
+import de.tap.easy_xkcd.fragments.comics.FavoritesFragment;
 import de.tap.easy_xkcd.utils.PrefHelper;
 import de.tap.easy_xkcd.utils.ThemePrefs;
 import io.realm.Realm;
@@ -47,6 +50,7 @@ public abstract class OverviewBaseFragment extends android.support.v4.app.Fragme
     public static int bookmark;
     protected static final String BROWSER_TAG = "browser";
     protected static final String OVERVIEW_TAG = "overview";
+    private static final String FAV_TAG = "favorites";
 
     protected void setupVariables() {
         prefHelper = ((MainActivity) getActivity()).getPrefHelper();
@@ -71,19 +75,46 @@ public abstract class OverviewBaseFragment extends android.support.v4.app.Fragme
 
     public void goToComic(final int number) {
         android.support.v4.app.FragmentManager fragmentManager = getActivity().getSupportFragmentManager();
-        ComicFragment fragment = (ComicFragment) fragmentManager.findFragmentByTag(BROWSER_TAG);
-        fragment.scrollTo(number, false);
+        ComicFragment fragment;
+        FragmentTransaction transaction = getFragmentManager().beginTransaction();
+        int subtitle;
+        if (!prefHelper.overviewFav()) {
+            FavoritesFragment favorites = (FavoritesFragment) fragmentManager.findFragmentByTag(FAV_TAG);
+            if (favorites != null)
+                transaction.hide(favorites);
+            fragment = (ComicFragment) fragmentManager.findFragmentByTag(BROWSER_TAG);
+            fragment.scrollTo(number, false);
+            transaction.setCustomAnimations(R.anim.slide_in_right, R.anim.slide_out_left)
+                    .hide(fragmentManager.findFragmentByTag(OVERVIEW_TAG))
+                    .show(fragment)
+                    .commit();
+            subtitle = fragment.lastComicNumber;
+        } else {
+            transaction
+                    .setCustomAnimations(R.anim.slide_in_right, R.anim.slide_out_left)
+                    .hide(fragmentManager.findFragmentByTag(BROWSER_TAG))
+                    .hide(fragmentManager.findFragmentByTag(OVERVIEW_TAG));
+            fragment = (FavoritesFragment) fragmentManager.findFragmentByTag(FAV_TAG);
+            int index = Arrays.binarySearch(databaseManager.getFavComics(), number+1);
+            if (fragment == null) {
+                fragment = new FavoritesFragment();
+                transaction.add(R.id.flContent, fragment, FAV_TAG);
+            } else {
+                transaction.show(fragment);
+                fragment.scrollTo(index, false);
+            }
+            fragment.favoriteIndex = index;
+            subtitle = databaseManager.getFavComics()[fragment.favoriteIndex];
+            transaction.commit();
 
-
-        getFragmentManager().beginTransaction()
-                .setCustomAnimations(R.anim.slide_in_right, R.anim.slide_out_left)
-                .hide(fragmentManager.findFragmentByTag(OVERVIEW_TAG))
-                .show(fragment)
-                .commit();
+            ((MainActivity) getActivity()).setCurrentFragment(R.id.nav_favorites);
+            ((MainActivity) getActivity()).getSupportActionBar().setTitle(getActivity().getResources().getString(R.string.nv_favorites));
+            ((MainActivity) getActivity()).getNavView().getMenu().findItem(R.id.nav_favorites).setChecked(true);
+        }
 
 
         if (prefHelper.subtitleEnabled())
-            ((MainActivity) getActivity()).getToolbar().setSubtitle(String.valueOf(fragment.lastComicNumber));
+            ((MainActivity) getActivity()).getToolbar().setSubtitle(String.valueOf(subtitle));
     }
 
     @Override

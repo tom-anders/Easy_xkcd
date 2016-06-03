@@ -714,7 +714,6 @@ public class MainActivity extends BaseActivity {
                         showOverview(true);
                         currentFragment = R.id.nav_browser;
                         getSupportActionBar().setTitle("Comics");
-                        getSupportActionBar().setSubtitle(String.valueOf(((ComicFragment) fragmentManager.findFragmentByTag(BROWSER_TAG)).lastComicNumber));
                         mNavView.getMenu().findItem(R.id.nav_browser).setChecked(true);
                     } else {
                         showOverview(true);
@@ -833,6 +832,8 @@ public class MainActivity extends BaseActivity {
     public int getCurrentFragment() {
         return currentFragment;
     }
+
+    public void setCurrentFragment(int id) {currentFragment = id;}
 
     public ProgressDialog getProgressDialog() {
         return progress;
