@@ -122,7 +122,7 @@ public abstract class OverviewBaseFragment extends android.support.v4.app.Fragme
         inflater.inflate(R.menu.menu_overview_fragment, menu);
         menu.findItem(R.id.action_boomark).setVisible(prefHelper.getBookmark() != 0).setTitle(R.string.open_bookmark);
         menu.findItem(R.id.action_hide_read).setChecked(prefHelper.hideRead());
-        menu.findItem(R.id.action_search).setVisible(false);
+        //menu.findItem(R.id.action_search).setVisible(false);
         menu.findItem(R.id.action_boomark).setVisible(bookmark != 0);
 
         MenuItem fav = menu.findItem(R.id.action_favorite);
