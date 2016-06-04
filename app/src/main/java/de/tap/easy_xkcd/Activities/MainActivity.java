@@ -646,7 +646,6 @@ public class MainActivity extends BaseActivity {
             transaction.setCustomAnimations(R.anim.slide_in_left, R.anim.slide_out_right);
         OverviewBaseFragment overviewBaseFragment = (OverviewBaseFragment) fragmentManager.findFragmentByTag(OVERVIEW_TAG);
         if (overviewBaseFragment == null || (overviewBaseFragment.overViewFav() != (currentFragment == R.id.nav_favorites)) ) {
-            Log.d("test", "new fragment created");
             switch (prefHelper.getOverviewStyle()) {
                 case 0:
                     overviewBaseFragment = new OverviewListFragment();

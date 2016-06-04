@@ -207,7 +207,6 @@ public abstract class OverviewBaseFragment extends android.support.v4.app.Fragme
     }
 
     public boolean overViewFav() {
-        Log.d("test", String.valueOf(comics == null || comics.size() == prefHelper.getNewest()));
         return comics == null || comics.size() != prefHelper.getNewest();
     }
 

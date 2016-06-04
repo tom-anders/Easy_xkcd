@@ -1,3 +1,9 @@
+## 5.3
+
+- Made overview mode accessible from favorites
+- Added option to include comic link when sharing an image
+- Adjusted some colors in what-if night mode
+
 ## 5.2.2
 
 - Fixed a bug where comics would disappear when the device is rotated
