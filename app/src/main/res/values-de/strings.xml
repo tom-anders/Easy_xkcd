@@ -302,5 +302,7 @@
     <string name="widget_latest">Neuester Comic</string>
     <string name="widget_random">Zufälliger Comic</string>
     <string name="random_tip">Schon gewusst? Halte den Button gedrückt um zum vorherigen Comic zurückzukehren!</string>
+    <string name="pref_share_link">Comic Link hinzufügen</string>
+    <string name="pref_share_link_sum">Teile auch den Link zum Comic wenn ein Bild geteilt wird</string>
 
 </resources>

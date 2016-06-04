@@ -420,11 +420,7 @@ public abstract class ComicFragment extends android.support.v4.app.Fragment {
         Intent share = new Intent(android.content.Intent.ACTION_SEND);
         share.setType("text/plain");
         share.putExtra(Intent.EXTRA_SUBJECT, comic.getComicData()[0]);
-        if (prefHelper.shareMobile()) {
-            share.putExtra(Intent.EXTRA_TEXT, "https://m.xkcd.com/" + comic.getComicNumber() + "/");
-        } else {
-            share.putExtra(Intent.EXTRA_TEXT, "https://xkcd.com/" + comic.getComicNumber() + "/");
-        }
+        share.putExtra(Intent.EXTRA_TEXT, " https://" + (prefHelper.shareMobile() ? "m." : "") + "xkcd.com/" + comic.getComicNumber() + "/");
         startActivity(Intent.createChooser(share, this.getResources().getString(R.string.share_url)));
     }
 
@@ -433,9 +429,13 @@ public abstract class ComicFragment extends android.support.v4.app.Fragment {
         share.setType("image/*");
         share.putExtra(Intent.EXTRA_STREAM, uri);
         share.putExtra(Intent.EXTRA_SUBJECT, comic.getComicData()[0]);
-        if (prefHelper.shareAlt()) {
-            share.putExtra(Intent.EXTRA_TEXT, comic.getComicData()[1]);
-        }
+
+        String extraText = prefHelper.shareAlt() ? comic.getComicData()[1] : "";
+        if (prefHelper.includeLink())
+            extraText += " https://" + (prefHelper.shareMobile() ? "m." : "") + "xkcd.com/" + comic.getComicNumber() + "/";
+        if (!extraText.equals(""))
+            share.putExtra(Intent.EXTRA_TEXT, extraText);
+
         startActivity(Intent.createChooser(share, this.getResources().getString(R.string.share_image)));
     }
 

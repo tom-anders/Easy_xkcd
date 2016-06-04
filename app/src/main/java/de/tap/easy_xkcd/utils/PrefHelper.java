@@ -107,7 +107,7 @@ public class PrefHelper {
     private static final String BOOKMARK = "bookmark";
     private static final String WHAT_IF_SUNBEAM_LOADED = "sun_beam";
     private static final String LAUNCH_TO_OVERVIEW = "pref_overview_default";
-
+    private static final String INCLUDE_LINK = "pref_include_link";
 
     public PrefHelper(Context context) {
         sharedPrefs = context.getSharedPreferences("MainActivity", Activity.MODE_PRIVATE);
@@ -829,6 +829,7 @@ public class PrefHelper {
         return prefs.getBoolean(LAUNCH_TO_OVERVIEW, false);
     }
 
+    public boolean includeLink() {return prefs.getBoolean(INCLUDE_LINK, false);}
 
 }
 

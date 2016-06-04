@@ -293,6 +293,8 @@
     <string name="pref_share_sum">Don\'t ask me to decide between sharing the comic\'s image and sharing its URL</string>
     <string name="pref_share_alt">Include alt text when sharing</string>
     <string name="pref_share_title">Sharing</string>
+    <string name="pref_share_link">Include comic link</string>
+    <string name="pref_share_link_sum">Also include the link to the comic when sharing an image</string>
     <string name="pref_behavior">Behavior</string>
     <string name="pref_behavior_sum">Enable offline mode, notifications</string>
     <string name="pref_appearance">Appearance</string>
