@@ -299,7 +299,7 @@ public class DatabaseManager {
                         realmComic.setTranscript(comic.getTranscript());
                         realmComic.setUrl(comic.getComicData()[2]);
                         realmComic.setRead(read != null && Arrays.binarySearch(read, i) >= 0);
-                        realmComic.setFavorite(fav != null && Arrays.binarySearch(fav, i + 1) >= 0);
+                        realmComic.setFavorite(fav != null && Arrays.binarySearch(fav, i) >= 0);
                         float x = newest - highest;
                         int y = i - highest;
                         int p = (int) ((y / x) * 100);
