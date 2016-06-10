@@ -157,8 +157,13 @@ public class FavoritesFragment extends ComicFragment {
                 Glide.with(getActivity())
                         .load(getGifId(favorites[position] - 1))
                         .into(new GlideDrawableImageViewTarget(pvComic));
-            else
-                pvComic.setImageBitmap(((OfflineComic) comicMap.get(position)).getBitmap());
+            else {
+                Bitmap bitmap = ((OfflineComic) comicMap.get(position)).getBitmap();
+                if (bitmap != null)
+                    pvComic.setImageBitmap(bitmap);
+                else
+                    new RedownloadFavorite().execute(comicMap.get(position).getComicNumber()); // If the image is gone download it and refresh the fragment
+            }
             if (Arrays.binarySearch(mContext.getResources().getIntArray(R.array.large_comics), favorites[favoriteIndex]) >= 0)
                 pvComic.setMaximumScale(7.0f);
 
@@ -383,6 +388,34 @@ public class FavoritesFragment extends ComicFragment {
                 ((MainActivity) getActivity()).selectDrawerItem(mBrowser, false, false);
                 return;
             }
+            refresh();
+        }
+    }
+
+    public class RedownloadFavorite extends AsyncTask<Integer, Integer, Void> {
+
+        @Override
+        protected Void doInBackground(Integer... pos) {
+            try {
+                Comic comic = new Comic(pos[0], getActivity());
+                Bitmap bitmap = Glide
+                        .with(getActivity())
+                        .load(comic.getComicData()[2])
+                        .asBitmap()
+                        .diskCacheStrategy(DiskCacheStrategy.SOURCE)
+                        .into(-1, -1)
+                        .get();
+                saveComic(pos[0], bitmap);
+                prefHelper.addTitle(comic.getComicData()[0], pos[0]);
+                prefHelper.addAlt(comic.getComicData()[1], pos[0]);
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+            return null;
+        }
+
+        @Override
+        protected void onPostExecute(Void v) {
             refresh();
         }
     }

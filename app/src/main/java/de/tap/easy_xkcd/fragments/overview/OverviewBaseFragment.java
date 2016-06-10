@@ -19,6 +19,7 @@
 package de.tap.easy_xkcd.fragments.overview;
 
 import android.content.DialogInterface;
+import android.graphics.Bitmap;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
@@ -27,8 +28,12 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 
+import com.bumptech.glide.Glide;
+import com.bumptech.glide.load.engine.DiskCacheStrategy;
 import com.tap.xkcd_reader.R;
 
+import java.io.File;
+import java.io.FileOutputStream;
 import java.util.Arrays;
 
 import de.tap.easy_xkcd.Activities.MainActivity;
@@ -95,8 +100,12 @@ public abstract class OverviewBaseFragment extends android.support.v4.app.Fragme
                     .hide(fragmentManager.findFragmentByTag(BROWSER_TAG))
                     .hide(fragmentManager.findFragmentByTag(OVERVIEW_TAG));
             fragment = (FavoritesFragment) fragmentManager.findFragmentByTag(FAV_TAG);
-            int index = Arrays.binarySearch(databaseManager.getFavComics(), number+1);
-            if (fragment == null) {
+            int index = Arrays.binarySearch(databaseManager.getFavComics(), number + 1);
+            if (fragment == null || index < 0) {
+                if (index < 0) { // If the comic for some reason is in realm, but not in shared prefs, add it now
+                    index = -index - 1;
+                    databaseManager.setFavorite(number + 1, true);
+                }
                 fragment = new FavoritesFragment();
                 transaction.add(R.id.flContent, fragment, FAV_TAG);
             } else {
