@@ -57,6 +57,7 @@ import java.lang.reflect.Field;
 import java.util.Arrays;
 
 import de.tap.easy_xkcd.Activities.MainActivity;
+import de.tap.easy_xkcd.Activities.SearchResultsActivity;
 import de.tap.easy_xkcd.CustomTabHelpers.BrowserFallback;
 import de.tap.easy_xkcd.CustomTabHelpers.CustomTabActivityHelper;
 import de.tap.easy_xkcd.database.DatabaseManager;
@@ -107,7 +108,8 @@ public abstract class ComicFragment extends android.support.v4.app.Fragment {
             } else if (lastComicNumber == 0) {
                 lastComicNumber = prefHelper.getLastComic();
             }
-            if (MainActivity.overviewLaunch) {
+            if (MainActivity.overviewLaunch && !SearchResultsActivity.isOpen
+                    ) {
                 MainActivity.overviewLaunch = false;
                 ((MainActivity) getActivity()).showOverview(false);
             }
