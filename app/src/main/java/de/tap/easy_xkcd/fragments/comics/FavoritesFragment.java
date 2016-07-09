@@ -165,7 +165,7 @@ public class FavoritesFragment extends ComicFragment {
                     new RedownloadFavorite().execute(comicMap.get(position).getComicNumber()); // If the image is gone download it and refresh the fragment
             }
             if (Arrays.binarySearch(mContext.getResources().getIntArray(R.array.large_comics), favorites[favoriteIndex]) >= 0)
-                pvComic.setMaximumScale(7.0f);
+                pvComic.setMaximumScale(13.0f);
 
             container.addView(itemView);
             return itemView;

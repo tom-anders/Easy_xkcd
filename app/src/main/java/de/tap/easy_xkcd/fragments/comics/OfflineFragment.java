@@ -264,8 +264,8 @@ public class OfflineFragment extends ComicFragment {
                 randomSelected = false;
             }
 
-            if (Arrays.binarySearch(mContext.getResources().getIntArray(R.array.large_comics), lastComicNumber) >= 0)
-                pvComic.setMaximumScale(7.0f);
+            if (Arrays.binarySearch(mContext.getResources().getIntArray(R.array.large_comics), position+1) >= 0)
+                pvComic.setMaximumScale(13.0f);
 
             if (position == lastComicNumber - 1)
                 animateToolbar();
