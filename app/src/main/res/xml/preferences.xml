@@ -26,6 +26,12 @@
         android:title="@string/pref_alt_sharing" />
 
     <Preference
+        android:key="widget"
+        android:summary="@string/pref_widget_sum"
+        android:persistent="false"
+        android:title="@string/pref_widget" />
+
+    <Preference
         android:key="advanced"
         android:persistent="false"
         android:title="@string/pref_advanced" />

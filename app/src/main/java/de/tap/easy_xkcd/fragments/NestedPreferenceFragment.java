@@ -22,6 +22,8 @@ import android.Manifest;
 import android.app.Activity;
 import android.app.ProgressDialog;
 import android.app.TimePickerDialog;
+import android.appwidget.AppWidgetManager;
+import android.content.ComponentName;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -62,6 +64,8 @@ import de.tap.easy_xkcd.services.ComicDownloadService;
 import de.tap.easy_xkcd.utils.Comic;
 import de.tap.easy_xkcd.utils.PrefHelper;
 import de.tap.easy_xkcd.utils.ThemePrefs;
+import de.tap.easy_xkcd.widget.WidgetLatestProvider;
+import de.tap.easy_xkcd.widget.WidgetRandomProvider;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.Response;
@@ -75,6 +79,7 @@ public class NestedPreferenceFragment extends PreferenceFragment {
     private static final String ALT_SHARING = "altSharing";
     private static final String ADVANCED = "advanced";
     private static final String NIGHT = "night";
+    private static final String WIDGET = "widget";
     private static final String TAG_KEY = "NESTED_KEY";
 
     private static final String COLORED_NAVBAR = "pref_navbar";
@@ -93,6 +98,8 @@ public class NestedPreferenceFragment extends PreferenceFragment {
     private static final String FAB_OPTIONS = "pref_random";
     private static final String OFFLINE_PATH_PREF = "pref_offline_path";
     private static final String DONATE = "pref_hide_donate";
+    private static final String WIDGET_ALT = "widget_alt";
+    private static final String WIDGET_COMIC_NUMBER = "widget_comicNumber";
 
     private static final String OFFLINE_PATH = "/easy xkcd";
     private static final String OFFLINE_WHATIF_PATH = "/easy xkcd/what if/";
@@ -451,6 +458,10 @@ public class NestedPreferenceFragment extends PreferenceFragment {
 
             case ALT_SHARING:
                 addPreferencesFromResource(R.xml.pref_alt_sharing);
+                break;
+
+            case WIDGET:
+                addPreferencesFromResource(R.xml.pref_widgets);
                 break;
 
             case ADVANCED:

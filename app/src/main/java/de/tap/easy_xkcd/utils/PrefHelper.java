@@ -108,6 +108,8 @@ public class PrefHelper {
     private static final String WHAT_IF_SUNBEAM_LOADED = "sun_beam";
     private static final String LAUNCH_TO_OVERVIEW = "pref_overview_default";
     private static final String INCLUDE_LINK = "pref_include_link";
+    private static final String WIDGET_ALT = "widget_alt";
+    private static final String WIDGET_COMIC_NUMBER = "widget_comicNumber";
 
     public PrefHelper(Context context) {
         sharedPrefs = context.getSharedPreferences("MainActivity", Activity.MODE_PRIVATE);
@@ -830,6 +832,10 @@ public class PrefHelper {
     }
 
     public boolean includeLink() {return prefs.getBoolean(INCLUDE_LINK, false);}
+
+    public boolean widgetShowAlt() {return prefs.getBoolean(WIDGET_ALT, false);}
+
+    public boolean widgetShowComicNumber()  {return prefs.getBoolean(WIDGET_COMIC_NUMBER, true);}
 
 }
 

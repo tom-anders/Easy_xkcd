@@ -304,5 +304,9 @@
     <string name="random_tip">Schon gewusst? Halte den Button gedrückt um zum vorherigen Comic zurückzukehren!</string>
     <string name="pref_share_link">Comic Link hinzufügen</string>
     <string name="pref_share_link_sum">Teile auch den Link zum Comic wenn ein Bild geteilt wird</string>
+    <string name="pref_widget">Widget Einstellungen</string>
+    <string name="pref_widget_alt">Alt Text anzeigen</string>
+    <string name="pref_widget_comicNumber">Comic Nummer anzeigen</string>
+    <string name="pref_widget_sum">Entferne das Widget von deinem Homescreen und füge es wieder hinzu, damit die Änderungen übernommen werden</string>
 
 </resources>

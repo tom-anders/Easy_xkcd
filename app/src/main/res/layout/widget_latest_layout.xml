@@ -19,9 +19,21 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:layout_below="@id/tvTitle"
+        android:layout_above="@+id/tvAlt"
         android:layout_gravity="center"
         android:paddingBottom="5dp"
         android:paddingLeft="10dp"
         android:paddingRight="10dp" />
+
+    <TextView
+        android:id="@+id/tvAlt"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:gravity="bottom|center"
+        android:visibility="gone"
+        android:layout_alignParentBottom="true"
+        android:paddingLeft="10dp"
+        android:paddingRight="10dp"
+        android:textSize="@dimen/text_body1" />
 
 </RelativeLayout>

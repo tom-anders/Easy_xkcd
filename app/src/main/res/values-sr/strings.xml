@@ -305,5 +305,9 @@
     <string name="random_tip">Did you know? Long press the button to get to the previous comic!</string>
     <string name="pref_share_link">Include comic link</string>
     <string name="pref_share_link_sum">Also include the link to the comic when sharing an image</string>
+    <string name="pref_widget">Widget Settings</string>
+    <string name="pref_widget_alt">Display Alt Text</string>
+    <string name="pref_widget_comicNumber">Display Comic Number</string>
+    <string name="pref_widget_sum">In order for the changes to take effect, remove the widget from your homescreen and then add it again</string>
 
 </resources>

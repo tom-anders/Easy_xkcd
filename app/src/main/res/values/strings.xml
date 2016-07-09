@@ -351,6 +351,11 @@
     <string name="pref_overview_default">Launch to Overview Mode</string>
     <string name="pref_overview_default_sum">When launching the app, show Overview Mode by default</string>
 
+    <string name="pref_widget">Widget Settings</string>
+    <string name="pref_widget_sum">In order for the changes to take effect, remove the widget from your homescreen and then add it again</string>
+    <string name="pref_widget_alt">Display Alt Text</string>
+    <string name="pref_widget_comicNumber">Display Comic Number</string>
+
     <string name="dialog_donate">How much would you like to donate?</string>
     <string name="update_database">Updating database&#8230;</string>
     <string name="pref_default_zoom">Scale comic images to fit device screen size by default</string>

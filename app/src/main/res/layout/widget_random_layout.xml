@@ -30,10 +30,23 @@
         android:id="@+id/ivComic"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_above="@id/shuffle"
+        android:layout_above="@+id/tvAlt"
         android:layout_below="@id/tvTitle"
         android:layout_gravity="center"
         android:paddingLeft="10dp"
         android:paddingRight="10dp" />
+
+    <TextView
+        android:id="@+id/tvAlt"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:layout_above="@id/shuffle"
+        android:visibility="gone"
+        android:gravity="bottom|center"
+        android:paddingTop="10dp"
+        android:paddingLeft="10dp"
+        android:paddingRight="10dp"
+        android:textSize="@dimen/text_body1" />
+
 
 </RelativeLayout>

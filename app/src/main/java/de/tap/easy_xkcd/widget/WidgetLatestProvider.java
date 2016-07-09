@@ -7,6 +7,7 @@ import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.os.AsyncTask;
+import android.view.View;
 import android.widget.RemoteViews;
 
 import com.bumptech.glide.Glide;
@@ -75,7 +76,12 @@ public class WidgetLatestProvider extends AppWidgetProvider {
                         .load(comic.getComicData()[2])
                         .asBitmap()
                         .into(appWidgetTarget);
-                remoteViews.setTextViewText(R.id.tvTitle, newestComicNumber + ": " + comic.getComicData()[0]);
+                String title = prefHelper.widgetShowComicNumber() ? (newestComicNumber + ": ") : "";
+                remoteViews.setTextViewText(R.id.tvTitle, title + comic.getComicData()[0]);
+                remoteViews.setTextViewText(R.id.tvAlt, comic.getComicData()[1]);
+                if (prefHelper.widgetShowAlt())
+                    remoteViews.setViewVisibility(R.id.tvAlt, View.VISIBLE);
+
             }
         }
     }

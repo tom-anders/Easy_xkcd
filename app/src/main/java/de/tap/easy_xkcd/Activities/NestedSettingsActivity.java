@@ -53,6 +53,7 @@ public class NestedSettingsActivity extends BaseActivity implements OnDirectoryC
     private static final String ALT_SHARING = "altSharing";
     private static final String ADVANCED = "advanced";
     private static final String NIGHT = "night";
+    private static final String WIDGET = "widget";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -82,6 +83,9 @@ public class NestedSettingsActivity extends BaseActivity implements OnDirectoryC
                     break;
                 case NIGHT:
                     getSupportActionBar().setTitle(getResources().getString(R.string.pref_night_options));
+                    break;
+                case WIDGET:
+                    getSupportActionBar().setTitle(getResources().getString(R.string.pref_widget));
                     break;
             }
         }

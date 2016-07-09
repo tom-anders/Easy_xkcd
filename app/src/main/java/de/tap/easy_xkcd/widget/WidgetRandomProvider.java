@@ -93,7 +93,11 @@ public class WidgetRandomProvider extends AppWidgetProvider {
                         .asBitmap()
                         .into(appWidgetTarget);
 
-                remoteViews.setTextViewText(R.id.tvTitle, lastComicNumber + ": " + comic.getComicData()[0]);
+                String title = prefHelper.widgetShowComicNumber() ? (lastComicNumber + ": ") : "";
+                remoteViews.setTextViewText(R.id.tvTitle, title + comic.getComicData()[0]);
+                remoteViews.setTextViewText(R.id.tvAlt, comic.getComicData()[1]);
+                if (prefHelper.widgetShowAlt())
+                    remoteViews.setViewVisibility(R.id.tvAlt, View.VISIBLE);
             }
         }
     }

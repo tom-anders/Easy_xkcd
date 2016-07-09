@@ -73,6 +73,7 @@ public class SettingsActivity extends BaseActivity {
         private static final String ALT_SHARING = "altSharing";
         private static final String ADVANCED = "advanced";
         private static final String NIGHT = "night";
+        private static final String WIDGET = "widget";
 
         @Override
         public void onCreate(final Bundle savedInstanceState) {
@@ -84,6 +85,7 @@ public class SettingsActivity extends BaseActivity {
             findPreference(ALT_SHARING).setOnPreferenceClickListener(this);
             findPreference(ADVANCED).setOnPreferenceClickListener(this);
             findPreference(NIGHT).setOnPreferenceClickListener(this);
+            findPreference(WIDGET).setOnPreferenceClickListener(this);
         }
 
         @Override
