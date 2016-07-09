@@ -30,7 +30,6 @@ import android.graphics.BitmapFactory;
 import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
-import android.os.Environment;
 import android.os.Handler;
 import android.preference.Preference;
 import android.preference.PreferenceFragment;
@@ -351,7 +350,7 @@ public class NestedPreferenceFragment extends PreferenceFragment {
                 findPreference(NIGHT_THEME).setOnPreferenceChangeListener(new Preference.OnPreferenceChangeListener() {
                     @Override
                     public boolean onPreferenceChange(Preference preference, Object newValue) {
-                        themePrefs.setNightMode(Boolean.valueOf(newValue.toString()));
+                        themePrefs.setWhatIfNightMode(Boolean.valueOf(newValue.toString()));
                         getActivity().setResult(Activity.RESULT_OK);
                         Intent intent = getActivity().getIntent();
                         intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK

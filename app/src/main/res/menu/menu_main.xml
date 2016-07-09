@@ -25,6 +25,12 @@
         app:actionViewClass="android.widget.SearchView"
         app:showAsAction="always|collapseActionView" />
 
+    <item android:id="@+id/action_night_mode"
+        android:title="@string/action_night_mode"
+        android:checkable="true"
+        android:menuCategory="secondary"
+        app:showAsAction="never" />
+
     <item android:id="@+id/action_donate"
         android:title="@string/action_donate"
         android:menuCategory="secondary"

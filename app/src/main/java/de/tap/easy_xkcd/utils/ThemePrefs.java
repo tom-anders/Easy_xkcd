@@ -58,11 +58,11 @@ public class ThemePrefs {
         this.context = context;
     }
 
-    public boolean nightModeEnabled() {
+    public boolean WhatIfNightModeEnabled() {
         return getSharedPrefs().getBoolean(WHATIF_NIGHT_MODE, false);
     }
 
-    public void setNightMode(boolean value) {
+    public void setWhatIfNightMode(boolean value) {
         getSharedPrefs().edit().putBoolean(WHATIF_NIGHT_MODE, value).apply();
     }
 
@@ -116,6 +116,15 @@ public class ThemePrefs {
 
     public boolean autoNightEnabled() {
         return getPrefs().getBoolean(AUTO_NIGHT, false);
+    }
+
+    public void setNightThemeEnabled(boolean enabled) {
+        getPrefs().edit().putBoolean(NIGHT_THEME, enabled).apply();
+        setWhatIfNightMode(enabled);
+    }
+
+    public boolean nightEnabledThemeIgnoreAutoNight() {
+        return getPrefs().getBoolean(NIGHT_THEME, false);
     }
 
     public boolean nightThemeEnabled() {

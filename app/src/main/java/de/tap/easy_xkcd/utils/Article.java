@@ -19,7 +19,6 @@
 package de.tap.easy_xkcd.utils;
 
 import android.content.Context;
-import android.os.Environment;
 
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
@@ -65,7 +64,7 @@ public class Article {
         }
         //append custom css
         doc.head().getElementsByTag("link").remove();
-        if (!themePrefs.nightModeEnabled()) {
+        if (!themePrefs.WhatIfNightModeEnabled()) {
             doc.head().appendElement("link").attr("rel", "stylesheet").attr("type", "text/css").attr("href", "style.css");
         } else {
             doc.head().appendElement("link").attr("rel", "stylesheet").attr("type", "text/css").attr("href", "night.css");

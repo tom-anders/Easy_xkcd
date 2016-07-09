@@ -616,6 +616,8 @@ public class MainActivity extends BaseActivity {
         });
         if (prefHelper.hideDonate())
             menu.findItem(R.id.action_donate).setVisible(false);
+        menu.findItem(R.id.action_night_mode).setChecked(themePrefs.nightEnabledThemeIgnoreAutoNight());
+        menu.findItem(R.id.action_night_mode).setVisible(!themePrefs.autoNightEnabled());
         return true;
     }
 
@@ -629,8 +631,25 @@ public class MainActivity extends BaseActivity {
             case R.id.action_overview:
                 showOverview(true);
                 return true;
+
+            case R.id.action_night_mode:
+                return toggleNightMode(item);
         }
         return super.onOptionsItemSelected(item);
+    }
+
+    protected boolean toggleNightMode(MenuItem item) {
+        item.setChecked(!item.isChecked());
+        themePrefs.setNightThemeEnabled(item.isChecked());
+        Intent intent = getIntent();
+        intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK
+                | Intent.FLAG_ACTIVITY_NO_ANIMATION);
+        overridePendingTransition(0, 0);
+        finish();
+
+        overridePendingTransition(0, 0);
+        startActivity(intent);
+        return true;
     }
 
     public void showOverview(boolean animate) {

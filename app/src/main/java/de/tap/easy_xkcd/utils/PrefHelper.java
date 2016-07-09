@@ -348,11 +348,11 @@ public class PrefHelper {
         sharedPrefs.edit().putInt(LAST_WHATIF, number).apply();
     }
 
-    /*public boolean nightModeEnabled() {
+    /*public boolean WhatIfNightModeEnabled() {
         return sharedPrefs.getBoolean(WHATIF_NIGHT_MODE, false);
     }
 
-    public void setNightMode(boolean value) {
+    public void setWhatIfNightMode(boolean value) {
         sharedPrefs.edit().putBoolean(WHATIF_NIGHT_MODE, value).apply();
     }*/
 
