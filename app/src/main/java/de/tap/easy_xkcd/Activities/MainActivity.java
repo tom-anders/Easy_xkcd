@@ -641,12 +641,13 @@ public class MainActivity extends BaseActivity {
     protected boolean toggleNightMode(MenuItem item) {
         item.setChecked(!item.isChecked());
         themePrefs.setNightThemeEnabled(item.isChecked());
+        prefHelper.setLastComic(((ComicFragment) getSupportFragmentManager().findFragmentByTag(BROWSER_TAG)).lastComicNumber);
+
         Intent intent = getIntent();
         intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK
                 | Intent.FLAG_ACTIVITY_NO_ANIMATION);
         overridePendingTransition(0, 0);
         finish();
-
         overridePendingTransition(0, 0);
         startActivity(intent);
         return true;
