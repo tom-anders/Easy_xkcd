@@ -1,3 +1,10 @@
+## 5.3.2
+
+- Adjusted zoom level for large comics
+- Added night mode toggle in the overflow menu
+- Night mode now won't invert images that contain too much colors
+- Added settings for widgets
+
 ## 5.3
 
 - Made overview mode accessible from favorites
