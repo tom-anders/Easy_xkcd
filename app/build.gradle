@@ -60,4 +60,6 @@ dependencies {
     compile 'com.squareup.okhttp3:okhttp:3.1.2'
     compile 'uz.shift:colorpicker:0.5@aar'
     compile 'io.realm:realm-android:0.87.4'
+    compile 'com.android.support:palette-v7:23.1.1'
+
 }

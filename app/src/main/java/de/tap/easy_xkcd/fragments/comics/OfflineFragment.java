@@ -22,6 +22,7 @@ import android.app.AlertDialog;
 import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.DialogInterface;
+import android.graphics.Bitmap;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
@@ -255,8 +256,12 @@ public class OfflineFragment extends ComicFragment {
                 Glide.with(getActivity())
                         .load(getGifId(position))
                         .into(new GlideDrawableImageViewTarget(pvComic));
-            else
-                pvComic.setImageBitmap(((OfflineComic) comicMap.get(position + 1)).getBitmap());
+            else {
+                Bitmap bitmap = ((OfflineComic) comicMap.get(position + 1)).getBitmap();
+                if (themePrefs.invertColors() && themePrefs.bitmapContainsColor(bitmap))
+                    pvComic.clearColorFilter();
+                pvComic.setImageBitmap(bitmap);
+            }
 
             if (randomSelected && position == lastComicNumber - 1) {
                 Animation animation = AnimationUtils.loadAnimation(getActivity().getApplicationContext(), android.R.anim.fade_in);

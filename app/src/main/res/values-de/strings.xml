@@ -246,7 +246,7 @@
     <string name="pref_alt_style_title">Wähle deinen bevorzugten Stil</string>
     <string name="snackbar_survey">Hast du ein paar Minuten übrig und möchtest die App verbessern?</string>
     <string name="snackbar_survey_oc">Umfrage starten</string>
-    <string name="pref_invert">Comic Farben umkehren</string>
+    <string name="pref_invert">Schwarz-weiß umkehren</string>
     <string name="pref_night">Nacht Theme</string>
     <string name="pref_navbar">Farbige Navigationsleiste</string>
     <string name="action_trans">Transcript anzeigen</string>

@@ -24,6 +24,7 @@ import android.app.Activity;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.content.res.ColorStateList;
+import android.graphics.Bitmap;
 import android.graphics.Color;
 import android.graphics.ColorFilter;
 import android.graphics.ColorMatrixColorFilter;
@@ -31,6 +32,7 @@ import android.preference.PreferenceManager;
 import android.support.design.widget.NavigationView;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.util.CircularArray;
+import android.support.v7.graphics.Palette;
 import android.util.Log;
 
 import com.tap.xkcd_reader.R;
@@ -412,6 +414,11 @@ public class ThemePrefs {
                 0, 0, 0, 1.0f, 0 //alpha
         };
         return new ColorMatrixColorFilter(colorMatrix_Negative);
+    }
+
+    public boolean bitmapContainsColor(Bitmap bitmap) {
+        Palette palette = Palette.from(bitmap).generate();
+        return palette.getVibrantSwatch() != null;
     }
 
     private int getColor(int color) {
