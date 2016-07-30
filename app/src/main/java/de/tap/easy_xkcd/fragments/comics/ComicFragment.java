@@ -27,6 +27,7 @@ import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Vibrator;
 import android.support.customtabs.CustomTabsIntent;
+import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
 import android.support.v4.view.PagerAdapter;
 import android.support.v4.view.ViewPager;
@@ -569,7 +570,8 @@ public abstract class ComicFragment extends android.support.v4.app.Fragment {
             fav.setTitle(R.string.action_favorite);
         }
         //If the FAB is visible, hide the random comic menu item
-        if (((MainActivity) getActivity()).getFab().getVisibility() == View.GONE) {
+        FloatingActionButton fab = ((MainActivity) getActivity()).getFab();
+        if (fab!= null && fab.getVisibility() == View.GONE) {
             menu.findItem(R.id.action_random).setVisible(true);
         } else {
             menu.findItem(R.id.action_random).setVisible(false);
