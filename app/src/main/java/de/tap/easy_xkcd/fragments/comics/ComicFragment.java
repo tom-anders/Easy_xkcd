@@ -570,11 +570,9 @@ public abstract class ComicFragment extends android.support.v4.app.Fragment {
             fav.setTitle(R.string.action_favorite);
         }
         //If the FAB is visible, hide the random comic menu item
-        FloatingActionButton fab = ((MainActivity) getActivity()).getFab();
-        if (fab!= null && fab.getVisibility() == View.GONE) {
-            menu.findItem(R.id.action_random).setVisible(true);
-        } else {
-            menu.findItem(R.id.action_random).setVisible(false);
+        if (getActivity() != null) {
+            FloatingActionButton fab = ((MainActivity) getActivity()).getFab();
+            menu.findItem(R.id.action_random).setVisible(fab != null && fab.getVisibility() == View.GONE);
         }
         menu.findItem(R.id.action_alt).setVisible(prefHelper.showAltTip());
         if (Arrays.binarySearch(getResources().getIntArray(R.array.interactive_comics), lastComicNumber) >= 0)
