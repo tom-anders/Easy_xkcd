@@ -416,6 +416,8 @@ public class DatabaseManager {
                 return R.mipmap.pickup;
             case "Tatooine Rainbow":
                 return R.mipmap.trig;
+            case "Sun Bug":
+                return R.mipmap.blocked;
             default:
                 return 0;
         }
