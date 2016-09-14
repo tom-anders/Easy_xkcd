@@ -206,7 +206,7 @@ public class ComicBrowserFragment extends ComicFragment {
             final TextView tvTitle = (TextView) itemView.findViewById(R.id.tvTitle);
 
             if (Arrays.binarySearch(mContext.getResources().getIntArray(R.array.large_comics), position+1) >= 0)
-                pvComic.setMaximumScale(13.0f);
+                pvComic.setMaximumScale(15.0f);
 
             class loadComic extends AsyncTask<Void, Void, Void> {
                 private Comic comic;

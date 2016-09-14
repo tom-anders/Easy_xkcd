@@ -270,7 +270,7 @@ public class OfflineFragment extends ComicFragment {
             }
 
             if (Arrays.binarySearch(mContext.getResources().getIntArray(R.array.large_comics), position+1) >= 0)
-                pvComic.setMaximumScale(13.0f);
+                pvComic.setMaximumScale(15.0f);
 
             if (position == lastComicNumber - 1)
                 animateToolbar();
