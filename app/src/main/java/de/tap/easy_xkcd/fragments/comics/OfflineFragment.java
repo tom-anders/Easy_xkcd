@@ -258,7 +258,7 @@ public class OfflineFragment extends ComicFragment {
                         .into(new GlideDrawableImageViewTarget(pvComic));
             else {
                 Bitmap bitmap = ((OfflineComic) comicMap.get(position + 1)).getBitmap();
-                if (themePrefs.invertColors() && themePrefs.bitmapContainsColor(bitmap))
+                if (themePrefs.invertColors(false) && themePrefs.bitmapContainsColor(bitmap))
                     pvComic.clearColorFilter();
                 pvComic.setImageBitmap(bitmap);
             }

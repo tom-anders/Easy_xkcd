@@ -335,8 +335,8 @@ public class ThemePrefs {
     }
 
 
-    public boolean invertColors() {
-        return getPrefs().getBoolean(INVERT_COLORS, true) && (nightThemeEnabled() || WhatIfNightModeEnabled());
+    public boolean invertColors(boolean fromWhatIf) {
+        return getPrefs().getBoolean(INVERT_COLORS, true) && (nightThemeEnabled() || (WhatIfNightModeEnabled() && fromWhatIf));
     }
 
     public int[] getAccentColors() {

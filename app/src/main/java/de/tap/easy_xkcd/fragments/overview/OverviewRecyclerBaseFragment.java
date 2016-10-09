@@ -69,7 +69,7 @@ public abstract class OverviewRecyclerBaseFragment extends OverviewBaseFragment 
             comicViewHolder.comicInfo.setText(String.valueOf(number));
             comicViewHolder.comicTitle.setText(title);
 
-            if (themePrefs.invertColors())
+            if (themePrefs.invertColors(false))
                 comicViewHolder.thumbnail.setColorFilter(themePrefs.getNegativeColorFilter());
         }
 

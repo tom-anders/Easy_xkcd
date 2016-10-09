@@ -261,7 +261,7 @@ public class SearchResultsActivity extends BaseActivity {
                     }
                 }
             }
-            if (themePrefs.invertColors())
+            if (themePrefs.invertColors(false))
                 comicViewHolder.thumbnail.setColorFilter(themePrefs.getNegativeColorFilter());
 
         }

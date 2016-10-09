@@ -220,7 +220,7 @@ public class WhatIfOverviewFragment extends android.support.v4.app.Fragment {
                 articleTitle = (TextView) itemView.findViewById(R.id.article_title);
                 articleNumber = (TextView) itemView.findViewById(R.id.article_info);
                 thumbnail = (ImageView) itemView.findViewById(R.id.thumbnail);
-                if (themePrefs.invertColors())
+                if (themePrefs.invertColors(false))
                     thumbnail.setColorFilter(themePrefs.getNegativeColorFilter());
             }
         }

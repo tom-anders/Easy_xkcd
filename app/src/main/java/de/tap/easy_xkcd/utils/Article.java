@@ -66,7 +66,7 @@ public class Article {
         doc.head().getElementsByTag("link").remove();
         if (!themePrefs.WhatIfNightModeEnabled()) {
             doc.head().appendElement("link").attr("rel", "stylesheet").attr("type", "text/css").attr("href", "style.css");
-        } else if (themePrefs.invertColors()) {
+        } else if (themePrefs.invertColors(true)) {
             doc.head().appendElement("link").attr("rel", "stylesheet").attr("type", "text/css").attr("href", "night_invert.css");
         } else {
             doc.head().appendElement("link").attr("rel", "stylesheet").attr("type", "text/css").attr("href", "night.css");

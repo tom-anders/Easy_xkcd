@@ -247,7 +247,7 @@ public class ComicBrowserFragment extends ComicFragment {
                                 .into(new SimpleTarget<Bitmap>() {
                                     @Override
                                     public void onResourceReady(Bitmap resource, GlideAnimation<? super Bitmap> glideAnimation) {
-                                        if (themePrefs.invertColors() && themePrefs.bitmapContainsColor(resource))
+                                        if (themePrefs.invertColors(false) && themePrefs.bitmapContainsColor(resource))
                                             pvComic.clearColorFilter();
 
                                         pvComic.setAlpha(0f);

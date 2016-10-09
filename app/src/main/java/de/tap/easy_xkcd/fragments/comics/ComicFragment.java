@@ -197,7 +197,7 @@ public abstract class ComicFragment extends android.support.v4.app.Fragment {
                 }
             });
 
-            if (themePrefs.invertColors())
+            if (themePrefs.invertColors(false))
                 pvComic.setColorFilter(themePrefs.getNegativeColorFilter());
 
             if (prefHelper.scrollDisabledWhileZoom() && prefHelper.defaultZoom())
