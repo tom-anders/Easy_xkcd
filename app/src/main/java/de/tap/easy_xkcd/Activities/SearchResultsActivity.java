@@ -55,6 +55,7 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.regex.PatternSyntaxException;
 
 import butterknife.Bind;
 import butterknife.ButterKnife;
@@ -298,32 +299,37 @@ public class SearchResultsActivity extends BaseActivity {
      * @return a short preview of the transcript with the query highlighted
      */
     private String getPreview(String query, String transcript) {
-        String firstWord = query.split(" ")[0].toLowerCase();
-        transcript = transcript.replace(".", ". ").replace("?", "? ").replace("]]", " ").replace("[[", " ").replace("{{", " ").replace("}}", " ");
-        ArrayList<String> words = new ArrayList<>(Arrays.asList(transcript.toLowerCase().split(" ")));
-        int i = 0;
-        boolean found = false;
-        while (!found && i < words.size()) {
-            if (query.length() < 5)
-                found = words.get(i).matches(".*\\b" + firstWord + "\\b.*");
-            else
-                found = words.get(i).contains(firstWord);
+        try {
+            String firstWord = query.split(" ")[0].toLowerCase();
+            transcript = transcript.replace(".", ". ").replace("?", "? ").replace("]]", " ").replace("[[", " ").replace("{{", " ").replace("}}", " ");
+            ArrayList<String> words = new ArrayList<>(Arrays.asList(transcript.toLowerCase().split(" ")));
+            int i = 0;
+            boolean found = false;
+            while (!found && i < words.size()) {
+                if (query.length() < 5)
+                    found = words.get(i).matches(".*\\b" + firstWord + "\\b.*");
+                else
+                    found = words.get(i).contains(firstWord);
 
-            if (!found) i++;
+                if (!found) i++;
+            }
+            int start = i - 6;
+            int end = i + 6;
+
+            if (i < 6) start = 0;
+            if (words.size() - i < 6) end = words.size();
+
+            StringBuilder sb = new StringBuilder();
+            for (String s : words.subList(start, end)) {
+                sb.append(s);
+                sb.append(" ");
+            }
+            String s = sb.toString();
+            return "..." + s.replace(query, "<b>" + query + "</b>") + "...";
+        } catch (PatternSyntaxException e) {
+            e.printStackTrace();
+            return " ";
         }
-        int start = i - 6;
-        int end = i + 6;
-
-        if (i < 6) start = 0;
-        if (words.size() - i < 6) end = words.size();
-
-        StringBuilder sb = new StringBuilder();
-        for (String s : words.subList(start, end)) {
-            sb.append(s);
-            sb.append(" ");
-        }
-        String s = sb.toString();
-        return "..." + s.replace(query, "<b>" + query + "</b>") + "...";
     }
 
     class CustomOnClickListener implements View.OnClickListener {
