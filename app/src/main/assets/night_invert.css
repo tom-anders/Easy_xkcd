@@ -193,8 +193,8 @@ header img {
     max-width: 100%;
     margin: 0 auto;
     padding: 0.7em 0;
-    background-color: white;
-   /* filter: brightness(0) invert(100%);*/
+    /*background-color: white;*/
+    filter: invert(100%);
 }
 
 .aside {
