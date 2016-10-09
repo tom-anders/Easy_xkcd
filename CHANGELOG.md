@@ -1,3 +1,7 @@
+## 5.3.6
+
+- Colors of What-If images can now be inverted too
+
 ## 5.3.2
 
 - Adjusted zoom level for large comics
