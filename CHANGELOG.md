@@ -1,3 +1,8 @@
+## 5.3.7
+
+- Fixed Reddit links
+- Added missing What-If images
+
 ## 5.3.6
 
 - Colors of What-If images can now be inverted too
