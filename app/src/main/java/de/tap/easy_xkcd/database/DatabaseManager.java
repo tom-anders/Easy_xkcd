@@ -15,7 +15,9 @@ import android.widget.Toast;
 
 import com.tap.xkcd_reader.R;
 
+import org.json.JSONObject;
 import org.jsoup.Jsoup;
+import org.jsoup.nodes.Document;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -30,6 +32,7 @@ import de.tap.easy_xkcd.CustomTabHelpers.BrowserFallback;
 import de.tap.easy_xkcd.CustomTabHelpers.CustomTabActivityHelper;
 import de.tap.easy_xkcd.fragments.overview.OverviewBaseFragment;
 import de.tap.easy_xkcd.utils.Comic;
+import de.tap.easy_xkcd.utils.JsonParser;
 import de.tap.easy_xkcd.utils.PrefHelper;
 import de.tap.easy_xkcd.utils.ThemePrefs;
 import io.realm.Realm;
@@ -475,11 +478,18 @@ public class DatabaseManager {
         @Override
         protected String doInBackground(String... title) {
             try {
-                return Jsoup.connect("https://www.reddit.com/r/xkcd/search?q=title%3A\"" + title[0] + "\"&restrict_sr=on&sort=relevance&t=all").get()
-                        .select(".search-result-meta").first()
-                        .select("a[href]").first().absUrl("href");
+                return "https://www.reddit.com" + JsonParser.getJSONFromUrl("https://www.reddit.com/r/xkcd/search.json?q=" + title[0] + "&restrict_sr=on")
+                        .getJSONObject("data")
+                        .getJSONArray("children").getJSONObject(0).getJSONObject("data").getString("permalink");
             } catch (Exception e) {
-                Log.e("error at " + title[0], e.getMessage());
+                Log.d("reddit link", "timeout, trying again...");
+                try {
+                    return "https://www.reddit.com" + JsonParser.getJSONFromUrl("https://www.reddit.com/r/xkcd/search.json?q=" + title[0] + "&restrict_sr=on")
+                            .getJSONObject("data")
+                            .getJSONArray("children").getJSONObject(0).getJSONObject("data").getString("permalink");
+                } catch (Exception e2) {
+                    Log.e("error at " + title[0], e2.getMessage());
+                }
                 return "";
             }
         }
