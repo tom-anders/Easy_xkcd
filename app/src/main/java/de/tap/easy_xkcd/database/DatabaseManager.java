@@ -148,7 +148,6 @@ public class DatabaseManager {
      * @param activity should be MainActivity
      */
     public void moveFavorites(Activity activity) {
-
         if (!getSharedPrefs().getBoolean(FAVORITES_MOVED, false)) {
             String fav = activity.getPreferences(Activity.MODE_PRIVATE).getString("favorites", null);
             getSharedPrefs().edit().putString(FAVORITES, fav).putBoolean(FAVORITES_MOVED, true).apply();
