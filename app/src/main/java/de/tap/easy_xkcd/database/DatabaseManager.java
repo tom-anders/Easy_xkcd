@@ -418,6 +418,16 @@ public class DatabaseManager {
                 return R.mipmap.trig;
             case "Sun Bug":
                 return R.mipmap.blocked;
+            case "Flood Death Valley":
+                return R.mipmap.deathsea;
+            case "Hide the Atmosphere":
+                return R.mipmap.cube;
+            case "Coast-to-Coast Coasting":
+                return R.mipmap.beach;
+            case "Toaster vs. Freezer":
+                return R.mipmap.setup;
+            case "Electrofishing for Whales":
+                return R.mipmap.setup1;
             default:
                 return 0;
         }
