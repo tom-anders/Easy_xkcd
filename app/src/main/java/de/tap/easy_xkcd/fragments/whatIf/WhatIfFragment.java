@@ -46,7 +46,8 @@ import de.tap.easy_xkcd.Activities.MainActivity;
 import de.tap.easy_xkcd.Activities.WhatIfActivity;
 import de.tap.easy_xkcd.utils.PrefHelper;
 import de.tap.easy_xkcd.utils.ThemePrefs;
-import jp.wasabeef.recyclerview.animators.adapters.SlideInBottomAnimationAdapter;
+import jp.wasabeef.recyclerview.adapters.AlphaInAnimationAdapter;
+import jp.wasabeef.recyclerview.adapters.SlideInBottomAnimationAdapter;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.Response;
@@ -243,13 +244,13 @@ public class WhatIfFragment extends android.support.v4.app.Fragment {
                 Elements imagelinks = doc.select("img.archive-image");
 
                 boolean bowlingFixed = false; //This title appears twice, so add " " to one of the titles to make everything work later
-                    for (Element title : titles) {
-                        if (!bowlingFixed && title.text().equals("Bowling Ball")) {
-                            mTitles.add(title.text() + " ");
-                            bowlingFixed = true;
-                        } else
-                            mTitles.add(title.text());
-                    }
+                for (Element title : titles) {
+                    if (!bowlingFixed && title.text().equals("Bowling Ball")) {
+                        mTitles.add(title.text() + " ");
+                        bowlingFixed = true;
+                    } else
+                        mTitles.add(title.text());
+                }
 
                 for (Element image : imagelinks)
                     mImgs.add(image.absUrl("src"));
@@ -286,7 +287,7 @@ public class WhatIfFragment extends android.support.v4.app.Fragment {
 
     public class WhatIfRVAdapter extends WhatIfOverviewFragment.RVAdapter {
         public WhatIfRVAdapter(ArrayList<String> t, ArrayList<String> i, MainActivity activity) {
-            super(t,i, activity);
+            super(t, i, activity);
         }
 
         @Override
@@ -436,6 +437,7 @@ public class WhatIfFragment extends android.support.v4.app.Fragment {
                 }
             }
             adapter = new WhatIfRVAdapter(titleUnread, imgUnread, (MainActivity) getActivity());
+
             SlideInBottomAnimationAdapter slideAdapter = new SlideInBottomAnimationAdapter(adapter);
             slideAdapter.setInterpolator(new DecelerateInterpolator());
             rv.setAdapter(slideAdapter);

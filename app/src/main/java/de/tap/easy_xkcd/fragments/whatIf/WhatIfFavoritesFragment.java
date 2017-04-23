@@ -31,7 +31,7 @@ import butterknife.ButterKnife;
 import de.tap.easy_xkcd.Activities.MainActivity;
 import de.tap.easy_xkcd.Activities.WhatIfActivity;
 import de.tap.easy_xkcd.utils.PrefHelper;
-import jp.wasabeef.recyclerview.animators.adapters.SlideInBottomAnimationAdapter;
+import jp.wasabeef.recyclerview.adapters.SlideInBottomAnimationAdapter;
 
 public class WhatIfFavoritesFragment extends android.support.v4.app.Fragment {
     public static ArrayList<String> mTitles = new ArrayList<>();

@@ -66,7 +66,7 @@ import de.tap.easy_xkcd.fragments.comics.OfflineFragment;
 import io.realm.Case;
 import io.realm.Realm;
 import io.realm.RealmResults;
-import jp.wasabeef.recyclerview.animators.adapters.SlideInBottomAnimationAdapter;
+import jp.wasabeef.recyclerview.adapters.SlideInBottomAnimationAdapter;
 
 
 public class SearchResultsActivity extends BaseActivity {
