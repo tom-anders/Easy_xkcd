@@ -30,6 +30,8 @@ import android.view.View;
 import android.view.ViewGroup;
 
 import com.bumptech.glide.Glide;
+import com.bumptech.glide.request.RequestListener;
+import com.bumptech.glide.request.target.Target;
 import com.tap.xkcd_reader.R;
 
 import java.io.File;
@@ -96,6 +98,19 @@ public class OverviewCardsFragment extends OverviewRecyclerBaseFragment {
                 Glide.with(getActivity())
                         .load(comic.getUrl())
                         .asBitmap()
+                        .listener(new RequestListener<String, Bitmap>() {
+                            @Override
+                            public boolean onException(Exception e, String model, Target<Bitmap> target, boolean isFirstResource) {
+                                return false;
+                            }
+
+                            @Override
+                            public boolean onResourceReady(Bitmap resource, String model, Target<Bitmap> target, boolean isFromMemoryCache, boolean isFirstResource) {
+                                if (themePrefs.invertColors(false) && themePrefs.bitmapContainsColor(resource))
+                                    comicViewHolder.thumbnail.clearColorFilter();
+                                return false;
+                            }
+                        })
                         .into(comicViewHolder.thumbnail);
             } else {
                 try {
@@ -105,6 +120,19 @@ public class OverviewCardsFragment extends OverviewRecyclerBaseFragment {
                     Glide.with(getActivity())
                             .load(file)
                             .asBitmap()
+                            .listener(new RequestListener<File, Bitmap>() {
+                                @Override
+                                public boolean onException(Exception e, File model, Target<Bitmap> target, boolean isFirstResource) {
+                                    return false;
+                                }
+
+                                @Override
+                                public boolean onResourceReady(Bitmap resource, File model, Target<Bitmap> target, boolean isFromMemoryCache, boolean isFirstResource) {
+                                    if (themePrefs.invertColors(false) && themePrefs.bitmapContainsColor(resource))
+                                        comicViewHolder.thumbnail.clearColorFilter();
+                                    return false;
+                                }
+                            })
                             .into(comicViewHolder.thumbnail);
                 } catch (Exception e) {
                     Log.e("Error", "loading from external storage failed");
@@ -113,6 +141,8 @@ public class OverviewCardsFragment extends OverviewRecyclerBaseFragment {
                         Bitmap mBitmap = BitmapFactory.decodeStream(fis);
                         fis.close();
                         comicViewHolder.thumbnail.setImageBitmap(mBitmap);
+                        if (themePrefs.invertColors(false) && themePrefs.bitmapContainsColor(mBitmap))
+                            comicViewHolder.thumbnail.clearColorFilter();
                     } catch (Exception e2) {
                         e2.printStackTrace();
                     }
