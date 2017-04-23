@@ -45,7 +45,7 @@ public class ComicListener implements WakefulIntentService.AlarmListener {
         }
     }
 
-    public long getMaxAge() {
+    public long getMaxAge(Context context) {
         return (prefHelper.getNotificationInterval() + 60 * 1000);
     }
 }
