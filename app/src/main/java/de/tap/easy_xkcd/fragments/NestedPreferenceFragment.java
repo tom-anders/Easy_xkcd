@@ -100,6 +100,7 @@ public class NestedPreferenceFragment extends PreferenceFragment {
     private static final String DONATE = "pref_hide_donate";
     private static final String WIDGET_ALT = "widget_alt";
     private static final String WIDGET_COMIC_NUMBER = "widget_comicNumber";
+    private static final String NAV_DRAWER_SWIPE = "pref_nav_swipe";
 
     private static final String OFFLINE_PATH = "/easy xkcd";
     private static final String OFFLINE_WHATIF_PATH = "/easy xkcd/what if/";
@@ -342,6 +343,16 @@ public class NestedPreferenceFragment extends PreferenceFragment {
                         }
                     }
                 });
+
+                findPreference(NAV_DRAWER_SWIPE).setOnPreferenceChangeListener(new Preference.OnPreferenceChangeListener() {
+                    @Override
+                    public boolean onPreferenceChange(Preference preference, Object newValue) {
+                        prefHelper.setNavDrawerSwipe(Boolean.parseBoolean(newValue.toString()));
+                        getActivity().setResult(Activity.RESULT_OK);
+                        return true;
+                    }
+                });
+
                 break;
 
             case NIGHT:

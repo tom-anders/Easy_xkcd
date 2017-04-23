@@ -169,6 +169,18 @@ public class MainActivity extends BaseActivity {
         }
         setupDrawerContent(mNavView);
 
+        if(!prefHelper.navDrawerSwipe()) {
+            mDrawer.setDrawerLockMode(DrawerLayout.LOCK_MODE_LOCKED_CLOSED);
+            toolbar.setNavigationOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    if(v.getId() == -1)
+                        mDrawer.openDrawer(mNavView, true);
+                    Log.d("test", String.valueOf(v.getId()));
+                }
+            });
+        }
+
         if (savedInstanceState == null) {
             new Handler().postDelayed(new Runnable() {
                 @Override
@@ -876,6 +888,10 @@ public class MainActivity extends BaseActivity {
 
     private ActionBarDrawerToggle setupDrawerToggle() {
         return new ActionBarDrawerToggle(this, mDrawer, toolbar, R.string.drawer_open, R.string.drawer_close);
+    }
+
+    public void setNavSwipe() {
+
     }
 
 }

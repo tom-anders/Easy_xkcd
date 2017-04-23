@@ -110,6 +110,7 @@ public class PrefHelper {
     private static final String INCLUDE_LINK = "pref_include_link";
     private static final String WIDGET_ALT = "widget_alt";
     private static final String WIDGET_COMIC_NUMBER = "widget_comicNumber";
+    private static final String NAV_DRAWER_SWIPE = "disable_nav_drawer_swipe";
 
     public PrefHelper(Context context) {
         sharedPrefs = context.getSharedPreferences("MainActivity", Activity.MODE_PRIVATE);
@@ -122,6 +123,14 @@ public class PrefHelper {
 
     public void setFullOffline(boolean value) {
         prefs.edit().putBoolean(FULL_OFFLINE, value).apply();
+    }
+
+    public boolean navDrawerSwipe() {
+        return prefs.getBoolean(NAV_DRAWER_SWIPE, true);
+    }
+
+    public void setNavDrawerSwipe(boolean value) {
+        prefs.edit().putBoolean(NAV_DRAWER_SWIPE, value).apply();
     }
 
     public boolean fabEnabled(String prefTag) {

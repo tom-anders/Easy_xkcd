@@ -445,4 +445,6 @@
         <item>1</item>
     </string-array>
 
+    <string name="pref_nav_swipe">Swipe to open Navigation Drawer</string>
+
 </resources>
