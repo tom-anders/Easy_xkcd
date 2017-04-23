@@ -1,3 +1,7 @@
+## 5.3.8
+
+- Fixed comic #1826 in offline mode (may have caused crashes for most users)
+
 ## 5.3.7
 
 - Fixed Reddit links

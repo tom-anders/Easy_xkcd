@@ -21,6 +21,8 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.util.Log;
 
+import com.tap.xkcd_reader.R;
+
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
@@ -47,6 +49,13 @@ public class OfflineComic extends Comic {
     }
 
     public Bitmap getBitmap() {
+        //Fix for offline users who downloaded the HUGE version of #1826
+        if(comicNumber == 1826) {
+            BitmapFactory.Options options = new BitmapFactory.Options();
+            options.inScaled = false;
+            return BitmapFactory.decodeResource(mContext.getResources(), R.mipmap.birdwatching, options);
+        }
+
         Bitmap mBitmap = null;
         try {
             File sdCard = prefHelper.getOfflinePath();
