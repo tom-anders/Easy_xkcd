@@ -27,6 +27,7 @@ import org.json.JSONObject;
 
 import java.io.IOException;
 import java.util.Arrays;
+import java.util.StringTokenizer;
 
 
 public class Comic {
@@ -42,7 +43,7 @@ public class Comic {
             jsonUrl = "https://xkcd.com/info.0.json";
         }
         try {
-            comicData = loadComicData(jsonUrl);
+            comicData = loadComicData(jsonUrl, context);
         } catch (JSONException e) {
             e.printStackTrace();
         }
@@ -65,7 +66,7 @@ public class Comic {
             jsonUrl = "https://xkcd.com/info.0.json";
         }
         try {
-            comicData = loadComicData(jsonUrl);
+            comicData = loadComicData(jsonUrl, null);
         } catch (JSONException e) {
             e.printStackTrace();
         }
@@ -73,7 +74,7 @@ public class Comic {
 
     public Comic() {}
 
-    private String[] loadComicData(String url) throws IOException, JSONException {
+    private String[] loadComicData(String url, Context context) throws IOException, JSONException {
         json = JsonParser.getJSONFromUrl(url);
         String[] result = new String[3];
         if (json != null) {
@@ -88,6 +89,8 @@ public class Comic {
             comicNumber = 404;
 
         } else throw new IOException("json not found");
+
+        result[2] = Comic.getDoubleResolutionUrl(result[2], comicNumber, context);
 
         // some image fixes
         switch (comicNumber) {
@@ -131,4 +134,13 @@ public class Comic {
         return comicNumber;
     }
 
+    //Thanks to /u/doncajon https://www.reddit.com/r/xkcd/comments/667yaf/xkcd_1826_birdwatching/
+    static public String getDoubleResolutionUrl(String url, int number, Context context) {
+        boolean largeComic = context != null && Arrays.binarySearch(context.getResources().getIntArray(R.array.large_comics), number) >= 0;
+        int no2xVersion[] = {1193, 1446, 1667, 1735, 1739, 1744, 1778};
+        Log.d("search"+number, String.valueOf(Arrays.binarySearch(no2xVersion, number) ));
+        if(number >= 1084 && Arrays.binarySearch(no2xVersion, number) < 0 && !largeComic && !url.contains("_2x.png"))
+            return url.substring(0, url.lastIndexOf('.')) + "_2x.png";
+        return url;
+    }
 }

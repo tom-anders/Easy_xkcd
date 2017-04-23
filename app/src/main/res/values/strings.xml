@@ -240,6 +240,7 @@
         <item>1732</item>
     </integer-array>
 
+
     <string-array name="large_comics_urls" translatable="false">
         <item>http://imgs.xkcd.com/comics/online_communities.png</item>
         <item>http://imgs.xkcd.com/comics/height.png</item>
