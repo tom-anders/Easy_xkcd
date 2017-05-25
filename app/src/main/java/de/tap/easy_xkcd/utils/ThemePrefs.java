@@ -417,8 +417,12 @@ public class ThemePrefs {
     }
 
     public boolean bitmapContainsColor(Bitmap bitmap) {
-        Palette palette = Palette.from(bitmap).generate();
-        return palette.getVibrantSwatch() != null;
+        try {
+            Palette palette = Palette.from(bitmap).generate();
+            return palette.getVibrantSwatch() != null;
+        } catch (Exception e) {
+            return false;
+        }
     }
 
     private int getColor(int color) {
