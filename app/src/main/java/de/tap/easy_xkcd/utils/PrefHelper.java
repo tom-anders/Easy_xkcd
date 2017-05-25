@@ -41,6 +41,7 @@ import java.util.Calendar;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Random;
 
 import de.tap.easy_xkcd.Activities.NestedSettingsActivity;
 import de.tap.easy_xkcd.database.DatabaseManager;
@@ -253,7 +254,6 @@ public class PrefHelper {
     }
 
 
-
     public boolean shareImage() {
         return prefs.getBoolean(SHARE_IMAGE, false);
     }
@@ -382,7 +382,7 @@ public class PrefHelper {
     }
 
     public void setAllWhatIfRead() {
-        for (int i = 1; i<=getNewestWhatIf(); i++)
+        for (int i = 1; i <= getNewestWhatIf(); i++)
             setWhatifRead(String.valueOf(i));
     }
 
@@ -638,24 +638,28 @@ public class PrefHelper {
     }
 
     public int getRandomNumber(int current) {
-        if (randList == null) {
-            randList = new ArrayList<>();
-            for (int i = 1; i < getNewest(); i++) {
-                if (i != current)
-                    randList.add(i);
+        try {
+            if (randList == null) {
+                randList = new ArrayList<>();
+                for (int i = 1; i < getNewest(); i++) {
+                    if (i != current)
+                        randList.add(i);
+                }
+                Collections.shuffle(randList);
+                randList.add(0, current);
             }
-            Collections.shuffle(randList);
-            randList.add(0, current);
+            int result;
+            if (randIndex == 0) {
+                result = randList.get(randIndex + 1);
+                randIndex++;
+            } else {
+                randIndex++;
+                result = randList.get(randIndex);
+            }
+            return result;
+        } catch (IndexOutOfBoundsException e) {
+            return (new Random()).nextInt(getNewest()-1) + 1;
         }
-        int result;
-        if (randIndex == 0) {
-            result = randList.get(randIndex + 1);
-            randIndex++;
-        } else {
-            randIndex++;
-            result = randList.get(randIndex);
-        }
-        return result;
     }
 
     public int getPreviousRandom(int i) {
@@ -840,11 +844,17 @@ public class PrefHelper {
         return prefs.getBoolean(LAUNCH_TO_OVERVIEW, false);
     }
 
-    public boolean includeLink() {return prefs.getBoolean(INCLUDE_LINK, false);}
+    public boolean includeLink() {
+        return prefs.getBoolean(INCLUDE_LINK, false);
+    }
 
-    public boolean widgetShowAlt() {return prefs.getBoolean(WIDGET_ALT, false);}
+    public boolean widgetShowAlt() {
+        return prefs.getBoolean(WIDGET_ALT, false);
+    }
 
-    public boolean widgetShowComicNumber()  {return prefs.getBoolean(WIDGET_COMIC_NUMBER, true);}
+    public boolean widgetShowComicNumber() {
+        return prefs.getBoolean(WIDGET_COMIC_NUMBER, true);
+    }
 
 }
 
