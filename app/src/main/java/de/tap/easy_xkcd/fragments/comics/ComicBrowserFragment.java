@@ -37,6 +37,7 @@ import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.view.ViewPager;
 import android.support.v7.graphics.Palette;
+import android.text.Html;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.MenuItem;
@@ -265,7 +266,7 @@ public class ComicBrowserFragment extends ComicFragment {
                                         }
                                     }
                                 });
-                    tvTitle.setText(title);
+                    tvTitle.setText(Html.fromHtml(title));
                 }
 
                 @Override

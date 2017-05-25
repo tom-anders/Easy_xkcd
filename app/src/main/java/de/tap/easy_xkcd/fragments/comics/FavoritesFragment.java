@@ -31,6 +31,7 @@ import android.support.design.widget.Snackbar;
 import android.support.v4.content.FileProvider;
 import android.support.v4.view.ViewPager;
 import android.support.v7.widget.Toolbar;
+import android.text.Html;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -151,7 +152,7 @@ public class FavoritesFragment extends ComicFragment {
             final TextView tvTitle = (TextView) itemView.findViewById(R.id.tvTitle);
 
             tvAlt.setText(prefHelper.getAlt(favorites[position]));
-            tvTitle.setText(prefHelper.getTitle(favorites[position]));
+            tvTitle.setText(Html.fromHtml(prefHelper.getTitle(favorites[position])));
 
             if (getGifId(favorites[position] - 1) != 0)
                 Glide.with(getActivity())

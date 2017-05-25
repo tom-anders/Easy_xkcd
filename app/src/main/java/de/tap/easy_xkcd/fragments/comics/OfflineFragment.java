@@ -28,6 +28,7 @@ import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
 import android.support.v4.view.ViewPager;
+import android.text.Html;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.MenuItem;
@@ -246,7 +247,7 @@ public class OfflineFragment extends ComicFragment {
 
             comicMap.put(position + 1, new OfflineComic(position + 1, getActivity(), ((MainActivity) getActivity()).getPrefHelper()));
 
-            tvTitle.setText(comicMap.get(position + 1).getComicData()[0]);
+            tvTitle.setText(Html.fromHtml(comicMap.get(position + 1).getComicData()[0]));
             tvAlt.setText(comicMap.get(position + 1).getComicData()[1]);
             if (fromSearch) {
                 fromSearch = false;

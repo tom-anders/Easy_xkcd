@@ -419,7 +419,7 @@ public abstract class ComicFragment extends android.support.v4.app.Fragment {
     }
 
     protected void shareComicUrl(Comic comic) {
-        //shares the comics url along with its title
+       //shares the comics url along with its title
         Intent share = new Intent(android.content.Intent.ACTION_SEND);
         share.setType("text/plain");
         share.putExtra(Intent.EXTRA_SUBJECT, comic.getComicData()[0]);
