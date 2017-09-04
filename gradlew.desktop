@@ -1,0 +1,10 @@
+#!/usr/bin/env xdg-open
+[Desktop Entry]
+Version=1.0
+Type=Application
+Terminal=true
+Icon[en_US]=gnome-panel-launcher
+Exec=/home/nevermine/Desktop/Easy_xkcd/gradlew
+Name[en_US]=gradlew
+Name=gradlew
+Icon=gnome-panel-launcher
