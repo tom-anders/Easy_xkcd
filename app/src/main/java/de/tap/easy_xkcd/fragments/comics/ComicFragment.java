@@ -29,6 +29,7 @@ import android.os.Vibrator;
 import android.support.customtabs.CustomTabsIntent;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
+import android.support.v4.content.FileProvider;
 import android.support.v4.view.PagerAdapter;
 import android.support.v4.view.ViewPager;
 import android.support.v7.widget.Toolbar;
@@ -439,6 +440,8 @@ public abstract class ComicFragment extends android.support.v4.app.Fragment {
         if (!extraText.equals(""))
             share.putExtra(Intent.EXTRA_TEXT, extraText);
 
+        share.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
+
         startActivity(Intent.createChooser(share, this.getResources().getString(R.string.share_image)));
     }
 
@@ -446,7 +449,7 @@ public abstract class ComicFragment extends android.support.v4.app.Fragment {
         File sdCard = prefHelper.getOfflinePath();
         File dir = new File(sdCard.getAbsolutePath() + "/easy xkcd");
         File path = new File(dir, String.valueOf(number) + ".png");
-        return Uri.fromFile(path);
+        return FileProvider.getUriForFile(getActivity(), "de.tap.easy_xkcd.fileProvider", path);
     }
 
     public void getPreviousRandom() {

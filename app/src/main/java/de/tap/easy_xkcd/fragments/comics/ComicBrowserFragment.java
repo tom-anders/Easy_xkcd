@@ -35,6 +35,7 @@ import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
+import android.support.v4.content.FileProvider;
 import android.support.v4.view.ViewPager;
 import android.support.v7.graphics.Palette;
 import android.text.Html;
@@ -71,6 +72,7 @@ import de.tap.easy_xkcd.database.RealmComic;
 import de.tap.easy_xkcd.utils.Comic;
 import de.tap.easy_xkcd.utils.JsonParser;
 import io.realm.RealmResults;
+import uk.co.senab.photoview.BuildConfig;
 import uk.co.senab.photoview.PhotoView;
 
 public class ComicBrowserFragment extends ComicFragment {
@@ -468,7 +470,7 @@ public class ComicBrowserFragment extends ComicFragment {
                 FileOutputStream stream = new FileOutputStream(file);
                 result.compress(Bitmap.CompressFormat.PNG, 100, stream);
                 stream.close();
-                Uri uri = Uri.fromFile(file);
+                Uri uri = FileProvider.getUriForFile(getActivity(), "de.tap.easy_xkcd.fileProvider", file);
                 ComicBrowserFragment.super.shareComicImage(uri, comicMap.get(lastComicNumber));
             } catch (IOException e) {
                 e.printStackTrace();
