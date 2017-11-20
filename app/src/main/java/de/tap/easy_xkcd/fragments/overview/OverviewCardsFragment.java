@@ -88,7 +88,7 @@ public class OverviewCardsFragment extends OverviewRecyclerBaseFragment {
 
         @Override
         public void onBindViewHolder(final ComicViewHolder comicViewHolder, int i) {
-            RealmComic comic = comics.get(i);
+            final RealmComic comic = comics.get(i);
             int number = comic.getComicNumber();
             String title = comic.getTitle();
 
@@ -106,7 +106,7 @@ public class OverviewCardsFragment extends OverviewRecyclerBaseFragment {
 
                             @Override
                             public boolean onResourceReady(Bitmap resource, String model, Target<Bitmap> target, boolean isFromMemoryCache, boolean isFirstResource) {
-                                if (themePrefs.invertColors(false) && themePrefs.bitmapContainsColor(resource))
+                                if (themePrefs.invertColors(false) && themePrefs.bitmapContainsColor(resource, comic.getComicNumber()))
                                     comicViewHolder.thumbnail.clearColorFilter();
                                 return false;
                             }
@@ -128,7 +128,7 @@ public class OverviewCardsFragment extends OverviewRecyclerBaseFragment {
 
                                 @Override
                                 public boolean onResourceReady(Bitmap resource, File model, Target<Bitmap> target, boolean isFromMemoryCache, boolean isFirstResource) {
-                                    if (themePrefs.invertColors(false) && themePrefs.bitmapContainsColor(resource))
+                                    if (themePrefs.invertColors(false) && themePrefs.bitmapContainsColor(resource, comic.getComicNumber()))
                                         comicViewHolder.thumbnail.clearColorFilter();
                                     return false;
                                 }
@@ -141,7 +141,7 @@ public class OverviewCardsFragment extends OverviewRecyclerBaseFragment {
                         Bitmap mBitmap = BitmapFactory.decodeStream(fis);
                         fis.close();
                         comicViewHolder.thumbnail.setImageBitmap(mBitmap);
-                        if (themePrefs.invertColors(false) && themePrefs.bitmapContainsColor(mBitmap))
+                        if (themePrefs.invertColors(false) && themePrefs.bitmapContainsColor(mBitmap, comic.getComicNumber()))
                             comicViewHolder.thumbnail.clearColorFilter();
                     } catch (Exception e2) {
                         e2.printStackTrace();

@@ -2,7 +2,7 @@ apply plugin: 'com.android.application'
 android {
     
     compileSdkVersion 25
-    buildToolsVersion '25.0.2'
+    buildToolsVersion '26.0.2'
     defaultConfig {
         applicationId "de.tap.easy_xkcd"
         minSdkVersion 15
@@ -51,6 +51,7 @@ dependencies {
     compile "com.android.support:customtabs:25.3.1"
     compile 'com.anjlab.android.iab.v3:library:1.0.39'
     compile 'com.jakewharton:butterknife:7.0.1'
+    annotationProcessor 'com.jakewharton:butterknife:7.0.1'
     compile 'com.kogitune:pre-lollipop-activity-transition:1.3.3'
     compile ('com.turhanoz.android:reactivedirectorychooser:0.0.12@aar'){
         transitive=true
@@ -60,6 +61,7 @@ dependencies {
     compile 'com.squareup.okhttp3:okhttp:3.1.2'
     compile 'uz.shift:colorpicker:0.5@aar'
     compile 'io.realm:realm-android:0.87.4'
+    annotationProcessor 'io.realm:realm-android:0.87.4'
     compile 'com.android.support:palette-v7:25.3.1'
 
 }

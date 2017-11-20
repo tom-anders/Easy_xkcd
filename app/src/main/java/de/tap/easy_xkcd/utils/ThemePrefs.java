@@ -28,6 +28,7 @@ import android.graphics.Bitmap;
 import android.graphics.Color;
 import android.graphics.ColorFilter;
 import android.graphics.ColorMatrixColorFilter;
+import android.os.Debug;
 import android.preference.PreferenceManager;
 import android.support.design.widget.NavigationView;
 import android.support.v4.content.ContextCompat;
@@ -416,7 +417,10 @@ public class ThemePrefs {
         return new ColorMatrixColorFilter(colorMatrix_Negative);
     }
 
-    public boolean bitmapContainsColor(Bitmap bitmap) {
+    public boolean bitmapContainsColor(Bitmap bitmap, int comicNumber) {
+        Log.d("test", String.valueOf(comicNumber));
+        if(comicNumber == 1913) //https://github.com/T-Rex96/Easy_xkcd/issues/116
+            return true;
         try {
             Palette palette = Palette.from(bitmap).generate();
             return palette.getVibrantSwatch() != null;
