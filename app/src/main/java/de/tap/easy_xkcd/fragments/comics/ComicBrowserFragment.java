@@ -219,7 +219,6 @@ public class ComicBrowserFragment extends ComicFragment {
 
                 private void displayComic(String url, String title) {
                     url = Comic.getDoubleResolutionUrl(url, position+1, mContext);
-                    Log.d("url: ", url);
                     if (fromSearch && position == lastComicNumber - 1) {
                         fromSearch = false;
                         transition = ActivityTransition.with(getActivity().getIntent()).duration(300).to(pvComic).start(null);
