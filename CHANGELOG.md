@@ -1,3 +1,7 @@
+## 6.0.2
+
+- Fixed crashes on KitKat!
+
 ## 6.0.1
 
 - Fixed crash when sharing comic image

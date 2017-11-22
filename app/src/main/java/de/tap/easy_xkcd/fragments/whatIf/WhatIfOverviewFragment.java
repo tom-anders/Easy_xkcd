@@ -38,8 +38,12 @@ import butterknife.ButterKnife;
 import butterknife.OnClick;
 import de.tap.easy_xkcd.Activities.MainActivity;
 import de.tap.easy_xkcd.database.DatabaseManager;
+import de.tap.easy_xkcd.utils.JsonParser;
 import de.tap.easy_xkcd.utils.PrefHelper;
 import de.tap.easy_xkcd.utils.ThemePrefs;
+import okhttp3.OkHttpClient;
+import okhttp3.Request;
+import okhttp3.Response;
 
 public class WhatIfOverviewFragment extends android.support.v4.app.Fragment {
 
@@ -117,9 +121,16 @@ public class WhatIfOverviewFragment extends android.support.v4.app.Fragment {
         @Override
         protected Void doInBackground(Void... dummy) {
             try {
-                doc = Jsoup.connect("https://what-if.xkcd.com/archive/")
+                OkHttpClient okHttpClient = JsonParser.getNewHttpClient();
+                Request request = new Request.Builder()
+                        .url("https://what-if.xkcd.com/archive/")
+                        .build();
+                Response response = okHttpClient.newCall(request).execute();
+                String body = response.body().string();
+                doc = Jsoup.parse(body);
+                /*doc = Jsoup.connect("https://what-if.xkcd.com/archive/")
                         .userAgent("Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/32.0.1700.19 Safari/537.36")
-                        .get();
+                        .get();*/
             } catch (IOException e) {
                 e.printStackTrace();
             }

@@ -17,6 +17,7 @@
 package de.tap.easy_xkcd.utils;
 
 import android.content.Context;
+import android.os.Build;
 import android.preference.PreferenceManager;
 import android.util.Log;
 
@@ -115,6 +116,9 @@ public class Comic {
             case 1137: result[0] = "RTL";
                 break;
         }
+        if(Build.VERSION.SDK_INT < Build.VERSION_CODES.LOLLIPOP) {
+            result[0] = result[0].replaceAll("https", "http");
+        }
         return result;
     }
 
@@ -138,6 +142,10 @@ public class Comic {
     static public String getDoubleResolutionUrl(String url, int number, Context context) {
         boolean largeComic = context != null && Arrays.binarySearch(context.getResources().getIntArray(R.array.large_comics), number) >= 0;
         int no2xVersion[] = {1193, 1446, 1667, 1735, 1739, 1744, 1778};
+
+        if(Build.VERSION.SDK_INT < Build.VERSION_CODES.LOLLIPOP) { //https doesn't work on KitKat and lower for some reason...
+            url = url.replaceAll("https", "http");
+        }
         if(number >= 1084 && Arrays.binarySearch(no2xVersion, number) < 0 && !largeComic && !url.contains("_2x.png"))
             return url.substring(0, url.lastIndexOf('.')) + "_2x.png";
         return url;

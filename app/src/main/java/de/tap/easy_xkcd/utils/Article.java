@@ -28,6 +28,10 @@ import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 
+import okhttp3.OkHttpClient;
+import okhttp3.Request;
+import okhttp3.Response;
+
 public class Article {
     private int mNumber;
     private boolean offline;
@@ -55,7 +59,14 @@ public class Article {
     public Document getWhatIf() throws IOException{
         Document doc;
         if (!offline) {
-            doc = Jsoup.connect("http://what-if.xkcd.com/" + String.valueOf(mNumber)).get();
+            OkHttpClient okHttpClient = JsonParser.getNewHttpClient();
+            Request request = new Request.Builder()
+                    .url("http://what-if.xkcd.com/" + String.valueOf(mNumber))
+                    .build();
+            Response response = okHttpClient.newCall(request).execute();
+            String body = response.body().string();
+            doc = Jsoup.parse(body);
+            //doc = Jsoup.connect("http://what-if.xkcd.com/" + String.valueOf(mNumber)).get();
         } else {
             File sdCard = prefHelper.getOfflinePath();
             File dir = new File(sdCard.getAbsolutePath() + OFFLINE_WHATIF_PATH +String.valueOf(mNumber));
