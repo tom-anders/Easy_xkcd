@@ -44,6 +44,7 @@ import butterknife.Bind;
 import butterknife.ButterKnife;
 import de.tap.easy_xkcd.Activities.MainActivity;
 import de.tap.easy_xkcd.Activities.WhatIfActivity;
+import de.tap.easy_xkcd.utils.JsonParser;
 import de.tap.easy_xkcd.utils.PrefHelper;
 import de.tap.easy_xkcd.utils.ThemePrefs;
 import jp.wasabeef.recyclerview.adapters.AlphaInAnimationAdapter;
@@ -118,9 +119,13 @@ public class WhatIfFragment extends android.support.v4.app.Fragment {
         protected Void doInBackground(Void... dummy) {
             int highestOffline = prefHelper.getNewestWhatIf();
             try {
-                Document doc = Jsoup.connect("https://what-if.xkcd.com/archive/")
-                        .userAgent("Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/32.0.1700.19 Safari/537.36")
-                        .get();
+                OkHttpClient client = JsonParser.getNewHttpClient();
+                Request r = new Request.Builder()
+                        .url("https://what-if.xkcd.com/archive/")
+                        .build();
+                Response re = client.newCall(r).execute();
+                String body = re.body().string();
+                Document doc = Jsoup.parse(body);
                 Elements titles = doc.select("h1");
                 Elements img = doc.select("img.archive-image");
                 if (titles.size() > prefHelper.getNewestWhatIf()) {
@@ -188,7 +193,13 @@ public class WhatIfFragment extends android.support.v4.app.Fragment {
             File sdCard = prefHelper.getOfflinePath();
             File dir;
             try {
-                doc = Jsoup.connect("https://what-if.xkcd.com/" + String.valueOf(i)).get();
+                OkHttpClient client = JsonParser.getNewHttpClient();
+                Request r = new Request.Builder()
+                        .url("https://what-if.xkcd.com/" + String.valueOf(i))
+                        .build();
+                Response re = client.newCall(r).execute();
+                String body = re.body().string();
+                doc = Jsoup.parse(body);
                 dir = new File(sdCard.getAbsolutePath() + OFFLINE_WHATIF_PATH + String.valueOf(i));
                 if (!dir.exists()) dir.mkdirs();
                 File file = new File(dir, String.valueOf(i) + ".html");
