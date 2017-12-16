@@ -18,6 +18,10 @@
         android:title="@string/action_unread"
         app:showAsAction="never" />
 
+    <item android:id="@+id/action_all_read"
+        android:title="@string/action_all_read"
+        app:showAsAction="never" />
+
     <item android:id="@+id/action_earliest_unread"
         android:title="@string/action_earliest_unread"
         app:showAsAction="never" />

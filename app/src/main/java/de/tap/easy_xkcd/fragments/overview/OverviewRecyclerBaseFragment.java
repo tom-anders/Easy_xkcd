@@ -170,6 +170,10 @@ public abstract class OverviewRecyclerBaseFragment extends OverviewBaseFragment 
                 databaseManager.setComicsRead(false);
                 setupAdapter();
                 break;
+            case R.id.action_all_read:
+                databaseManager.setComicsRead(true);
+                setupAdapter();
+                break;
             case R.id.action_hide_read:
                 item.setChecked(!item.isChecked());
                 prefHelper.setHideRead(item.isChecked());

@@ -169,6 +169,10 @@ public class OverviewListFragment extends OverviewBaseFragment {
                 databaseManager.setComicsRead(false);
                 setupAdapter();
                 break;
+            case R.id.action_all_read:
+                databaseManager.setComicsRead(true);
+                setupAdapter();
+                break;
             case R.id.action_favorite:
                 if (prefHelper.overviewFav()) {
                     item.setIcon(R.drawable.ic_favorite_outline);
