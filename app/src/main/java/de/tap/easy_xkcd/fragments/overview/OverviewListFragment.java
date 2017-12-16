@@ -166,7 +166,7 @@ public class OverviewListFragment extends OverviewBaseFragment {
                 super.goToComic(bookmark - 1);
                 break;
             case R.id.action_unread:
-                databaseManager.setComicsUnread();
+                databaseManager.setComicsRead(false);
                 setupAdapter();
                 break;
             case R.id.action_favorite:
