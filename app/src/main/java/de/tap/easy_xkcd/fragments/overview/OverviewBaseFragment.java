@@ -179,9 +179,13 @@ public abstract class OverviewBaseFragment extends android.support.v4.app.Fragme
                     if (n > 0)
                         showComic(n);
                 } else {
-                    RealmComic comic = comics.where().equalTo("isRead", false).findAllSorted("comicNumber", Sort.ASCENDING).first();
-                    if (comic != null)
-                        goToComic(comic.getComicNumber() - 1);
+                    try {
+                        RealmComic comic = comics.where().equalTo("isRead", false).findAllSorted("comicNumber", Sort.ASCENDING).first();
+                        if (comic != null)
+                            goToComic(comic.getComicNumber() - 1);
+                    } catch (IndexOutOfBoundsException e) {
+                        e.printStackTrace();
+                    }
                 }
         }
         return super.onOptionsItemSelected(item);

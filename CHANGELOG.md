@@ -1,3 +1,8 @@
+## 6.0.3
+
+- Added spanish translation (thanks to Giovanni!)
+- Option to mark all comics as read in the overview (thanks to GrantM11235!)
+
 ## 6.0.2
 
 - Fixed crashes on KitKat!
