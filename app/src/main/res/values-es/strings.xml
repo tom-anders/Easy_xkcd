@@ -1,0 +1,451 @@
+<!--
+  ~ Copyright 2015, Tom Praschan
+  ~
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~ http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+  -->
+<resources>
+    <string name="app_name">Easy xkcd</string>
+    <string name="pref_title">Ajustes</string>
+    <string name="title_activity_about">Acerca de</string>
+    <string name="title_activity_search_results">Resultados para</string>
+
+    <!-- dialog strings -->
+    <string name="delete_favorites">Eliminar favoritos</string>
+    <string name="delete_favorites_dialog">¿Está seguro que desea eliminar todos sus favoritos?</string>
+    <string name="favorites_cleared">Favoritos eliminados</string>
+    <string name="delete_offline_dialog">¿Está seguro que desea deshabilitar el modo sin conexión? Esto eliminará todas las imágenes guardadas (excepto los favoritos)</string>
+    <string name="delete_offline_whatif_dialog">¿Está seguro que desea deshabilitar el modo sin conexión? Esto eliminará todos los artículos guardados</string>
+
+    <string name="share_url">Compartir url con&#8230;</string>
+    <string name="share_image">Compartir imagen con&#8230;</string>
+    <string name="dialog_cancel">Cancelar</string>
+    <string name="dialog_yes">Sï</string>
+    <string name="loading_random">Cargando cómic al azar&#8230;</string>
+    <string name="no_favorites">No has añadido ningún favorito aún!</string>
+    <string name="loading_comics">Cargando cómics&#8230;</string>
+    <string name="loading_articles">Descargando nuevos artículos&#8230;</string>
+    <string name="loading_article">Cargando artículo&#8230;</string>
+    <string name="loading_results">Cargando resultados de la búsqueda&#8230;</string>
+    <string name="no_connection">Sin conexión&#8230;</string>
+    <string name="no_connection_retry">Intenta de nuevo</string>
+    <string name="no_connection_favorites">Ver favoritos</string>
+    <string name="comic_error">Cómic no disponible</string>
+    <string name="search_error">No se encontraron cómics</string>
+    <string name="loading_latest">Cargando el último cómic&#8230;</string>
+    <string name="loading_offline">Descargando cómics&#8230;</string>
+    <string name="loading_offline_whatif">Descargando artículos&#8230;</string>
+    <string name="loading_offline_message">¡No cierre la aplicación!</string>
+    <string name="loading_offline_2">Esto tardará un rato, relájese&#8230;</string>
+    <string name="loading_offline_20">Tal vez deba preparase un café o unas botanas&#8230;</string>
+    <string name="loading_offline_50">¡Solo falta otra mitad!</string>
+    <string name="loading_offline_80">Ya casi&#8230;</string>
+    <string name="loading_offline_95">¡Ha ocurrido un error! Intente de nuevo</string>
+    <string name="loading_offline_96">Solo bromeaba.</string>
+    <string name="loading_offline_97">¡Debió haber visto su cara!</string>
+    <string name="delete_offline">Eliminando cómics&#8230;</string>
+    <string name="delete_offline_articles">Eliminando artículos&#8230;</string>
+
+    <string name="snackbar_remove">Cómic eliminado de favoritos</string>
+    <string name="snackbar_add">Comic añadido a favoritos</string>
+    <string name="snackbar_remove_all">Favoritos eliminados</string>
+    <string name="snackbar_undo">Deshacer</string>
+    <string name="snackbar_rate">¿Le encanta Easy xkcd?</string>
+    <string name="snackbar_rate_action">Calificar</string>
+
+    <!-- ActionBar strings -->
+    <string name="action_settings">Ajustes</string>
+    <string name="action_unread">Marcar todo como no leído</string>
+    <string name="action_all_read">Marcar todo como leído</string>
+    <string name="action_hide_read_articles">Ocultar artículos leídos</string>
+    <string name="action_hide_read_comics">Ocultar cómics leídos</string>
+    <string name="action_favorite">Añadir a favoritos</string>
+    <string name="action_favorite_remove">Eliminar de favoritos</string>
+    <string name="action_latest">Último cómic</string>
+    <string name="action_share">Compartir cómic</string>
+    <string name="action_share_article">Compartir artículo</string>
+    <string name="action_random">Cómic al azar</string>
+    <string name="action_random_article">Artículo al azar</string>
+    <string name="action_explain">Explicar cómic</string>
+    <string name="action_alt">Ver texto alternativo</string>
+    <string name="action_night_mode">Tema nocturno</string>
+    <string name="action_browser">Abrir en navegador</string>
+    <string name="action_swipe">Desliza para navegar</string>
+    <string name="action_donate">Donar</string>
+    <string name="action_trans">Ver transcripción</string>
+    <string name="action_alt_tip">Pista: También puede ver el texto alternativo manteniendo presionada la imagen del cómic.</string>
+    <string name="what_if_tip">¿Lo sabía? Toque una imagen para ver el texto mouseover</string>
+    <string name="random_tip">¿Lo sabía? Mantenga presionado el botón para ver el cómic anterior</string>
+    <string name="search_title">Buscar</string>
+    <string name="search_hint">Buscar un cómic</string>
+    <string name="search_hint_whatif">Buscar un artículo</string>
+    <string name="drawer_open">Abrir la barra lateral</string>
+    <string name="drawer_close">Cerrar la barra lateral</string>
+    <string name="new_comic">¡Cómic nuevo!</string>
+    <string name="new_comic_view">Ver</string>
+    <string name="new_whatif">What If nuevo!</string>
+    <string name="apply_theme">¿Reiniciar ahora para aplicar el tema nuevo?</string>
+
+    <string name="add_bookmark">Añadir marcador</string>
+    <string name="open_bookmark">Ir a marcadores</string>
+    <string name="bookmark_toast">Puedes regresar a tu marcador desde el modo resumen. También será subrayado en la lista de cómics</string>
+    <string name="bookmark_toast_2">Marcador añadido</string>
+    <string name="no_bookmark">¡Aún no has añadido marcadores! Puedes añadir uno en el buscador de cómics o manteniendo presionado un cómic en esta lista</string>
+
+    <string-array name="share_dialog">
+        <item>Compartir imagen</item>
+        <item>Compartir URL</item>
+    </string-array>
+
+    <string-array name="export_import_dialog">
+        <item>Exportar</item>
+        <item>Importar</item>
+    </string-array>
+
+    <string-array name="whatif_card_long_click">
+        <item>Compartir</item>
+        <item>Abrir en navegador</item>
+        <item>Añadir a favoritos</item>
+    </string-array>
+
+    <string-array name="whatif_card_long_click_remove">
+        <item>Compartir</item>
+        <item>Abrir en navegador</item>
+        <item>Eliminar de favoritos</item>
+    </string-array>
+
+    <string-array name="card_long_click">
+        <item>Añadir marcador</item>
+        <item>Marcar como leído</item>
+    </string-array>
+
+    <string-array name="card_long_click_remove">
+        <item>Añadir marcador</item>
+        <item>Marcar como no leído</item>
+    </string-array>
+
+    <string-array name="pref_orientation">
+        <item>Predeterminado</item>
+        <item>Vertical</item>
+        <item>Horizontal</item>
+    </string-array>
+
+    <string-array name="pref_notifications">
+        <item>1 hora</item>
+        <item>3 horas</item>
+        <item>5 horas</item>
+        <item>nunca</item>
+    </string-array>
+
+    <string-array name="pref_theme">
+        <item>Azul/gris (predeterminado)</item>
+        <item>Rojo</item>
+        <item>Azul cielo</item>
+        <item>Negro</item>
+        <item>Púrpura</item>
+        <item>Lima</item>
+        <item>Verde</item>
+    </string-array>
+
+    <string-array name="pref_theme_entries" translatable="false">
+        <item>1</item>
+        <item>2</item>
+        <item>3</item>
+        <item>4</item>
+        <item>5</item>
+        <item>6</item>
+        <item>7</item>
+    </string-array>
+
+    <string-array name="pref_zoom">
+        <item>40%</item>
+        <item>70%</item>
+        <item>100%</item>
+        <item>130%</item>
+        <item>170%</item>
+        <item>200%</item>
+        <item>Predeterminado de WebView</item>
+    </string-array>
+
+    <string-array name="pref_zoom_entries" translatable="false">
+        <item>40</item>
+        <item>70</item>
+        <item>100</item>
+        <item>130</item>
+        <item>170</item>
+        <item>200</item>
+        <item>Predeterminado</item>
+    </string-array>
+
+    <string-array name="pref_notifications_entries" translatable="false">
+        <item>1</item>
+        <item>3</item>
+        <item>5</item>
+        <item>0</item>
+    </string-array>
+
+    <string-array name="pref_orientation_entries" translatable="false">
+        <item>1</item>
+        <item>2</item>
+        <item>3</item>
+    </string-array>
+
+    <integer-array name="interactive_comics" translatable="false">
+        <item>826</item>
+        <item>1037</item>
+        <item>1110</item>
+        <item>1193</item>
+        <item>1264</item>
+        <item>1331</item>
+        <item>1350</item>
+        <item>1416</item>
+        <item>1506</item>
+        <item>1525</item>
+        <item>1572</item>
+        <item>1608</item>
+        <item>1663</item>
+    </integer-array>
+
+    <integer-array name="large_comics" translatable="false">
+        <item>256</item>
+        <item>482</item>
+        <item>657</item>
+        <item>681</item>
+        <item>802</item>
+        <item>832</item>
+        <item>930</item>
+        <item>1000</item>
+        <item>1040</item>
+        <item>1071</item>
+        <item>1079</item>
+        <item>1080</item>
+        <item>1196</item>
+        <item>1256</item>
+        <item>1298</item>
+        <item>1389</item>
+        <item>1392</item>
+        <item>1461</item>
+        <item>1491</item>
+        <item>1509</item>
+        <item>1688</item>
+        <item>1732</item>
+    </integer-array>
+
+
+    <string-array name="large_comics_urls" translatable="false">
+        <item>http://imgs.xkcd.com/comics/online_communities.png</item>
+        <item>http://imgs.xkcd.com/comics/height.png</item>
+        <item>http://imgs.xkcd.com/comics/movie_narrative_charts_large.png</item>
+        <item>http://imgs.xkcd.com/comics/gravity_wells_large.png</item>
+        <item>http://imgs.xkcd.com/comics/online_communities_2_large.png</item>
+        <item>http://i.imgur.com/EObZHw1.jpg</item>
+        <item>http://imgs.xkcd.com/comics/days_of_the_week_large.png</item>
+        <item>http://imgs.xkcd.com/comics/1000_comics_large.png</item>
+        <item>http://imgs.xkcd.com/comics/lakes_and_oceans_large.png</item>
+        <item>http://imgs.xkcd.com/comics/exoplanets_large.png</item>
+        <item>http://imgs.xkcd.com/comics/united_shapes_large.png</item>
+        <item>http://imgs.xkcd.com/comics/visual_field_large.png</item>
+        <item>http://imgs.xkcd.com/comics/subways_large.png</item>
+        <item>http://imgs.xkcd.com/comics/questions_large.png</item>
+        <item>http://imgs.xkcd.com/comics/exoplanet_neighborhood_large.png</item>
+        <item>http://imgs.xkcd.com/comics/surface_area_large.png</item>
+        <item>http://imgs.xkcd.com/comics/dominant_players_large.png</item>
+        <item>http://imgs.xkcd.com/comics/payloads_large.png</item>
+        <item>http://imgs.xkcd.com/comics/stories_of_the_past_and_future_large.png</item>
+        <item>http://imgs.xkcd.com/comics/scenery_cheat_sheet_large.png</item>
+        <item>http://imgs.xkcd.com/comics/map_age_guide_large.png</item>
+        <item>http://imgs.xkcd.com/comics/earth_temperature_timeline.png</item>
+    </string-array>
+
+    <string name="title_interactive">(interactivo)</string>
+
+    <!-- navigation drawer -->
+    <string name="nv_comicbrowser">Buscador de cómics</string>
+    <string name="nv_favorites">Favoritos</string>
+    <string name="nv_about">Acerca de</string>
+    <string name="nv_feedback">Retroalimentación</string>
+    <string name="nav_feedback_send">Enviar correo con&#8230;</string>
+    <string name="nv_whatif" translatable="false">What if?</string>
+
+    <!-- preference strings -->
+    <string name="pref_night">Tema nocturno</string>
+    <string name="pref_invert">invertir los colores de la imagen</string>
+    <string name="pref_alt_activation">Activación</string>
+    <string name="pref_alt_activation_sum">Toque largo o corto</string>
+    <string name="pref_alt_options">Opciones generales</string>
+    <string name="pref_alt_options_sum">Siempre mostar texto alternativo, compartir texto alternativo, retroalimentación táctil</string>
+    <string name="pref_random">Ocultar botón flotante</string>
+    <string name="pref_random_title">Ocultar botón flotante en&#8230;</string>
+    <string name="pref_alt_style_sum">Clásico o pop-up</string>
+    <string name="pref_alt_style_title">Selecciona tu estilo preferido</string>
+    <string name="pref_alt">Retroalimentación táctil del texto alternativo</string>
+    <string name="pref_alt_sum">Habilita la retroalimentación táctil cuando se mantienen presionadas las imágenes</string>
+    <string name="pref_subtitle">Mostrar subtítulo de la barra de accion</string>
+    <string name="pref_subtitle_sum">Configurar el número del cómic actual como subtítulo de la barra de acción</string>
+    <string name="pref_random_favorites">Ocultar el botón flotante en la pantalla de favoritos</string>
+    <string name="pref_random_comics">Ocultar el botón flotante en la pantalla de cómics</string>
+    <string name="pref_random_sum">Oculta el botón flotante. Cuando está oculto, hay un botón en el menú.</string>
+    <string name="pref_share">Siempre compartir la imagen del cómic.</string>
+    <string name="pref_share_sum">No preguntarme para decidir entre compartir la imagen del cómic y compartir su URL</string>
+    <string name="pref_share_alt">Incluir el texto alternativo al compartir</string>
+    <string name="pref_share_title">Compartir</string>
+    <string name="pref_share_link">Incluir el enlace al cómic</string>
+    <string name="pref_share_link_sum">Incluir también el enlace al cómic cuando comparto una imagen</string>
+    <string name="pref_behavior">Compartamiento</string>
+    <string name="pref_behavior_sum">Habilitar el modo sin conexión, notificaciones</string>
+    <string name="pref_appearance">Apariencia</string>
+    <string name="pref_appearance_sum">Cambiar la apariencia de la aplicación</string>
+    <string name="pref_large">Imágenes de cómics grandes</string>
+    <string name="pref_large_sum">Cargar las imágenes grandes (como la #657). Es posible que el rendimiento disminuya en dispositivos más viejos </string>
+    <string name="pref_offline">Modo sin conexión</string>
+    <string name="pref_offline_sum">Descargar todos los cómics en la memoria externa. Nuevos cómics serán añadidos automáticamente. Toma alrededor de ~150MB.</string>
+    <string name="pref_offline_whatif">Modo sin conexión de "What if?"</string>
+    <string name="pref_offline_whatif_sum" translatable="false">~20 MB</string>
+    <string name="pref_mobile">Compartir enlaces de móvil</string>
+    <string name="pref_mobile_sum">Compartir enlaces m.xkcd.com en vez de xkcd.com</string>
+    <string name="pref_orientation">Orientación de la pantalla</string>
+    <string name="pref_orientation_sum">Predeterminada, vertical u horizontal</string>
+    <string name="pref_notifications">Actualizar intervalo de notificaciones</string>
+    <string name="pref_notifications_sum">Comprobar lunes, miércoles y viernes si hay nuevos cómics, comprobar el martes por un nuevo What If.</string>
+    <string name="pref_show_alt">Mostrar texto alternativo predeterminado</string>
+    <string name="pref_theme">Temas</string>
+    <string name="pref_theme_sum">Es necesario reiniciar la aplicación para aplicar el tema</string>
+    <string name="pref_zoom">Zoom al texto en What If?</string>
+    <string name="pref_zoom_sum">Es posible que corrija errores de visualización en algunos dispositivos</string>
+    <string name="pref_advanced">Ajustes avanzados</string>
+    <string name="pref_repair">Reparar cómics sin conexión</string>
+    <string name="pref_repair_sum">Si ves algunos cómics en blanco, esta opción debería corregirlo descargándolos de nuevo</string>
+    <string name="pref_export_import">Exportar/importar favoritos</string>
+    <string name="pref_export">Exportar tus favoritos</string>
+    <string name="pref_import_success">¡Favoritos importados!</string>
+    <string name="pref_hide_donate">Ocultar botón de donación</string>
+    <string name="title_activity_what_if" translatable="false">What if?</string>
+    <string name="title_activity_donate">Donar</string>
+    <string name="pref_alt_title">Texto alternativo</string>
+    <string name="pref_alt_style">Estilo</string>
+    <string name="snackbar_survey">¿Nos daría unos minutos en ayudarnos a mejorar esta aplicación?</string>
+    <string name="snackbar_survey_oc">Tomar encuesta</string>
+    <string name="pref_navbar">Barra de navegación coloreada</string>
+    <string name="pref_update_mobile">Actualizar con datos móviles</string>
+    <string name="pref_update_mobile_sum">Cuando está desabilitado, los cómics sin conexión y los artículos de What If? solo se actualizan con Wifi</string>
+    <string name="pref_alt_sharing">Compartición del texto alternativo</string>
+    <string name="pref_alt_sharing_sum">Configurar texto alternativo y comportamiento</string>
+    <string name="pref_night_options">Opciones del tema nocturno</string>
+    <string name="pref_night_options_sum">Configurar el tema nocturno</string>
+    <string name="pref_auto_night">Autoconfiguración del tema</string>
+    <string name="pref_auto_night_start">Hora de inicio</string>
+    <string name="pref_auto_night_end">Hora de fin</string>
+    <string name="snackbar_feature">Nueva característica: temas personalizados!</string>
+    <string name="snackbar_feature_oc">Pruébalo</string>
+    <string name="whatif_overview">Resumen</string>
+    <string name="pref_offline_path">Ruta de los datos sin conexión (experimental)</string>
+    <string name="pref_offline_path_sum">Predeterminadamente es el directorio raiz del almacenamiento externo.</string>
+    <string name="copy_folder">Moviendo carpetas y archivos &#8230;</string>
+    <string name="action_overview">Resumen del cómic</string>
+    <string name="pref_zoom_scroll">Deshabilitar scrolling si se ha ampilado una imagen de cómic</string>
+    <string name="not_restart">Hecho. Tocar para reiniciar la aplicación.</string>
+    <string name="pref_overview_default">Lanzar el modo resumen.</string>
+    <string name="pref_overview_default_sum">Mientras le inicia la aplicación, mostrar el modo resumen de manera predeterminada.</string>
+
+    <string name="pref_widget">Ajstes del widget</string>
+    <string name="pref_widget_sum">Para que los cambios tengan efecto, quite el widget de la pantalla y vuélvalo a añadir</string>
+    <string name="pref_widget_alt">Mostrar texto alternativo</string>
+    <string name="pref_widget_comicNumber">Mostrar número de cómic</string>
+
+    <string name="dialog_donate">¿Cuánto le gustaría donar?</string>
+    <string name="update_database">Actualizando base de datos&#8230;</string>
+    <string name="pref_default_zoom">Escalar imágenes del cómic para llenar el tamaño de la pantalla del dispositivo predeterminada</string>
+    <string name="pref_default_zoom_sum">Cuando está deshabilitado, los cómics lucen mejor en dispositivos grandes</string>
+
+    <string name="overview_style_title">Escoge tu estilo preferido</string>
+
+    <string name="theme_primary_color">Color primario</string>
+    <string name="theme_primary_color_dialog">Seleccionar color primario</string>
+    <string name="theme_accent_color">Color secundario</string>
+    <string name="theme_accent_color_dialog">Seleccionar color secundario</string>
+    <string name="pref_edit_theme">Personalizar tema</string>
+    <string name="pref_theme_ok">OK</string>
+
+    <string name="action_earliest_unread">No leídos más recientes</string>
+    <string name="action_thread">Abrir hilo de Reddit/Forum</string>
+    <string name="thread_not_found">¡Hilo no encontrado!</string>
+    <string name="loading_thread">Cargando hilo&#8230;</string>
+
+    <string name="widget_random">Cómic al azar</string>
+    <string name="widget_latest">Último cómic</string>
+
+    <string-array name="forum_thread" translatable="false">
+        <item>Reddit</item>
+        <item>xkcd Forum</item>
+    </string-array>
+
+    <string-array name="overview_style">
+        <item>Lista</item>
+        <item>Tarjetas copmactas</item>
+        <item>Tarjetas (funcionan mejor en el modo sin conexión)</item>
+    </string-array>
+
+    <string-array name="random_entries">
+        <item>Buscador de cómics</item>
+        <item>Favoritos</item>
+    </string-array>
+
+    <string-array name="random_values" translatable="false">
+        <item>pref_random_comics</item>
+        <item>pref_random_favorites</item>
+    </string-array>
+
+    <string-array name="random_default" translatable="false">
+        <item>pref_random_whatif</item>
+    </string-array>
+
+    <string-array name="alt_style_entries">
+        <item>Clásico</item>
+        <item>Pop-up</item>
+    </string-array>
+
+    <string-array name="alt_style_values" translatable="false">
+        <item>0</item>
+        <item>1</item>
+    </string-array>
+
+    <string-array name="alt_options_entries">
+        <item>Siempre mostrar texto alternativo</item>
+        <item>Incluir texto alternativo al compartir</item>
+        <item>Retroalimentación táctil</item>
+        <item>El botón de retroceso muestra el texto alternativo</item>
+    </string-array>
+
+    <string-array name="alt_options_values" translatable="false">
+        <item>pref_show_alt</item>
+        <item>pref_share_alt</item>
+        <item>pref_alt</item>
+        <item>pref_alt_back</item>
+    </string-array>
+
+    <string-array name="alt_options_default" translatable="false">
+        <item>pref_alt</item>
+    </string-array>
+
+    <string-array name="alt_activation">
+        <item>Toque corto</item>
+        <item>Toque largo</item>
+    </string-array>
+
+    <string-array name="alt_activation_values" translatable="false">
+        <item>0</item>
+        <item>1</item>
+    </string-array>
+
+    <string name="pref_nav_swipe">Desliza para abrir la barra de navegación</string>
+
+</resources>
