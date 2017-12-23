@@ -156,15 +156,6 @@
         <item>Verde</item>
     </string-array>
 
-    <string-array name="pref_theme_entries" translatable="false">
-        <item>1</item>
-        <item>2</item>
-        <item>3</item>
-        <item>4</item>
-        <item>5</item>
-        <item>6</item>
-        <item>7</item>
-    </string-array>
 
     <string-array name="pref_zoom">
         <item>40%</item>
@@ -176,96 +167,6 @@
         <item>Predeterminado de WebView</item>
     </string-array>
 
-    <string-array name="pref_zoom_entries" translatable="false">
-        <item>40</item>
-        <item>70</item>
-        <item>100</item>
-        <item>130</item>
-        <item>170</item>
-        <item>200</item>
-        <item>Predeterminado</item>
-    </string-array>
-
-    <string-array name="pref_notifications_entries" translatable="false">
-        <item>1</item>
-        <item>3</item>
-        <item>5</item>
-        <item>0</item>
-    </string-array>
-
-    <string-array name="pref_orientation_entries" translatable="false">
-        <item>1</item>
-        <item>2</item>
-        <item>3</item>
-    </string-array>
-
-    <integer-array name="interactive_comics" translatable="false">
-        <item>826</item>
-        <item>1037</item>
-        <item>1110</item>
-        <item>1193</item>
-        <item>1264</item>
-        <item>1331</item>
-        <item>1350</item>
-        <item>1416</item>
-        <item>1506</item>
-        <item>1525</item>
-        <item>1572</item>
-        <item>1608</item>
-        <item>1663</item>
-    </integer-array>
-
-    <integer-array name="large_comics" translatable="false">
-        <item>256</item>
-        <item>482</item>
-        <item>657</item>
-        <item>681</item>
-        <item>802</item>
-        <item>832</item>
-        <item>930</item>
-        <item>1000</item>
-        <item>1040</item>
-        <item>1071</item>
-        <item>1079</item>
-        <item>1080</item>
-        <item>1196</item>
-        <item>1256</item>
-        <item>1298</item>
-        <item>1389</item>
-        <item>1392</item>
-        <item>1461</item>
-        <item>1491</item>
-        <item>1509</item>
-        <item>1688</item>
-        <item>1732</item>
-    </integer-array>
-
-
-    <string-array name="large_comics_urls" translatable="false">
-        <item>http://imgs.xkcd.com/comics/online_communities.png</item>
-        <item>http://imgs.xkcd.com/comics/height.png</item>
-        <item>http://imgs.xkcd.com/comics/movie_narrative_charts_large.png</item>
-        <item>http://imgs.xkcd.com/comics/gravity_wells_large.png</item>
-        <item>http://imgs.xkcd.com/comics/online_communities_2_large.png</item>
-        <item>http://i.imgur.com/EObZHw1.jpg</item>
-        <item>http://imgs.xkcd.com/comics/days_of_the_week_large.png</item>
-        <item>http://imgs.xkcd.com/comics/1000_comics_large.png</item>
-        <item>http://imgs.xkcd.com/comics/lakes_and_oceans_large.png</item>
-        <item>http://imgs.xkcd.com/comics/exoplanets_large.png</item>
-        <item>http://imgs.xkcd.com/comics/united_shapes_large.png</item>
-        <item>http://imgs.xkcd.com/comics/visual_field_large.png</item>
-        <item>http://imgs.xkcd.com/comics/subways_large.png</item>
-        <item>http://imgs.xkcd.com/comics/questions_large.png</item>
-        <item>http://imgs.xkcd.com/comics/exoplanet_neighborhood_large.png</item>
-        <item>http://imgs.xkcd.com/comics/surface_area_large.png</item>
-        <item>http://imgs.xkcd.com/comics/dominant_players_large.png</item>
-        <item>http://imgs.xkcd.com/comics/payloads_large.png</item>
-        <item>http://imgs.xkcd.com/comics/stories_of_the_past_and_future_large.png</item>
-        <item>http://imgs.xkcd.com/comics/scenery_cheat_sheet_large.png</item>
-        <item>http://imgs.xkcd.com/comics/map_age_guide_large.png</item>
-        <item>http://imgs.xkcd.com/comics/earth_temperature_timeline.png</item>
-    </string-array>
-
     <string name="title_interactive">(interactivo)</string>
 
     <!-- navigation drawer -->
@@ -274,7 +175,6 @@
     <string name="nv_about">Acerca de</string>
     <string name="nv_feedback">Retroalimentación</string>
     <string name="nav_feedback_send">Enviar correo con&#8230;</string>
-    <string name="nv_whatif" translatable="false">What if?</string>
 
     <!-- preference strings -->
     <string name="pref_night">Tema nocturno</string>
@@ -309,7 +209,6 @@
     <string name="pref_offline">Modo sin conexión</string>
     <string name="pref_offline_sum">Descargar todos los cómics en la memoria externa. Nuevos cómics serán añadidos automáticamente. Toma alrededor de ~150MB.</string>
     <string name="pref_offline_whatif">Modo sin conexión de "What if?"</string>
-    <string name="pref_offline_whatif_sum" translatable="false">~20 MB</string>
     <string name="pref_mobile">Compartir enlaces de móvil</string>
     <string name="pref_mobile_sum">Compartir enlaces m.xkcd.com en vez de xkcd.com</string>
     <string name="pref_orientation">Orientación de la pantalla</string>
@@ -328,7 +227,6 @@
     <string name="pref_export">Exportar tus favoritos</string>
     <string name="pref_import_success">¡Favoritos importados!</string>
     <string name="pref_hide_donate">Ocultar botón de donación</string>
-    <string name="title_activity_what_if" translatable="false">What if?</string>
     <string name="title_activity_donate">Donar</string>
     <string name="pref_alt_title">Texto alternativo</string>
     <string name="pref_alt_style">Estilo</string>
@@ -383,10 +281,6 @@
     <string name="widget_random">Cómic al azar</string>
     <string name="widget_latest">Último cómic</string>
 
-    <string-array name="forum_thread" translatable="false">
-        <item>Reddit</item>
-        <item>xkcd Forum</item>
-    </string-array>
 
     <string-array name="overview_style">
         <item>Lista</item>
@@ -399,24 +293,13 @@
         <item>Favoritos</item>
     </string-array>
 
-    <string-array name="random_values" translatable="false">
-        <item>pref_random_comics</item>
-        <item>pref_random_favorites</item>
-    </string-array>
 
-    <string-array name="random_default" translatable="false">
-        <item>pref_random_whatif</item>
-    </string-array>
 
     <string-array name="alt_style_entries">
         <item>Clásico</item>
         <item>Pop-up</item>
     </string-array>
 
-    <string-array name="alt_style_values" translatable="false">
-        <item>0</item>
-        <item>1</item>
-    </string-array>
 
     <string-array name="alt_options_entries">
         <item>Siempre mostrar texto alternativo</item>
@@ -425,26 +308,12 @@
         <item>El botón de retroceso muestra el texto alternativo</item>
     </string-array>
 
-    <string-array name="alt_options_values" translatable="false">
-        <item>pref_show_alt</item>
-        <item>pref_share_alt</item>
-        <item>pref_alt</item>
-        <item>pref_alt_back</item>
-    </string-array>
-
-    <string-array name="alt_options_default" translatable="false">
-        <item>pref_alt</item>
-    </string-array>
 
     <string-array name="alt_activation">
         <item>Toque corto</item>
         <item>Toque largo</item>
     </string-array>
 
-    <string-array name="alt_activation_values" translatable="false">
-        <item>0</item>
-        <item>1</item>
-    </string-array>
 
     <string name="pref_nav_swipe">Desliza para abrir la barra de navegación</string>
 
