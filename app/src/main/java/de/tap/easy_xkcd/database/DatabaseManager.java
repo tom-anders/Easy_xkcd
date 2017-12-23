@@ -198,13 +198,13 @@ public class DatabaseManager {
         return read;
     }
 
-    public void setComicsUnread() {
+    public void setComicsRead(boolean isRead) {
         getSharedPrefs().edit().putString(COMIC_READ, "").apply();
         realm.beginTransaction();
         RealmResults<RealmComic> comics = realm.where(RealmComic.class).findAll();
         for (int i = 0; i < comics.size(); i++) {
             RealmComic comic = comics.get(i);
-            comic.setRead(false);
+            comic.setRead(isRead);
             realm.copyToRealmOrUpdate(comic);
         }
         realm.commitTransaction();
