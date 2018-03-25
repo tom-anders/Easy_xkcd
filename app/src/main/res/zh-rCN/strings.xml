@@ -1,0 +1,235 @@
+<resources>
+<string name="pref_auto_night_end" modified="true">结束时间</string>
+<string name="loading_offline_message" modified="true">请勿关闭应用！</string>
+<string name="pref_widget_comicNumber" modified="true">显示漫画编号</string>
+<string name="theme_accent_color" modified="true">强调色</string>
+<string name="loading_articles" modified="true">正在下载新文章……</string>
+<string name="pref_behavior" modified="true">行为</string>
+<string name="loading_latest" modified="true">正在加载最新漫画……</string>
+<string name="delete_favorites_dialog" modified="true">您确定要删除所有的收藏么？</string>
+<string name="pref_share_link_sum" modified="true">分享图像时也附上漫画链接</string>
+<string name="action_hide_read_articles" modified="true">隐藏已读文章</string>
+<string name="share_image" modified="true">分享图像通过……</string>
+<string name="pref_advanced" modified="true">高级</string>
+<string name="action_share" modified="true">分享漫画</string>
+<string name="action_favorite" modified="true">添加收藏</string>
+<string name="loading_offline_80" modified="true">快了快了……</string>
+<string name="drawer_open" modified="true">打开导航抽屉</string>
+<string name="pref_mobile_sum" modified="true">以 m.xkcd.com（而不是 xkcd.com）来分享</string>
+<string-array name="overview_style">
+<item modified="true" index="1">紧凑的卡片</item>
+<item modified="true" index="0">列表</item>
+<item modified="true" index="2">卡片（于离线模式中工作最佳）</item>
+</string-array>
+<string name="pref_theme_sum" modified="true">您需要重新启动应用才能应用此主题</string>
+<string-array name="whatif_card_long_click_remove">
+<item modified="true" index="1">在浏览器中打开</item>
+<item modified="true" index="2">从收藏中移除</item>
+<item modified="true" index="0">分享</item>
+</string-array>
+<string name="action_random_article" modified="true">随机文章</string>
+<string-array name="card_long_click_remove">
+<item modified="true" index="1">标记为未读</item>
+<item modified="true" index="0">添加书签</item>
+</string-array>
+<string name="not_restart" modified="true">已完成。轻敲以重新启动应用。</string>
+<string name="search_hint" modified="true">查找一幅漫画</string>
+<string name="title_interactive" modified="true">（交互）</string>
+<string name="pref_edit_theme" modified="true">自定义主题</string>
+<string name="pref_subtitle_sum" modified="true">将当前的漫画编号设置为操作栏副标题</string>
+<string name="action_donate" modified="true">捐赠</string>
+<string name="widget_random" modified="true">随机漫画</string>
+<string name="pref_night" modified="true">夜间模式</string>
+<string name="action_swipe" modified="true">滑动浏览</string>
+<string name="pref_theme" modified="true">主题</string>
+<string name="loading_results" modified="true">正在加载搜索结果……</string>
+<string name="pref_notifications_sum" modified="true">周一、周三和周五检查新漫画，周二检查新 What If。</string>
+<string name="pref_offline_path" modified="true">离线数据路径（实验性）</string>
+<string name="title_activity_donate" modified="true">捐赠</string>
+<string name="pref_export_import" modified="true">导出/导入收藏</string>
+<string name="pref_offline_whatif" modified="true">“What if?” 离线模式</string>
+<string name="snackbar_undo" modified="true">撤销</string>
+<string name="what_if_tip" modified="true">您知道吗？点击图片查看其鼠标悬停文本！</string>
+<string-array name="card_long_click">
+<item modified="true" index="0">添加书签</item>
+<item modified="true" index="1">标记为已读</item>
+</string-array>
+<string name="pref_share_alt" modified="true">分享时附上图片描述</string>
+<string name="nv_favorites" modified="true">收藏</string>
+<string-array name="alt_style_entries">
+<item modified="true" index="1">弹出</item>
+<item modified="true" index="0">经典</item>
+</string-array>
+<string name="pref_share_sum" modified="true">别问我是要分享漫画图像还是分享漫画链接</string>
+<string name="pref_random_comics" modified="true">在漫画屏幕中隐藏 FAB</string>
+<string name="pref_widget" modified="true">小部件设置</string>
+<string name="pref_alt_options" modified="true">常规选项</string>
+<string name="copy_folder" modified="true">正在移动目录与文件……</string>
+<string-array name="alt_options_entries">
+<item modified="true" index="2">震动反馈</item>
+<item modified="true" index="1">分享时附上图片描述</item>
+<item modified="true" index="3">返回键显示图片描述</item>
+<item modified="true" index="0">总是显示图片描述</item>
+</string-array>
+<string name="action_hide_read_comics" modified="true">隐藏已读漫画</string>
+<string name="pref_appearance" modified="true">外观</string>
+<string name="snackbar_add" modified="true">已将漫画添加至收藏</string>
+<string name="pref_random_favorites" modified="true">在收藏屏幕中隐藏 FAB</string>
+<string-array name="random_entries">
+<item modified="true" index="1">收藏</item>
+<item modified="true" index="0">漫画浏览器</item>
+</string-array>
+<string name="dialog_donate" modified="true">您想捐赠多少呢？</string>
+<string name="pref_alt_style_title" modified="true">选择您喜欢的样式</string>
+<string name="app_name">Easy xkcd</string>
+<string name="pref_random_sum" modified="true">隐藏浮动操作按钮。若隐藏，溢出菜单中会有一个按钮来代替</string>
+<string-array name="share_dialog">
+<item modified="true" index="0">分享图像</item>
+<item modified="true" index="1">分享链接</item>
+</string-array>
+<string name="pref_widget_sum" modified="true">为使更改生效，请从主屏幕上移除小部件并再次添加</string>
+<string name="delete_offline_articles" modified="true">正在删除文章……</string>
+<string name="pref_invert" modified="true">反转黑白图片</string>
+<string name="bookmark_toast" modified="true">您可以从概览模式返回至书签。它也将在漫画列表中突出显示</string>
+<string name="nv_feedback" modified="true">反馈</string>
+<string name="share_url" modified="true">分享链接通过……</string>
+<string-array name="export_import_dialog">
+<item modified="true" index="1">导入</item>
+<item modified="true" index="0">导出</item>
+</string-array>
+<string name="snackbar_feature" modified="true">新特性：自定义主题！</string>
+<string name="pref_hide_donate" modified="true">隐藏捐赠按钮</string>
+<string name="loading_thread" modified="true">正在加载主题贴……</string>
+<string name="pref_auto_night" modified="true">自动夜间模式</string>
+<string name="action_unread" modified="true">全部标记为未读</string>
+<string name="pref_import_success" modified="true">已导出收藏！</string>
+<string name="title_activity_about" modified="true">关于</string>
+<string name="loading_offline_20" modified="true">或许您可以买杯咖啡或者做些别的事……</string>
+<string name="new_whatif" modified="true">新 What If！</string>
+<string-array name="whatif_card_long_click">
+<item modified="true" index="0">分享</item>
+<item modified="true" index="2">添加至收藏</item>
+<item modified="true" index="1">在浏览器中打开</item>
+<item modified="true" index="1">在</item>
+</string-array>
+<string name="no_connection_retry" modified="true">重试</string>
+<string name="loading_offline_97" modified="true">您应该已经看到您的脸了！</string>
+<string name="new_comic" modified="true">新漫画！</string>
+<string name="snackbar_remove_all" modified="true">已清除收藏</string>
+<string name="dialog_yes" modified="true">是</string>
+<string-array name="alt_activation">
+<item modified="true" index="0">单击</item>
+<item modified="true" index="1">长按</item>
+</string-array>
+<string name="action_latest" modified="true">最新漫画</string>
+<string name="loading_random" modified="true">正在加载随机漫画……</string>
+<string name="pref_behavior_sum" modified="true">启用离线模式，通知</string>
+<string name="action_explain" modified="true">解释漫画</string>
+<string name="theme_primary_color_dialog" modified="true">选择一个主要色</string>
+<string name="snackbar_rate_action" modified="true">评分</string>
+<string name="pref_share" modified="true">总是分享漫画图像</string>
+<string name="loading_article" modified="true">正在加载文章……</string>
+<string name="pref_random_title" modified="true">在……隐藏 FAB</string>
+<string name="no_connection" modified="true">无连接……</string>
+<string name="pref_offline" modified="true">离线模式</string>
+<string name="loading_offline" modified="true">正在下载漫画……</string>
+<string name="action_browser" modified="true">在浏览器中打开</string>
+<string name="whatif_overview" modified="true">概览</string>
+<string name="action_settings" modified="true">设置</string>
+<string name="snackbar_survey" modified="true">能抽几分钟时间帮助改善这个应用么？</string>
+<string name="pref_alt_style" modified="true">样式</string>
+<string name="pref_nav_swipe" modified="true">滑动打开导航抽屉</string>
+<string name="pref_orientation_sum" modified="true">默认、纵向或横向</string>
+<string name="title_activity_search_results" modified="true">结果针对</string>
+<string name="pref_zoom" modified="true">What if? 文本缩放</string>
+<string name="bookmark_toast_2" modified="true">已添加书签</string>
+<string name="loading_offline_96" modified="true">只是开个玩笑。</string>
+<string name="delete_offline_whatif_dialog" modified="true">您确定要禁用离线模式吗？这将删除所有已保存的文章</string>
+<string name="update_database" modified="true">正在更新数据库……</string>
+<string name="pref_large" modified="true">较大的漫画图像</string>
+<string name="pref_default_zoom" modified="true">默认缩放漫画图片以适合设备屏幕大小</string>
+<string name="pref_alt_title" modified="true">图片描述</string>
+<string name="drawer_close" modified="true">关闭导航抽屉</string>
+<string name="pref_navbar" modified="true">多彩导航栏</string>
+<string name="nv_comicbrowser" modified="true">漫画浏览器</string>
+<string name="pref_offline_path_sum" modified="true">默认是外部存储的根目录。</string>
+<string name="pref_alt_sharing" modified="true">图片描述与分享</string>
+<string name="theme_accent_color_dialog" modified="true">选择一个强调色</string>
+<string name="pref_widget_alt" modified="true">显示图片描述</string>
+<string name="add_bookmark" modified="true">添加书签</string>
+<string name="pref_repair_sum" modified="true">如果您看到一些空白漫画，这个选项应该能通过重新下载它来解决</string>
+<string name="pref_offline_sum" modified="true">将所有漫画下载至外部存储。新漫画将会自动添加。占用约 150MB。</string>
+<string name="pref_alt_activation_sum" modified="true">长按或单击</string>
+<string name="favorites_cleared" modified="true">已清除收藏</string>
+<string name="snackbar_survey_oc" modified="true">做一个问卷调查</string>
+<string name="pref_update_mobile_sum" modified="true">若禁用，只能在 Wifi 下更新离线漫画和what-if</string>
+<string name="pref_share_link" modified="true">附上漫画链接</string>
+<string name="pref_large_sum" modified="true">若可用，加载较大的图像（例 #657）。可能会降低旧设备的性能</string>
+<string name="pref_update_mobile" modified="true">于移动数据下更新</string>
+<string name="pref_auto_night_start" modified="true">开始时间</string>
+<string name="loading_offline_whatif" modified="true">正在下载文章……</string>
+<string name="snackbar_remove" modified="true">已从收藏中删除漫画</string>
+<string name="delete_favorites" modified="true">清除收藏</string>
+<string name="comic_error" modified="true">漫画不可用</string>
+<string name="pref_random" modified="true">隐藏浮动操作按钮</string>
+<string name="action_favorite_remove" modified="true">移除收藏</string>
+<string name="pref_alt" modified="true">图片描述震动反馈</string>
+<string name="new_comic_view" modified="true">查看</string>
+<string name="pref_alt_sharing_sum" modified="true">设置图片描述与分享行为</string>
+<string name="loading_offline_95" modified="true">发生了一个错误！请重试</string>
+<string name="no_favorites" modified="true">您还没有添加过收藏！</string>
+<string name="action_alt" modified="true">查看图片描述</string>
+<string name="nav_feedback_send" modified="true">发送邮件通过……</string>
+<string name="thread_not_found" modified="true">未找到主题贴！</string>
+<string name="no_connection_favorites" modified="true">查看收藏</string>
+<string name="pref_show_alt" modified="true">默认显示图片描述</string>
+<string name="pref_repair" modified="true">修理离线漫画</string>
+<string name="pref_overview_default" modified="true">启动至概览模式</string>
+<string name="pref_default_zoom_sum" modified="true">若禁用，漫画在大屏设备上视觉效果可能更好</string>
+<string name="search_title" modified="true">查找</string>
+<string name="pref_title" modified="true">设置</string>
+<string name="apply_theme" modified="true">现在重新启动来应用新主题？</string>
+<string name="pref_orientation" modified="true">屏幕方向</string>
+<string name="pref_mobile" modified="true">分享手机版链接</string>
+<string name="delete_offline" modified="true">正在删除漫画……</string>
+<string name="nv_about" modified="true">关于</string>
+<string name="pref_alt_options_sum" modified="true">总是显示图片描述、分享图片描述、震动反馈</string>
+<string name="pref_share_title" modified="true">分享</string>
+<string name="theme_primary_color" modified="true">主要色</string>
+<string name="action_random" modified="true">随机漫画</string>
+<string name="pref_alt_sum" modified="true">开启长按图片时的震动反馈</string>
+<string name="loading_offline_2" modified="true">这会需要一点时间，别急……</string>
+<string name="action_all_read" modified="true">全部标记为已读</string>
+<string name="snackbar_rate" modified="true">所以您喜欢 Easy xkcd 么？</string>
+<string name="pref_export" modified="true">导出您的收藏</string>
+<string name="pref_alt_style_sum" modified="true">经典或弹出</string>
+<string name="action_thread" modified="true">打开 Reddit 或论坛的主题帖</string>
+<string name="action_overview" modified="true">漫画概述</string>
+<string name="action_trans" modified="true">查看抄本</string>
+<string name="search_error" modified="true">未找到漫画</string>
+<string name="pref_notifications" modified="true">更新通知的时间间隔</string>
+<string name="pref_appearance_sum" modified="true">更改此应用的外观</string>
+<string name="open_bookmark" modified="true">跳转至书签</string>
+<string name="loading_comics" modified="true">正在加载漫画……</string>
+<string name="pref_alt_activation" modified="true">激活</string>
+<string name="snackbar_feature_oc" modified="true">一探究竟</string>
+<string name="dialog_cancel" modified="true">取消</string>
+<string name="action_earliest_unread" modified="true">最早的未读</string>
+<string name="widget_latest" modified="true">最新漫画</string>
+<string name="pref_theme_ok" modified="true">OK</string>
+<string name="loading_offline_50" modified="true">耶！完成了一半了！</string>
+<string name="pref_subtitle" modified="true">显示操作栏副标题</string>
+<string name="overview_style_title" modified="true">选择您喜欢的样式</string>
+<string name="no_bookmark" modified="true">您还没有添加过书签！您可以于漫画浏览器里或在此列表中长按漫画以添加</string>
+<string name="delete_offline_dialog" modified="true">您确定要禁用离线模式吗？这将删除所有已保存的图像（收藏除外）</string>
+<string name="action_night_mode" modified="true">夜间模式</string>
+<string name="action_share_article" modified="true">分享文章</string>
+<string name="action_alt_tip" modified="true">提示： 你也可以长按漫画图片来查看图片描述。</string>
+<string name="pref_zoom_sum" modified="true">或许可修复某些设备上的布局问题</string>
+<string name="random_tip" modified="true">您知道吗？长按按钮即可前往前一幅漫画！</string>
+<string name="search_hint_whatif" modified="true">查找一个文章</string>
+<string name="pref_overview_default_sum" modified="true">启动应用时默认显示概览模式</string>
+<string name="pref_zoom_scroll" modified="true">在缩放漫画图像时禁用滚动</string>
+<string name="pref_night_options" modified="true">夜间选项</string>
+<string name="pref_night_options_sum" modified="true">设置夜间模式</string>
+</resources>
