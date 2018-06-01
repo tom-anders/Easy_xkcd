@@ -263,8 +263,9 @@ public class WhatIfFragment extends android.support.v4.app.Fragment {
                         mTitles.add(title.text());
                 }
 
-                for (Element image : imagelinks)
-                    mImgs.add(image.absUrl("src"));
+                for (int i = 0; i < mTitles.size(); i++) {
+                    mImgs.add("https://what-if.xkcd.com/imgs/a/" + (i + 1) + "/archive_crop.png");
+                }
 
                 Collections.reverse(mTitles);
                 Collections.reverse(mImgs);

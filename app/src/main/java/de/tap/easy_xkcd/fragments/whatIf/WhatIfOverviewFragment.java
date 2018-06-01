@@ -32,6 +32,7 @@ import org.jsoup.nodes.Document;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
 
 import butterknife.Bind;
 import butterknife.ButterKnife;

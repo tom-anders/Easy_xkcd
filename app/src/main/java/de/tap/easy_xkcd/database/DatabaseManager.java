@@ -384,52 +384,14 @@ public class DatabaseManager {
     ////////////////// WHAT IF DATABASE /////////////////////////
 
     /**
-     * Randall doesn't seem to update the thumbnails for what-if articles at http://what-if.xkcd.com/archive/ anymore.
+     * The latest what-if doesn't have an official thumbnail yet.
      * @param title the title of the what-if
      * @return the resource id of the custom thumbnail or 0 if the article already has a thumbnail
      */
     public int getWhatIfMissingThumbnailId(String title) {
         switch (title) {
-            case "Jupiter Descending":
-                return R.mipmap.jupiter_descending;
-            case "Jupiter Submarine":
-                return R.mipmap.jupiter_submarine;
-            case "New Horizons":
-                return R.mipmap.new_horizons;
-            case "Proton Earth, Electron Moon":
-                return R.mipmap.proton_earth;
-            case "Sunbeam":
-                return R.mipmap.sun_beam;
-            case "Space Jetta":
-                return R.mipmap.jetta;
-            case "Europa Water Siphon":
-                return R.mipmap.straw;
-            case "Saliva Pool":
-                return R.mipmap.question;
-            case "Fire From Moonlight":
-                return R.mipmap.rabbit;
-            case "Stop Jupiter":
-                return R.mipmap.burlap;
-            case "Niagara Straw":
-                return R.mipmap.barrel;
-            case "Eat the Sun":
-                return R.mipmap.snakemeat;
-            case "Pizza Bird":
-                return R.mipmap.pickup;
-            case "Tatooine Rainbow":
-                return R.mipmap.trig;
-            case "Sun Bug":
-                return R.mipmap.blocked;
-            case "Flood Death Valley":
-                return R.mipmap.deathsea;
-            case "Hide the Atmosphere":
-                return R.mipmap.cube;
-            case "Coast-to-Coast Coasting":
-                return R.mipmap.beach;
-            case "Toaster vs. Freezer":
-                return R.mipmap.setup;
-            case "Electrofishing for Whales":
-                return R.mipmap.setup1;
+            case "Earth-Moon Fire Pole":
+                return R.mipmap.slide;
             default:
                 return 0;
         }
