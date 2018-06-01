@@ -1,3 +1,12 @@
+## 6.1
+
+- Added adaptive icon (Thanks to mueller-ma!)
+- Fixed What-if thumbnails!
+
+## 6.0.5
+
+- Added simplified chinese translation (thanks to Lu!)
+
 ## 6.0.3
 
 - Added spanish translation (thanks to Giovanni!)
