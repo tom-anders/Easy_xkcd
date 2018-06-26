@@ -1,12 +1,12 @@
 apply plugin: 'com.android.application'
 android {
     
-    compileSdkVersion 27
-    buildToolsVersion '27.0.3'
+    compileSdkVersion 28
+    buildToolsVersion '28.0.0'
     defaultConfig {
         applicationId "de.tap.easy_xkcd"
         minSdkVersion 15
-        targetSdkVersion 25
+        targetSdkVersion 28
         versionCode 143
         versionName "6.0.4"
     }
@@ -39,29 +39,28 @@ android {
     }
 }
 dependencies {
-    compile fileTree(dir: 'libs', include: ['*.jar'])
-    compile 'com.android.support:design:27.1.1'
-    compile "com.android.support:customtabs:27.1.1"
-    compile 'com.android.support:recyclerview-v7:27.1.1'
-    compile 'com.android.support:cardview-v7:27.1.1'
-    compile 'com.android.support:palette-v7:27.1.1'
-    compile 'com.github.bumptech.glide:glide:3.7.0'
-    compile 'com.github.chrisbanes.photoview:library:1.2.3'
-    compile 'com.commonsware.cwac:wakeful:1.1.0'
-    compile 'org.jsoup:jsoup:1.8.3'
-    compile 'jp.wasabeef:recyclerview-animators:2.2.6'
-    compile 'com.anjlab.android.iab.v3:library:1.0.39'
-    compile 'com.jakewharton:butterknife:7.0.1'
-    annotationProcessor 'com.jakewharton:butterknife:7.0.1'
-    compile 'com.kogitune:pre-lollipop-activity-transition:1.3.3'
-    compile ('com.turhanoz.android:reactivedirectorychooser:0.0.12@aar'){
+    implementation fileTree(dir: 'libs', include: ['*.jar'])
+    implementation 'com.android.support:design:28.0.0'
+    implementation 'com.android.support:customtabs:28.0.0-alpha3'
+    implementation 'com.android.support:recyclerview-v7:28.0.0-alpha3'
+    implementation 'com.android.support:cardview-v7:28.0.0-alpha3'
+    implementation 'com.android.support:palette-v7:28.0.0-alpha3'
+    implementation 'com.github.bumptech.glide:glide:3.7.1'
+    implementation 'com.github.chrisbanes.photoview:library:1.2.4'
+    implementation 'com.commonsware.cwac:wakeful:1.1.0'
+    implementation 'org.jsoup:jsoup:1.11.3'
+    implementation 'jp.wasabeef:recyclerview-animators:2.3.0'
+    implementation 'com.anjlab.android.iab.v3:library:1.0.44'
+    implementation 'com.jakewharton:butterknife:8.8.1'
+    annotationProcessor 'com.jakewharton:butterknife:8.8.1'
+    implementation 'com.kogitune:pre-lollipop-activity-transition:1.3.3'
+    implementation ('com.turhanoz.android:reactivedirectorychooser:0.0.13@aar'){
         transitive=true
     }
-    compile 'xyz.danoz:recyclerviewfastscroller:0.1.3'
-    compile 'com.nbsp:library:1.03'
-    compile 'com.squareup.okhttp3:okhttp:3.1.2'
-    compile 'uz.shift:colorpicker:0.5@aar'
-    compile 'io.realm:realm-android:0.87.4'
-    annotationProcessor 'io.realm:realm-android:0.87.4'
-
+    implementation 'xyz.danoz:recyclerviewfastscroller:0.1.3'
+    implementation 'com.nbsp:library:1.8'
+    implementation 'com.squareup.okhttp3:okhttp:3.10.0'
+    implementation 'uz.shift:colorpicker:0.5@aar'
+    implementation 'io.realm:realm-android:0.87.5'
+    annotationProcessor 'io.realm:realm-android:0.87.5'
 }
