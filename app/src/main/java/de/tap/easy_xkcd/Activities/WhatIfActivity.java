@@ -5,9 +5,9 @@ import android.content.Intent;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Build;
+import android.os.Bundle;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AlertDialog;
-import android.os.Bundle;
 import android.text.Html;
 import android.text.method.LinkMovementMethod;
 import android.view.Menu;
@@ -30,17 +30,17 @@ import org.jsoup.nodes.Document;
 import java.io.IOException;
 import java.util.Random;
 
-import butterknife.Bind;
+import butterknife.BindView;
 import butterknife.ButterKnife;
 import de.tap.easy_xkcd.database.DatabaseManager;
-import de.tap.easy_xkcd.misc.OnSwipeTouchListener;
-import de.tap.easy_xkcd.utils.Article;
 import de.tap.easy_xkcd.fragments.whatIf.WhatIfFavoritesFragment;
 import de.tap.easy_xkcd.fragments.whatIf.WhatIfFragment;
+import de.tap.easy_xkcd.misc.OnSwipeTouchListener;
+import de.tap.easy_xkcd.utils.Article;
 
 public class WhatIfActivity extends BaseActivity {
 
-    @Bind(R.id.wv)
+    @BindView(R.id.wv)
     WebView web;
     public static int WhatIfIndex;
     private ProgressDialog mProgress;
@@ -54,7 +54,7 @@ public class WhatIfActivity extends BaseActivity {
         setContentView(R.layout.activity_what_if);
         ButterKnife.bind(this);
 
-        android.support.v7.widget.Toolbar toolbar = (android.support.v7.widget.Toolbar) findViewById(R.id.toolbar);
+        android.support.v7.widget.Toolbar toolbar = findViewById(R.id.toolbar);
         setupToolbar(toolbar);
 
         web.addJavascriptInterface(new altObject(), "img");

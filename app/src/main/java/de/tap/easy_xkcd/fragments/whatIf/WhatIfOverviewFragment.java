@@ -33,7 +33,7 @@ import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 
-import butterknife.Bind;
+import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
 import de.tap.easy_xkcd.Activities.MainActivity;
@@ -47,9 +47,9 @@ import okhttp3.Response;
 
 public class WhatIfOverviewFragment extends android.support.v4.app.Fragment {
 
-    @Bind(R.id.pager) ViewPager pager;
-    @Bind(R.id.tab_layout) TabLayout tabLayout;
-    @Bind(R.id.fab) FloatingActionButton fab;
+    @BindView(R.id.pager) ViewPager pager;
+    @BindView(R.id.tab_layout) TabLayout tabLayout;
+    @BindView(R.id.fab) FloatingActionButton fab;
     private FragmentAdapter adapter;
     public static Document doc;
     private static final String OFFLINE_WHATIF_OVERVIEW_PATH = "/easy xkcd/what if/overview";
@@ -225,19 +225,17 @@ public class WhatIfOverviewFragment extends android.support.v4.app.Fragment {
 
             ComicViewHolder(View itemView) {
                 super(itemView);
-                cv = (CardView) itemView.findViewById(R.id.cv);
+                cv = itemView.findViewById(R.id.cv);
                 if (themePrefs.nightThemeEnabled())
                     cv.setCardBackgroundColor(ContextCompat.getColor(context, R.color.background_material_dark));
-                articleTitle = (TextView) itemView.findViewById(R.id.article_title);
-                articleNumber = (TextView) itemView.findViewById(R.id.article_info);
-                thumbnail = (ImageView) itemView.findViewById(R.id.thumbnail);
+                articleTitle = itemView.findViewById(R.id.article_title);
+                articleNumber = itemView.findViewById(R.id.article_info);
+                thumbnail = itemView.findViewById(R.id.thumbnail);
                 if (themePrefs.invertColors(false))
                     thumbnail.setColorFilter(themePrefs.getNegativeColorFilter());
             }
         }
     }
-
-
 
     @Override
     public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {

@@ -30,7 +30,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 
-
 public class AboutActivity extends BaseActivity {
 
     @Override
@@ -38,9 +37,9 @@ public class AboutActivity extends BaseActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_about);
 
-        android.support.v7.widget.Toolbar toolbar = (android.support.v7.widget.Toolbar) findViewById(R.id.toolbar);
+        android.support.v7.widget.Toolbar toolbar = findViewById(R.id.toolbar);
         setupToolbar(toolbar);
-        TextView tvAbout = (TextView) findViewById(R.id.tvAbout);
+        TextView tvAbout = findViewById(R.id.tvAbout);
         InputStream is = getResources().openRawResource(R.raw.licenses);
         BufferedReader br = new BufferedReader(new InputStreamReader(is));
         StringBuilder sb = new StringBuilder();
@@ -55,6 +54,4 @@ public class AboutActivity extends BaseActivity {
         tvAbout.setText(Html.fromHtml(sb.toString()));
         tvAbout.setMovementMethod(LinkMovementMethod.getInstance());
     }
-
-
 }

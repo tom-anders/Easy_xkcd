@@ -40,14 +40,13 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Random;
 
-import butterknife.Bind;
+import butterknife.BindView;
 import butterknife.ButterKnife;
 import de.tap.easy_xkcd.Activities.MainActivity;
 import de.tap.easy_xkcd.Activities.WhatIfActivity;
 import de.tap.easy_xkcd.utils.JsonParser;
 import de.tap.easy_xkcd.utils.PrefHelper;
 import de.tap.easy_xkcd.utils.ThemePrefs;
-import jp.wasabeef.recyclerview.adapters.AlphaInAnimationAdapter;
 import jp.wasabeef.recyclerview.adapters.SlideInBottomAnimationAdapter;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
@@ -59,7 +58,7 @@ public class WhatIfFragment extends android.support.v4.app.Fragment {
 
     public static ArrayList<String> mTitles = new ArrayList<>();
     private static ArrayList<String> mImgs = new ArrayList<>();
-    @Bind(R.id.rv)
+    @BindView(R.id.rv)
     RecyclerView rv;
     private MenuItem searchMenuItem;
     public static WhatIfRVAdapter adapter;

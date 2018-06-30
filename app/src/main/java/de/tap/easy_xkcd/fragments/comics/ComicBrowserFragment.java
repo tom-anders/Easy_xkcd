@@ -25,7 +25,6 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
-import android.graphics.Color;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -37,7 +36,6 @@ import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.content.FileProvider;
 import android.support.v4.view.ViewPager;
-import android.support.v7.graphics.Palette;
 import android.text.Html;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -50,10 +48,8 @@ import android.widget.Toast;
 
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.load.engine.DiskCacheStrategy;
-import com.bumptech.glide.load.resource.drawable.GlideDrawable;
 import com.bumptech.glide.request.RequestListener;
-import com.bumptech.glide.request.animation.GlideAnimation;
-import com.bumptech.glide.request.target.GlideDrawableImageViewTarget;
+import com.bumptech.glide.request.target.DrawableImageViewTarget;
 import com.bumptech.glide.request.target.SimpleTarget;
 import com.bumptech.glide.request.target.Target;
 import com.kogitune.activity_transition.ActivityTransition;
@@ -72,7 +68,6 @@ import de.tap.easy_xkcd.database.RealmComic;
 import de.tap.easy_xkcd.utils.Comic;
 import de.tap.easy_xkcd.utils.JsonParser;
 import io.realm.RealmResults;
-import uk.co.senab.photoview.BuildConfig;
 import uk.co.senab.photoview.PhotoView;
 
 public class ComicBrowserFragment extends ComicFragment {
@@ -177,7 +172,7 @@ public class ComicBrowserFragment extends ComicFragment {
                         getLatestComic();
                     }
                 };
-                FloatingActionButton fab = (FloatingActionButton) getActivity().findViewById(R.id.fab);
+                FloatingActionButton fab = getActivity().findViewById(R.id.fab);
                 //noinspection ResourceType
                 Snackbar.make(fab, getActivity().getResources().getString(R.string.new_comic), 4000)
                         .setAction(getActivity().getResources().getString(R.string.new_comic_view), oc)
@@ -204,9 +199,9 @@ public class ComicBrowserFragment extends ComicFragment {
         @Override
         public Object instantiateItem(final ViewGroup container, final int position) {
             View itemView = setupPager(container, position);
-            final PhotoView pvComic = (PhotoView) itemView.findViewById(R.id.ivComic);
-            final TextView tvAlt = (TextView) itemView.findViewById(R.id.tvAlt);
-            final TextView tvTitle = (TextView) itemView.findViewById(R.id.tvTitle);
+            final PhotoView pvComic = itemView.findViewById(R.id.ivComic);
+            final TextView tvAlt = itemView.findViewById(R.id.tvAlt);
+            final TextView tvTitle = itemView.findViewById(R.id.tvTitle);
 
             if (Arrays.binarySearch(mContext.getResources().getIntArray(R.array.large_comics), position+1) >= 0)
                 pvComic.setMaximumScale(15.0f);
@@ -226,14 +221,14 @@ public class ComicBrowserFragment extends ComicFragment {
                     if (getGifId(position) != 0) {
                         Glide.with(getActivity())
                                 .load(getGifId(position))
-                                .listener(new RequestListener<Integer, GlideDrawable>() {
+                                .listener(new RequestListener<Integer, Drawable>() {
                                     @Override
-                                    public boolean onException(Exception e, Integer model, Target<GlideDrawable> target, boolean isFirstResource) {
+                                    public boolean onException(Exception e, Integer model, Target<Drawable> target, boolean isFirstResource) {
                                         return false;
                                     }
 
                                     @Override
-                                    public boolean onResourceReady(GlideDrawable resource, Integer model, Target<GlideDrawable> target, boolean isFromMemoryCache, boolean isFirstResource) {
+                                    public boolean onResourceReady(Drawable resource, Integer model, Target<Drawable> target, boolean isFromMemoryCache, boolean isFirstResource) {
                                         if (position == lastComicNumber - 1) {
                                             if (((MainActivity) getActivity()).getProgressDialog() != null)
                                                 ((MainActivity) getActivity()).getProgressDialog().dismiss();
@@ -242,15 +237,15 @@ public class ComicBrowserFragment extends ComicFragment {
                                         return false;
                                     }
                                 })
-                                .into(new GlideDrawableImageViewTarget(pvComic));
+                                .into(new DrawableImageViewTarget(pvComic));
                     } else {
                         Glide.with(getActivity())
-                                .load(url)
                                 .asBitmap()
-                                .diskCacheStrategy(DiskCacheStrategy.SOURCE)
+                                .load(url)
+                                .diskCacheStrategy(DiskCacheStrategy.AUTOMATIC)
                                 .into(new SimpleTarget<Bitmap>() {
                                     @Override
-                                    public void onResourceReady(Bitmap resource, GlideAnimation<? super Bitmap> glideAnimation) {
+                                    public void onResourceReady(Bitmap resource, glideAnimation<? super Bitmap> glideAnimation) {
                                         if (themePrefs.invertColors(false) && themePrefs.bitmapContainsColor(resource, position + 1))
                                             pvComic.clearColorFilter();
 
@@ -446,9 +441,9 @@ public class ComicBrowserFragment extends ComicFragment {
             String url = params[0];
             try {
                 return Glide.with(getActivity())
-                        .load(url)
                         .asBitmap()
-                        .diskCacheStrategy(DiskCacheStrategy.SOURCE)
+                        .load(url)
+                        .diskCacheStrategy(DiskCacheStrategy.AUTOMATIC)
                         .into(-1, -1)
                         .get();
             } catch (Exception e) {
@@ -483,51 +478,3 @@ public class ComicBrowserFragment extends ComicFragment {
         return loadingImages || super.zoomReset();
     }
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
