@@ -26,7 +26,7 @@ import org.jsoup.select.Elements;
 import java.util.ArrayList;
 import java.util.Collections;
 
-import butterknife.Bind;
+import butterknife.BindView;
 import butterknife.ButterKnife;
 import de.tap.easy_xkcd.Activities.MainActivity;
 import de.tap.easy_xkcd.Activities.WhatIfActivity;
@@ -37,7 +37,7 @@ public class WhatIfFavoritesFragment extends android.support.v4.app.Fragment {
     public static ArrayList<String> mTitles = new ArrayList<>();
     private static ArrayList<String> mImgs = new ArrayList<>();
     private static WhatIfFavoritesFragment instance;
-    @Bind(R.id.rv)
+    @BindView(R.id.rv)
     RecyclerView rv;
     public static WhatIfFavoritesRVAdapter adapter;
     private boolean offlineMode;

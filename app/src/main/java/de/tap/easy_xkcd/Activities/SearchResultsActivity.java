@@ -57,7 +57,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.regex.PatternSyntaxException;
 
-import butterknife.Bind;
+import butterknife.BindView;
 import butterknife.ButterKnife;
 import de.tap.easy_xkcd.database.DatabaseManager;
 import de.tap.easy_xkcd.database.RealmComic;
@@ -72,9 +72,9 @@ import jp.wasabeef.recyclerview.adapters.SlideInBottomAnimationAdapter;
 public class SearchResultsActivity extends BaseActivity {
     private ArrayList<Integer> resultsTitle = new ArrayList<>();
     private ArrayList<Integer> resultsTranscript = new ArrayList<>();
-    @Bind(R.id.rv)
+    @BindView(R.id.rv)
     RecyclerView rv;
-    @Bind(R.id.toolbar)
+    @BindView(R.id.toolbar)
     Toolbar toolbar;
     private searchTask task;
     private ProgressDialog mProgress;
@@ -237,9 +237,9 @@ public class SearchResultsActivity extends BaseActivity {
             //Load the thumbnail
             if (!MainActivity.fullOffline) {
                 Glide.with(SearchResultsActivity.this)
-                        .load(url)
                         .asBitmap()
-                        .diskCacheStrategy(DiskCacheStrategy.SOURCE)
+                        .load(url)
+                        .diskCacheStrategy(DiskCacheStrategy.AUTOMATIC)
                         .into(comicViewHolder.thumbnail);
             } else {
                 try {
@@ -254,8 +254,8 @@ public class SearchResultsActivity extends BaseActivity {
                         File dir = new File(sdCard.getAbsolutePath() + "/easy xkcd");
                         File file = new File(dir, String.valueOf(number) + ".png");
                         Glide.with(getApplicationContext())
-                                .load(file)
                                 .asBitmap()
+                                .load(file)
                                 .into(comicViewHolder.thumbnail);
                     } catch (Exception e2) {
                         e2.printStackTrace();
@@ -281,12 +281,12 @@ public class SearchResultsActivity extends BaseActivity {
 
             ComicViewHolder(View itemView) {
                 super(itemView);
-                cv = (CardView) itemView.findViewById(R.id.cv);
+                cv = itemView.findViewById(R.id.cv);
                 if (themePrefs.nightThemeEnabled())
                     cv.setCardBackgroundColor(ContextCompat.getColor(SearchResultsActivity.this, R.color.background_material_dark));
-                comicTitle = (TextView) itemView.findViewById(R.id.comic_title);
-                comicInfo = (TextView) itemView.findViewById(R.id.comic_info);
-                thumbnail = (ImageView) itemView.findViewById(R.id.thumbnail);
+                comicTitle = itemView.findViewById(R.id.comic_title);
+                comicInfo = itemView.findViewById(R.id.comic_info);
+                thumbnail = itemView.findViewById(R.id.thumbnail);
             }
         }
 
@@ -335,7 +335,7 @@ public class SearchResultsActivity extends BaseActivity {
     class CustomOnClickListener implements View.OnClickListener {
         @Override
         public void onClick(View v) {
-            ImageView imageView = (ImageView) v.findViewById(R.id.thumbnail);
+            ImageView imageView = v.findViewById(R.id.thumbnail);
             if (imageView.getDrawable() != null) {
                 int pos = rv.getChildAdapterPosition(v);
                 Intent intent = new Intent("de.tap.easy_xkcd.ACTION_COMIC");
@@ -447,5 +447,4 @@ public class SearchResultsActivity extends BaseActivity {
         super.onDestroy();
         isOpen = false;
     }
-
 }

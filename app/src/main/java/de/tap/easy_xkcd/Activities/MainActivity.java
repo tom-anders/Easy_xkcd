@@ -57,7 +57,7 @@ import com.tap.xkcd_reader.R;
 
 import java.util.Random;
 
-import butterknife.Bind;
+import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
 import butterknife.OnLongClick;
@@ -79,13 +79,13 @@ import de.tap.easy_xkcd.utils.ThemePrefs;
 
 
 public class MainActivity extends BaseActivity {
-    @Bind(R.id.fab)
+    @BindView(R.id.fab)
     FloatingActionButton mFab;
-    @Bind(R.id.nvView)
+    @BindView(R.id.nvView)
     NavigationView mNavView;
-    @Bind(R.id.drawer_layout)
+    @BindView(R.id.drawer_layout)
     DrawerLayout mDrawer;
-    @Bind(R.id.toolbar)
+    @BindView(R.id.toolbar)
     Toolbar toolbar;
 
     public static boolean fullOffline = false;
