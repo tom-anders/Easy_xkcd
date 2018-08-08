@@ -28,6 +28,7 @@ import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.design.widget.Snackbar;
+import android.support.v4.app.FragmentManager;
 import android.support.v4.content.FileProvider;
 import android.support.v4.view.ViewPager;
 import android.support.v7.widget.Toolbar;
@@ -389,6 +390,8 @@ public class FavoritesFragment extends ComicFragment {
                 //If there are no favorites left, show ComicBrowserFragment
                 MenuItem mBrowser = ((MainActivity) getActivity()).getNavView().getMenu().findItem(R.id.nav_browser);
                 ((MainActivity) getActivity()).selectDrawerItem(mBrowser, false, false);
+                FragmentManager fragmentManager = getActivity().getSupportFragmentManager();
+                fragmentManager.beginTransaction().remove(fragmentManager.findFragmentByTag("favorites")).commitAllowingStateLoss();
                 return;
             }
             refresh();
