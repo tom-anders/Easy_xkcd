@@ -310,5 +310,7 @@
     <string name="pref_widget_comicNumber">Display Comic Number</string>
     <string name="pref_widget_sum">In order for the changes to take effect, remove the widget from your homescreen and then add it again</string>
     <string name="pref_nav_swipe">Swipe to open Navigation Drawer</string>
+    <string name="pref_fab_left_hint">May be convenient for left-handed users</string>
+    <string name="pref_fab_left">Align Random Button left</string>
 
 </resources>

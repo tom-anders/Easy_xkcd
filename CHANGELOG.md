@@ -1,3 +1,7 @@
+## 6.1.1
+
+- Added an option to align Floating Action Button left instead of right
+
 ## 6.1
 
 - Added adaptive icon (Thanks to mueller-ma!)

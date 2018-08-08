@@ -39,6 +39,7 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -151,6 +152,18 @@ public class FavoritesFragment extends ComicFragment {
             final PhotoView pvComic = (PhotoView) itemView.findViewById(R.id.ivComic);
             final TextView tvAlt = (TextView) itemView.findViewById(R.id.tvAlt);
             final TextView tvTitle = (TextView) itemView.findViewById(R.id.tvTitle);
+
+            //If the FAB is disabled, remove the right margin of the alt text
+            if (prefHelper.fabDisabled("pref_random_favorites")) {
+                RelativeLayout.LayoutParams params = (RelativeLayout.LayoutParams) tvAlt.getLayoutParams();
+                params.rightMargin = getResources().getDimensionPixelSize(R.dimen.activity_horizontal_margin);
+            }
+            //If the FAB is left, swap the margins
+            if (prefHelper.fabLeft()) {
+                RelativeLayout.LayoutParams params = (RelativeLayout.LayoutParams) tvAlt.getLayoutParams();
+                params.leftMargin = getResources().getDimensionPixelSize(R.dimen.text_alt_margin_right);
+                params.rightMargin = getResources().getDimensionPixelSize(R.dimen.activity_horizontal_margin);
+            }
 
             tvAlt.setText(prefHelper.getAlt(favorites[position]));
             tvTitle.setText(Html.fromHtml(prefHelper.getTitle(favorites[position])));

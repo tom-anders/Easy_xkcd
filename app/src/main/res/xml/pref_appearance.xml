@@ -36,4 +36,10 @@
         android:defaultValue="false"
         android:key="pref_hide_donate"
         android:title="@string/pref_hide_donate" />
+
+    <CheckBoxPreference
+        android:defaultValue="false"
+        android:key="pref_fab_left"
+        android:summary="@string/pref_fab_left_hint"
+        android:title="@string/pref_fab_left" />
 </PreferenceScreen>

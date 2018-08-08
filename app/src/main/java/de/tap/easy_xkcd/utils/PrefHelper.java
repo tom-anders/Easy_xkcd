@@ -57,6 +57,7 @@ public class PrefHelper {
     private static final String COMIC_TRANS = "comic_trans";
     private static final String COMIC_URLS = "comic_urls";
     private static final String SUBTITLE_ENABLED = "pref_subtitle";
+    private static final String FAB_LEFT = "pref_fab_left";
     private static final String HIGHEST_COMIC_URL = "highest_comic_url";
     private static final String OFFLINE_TITLE = "title";
     private static final String OFFLINE_ALT = "alt";
@@ -134,12 +135,16 @@ public class PrefHelper {
         prefs.edit().putBoolean(NAV_DRAWER_SWIPE, value).apply();
     }
 
-    public boolean fabEnabled(String prefTag) {
+    public boolean fabDisabled(String prefTag) {
         return prefs.getStringSet("pref_random", new HashSet<String>()).contains(prefTag);
     }
 
     public boolean subtitleEnabled() {
         return prefs.getBoolean(SUBTITLE_ENABLED, true);
+    }
+
+    public boolean fabLeft() {
+        return prefs.getBoolean(FAB_LEFT, false);
     }
 
     public boolean classicAltStyle() {

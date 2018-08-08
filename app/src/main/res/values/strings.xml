@@ -293,6 +293,8 @@
     <string name="pref_subtitle_sum">Sets the current comic number as Action Bar Subtitle</string>
     <string name="pref_random_favorites">Hide FAB in Favorites Screen</string>
     <string name="pref_random_comics">Hide FAB in Comics Screen</string>
+    <string name="pref_fab_left">Align Floating Action Button left</string>
+    <string name="pref_fab_left_hint">May be convenient for left-handed users</string>
     <string name="pref_random_sum">Hides the Floating Action Button. When hidden, there will be a button in the overflow menu instead</string>
     <string name="pref_share">Always share comic image</string>
     <string name="pref_share_sum">Don\'t ask me to decide between sharing the comic\'s image and sharing its URL</string>

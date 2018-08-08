@@ -309,5 +309,7 @@
     <string name="pref_widget_comicNumber">Comic Nummer anzeigen</string>
     <string name="pref_widget_sum">Entferne das Widget von deinem Homescreen und füge es wieder hinzu, damit die Änderungen übernommen werden</string>
     <string name="pref_nav_swipe">Navigationsleiste per Wischgeste öffnen</string>
+    <string name="pref_fab_left_hint">Angenehmer für Linkshänder</string>
+    <string name="pref_fab_left">Floating Action Button links</string>
 
 </resources>

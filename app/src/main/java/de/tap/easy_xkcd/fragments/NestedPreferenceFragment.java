@@ -96,6 +96,7 @@ public class NestedPreferenceFragment extends PreferenceFragment {
     private static final String REPAIR = "pref_repair";
     private static final String MOBILE_ENABLED = "pref_update_mobile";
     private static final String FAB_OPTIONS = "pref_random";
+    private static final String FAB_LEFT = "pref_fab_left";
     private static final String OFFLINE_PATH_PREF = "pref_offline_path";
     private static final String DONATE = "pref_hide_donate";
     private static final String WIDGET_ALT = "widget_alt";
@@ -242,6 +243,13 @@ public class NestedPreferenceFragment extends PreferenceFragment {
                 });
 
                 findPreference(FAB_OPTIONS).setOnPreferenceChangeListener(new Preference.OnPreferenceChangeListener() {
+                    @Override
+                    public boolean onPreferenceChange(Preference preference, Object o) {
+                        getActivity().setResult(Activity.RESULT_OK);
+                        return true;
+                    }
+                });
+                findPreference(FAB_LEFT).setOnPreferenceChangeListener(new Preference.OnPreferenceChangeListener() {
                     @Override
                     public boolean onPreferenceChange(Preference preference, Object o) {
                         getActivity().setResult(Activity.RESULT_OK);

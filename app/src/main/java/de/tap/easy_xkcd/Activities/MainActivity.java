@@ -31,6 +31,7 @@ import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.preference.PreferenceManager;
+import android.support.design.widget.CoordinatorLayout;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.NavigationView;
 import android.support.v4.app.FragmentTransaction;
@@ -43,6 +44,7 @@ import android.support.v7.app.AlertDialog;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.util.TypedValue;
+import android.view.Gravity;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -159,6 +161,13 @@ public class MainActivity extends BaseActivity {
         setupToolbar(toolbar);
         if (savedInstanceState == null && !SearchResultsActivity.isOpen)
             toolbar.setAlpha(0);
+
+        //Align FAB left if the user enabled this
+        if (prefHelper.fabLeft()) {
+            CoordinatorLayout.LayoutParams params = (CoordinatorLayout.LayoutParams) mFab.getLayoutParams();
+            params.gravity = Gravity.BOTTOM | Gravity.LEFT;
+            mFab.setLayoutParams(params);
+        }
 
         mDrawer.addDrawerListener(drawerToggle);
         mDrawer.setStatusBarBackgroundColor(themePrefs.getPrimaryDarkColor());
@@ -427,7 +436,7 @@ public class MainActivity extends BaseActivity {
         android.support.v4.app.FragmentManager fragmentManager = getSupportFragmentManager();
         assert getSupportActionBar() != null;  //We always have an ActionBar available, so this stops Android Studio from complaining about possible NullPointerExceptions
         //Setup FAB
-        if (prefHelper.fabEnabled(prefTag) || fragmentTagShow.equals(WHATIF_TAG))
+        if (prefHelper.fabDisabled(prefTag) || fragmentTagShow.equals(WHATIF_TAG))
             mFab.setVisibility(View.GONE); //User chose to hide fab or is is viewing WhatIf
         else
             mFab.setVisibility(View.VISIBLE);

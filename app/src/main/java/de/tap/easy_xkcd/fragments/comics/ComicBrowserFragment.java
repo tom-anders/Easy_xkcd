@@ -25,7 +25,6 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
-import android.graphics.Color;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -37,7 +36,6 @@ import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.content.FileProvider;
 import android.support.v4.view.ViewPager;
-import android.support.v7.graphics.Palette;
 import android.text.Html;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -72,7 +70,6 @@ import de.tap.easy_xkcd.database.RealmComic;
 import de.tap.easy_xkcd.utils.Comic;
 import de.tap.easy_xkcd.utils.JsonParser;
 import io.realm.RealmResults;
-import uk.co.senab.photoview.BuildConfig;
 import uk.co.senab.photoview.PhotoView;
 
 public class ComicBrowserFragment extends ComicFragment {
@@ -207,6 +204,18 @@ public class ComicBrowserFragment extends ComicFragment {
             final PhotoView pvComic = (PhotoView) itemView.findViewById(R.id.ivComic);
             final TextView tvAlt = (TextView) itemView.findViewById(R.id.tvAlt);
             final TextView tvTitle = (TextView) itemView.findViewById(R.id.tvTitle);
+
+            //If the FAB is disabled, remove the right margin of the alt text
+            if (prefHelper.fabDisabled("pref_random_comics")) {
+                RelativeLayout.LayoutParams params = (RelativeLayout.LayoutParams) tvAlt.getLayoutParams();
+                params.rightMargin = getResources().getDimensionPixelSize(R.dimen.activity_horizontal_margin);
+            }
+            //If the FAB is left, swap the margins
+            if (prefHelper.fabLeft()) {
+                RelativeLayout.LayoutParams params = (RelativeLayout.LayoutParams) tvAlt.getLayoutParams();
+                params.leftMargin = getResources().getDimensionPixelSize(R.dimen.text_alt_margin_right);
+                params.rightMargin = getResources().getDimensionPixelSize(R.dimen.activity_horizontal_margin);
+            }
 
             if (Arrays.binarySearch(mContext.getResources().getIntArray(R.array.large_comics), position+1) >= 0)
                 pvComic.setMaximumScale(15.0f);
