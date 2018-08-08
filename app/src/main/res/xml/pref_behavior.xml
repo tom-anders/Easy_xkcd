@@ -50,4 +50,9 @@
         android:defaultValue="true"
         android:key="pref_nav_swipe"
         android:title="@string/pref_nav_swipe" />
+
+    <CheckBoxPreference
+        android:defaultValue="true"
+        android:key="pref_custom_tabs"
+        android:title="@string/pref_chrome_custom_tabs" />
 </PreferenceScreen>

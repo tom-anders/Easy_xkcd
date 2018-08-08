@@ -318,5 +318,6 @@
     <string name="pref_nav_swipe">Desliza para abrir la barra de navegación</string>
     <string name="pref_fab_left_hint">May be convenient for left-handed users</string>
     <string name="pref_fab_left">Align Random Button left</string>
+    <string name="pref_chrome_custom_tabs">Use Chrome Custom Tabs</string>
 
 </resources>

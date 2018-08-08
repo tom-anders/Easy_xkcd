@@ -392,9 +392,14 @@ public abstract class ComicFragment extends android.support.v4.app.Fragment {
 
     protected boolean explainComic(int number) {
         String url = "https://explainxkcd.com/" + String.valueOf(number);
-        CustomTabsIntent.Builder intentBuilder = new CustomTabsIntent.Builder();
-        intentBuilder.setToolbarColor(themePrefs.getPrimaryColor(false));
-        CustomTabActivityHelper.openCustomTab(getActivity(), intentBuilder.build(), Uri.parse(url), new BrowserFallback());
+        if (prefHelper.useCustomTabs()) {
+            CustomTabsIntent.Builder intentBuilder = new CustomTabsIntent.Builder();
+            intentBuilder.setToolbarColor(themePrefs.getPrimaryColor(false));
+            CustomTabActivityHelper.openCustomTab(getActivity(), intentBuilder.build(), Uri.parse(url), new BrowserFallback());
+        } else {
+            Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(url));
+            startActivity(intent);
+        }
         return true;
     }
 

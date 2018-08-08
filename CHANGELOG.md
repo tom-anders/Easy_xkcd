@@ -1,6 +1,7 @@
 ## 6.1.1
 
 - Added an option to align Floating Action Button left instead of right
+- Chrome Custom Tabs can now be disabled in the settings
 
 ## 6.1
 

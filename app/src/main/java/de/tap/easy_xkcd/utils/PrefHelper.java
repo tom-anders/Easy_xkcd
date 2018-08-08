@@ -58,6 +58,7 @@ public class PrefHelper {
     private static final String COMIC_URLS = "comic_urls";
     private static final String SUBTITLE_ENABLED = "pref_subtitle";
     private static final String FAB_LEFT = "pref_fab_left";
+    private static final String CUSTOM_TABS = "pref_custom_tabs";
     private static final String HIGHEST_COMIC_URL = "highest_comic_url";
     private static final String OFFLINE_TITLE = "title";
     private static final String OFFLINE_ALT = "alt";
@@ -145,6 +146,10 @@ public class PrefHelper {
 
     public boolean fabLeft() {
         return prefs.getBoolean(FAB_LEFT, false);
+    }
+
+    public boolean useCustomTabs() {
+        return prefs.getBoolean(CUSTOM_TABS, true);
     }
 
     public boolean classicAltStyle() {
