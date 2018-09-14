@@ -54,6 +54,7 @@ import okhttp3.Request;
 import okhttp3.Response;
 import okio.BufferedSink;
 import okio.Okio;
+import xyz.danoz.recyclerviewfastscroller.vertical.VerticalRecyclerViewFastScroller;
 
 public class WhatIfFragment extends android.support.v4.app.Fragment {
 
@@ -64,6 +65,7 @@ public class WhatIfFragment extends android.support.v4.app.Fragment {
     private MenuItem searchMenuItem;
     public static WhatIfRVAdapter adapter;
     private static WhatIfFragment instance;
+    private VerticalRecyclerViewFastScroller scroller;
     public static boolean newIntent;
     private boolean offlineMode;
     private static final String OFFLINE_WHATIF_OVERVIEW_PATH = "/easy xkcd/what if/overview";
@@ -82,6 +84,14 @@ public class WhatIfFragment extends android.support.v4.app.Fragment {
         LinearLayoutManager llm = new LinearLayoutManager(getActivity());
         rv.setLayoutManager(llm);
         rv.setHasFixedSize(false);
+
+        rv.setVerticalScrollBarEnabled(false);
+        scroller = (VerticalRecyclerViewFastScroller) v.findViewById(R.id.fast_scroller);
+        if (!prefHelper.overviewFav())
+            scroller.setVisibility(View.VISIBLE);
+        scroller.setRecyclerView(rv);
+        rv.addOnScrollListener(scroller.getOnScrollListener());
+
 
         offlineMode = prefHelper.fullOfflineWhatIf();
         instance = this;
@@ -254,14 +264,8 @@ public class WhatIfFragment extends android.support.v4.app.Fragment {
                 Elements titles = doc.select("h1");
                 Elements imagelinks = doc.select("img.archive-image");
 
-                boolean bowlingFixed = false; //This title appears twice, so add " " to one of the titles to make everything work later
-                for (Element title : titles) {
-                    if (!bowlingFixed && title.text().equals("Bowling Ball")) {
-                        mTitles.add(title.text() + " ");
-                        bowlingFixed = true;
-                    } else
-                        mTitles.add(title.text());
-                }
+                for (Element title : titles)
+                    mTitles.add(title.text());
 
                 for (int i = 0; i < mTitles.size(); i++) {
                     mImgs.add("https://what-if.xkcd.com/imgs/a/" + (i + 1) + "/archive_crop.png");
@@ -269,6 +273,13 @@ public class WhatIfFragment extends android.support.v4.app.Fragment {
 
                 Collections.reverse(mTitles);
                 Collections.reverse(mImgs);
+            }
+
+            for (int i = 0; i < mTitles.size(); i++) {
+                if (mTitles.get(i).equals("Bowling Ball"))  {
+                    mTitles.set(i, "Bowling Ball "); //This title appears twice, so add " " to one of the titles to make everything work later
+                    break;
+                }
             }
             return null;
         }
