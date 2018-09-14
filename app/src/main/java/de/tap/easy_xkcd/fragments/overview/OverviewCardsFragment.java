@@ -40,24 +40,17 @@ import java.io.FileInputStream;
 import de.tap.easy_xkcd.Activities.MainActivity;
 import de.tap.easy_xkcd.database.RealmComic;
 import de.tap.easy_xkcd.fragments.comics.ComicFragment;
-import xyz.danoz.recyclerviewfastscroller.vertical.VerticalRecyclerViewFastScroller;
 
 public class OverviewCardsFragment extends OverviewRecyclerBaseFragment {
-    private VerticalRecyclerViewFastScroller scroller;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         setupVariables();
         View v = inflater.inflate(R.layout.recycler_layout, container, false);
-        rv = (RecyclerView) v.findViewById(R.id.rv);
+        rv = v.findViewById(R.id.rv);
         rv.setLayoutManager(new LinearLayoutManager(getActivity()));
         rv.setHasFixedSize(true);
         rv.setVerticalScrollBarEnabled(false);
-        scroller = (VerticalRecyclerViewFastScroller) v.findViewById(R.id.fast_scroller);
-        if (!prefHelper.overviewFav())
-            scroller.setVisibility(View.VISIBLE);
-        scroller.setRecyclerView(rv);
-        rv.addOnScrollListener(scroller.getOnScrollListener());
 
         if (savedInstanceState == null) {
             databaseManager.new updateComicDatabase(null, this, prefHelper).execute();
@@ -156,10 +149,10 @@ public class OverviewCardsFragment extends OverviewRecyclerBaseFragment {
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
             case R.id.action_favorite:
-                if (prefHelper.overviewFav())
+                /*if (prefHelper.overviewFav())
                     scroller.setVisibility(View.VISIBLE);
                 else
-                    scroller.setVisibility(View.INVISIBLE);
+                    scroller.setVisibility(View.INVISIBLE);*/
         }
         return super.onOptionsItemSelected(item);
     }

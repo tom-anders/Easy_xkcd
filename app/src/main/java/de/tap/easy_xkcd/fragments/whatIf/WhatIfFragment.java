@@ -8,6 +8,7 @@ import android.content.Intent;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.view.MenuItemCompat;
 import android.support.v7.widget.LinearLayoutManager;
@@ -25,6 +26,7 @@ import android.view.inputmethod.InputMethodManager;
 import android.widget.SearchView;
 import android.widget.Toast;
 
+import com.simplecityapps.recyclerview_fastscroll.views.FastScrollRecyclerView;
 import com.tap.xkcd_reader.R;
 
 import org.jsoup.Jsoup;
@@ -54,18 +56,16 @@ import okhttp3.Request;
 import okhttp3.Response;
 import okio.BufferedSink;
 import okio.Okio;
-import xyz.danoz.recyclerviewfastscroller.vertical.VerticalRecyclerViewFastScroller;
 
 public class WhatIfFragment extends android.support.v4.app.Fragment {
 
     public static ArrayList<String> mTitles = new ArrayList<>();
     private static ArrayList<String> mImgs = new ArrayList<>();
     @Bind(R.id.rv)
-    RecyclerView rv;
+    FastScrollRecyclerView rv;
     private MenuItem searchMenuItem;
     public static WhatIfRVAdapter adapter;
     private static WhatIfFragment instance;
-    private VerticalRecyclerViewFastScroller scroller;
     public static boolean newIntent;
     private boolean offlineMode;
     private static final String OFFLINE_WHATIF_OVERVIEW_PATH = "/easy xkcd/what if/overview";
@@ -86,12 +86,6 @@ public class WhatIfFragment extends android.support.v4.app.Fragment {
         rv.setHasFixedSize(false);
 
         rv.setVerticalScrollBarEnabled(false);
-        scroller = (VerticalRecyclerViewFastScroller) v.findViewById(R.id.fast_scroller);
-        if (!prefHelper.overviewFav())
-            scroller.setVisibility(View.VISIBLE);
-        scroller.setRecyclerView(rv);
-        rv.addOnScrollListener(scroller.getOnScrollListener());
-
 
         offlineMode = prefHelper.fullOfflineWhatIf();
         instance = this;

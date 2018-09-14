@@ -6,22 +6,13 @@
     tools:context="de.tap.easy_xkcd.Activities.SearchResultsActivity"
     android:orientation="vertical">
 
-    <android.support.v7.widget.RecyclerView
+    <com.simplecityapps.recyclerview_fastscroll.views.FastScrollRecyclerView
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:id="@+id/rv"
         android:layout_below="@id/toolbar"
         android:scrollbars="vertical"
         android:layout_toLeftOf="@+id/fast_scroller"
-        />
-
-    <xyz.danoz.recyclerviewfastscroller.vertical.VerticalRecyclerViewFastScroller
-        android:id="@+id/fast_scroller"
-        android:layout_width="10dp"
-        android:layout_height="match_parent"
-        android:layout_marginLeft="1dp"
-        android:layout_alignParentRight="true"
-        android:visibility="gone"
         />
 
 </RelativeLayout>

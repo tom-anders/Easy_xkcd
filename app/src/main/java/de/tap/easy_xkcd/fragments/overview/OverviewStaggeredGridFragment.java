@@ -47,11 +47,12 @@ public class OverviewStaggeredGridFragment extends OverviewRecyclerBaseFragment 
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         setupVariables();
         View v = inflater.inflate(R.layout.recycler_layout, container, false);
-        rv = (RecyclerView) v.findViewById(R.id.rv);
+        rv = v.findViewById(R.id.rv);
         StaggeredGridLayoutManager manager = new StaggeredGridLayoutManager(2, StaggeredGridLayoutManager.VERTICAL);
         manager.setGapStrategy(StaggeredGridLayoutManager.GAP_HANDLING_NONE);
         rv.setLayoutManager(new StaggeredGridLayoutManager(2, StaggeredGridLayoutManager.VERTICAL));
         rv.setHasFixedSize(true);
+        rv.setFastScrollEnabled(false);
 
         if (savedInstanceState == null) {
             databaseManager.new updateComicDatabase(null, this, prefHelper).execute();

@@ -5,6 +5,7 @@ import android.content.Context;
 import android.content.res.Resources;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.TabLayout;
 import android.support.v4.app.Fragment;
@@ -24,6 +25,7 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.bumptech.glide.Glide;
+import com.simplecityapps.recyclerview_fastscroll.views.FastScrollRecyclerView;
 import com.tap.xkcd_reader.R;
 
 import org.jsoup.Jsoup;
@@ -167,7 +169,7 @@ public class WhatIfOverviewFragment extends android.support.v4.app.Fragment {
         }
     }
 
-    public abstract static class RVAdapter extends RecyclerView.Adapter<RVAdapter.ComicViewHolder> {
+    public abstract static class RVAdapter extends RecyclerView.Adapter<RVAdapter.ComicViewHolder> implements FastScrollRecyclerView.SectionedAdapter {
         public ArrayList<String> titles;
         private ArrayList<String> imgs;
 
@@ -175,6 +177,12 @@ public class WhatIfOverviewFragment extends android.support.v4.app.Fragment {
         private DatabaseManager databaseManager;
         private ThemePrefs themePrefs;
         private Context context;
+
+        @NonNull
+        @Override
+        public String getSectionName(int position) {
+            return "B";
+        }
 
         public RVAdapter(ArrayList<String> t, ArrayList<String> i, MainActivity activity) {
             this.titles = t;

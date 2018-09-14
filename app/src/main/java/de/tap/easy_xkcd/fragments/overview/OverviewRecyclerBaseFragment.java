@@ -31,6 +31,7 @@ import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.simplecityapps.recyclerview_fastscroll.views.FastScrollRecyclerView;
 import com.tap.xkcd_reader.R;
 
 import java.util.Arrays;
@@ -39,7 +40,7 @@ import de.tap.easy_xkcd.database.RealmComic;
 
 public abstract class OverviewRecyclerBaseFragment extends OverviewBaseFragment {
     protected RVAdapter rvAdapter;
-    protected RecyclerView rv;
+    protected FastScrollRecyclerView rv;
 
     public abstract class RVAdapter extends RecyclerView.Adapter<RVAdapter.ComicViewHolder> {
 
