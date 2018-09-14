@@ -1,3 +1,9 @@
+## 6.1.2
+
+- Added fast scrolling to What-If overview
+- Added double tap to favorite (Has to be enabled in settings)
+- Fixed duplicate article in What-If offline mode
+
 ## 6.1.1
 
 - Added an option to align Floating Action Button left instead of right
