@@ -312,5 +312,7 @@
     <string name="pref_fab_left_hint">Angenehmer für Linkshänder</string>
     <string name="pref_fab_left">Floating Action Button links</string>
     <string name="pref_chrome_custom_tabs">Verwende Chrome Custom Tabs</string>
+    <string name="pref_doubletap">Doppelt tippen für Favoriten</string>
+    <string name="pref_doubletap_sum">Doppelt auf ein Comic tippen, um es als Favorit zu speichern</string>
 
 </resources>

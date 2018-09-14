@@ -199,7 +199,7 @@ public class FavoritesFragment extends ComicFragment {
                 return deleteAllFavorites();
 
             case R.id.action_favorite:
-                return modifyFavorites();
+                return modifyFavorites(item);
 
             case R.id.action_share:
                 return shareComic(false);
@@ -439,7 +439,8 @@ public class FavoritesFragment extends ComicFragment {
         }
     }
 
-    private boolean modifyFavorites() {
+    @Override
+    protected boolean modifyFavorites(MenuItem item) {
         final int mRemoved = favorites[favoriteIndex];
         final Bitmap mRemovedBitmap = ((OfflineComic) comicMap.get(favoriteIndex)).getBitmap();
         final String mAlt = prefHelper.getAlt(favorites[favoriteIndex]);

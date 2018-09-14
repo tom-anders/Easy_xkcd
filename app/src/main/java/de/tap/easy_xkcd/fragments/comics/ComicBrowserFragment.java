@@ -345,7 +345,7 @@ public class ComicBrowserFragment extends ComicFragment {
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
             case R.id.action_favorite:
-                return ModifyFavorites(item);
+                return modifyFavorites(item);
             case R.id.action_share:
                 return shareComic();
             case R.id.action_latest:
@@ -372,7 +372,8 @@ public class ComicBrowserFragment extends ComicFragment {
      * Favorite Modification
      ************************/
 
-    protected boolean ModifyFavorites(MenuItem item) {
+    @Override
+    protected boolean modifyFavorites(MenuItem item) {
         if (!prefHelper.isOnline(getActivity())) {
             Toast.makeText(getActivity(), R.string.no_connection, Toast.LENGTH_SHORT).show();
             return true;

@@ -213,7 +213,7 @@ public class OfflineFragment extends ComicFragment {
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
             case R.id.action_favorite:
-                return ModifyFavorites(item);
+                return modifyFavorites(item);
 
             case R.id.action_share:
                 return shareComic();
@@ -306,7 +306,8 @@ public class OfflineFragment extends ComicFragment {
      * Favorite Modification
      ************************/
 
-    private boolean ModifyFavorites(MenuItem item) {
+    @Override
+    protected boolean modifyFavorites(MenuItem item) {
         if (databaseManager.checkFavorite(lastComicNumber)) {
             new DeleteComicImageTask().execute(false);
             item.setIcon(R.drawable.ic_favorite_outline);

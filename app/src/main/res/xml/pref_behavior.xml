@@ -19,14 +19,11 @@
         android:summary="@string/pref_offline_whatif_sum"
         android:title="@string/pref_offline_whatif" />
 
-    <!--<ListPreference
-        android:key="pref_orientation"
-        android:title="@string/pref_orientation"
-        android:entries="@array/pref_orientation"
-        android:entryValues="@array/pref_orientation_entries"
-        android:defaultValue="1"
-        android:summary="@string/pref_orientation_sum"
-        /> -->
+    <CheckBoxPreference
+        android:defaultValue="false"
+        android:key="pref_doubletap"
+        android:summary="@string/pref_doubletap_sum"
+        android:title="@string/pref_doubletap" />
 
     <CheckBoxPreference
         android:defaultValue="false"

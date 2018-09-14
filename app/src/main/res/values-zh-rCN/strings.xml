@@ -235,4 +235,6 @@
     <string name="pref_fab_left_hint">May be convenient for left-handed users</string>
     <string name="pref_fab_left">Align Random Button left</string>
     <string name="pref_chrome_custom_tabs">Use Chrome Custom Tabs</string>
+    <string name="pref_doubletap_sum">Instead of controlling the zoom level, double tapping a comic will add it to your favorites</string>
+    <string name="pref_doubletap">Double tap to favorite</string>
 </resources>

@@ -103,6 +103,7 @@ public class PrefHelper {
     private static final String COLORED_NAVBAR = "pref_navbar";
     private static final String MOBILE_ENABLED = "pref_update_mobile";
     private static final String OFFLINE_PATH = "pref_offline_path";
+    private static final String DOUBLE_TAP_FAV = "pref_doubletap";
     private static final String ZOOM_SCROLL = "pref_zoom_scroll";
     private static final String OVERVIEW_FAV = "overview_fav";
     private static final String DEFAULT_ZOOM = "pref_default_zoom";
@@ -146,6 +147,10 @@ public class PrefHelper {
 
     public boolean fabLeft() {
         return prefs.getBoolean(FAB_LEFT, false);
+    }
+
+    public boolean doubleTapToFavorite() {
+        return prefs.getBoolean(DOUBLE_TAP_FAV, false);
     }
 
     public boolean useCustomTabs() {

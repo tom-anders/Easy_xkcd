@@ -123,6 +123,8 @@ public abstract class ComicFragment extends android.support.v4.app.Fragment {
         return view;
     }
 
+    abstract protected boolean modifyFavorites(MenuItem item);
+
     abstract protected class ComicAdapter extends PagerAdapter {
         protected Context mContext;
         protected LayoutInflater mLayoutInflater;
@@ -152,12 +154,19 @@ public abstract class ComicFragment extends android.support.v4.app.Fragment {
             pvComic.setOnDoubleTapListener(new GestureDetector.OnDoubleTapListener() {
                 @Override
                 public boolean onDoubleTap(MotionEvent e) {
-                    if (pvComic.getScale() < 0.5f * pvComic.getMaximumScale()) {
-                        pvComic.setScale(0.5f * pvComic.getMaximumScale(), true);
-                    } else if (pvComic.getScale() < pvComic.getMaximumScale()) {
-                        pvComic.setScale(pvComic.getMaximumScale(), true);
+                    if (prefHelper.doubleTapToFavorite()) {
+                        modifyFavorites(((MainActivity) getActivity()).getToolbar().getMenu().findItem(R.id.action_favorite));
+                        if (getActivity().getSystemService(Context.VIBRATOR_SERVICE) != null) {
+                            ((Vibrator) getActivity().getSystemService(Context.VIBRATOR_SERVICE)).vibrate(100);
+                        }
                     } else {
-                        pvComic.setScale(1.0f, true);
+                        if (pvComic.getScale() < 0.5f * pvComic.getMaximumScale()) {
+                            pvComic.setScale(0.5f * pvComic.getMaximumScale(), true);
+                        } else if (pvComic.getScale() < pvComic.getMaximumScale()) {
+                            pvComic.setScale(pvComic.getMaximumScale(), true);
+                        } else {
+                            pvComic.setScale(1.0f, true);
+                        }
                     }
                     return true;
                 }
@@ -191,7 +200,9 @@ public abstract class ComicFragment extends android.support.v4.app.Fragment {
                 public boolean onLongClick(View v) {
                     if (fingerLifted && prefHelper.altLongTap()) {
                         if (prefHelper.altVibration())
-                            ((Vibrator) getActivity().getSystemService(MainActivity.VIBRATOR_SERVICE)).vibrate(10);
+                            if (getActivity().getSystemService(Context.VIBRATOR_SERVICE) != null) {
+                                ((Vibrator) getActivity().getSystemService(Context.VIBRATOR_SERVICE)).vibrate(25);
+                            }
                         setAltText(false);
                     }
                     return true;
