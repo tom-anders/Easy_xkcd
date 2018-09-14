@@ -271,6 +271,7 @@
     <!-- navigation drawer -->
     <string name="nv_comicbrowser">Comic Browser</string>
     <string name="nv_favorites">Favorites</string>
+    <string name="nv_style">Style</string>
     <string name="nv_about">About</string>
     <string name="nv_feedback">Feedback</string>
     <string name="nav_feedback_send">Send email with&#8230;</string>

@@ -7,6 +7,7 @@
         android:icon="@drawable/ic_favorite_outline"/>
 
     <item android:id="@+id/action_overview_style"
+        android:title="@string/nv_favorites"
         app:showAsAction="always"
         android:icon="@drawable/ic_action_sort" />
 
