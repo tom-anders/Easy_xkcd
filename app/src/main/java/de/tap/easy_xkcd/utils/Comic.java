@@ -44,7 +44,8 @@ public class Comic {
             jsonUrl = "https://xkcd.com/info.0.json";
         }
         try {
-            comicData = loadComicData(jsonUrl, context);
+            json = JsonParser.getJSONFromUrl(jsonUrl);
+            comicData = loadComicData(context);
         } catch (JSONException e) {
             e.printStackTrace();
         }
@@ -60,6 +61,14 @@ public class Comic {
         }
     }
 
+    public Comic(int number, JSONObject json) throws IOException {
+        try {
+            comicData = loadComicData(null);
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+    }
+
     public Comic(Integer number) throws IOException {
         if (number != 0) {
             jsonUrl = "https://xkcd.com/" + number.toString() + "/info.0.json";
@@ -67,7 +76,8 @@ public class Comic {
             jsonUrl = "https://xkcd.com/info.0.json";
         }
         try {
-            comicData = loadComicData(jsonUrl, null);
+            json = JsonParser.getJSONFromUrl(jsonUrl);
+            comicData = loadComicData(null);
         } catch (JSONException e) {
             e.printStackTrace();
         }
@@ -75,8 +85,7 @@ public class Comic {
 
     public Comic() {}
 
-    private String[] loadComicData(String url, Context context) throws IOException, JSONException {
-        json = JsonParser.getJSONFromUrl(url);
+    private String[] loadComicData(Context context) throws IOException, JSONException {
         String[] result = new String[3];
         if (json != null) {
             result[0] = new String(json.getString("title").getBytes("ISO-8859-1"), "UTF-8");
@@ -141,7 +150,7 @@ public class Comic {
     //Thanks to /u/doncajon https://www.reddit.com/r/xkcd/comments/667yaf/xkcd_1826_birdwatching/
     static public String getDoubleResolutionUrl(String url, int number, Context context) {
         boolean largeComic = context != null && Arrays.binarySearch(context.getResources().getIntArray(R.array.large_comics), number) >= 0;
-        int no2xVersion[] = {1193, 1446, 1667, 1735, 1739, 1744, 1778};
+        int no2xVersion[] = {1193, 1446, 1350, 1608, 1663, 1667, 1735, 1739, 1744, 1778};
 
         if(Build.VERSION.SDK_INT < Build.VERSION_CODES.LOLLIPOP) { //https doesn't work on KitKat and lower for some reason...
             url = url.replaceAll("https", "http");
