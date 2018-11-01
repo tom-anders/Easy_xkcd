@@ -86,18 +86,22 @@ public class JsonParser {
 
     public static JSONObject getJSONFromUrl(String url) throws IOException{
         JSONObject jObj = null;
+        Response response = null;
         try{
             if (client == null)
                 client = getNewHttpClient();
             Request request = new Request.Builder()
                     .url(url)
                     .build();
-            Response response = client.newCall(request).execute();
+            response = client.newCall(request).execute();
             String json = response.body().string();
             jObj = new JSONObject(json);
-            response.body().close();
         } catch (JSONException e) {
             e.printStackTrace();
+        } finally {
+            if (response != null) {
+                response.body().close();
+            }
         }
         return jObj;
     }
