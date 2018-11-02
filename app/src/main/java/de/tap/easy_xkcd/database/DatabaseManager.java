@@ -9,12 +9,15 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.net.Uri;
 import android.os.AsyncTask;
+import android.os.SystemClock;
 import android.support.customtabs.CustomTabsIntent;
 import android.util.Log;
+import android.util.SparseArray;
 import android.widget.Toast;
 
 import com.tap.xkcd_reader.R;
 
+import org.json.JSONException;
 import org.json.JSONObject;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
@@ -24,8 +27,11 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Random;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.CountDownLatch;
 
 import de.tap.easy_xkcd.Activities.SearchResultsActivity;
 import de.tap.easy_xkcd.CustomTabHelpers.BrowserFallback;
@@ -38,6 +44,13 @@ import de.tap.easy_xkcd.utils.ThemePrefs;
 import io.realm.Realm;
 import io.realm.RealmResults;
 import io.realm.exceptions.RealmPrimaryKeyConstraintException;
+import okhttp3.Call;
+import okhttp3.Callback;
+import okhttp3.OkHttpClient;
+import okhttp3.Request;
+import okhttp3.Response;
+
+import static de.tap.easy_xkcd.utils.JsonParser.getNewHttpClient;
 
 public class DatabaseManager {
     private Context context;
@@ -232,120 +245,6 @@ public class DatabaseManager {
         return comic.getComicNumber();
     }
 
-    //////////////// COMIC DATABASE //////////////////////////////////////////
-
-    public class updateComicDatabase extends AsyncTask<Void, Integer, Void> {
-        private ProgressDialog progress;
-        private SearchResultsActivity activity;
-        private OverviewBaseFragment fragment;
-        private PrefHelper prefHelper;
-
-        public updateComicDatabase(SearchResultsActivity activity, OverviewBaseFragment fragment, PrefHelper prefHelper) {
-            this.activity = activity;
-            this.fragment = fragment;
-            this.prefHelper = prefHelper;
-        }
-
-        @Override
-        protected void onPreExecute() {
-            progress = new ProgressDialog(context);
-            progress.setTitle(context.getResources().getString(R.string.update_database));
-            progress.setIndeterminate(false);
-            progress.setProgressStyle(ProgressDialog.STYLE_HORIZONTAL);
-            progress.setCancelable(false);
-            progress.show();
-        }
-
-        @Override
-        protected Void doInBackground(Void... params) {
-            Realm realm = Realm.getInstance(context);
-            int[] read = getReadComics();
-            int[] fav = getFavComics();
-            if (!databaseLoaded()) { //Save preloaded comic data to realm
-                String[] titles = getFile(R.raw.comic_titles).split("&&");
-                String[] trans = getFile(R.raw.comic_trans).split("&&");
-                String[] urls = getFile(R.raw.comic_urls).split("&&");
-                realm.beginTransaction();
-                for (int i = 0; i < 1645; i++) {
-                    try {
-                        RealmComic comic = realm.createObject(RealmComic.class);
-                        comic.setComicNumber(i + 1);
-                        comic.setTitle(titles[i]);
-                        comic.setTranscript(trans[i]);
-                        comic.setUrl(urls[i]);
-                        comic.setRead(read != null && Arrays.binarySearch(read, i + 1) >= 0);
-                        comic.setFavorite(fav != null && Arrays.binarySearch(fav, i + 1) >= 0);
-                    } catch (RealmPrimaryKeyConstraintException e) {
-                        Log.d("error at " + i, e.getMessage());
-                    }
-                }
-                realm.commitTransaction();
-                setHighestInDatabase(1645);
-            }
-            if (prefHelper.isOnline(context)) {
-                int newest;
-                try {
-                    Comic comic = new Comic(0);
-                    newest = comic.getComicNumber();
-                } catch (IOException e) {
-                    newest = prefHelper.getNewest();
-                }
-                realm.beginTransaction();
-                int highest = getHighestInDatabase() + 1;
-                for (int i = highest; i <= newest; i++) {
-                    try {
-                        Comic comic = new Comic(i);
-                        RealmComic realmComic = realm.createObject(RealmComic.class);
-                        realmComic.setComicNumber(i);
-                        realmComic.setTitle(comic.getComicData()[0]);
-                        realmComic.setTranscript(comic.getTranscript());
-                        realmComic.setUrl(comic.getComicData()[2]);
-                        realmComic.setRead(read != null && Arrays.binarySearch(read, i) >= 0);
-                        realmComic.setFavorite(fav != null && Arrays.binarySearch(fav, i) >= 0);
-                        float x = newest - highest;
-                        int y = i - highest;
-                        int p = (int) ((y / x) * 100);
-                        publishProgress(p);
-                    } catch (IOException | RealmPrimaryKeyConstraintException e) {
-                        Log.d("error at " + i, e.getMessage());
-                    }
-                }
-                realm.commitTransaction();
-                setHighestInDatabase(newest);
-            }
-            setDatabaseLoaded(true);
-            realm.close();
-            return null;
-        }
-
-        private String getFile(int rawId) {
-            InputStream is = context.getResources().openRawResource(rawId);
-            BufferedReader br = new BufferedReader(new InputStreamReader(is));
-            StringBuilder sb = new StringBuilder();
-            String line;
-            try {
-                while ((line = br.readLine()) != null) {
-                    sb.append(line);
-                }
-            } catch (IOException e) {
-                Log.e("error:", e.getMessage());
-            }
-            return sb.toString();
-        }
-
-        protected void onProgressUpdate(Integer... pro) {
-            progress.setProgress(pro[0]);
-        }
-
-        @Override
-        protected void onPostExecute(Void dummy) {
-            progress.dismiss();
-            if (activity != null)
-                activity.updateDatabasePostExecute();
-            else
-                fragment.updateDatabasePostExecute();
-        }
-    }
 
     public int getRandomUnread() {
         RealmResults<RealmComic> unread = realm.where(RealmComic.class).equalTo("isRead", false).findAll();
@@ -354,7 +253,7 @@ public class DatabaseManager {
     }
 
     public int getHighestInDatabase() {
-        return getSharedPrefs().getInt(HIGHEST_DATABASE, 1);
+        return getSharedPrefs().getInt(HIGHEST_DATABASE, 0);
     }
 
     public void setHighestInDatabase(int i) {
@@ -518,3 +417,6 @@ public class DatabaseManager {
     }
 
 }
+
+
+

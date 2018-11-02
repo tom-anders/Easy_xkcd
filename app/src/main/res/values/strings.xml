@@ -372,6 +372,7 @@
 
     <string name="dialog_donate">How much would you like to donate?</string>
     <string name="update_database">Updating database&#8230;</string>
+    <string name="update_database_message">This might take a while the first time</string>
     <string name="pref_default_zoom">Scale comic images to fit device screen size by default</string>
     <string name="pref_default_zoom_sum">When disabled, comics may look better on large devices</string>
 

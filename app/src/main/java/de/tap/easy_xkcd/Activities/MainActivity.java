@@ -65,6 +65,7 @@ import butterknife.OnClick;
 import butterknife.OnLongClick;
 import de.tap.easy_xkcd.CustomTabHelpers.CustomTabActivityHelper;
 import de.tap.easy_xkcd.database.DatabaseManager;
+import de.tap.easy_xkcd.database.updateComicDatabase;
 import de.tap.easy_xkcd.fragments.comics.ComicBrowserFragment;
 import de.tap.easy_xkcd.fragments.comics.ComicFragment;
 import de.tap.easy_xkcd.fragments.comics.FavoritesFragment;
@@ -203,22 +204,7 @@ public class MainActivity extends BaseActivity {
 
         //Load fragment
         if (fullOffline || prefHelper.isOnline(this) || fullOfflineWhatIf) { //Do we have internet or are in offline mode?
-            MenuItem item;
-            boolean showOverview = false;
-            if (savedInstanceState != null) { //Show the current Fragment
-                currentFragment = savedInstanceState.getInt(SAVED_INSTANCE_CURRENT_FRAGMENT);
-                item = mNavView.getMenu().findItem(currentFragment);
-            } else {
-                if (!whatIfIntent && fullOffline | prefHelper.isOnline(this))
-                    item = mNavView.getMenu().findItem(R.id.nav_browser);
-                else
-                    item = mNavView.getMenu().findItem(R.id.nav_whatif);
-            }
-            if (savedInstanceState != null)
-                showOverview = savedInstanceState.getBoolean(OVERVIEW_TAG, false); //Check if overview mode was active before the device was rotated
-            else
-                overviewLaunch = prefHelper.launchToOverview() && !getIntent().getAction().equals(Intent.ACTION_VIEW); //Check if the user chose overview to be shown by default
-            selectDrawerItem(item, showOverview, !showOverview);
+            new updateComicsTask(prefHelper, databaseManager, this, savedInstanceState, whatIfIntent).execute();
         } else if ((currentFragment != R.id.nav_favorites)) { //Don't show the dialog if the user is currently browsing his favorites or full offline is enabled
             AlertDialog.Builder dialog = new AlertDialog.Builder(this);
             dialog.setMessage(R.string.no_connection)
@@ -239,6 +225,40 @@ public class MainActivity extends BaseActivity {
                 });
             }
             dialog.show();
+        }
+    }
+
+    private class updateComicsTask extends updateComicDatabase {
+        private Bundle savedInstanceState;
+        private boolean whatIfIntent;
+
+        //TODO Splashscreen?
+        public updateComicsTask(PrefHelper prefHelper, DatabaseManager databaseManager, Context context, Bundle savedInstanceState, boolean whatIfIntent) {
+            super(prefHelper, databaseManager, context);
+            this.savedInstanceState = savedInstanceState;
+            this.whatIfIntent = whatIfIntent;
+            this.showProgress = savedInstanceState == null;
+        }
+
+        @Override
+        protected void onPostExecute(Boolean dummy) {
+            MenuItem item;
+            boolean showOverview = false;
+            if (savedInstanceState != null) { //Show the current Fragment
+                currentFragment = savedInstanceState.getInt(SAVED_INSTANCE_CURRENT_FRAGMENT);
+                item = mNavView.getMenu().findItem(currentFragment);
+            } else {
+                if (!whatIfIntent && fullOffline | prefHelper.isOnline(context))
+                    item = mNavView.getMenu().findItem(R.id.nav_browser);
+                else
+                    item = mNavView.getMenu().findItem(R.id.nav_whatif);
+            }
+            if (savedInstanceState != null)
+                showOverview = savedInstanceState.getBoolean(OVERVIEW_TAG, false); //Check if overview mode was active before the device was rotated
+            else
+                overviewLaunch = prefHelper.launchToOverview() && !getIntent().getAction().equals(Intent.ACTION_VIEW); //Check if the user chose overview to be shown by default
+            selectDrawerItem(item, showOverview, !showOverview);
+            super.onPostExecute(dummy);
         }
     }
 

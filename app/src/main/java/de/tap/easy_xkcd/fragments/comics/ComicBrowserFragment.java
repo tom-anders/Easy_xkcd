@@ -85,15 +85,28 @@ public class ComicBrowserFragment extends ComicFragment {
 
         loadingImages = true;
 
-        if (savedInstanceState == null && !newestUpdated) {
-            newestUpdated = true;
-            new updateNewest(true).execute();
-        } else {
-            newestComicNumber = prefHelper.getNewest();
-            new updateNewest(false).execute();
-            scrollViewPager();
-            adapter = new ComicBrowserPagerAdapter(getActivity(), newestComicNumber);
-            pager.setAdapter(adapter);
+        newestComicNumber = prefHelper.getNewest();
+        if (lastComicNumber == 0) {
+            lastComicNumber = newestComicNumber;
+        }
+        prefHelper.setLastComic(lastComicNumber);
+        newestComicNumber = prefHelper.getNewest();
+        scrollViewPager();
+        adapter = new ComicBrowserPagerAdapter(getActivity(), newestComicNumber);
+        pager.setAdapter(adapter);
+
+        if (newComicFound && lastComicNumber != newestComicNumber && (prefHelper.getNotificationInterval() == 0)) {
+            View.OnClickListener oc = new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    getLatestComic();
+                }
+            };
+            FloatingActionButton fab = (FloatingActionButton) getActivity().findViewById(R.id.fab);
+            //noinspection ResourceType
+            Snackbar.make(fab, getActivity().getResources().getString(R.string.new_comic), 4000)
+                    .setAction(getActivity().getResources().getString(R.string.new_comic_view), oc)
+                    .show();
         }
 
         pager.addOnPageChangeListener(new ViewPager.OnPageChangeListener() {
@@ -113,6 +126,8 @@ public class ComicBrowserFragment extends ComicFragment {
 
             }
         });
+
+        newComicFound = false;
 
         return v;
     }
@@ -276,7 +291,7 @@ public class ComicBrowserFragment extends ComicFragment {
                                         }
                                     }
                                 });
-                        Log.d("url: ", url);
+                        //Log.d("url: ", url);
                     }
                     tvTitle.setText(Html.fromHtml(title));
                 }

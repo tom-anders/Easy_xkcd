@@ -51,43 +51,11 @@ public class OverviewListFragment extends OverviewBaseFragment {
         list = (ListView) v.findViewById(R.id.list);
         list.setFastScrollEnabled(true);
 
+        setupAdapter();
         if (savedInstanceState == null) {
-            databaseManager.new updateComicDatabase(null, this, prefHelper).execute();
-        } else {
-            super.setupAdapter();
-            listAdapter = new ListAdapter();
-            list.setAdapter(listAdapter);
-            list.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-                @Override
-                public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
-                    showComic(i);
-                }
-            });
-            list.setOnItemLongClickListener(new AdapterView.OnItemLongClickListener() {
-                @Override
-                public boolean onItemLongClick(AdapterView<?> adapterView, View view, final int i, long l) {
-                    AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
-                    final int number = comics.get(i).getComicNumber();
-                    final boolean isRead = comics.get(i).isRead();
-                    int array = isRead ? R.array.card_long_click_remove : R.array.card_long_click;
-                    builder.setItems(array, new DialogInterface.OnClickListener() {
-                        @Override
-                        public void onClick(DialogInterface dialogInterface, int i) {
-                            switch (i) {
-                                case 0:
-                                    updateBookmark(i);
-                                    break;
-                                case 1:
-                                    databaseManager.setRead(number, !isRead);
-                                    listAdapter.notifyDataSetChanged();
-                                    break;
-                            }
-                        }
-                    }).create().show();
-                    return true;
-                }
-            });
+            animateToolbar();
         }
+
         return v;
     }
 

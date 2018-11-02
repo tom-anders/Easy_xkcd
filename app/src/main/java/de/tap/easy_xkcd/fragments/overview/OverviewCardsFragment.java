@@ -52,12 +52,9 @@ public class OverviewCardsFragment extends OverviewRecyclerBaseFragment {
         rv.setHasFixedSize(true);
         rv.setVerticalScrollBarEnabled(false);
 
+        setupAdapter();
         if (savedInstanceState == null) {
-            databaseManager.new updateComicDatabase(null, this, prefHelper).execute();
-        } else {
-            super.setupAdapter();
-            rvAdapter = new CardsAdapter();
-            rv.setAdapter(rvAdapter);
+            animateToolbar();
         }
 
         return v;

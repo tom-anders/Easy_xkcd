@@ -84,6 +84,7 @@ public abstract class ComicFragment extends android.support.v4.app.Fragment {
     protected HackyViewPager pager;
     protected ComicAdapter adapter;
 
+    public static boolean newComicFound = false;
     public static boolean fromSearch = false;
     static final String LAST_FAV = "last fav";
     static final String LAST_COMIC = "Last Comic";

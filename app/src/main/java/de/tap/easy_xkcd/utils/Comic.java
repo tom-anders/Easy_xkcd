@@ -37,15 +37,19 @@ public class Comic {
     protected int comicNumber;
     private JSONObject json;
 
-    public Comic(Integer number, Context context) throws IOException {
+    public static String getJsonUrl(int number) {
         if (number != 0) {
-            jsonUrl = "https://xkcd.com/" + number.toString() + "/info.0.json";
+            return "https://xkcd.com/" + number + "/info.0.json";
         } else {
-            jsonUrl = "https://xkcd.com/info.0.json";
+            return "https://xkcd.com/info.0.json";
         }
+    }
+
+    public Comic(Integer number, Context context) throws IOException {
+        jsonUrl = getJsonUrl(number);
         try {
             json = JsonParser.getJSONFromUrl(jsonUrl);
-            comicData = loadComicData(context);
+            comicData = loadComicData(number, context);
         } catch (JSONException e) {
             e.printStackTrace();
         }
@@ -62,22 +66,19 @@ public class Comic {
     }
 
     public Comic(int number, JSONObject json) throws IOException {
+        this.json = json;
         try {
-            comicData = loadComicData(null);
+            comicData = loadComicData(number, null);
         } catch (JSONException e) {
             e.printStackTrace();
         }
     }
 
     public Comic(Integer number) throws IOException {
-        if (number != 0) {
-            jsonUrl = "https://xkcd.com/" + number.toString() + "/info.0.json";
-        } else {
-            jsonUrl = "https://xkcd.com/info.0.json";
-        }
+        jsonUrl = getJsonUrl(number);
         try {
             json = JsonParser.getJSONFromUrl(jsonUrl);
-            comicData = loadComicData(null);
+            comicData = loadComicData(number, null);
         } catch (JSONException e) {
             e.printStackTrace();
         }
@@ -85,19 +86,18 @@ public class Comic {
 
     public Comic() {}
 
-    private String[] loadComicData(Context context) throws IOException, JSONException {
+    private String[] loadComicData(int number, Context context) throws IOException, JSONException {
         String[] result = new String[3];
-        if (json != null) {
-            result[0] = new String(json.getString("title").getBytes("ISO-8859-1"), "UTF-8");
-            result[1] = new String(json.getString("alt").getBytes("ISO-8859-1"), "UTF-8");
-            result[2] = json.getString("img");
-            comicNumber = Integer.parseInt(json.getString("num"));
-        } else if (comicNumber == 404) { //xkcd.com/404 doesn't have a json object
+        if (number == 404) {
             result[0] = "404";
             result[1] = "404";
             result[2] = "http://i.imgur.com/p0eKxKs.png";
             comicNumber = 404;
-
+        } else if (json != null) {
+            result[0] = new String(json.getString("title").getBytes("ISO-8859-1"), "UTF-8");
+            result[1] = new String(json.getString("alt").getBytes("ISO-8859-1"), "UTF-8");
+            result[2] = json.getString("img");
+            comicNumber = Integer.parseInt(json.getString("num"));
         } else throw new IOException("json not found");
 
         result[2] = Comic.getDoubleResolutionUrl(result[2], comicNumber, context);
@@ -134,7 +134,7 @@ public class Comic {
     public String getTranscript() {
         try {
             return json.getString("transcript");
-        } catch (JSONException e) {
+        } catch (JSONException | NullPointerException e) {
             return " ";
         }
     }

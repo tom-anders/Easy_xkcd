@@ -48,18 +48,13 @@ public class OverviewStaggeredGridFragment extends OverviewRecyclerBaseFragment 
         setupVariables();
         View v = inflater.inflate(R.layout.recycler_layout, container, false);
         rv = v.findViewById(R.id.rv);
-        StaggeredGridLayoutManager manager = new StaggeredGridLayoutManager(2, StaggeredGridLayoutManager.VERTICAL);
-        manager.setGapStrategy(StaggeredGridLayoutManager.GAP_HANDLING_NONE);
-        rv.setLayoutManager(new StaggeredGridLayoutManager(2, StaggeredGridLayoutManager.VERTICAL));
+
         rv.setHasFixedSize(true);
         rv.setFastScrollEnabled(false);
 
+        setupAdapter();
         if (savedInstanceState == null) {
-            databaseManager.new updateComicDatabase(null, this, prefHelper).execute();
-        } else {
-            super.setupAdapter();
-            rvAdapter = new GridAdapter();
-            rv.setAdapter(rvAdapter);
+            animateToolbar();
         }
 
         return v;

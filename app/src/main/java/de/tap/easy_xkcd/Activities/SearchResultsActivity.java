@@ -102,18 +102,6 @@ public class SearchResultsActivity extends BaseActivity {
         getSupportActionBar().setTitle(getResources().getString(R.string.title_activity_search_results) + " " + query);
         mProgress = ProgressDialog.show(this, "", getResources().getString(R.string.loading_results), true);
 
-        if (savedInstanceState == null)
-            databaseManager.new updateComicDatabase(this, null, prefHelper).execute();
-        else {
-            task = new searchTask();
-            task.execute(query);
-        }
-    }
-
-    /**
-     * Called by the databaseManager in order to start the search after the database has been updated
-     */
-    public void updateDatabasePostExecute() {
         task = new searchTask();
         task.execute(query);
     }
