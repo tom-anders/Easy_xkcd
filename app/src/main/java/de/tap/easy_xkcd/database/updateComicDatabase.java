@@ -123,8 +123,8 @@ public class updateComicDatabase extends AsyncTask<Void, Integer, Boolean> {
             } catch (InterruptedException e) {
                 e.printStackTrace();
             }
-            final int[] read = databaseManager.getReadComics();
-            final int[] fav = databaseManager.getFavComics();
+            final int[] read = databaseManager.getReadComicsLegacy();
+            final int[] fav = databaseManager.getFavComicsLegacy();
 
             Realm realm = Realm.getInstance(context);
             realm.beginTransaction();

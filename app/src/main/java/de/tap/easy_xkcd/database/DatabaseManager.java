@@ -9,48 +9,24 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.net.Uri;
 import android.os.AsyncTask;
-import android.os.SystemClock;
 import android.support.customtabs.CustomTabsIntent;
 import android.util.Log;
-import android.util.SparseArray;
 import android.widget.Toast;
 
 import com.tap.xkcd_reader.R;
 
-import org.json.JSONException;
-import org.json.JSONObject;
 import org.jsoup.Jsoup;
-import org.jsoup.nodes.Document;
 
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
 import java.util.Arrays;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Random;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.CountDownLatch;
 
-import de.tap.easy_xkcd.Activities.SearchResultsActivity;
 import de.tap.easy_xkcd.CustomTabHelpers.BrowserFallback;
 import de.tap.easy_xkcd.CustomTabHelpers.CustomTabActivityHelper;
-import de.tap.easy_xkcd.fragments.overview.OverviewBaseFragment;
-import de.tap.easy_xkcd.utils.Comic;
 import de.tap.easy_xkcd.utils.JsonParser;
-import de.tap.easy_xkcd.utils.PrefHelper;
 import de.tap.easy_xkcd.utils.ThemePrefs;
 import io.realm.Realm;
 import io.realm.RealmResults;
-import io.realm.exceptions.RealmPrimaryKeyConstraintException;
-import okhttp3.Call;
-import okhttp3.Callback;
-import okhttp3.OkHttpClient;
-import okhttp3.Request;
-import okhttp3.Response;
-
-import static de.tap.easy_xkcd.utils.JsonParser.getNewHttpClient;
 
 public class DatabaseManager {
     private Context context;
@@ -80,7 +56,7 @@ public class DatabaseManager {
      * Gets an array of all favorite comics
      * @return an int array containing the numbers of all favorite comics, null if there are no favorites
      */
-    public int[] getFavComics() {
+    public int[] getFavComicsLegacy() {
         String fs = getSharedPrefs().getString(FAVORITES, null);
         if (fs == null)
             return null;
@@ -94,8 +70,16 @@ public class DatabaseManager {
         return fav;
     }
 
+    public RealmResults<RealmComic> getFavComics() {
+        return realm.where(RealmComic.class).equalTo("isFavorite", true).findAll();
+    }
+
+    public boolean checkFavoriteLegacy(int fav) {
+        return getFavComicsLegacy() != null && Arrays.binarySearch(getFavComicsLegacy(), fav) >= 0;
+    }
+
     public boolean checkFavorite(int fav) {
-        return getFavComics() != null && Arrays.binarySearch(getFavComics(), fav) >= 0;
+        return realm.where(RealmComic.class).equalTo("comicNumber", fav).findFirst().isFavorite();
     }
 
     /**
@@ -106,13 +90,11 @@ public class DatabaseManager {
     public void setFavorite(int fav, boolean isFav) {
         //Save to realm
         if (fav <= getHighestInDatabase()) {
-            Realm realm = Realm.getInstance(context);
             realm.beginTransaction();
             RealmComic comic = realm.where(RealmComic.class).equalTo("comicNumber", fav).findFirst();
             comic.setFavorite(isFav);
             realm.copyToRealmOrUpdate(comic);
             realm.commitTransaction();
-            realm.close();
         }
         //Save to sharedPrefs
         if (isFav)
@@ -131,7 +113,7 @@ public class DatabaseManager {
     }
 
     private void removeFavorite(int favToRemove) {
-        int[] old = getFavComics();
+        int[] old = getFavComicsLegacy();
         int a = Arrays.binarySearch(old, favToRemove);
         int[] out = new int[old.length - 1];
         if (out.length != 0 && a >= 0) {
@@ -199,7 +181,7 @@ public class DatabaseManager {
      * Gets an array of read comics
      * @return an int array containing the numbers of all read comics
      */
-    public int[] getReadComics() {
+    public int[] getReadComicsLegacy() {
         String r = getSharedPrefs().getString(COMIC_READ, "");
         if (r.equals(""))
             return new int[0];
@@ -245,6 +227,9 @@ public class DatabaseManager {
         return comic.getComicNumber();
     }
 
+    public RealmResults<RealmComic> getRealmComics() {
+        return realm.where(RealmComic.class).findAll();
+    }
 
     public int getRandomUnread() {
         RealmResults<RealmComic> unread = realm.where(RealmComic.class).equalTo("isRead", false).findAll();
@@ -415,6 +400,8 @@ public class DatabaseManager {
 
         }
     }
+
+
 
 }
 

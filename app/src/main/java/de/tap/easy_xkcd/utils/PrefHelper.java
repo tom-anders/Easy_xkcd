@@ -216,7 +216,7 @@ public class PrefHelper {
     public void deleteTitleAndAlt(int newest, DatabaseManager databaseManager) {
         SharedPreferences.Editor editor = sharedPrefs.edit();
         for (int i = 1; i <= newest; i++) {
-            if (databaseManager.checkFavorite(i)) {
+            if (databaseManager.checkFavoriteLegacy(i)) {
                 editor.putString(OFFLINE_TITLE, "");
                 editor.putString(OFFLINE_ALT, "");
             }

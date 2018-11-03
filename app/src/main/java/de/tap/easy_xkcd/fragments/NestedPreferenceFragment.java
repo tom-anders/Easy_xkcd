@@ -22,8 +22,6 @@ import android.Manifest;
 import android.app.Activity;
 import android.app.ProgressDialog;
 import android.app.TimePickerDialog;
-import android.appwidget.AppWidgetManager;
-import android.content.ComponentName;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -64,8 +62,6 @@ import de.tap.easy_xkcd.services.ComicDownloadService;
 import de.tap.easy_xkcd.utils.Comic;
 import de.tap.easy_xkcd.utils.PrefHelper;
 import de.tap.easy_xkcd.utils.ThemePrefs;
-import de.tap.easy_xkcd.widget.WidgetLatestProvider;
-import de.tap.easy_xkcd.widget.WidgetRandomProvider;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.Response;
@@ -639,7 +635,7 @@ public class NestedPreferenceFragment extends PreferenceFragment {
             if (!BuildConfig.DEBUG) {
                 DatabaseManager databaseManager = new DatabaseManager(getActivity());
                 for (int i = 1; i <= newest; i++) {
-                    if (databaseManager.checkFavorite(i)) {
+                    if (databaseManager.checkFavoriteLegacy(i)) {
                         //delete from internal storage
                         getActivity().deleteFile(String.valueOf(i));
                         //delete from external storage

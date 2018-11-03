@@ -277,7 +277,7 @@ public class MainActivity extends BaseActivity {
                 else
                     overviewBaseFragment.showRandomComic(databaseManager.getRandomUnread());
             else
-                overviewBaseFragment.showComic(new Random().nextInt(databaseManager.getFavComics().length));
+                overviewBaseFragment.showComic(new Random().nextInt(databaseManager.getFavComicsLegacy().length));
         } else { // The user is browsing comics or favorites
             switch (currentFragment) {
                 case R.id.nav_browser: {
@@ -499,7 +499,7 @@ public class MainActivity extends BaseActivity {
                 case R.id.nav_favorites: {
                     FavoritesFragment favoritesFragment = (FavoritesFragment) getSupportFragmentManager().findFragmentByTag(FAV_TAG);
                     if (favoritesFragment != null && favoritesFragment.favorites != null)
-                        getSupportActionBar().setSubtitle(String.valueOf(favoritesFragment.favorites[favoritesFragment.favoriteIndex]));
+                        getSupportActionBar().setSubtitle(String.valueOf(favoritesFragment.favorites.get(favoritesFragment.favoriteIndex).getComicNumber()));
                     break;
                 }
                 case R.id.nav_browser: {

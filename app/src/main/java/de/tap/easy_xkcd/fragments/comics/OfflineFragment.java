@@ -308,7 +308,7 @@ public class OfflineFragment extends ComicFragment {
 
     @Override
     protected boolean modifyFavorites(MenuItem item) {
-        if (databaseManager.checkFavorite(lastComicNumber)) {
+        if (databaseManager.checkFavoriteLegacy(lastComicNumber)) {
             new DeleteComicImageTask().execute(false);
             item.setIcon(R.drawable.ic_favorite_outline);
         } else {

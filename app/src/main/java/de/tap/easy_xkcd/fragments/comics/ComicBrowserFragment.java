@@ -20,7 +20,6 @@ package de.tap.easy_xkcd.fragments.comics;
 
 import android.Manifest;
 import android.app.AlertDialog;
-import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.pm.PackageManager;
@@ -37,7 +36,6 @@ import android.support.v4.content.ContextCompat;
 import android.support.v4.content.FileProvider;
 import android.support.v4.view.ViewPager;
 import android.text.Html;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.View;
@@ -57,8 +55,6 @@ import com.bumptech.glide.request.target.Target;
 import com.kogitune.activity_transition.ActivityTransition;
 import com.tap.xkcd_reader.R;
 
-import org.json.JSONObject;
-
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -68,7 +64,6 @@ import de.tap.easy_xkcd.Activities.MainActivity;
 import de.tap.easy_xkcd.database.DatabaseManager;
 import de.tap.easy_xkcd.database.RealmComic;
 import de.tap.easy_xkcd.utils.Comic;
-import de.tap.easy_xkcd.utils.JsonParser;
 import io.realm.RealmResults;
 import uk.co.senab.photoview.PhotoView;
 
@@ -237,7 +232,7 @@ public class ComicBrowserFragment extends ComicFragment {
                     interactiveComic = Arrays.binarySearch(getResources().getIntArray(R.array.interactive_comics), position + 1) >= 0;
                     if (!largeComic && !interactiveComic && databaseManager.databaseLoaded()) {
                         if (comics == null)
-                            comics = databaseManager.realm.where(RealmComic.class).findAll();
+                            comics = databaseManager.getRealmComics();
                         RealmComic realmComic = comics.where().equalTo("comicNumber", position + 1).findFirst();
                         loadedFromDatabase = realmComic != null;
                         if (loadedFromDatabase)
@@ -328,7 +323,7 @@ public class ComicBrowserFragment extends ComicFragment {
             Toast.makeText(getActivity(), R.string.no_connection, Toast.LENGTH_SHORT).show();
             return true;
         }
-        if (databaseManager.checkFavorite(lastComicNumber)) {
+        if (databaseManager.checkFavoriteLegacy(lastComicNumber)) {
             new DeleteComicImageTask().execute(true);
             item.setIcon(R.drawable.ic_favorite_outline);
         } else {

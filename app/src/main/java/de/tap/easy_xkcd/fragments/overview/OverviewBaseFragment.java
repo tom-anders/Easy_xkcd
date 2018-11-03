@@ -19,21 +19,15 @@
 package de.tap.easy_xkcd.fragments.overview;
 
 import android.content.DialogInterface;
-import android.graphics.Bitmap;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v7.widget.Toolbar;
-import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 
-import com.bumptech.glide.Glide;
-import com.bumptech.glide.load.engine.DiskCacheStrategy;
 import com.tap.xkcd_reader.R;
 
-import java.io.File;
-import java.io.FileOutputStream;
 import java.util.Arrays;
 
 import de.tap.easy_xkcd.Activities.MainActivity;
@@ -100,7 +94,7 @@ public abstract class OverviewBaseFragment extends android.support.v4.app.Fragme
                     .hide(fragmentManager.findFragmentByTag(BROWSER_TAG))
                     .hide(fragmentManager.findFragmentByTag(OVERVIEW_TAG));
             fragment = (FavoritesFragment) fragmentManager.findFragmentByTag(FAV_TAG);
-            int index = Arrays.binarySearch(databaseManager.getFavComics(), number + 1);
+            int index = Arrays.binarySearch(databaseManager.getFavComicsLegacy(), number + 1);
             if (fragment == null || index < 0) {
                 if (index < 0) { // If the comic for some reason is in realm, but not in shared prefs, add it now
                     index = -index - 1;
@@ -113,7 +107,7 @@ public abstract class OverviewBaseFragment extends android.support.v4.app.Fragme
                 fragment.scrollTo(index, false);
             }
             fragment.favoriteIndex = index;
-            subtitle = databaseManager.getFavComics()[fragment.favoriteIndex];
+            subtitle = databaseManager.getFavComicsLegacy()[fragment.favoriteIndex];
             transaction.commit();
 
             ((MainActivity) getActivity()).setCurrentFragment(R.id.nav_favorites);
@@ -194,7 +188,7 @@ public abstract class OverviewBaseFragment extends android.support.v4.app.Fragme
     public abstract void notifyAdapter(int number);
 
     protected void setupAdapter() {
-        Realm realm = databaseManager.realm;
+        Realm realm = Realm.getInstance(getActivity());
         if (prefHelper.overviewFav()) {
             comics = realm.where(RealmComic.class).equalTo("isFavorite", true).findAll();
         } else if (prefHelper.hideRead()) {
@@ -203,6 +197,7 @@ public abstract class OverviewBaseFragment extends android.support.v4.app.Fragme
             comics = realm.where(RealmComic.class).findAll();
         }
         comics.sort("comicNumber", Sort.DESCENDING);
+        realm.close();
     }
 
     protected void animateToolbar() {

@@ -26,6 +26,7 @@ import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Vibrator;
+import android.provider.ContactsContract;
 import android.support.customtabs.CustomTabsIntent;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
@@ -298,6 +299,7 @@ public abstract class ComicFragment extends android.support.v4.app.Fragment {
         @Override
         protected Void doInBackground(Boolean... downloadImage) {
             this.downloadImage = downloadImage[0];
+            DatabaseManager databaseManager = new DatabaseManager(getActivity()); //Create a new one here since we're in a background thread
             if (this.downloadImage) {
                 mAddedComic = comicMap.get(lastComicNumber);
                 try {
@@ -582,7 +584,7 @@ public abstract class ComicFragment extends android.support.v4.app.Fragment {
     public void onPrepareOptionsMenu(Menu menu) {
         //Update the favorites icon
         MenuItem fav = menu.findItem(R.id.action_favorite);
-        if (databaseManager.checkFavorite(lastComicNumber)) {
+        if (databaseManager.checkFavoriteLegacy(lastComicNumber)) {
             fav.setIcon(R.drawable.ic_action_favorite);
             fav.setTitle(R.string.action_favorite_remove);
         } else {
