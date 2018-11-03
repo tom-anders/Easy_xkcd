@@ -3,6 +3,7 @@ package de.tap.easy_xkcd.fragments.whatIf;
 import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.res.Resources;
+import android.graphics.Color;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
@@ -237,6 +238,7 @@ public class WhatIfOverviewFragment extends android.support.v4.app.Fragment {
                 cv = (CardView) itemView.findViewById(R.id.cv);
                 if (themePrefs.nightThemeEnabled())
                     cv.setCardBackgroundColor(ContextCompat.getColor(context, R.color.background_material_dark));
+                //cv.setCardBackgroundColor(Color.BLACK); //TODO here for amoled
                 articleTitle = (TextView) itemView.findViewById(R.id.article_title);
                 articleNumber = (TextView) itemView.findViewById(R.id.article_info);
                 thumbnail = (ImageView) itemView.findViewById(R.id.thumbnail);

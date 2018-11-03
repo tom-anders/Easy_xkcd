@@ -3,6 +3,7 @@ package de.tap.easy_xkcd.Activities;
 import android.app.ActivityManager;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.graphics.Color;
 import android.os.Build;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
@@ -23,6 +24,7 @@ public abstract class BaseActivity extends AppCompatActivity {
         themePrefs = new ThemePrefs(this);
 
         setTheme(themePrefs.getNewTheme());
+        //getWindow().getDecorView().setBackgroundColor(Color.BLACK); //TODO for amoled night mode
         super.onCreate(savedInstanceState);
     }
 
