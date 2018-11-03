@@ -37,7 +37,8 @@ public class DatabaseManager {
     private Context context;
     public Realm realm;
     private static final String REALM_DATABASE_LOADED = "pref_realm_database_loaded";
-    private static final String HIGHEST_DATABASE = "highest_database";
+    private static final String HIGHEST_DATABASE = "highest_database_newversion";
+    private static final String HIGHEST_DATABASE_LEGACY = "highest_database";
     private static final String COMIC_READ = "comic_read";
     private static final String FAVORITES_MOVED = "fav_moved";
     private static final String FAVORITES = "favorites";
