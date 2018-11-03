@@ -11,6 +11,7 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CountDownLatch;
@@ -138,8 +139,20 @@ public class updateComicDatabase extends AsyncTask<Void, Integer, Void> {
                 realmComic.setTitle(comic.getComicData()[0]);
                 realmComic.setTranscript(comic.getTranscript());
                 realmComic.setUrl(comic.getComicData()[2]);
-                realmComic.setRead(legacyRead != null && Arrays.binarySearch(legacyRead, num) >= 0);
-                realmComic.setFavorite(legacyFav != null && Arrays.binarySearch(legacyFav, num) >= 0);
+                if (!realmComic.isFavorite() && legacyFav != null) {
+                    boolean isFav = databaseManager.checkFavoriteLegacy(num);
+                    realmComic.setFavorite(isFav);
+                    if (isFav)
+                        Timber.d("comic %d was a legacy favorite!", num);
+                } else if (realmComic.isFavorite()) {
+                    Timber.d("comic %d was a favorite in the old realm database!", num);
+                }
+                if (!realmComic.isRead() && legacyRead != null) {
+                    boolean isRead = databaseManager.checkFavoriteLegacy(num);
+                    realmComic.setRead(isRead);
+                    if (isRead)
+                        Timber.d("comic %d was legacy read!", num);
+                }
                 realmComic.setAltText(comic.getComicData()[1]);
                 realm.copyToRealmOrUpdate(realmComic);
 
