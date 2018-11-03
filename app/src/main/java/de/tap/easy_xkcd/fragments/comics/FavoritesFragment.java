@@ -374,7 +374,7 @@ public class FavoritesFragment extends ComicFragment {
                         databaseManager.removeAllFavorites();
 
                         MenuItem mBrowser = ((MainActivity) getActivity()).getNavView().getMenu().findItem(R.id.nav_browser);
-                        ((MainActivity) getActivity()).selectDrawerItem(mBrowser, false, false);
+                        ((MainActivity) getActivity()).selectDrawerItem(mBrowser, false, false, false);
 
                         if (!prefHelper.fullOfflineEnabled())
                             for (int i : fav)
@@ -412,7 +412,7 @@ public class FavoritesFragment extends ComicFragment {
             if (databaseManager.noFavorites()) {
                 //If there are no favorites left, show ComicBrowserFragment
                 MenuItem mBrowser = ((MainActivity) getActivity()).getNavView().getMenu().findItem(R.id.nav_browser);
-                ((MainActivity) getActivity()).selectDrawerItem(mBrowser, false, false);
+                ((MainActivity) getActivity()).selectDrawerItem(mBrowser, false, false, true);
                 FragmentManager fragmentManager = getActivity().getSupportFragmentManager();
                 fragmentManager.beginTransaction().remove(fragmentManager.findFragmentByTag("favorites")).commitAllowingStateLoss();
                 return;

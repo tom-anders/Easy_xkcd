@@ -28,7 +28,7 @@ import timber.log.Timber;
 
 import static de.tap.easy_xkcd.utils.JsonParser.getNewHttpClient;
 
-public class updateComicDatabase extends AsyncTask<Void, Integer, Boolean> {
+public class updateComicDatabase extends AsyncTask<Void, Integer, Void> {
     protected ProgressDialog progress;
     protected PrefHelper prefHelper;
     protected DatabaseManager databaseManager;
@@ -63,11 +63,11 @@ public class updateComicDatabase extends AsyncTask<Void, Integer, Boolean> {
     }
 
     @Override
-    protected Boolean doInBackground(Void... params) {
+    protected Void doInBackground(Void... params) {
         if (prefHelper.isOnline(context)) {
             final int newest = findNewest();
             if (newest > prefHelper.getNewest()) {
-                ComicFragment.newComicFound = prefHelper.getNewest() != 0.0;
+                ComicFragment.newComicFound = prefHelper.getNewest() != 0.0; //TODO test if this still works
                 prefHelper.setNewestComic(newest);
             }
             if (prefHelper.getLastComic() == 0) { //Should only be true on first startup
@@ -77,7 +77,7 @@ public class updateComicDatabase extends AsyncTask<Void, Integer, Boolean> {
             if (highest == newest) {
                 publishProgress(100);
                 Timber.d("No new comic found!");
-                return false;  //Database already up to date
+                return null;  //Database already up to date
             }
             OkHttpClient client = getNewHttpClient();
             final CountDownLatch latch = new CountDownLatch(newest - highest);
@@ -152,7 +152,7 @@ public class updateComicDatabase extends AsyncTask<Void, Integer, Boolean> {
             databaseManager.setHighestInDatabase(newest);
         }
 
-        return true;
+        return null;
     }
 
     protected void onProgressUpdate(Integer... pro) {
@@ -161,7 +161,7 @@ public class updateComicDatabase extends AsyncTask<Void, Integer, Boolean> {
     }
 
     @Override
-    protected void onPostExecute(Boolean dummy) {
+    protected void onPostExecute(Void dummy) {
         if (showProgress)
             progress.dismiss();
     }

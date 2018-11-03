@@ -205,7 +205,12 @@ public class MainActivity extends BaseActivity {
 
         //Load fragment
         if (fullOffline || prefHelper.isOnline(this) || fullOfflineWhatIf) { //Do we have internet or are in offline mode?
-            new updateComicsTask(prefHelper, databaseManager, this, savedInstanceState, whatIfIntent, savedInstanceState == null).execute();
+            updateComicsTask task = new updateComicsTask(prefHelper, databaseManager, this, savedInstanceState, whatIfIntent, savedInstanceState == null, false);
+            if (savedInstanceState == null) {
+                task.execute();
+            } else {
+                task.onPostExecute(null);
+            }
         } else if ((currentFragment != R.id.nav_favorites)) { //Don't show the dialog if the user is currently browsing his favorites or full offline is enabled
             AlertDialog.Builder dialog = new AlertDialog.Builder(this);
             dialog.setMessage(R.string.no_connection)
@@ -221,7 +226,7 @@ public class MainActivity extends BaseActivity {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
                         MenuItem m = mNavView.getMenu().findItem(R.id.nav_favorites);
-                        selectDrawerItem(m, false, false);
+                        selectDrawerItem(m, false, false, true);
                     }
                 });
             }
@@ -232,21 +237,25 @@ public class MainActivity extends BaseActivity {
     private class updateComicsTask extends updateComicDatabase {
         private Bundle savedInstanceState;
         private boolean whatIfIntent;
+        private boolean fromOnRestart;
 
         //TODO Splashscreen?
-        public updateComicsTask(PrefHelper prefHelper, DatabaseManager databaseManager, Context context, Bundle savedInstanceState, boolean whatIfIntent, boolean showProgress) {
+        public updateComicsTask(PrefHelper prefHelper, DatabaseManager databaseManager, Context context, Bundle savedInstanceState, boolean whatIfIntent, boolean showProgress, boolean fromOnRestart) {
             super(prefHelper, databaseManager, context);
             this.savedInstanceState = savedInstanceState;
             this.whatIfIntent = whatIfIntent;
             this.showProgress = showProgress;
+            this.fromOnRestart = fromOnRestart;
         }
 
         @Override
-        protected void onPostExecute(Boolean dummy) {
+        public void onPostExecute(Void dummy) {
             MenuItem item;
             boolean showOverview = false;
             if (savedInstanceState != null) { //Show the current Fragment
                 currentFragment = savedInstanceState.getInt(SAVED_INSTANCE_CURRENT_FRAGMENT);
+                item = mNavView.getMenu().findItem(currentFragment);
+            } else if (fromOnRestart) {
                 item = mNavView.getMenu().findItem(currentFragment);
             } else {
                 if (!whatIfIntent && fullOffline | prefHelper.isOnline(context))
@@ -258,7 +267,7 @@ public class MainActivity extends BaseActivity {
                 showOverview = savedInstanceState.getBoolean(OVERVIEW_TAG, false); //Check if overview mode was active before the device was rotated
             else
                 overviewLaunch = prefHelper.launchToOverview() && !getIntent().getAction().equals(Intent.ACTION_VIEW); //Check if the user chose overview to be shown by default
-            selectDrawerItem(item, showOverview, !showOverview);
+            selectDrawerItem(item, showOverview, !showOverview, !fromOnRestart);
             super.onPostExecute(dummy);
         }
     }
@@ -316,7 +325,7 @@ public class MainActivity extends BaseActivity {
                 new NavigationView.OnNavigationItemSelectedListener() {
                     @Override
                     public boolean onNavigationItemSelected(MenuItem menuItem) {
-                        selectDrawerItem(menuItem, false, false);
+                        selectDrawerItem(menuItem, false, false, true);
                         return true;
                     }
                 });
@@ -329,8 +338,9 @@ public class MainActivity extends BaseActivity {
      * @param menuItem     the pressed menu item
      * @param showOverview should be true when the user selected "Launch to Overview Mode" in the settings
      * @param animateOverview  should be false when the device was rotated and the app showed overview mode before the rotation
+     * @param shouldAnimateToolbar wether to animate the toolbar, should be false when coming from onRestart()
      */
-    public void selectDrawerItem(final MenuItem menuItem, final boolean showOverview, final boolean animateOverview) {
+    public void selectDrawerItem(final MenuItem menuItem, final boolean showOverview, final boolean animateOverview, final boolean shouldAnimateToolbar) {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) { //Setup the toolbar elevation for WhatIf overview
             if (menuItem.getItemId() == R.id.nav_whatif)
                 toolbar.setElevation(0);
@@ -346,7 +356,7 @@ public class MainActivity extends BaseActivity {
                     showDrawerErrorToast(R.string.no_connection); //No connection, so show Error toast and return
                     return;
                 }
-                animateToolbar(-300);
+                if (shouldAnimateToolbar) animateToolbar(-300);
                 showFragment("pref_random_comics", menuItem.getItemId(), "Comics", BROWSER_TAG, FAV_TAG, WHATIF_TAG, showOverview, animateOverview);
                 break;
             case R.id.nav_favorites:
@@ -354,7 +364,7 @@ public class MainActivity extends BaseActivity {
                     showDrawerErrorToast(R.string.no_favorites); //No favorites, so show Error Toast and return
                     return;
                 }
-                animateToolbar(300);
+                if (shouldAnimateToolbar) animateToolbar(300);
                 showFragment("pref_random_favorites", menuItem.getItemId(), getResources().getString(R.string.nv_favorites), FAV_TAG, BROWSER_TAG, WHATIF_TAG, showOverview, animateOverview);
                 break;
             case R.id.nav_whatif:
@@ -362,7 +372,7 @@ public class MainActivity extends BaseActivity {
                     showDrawerErrorToast(R.string.no_connection); //No connection, so show Error toast and return
                     return;
                 }
-                animateToolbar(300);
+                if (shouldAnimateToolbar) animateToolbar(300);
                 if (getSupportFragmentManager().findFragmentByTag(WHATIF_TAG) == null) {
                     mDrawer.closeDrawers();
                     new Handler().postDelayed(new Runnable() { //If the fragment is not added yet, add a small delay to avoid lag
@@ -542,14 +552,14 @@ public class MainActivity extends BaseActivity {
             case Intent.ACTION_VIEW:
                 if (intent.getDataString().contains("what")) {
                     MenuItem item = mNavView.getMenu().findItem(R.id.nav_whatif);
-                    selectDrawerItem(item, false, false);
+                    selectDrawerItem(item, false, false, false);
                     WhatIfActivity.WhatIfIndex = getNumberFromUrl(intent.getDataString(), 1);
                     Intent whatIf = new Intent(MainActivity.this, WhatIfActivity.class);
                     prefHelper.setLastWhatIf(WhatIfActivity.WhatIfIndex);
                     startActivity(whatIf);
                 } else {
                     MenuItem item = mNavView.getMenu().findItem(R.id.nav_browser);
-                    selectDrawerItem(item, false, false);
+                    selectDrawerItem(item, false, false, true);
                     ComicFragment comicFragment = (ComicFragment) getSupportFragmentManager().findFragmentByTag(BROWSER_TAG);
                     comicFragment.lastComicNumber = getNumberFromUrl(intent.getDataString(), comicFragment.lastComicNumber);
                     comicFragment.scrollTo(comicFragment.lastComicNumber - 1, false);
@@ -563,14 +573,14 @@ public class MainActivity extends BaseActivity {
                     progress = ProgressDialog.show(this, "", this.getResources().getString(R.string.loading_comics), true);
                 fragment.updatePager();*/
                 MenuItem item = mNavView.getMenu().findItem(R.id.nav_browser);
-                selectDrawerItem(item, false, false);
+                selectDrawerItem(item, false, false, true);
                 ComicFragment comicFragment = (ComicFragment) getSupportFragmentManager().findFragmentByTag(BROWSER_TAG);
                 comicFragment.lastComicNumber = intent.getIntExtra("number", 1);
                 comicFragment.scrollTo(comicFragment.lastComicNumber - 1, false);
                 break;
             case WHATIF_INTENT:
                 item = mNavView.getMenu().findItem(R.id.nav_whatif);
-                selectDrawerItem(item, false, false);
+                selectDrawerItem(item, false, false, false);
                 WhatIfActivity.WhatIfIndex = intent.getIntExtra("number", 1);
                 Intent whatIf = new Intent(MainActivity.this, WhatIfActivity.class);
                 prefHelper.setLastWhatIf(WhatIfActivity.WhatIfIndex);
@@ -820,11 +830,12 @@ public class MainActivity extends BaseActivity {
     @Override
     protected void onRestart() {
         Timber.d("onRestart called");
-        ComicFragment fragment = (ComicFragment) getSupportFragmentManager().findFragmentByTag(BROWSER_TAG);
+        /*ComicFragment fragment = (ComicFragment) getSupportFragmentManager().findFragmentByTag(BROWSER_TAG);
         if (fragment != null && prefHelper.isOnline(this) && !fromSearch)
             if (fullOffline || (prefHelper.isWifi(this) || prefHelper.mobileEnabled()))
                 fragment.updatePager(); //Update the pager in case a new comic has ben posted while the app was still active in the background
-
+        */
+        new updateComicsTask(prefHelper, databaseManager, this, null, false, true, true).execute();
         if (fromSearch)
             fromSearch = false;
         super.onRestart();
