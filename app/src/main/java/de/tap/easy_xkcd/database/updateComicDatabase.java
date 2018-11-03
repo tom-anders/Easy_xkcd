@@ -24,6 +24,7 @@ import okhttp3.Callback;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.Response;
+import timber.log.Timber;
 
 import static de.tap.easy_xkcd.utils.JsonParser.getNewHttpClient;
 
@@ -76,6 +77,7 @@ public class updateComicDatabase extends AsyncTask<Void, Integer, Boolean> {
             final int highest = databaseManager.getHighestInDatabase();
             if (highest == newest) {
                 publishProgress(100);
+                Timber.d("No new comic found!");
                 return false;  //Database already up to date
             }
             OkHttpClient client = getNewHttpClient();
@@ -136,7 +138,9 @@ public class updateComicDatabase extends AsyncTask<Void, Integer, Boolean> {
                     realmComic.setUrl(comic.getComicData()[2]);
                     realmComic.setRead(read != null && Arrays.binarySearch(read, num) >= 0);
                     realmComic.setFavorite(fav != null && Arrays.binarySearch(fav, num) >= 0);
-                    //Log.d("info", "created new comic " + num);
+                    Timber.d("created new comic %d", num);
+                } else {
+                    Timber.d("Comic %d already exists in database", num);
                 }
             }
             realm.commitTransaction();

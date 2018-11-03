@@ -64,4 +64,6 @@ dependencies {
     annotationProcessor 'io.realm:realm-android:0.87.4'
 
     compile 'com.simplecityapps:recyclerview-fastscroll:1.0.18'
+
+    implementation 'com.jakewharton.timber:timber:4.7.1'
 }

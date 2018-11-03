@@ -79,6 +79,7 @@ import de.tap.easy_xkcd.fragments.whatIf.WhatIfOverviewFragment;
 import de.tap.easy_xkcd.notifications.ComicListener;
 import de.tap.easy_xkcd.utils.PrefHelper;
 import de.tap.easy_xkcd.utils.ThemePrefs;
+import timber.log.Timber;
 
 
 public class MainActivity extends BaseActivity {
@@ -204,7 +205,7 @@ public class MainActivity extends BaseActivity {
 
         //Load fragment
         if (fullOffline || prefHelper.isOnline(this) || fullOfflineWhatIf) { //Do we have internet or are in offline mode?
-            new updateComicsTask(prefHelper, databaseManager, this, savedInstanceState, whatIfIntent).execute();
+            new updateComicsTask(prefHelper, databaseManager, this, savedInstanceState, whatIfIntent, savedInstanceState == null).execute();
         } else if ((currentFragment != R.id.nav_favorites)) { //Don't show the dialog if the user is currently browsing his favorites or full offline is enabled
             AlertDialog.Builder dialog = new AlertDialog.Builder(this);
             dialog.setMessage(R.string.no_connection)
@@ -233,11 +234,11 @@ public class MainActivity extends BaseActivity {
         private boolean whatIfIntent;
 
         //TODO Splashscreen?
-        public updateComicsTask(PrefHelper prefHelper, DatabaseManager databaseManager, Context context, Bundle savedInstanceState, boolean whatIfIntent) {
+        public updateComicsTask(PrefHelper prefHelper, DatabaseManager databaseManager, Context context, Bundle savedInstanceState, boolean whatIfIntent, boolean showProgress) {
             super(prefHelper, databaseManager, context);
             this.savedInstanceState = savedInstanceState;
             this.whatIfIntent = whatIfIntent;
-            this.showProgress = savedInstanceState == null;
+            this.showProgress = showProgress;
         }
 
         @Override
@@ -812,12 +813,13 @@ public class MainActivity extends BaseActivity {
         try {
             mNavView.getMenu().findItem(getCurrentFragment()).setChecked(true);
         } catch (NullPointerException e) {
-            e.printStackTrace();
+            Timber.e(e);
         }
     }
 
     @Override
     protected void onRestart() {
+        Timber.d("onRestart called");
         ComicFragment fragment = (ComicFragment) getSupportFragmentManager().findFragmentByTag(BROWSER_TAG);
         if (fragment != null && prefHelper.isOnline(this) && !fromSearch)
             if (fullOffline || (prefHelper.isWifi(this) || prefHelper.mobileEnabled()))

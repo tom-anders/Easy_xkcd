@@ -33,6 +33,7 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:label="@string/app_name"
         android:theme="@style/LimeTheme"
+        android:name="de.tap.easy_xkcd.EasyXkcdApp"
         tools:replace="android:theme, android:label" >
         <activity
             android:name="de.tap.easy_xkcd.Activities.MainActivity"

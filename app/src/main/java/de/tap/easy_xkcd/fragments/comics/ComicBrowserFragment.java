@@ -133,72 +133,7 @@ public class ComicBrowserFragment extends ComicFragment {
     }
 
     @Override
-    public void updatePager() {
-        new updateNewest(false).execute();
-    }
-
-    private class updateNewest extends AsyncTask<Void, Void, Boolean> {
-        private ProgressDialog progress;
-        private boolean showProgress;
-        private boolean updatePager;
-
-        public updateNewest(boolean showProgress) {
-            super();
-            this.showProgress = showProgress;
-        }
-
-        @Override
-        protected void onPreExecute() {
-            if (showProgress) {
-                progress = new ProgressDialog(getActivity());
-                progress.setTitle(getResources().getString(R.string.loading_comics));
-                progress.setCancelable(false);
-                progress.show();
-            }
-        }
-
-        @Override
-        protected Boolean doInBackground(Void... params) {
-            try {
-                JSONObject json = JsonParser.getJSONFromUrl("http://xkcd.com/info.0.json");
-                newestComicNumber = Integer.parseInt(json.getString("num"));
-                if (lastComicNumber == 0)
-                    lastComicNumber = newestComicNumber;
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-            boolean showSnackbar = newestComicNumber > prefHelper.getNewest() && lastComicNumber != newestComicNumber && (prefHelper.getNotificationInterval() == 0);
-            updatePager = showProgress || newestComicNumber > prefHelper.getNewest();
-
-            prefHelper.setNewestComic(newestComicNumber);
-            prefHelper.setLastComic(lastComicNumber);
-            return showSnackbar;
-        }
-
-        @Override
-        protected void onPostExecute(Boolean showSnackbar) {
-            if (updatePager) {
-                scrollViewPager();
-                adapter = new ComicBrowserPagerAdapter(getActivity(), newestComicNumber);
-                pager.setAdapter(adapter);
-            }
-            if (showSnackbar) {
-                View.OnClickListener oc = new View.OnClickListener() {
-                    @Override
-                    public void onClick(View v) {
-                        getLatestComic();
-                    }
-                };
-                FloatingActionButton fab = (FloatingActionButton) getActivity().findViewById(R.id.fab);
-                //noinspection ResourceType
-                Snackbar.make(fab, getActivity().getResources().getString(R.string.new_comic), 4000)
-                        .setAction(getActivity().getResources().getString(R.string.new_comic_view), oc)
-                        .show();
-            }
-            if (showProgress)
-                progress.dismiss();
-        }
-    }
+    public void updatePager() { }
 
     private class ComicBrowserPagerAdapter extends ComicAdapter {
 
