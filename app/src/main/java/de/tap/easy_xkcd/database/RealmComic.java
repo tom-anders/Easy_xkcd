@@ -32,6 +32,7 @@ public class RealmComic extends RealmObject {
     private String title;
     private String transcript;
     private String url;
+    private String altText;
     private String preview;
 
     public int getComicNumber() {
@@ -90,4 +91,11 @@ public class RealmComic extends RealmObject {
         this.preview = preview;
     }
 
+    public String getAltText() {
+        return altText;
+    }
+
+    public void setAltText(String altText) {
+        this.altText = altText;
+    }
 }

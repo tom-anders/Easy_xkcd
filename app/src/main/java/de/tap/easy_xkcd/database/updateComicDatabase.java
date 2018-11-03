@@ -64,7 +64,6 @@ public class updateComicDatabase extends AsyncTask<Void, Integer, Boolean> {
 
     @Override
     protected Boolean doInBackground(Void... params) {
-        boolean newComicFound = false;
         if (prefHelper.isOnline(context)) {
             final int newest = findNewest();
             if (newest > prefHelper.getNewest()) {
@@ -74,7 +73,7 @@ public class updateComicDatabase extends AsyncTask<Void, Integer, Boolean> {
             if (prefHelper.getLastComic() == 0) { //Should only be true on first startup
                 prefHelper.setLastComic(newest);
             }
-            final int highest = databaseManager.getHighestInDatabase();
+            final int highest = databaseManager.getHighestInDatabase(); //TODO make a new key in sharedPreferences for that, such old users update their database as well!
             if (highest == newest) {
                 publishProgress(100);
                 Timber.d("No new comic found!");
@@ -86,9 +85,8 @@ public class updateComicDatabase extends AsyncTask<Void, Integer, Boolean> {
             final ConcurrentHashMap<Integer, Comic> comics = new ConcurrentHashMap<>(newest - highest - 1);
 
             for (int i = highest + 1; i <= newest; i++) {
-                Request request = new Request.Builder().url(Comic.getJsonUrl(i)).build();
                 final int num = i;
-                client.newCall(request).enqueue(new Callback() {
+                client.newCall(new Request.Builder().url(Comic.getJsonUrl(i)).build()).enqueue(new Callback() {
                     @Override
                     public void onFailure(Call call, IOException e) {
                         e.printStackTrace();
@@ -97,7 +95,6 @@ public class updateComicDatabase extends AsyncTask<Void, Integer, Boolean> {
 
                     @Override
                     public void onResponse(Call call, Response response) throws IOException {
-                        //Realm realm = Realm.getInstance(context);
                         JSONObject json = null;
                         try {
                             json = new JSONObject(response.body().string());
@@ -123,25 +120,31 @@ public class updateComicDatabase extends AsyncTask<Void, Integer, Boolean> {
             } catch (InterruptedException e) {
                 e.printStackTrace();
             }
-            final int[] read = databaseManager.getReadComicsLegacy();
-            final int[] fav = databaseManager.getFavComicsLegacy();
+            final int[] legacyRead = databaseManager.getReadComicsLegacy();
+            final int[] legacyFav = databaseManager.getFavComicsLegacy();
 
-            Realm realm = Realm.getInstance(context);
+            Realm realm = Realm.getDefaultInstance();
             realm.beginTransaction();
             for (Integer num : comics.keySet()) {
                 Comic comic = comics.get(num);
-                if (realm.where(RealmComic.class).equalTo("comicNumber", num).findFirst() == null) {
-                    RealmComic realmComic = realm.createObject(RealmComic.class);
-                    realmComic.setComicNumber(num);
-                    realmComic.setTitle(comic.getComicData()[0]);
-                    realmComic.setTranscript(comic.getTranscript());
-                    realmComic.setUrl(comic.getComicData()[2]);
-                    realmComic.setRead(read != null && Arrays.binarySearch(read, num) >= 0);
-                    realmComic.setFavorite(fav != null && Arrays.binarySearch(fav, num) >= 0);
+                RealmComic realmComic = realm.where(RealmComic.class).equalTo("comicNumber", num).findFirst();
+                if (realmComic == null) {
+                    realmComic = realm.createObject(RealmComic.class);
                     Timber.d("created new comic %d", num);
                 } else {
                     Timber.d("Comic %d already exists in database", num);
                 }
+                realmComic.setComicNumber(num);
+                realmComic.setTitle(comic.getComicData()[0]);
+                realmComic.setTranscript(comic.getTranscript());
+                realmComic.setUrl(comic.getComicData()[2]);
+                realmComic.setRead(legacyRead != null && Arrays.binarySearch(legacyRead, num) >= 0);
+                realmComic.setFavorite(legacyFav != null && Arrays.binarySearch(legacyFav, num) >= 0);
+                realmComic.setAltText(comic.getComicData()[1]);
+                realm.copyToRealmOrUpdate(realmComic);
+
+                int p = (int) (((num - highest) / ((float) newest - highest)) * 100);
+                publishProgress(p);
             }
             realm.commitTransaction();
             realm.close();

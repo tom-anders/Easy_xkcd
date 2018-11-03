@@ -25,8 +25,13 @@ import de.tap.easy_xkcd.CustomTabHelpers.BrowserFallback;
 import de.tap.easy_xkcd.CustomTabHelpers.CustomTabActivityHelper;
 import de.tap.easy_xkcd.utils.JsonParser;
 import de.tap.easy_xkcd.utils.ThemePrefs;
+import io.realm.DynamicRealm;
 import io.realm.Realm;
+import io.realm.RealmConfiguration;
+import io.realm.RealmMigration;
+import io.realm.RealmObjectSchema;
 import io.realm.RealmResults;
+import io.realm.RealmSchema;
 
 public class DatabaseManager {
     private Context context;
@@ -37,9 +42,30 @@ public class DatabaseManager {
     private static final String FAVORITES_MOVED = "fav_moved";
     private static final String FAVORITES = "favorites";
 
+    private static RealmConfiguration config;
+
+    private class Migration implements RealmMigration {
+        @Override
+        public void migrate(DynamicRealm realm, long oldVersion, long newVersion) {
+            RealmSchema schema = realm.getSchema();
+            RealmObjectSchema objectSchema = schema.get("RealmComic");
+            if (!objectSchema.hasField("altText")) { //Add the altText field which wasn't there in the old version!
+                objectSchema.addField("altText", String.class);
+            }
+        }
+    }
+
     public DatabaseManager(Context context) {
+        if (config == null) {
+            config = new RealmConfiguration.Builder(context)
+                    .schemaVersion(2) // Must be bumped when the schema changes
+                    .migration(new Migration()) // Migration to run
+                    .build();
+            Realm.setDefaultConfiguration(config);
+        }
+
         this.context = context;
-        realm = Realm.getInstance(context);
+        realm = Realm.getDefaultInstance();
     }
 
     private SharedPreferences getSharedPrefs() {
@@ -259,7 +285,7 @@ public class DatabaseManager {
      * @return the comics transcript or " " if the comic does not exist in the database
      */
     public static String getTranscript(int number, Context context) {
-        RealmComic comic = Realm.getInstance(context).where(RealmComic.class).equalTo("comicNumber", number).findFirst();
+        RealmComic comic = Realm.getDefaultInstance().where(RealmComic.class).equalTo("comicNumber", number).findFirst();
         if (comic != null)
             return comic.getTranscript();
         return " ";

@@ -188,7 +188,7 @@ public abstract class OverviewBaseFragment extends android.support.v4.app.Fragme
     public abstract void notifyAdapter(int number);
 
     protected void setupAdapter() {
-        Realm realm = Realm.getInstance(getActivity());
+        Realm realm = Realm.getDefaultInstance();
         if (prefHelper.overviewFav()) {
             comics = realm.where(RealmComic.class).equalTo("isFavorite", true).findAll();
         } else if (prefHelper.hideRead()) {

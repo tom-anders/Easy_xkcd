@@ -145,7 +145,7 @@ public class SearchResultsActivity extends BaseActivity {
      */
 
     private boolean searchComicTitleOrTranscript(String query) {
-        Realm realm = Realm.getInstance(SearchResultsActivity.this);
+        Realm realm = Realm.getDefaultInstance();
         query = query.trim();
         resultsTitle.clear();
         resultsTranscript.clear();
@@ -188,7 +188,7 @@ public class SearchResultsActivity extends BaseActivity {
         private Realm realm;
 
         public RVAdapter() {
-            realm = Realm.getInstance(SearchResultsActivity.this);
+            realm = Realm.getDefaultInstance();
         }
 
         @Override
