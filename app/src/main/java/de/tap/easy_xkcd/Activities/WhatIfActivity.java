@@ -1,5 +1,7 @@
 package de.tap.easy_xkcd.Activities;
 
+import android.app.Activity;
+import android.app.Instrumentation;
 import android.app.ProgressDialog;
 import android.content.Intent;
 import android.net.Uri;
@@ -219,7 +221,9 @@ public class WhatIfActivity extends BaseActivity {
             case R.id.action_night_mode:
                 item.setChecked(!item.isChecked());
                 themePrefs.setNightThemeEnabled(item.isChecked());
-                new LoadWhatIf().execute();
+                setResult(Activity.RESULT_OK);
+                finish();
+                startActivity(getIntent());
                 return true;
 
             case R.id.action_swipe:

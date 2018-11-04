@@ -18,6 +18,7 @@
 
 package de.tap.easy_xkcd.Activities;
 
+import android.app.Activity;
 import android.app.ProgressDialog;
 import android.app.SearchManager;
 import android.content.Context;
@@ -814,6 +815,7 @@ public class MainActivity extends BaseActivity {
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        Log.d("info", "received result" +  resultCode + "from request" + requestCode);
         if (requestCode == 1) {
             switch (resultCode) {
                 case RESULT_OK: //restart the activity when something major was changed in the settings
@@ -829,6 +831,10 @@ public class MainActivity extends BaseActivity {
             }
         } else if (requestCode == 2 && resultCode == FilePickerActivity.RESULT_OK) {
             ((FavoritesFragment) getSupportFragmentManager().findFragmentByTag(FAV_TAG)).importFavorites(data);
+        } else if (requestCode == 3 && resultCode == Activity.RESULT_OK) {
+            finish();
+            startActivity(getIntent());
+            //TODO select drawer item here, do this after merge
         }
     }
 

@@ -344,7 +344,7 @@ public class WhatIfFragment extends android.support.v4.app.Fragment {
             String title = adapter.titles.get(pos);
             int n = mTitles.size() - mTitles.indexOf(title);
             WhatIfActivity.WhatIfIndex = n;
-            startActivity(intent);
+            getActivity().startActivityForResult(intent, 1);
 
             prefHelper.setLastWhatIf(n);
             prefHelper.setWhatifRead(String.valueOf(n));
@@ -552,4 +552,5 @@ public class WhatIfFragment extends android.support.v4.app.Fragment {
         super.onDestroyView();
         ButterKnife.unbind(this);
     }
+
 }
