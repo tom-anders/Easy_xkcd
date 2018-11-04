@@ -19,6 +19,7 @@
 package de.tap.easy_xkcd.utils;
 
 import android.content.Context;
+import android.util.Log;
 
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
@@ -75,12 +76,21 @@ public class Article {
         }
         //append custom css
         doc.head().getElementsByTag("link").remove();
-        if (!themePrefs.WhatIfNightModeEnabled()) {
-            doc.head().appendElement("link").attr("rel", "stylesheet").attr("type", "text/css").attr("href", "style.css");
-        } else if (themePrefs.invertColors(true)) {
-            doc.head().appendElement("link").attr("rel", "stylesheet").attr("type", "text/css").attr("href", "night_invert.css");
+        if (themePrefs.amoledThemeEnabled()) {
+            if (themePrefs.invertColors(false)) {
+                doc.head().appendElement("link").attr("rel", "stylesheet").attr("type", "text/css").attr("href", "amoled_invert.css");
+            } else {
+                doc.head().appendElement("link").attr("rel", "stylesheet").attr("type", "text/css").attr("href", "amoled.css");
+            }
+            Log.d("info","amoled night theme enabled: " + themePrefs.amoledThemeEnabled());
+        } else if (themePrefs.nightThemeEnabled()) {
+            if (themePrefs.invertColors(false)) {
+                doc.head().appendElement("link").attr("rel", "stylesheet").attr("type", "text/css").attr("href", "night_invert.css");
+            } else {
+                doc.head().appendElement("link").attr("rel", "stylesheet").attr("type", "text/css").attr("href", "night.css");
+            }
         } else {
-            doc.head().appendElement("link").attr("rel", "stylesheet").attr("type", "text/css").attr("href", "night.css");
+            doc.head().appendElement("link").attr("rel", "stylesheet").attr("type", "text/css").attr("href", "style.css");
         }
 
         //fix the image links

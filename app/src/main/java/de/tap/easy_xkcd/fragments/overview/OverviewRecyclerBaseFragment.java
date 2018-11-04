@@ -19,6 +19,7 @@
 package de.tap.easy_xkcd.fragments.overview;
 
 import android.content.DialogInterface;
+import android.graphics.Color;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.widget.CardView;
@@ -89,8 +90,11 @@ public abstract class OverviewRecyclerBaseFragment extends OverviewBaseFragment 
             ComicViewHolder(View itemView) {
                 super(itemView);
                 cv = (CardView) itemView.findViewById(R.id.cv);
-                if (themePrefs.nightThemeEnabled())
+                if (themePrefs.amoledThemeEnabled()) {
+                    cv.setCardBackgroundColor(Color.BLACK);
+                } else if (themePrefs.nightThemeEnabled()) {
                     cv.setCardBackgroundColor(ContextCompat.getColor(getActivity(), R.color.background_material_dark));
+                }
                 comicTitle = (TextView) itemView.findViewById(R.id.comic_title);
                 comicInfo = (TextView) itemView.findViewById(R.id.comic_info);
                 thumbnail = (ImageView) itemView.findViewById(R.id.thumbnail);

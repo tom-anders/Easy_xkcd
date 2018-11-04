@@ -178,7 +178,8 @@
 
     <!-- preference strings -->
     <string name="pref_night">Tema nocturno</string>
-    <string name="pref_invert">invertir los colores de la imagen</string>
+    <string name="pref_invert">Invertir los colores de la imagen</string>
+    <string name="pref_detect_color">Invert images containing color</string>
     <string name="pref_alt_activation">Activación</string>
     <string name="pref_alt_activation_sum">Toque largo o corto</string>
     <string name="pref_alt_options">Opciones generales</string>
@@ -322,5 +323,7 @@
     <string name="pref_doubletap_sum">Instead of controlling the zoom level, double tapping a comic will add it to your favorites</string>
     <string name="pref_doubletap">Double tap to favorite</string>
     <string name="nv_style">Style</string>
+    <string name="pref_amoled">AMOLED night mode</string>
+    <string name="pref_amoled_sum">Saves battery on devices with an AMOLED screen</string>
 
 </resources>

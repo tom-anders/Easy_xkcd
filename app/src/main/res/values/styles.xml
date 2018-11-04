@@ -139,7 +139,9 @@
         <item name="colorAccent">@color/AccentDeepOrange</item>
     </style>
 
-
+    <style name="ThemeOverlay_AmoledBackground" parent="ThemeOverlay.AppCompat">
+        <item name="android:colorBackground">@color/PrimaryBlack</item>
+    </style>
 
 </resources>
 

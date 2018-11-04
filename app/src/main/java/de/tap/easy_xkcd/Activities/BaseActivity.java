@@ -4,10 +4,12 @@ import android.app.ActivityManager;
 import android.content.pm.ActivityInfo;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.graphics.Color;
 import android.os.Build;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
+import android.util.Log;
 
 import com.tap.xkcd_reader.R;
 
@@ -24,6 +26,10 @@ public abstract class BaseActivity extends AppCompatActivity {
         themePrefs = new ThemePrefs(this);
 
         setTheme(themePrefs.getNewTheme());
+        Log.d("info", "amoled enabled " + String.valueOf(themePrefs.amoledThemeEnabled()));
+        if (themePrefs.amoledThemeEnabled()) {
+            getWindow().getDecorView().setBackgroundColor(Color.BLACK);
+        }
         super.onCreate(savedInstanceState);
     }
 
@@ -45,6 +51,9 @@ public abstract class BaseActivity extends AppCompatActivity {
         setSupportActionBar(toolbar);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         toolbar.setBackgroundColor(themePrefs.getPrimaryColor(false));
+        if (themePrefs.amoledThemeEnabled()) {
+            toolbar.setPopupTheme(R.style.ThemeOverlay_AmoledBackground);
+        }
     }
 
     //Useful for when starting a Async Task that would be leaked by screen rotation

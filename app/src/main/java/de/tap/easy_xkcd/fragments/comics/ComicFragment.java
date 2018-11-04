@@ -21,6 +21,7 @@ package de.tap.easy_xkcd.fragments.comics;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
+import android.graphics.Color;
 import android.graphics.RectF;
 import android.net.Uri;
 import android.os.AsyncTask;
@@ -63,7 +64,6 @@ import de.tap.easy_xkcd.Activities.SearchResultsActivity;
 import de.tap.easy_xkcd.CustomTabHelpers.BrowserFallback;
 import de.tap.easy_xkcd.CustomTabHelpers.CustomTabActivityHelper;
 import de.tap.easy_xkcd.database.DatabaseManager;
-import de.tap.easy_xkcd.database.RealmComic;
 import de.tap.easy_xkcd.fragments.overview.OverviewListFragment;
 import de.tap.easy_xkcd.misc.HackyViewPager;
 import de.tap.easy_xkcd.utils.PrefHelper;
@@ -141,8 +141,14 @@ public abstract class ComicFragment extends android.support.v4.app.Fragment {
         protected View setupPager(ViewGroup container, int position) {
             final View itemView = mLayoutInflater.inflate(R.layout.pager_item, container, false);
             itemView.setTag(position);
-            final PhotoView pvComic = itemView.findViewById(R.id.ivComic);
-            final TextView tvAlt = itemView.findViewById(R.id.tvAlt);
+            final PhotoView pvComic = (PhotoView) itemView.findViewById(R.id.ivComic);
+            final TextView tvAlt = (TextView) itemView.findViewById(R.id.tvAlt);
+            final TextView tvTitle = (TextView) itemView.findViewById(R.id.tvTitle);
+
+            if (themePrefs.nightThemeEnabled()) {
+                tvAlt.setTextColor(Color.WHITE);
+                tvTitle.setTextColor(Color.WHITE);
+            }
 
             if (!prefHelper.defaultZoom()) {
                 pvComic.setScaleType(ImageView.ScaleType.CENTER_INSIDE);

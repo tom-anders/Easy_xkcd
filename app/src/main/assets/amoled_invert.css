@@ -3,7 +3,7 @@ html,body,div,span,applet,object,iframe,h1,h2,h3,h4,h5,h6,p,pre,a,abbr,acronym,a
 body {
     /*background: #83B5D1;*/
     /*background: url('http://whatif.xkcd.com/imgs/graph-tile.png');*/
-    background: #303030;
+    background: #000000;
     font-size: 1em;
 }
 
@@ -153,7 +153,7 @@ header img {
     /*margin: .5em 0;*/
     margin: 0em 0;
     /*background: url('http://whatif.xkcd.com/imgs/graph-tile.png');*/
-    background: #303030;
+    background: #000000;
     /*border-radius: 1em;*/
     border-radius: 0em;
 }
@@ -193,7 +193,7 @@ header img {
     max-width: 100%;
     margin: 0 auto;
     padding: 0.7em 0;
-    /*background-color: white;*/
+    background-color: white;
     filter: invert(100%);
 }
 

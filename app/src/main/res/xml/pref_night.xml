@@ -13,10 +13,23 @@
         />
 
     <CheckBoxPreference
+        android:key="pref_amoled"
+        android:title="@string/pref_amoled"
+        android:summary="@string/pref_amoled_sum"
+        android:defaultValue="false"
+        android:dependency="pref_night" />
+
+    <CheckBoxPreference
         android:key="pref_invert"
         android:title="@string/pref_invert"
         android:defaultValue="true"
         android:dependency="pref_night" />
+
+    <CheckBoxPreference
+        android:key="pref_detect_color"
+        android:title="@string/pref_detect_color"
+        android:defaultValue="true"
+        android:dependency="pref_invert" />
 
     <CheckBoxPreference
         android:title="@string/pref_auto_night"

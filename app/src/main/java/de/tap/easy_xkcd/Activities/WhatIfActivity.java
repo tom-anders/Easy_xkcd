@@ -1,5 +1,7 @@
 package de.tap.easy_xkcd.Activities;
 
+import android.app.Activity;
+import android.app.Instrumentation;
 import android.app.ProgressDialog;
 import android.content.Intent;
 import android.net.Uri;
@@ -204,7 +206,7 @@ public class WhatIfActivity extends BaseActivity {
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         getMenuInflater().inflate(R.menu.menu_what_if, menu);
-        menu.findItem(R.id.action_night_mode).setChecked(themePrefs.WhatIfNightModeEnabled());
+        menu.findItem(R.id.action_night_mode).setChecked(themePrefs.nightThemeEnabled());
         menu.findItem(R.id.action_swipe).setChecked(prefHelper.swipeEnabled());
         return true;
     }
@@ -220,8 +222,10 @@ public class WhatIfActivity extends BaseActivity {
 
             case R.id.action_night_mode:
                 item.setChecked(!item.isChecked());
-                themePrefs.setWhatIfNightMode(item.isChecked());
-                new LoadWhatIf().execute();
+                themePrefs.setNightThemeEnabled(item.isChecked());
+                setResult(Activity.RESULT_OK);
+                finish();
+                startActivity(getIntent());
                 return true;
 
             case R.id.action_swipe:

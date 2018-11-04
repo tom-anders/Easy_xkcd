@@ -18,6 +18,7 @@
 
 package de.tap.easy_xkcd.Activities;
 
+import android.app.Activity;
 import android.app.ProgressDialog;
 import android.app.SearchManager;
 import android.content.Context;
@@ -27,6 +28,7 @@ import android.content.pm.ActivityInfo;
 import android.content.pm.PackageManager;
 import android.content.res.Configuration;
 import android.content.res.Resources;
+import android.graphics.Color;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
@@ -174,7 +176,9 @@ public class MainActivity extends BaseActivity {
         mDrawer.addDrawerListener(drawerToggle);
         mDrawer.setStatusBarBackgroundColor(themePrefs.getPrimaryDarkColor());
         drawerToggle = setupDrawerToggle();
-        if (themePrefs.nightThemeEnabled()) {
+        if (themePrefs.amoledThemeEnabled()) {
+            mNavView.setBackgroundColor(Color.BLACK);
+        } else if (themePrefs.nightThemeEnabled()) {
             mNavView.setBackgroundColor(ContextCompat.getColor(this, R.color.background_material_dark));
             toolbar.setPopupTheme(R.style.ThemeOverlay_AppCompat);
         }
@@ -846,6 +850,7 @@ public class MainActivity extends BaseActivity {
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        Log.d("info", "received result" +  resultCode + "from request" + requestCode);
         if (requestCode == 1) {
             switch (resultCode) {
                 case RESULT_OK: //restart the activity when something major was changed in the settings
@@ -861,6 +866,10 @@ public class MainActivity extends BaseActivity {
             }
         } else if (requestCode == 2 && resultCode == FilePickerActivity.RESULT_OK) {
             ((FavoritesFragment) getSupportFragmentManager().findFragmentByTag(FAV_TAG)).importFavorites(data);
+        } else if (requestCode == 3 && resultCode == Activity.RESULT_OK) {
+            finish();
+            startActivity(getIntent());
+            //TODO select drawer item here, do this after merge
         }
     }
 

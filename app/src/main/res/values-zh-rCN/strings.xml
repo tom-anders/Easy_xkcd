@@ -90,6 +90,7 @@
 <string name="pref_widget_sum" modified="true">为使更改生效，请从主屏幕上移除小部件并再次添加</string>
 <string name="delete_offline_articles" modified="true">正在删除文章……</string>
 <string name="pref_invert" modified="true">反转黑白图片</string>
+    <string name="pref_detect_color">Invert images containing color</string>
 <string name="bookmark_toast" modified="true">您可以从概览模式返回至书签。它也将在漫画列表中突出显示</string>
 <string name="nv_feedback" modified="true">反馈</string>
 <string name="share_url" modified="true">分享链接通过……</string>
@@ -238,4 +239,6 @@
     <string name="pref_doubletap_sum">Instead of controlling the zoom level, double tapping a comic will add it to your favorites</string>
     <string name="pref_doubletap">Double tap to favorite</string>
     <string name="nv_style">Style</string>
+    <string name="pref_amoled">AMOLED night mode</string>
+    <string name="pref_amoled_sum">Saves battery on devices with an AMOLED screen</string>
 </resources>
