@@ -65,6 +65,7 @@ import de.tap.easy_xkcd.database.DatabaseManager;
 import de.tap.easy_xkcd.database.RealmComic;
 import de.tap.easy_xkcd.utils.Comic;
 import io.realm.RealmResults;
+import timber.log.Timber;
 import uk.co.senab.photoview.PhotoView;
 
 public class ComicBrowserFragment extends ComicFragment {
@@ -136,6 +137,7 @@ public class ComicBrowserFragment extends ComicFragment {
 
         public ComicBrowserPagerAdapter(Context context, int count) {
             super(context, count);
+            comics = databaseManager.getRealmComics();
         }
 
         @Override
@@ -146,9 +148,9 @@ public class ComicBrowserFragment extends ComicFragment {
         @Override
         public Object instantiateItem(final ViewGroup container, final int position) {
             View itemView = setupPager(container, position);
-            final PhotoView pvComic = (PhotoView) itemView.findViewById(R.id.ivComic);
-            final TextView tvAlt = (TextView) itemView.findViewById(R.id.tvAlt);
-            final TextView tvTitle = (TextView) itemView.findViewById(R.id.tvTitle);
+            final PhotoView pvComic = itemView.findViewById(R.id.ivComic);
+            final TextView tvAlt = itemView.findViewById(R.id.tvAlt);
+            final TextView tvTitle = itemView.findViewById(R.id.tvTitle);
 
             //If the FAB is disabled, remove the right margin of the alt text
             if (prefHelper.fabDisabled("pref_random_comics")) {
@@ -162,120 +164,79 @@ public class ComicBrowserFragment extends ComicFragment {
                 params.rightMargin = getResources().getDimensionPixelSize(R.dimen.activity_horizontal_margin);
             }
 
-            if (Arrays.binarySearch(mContext.getResources().getIntArray(R.array.large_comics), position+1) >= 0)
+            if (Arrays.binarySearch(context.getResources().getIntArray(R.array.large_comics), position+1) >= 0)
                 pvComic.setMaximumScale(15.0f);
 
-            class loadComic extends AsyncTask<Void, Void, Void> {
-                private Comic comic;
-                private boolean largeComic;
-                private boolean interactiveComic;
-                private boolean loadedFromDatabase = false;
+            final int comicNumber = position + 1; //Note that position starts at 0, so we have to add 1
+            RealmComic comic = databaseManager.getRealmComic(comicNumber);
 
-                private void displayComic(String url, String title) {
-                    url = Comic.getDoubleResolutionUrl(url, position+1, mContext);
-                    if (fromSearch && position == lastComicNumber - 1) {
-                        fromSearch = false;
-                        transition = ActivityTransition.with(getActivity().getIntent()).duration(300).to(pvComic).start(null);
-                    }
-                    if (getGifId(position) != 0) {
-                        Glide.with(getActivity())
-                                .load(getGifId(position))
-                                .listener(new RequestListener<Integer, GlideDrawable>() {
-                                    @Override
-                                    public boolean onException(Exception e, Integer model, Target<GlideDrawable> target, boolean isFirstResource) {
-                                        return false;
-                                    }
-
-                                    @Override
-                                    public boolean onResourceReady(GlideDrawable resource, Integer model, Target<GlideDrawable> target, boolean isFromMemoryCache, boolean isFirstResource) {
-                                        if (position == lastComicNumber - 1) {
-                                            if (((MainActivity) getActivity()).getProgressDialog() != null)
-                                                ((MainActivity) getActivity()).getProgressDialog().dismiss();
-                                            animateToolbar();
-                                        }
-                                        return false;
-                                    }
-                                })
-                                .into(new GlideDrawableImageViewTarget(pvComic));
-                    } else {
-                        Glide.with(getActivity())
-                                .load(url)
-                                .asBitmap()
-                                .diskCacheStrategy(DiskCacheStrategy.SOURCE)
-                                .into(new SimpleTarget<Bitmap>() {
-                                    @Override
-                                    public void onResourceReady(Bitmap resource, GlideAnimation<? super Bitmap> glideAnimation) {
-                                        if (themePrefs.invertColors(false) && themePrefs.bitmapContainsColor(resource, position + 1))
-                                            pvComic.clearColorFilter();
-
-                                        pvComic.setAlpha(0f);
-                                        pvComic.setImageBitmap(resource);
-                                        pvComic.animate()
-                                                .alpha(1f)
-                                                .setDuration(200);
-
-                                        if (position == lastComicNumber - 1) {
-                                            if (((MainActivity) getActivity()).getProgressDialog() != null)
-                                                ((MainActivity) getActivity()).getProgressDialog().dismiss();
-                                            animateToolbar();
-                                        }
-                                    }
-                                });
-                        //Log.d("url: ", url);
-                    }
-                    tvTitle.setText(Html.fromHtml(title));
-                }
-
-                @Override
-                protected void onPreExecute() {
-                    largeComic = PreferenceManager.getDefaultSharedPreferences(getActivity()).getBoolean("pref_large", true) && Arrays.binarySearch(getResources().getIntArray(R.array.large_comics), position + 1) >= 0;
-                    interactiveComic = Arrays.binarySearch(getResources().getIntArray(R.array.interactive_comics), position + 1) >= 0;
-                    if (!largeComic && !interactiveComic && databaseManager.databaseLoaded()) {
-                        if (comics == null)
-                            comics = databaseManager.getRealmComics();
-                        RealmComic realmComic = comics.where().equalTo("comicNumber", position + 1).findFirst();
-                        loadedFromDatabase = realmComic != null;
-                        if (loadedFromDatabase)
-                            displayComic(realmComic.getUrl(), realmComic.getTitle());
-                    }
-                    if (largeComic)
-                        animateToolbar();
-
-                }
-
-                @Override
-                protected Void doInBackground(Void... dummy) {
-                    comic = comicMap.get(position + 1);
-                    if (comic == null) {
-                        try {
-                            comic = new Comic(position + 1, getActivity());
-                        } catch (Exception e) {
-                            e.printStackTrace();
-                        }
-                        comicMap.put(position + 1, comic);
-                    }
-                    return null;
-                }
-
-                @Override
-                protected void onPostExecute(Void dummy) {
-                    if (comic != null && getActivity() != null) {
-                        if (!loadedFromDatabase || largeComic || interactiveComic)
-                            displayComic(comic.getComicData()[2], comic.getComicData()[0]);
-                        tvAlt.setText(comic.getComicData()[1]);
-
-                        if (position == lastComicNumber + 1
-                                || (position == lastComicNumber - 1 && lastComicNumber == newestComicNumber)
-                                || (position == lastComicNumber && lastComicNumber == newestComicNumber - 1)) {
-                            loadingImages = false;
-                        }
-                    }
-                }
+            tvAlt.setText(comic.getAltText());
+            tvTitle.setText(comic.getTitle());
+            if (comicNumber == lastComicNumber) {
+                animateToolbar();
             }
-            new loadComic().execute();
+
+            if (fromSearch && comicNumber == lastComicNumber) {
+                fromSearch = false;
+                transition = ActivityTransition.with(getActivity().getIntent()).duration(300).to(pvComic).start(null);
+            }
+
+            if (getGifId(position) == 0) {
+                loadImage(position, Comic.getDoubleResolutionUrl(comic.getUrl(), comicNumber, context), pvComic);
+            } else {
+                loadGif(position, pvComic);
+            }
 
             container.addView(itemView);
             return itemView;
+        }
+
+        public void loadImage(final int position, String url, final PhotoView pvComic) {
+            Glide.with(getActivity())
+                    .load(url)
+                    .asBitmap()
+                    .diskCacheStrategy(DiskCacheStrategy.SOURCE)
+                    .into(new SimpleTarget<Bitmap>() {
+                        @Override
+                        public void onResourceReady(Bitmap resource, GlideAnimation<? super Bitmap> glideAnimation) {
+                            if (themePrefs.invertColors(false) && themePrefs.bitmapContainsColor(resource, position + 1))
+                                pvComic.clearColorFilter();
+
+                            pvComic.setAlpha(0f);
+                            pvComic.setImageBitmap(resource);
+                            pvComic.animate()
+                                    .alpha(1f)
+                                    .setDuration(200);
+
+                        mainActivityCallback(position);
+                        }
+                    });
+        }
+
+        public void loadGif(final int position, final PhotoView pvComic) {
+            Glide.with(getActivity())
+                    .load(getGifId(position))
+                    .listener(new RequestListener<Integer, GlideDrawable>() {
+                        @Override
+                        public boolean onException(Exception e, Integer model, Target<GlideDrawable> target, boolean isFirstResource) {
+                            return false;
+                        }
+
+                        @Override
+                        public boolean onResourceReady(GlideDrawable resource, Integer model, Target<GlideDrawable> target, boolean isFromMemoryCache, boolean isFirstResource) {
+                            mainActivityCallback(position);
+                            return false;
+                        }
+                    })
+                    .into(new GlideDrawableImageViewTarget(pvComic));
+        }
+
+        void mainActivityCallback(int position) {
+            Timber.d("Loaded comic %d", position + 1);
+            if (position == lastComicNumber - 1) {
+                if (((MainActivity) getActivity()).getProgressDialog() != null)
+                    ((MainActivity) getActivity()).getProgressDialog().dismiss();
+            }
         }
 
         @Override

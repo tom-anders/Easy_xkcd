@@ -258,6 +258,10 @@ public class DatabaseManager {
         return realm.where(RealmComic.class).findAll();
     }
 
+    public RealmComic getRealmComic(int number) {
+        return realm.where(RealmComic.class).equalTo("comicNumber", number).findFirst();
+    }
+
     public int getRandomUnread() {
         RealmResults<RealmComic> unread = realm.where(RealmComic.class).equalTo("isRead", false).findAll();
         int n = new Random().nextInt(unread.size());

@@ -270,7 +270,7 @@ public class OfflineFragment extends ComicFragment {
                 randomSelected = false;
             }
 
-            if (Arrays.binarySearch(mContext.getResources().getIntArray(R.array.large_comics), position+1) >= 0)
+            if (Arrays.binarySearch(context.getResources().getIntArray(R.array.large_comics), position+1) >= 0)
                 pvComic.setMaximumScale(15.0f);
 
             if (position == lastComicNumber - 1)

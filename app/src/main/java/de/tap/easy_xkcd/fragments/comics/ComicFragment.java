@@ -26,7 +26,6 @@ import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Vibrator;
-import android.provider.ContactsContract;
 import android.support.customtabs.CustomTabsIntent;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
@@ -128,15 +127,15 @@ public abstract class ComicFragment extends android.support.v4.app.Fragment {
     abstract protected boolean modifyFavorites(MenuItem item);
 
     abstract protected class ComicAdapter extends PagerAdapter {
-        protected Context mContext;
+        protected Context context;
         protected LayoutInflater mLayoutInflater;
         protected Boolean fingerLifted = true;
         protected int count;
 
         public ComicAdapter(Context context, int count) {
             this.count = count;
-            mContext = context;
-            mLayoutInflater = (LayoutInflater) mContext.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+            this.context = context;
+            mLayoutInflater = (LayoutInflater) this.context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
         }
 
         protected View setupPager(ViewGroup container, int position) {

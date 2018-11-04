@@ -190,7 +190,7 @@ public class FavoritesFragment extends ComicFragment {
                 else
                     new RedownloadFavorite().execute(comicMap.get(position).getComicNumber()); // If the image is gone download it and refresh the fragment
             }
-            if (Arrays.binarySearch(mContext.getResources().getIntArray(R.array.large_comics), favoriteComic.getComicNumber()) >= 0)
+            if (Arrays.binarySearch(context.getResources().getIntArray(R.array.large_comics), favoriteComic.getComicNumber()) >= 0)
                 pvComic.setMaximumScale(13.0f);
 
             container.addView(itemView);
