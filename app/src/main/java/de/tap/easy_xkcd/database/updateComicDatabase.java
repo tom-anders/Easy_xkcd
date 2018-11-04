@@ -130,14 +130,14 @@ public class updateComicDatabase extends AsyncTask<Void, Integer, Void> {
                 RealmComic oldRealmComic = realm.where(RealmComic.class).equalTo("comicNumber", num).findFirst();
                 RealmComic newRealmComic = RealmComic.buildFromJson(realm, num, json, context);
 
-                if (oldRealmComic.isFavorite()) {
+                if (oldRealmComic != null && oldRealmComic.isFavorite()) {
                     Timber.d("comic %d was a favorite in the old realm database!", num);
                     newRealmComic.setFavorite(true);
                 } else if (databaseManager.checkFavoriteLegacy(num)) {
                     Timber.d("comic %d was a legacy favorite!", num);
                     newRealmComic.setFavorite(true);
                 }
-                if (oldRealmComic.isRead()) {
+                if (oldRealmComic != null && oldRealmComic.isRead()) {
                     Timber.d("comic %d was read in the old realm database!", num);
                     newRealmComic.setRead(true);
                 } else if (databaseManager.checkReadLegacy(num)) {
