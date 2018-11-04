@@ -28,6 +28,7 @@ import com.bumptech.glide.Glide;
 import com.simplecityapps.recyclerview_fastscroll.views.FastScrollRecyclerView;
 import com.tap.xkcd_reader.R;
 
+import org.jsoup.Connection;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 
@@ -39,6 +40,7 @@ import java.util.Arrays;
 import butterknife.Bind;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
+import de.tap.easy_xkcd.Activities.BaseActivity;
 import de.tap.easy_xkcd.Activities.MainActivity;
 import de.tap.easy_xkcd.database.DatabaseManager;
 import de.tap.easy_xkcd.utils.JsonParser;
@@ -114,6 +116,7 @@ public class WhatIfOverviewFragment extends android.support.v4.app.Fragment {
 
         @Override
         protected void onPreExecute() {
+            ((BaseActivity) getActivity()).lockRotation();
             progress = new ProgressDialog(getActivity());
             progress.setMessage(getResources().getString(R.string.loading_articles));
             progress.setIndeterminate(true);
@@ -145,6 +148,7 @@ public class WhatIfOverviewFragment extends android.support.v4.app.Fragment {
             progress.dismiss();
             adapter = new FragmentAdapter(getChildFragmentManager());
             pager.setAdapter(adapter);
+            ((BaseActivity) getActivity()).unlockRotation();
         }
 
     }

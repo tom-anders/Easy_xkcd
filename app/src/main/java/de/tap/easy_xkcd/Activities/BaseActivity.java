@@ -1,6 +1,7 @@
 package de.tap.easy_xkcd.Activities;
 
 import android.app.ActivityManager;
+import android.content.pm.ActivityInfo;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.os.Build;
@@ -46,4 +47,12 @@ public abstract class BaseActivity extends AppCompatActivity {
         toolbar.setBackgroundColor(themePrefs.getPrimaryColor(false));
     }
 
+    //Useful for when starting a Async Task that would be leaked by screen rotation
+    public void lockRotation() {
+        setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LOCKED);
+    }
+
+    public void unlockRotation() {
+        setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_FULL_USER);
+    }
 }

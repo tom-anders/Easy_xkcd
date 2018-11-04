@@ -23,6 +23,7 @@ import android.app.SearchManager;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.pm.ActivityInfo;
 import android.content.pm.PackageManager;
 import android.content.res.Configuration;
 import android.content.res.Resources;
@@ -242,6 +243,7 @@ public class MainActivity extends BaseActivity {
         //TODO Splashscreen?
         public updateComicsTask(PrefHelper prefHelper, DatabaseManager databaseManager, Context context, Bundle savedInstanceState, boolean whatIfIntent, boolean showProgress, boolean fromOnRestart) {
             super(prefHelper, databaseManager, context);
+            lockRotation();
             this.savedInstanceState = savedInstanceState;
             this.whatIfIntent = whatIfIntent;
             this.showProgress = showProgress;
@@ -268,6 +270,7 @@ public class MainActivity extends BaseActivity {
             else
                 overviewLaunch = prefHelper.launchToOverview() && !getIntent().getAction().equals(Intent.ACTION_VIEW); //Check if the user chose overview to be shown by default
             selectDrawerItem(item, showOverview, !showOverview, !fromOnRestart);
+            unlockRotation();
             super.onPostExecute(dummy);
         }
     }

@@ -111,6 +111,7 @@ public class WhatIfActivity extends BaseActivity {
 
         @Override
         protected void onPreExecute() {
+            lockRotation();
             if (!prefHelper.fullOfflineWhatIf()) {
                 mProgress = new ProgressDialog(WhatIfActivity.this);
                 mProgress.setTitle(getResources().getString(R.string.loading_article));
@@ -195,6 +196,7 @@ public class WhatIfActivity extends BaseActivity {
             }
             assert getSupportActionBar() != null;
             getSupportActionBar().setSubtitle(loadedArticle.getTitle());
+            unlockRotation();
         }
     }
 
