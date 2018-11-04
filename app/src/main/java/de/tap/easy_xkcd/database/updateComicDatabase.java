@@ -127,30 +127,25 @@ public class updateComicDatabase extends AsyncTask<Void, Integer, Void> {
             realm.beginTransaction();
             for (Integer num : jsons.keySet()) {
                 JSONObject json = jsons.get(num);
-                RealmComic realmComic = realm.where(RealmComic.class).equalTo("comicNumber", num).findFirst();
-                if (realmComic == null) {
-                    realmComic = RealmComic.buildFromJson(realm, num, json, context);
-                    Timber.d("created new comic %d", num);
-                } else {
-                    Timber.d("Comic %d already exists in database", num);
-                }
+                RealmComic oldRealmComic = realm.where(RealmComic.class).equalTo("comicNumber", num).findFirst();
+                RealmComic newRealmComic = RealmComic.buildFromJson(realm, num, json, context);
 
-                if (!realmComic.isFavorite() && legacyFav != null) {
-                    boolean isFav = databaseManager.checkFavoriteLegacy(num);
-                    realmComic.setFavorite(isFav);
-                    if (isFav)
-                        Timber.d("comic %d was a legacy favorite!", num);
-                } else if (realmComic.isFavorite()) {
+                if (oldRealmComic.isFavorite()) {
                     Timber.d("comic %d was a favorite in the old realm database!", num);
+                    newRealmComic.setFavorite(true);
+                } else if (databaseManager.checkFavoriteLegacy(num)) {
+                    Timber.d("comic %d was a legacy favorite!", num);
+                    newRealmComic.setFavorite(true);
                 }
-                if (!realmComic.isRead() && legacyRead != null) {
-                    boolean isRead = databaseManager.checkReadLegacy(num);
-                    realmComic.setRead(isRead);
-                    if (isRead)
-                        Timber.d("comic %d was legacy read!", num);
+                if (oldRealmComic.isRead()) {
+                    Timber.d("comic %d was read in the old realm database!", num);
+                    newRealmComic.setRead(true);
+                } else if (databaseManager.checkReadLegacy(num)) {
+                    Timber.d("comic %d was legacy read!", num);
+                    newRealmComic.setRead(true);
                 }
 
-                realm.copyToRealmOrUpdate(realmComic);
+                realm.copyToRealmOrUpdate(newRealmComic);
 
                 int p = (int) (((num - highest) / ((float) newest - highest)) * 100);
                 publishProgress(p);
