@@ -63,7 +63,6 @@ import de.tap.easy_xkcd.Activities.SearchResultsActivity;
 import de.tap.easy_xkcd.CustomTabHelpers.BrowserFallback;
 import de.tap.easy_xkcd.CustomTabHelpers.CustomTabActivityHelper;
 import de.tap.easy_xkcd.database.DatabaseManager;
-import de.tap.easy_xkcd.database.RealmComic;
 import de.tap.easy_xkcd.fragments.overview.OverviewListFragment;
 import de.tap.easy_xkcd.misc.HackyViewPager;
 import de.tap.easy_xkcd.utils.Comic;
@@ -585,7 +584,7 @@ public abstract class ComicFragment extends android.support.v4.app.Fragment {
     public void onPrepareOptionsMenu(Menu menu) {
         //Update the favorites icon
         MenuItem fav = menu.findItem(R.id.action_favorite);
-        if (databaseManager.checkFavorite(lastComicNumber)) {
+        if (databaseManager.isFavorite(lastComicNumber)) {
             fav.setIcon(R.drawable.ic_action_favorite);
             fav.setTitle(R.string.action_favorite_remove);
         } else {

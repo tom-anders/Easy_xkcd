@@ -110,7 +110,7 @@ public class DatabaseManager {
         return getReadComicsLegacy() != null && Arrays.binarySearch(getReadComicsLegacy(), read) >= 0;
     }
 
-    public boolean checkFavorite(int fav) {
+    public boolean isFavorite(int fav) {
         return realm.where(RealmComic.class).equalTo("comicNumber", fav).findFirst().isFavorite();
     }
 

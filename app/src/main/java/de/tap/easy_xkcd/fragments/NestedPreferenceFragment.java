@@ -635,7 +635,7 @@ public class NestedPreferenceFragment extends PreferenceFragment {
             if (!BuildConfig.DEBUG) {
                 DatabaseManager databaseManager = new DatabaseManager(getActivity());
                 for (int i = 1; i <= newest; i++) {
-                    if (!databaseManager.checkFavorite(i)) {
+                    if (!databaseManager.isFavorite(i)) {
                         //delete from internal storage
                         getActivity().deleteFile(String.valueOf(i));
                         //delete from external storage

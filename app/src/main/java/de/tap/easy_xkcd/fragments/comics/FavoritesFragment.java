@@ -256,7 +256,7 @@ public class FavoritesFragment extends ComicFragment {
                 String[] numberTitle = line.split(" - ");
                 int number = Integer.parseInt(numberTitle[0]);
                 //if (Arrays.binarySearch(favorites, number) < 0) {
-                if (databaseManager.checkFavorite(number)) {
+                if (!databaseManager.isFavorite(number)) {
                     newFavorites.push(number);
                     databaseManager.setFavorite(number, true);
                     if (number <= ((MainActivity) getActivity()).getDatabaseManager().getHighestInDatabase())
@@ -325,7 +325,7 @@ public class FavoritesFragment extends ComicFragment {
         String newline = System.getProperty("line.separator");
         for (int i = 0; i < favorites.size(); i++) {
             sb.append(favorites.get(i).getComicNumber()).append(" - ");
-            sb.append(prefHelper.getTitle(favorites.get(i).getComicNumber()));
+            sb.append(favorites.get(i).getTitle());
             sb.append(newline);
         }
         try {

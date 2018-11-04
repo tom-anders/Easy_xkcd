@@ -28,14 +28,12 @@ import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Environment;
-import android.preference.PreferenceManager;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.content.FileProvider;
 import android.support.v4.view.ViewPager;
-import android.text.Html;
 import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.View;
@@ -284,7 +282,7 @@ public class ComicBrowserFragment extends ComicFragment {
             Toast.makeText(getActivity(), R.string.no_connection, Toast.LENGTH_SHORT).show();
             return true;
         }
-        if (databaseManager.checkFavorite(lastComicNumber)) {
+        if (databaseManager.isFavorite(lastComicNumber)) {
             new DeleteComicImageTask(lastComicNumber).execute(true);
             item.setIcon(R.drawable.ic_favorite_outline);
         } else {
