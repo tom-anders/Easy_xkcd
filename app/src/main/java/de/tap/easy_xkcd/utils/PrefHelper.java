@@ -213,17 +213,6 @@ public class PrefHelper {
         return sharedPrefs.getInt(NEWEST_COMIC, 0);
     }
 
-    public void deleteTitleAndAlt(int newest, DatabaseManager databaseManager) {
-        SharedPreferences.Editor editor = sharedPrefs.edit();
-        for (int i = 1; i <= newest; i++) {
-            if (databaseManager.checkFavoriteLegacy(i)) {
-                editor.putString(OFFLINE_TITLE, "");
-                editor.putString(OFFLINE_ALT, "");
-            }
-        }
-        editor.apply();
-    }
-
     public void setLastComic(int number) {
         sharedPrefs.edit().putInt(LAST_COMIC, number).apply();
     }

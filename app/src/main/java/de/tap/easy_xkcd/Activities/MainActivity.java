@@ -124,7 +124,6 @@ public class MainActivity extends BaseActivity {
 
         customTabActivityHelper = new CustomTabActivityHelper();
         databaseManager = new DatabaseManager(this);
-        databaseManager.moveFavorites(this);
 
         if (savedInstanceState == null) {
             //Setup the notifications in case the device was restarted
@@ -511,7 +510,7 @@ public class MainActivity extends BaseActivity {
                 //Update Action Bar title
                 case R.id.nav_favorites: {
                     FavoritesFragment favoritesFragment = (FavoritesFragment) getSupportFragmentManager().findFragmentByTag(FAV_TAG);
-                    if (favoritesFragment != null && favoritesFragment.favorites != null)
+                    if (favoritesFragment != null && !databaseManager.noFavorites())
                         getSupportActionBar().setSubtitle(String.valueOf(favoritesFragment.favorites.get(favoritesFragment.favoriteIndex).getComicNumber()));
                     break;
                 }
@@ -881,7 +880,7 @@ public class MainActivity extends BaseActivity {
             case 2:
                 if (grantResults[0] == PackageManager.PERMISSION_GRANTED) {
                     ComicBrowserFragment fragment = (ComicBrowserFragment) getSupportFragmentManager().findFragmentByTag(BROWSER_TAG);
-                    fragment.new SaveComicImageTask().execute(true);
+                    fragment.new SaveComicImageTask(fragment.lastComicNumber).execute(true);
                 }
 
         }

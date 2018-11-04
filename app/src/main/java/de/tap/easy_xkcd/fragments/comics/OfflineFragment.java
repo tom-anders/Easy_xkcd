@@ -308,12 +308,12 @@ public class OfflineFragment extends ComicFragment {
 
     @Override
     protected boolean modifyFavorites(MenuItem item) {
-        if (databaseManager.checkFavoriteLegacy(lastComicNumber)) {
-            new DeleteComicImageTask().execute(false);
+        if (databaseManager.checkFavorite(lastComicNumber)) {
+            new DeleteComicImageTask(lastComicNumber).execute(false);
             item.setIcon(R.drawable.ic_favorite_outline);
         } else {
             //save image to internal storage
-            new SaveComicImageTask().execute(false);
+            new SaveComicImageTask(lastComicNumber).execute(false);
             item.setIcon(R.drawable.ic_action_favorite);
         }
         return true;

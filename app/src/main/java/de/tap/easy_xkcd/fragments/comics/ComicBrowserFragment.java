@@ -284,15 +284,15 @@ public class ComicBrowserFragment extends ComicFragment {
             Toast.makeText(getActivity(), R.string.no_connection, Toast.LENGTH_SHORT).show();
             return true;
         }
-        if (databaseManager.checkFavoriteLegacy(lastComicNumber)) {
-            new DeleteComicImageTask().execute(true);
+        if (databaseManager.checkFavorite(lastComicNumber)) {
+            new DeleteComicImageTask(lastComicNumber).execute(true);
             item.setIcon(R.drawable.ic_favorite_outline);
         } else {
             if (!(ContextCompat.checkSelfPermission(getActivity(), Manifest.permission.WRITE_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED)) {
                 ActivityCompat.requestPermissions(getActivity(), new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE}, 2);
                 return true;
             }
-            new SaveComicImageTask().execute(true);
+            new SaveComicImageTask(lastComicNumber).execute(true);
             item.setIcon(R.drawable.ic_action_favorite);
         }
         return true;

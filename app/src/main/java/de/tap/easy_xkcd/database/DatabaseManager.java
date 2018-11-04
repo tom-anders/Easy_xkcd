@@ -32,6 +32,7 @@ import io.realm.RealmMigration;
 import io.realm.RealmObjectSchema;
 import io.realm.RealmResults;
 import io.realm.RealmSchema;
+import timber.log.Timber;
 
 public class DatabaseManager {
     private Context context;
@@ -76,7 +77,7 @@ public class DatabaseManager {
     /////////////////////// FAVORITES /////////////////////////////////////////
 
     public boolean noFavorites() {
-        return getSharedPrefs().getString(FAVORITES, null) == null;
+        return realm.where(RealmComic.class).equalTo("isFavorite", true).count() == 0;
     }
 
     /**
@@ -105,6 +106,10 @@ public class DatabaseManager {
         return getFavComicsLegacy() != null && Arrays.binarySearch(getFavComicsLegacy(), fav) >= 0;
     }
 
+    public boolean checkReadLegacy(int read) {
+        return getReadComicsLegacy() != null && Arrays.binarySearch(getReadComicsLegacy(), read) >= 0;
+    }
+
     public boolean checkFavorite(int fav) {
         return realm.where(RealmComic.class).equalTo("comicNumber", fav).findFirst().isFavorite();
     }
@@ -116,21 +121,18 @@ public class DatabaseManager {
      */
     public void setFavorite(int fav, boolean isFav) {
         //Save to realm
-        if (fav <= getHighestInDatabase()) {
-            realm.beginTransaction();
-            RealmComic comic = realm.where(RealmComic.class).equalTo("comicNumber", fav).findFirst();
+        realm.beginTransaction();
+        RealmComic comic = realm.where(RealmComic.class).equalTo("comicNumber", fav).findFirst();
+        if (comic != null) {
             comic.setFavorite(isFav);
             realm.copyToRealmOrUpdate(comic);
-            realm.commitTransaction();
+        } else {
+            Timber.wtf("Favorited comic %d is not in Realm database!", fav);
         }
-        //Save to sharedPrefs
-        if (isFav)
-            addFavorite(fav);
-        else
-            removeFavorite(fav);
+        realm.commitTransaction();
     }
 
-    private void addFavorite(int fav) {
+    /*private void addFavorite(int fav) {
         String favorites = getSharedPrefs().getString(FAVORITES, null);
         if (favorites == null)
             favorites = String.valueOf(fav);
@@ -156,26 +158,19 @@ public class DatabaseManager {
         } else {
             getSharedPrefs().edit().putString(FAVORITES, null).apply();
         }
-    }
+    }*/
 
     public void removeAllFavorites() {
-        getSharedPrefs().edit().putString(FAVORITES, null).apply();
-    }
-
-
-    /**
-     * In previous versions the favorite list would be only accessible from MainActivity,
-     * so this moves the favorites list to regular sharedPreferences
-     *
-     * @param activity should be MainActivity
-     */
-    public void moveFavorites(Activity activity) {
-        if (!getSharedPrefs().getBoolean(FAVORITES_MOVED, false)) {
-            String fav = activity.getPreferences(Activity.MODE_PRIVATE).getString("favorites", null);
-            getSharedPrefs().edit().putString(FAVORITES, fav).putBoolean(FAVORITES_MOVED, true).apply();
-            Log.d("prefHelper", "moved favorites");
+        RealmResults<RealmComic> favorites = getFavComics();
+        realm.beginTransaction();
+        Timber.d("size : %d", favorites.size());
+        while (favorites.size() != 0) {
+            favorites.first().setFavorite(false);
+            Timber.d("size : %d", favorites.size());
         }
+        realm.commitTransaction();
     }
+
 
     ///////////////// READ COMICS //////////////////////////////////////////
 
@@ -185,23 +180,15 @@ public class DatabaseManager {
      * @param isRead if the comic is read or unread
      */
     public void setRead(int number, boolean isRead) {
-        if (number <= getHighestInDatabase()) { //Save to realm
             realm.beginTransaction();
             RealmComic comic = realm.where(RealmComic.class).equalTo("comicNumber", number).findFirst();
             if (comic != null) {
                 comic.setRead(isRead);
                 realm.copyToRealmOrUpdate(comic);
+            } else {
+                Timber.wtf("Read Comic %d is not in Realm database!", number);
             }
             realm.commitTransaction();
-        } else { //Save to sharedPrefs
-            String read = getSharedPrefs().getString(COMIC_READ, "");
-            if (!read.equals("")) {
-                read = read + "," + String.valueOf(number);
-            } else {
-                read = String.valueOf(number);
-            }
-            getSharedPrefs().edit().putString(COMIC_READ, read).apply();
-        }
     }
 
     /**

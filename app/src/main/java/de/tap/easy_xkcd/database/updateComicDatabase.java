@@ -148,7 +148,7 @@ public class updateComicDatabase extends AsyncTask<Void, Integer, Void> {
                     Timber.d("comic %d was a favorite in the old realm database!", num);
                 }
                 if (!realmComic.isRead() && legacyRead != null) {
-                    boolean isRead = databaseManager.checkFavoriteLegacy(num);
+                    boolean isRead = databaseManager.checkReadLegacy(num);
                     realmComic.setRead(isRead);
                     if (isRead)
                         Timber.d("comic %d was legacy read!", num);

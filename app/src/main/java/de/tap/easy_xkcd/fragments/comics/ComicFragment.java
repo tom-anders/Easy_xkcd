@@ -63,11 +63,13 @@ import de.tap.easy_xkcd.Activities.SearchResultsActivity;
 import de.tap.easy_xkcd.CustomTabHelpers.BrowserFallback;
 import de.tap.easy_xkcd.CustomTabHelpers.CustomTabActivityHelper;
 import de.tap.easy_xkcd.database.DatabaseManager;
+import de.tap.easy_xkcd.database.RealmComic;
 import de.tap.easy_xkcd.fragments.overview.OverviewListFragment;
 import de.tap.easy_xkcd.misc.HackyViewPager;
 import de.tap.easy_xkcd.utils.Comic;
 import de.tap.easy_xkcd.utils.PrefHelper;
 import de.tap.easy_xkcd.utils.ThemePrefs;
+import timber.log.Timber;
 import uk.co.senab.photoview.PhotoView;
 import uk.co.senab.photoview.PhotoViewAttacher;
 
@@ -141,8 +143,8 @@ public abstract class ComicFragment extends android.support.v4.app.Fragment {
         protected View setupPager(ViewGroup container, int position) {
             final View itemView = mLayoutInflater.inflate(R.layout.pager_item, container, false);
             itemView.setTag(position);
-            final PhotoView pvComic = (PhotoView) itemView.findViewById(R.id.ivComic);
-            final TextView tvAlt = (TextView) itemView.findViewById(R.id.tvAlt);
+            final PhotoView pvComic = itemView.findViewById(R.id.ivComic);
+            final TextView tvAlt = itemView.findViewById(R.id.tvAlt);
 
             if (!prefHelper.defaultZoom()) {
                 pvComic.setScaleType(ImageView.ScaleType.CENTER_INSIDE);
@@ -290,42 +292,41 @@ public abstract class ComicFragment extends android.support.v4.app.Fragment {
     }
 
     public class SaveComicImageTask extends AsyncTask<Boolean, Void, Void> {
-        protected int mAddedNumber = lastComicNumber;
+        protected int addedNumber;
         private Bitmap mBitmap;
-        private Comic mAddedComic;
         private boolean downloadImage;
+
+        public SaveComicImageTask(int addedNumber) {
+            this.addedNumber = addedNumber;
+        }
 
         @Override
         protected Void doInBackground(Boolean... downloadImage) {
             this.downloadImage = downloadImage[0];
             DatabaseManager databaseManager = new DatabaseManager(getActivity()); //Create a new one here since we're in a background thread
             if (this.downloadImage) {
-                mAddedComic = comicMap.get(lastComicNumber);
                 try {
-                    String url = mAddedComic.getComicData()[2];
                     mBitmap = Glide
                             .with(getActivity())
-                            .load(url)
+                            .load(databaseManager.getRealmComic(addedNumber).getUrl())
                             .asBitmap()
                             .diskCacheStrategy(DiskCacheStrategy.SOURCE)
                             .into(-1, -1)
                             .get();
                 } catch (Exception e) {
-                    databaseManager.setFavorite(mAddedNumber, false);
-                    Log.e("Saving Image failed!", e.toString());
+                    databaseManager.setFavorite(addedNumber, false);
+                    Timber.d("Saving Image failed for Comic %d!", addedNumber);
                 }
-                prefHelper.addTitle(mAddedComic.getComicData()[0], mAddedNumber);
-                prefHelper.addAlt(mAddedComic.getComicData()[1], mAddedNumber);
             }
 
-            databaseManager.setFavorite(mAddedNumber, true);
+            databaseManager.setFavorite(addedNumber, true);
             return null;
         }
 
         @Override
         protected void onPostExecute(Void dummy) {
             if (downloadImage) {
-                saveComic(mAddedNumber, mBitmap);
+                saveComic(addedNumber, mBitmap);
             }
             //refresh the FavoritesFragment
             FavoritesFragment f = (FavoritesFragment) getActivity().getSupportFragmentManager().findFragmentByTag("favorites");
@@ -338,31 +339,32 @@ public abstract class ComicFragment extends android.support.v4.app.Fragment {
     }
 
     protected class DeleteComicImageTask extends AsyncTask<Boolean, Void, Void> {
-        protected int mRemovedNumber = lastComicNumber;
-        protected View.OnClickListener oc;
+        private int removedNumber;
+        private View.OnClickListener oc;
+
+        public DeleteComicImageTask(int removedNumber) {
+            this.removedNumber = removedNumber;
+        }
 
         @Override
         protected Void doInBackground(final Boolean... deleteImage) {
             if (deleteImage[0]) {
                 //delete the image from internal storage
-                getActivity().deleteFile(String.valueOf(mRemovedNumber));
+                getActivity().deleteFile(String.valueOf(removedNumber));
                 //delete from external storage
                 File sdCard = prefHelper.getOfflinePath();
                 File dir = new File(sdCard.getAbsolutePath() + "/easy xkcd");
-                File file = new File(dir, String.valueOf(mRemovedNumber) + ".png");
+                File file = new File(dir, String.valueOf(removedNumber) + ".png");
                 //noinspection ResultOfMethodCallIgnored
                 file.delete();
-
-                prefHelper.addTitle("", mRemovedNumber);
-                prefHelper.addAlt("", mRemovedNumber);
             }
             oc = new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    new SaveComicImageTask().execute(deleteImage[0]);
+                    new SaveComicImageTask(removedNumber).execute(deleteImage[0]);
                 }
             };
-            databaseManager.setFavorite(mRemovedNumber, false);
+            (new DatabaseManager(getActivity())).setFavorite(removedNumber, false);
             Snackbar.make(((MainActivity) getActivity()).getFab(), R.string.snackbar_remove, Snackbar.LENGTH_LONG)
                     .setAction(R.string.snackbar_undo, oc)
                     .show();
@@ -583,7 +585,7 @@ public abstract class ComicFragment extends android.support.v4.app.Fragment {
     public void onPrepareOptionsMenu(Menu menu) {
         //Update the favorites icon
         MenuItem fav = menu.findItem(R.id.action_favorite);
-        if (databaseManager.checkFavoriteLegacy(lastComicNumber)) {
+        if (databaseManager.checkFavorite(lastComicNumber)) {
             fav.setIcon(R.drawable.ic_action_favorite);
             fav.setTitle(R.string.action_favorite_remove);
         } else {

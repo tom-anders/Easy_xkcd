@@ -111,37 +111,24 @@ public class FavoritesFragment extends ComicFragment {
             getActivity().invalidateOptionsMenu();
         }
 
-        new updateFavorites().execute();
+        updateFavorites();
         return v;
     }
 
-    public class updateFavorites extends AsyncTask<Integer, Integer, Void> {
-        @Override
-        protected Void doInBackground(Integer... pos) {
-            //favorites = databaseManager.getFavComicsLegacy();
-            return null;
-        }
+    void updateFavorites() {
+        favorites = databaseManager.getFavComics();
+        for (int i = 0; i < favorites.size(); i++)
+            comicMap.put(i, new OfflineComic(favorites.get(i).getComicNumber(), getActivity(), ((MainActivity) getActivity()).getPrefHelper()));
 
-        @Override
-        protected void onPreExecute() {
-            favorites = databaseManager.getFavComics();
-            for (int i = 0; i < favorites.size(); i++)
-                comicMap.put(i, new OfflineComic(favorites.get(i).getComicNumber(), getActivity(), ((MainActivity) getActivity()).getPrefHelper()));
+        adapter = new FavoritesPagerAdapter(getActivity(), 0);
+        pager.setAdapter(adapter);
+        pager.setCurrentItem(favoriteIndex);
 
-        }
+        Toolbar toolbar = ((MainActivity) getActivity()).getToolbar();
+        if (prefHelper.subtitleEnabled() && ((MainActivity) getActivity()).getCurrentFragment() == R.id.nav_favorites)
+            toolbar.setSubtitle(String.valueOf(favorites.get(favoriteIndex).getComicNumber()));
 
-        @Override
-        protected void onPostExecute(Void v) {
-            adapter = new FavoritesPagerAdapter(getActivity(), 0);
-            pager.setAdapter(adapter);
-            pager.setCurrentItem(favoriteIndex);
-
-            Toolbar toolbar = ((MainActivity) getActivity()).getToolbar();
-            if (prefHelper.subtitleEnabled() && ((MainActivity) getActivity()).getCurrentFragment() == R.id.nav_favorites)
-                toolbar.setSubtitle(String.valueOf(favorites.get(favoriteIndex).getComicNumber()));
-
-            animateToolbar();
-        }
+        animateToolbar();
     }
 
     private class FavoritesPagerAdapter extends ComicAdapter {
@@ -174,8 +161,8 @@ public class FavoritesFragment extends ComicFragment {
             }
 
             RealmComic favoriteComic = favorites.get(position);
-            tvAlt.setText(prefHelper.getAlt(favoriteComic.getComicNumber())); //TODO alt text should be stored in the database now so we should add the alt text to realmcomic and be able to just insert favoriteComic.getAltText() here
-            tvTitle.setText(Html.fromHtml(prefHelper.getTitle(favoriteComic.getComicNumber())));
+            tvAlt.setText(favoriteComic.getAltText());
+            tvTitle.setText(Html.fromHtml(favoriteComic.getTitle()));
 
             if (getGifId(favoriteComic.getComicNumber() - 1) != 0)
                 Glide.with(getActivity())
@@ -188,7 +175,7 @@ public class FavoritesFragment extends ComicFragment {
                 if (bitmap != null)
                     pvComic.setImageBitmap(bitmap);
                 else
-                    new RedownloadFavorite().execute(comicMap.get(position).getComicNumber()); // If the image is gone download it and refresh the fragment
+                    new RedownloadFavorite().execute(comicMap.get(position).getComicNumber()); // If the image is gone for some reason download it and refresh the fragment
             }
             if (Arrays.binarySearch(context.getResources().getIntArray(R.array.large_comics), favoriteComic.getComicNumber()) >= 0)
                 pvComic.setMaximumScale(13.0f);
@@ -316,8 +303,6 @@ public class FavoritesFragment extends ComicFragment {
                             .into(-1, -1)
                             .get();
                     saveComic(num, mBitmap);
-                    prefHelper.addTitle(comic.getComicData()[0], num);
-                    prefHelper.addAlt(comic.getComicData()[1], num);
                 } catch (Exception e) {
                     e.printStackTrace();
                 }
@@ -370,15 +355,14 @@ public class FavoritesFragment extends ComicFragment {
                 .setPositiveButton(R.string.dialog_yes, new DialogInterface.OnClickListener() {
                     public void onClick(DialogInterface dialog, int which) {
 
-                        final int[] fav = databaseManager.getFavComicsLegacy();
+                        if (!prefHelper.fullOfflineEnabled())
+                            for (int i = 0; i < favorites.size(); i++)
+                                getActivity().deleteFile(String.valueOf(favorites.get(i).getComicNumber()));
+
                         databaseManager.removeAllFavorites();
 
                         MenuItem mBrowser = ((MainActivity) getActivity()).getNavView().getMenu().findItem(R.id.nav_browser);
                         ((MainActivity) getActivity()).selectDrawerItem(mBrowser, false, false, false);
-
-                        if (!prefHelper.fullOfflineEnabled())
-                            for (int i : fav)
-                                getActivity().deleteFile(String.valueOf(i));
 
                         Toast toast = Toast.makeText(getActivity(), R.string.favorites_cleared, Toast.LENGTH_SHORT);
                         toast.show();
@@ -426,17 +410,14 @@ public class FavoritesFragment extends ComicFragment {
         @Override
         protected Void doInBackground(Integer... pos) {
             try {
-                Comic comic = new Comic(pos[0], getActivity());
                 Bitmap bitmap = Glide
                         .with(getActivity())
-                        .load(comic.getComicData()[2])
+                        .load((new DatabaseManager(getActivity())).getRealmComic(pos[0]).getUrl())
                         .asBitmap()
                         .diskCacheStrategy(DiskCacheStrategy.SOURCE)
                         .into(-1, -1)
                         .get();
                 saveComic(pos[0], bitmap);
-                prefHelper.addTitle(comic.getComicData()[0], pos[0]);
-                prefHelper.addAlt(comic.getComicData()[1], pos[0]);
             } catch (Exception e) {
                 e.printStackTrace();
             }
@@ -546,10 +527,10 @@ public class FavoritesFragment extends ComicFragment {
         //Updates favorite list, pager and alt TextView
         comicMap.clear();
         if (!databaseManager.noFavorites()) {
-            if (favoriteIndex == databaseManager.getFavComicsLegacy().length)
+            if (favoriteIndex == databaseManager.getFavComics().size())
                 favoriteIndex--;
 
-            new updateFavorites().execute();
+            updateFavorites();
         }
     }
 
