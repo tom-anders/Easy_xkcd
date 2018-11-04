@@ -109,7 +109,7 @@ public class updateComicDatabase extends AsyncTask<Void, Integer, Void> {
                         } finally {
                             response.body().close();
                         }
-                        int p = (int) (((num - highest) / ((float) newest - highest)) * 100);
+                        int p = (int) (((newest - highest - latch.getCount()) / ((float) newest - highest)) * 100);
                         publishProgress(p);
                         latch.countDown();
                         //Log.d("test", latch.getCount() + "/" + comics.size() + "/" + num);

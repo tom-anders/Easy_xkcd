@@ -25,6 +25,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.provider.ContactsContract;
 import android.support.v4.app.NotificationCompat;
 import android.util.Log;
 
@@ -38,16 +39,28 @@ import com.tap.xkcd_reader.R;
 
 import java.io.File;
 import java.io.FileOutputStream;
+import java.io.IOException;
 import java.io.InputStream;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.CountDownLatch;
 
+import de.tap.easy_xkcd.database.DatabaseManager;
+import de.tap.easy_xkcd.database.RealmComic;
 import de.tap.easy_xkcd.utils.Comic;
 import de.tap.easy_xkcd.utils.PrefHelper;
+import io.realm.RealmResults;
 import okhttp3.CacheControl;
+import okhttp3.Call;
+import okhttp3.Callback;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.Response;
 import okio.BufferedSink;
+import okio.BufferedSource;
 import okio.Okio;
+import timber.log.Timber;
+
+import static de.tap.easy_xkcd.utils.JsonParser.getNewHttpClient;
 
 public class ComicDownloadService extends IntentService {
 
@@ -57,69 +70,94 @@ public class ComicDownloadService extends IntentService {
         super("ComicDownloadService");
     }
 
-    @Override
-    protected void onHandleIntent(Intent intent) {
-        final PrefHelper prefHelper = new PrefHelper(getApplicationContext());
-        NotificationCompat.Builder mBuilder =
-                new NotificationCompat.Builder(this)
+    NotificationCompat.Builder getNotificationBuilder() {
+        return new NotificationCompat.Builder(this)
                         .setSmallIcon(R.drawable.ic_notification)
                         .setProgress(100, 0, false)
                         .setContentTitle(getResources().getString(R.string.loading_offline))
                         .setOngoing(true)
                         .setAutoCancel(true);
+    }
 
-        NotificationManager mNotificationManager = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
-        mNotificationManager.notify(0, mBuilder.build());
+    @Override
+    protected void onHandleIntent(Intent intent) {
+        final PrefHelper prefHelper = new PrefHelper(getApplicationContext());
+        final DatabaseManager databaseManager = new DatabaseManager(getApplicationContext());
 
-        if (!BuildConfig.DEBUG) {
-            File sdCard = prefHelper.getOfflinePath();
-            File dir = new File(sdCard.getAbsolutePath() + OFFLINE_PATH);
-            OkHttpClient client = new OkHttpClient();
-            if (!dir.exists()) dir.mkdirs();
-            for (int i = 1; i <= prefHelper.getNewest(); i++) {
-                try {
-                    Comic comic = new Comic(i, this);
-                    Request request = new Request.Builder()
-                            .url(comic.getComicData()[2])
-                            .build();
-                    Response response = client.newCall(request).execute();
+        final NotificationManager notificationManager = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
+        notificationManager.notify(0, getNotificationBuilder().build());
+
+        File sdCard = prefHelper.getOfflinePath();
+        final File dir = new File(sdCard.getAbsolutePath() + OFFLINE_PATH);
+        OkHttpClient client = getNewHttpClient();
+        final RealmResults<RealmComic> comics = databaseManager.getRealmComics();
+        if (!dir.exists()) dir.mkdirs();
+        final int size = comics.size();
+        final CountDownLatch latch = new CountDownLatch(size);
+        final ConcurrentHashMap<Integer, BufferedSource> bitmaps = new ConcurrentHashMap<>(size);
+
+        for (int i = 0; i < comics.size(); i++) {
+            final int number = comics.get(i).getComicNumber();
+            //Timber.d("downloading comic %d", number);
+            Request request = new Request.Builder()
+                    .url(comics.get(i).getUrl())
+                    .build();
+            client.newCall(request).enqueue(new Callback() {
+                @Override
+                public void onFailure(Call call, IOException e) {
+                    Timber.e("Downloading comic %d failed", number);
+                    Timber.e(e);
+                }
+
+                @Override
+                public void onResponse(Call call, Response response) throws IOException {
                     try {
-                        File file = new File(dir, String.valueOf(i) + ".png");
+                        File file = new File(dir, String.valueOf(number) + ".png");
                         BufferedSink sink = Okio.buffer(Okio.sink(file));
                         sink.writeAll(response.body().source());
                         sink.close();
-                    } catch (Exception e) {
-                        Log.e("Error at comic" + i, "Saving to external storage failed");
+                    } catch (IOException e) {
+                        Timber.e("Saving Comic %d to external storage failed", number);
                         try {
-                            FileOutputStream fos = getApplicationContext().openFileOutput(String.valueOf(i), Context.MODE_PRIVATE);
+                            FileOutputStream fos = getApplicationContext().openFileOutput(String.valueOf(number), Context.MODE_PRIVATE);
                             BufferedSink sink = Okio.buffer(Okio.sink(fos));
                             sink.writeAll(response.body().source());
-                            fos.close();
+                            //FIRST close the sink, THEN close the FileOutputStream
                             sink.close();
-                        } catch (Exception e2) {
-                            e2.printStackTrace();
+                            fos.close();
+                        } catch (IOException e2) {
+                            Timber.e("Saving Comic %d to internal storage failed", number);
                         }
                     }
                     response.body().close();
-                    prefHelper.addTitle(comic.getComicData()[0], i);
-                    prefHelper.addAlt(comic.getComicData()[1], i);
-                    int p = (int) (i / ((float) prefHelper.getNewest()) * 100);
-                    mBuilder.setProgress(100, p, false);
-                    mBuilder.setContentText(i + "/" + prefHelper.getNewest());
-                    mNotificationManager.notify(0, mBuilder.build());
-                } catch (Exception e) {
-                    Log.e("Error at comic" + i, e.getMessage());
+                    int p = (int) (number / ((float) size) * 100);
+                    NotificationCompat.Builder builder = getNotificationBuilder();
+                    builder.setProgress(100, p, false);
+                    builder.setContentText(size - latch.getCount() - 1 + "/" + size);
+                    notificationManager.notify(0, builder.build());
+
+                    latch.countDown();
+                    Timber.d("Latch count: %d", latch.getCount());
                 }
-            }
+            });
         }
+        try {
+            latch.await();
+            Timber.d("latch finished!");
+        } catch (InterruptedException e) {
+            Timber.e(e);
+        }
+
         prefHelper.setFullOffline(true);
         prefHelper.setHighestOffline(prefHelper.getNewest());
         Intent restart = new Intent("de.tap.easy_xkcd.ACTION_COMIC");
         restart.putExtra("number", prefHelper.getLastComic());
         PendingIntent pendingIntent = PendingIntent.getActivity(this, 1, restart, PendingIntent.FLAG_UPDATE_CURRENT);
-        mBuilder.setContentIntent(pendingIntent);
-        mBuilder.setContentText(getResources().getString(R.string.not_restart));
-        mNotificationManager.notify(0, mBuilder.build());
+        NotificationCompat.Builder builder = getNotificationBuilder();
+        builder.setContentIntent(pendingIntent);
+        builder.setContentText(getResources().getString(R.string.not_restart));
+        notificationManager.cancel(0);
+        notificationManager.notify(1, builder.build()); //New id here to avoid any race conditions
     }
 
 }
