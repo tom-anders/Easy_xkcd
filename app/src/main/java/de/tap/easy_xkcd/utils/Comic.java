@@ -153,7 +153,7 @@ public class Comic {
     static public String getDoubleResolutionUrl(String url, int number, Context context) {
         boolean largeComic = context != null && Arrays.binarySearch(context.getResources().getIntArray(R.array.large_comics), number) >= 0;
         boolean interactiveComic = context != null && Arrays.binarySearch(context.getResources().getIntArray(R.array.interactive_comics), number) >= 0; //Check for interactive comic
-        int no2xVersion[] = {1097, 1103, 1182, 1193, 1253, 1335, 1349, 1350, 1446, 1452, 1506, 1608, 1663, 1667, 1735, 1739, 1744, 1778};
+        int no2xVersion[] = {1097, 1103, 1127, 1182, 1193, 1229, 1253, 1335, 1349, 1350, 1446, 1452, 1506, 1608, 1663, 1667, 1735, 1739, 1744, 1778};
 
         if(number >= 1084 && Arrays.binarySearch(no2xVersion, number) < 0 && !largeComic && !interactiveComic && !url.contains("_2x.png"))
             return url.substring(0, url.lastIndexOf('.')) + "_2x.png";
