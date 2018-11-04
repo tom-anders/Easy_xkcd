@@ -22,8 +22,6 @@ import android.Manifest;
 import android.app.Activity;
 import android.app.ProgressDialog;
 import android.app.TimePickerDialog;
-import android.appwidget.AppWidgetManager;
-import android.content.ComponentName;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -64,8 +62,6 @@ import de.tap.easy_xkcd.services.ComicDownloadService;
 import de.tap.easy_xkcd.utils.Comic;
 import de.tap.easy_xkcd.utils.PrefHelper;
 import de.tap.easy_xkcd.utils.ThemePrefs;
-import de.tap.easy_xkcd.widget.WidgetLatestProvider;
-import de.tap.easy_xkcd.widget.WidgetRandomProvider;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.Response;
@@ -89,10 +85,12 @@ public class NestedPreferenceFragment extends PreferenceFragment {
     private static final String FULL_OFFLINE = "pref_offline";
     private static final String WHATIF_OFFLINE = "pref_offline_whatif";
     private static final String NIGHT_THEME = "pref_night";
+    private static final String AMOLED_NIGHT = "pref_amoled";
     private static final String AUTO_NIGHT = "pref_auto_night";
     private static final String AUTO_NIGHT_START = "pref_auto_night_start";
     private static final String AUTO_NIGHT_END = "pref_auto_night_end";
     private static final String INVERT_COLORS = "pref_invert";
+    private static final String DETECT_COLOR = "pref_detect_color";
     private static final String REPAIR = "pref_repair";
     private static final String MOBILE_ENABLED = "pref_update_mobile";
     private static final String FAB_OPTIONS = "pref_random";
@@ -376,7 +374,6 @@ public class NestedPreferenceFragment extends PreferenceFragment {
                 findPreference(NIGHT_THEME).setOnPreferenceChangeListener(new Preference.OnPreferenceChangeListener() {
                     @Override
                     public boolean onPreferenceChange(Preference preference, Object newValue) {
-                        themePrefs.setWhatIfNightMode(Boolean.valueOf(newValue.toString()));
                         getActivity().setResult(Activity.RESULT_OK);
                         Intent intent = getActivity().getIntent();
                         intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK
@@ -393,6 +390,28 @@ public class NestedPreferenceFragment extends PreferenceFragment {
                     @Override
                     public boolean onPreferenceClick(Preference preference) {
                         getActivity().setResult(Activity.RESULT_OK);
+                        return true;
+                    }
+                });
+                findPreference(DETECT_COLOR).setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
+                    @Override
+                    public boolean onPreferenceClick(Preference preference) {
+                        getActivity().setResult(Activity.RESULT_OK);
+                        return true;
+                    }
+                });
+                findPreference(AMOLED_NIGHT).setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
+                    @Override
+                    public boolean onPreferenceClick(Preference preference) {
+                        getActivity().setResult(Activity.RESULT_OK);
+                        Intent intent = getActivity().getIntent();
+                        intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK
+                                | Intent.FLAG_ACTIVITY_NO_ANIMATION);
+                        getActivity().overridePendingTransition(0, 0);
+                        getActivity().finish();
+
+                        getActivity().overridePendingTransition(0, 0);
+                        startActivity(intent);
                         return true;
                     }
                 });

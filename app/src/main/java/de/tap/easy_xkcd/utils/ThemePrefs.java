@@ -28,11 +28,9 @@ import android.graphics.Bitmap;
 import android.graphics.Color;
 import android.graphics.ColorFilter;
 import android.graphics.ColorMatrixColorFilter;
-import android.os.Debug;
 import android.preference.PreferenceManager;
 import android.support.design.widget.NavigationView;
 import android.support.v4.content.ContextCompat;
-import android.support.v4.util.CircularArray;
 import android.support.v7.graphics.Palette;
 import android.util.Log;
 
@@ -49,7 +47,8 @@ public class ThemePrefs {
     private static final String COLOR_ACCENT = "pref_color_accent";
     private static final String COLOR_ACCENT_NIGHT = "pref_color_accent_night";
     private static final String NIGHT_THEME = "pref_night";
-    private static final String WHATIF_NIGHT_MODE = "night_mode";
+    private static final String AMOLED_NIGHT = "pref_amoled";
+    private static final String DETECT_COLOR = "pref_detect_color";
     private static final String AUTO_NIGHT = "pref_auto_night";
     private static final String AUTO_NIGHT_START_MIN = "pref_auto_night_start_min";
     private static final String AUTO_NIGHT_START_HOUR = "pref_auto_night_start_hour";
@@ -61,12 +60,8 @@ public class ThemePrefs {
         this.context = context;
     }
 
-    public boolean WhatIfNightModeEnabled() {
-        return getSharedPrefs().getBoolean(WHATIF_NIGHT_MODE, false);
-    }
-
-    public void setWhatIfNightMode(boolean value) {
-        getSharedPrefs().edit().putBoolean(WHATIF_NIGHT_MODE, value).apply();
+    public boolean amoledThemeEnabled() {
+        return nightThemeEnabled() && getPrefs().getBoolean(AMOLED_NIGHT, false);
     }
 
     public int[] getAutoNightStart() {
@@ -123,7 +118,6 @@ public class ThemePrefs {
 
     public void setNightThemeEnabled(boolean enabled) {
         getPrefs().edit().putBoolean(NIGHT_THEME, enabled).apply();
-        setWhatIfNightMode(enabled);
     }
 
     public boolean nightEnabledThemeIgnoreAutoNight() {
@@ -335,9 +329,12 @@ public class ThemePrefs {
         return Color.BLACK;
     }
 
+    public boolean dontDetectColors() {
+        return getPrefs().getBoolean(DETECT_COLOR, true);
+    }
 
-    public boolean invertColors(boolean fromWhatIf) {
-        return getPrefs().getBoolean(INVERT_COLORS, true) && (nightThemeEnabled() || (WhatIfNightModeEnabled() && fromWhatIf));
+    public boolean invertColors(boolean fromWhatIf) { //TODO remove the parameter
+        return getPrefs().getBoolean(INVERT_COLORS, true) && nightThemeEnabled() ;
     }
 
     public int[] getAccentColors() {
@@ -418,9 +415,12 @@ public class ThemePrefs {
     }
 
     public boolean bitmapContainsColor(Bitmap bitmap, int comicNumber) {
-        Log.d("test", String.valueOf(comicNumber));
         if(comicNumber == 1913) //https://github.com/T-Rex96/Easy_xkcd/issues/116
             return true;
+        if (comicNumber == 2018) //This one doesn't work w/o the yellow color
+            return true;
+        if (dontDetectColors())
+            return false;
         try {
             Palette palette = Palette.from(bitmap).generate();
             return palette.getVibrantSwatch() != null;

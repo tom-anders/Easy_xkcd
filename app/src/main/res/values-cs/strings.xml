@@ -179,6 +179,7 @@
     <!-- preference strings -->
     <string name="pref_night">Noční vzheld</string>
     <string name="pref_invert">Obrátit barvy komixu</string>
+    <string name="pref_detect_color">Invert images containing color</string>
     <string name="pref_alt_activation">Aktivace</string>
     <string name="pref_alt_activation_sum">Dlouze podržet nebo jednou ťuknout</string>
     <string name="pref_alt_options">Všeobecná nastavení</string>
@@ -314,5 +315,7 @@
     <string name="pref_doubletap_sum">Instead of controlling the zoom level, double tapping a comic will add it to your favorites</string>
   <string name="pref_doubletap">Double tap to favorite</string>
   <string name="nv_style">Style</string>
+    <string name="pref_amoled">AMOLED night mode</string>
+  <string name="pref_amoled_sum">Saves battery on devices with an AMOLED screen</string>
 
 </resources>

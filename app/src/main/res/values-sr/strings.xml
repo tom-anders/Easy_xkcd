@@ -180,6 +180,7 @@
     <!-- preference strings -->
     <string name="pref_night">Ноћна тема</string>
     <string name="pref_invert">Обрни боје стрипа</string>
+    <string name="pref_detect_color">Invert images containing color</string>
     <string name="pref_alt_activation">Активирање</string>
     <string name="pref_alt_activation_sum">Дуги тап или двотап</string>
     <string name="pref_alt_options">Опште поставке</string>
@@ -316,5 +317,7 @@
     <string name="pref_doubletap_sum">Instead of controlling the zoom level, double tapping a comic will add it to your favorites</string>
     <string name="pref_doubletap">Double tap to favorite</string>
     <string name="nv_style">Style</string>
+    <string name="pref_amoled">AMOLED night mode</string>
+    <string name="pref_amoled_sum">Saves battery on devices with an AMOLED screen</string>
 
 </resources>

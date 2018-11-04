@@ -1,0 +1,547 @@
+html,body,div,span,applet,object,iframe,h1,h2,h3,h4,h5,h6,p,pre,a,abbr,acronym,address,big,cite,code,del,dfn,img,ins,kbd,q,s,samp,small,strike,tt,var,b,u,i,center,dl,dt,dd,fieldset,form,label,legend,table,caption,tbody,tfoot,thead,tr,th,td,article,aside,canvas,details,embed,figure,figcaption,footer,header,hgroup,menu,nav,output,ruby,section,summary,time,mark,audio,video{margin:0;padding:0;border:0;font-size:100%;font:inherit;vertical-align:baseline}article,aside,details,figcaption,figure,footer,header,hgroup,menu,nav,section{display:block}body{line-height:1}ul{list-style:none}blockquote,q{quotes:none}blockquote:before,blockquote:after,q:before,q:after{content:'';content:none}table{border-collapse:collapse;border-spacing:0}.centered{margin:0 auto;min-width:960px}.clearfix:after{content:".";display:block;clear:both;visibility:hidden;line-height:0;height:0}.clearfix{display:inline-block}html[xmlns] .clearfix{display:block}* html .clearfix{height:1%}
+
+body {
+    /*background: #83B5D1;*/
+    /*background: url('http://whatif.xkcd.com/imgs/graph-tile.png');*/
+    background: #000000;
+    font-size: 1em;
+}
+
+sup {
+    font-family: Verdana, sans-serif;
+}
+
+.bulleted {
+    list-style-type: disc;
+}
+
+.bulleted li {
+    /*margin-left: 3em*/
+    margin-left: 0em
+}
+
+li {
+    line-height: 1.4;
+}
+
+p {
+    /*font-family: Georgia, Times, serif;*/
+    font-family: Roboto Regular, Roboto Regular, Roboto Regular;
+    padding: .75em 0;
+    line-height: 1.7em;
+    color: #fff;
+}
+
+blockquote {
+    font-style: italic;
+}
+
+
+#news, .entry h1, .date-stamp, #question, .nav-buttons, footer p, footer a:link {
+    font-family: Verdana, Helvetica, Arial, sans-serif;
+}
+
+a:link {
+    color: #6bc4ff;
+    text-decoration: underline;
+    font-weight: 700;
+}
+
+a:visited {
+    color: #fff;
+}
+
+header img {
+    display: block;
+    max-width: 100%;
+    margin: 0 auto;
+    /*padding: 3em 1em 1em;*/
+    padding: 0em 0em 0em;
+}
+
+#news {
+    border-top: 1px dotted black;
+    font-size: .8em;
+    /*padding: 1em 0;*/
+    padding 0em 0;
+    text-transform: uppercase;
+    color: #005994;
+    text-align: center;
+}
+
+#entry-wrapper {
+    /*margin: 0 auto;
+    margin-top: 2em;
+    width: 70%;
+    border-radius: 1em;
+    background: #fff;
+    padding: .5em 2em;*/
+    margin: 0 auto;
+    margin-top: 0em;
+    width: 100%;
+    border-radius: 1em;
+    background: #fff;
+    padding: 0em 0em;
+}
+
+.main-nav {
+    /*width: 10.5em;
+    margin: 0 auto;
+    padding: 1em;
+    height: 100%;
+    margin-bottom: 1.5em;*/
+    width: 10.5em;
+    margin: 0 auto;
+    padding: 0em;
+    height: 100%;
+    margin-bottom: 0em;
+}
+
+.nav-buttons a:link {
+    background: #005994;
+    color: #fff;
+    border: 1px solid #333;
+    font-size: .8em;
+    font-weight: 600;
+    /*padding: .4em 1em;*/
+    padding: 0em 0em;
+    vertical-align: middle;
+    text-decoration: none;
+    border-radius: .3em;
+    -moz-border-radius: .3em;
+    -webkit-border-radius: .3em;
+    box-shadow: 0 0 5px 0 #aaa;
+    -moz-box-shadow: 0 0 5px 0 #aaa;
+    -webkit-box-shadow: 0 0 5px 0 #aaa;
+}
+
+.nav-buttons {
+    /*padding: 1em;
+    margin: -.5em;*/
+    padding: 0em;
+    margin: 0em;
+}
+
+.nav-buttons li {
+    display: inline;
+}
+
+.nav-next {
+ float: right;
+ margin-bottom: 1em;
+}
+
+.nav-prev {
+ float: left;
+}
+
+.nav-buttons a:visited {
+    color: #fff;
+    background: #005994;
+}
+
+.nav-buttons a:hover {
+    color: #005994;
+    background: #fff;
+}
+
+.entry {
+    background: #fff;
+    /*padding: 1.5em;*/
+    padding: .5em;
+    border: 1px solid #005994;
+    /*margin: .5em 0;*/
+    margin: 0em 0;
+    /*background: url('http://whatif.xkcd.com/imgs/graph-tile.png');*/
+    background: #000000;
+    /*border-radius: 1em;*/
+    border-radius: 0em;
+}
+
+#question, #attribute {
+    font-style: italic;
+    font-weight: 700;
+    color: #6bc4ff;
+}
+
+#question {
+    /*padding-top: 1.5em;*/
+    padding-top: 0em;
+}
+
+#attribute {
+    padding-bottom: 1.5em;
+    text-align: right;
+    margin-right: 20%;
+    margin-top: -.7em;
+    font-family: Verdana, Helvetica, Arial, sans-serif;
+}
+
+.entry h1 {
+    font-size: 1.5em;
+    line-height: 1.1em;
+    font-weight: 700;
+}
+
+.date-stamp {
+    font-size: .7em;
+    color: #999;
+}
+
+.illustration {
+    display: block;
+    max-width: 100%;
+    margin: 0 auto;
+    padding: 0.7em 0;
+    background-color: white;
+   /* filter: brightness(0) invert(100%);*/
+}
+
+.aside {
+    font-style: italic;
+    font-size: .9em;
+    padding-top: 0;
+    padding-bottom: 2.2em;
+    text-align: center;
+}
+
+#footer-wrapper, #header-wrapper {
+    display: block;
+    width: 70%;
+    background: #fff;
+    margin: 0 auto;
+    margin-top: 1.5em;
+    margin-bottom: 2em;
+    padding-left: 2em;
+    padding-right: 2em;
+    border-radius: 1em;
+    -moz-border-radius: 1em;
+}
+
+#header-wrapper {
+    margin-top: -2em;
+}
+
+footer {
+    height: 100%;
+}
+
+#footer-links, #book-links {
+    height: 100%;
+    font-size: .9em;
+    text-transform: uppercase;
+    padding: 1em;
+    text-align: center;
+    line-height: 1.5;
+    font-weight: 700;
+}
+
+#footer-links {
+    border-bottom: 1px dotted #ccc;
+}
+
+#footer-links li, #book-links li{
+    display: inline;
+    margin: 1em 0;
+    padding: 0 1.5em;
+}
+
+#submit {
+    display: box;
+    width: 30%;
+    margin: 1.5em auto;
+    text-align: center;
+    font-weight: 600;
+    padding: 1em;
+    vertical-align: middle;
+    border-radius: .5em;
+    -moz-border-radius: .5em;
+    -webkit-border-radius: .5em;
+    box-shadow: 0 0 5px 0 #000;
+    -moz-box-shadow: 0 0 5px 0 #000;
+    -webkit-box-shadow: 0 0 5px 0 #000;
+}
+
+#copyright {
+    clear: both;
+    border-top: 1px dotted #ccc;
+    padding: 1em 0;
+    text-align: center;
+    font-size: .7em;
+}
+
+/* the reference tooltips style starts here */
+
+.ref {
+    position: relative;
+    vertical-align: baseline;
+   }
+
+.refnum {
+    position: relative;
+    left: 2px;
+    bottom: 1ex;
+    /*font-family: Verdana, sans-serif;*/
+    font-family Roboto Regular, Roboto Regular;
+    color: #6bc4ff;
+    font-size: .7em;
+    font-weight: bold;
+    text-decoration: underline;
+    cursor: pointer;
+}
+
+.refbody {
+    font-family: Roboto Light, Roboto Light;
+    font-size: .7em;
+    line-height: 1.1;
+    display: block;
+    min-width: 20em;
+    position: absolute;
+    left: 25px;
+    bottom: 5px ;
+    border: 1px solid;
+    padding: 5px;
+    background-color: #000;
+    word-wrap: break-word;
+    z-index: 9999;
+    overflow: auto;
+}
+
+/* the archive style starts here */
+
+#archive-wrapper {
+    margin: 0  auto;
+    padding: 2em;
+    border-radius: 1em;
+    background: #fff;
+    width: 70%;
+    text-align: center;
+ }
+
+#archive-wrapper:after {
+   content: " ";
+   display: block;
+   height: 0;
+   clear: both;
+}
+
+.archive-entry {
+    display: inline-block;
+    height: 15em;
+    width: 9em;
+    vertical-align: middle;
+    margin: .5em;
+}
+
+h1.archive-title a {
+    text-decoration: none;
+}
+
+.archive-entry a:visited {
+    color: #999;
+}
+
+a:visited .archive-image {
+    border: 1px solid #999;
+}
+
+.archive-image {
+    height: 8em;
+    width: 8em;
+    border: 1px solid #005994;
+    margin: .5em auto;
+    }
+
+.archive-title {
+    font-family: Verdana, Helvetica, Arial, sans-serif;
+    font-size: 1.2em;
+    line-height: 1.2;
+    }
+
+.archive-date {
+    font-size: .8em;
+    padding-top: .3em;
+    }
+
+/* The book page style starts here */
+
+
+#book-links {
+    margin-bottom: -2em;
+}
+
+#book-links li {
+    font-family: verdana, tahoma, sans-serif;
+}
+
+#book-wrapper{
+    margin: 0 auto;
+    width: 90%;
+    border-radius: 1em;
+    background: #fff;
+    padding: .5em 2em;
+}
+
+#intro {
+    margin: 0 auto;
+    width: 70%;
+    padding-bottom: 1.5em;
+}
+
+#intro img {
+    margin-top: 1.5em;
+}
+
+#intro p {
+    text-align: center;
+}
+
+#book-wrapper h2 {
+    border-top: 1px solid #ccc;
+    text-align: center;
+    padding-top: 2em;
+    margin-top: 2em;
+    font-family: verdana;
+    font-weight: bold;
+    font-size: 1.25em;
+}
+
+#book-wrapper h3 {
+    font-family: verdana, tahoma, sans-serif;
+    text-align: center;
+    text-transform: uppercase;
+    font-weight: normal;
+    font-size: .9em;
+    margin: .5em 0 1em 0;
+}
+
+#tour-info p{
+    font-family: verdana, tahoma, sans-serif;
+    font-size: .8em;
+    margin-left: 20%;
+}
+
+#tour-info {
+    margin-bottom: 3em;
+}
+
+.map {
+    width: 100%;
+    border-radius: 15em;
+    border: 1px dotted #ccc;
+    }
+
+#editions {
+    list-style-type: disc;
+    margin-left: 15%;
+    padding-top: 2em;
+    padding-bottom: 3em;
+}
+
+#editions li {
+    font-family: verdana, sans-serif;
+    font-size: .9em;
+    padding-bottom: .5em;
+    }
+
+/* #Media Queries
+================================================== */
+
+/* Mobile Landscape Size to Tablet Portrait (devices and browsers) */
+@media only screen and (min-width: 480px) and (max-width: 767px) {}
+
+/* Mobile Portrait Size to Mobile Landscape Size (devices and browsers) */
+@media only screen and (max-device-width: 480px) {
+   header img {
+       width: 100%;
+       height: 100%;
+   }
+
+   .refbody { min-width: 0}
+
+   .logo {
+       display: block;
+       max-width: 100%;
+       margin: 0 auto;
+       /*padding: 3em 0 1em 0;*/
+       padding: 0em 0 0em 0;
+       }
+
+   #news {
+       font-size: .8em;
+       text-transform: none;
+   }
+
+   body {
+       font-size: 2.8em;
+   }
+
+   #entry-wrapper {
+       /*padding: .5em 1em;
+       width: 80%; */
+       padding: 0em 0em;
+       width: 100%;
+   }
+
+   #book-wrapper {
+       padding: 0;
+}
+
+   .entry {
+       padding 1em
+   }
+
+   .main-nav {
+       width: 14em;
+    }
+
+   .nav-buttons a:link {
+       background: #005994;
+       color: #fff;
+       border: 1px solid #333;
+       font-size: 1.2em;
+       font-weight: 600;
+       padding: .4em 1em;
+       margin: 1em .3em;
+       vertical-align: middle;
+       border-radius: 3px;
+       -moz-border-radius: 3px;
+       -webkit-border-radius: 3px;
+       box-shadow: 0 0 5px 0 #aaa;
+       -moz-box-shadow: 0 0 5px 0 gray;
+       -webkit-box-shadow: 0 0 5px 0 gray;
+   }
+
+   #footer-links {
+       height: 100%;
+       font-size: 1.2em;
+       text-transform: uppercase;
+       padding: 0 1em;
+       text-align: center;
+       line-height: 1.5;
+       font-weight: 700;
+       border-bottom: 2px solid #005994;
+   }
+
+   #footer-links li {
+       display: block;
+       vertical-align: center;
+       padding: .5em;
+       border-top: 1px solid #aaa;
+       margin: 0;
+   }
+
+   #footer-links li:first-child {
+       border-top: none;
+   }
+
+   #submit {
+       font-size: 1.5em;
+       width: 70%;
+   }
+
+   #copyright {
+       border-top: 2px solid #005994;
+   }
+
+}

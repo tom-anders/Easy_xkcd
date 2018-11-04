@@ -170,7 +170,7 @@ public class WhatIfOverviewFragment extends android.support.v4.app.Fragment {
         }
     }
 
-    public abstract static class RVAdapter extends RecyclerView.Adapter<RVAdapter.ComicViewHolder> implements FastScrollRecyclerView.SectionedAdapter {
+    public abstract static class RVAdapter extends RecyclerView.Adapter<RVAdapter.ComicViewHolder> implements FastScrollRecyclerView.SectionedAdapter { //TODO color of fast scroller in night mode?
         public ArrayList<String> titles;
         private ArrayList<String> imgs;
 
@@ -236,13 +236,15 @@ public class WhatIfOverviewFragment extends android.support.v4.app.Fragment {
             ComicViewHolder(View itemView) {
                 super(itemView);
                 cv = (CardView) itemView.findViewById(R.id.cv);
-                if (themePrefs.nightThemeEnabled())
+                if (themePrefs.amoledThemeEnabled()) {
+                    cv.setCardBackgroundColor(Color.BLACK);
+                } else if (themePrefs.nightThemeEnabled()) {
                     cv.setCardBackgroundColor(ContextCompat.getColor(context, R.color.background_material_dark));
-                //cv.setCardBackgroundColor(Color.BLACK); //TODO here for amoled
+                }
                 articleTitle = (TextView) itemView.findViewById(R.id.article_title);
                 articleNumber = (TextView) itemView.findViewById(R.id.article_info);
                 thumbnail = (ImageView) itemView.findViewById(R.id.thumbnail);
-                if (themePrefs.invertColors(false))
+                if (themePrefs.invertColors(false) || themePrefs.amoledThemeEnabled())
                     thumbnail.setColorFilter(themePrefs.getNegativeColorFilter());
             }
         }

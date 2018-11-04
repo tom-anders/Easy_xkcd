@@ -247,6 +247,7 @@
     <string name="snackbar_survey">Hast du ein paar Minuten übrig und möchtest die App verbessern?</string>
     <string name="snackbar_survey_oc">Umfrage starten</string>
     <string name="pref_invert">Schwarz-weiß umkehren</string>
+    <string name="pref_detect_color">Farbige Bilder invertieren</string>
     <string name="pref_night">Nacht Theme</string>
     <string name="pref_navbar">Farbige Navigationsleiste</string>
     <string name="action_trans">Transcript anzeigen</string>
@@ -315,5 +316,7 @@
     <string name="pref_doubletap">Doppelt tippen für Favoriten</string>
     <string name="pref_doubletap_sum">Doppelt auf ein Comic tippen, um es als Favorit zu speichern</string>
     <string name="nv_style">Stil</string>
+    <string name="pref_amoled">AMOLED Nacht Modus</string>
+    <string name="pref_amoled_sum">Spart Akku auf Geräten mit AMOLED Bildschirm</string>
 
 </resources>

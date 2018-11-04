@@ -21,6 +21,7 @@ package de.tap.easy_xkcd.fragments.comics;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
+import android.graphics.Color;
 import android.graphics.RectF;
 import android.net.Uri;
 import android.os.AsyncTask;
@@ -142,6 +143,12 @@ public abstract class ComicFragment extends android.support.v4.app.Fragment {
             itemView.setTag(position);
             final PhotoView pvComic = (PhotoView) itemView.findViewById(R.id.ivComic);
             final TextView tvAlt = (TextView) itemView.findViewById(R.id.tvAlt);
+            final TextView tvTitle = (TextView) itemView.findViewById(R.id.tvTitle);
+
+            if (themePrefs.nightThemeEnabled()) {
+                tvAlt.setTextColor(Color.WHITE);
+                tvTitle.setTextColor(Color.WHITE);
+            }
 
             if (!prefHelper.defaultZoom()) {
                 pvComic.setScaleType(ImageView.ScaleType.CENTER_INSIDE);

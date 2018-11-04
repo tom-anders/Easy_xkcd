@@ -202,7 +202,7 @@ public class WhatIfActivity extends BaseActivity {
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         getMenuInflater().inflate(R.menu.menu_what_if, menu);
-        menu.findItem(R.id.action_night_mode).setChecked(themePrefs.WhatIfNightModeEnabled());
+        menu.findItem(R.id.action_night_mode).setChecked(themePrefs.nightThemeEnabled());
         menu.findItem(R.id.action_swipe).setChecked(prefHelper.swipeEnabled());
         return true;
     }
@@ -218,7 +218,7 @@ public class WhatIfActivity extends BaseActivity {
 
             case R.id.action_night_mode:
                 item.setChecked(!item.isChecked());
-                themePrefs.setWhatIfNightMode(item.isChecked());
+                themePrefs.setNightThemeEnabled(item.isChecked());
                 new LoadWhatIf().execute();
                 return true;
 

@@ -8,6 +8,7 @@ import android.os.Build;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
+import android.util.Log;
 
 import com.tap.xkcd_reader.R;
 
@@ -24,7 +25,10 @@ public abstract class BaseActivity extends AppCompatActivity {
         themePrefs = new ThemePrefs(this);
 
         setTheme(themePrefs.getNewTheme());
-        //getWindow().getDecorView().setBackgroundColor(Color.BLACK); //TODO for amoled night mode
+        Log.d("info", "amoled enabled " + String.valueOf(themePrefs.amoledThemeEnabled()));
+        if (themePrefs.amoledThemeEnabled()) {
+            getWindow().getDecorView().setBackgroundColor(Color.BLACK);
+        }
         super.onCreate(savedInstanceState);
     }
 
@@ -46,6 +50,9 @@ public abstract class BaseActivity extends AppCompatActivity {
         setSupportActionBar(toolbar);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         toolbar.setBackgroundColor(themePrefs.getPrimaryColor(false));
+        if (themePrefs.amoledThemeEnabled()) {
+            toolbar.setPopupTheme(R.style.ThemeOverlay_AmoledBackground);
+        }
     }
 
 }

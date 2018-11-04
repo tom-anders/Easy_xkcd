@@ -280,6 +280,9 @@
     <!-- preference strings -->
     <string name="pref_night">Night Theme</string>
     <string name="pref_invert">Invert black/white images</string>
+    <string name="pref_detect_color">Invert images containing color</string>
+    <string name="pref_amoled">AMOLED night mode</string>
+    <string name="pref_amoled_sum">Saves battery on devices with an AMOLED screen</string>
     <string name="pref_alt_activation">Activation</string>
     <string name="pref_alt_activation_sum">Long tap or single tap</string>
     <string name="pref_alt_options">General Options</string>

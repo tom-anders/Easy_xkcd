@@ -26,6 +26,7 @@ import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.content.res.Configuration;
 import android.content.res.Resources;
+import android.graphics.Color;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
@@ -172,7 +173,9 @@ public class MainActivity extends BaseActivity {
         mDrawer.addDrawerListener(drawerToggle);
         mDrawer.setStatusBarBackgroundColor(themePrefs.getPrimaryDarkColor());
         drawerToggle = setupDrawerToggle();
-        if (themePrefs.nightThemeEnabled()) {
+        if (themePrefs.amoledThemeEnabled()) {
+            mNavView.setBackgroundColor(Color.BLACK);
+        } else if (themePrefs.nightThemeEnabled()) {
             mNavView.setBackgroundColor(ContextCompat.getColor(this, R.color.background_material_dark));
             toolbar.setPopupTheme(R.style.ThemeOverlay_AppCompat);
         }
