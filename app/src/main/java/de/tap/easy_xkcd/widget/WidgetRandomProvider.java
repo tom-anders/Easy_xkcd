@@ -16,6 +16,7 @@ import com.tap.xkcd_reader.R;
 
 import java.io.IOException;
 
+import de.tap.easy_xkcd.database.DatabaseManager;
 import de.tap.easy_xkcd.utils.Comic;
 import de.tap.easy_xkcd.utils.OfflineComic;
 import de.tap.easy_xkcd.utils.PrefHelper;
@@ -39,9 +40,8 @@ public class WidgetRandomProvider extends AppWidgetProvider {
         RemoteViews remoteViews = new RemoteViews(context.getPackageName(), R.layout.widget_random_layout);
 
         if (prefHelper.fullOfflineEnabled()) {
-            OfflineComic comic = new OfflineComic(lastComicNumber, context, prefHelper);
-            remoteViews.setImageViewBitmap(R.id.ivComic, comic.getBitmap());
-            remoteViews.setTextViewText(R.id.tvTitle, lastComicNumber + ": " + comic.getComicData()[0]);
+            remoteViews.setImageViewBitmap(R.id.ivComic, OfflineComic.getBitmap(lastComicNumber, context, prefHelper));
+            remoteViews.setTextViewText(R.id.tvTitle, lastComicNumber + ": " + (new DatabaseManager(context)).getRealmComic(lastComicNumber).getTitle());
         } else if (prefHelper.isOnline(context)) {
             new LoadComicTask(context).execute();
         }

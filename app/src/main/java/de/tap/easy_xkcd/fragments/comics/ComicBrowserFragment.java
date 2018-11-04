@@ -34,6 +34,7 @@ import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.content.FileProvider;
 import android.support.v4.view.ViewPager;
+import android.text.Html;
 import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.View;
@@ -169,7 +170,7 @@ public class ComicBrowserFragment extends ComicFragment {
             RealmComic comic = databaseManager.getRealmComic(comicNumber);
 
             tvAlt.setText(comic.getAltText());
-            tvTitle.setText(comic.getTitle());
+            tvTitle.setText(Html.fromHtml(comic.getTitle()));
             if (comicNumber == lastComicNumber) {
                 animateToolbar();
             }
@@ -184,7 +185,7 @@ public class ComicBrowserFragment extends ComicFragment {
             } else {
                 loadGif(position, pvComic);
             }
-
+            Timber.d("Loaded comic %d with url %s", position + 1, comic.getUrl());
             container.addView(itemView);
             return itemView;
         }
@@ -230,7 +231,6 @@ public class ComicBrowserFragment extends ComicFragment {
         }
 
         void mainActivityCallback(int position) {
-            Timber.d("Loaded comic %d", position + 1);
             if (position == lastComicNumber - 1) {
                 if (((MainActivity) getActivity()).getProgressDialog() != null)
                     ((MainActivity) getActivity()).getProgressDialog().dismiss();
@@ -257,7 +257,7 @@ public class ComicBrowserFragment extends ComicFragment {
             case R.id.action_random:
                 return getRandomComic();
             case R.id.action_thread:
-                return DatabaseManager.showThread(comicMap.get(lastComicNumber).getComicData()[0], getActivity(), false);
+                return DatabaseManager.showThread(databaseManager.getRealmComic(lastComicNumber).getTitle(), getActivity(), false);
         }
         return super.onOptionsItemSelected(item);
     }
@@ -336,7 +336,7 @@ public class ComicBrowserFragment extends ComicFragment {
                         shareComicImage();
                         break;
                     case 1:
-                        shareComicUrl(comicMap.get(lastComicNumber));
+                        shareComicUrl(databaseManager.getRealmComic(lastComicNumber));
                         break;
                 }
             }
@@ -351,7 +351,7 @@ public class ComicBrowserFragment extends ComicFragment {
             ActivityCompat.requestPermissions(getActivity(), new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE}, 1);
             return;
         }
-        new ShareImageTask().execute(comicMap.get(lastComicNumber).getComicData()[2]);
+        new ShareImageTask().execute(databaseManager.getRealmComic(lastComicNumber).getUrl());
     }
 
     private class ShareImageTask extends AsyncTask<String, Void, Bitmap> {
@@ -386,7 +386,7 @@ public class ComicBrowserFragment extends ComicFragment {
                 result.compress(Bitmap.CompressFormat.PNG, 100, stream);
                 stream.close();
                 Uri uri = FileProvider.getUriForFile(getActivity(), "de.tap.easy_xkcd.fileProvider", file);
-                ComicBrowserFragment.super.shareComicImage(uri, comicMap.get(lastComicNumber));
+                ComicBrowserFragment.super.shareComicImage(uri, databaseManager.getRealmComic(lastComicNumber));
             } catch (IOException e) {
                 e.printStackTrace();
             }

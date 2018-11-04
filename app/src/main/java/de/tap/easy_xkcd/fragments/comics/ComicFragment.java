@@ -63,6 +63,7 @@ import de.tap.easy_xkcd.Activities.SearchResultsActivity;
 import de.tap.easy_xkcd.CustomTabHelpers.BrowserFallback;
 import de.tap.easy_xkcd.CustomTabHelpers.CustomTabActivityHelper;
 import de.tap.easy_xkcd.database.DatabaseManager;
+import de.tap.easy_xkcd.database.RealmComic;
 import de.tap.easy_xkcd.fragments.overview.OverviewListFragment;
 import de.tap.easy_xkcd.misc.HackyViewPager;
 import de.tap.easy_xkcd.utils.Comic;
@@ -80,7 +81,6 @@ public abstract class ComicFragment extends android.support.v4.app.Fragment {
     public int lastComicNumber;
     public int newestComicNumber;
     public int favoriteIndex = 0;
-    public SparseArray<Comic> comicMap = new SparseArray<>();
 
     protected HackyViewPager pager;
     protected ComicAdapter adapter;
@@ -438,22 +438,22 @@ public abstract class ComicFragment extends android.support.v4.app.Fragment {
         return true;
     }
 
-    protected void shareComicUrl(Comic comic) {
+    protected void shareComicUrl(RealmComic comic) {
        //shares the comics url along with its title
         Intent share = new Intent(android.content.Intent.ACTION_SEND);
         share.setType("text/plain");
-        share.putExtra(Intent.EXTRA_SUBJECT, comic.getComicData()[0]);
+        share.putExtra(Intent.EXTRA_SUBJECT, comic.getTitle());
         share.putExtra(Intent.EXTRA_TEXT, " https://" + (prefHelper.shareMobile() ? "m." : "") + "xkcd.com/" + comic.getComicNumber() + "/");
         startActivity(Intent.createChooser(share, this.getResources().getString(R.string.share_url)));
     }
 
-    protected void shareComicImage(Uri uri, Comic comic) {
+    protected void shareComicImage(Uri uri, RealmComic comic) {
         Intent share = new Intent(Intent.ACTION_SEND);
         share.setType("image/*");
         share.putExtra(Intent.EXTRA_STREAM, uri);
-        share.putExtra(Intent.EXTRA_SUBJECT, comic.getComicData()[0]);
+        share.putExtra(Intent.EXTRA_SUBJECT, comic.getTitle());
 
-        String extraText = prefHelper.shareAlt() ? comic.getComicData()[1] : "";
+        String extraText = prefHelper.shareAlt() ? comic.getAltText() : "";
         if (prefHelper.includeLink())
             extraText += " https://" + (prefHelper.shareMobile() ? "m." : "") + "xkcd.com/" + comic.getComicNumber() + "/";
         if (!extraText.equals(""))
@@ -572,7 +572,7 @@ public abstract class ComicFragment extends android.support.v4.app.Fragment {
                 return openComicInBrowser(lastComicNumber);
 
             case R.id.action_trans:
-                return showTranscript(comicMap.get(lastComicNumber).getTranscript());
+                return showTranscript(databaseManager.getRealmComic(lastComicNumber).getTranscript());
 
             case R.id.action_boomark:
                 return addBookmark(lastComicNumber);

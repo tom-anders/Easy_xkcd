@@ -117,8 +117,8 @@ public class FavoritesFragment extends ComicFragment {
 
     void updateFavorites() {
         favorites = databaseManager.getFavComics();
-        for (int i = 0; i < favorites.size(); i++)
-            comicMap.put(i, new OfflineComic(favorites.get(i).getComicNumber(), getActivity(), ((MainActivity) getActivity()).getPrefHelper()));
+        /*for (int i = 0; i < favorites.size(); i++)
+            comicMap.put(i, new OfflineComic(favorites.get(i).getComicNumber(), getActivity(), ((MainActivity) getActivity()).getPrefHelper()));*/
 
         adapter = new FavoritesPagerAdapter(getActivity(), 0);
         pager.setAdapter(adapter);
@@ -138,7 +138,7 @@ public class FavoritesFragment extends ComicFragment {
 
         @Override
         public int getCount() {
-            return comicMap.size();
+            return favorites.size();
         }
 
         @Override
@@ -169,13 +169,13 @@ public class FavoritesFragment extends ComicFragment {
                         .load(getGifId(favoriteComic.getComicNumber() - 1))
                         .into(new GlideDrawableImageViewTarget(pvComic));
             else {
-                Bitmap bitmap = ((OfflineComic) comicMap.get(position)).getBitmap();
+                Bitmap bitmap = OfflineComic.getBitmap(favoriteComic.getComicNumber(), context, prefHelper);
                 if (themePrefs.invertColors(false) && themePrefs.bitmapContainsColor(bitmap, position+1))
                     pvComic.clearColorFilter();
                 if (bitmap != null)
                     pvComic.setImageBitmap(bitmap);
                 else
-                    new RedownloadFavorite().execute(comicMap.get(position).getComicNumber()); // If the image is gone for some reason download it and refresh the fragment
+                    new RedownloadFavorite().execute(favorites.get(position).getComicNumber()); // If the image is gone for some reason download it and refresh the fragment
             }
             if (Arrays.binarySearch(context.getResources().getIntArray(R.array.large_comics), favoriteComic.getComicNumber()) >= 0)
                 pvComic.setMaximumScale(13.0f);
@@ -210,13 +210,13 @@ public class FavoritesFragment extends ComicFragment {
                 return openComicInBrowser(favorites.get(favoriteIndex).getComicNumber());
 
             case R.id.action_trans:
-                return showTranscript(comicMap.get(favoriteIndex).getTranscript());
+                return showTranscript(favorites.get(favoriteIndex).getTranscript());
 
             case R.id.export_import_favorites:
                 return exportImportFavorites();
 
             case R.id.action_thread:
-                return DatabaseManager.showThread(comicMap.get(favorites.get(favoriteIndex).getComicNumber()).getComicData()[0], getActivity(), false); //TODO just call getTitle on the realm comic
+                return DatabaseManager.showThread(favorites.get(favoriteIndex).getTitle(), getActivity(), false);
         }
         return super.onOptionsItemSelected(item);
     }
@@ -433,7 +433,7 @@ public class FavoritesFragment extends ComicFragment {
     @Override
     protected boolean modifyFavorites(MenuItem item) {
         final int mRemoved = favorites.get(favoriteIndex).getComicNumber();
-        final Bitmap mRemovedBitmap = ((OfflineComic) comicMap.get(favoriteIndex)).getBitmap();
+        final Bitmap mRemovedBitmap = OfflineComic.getBitmap(favorites.get(favoriteIndex).getComicNumber(), getActivity(), prefHelper);
         final String mAlt = prefHelper.getAlt(favorites.get(favoriteIndex).getComicNumber());
         final String mTitle = prefHelper.getTitle(favorites.get(favoriteIndex).getComicNumber());
 
@@ -460,7 +460,7 @@ public class FavoritesFragment extends ComicFragment {
 
     public boolean shareComic(boolean fromPermission) {
         if (fromPermission || prefHelper.shareImage()) {
-            shareComicImage(getURI(comicMap.get(favoriteIndex).getComicNumber()), comicMap.get(favoriteIndex));
+            shareComicImage(getURI(favorites.get(favoriteIndex).getComicNumber()), favorites.get(favoriteIndex));
             return true;
         }
 
@@ -470,10 +470,10 @@ public class FavoritesFragment extends ComicFragment {
             public void onClick(DialogInterface dialog, int which) {
                 switch (which) {
                     case 0:
-                        shareComicImage(getURI(comicMap.get(favoriteIndex).getComicNumber()), comicMap.get(favoriteIndex));
+                        shareComicImage(getURI(favorites.get(favoriteIndex).getComicNumber()), favorites.get(favoriteIndex));
                         break;
                     case 1:
-                        shareComicUrl(comicMap.get(favoriteIndex));
+                        shareComicUrl(favorites.get(favoriteIndex));
                         break;
                 }
             }
@@ -525,7 +525,6 @@ public class FavoritesFragment extends ComicFragment {
 
     public void refresh() {
         //Updates favorite list, pager and alt TextView
-        comicMap.clear();
         if (!databaseManager.noFavorites()) {
             if (favoriteIndex == databaseManager.getFavComics().size())
                 favoriteIndex--;

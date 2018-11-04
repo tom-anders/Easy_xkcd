@@ -50,13 +50,17 @@ import java.util.Arrays;
 
 import de.tap.easy_xkcd.Activities.MainActivity;
 import de.tap.easy_xkcd.database.DatabaseManager;
+import de.tap.easy_xkcd.database.RealmComic;
 import de.tap.easy_xkcd.utils.Comic;
 import de.tap.easy_xkcd.utils.OfflineComic;
+import io.realm.Realm;
+import io.realm.RealmResults;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.Response;
 import okio.BufferedSink;
 import okio.Okio;
+import timber.log.Timber;
 import uk.co.senab.photoview.PhotoView;
 
 public class OfflineFragment extends ComicFragment {
@@ -222,7 +226,7 @@ public class OfflineFragment extends ComicFragment {
                 return getRandomComic();
 
             case R.id.action_thread:
-                return DatabaseManager.showThread(comicMap.get(lastComicNumber).getComicData()[0], getActivity(), false);
+                return DatabaseManager.showThread(databaseManager.getRealmComic(lastComicNumber).getTitle(), getActivity(), false);
         }
         return super.onOptionsItemSelected(item);
     }
@@ -245,10 +249,13 @@ public class OfflineFragment extends ComicFragment {
             TextView tvAlt = (TextView) itemView.findViewById(R.id.tvAlt);
             TextView tvTitle = (TextView) itemView.findViewById(R.id.tvTitle);
 
-            comicMap.put(position + 1, new OfflineComic(position + 1, getActivity(), ((MainActivity) getActivity()).getPrefHelper()));
+            final int comicNumber = position + 1;
 
-            tvTitle.setText(Html.fromHtml(comicMap.get(position + 1).getComicData()[0]));
-            tvAlt.setText(comicMap.get(position + 1).getComicData()[1]);
+            //comicMap.put(comicNumber, new OfflineComic(comicNumber, getActivity(), ((MainActivity) getActivity()).getPrefHelper()));
+
+            RealmComic realmComic = databaseManager.getRealmComic(comicNumber);
+            tvTitle.setText(Html.fromHtml(realmComic.getTitle()));
+            tvAlt.setText(realmComic.getAltText());
             if (fromSearch) {
                 fromSearch = false;
                 transition = ActivityTransition.with(getActivity().getIntent()).duration(300).to(pvComic).start(null);
@@ -258,8 +265,8 @@ public class OfflineFragment extends ComicFragment {
                         .load(getGifId(position))
                         .into(new GlideDrawableImageViewTarget(pvComic));
             else {
-                Bitmap bitmap = ((OfflineComic) comicMap.get(position + 1)).getBitmap();
-                if (themePrefs.invertColors(false) && themePrefs.bitmapContainsColor(bitmap, position+1))
+                Bitmap bitmap = OfflineComic.getBitmap(comicNumber, context, prefHelper);
+                if (themePrefs.invertColors(false) && themePrefs.bitmapContainsColor(bitmap, comicNumber))
                     pvComic.clearColorFilter();
                 pvComic.setImageBitmap(bitmap);
             }
@@ -325,7 +332,7 @@ public class OfflineFragment extends ComicFragment {
 
     protected boolean shareComic() {
         if (prefHelper.shareImage()) {
-            shareComicImage(getURI(lastComicNumber), comicMap.get(lastComicNumber));
+            shareComicImage(getURI(lastComicNumber), databaseManager.getRealmComic(lastComicNumber));
             return true;
         }
         AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
@@ -334,10 +341,10 @@ public class OfflineFragment extends ComicFragment {
             public void onClick(DialogInterface dialog, int which) {
                 switch (which) {
                     case 0:
-                        shareComicImage(getURI(lastComicNumber), comicMap.get(lastComicNumber));
+                        shareComicImage(getURI(lastComicNumber), databaseManager.getRealmComic(lastComicNumber));
                         break;
                     case 1:
-                        shareComicUrl(comicMap.get(lastComicNumber));
+                        shareComicUrl(databaseManager.getRealmComic(lastComicNumber));
                         break;
                 }
             }

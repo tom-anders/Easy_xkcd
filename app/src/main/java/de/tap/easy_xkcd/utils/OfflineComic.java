@@ -48,12 +48,12 @@ public class OfflineComic extends Comic {
         return result;
     }
 
-    public Bitmap getBitmap() {
+    public static Bitmap getBitmap(int comicNumber, Context context, PrefHelper prefHelper) {
         //Fix for offline users who downloaded the HUGE version of #1826
         if(comicNumber == 1826) {
             BitmapFactory.Options options = new BitmapFactory.Options();
             options.inScaled = false;
-            return BitmapFactory.decodeResource(mContext.getResources(), R.mipmap.birdwatching, options);
+            return BitmapFactory.decodeResource(context.getResources(), R.mipmap.birdwatching, options);
         }
 
         Bitmap mBitmap = null;
@@ -67,7 +67,7 @@ public class OfflineComic extends Comic {
         } catch (IOException e) {
             Log.e("Error", "Image not found, looking in internal storage");
             try {
-                FileInputStream fis = mContext.openFileInput(String.valueOf(comicNumber));
+                FileInputStream fis = context.openFileInput(String.valueOf(comicNumber));
                 mBitmap = BitmapFactory.decodeStream(fis);
                 fis.close();
             } catch (Exception e2) {
