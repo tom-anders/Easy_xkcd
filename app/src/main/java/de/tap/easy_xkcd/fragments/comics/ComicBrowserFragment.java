@@ -212,7 +212,7 @@ public class ComicBrowserFragment extends ComicFragment {
         }
 
         public void loadGif(final int position, final PhotoView pvComic) {
-            Glide.with(getActivity())
+            Glide.with(getActivity()) //TODO use with(ComicBrowserFragment.this) here
                     .load(getGifId(position))
                     .listener(new RequestListener<Integer, GlideDrawable>() {
                         @Override
