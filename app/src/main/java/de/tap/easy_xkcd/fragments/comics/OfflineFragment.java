@@ -51,8 +51,6 @@ import java.util.Arrays;
 import de.tap.easy_xkcd.Activities.MainActivity;
 import de.tap.easy_xkcd.database.DatabaseManager;
 import de.tap.easy_xkcd.database.RealmComic;
-import de.tap.easy_xkcd.utils.Comic;
-import de.tap.easy_xkcd.utils.OfflineComic;
 import io.realm.Realm;
 import io.realm.RealmResults;
 import okhttp3.OkHttpClient;
@@ -134,7 +132,7 @@ public class OfflineFragment extends ComicFragment {
         protected Boolean doInBackground(Void... pos) {
             boolean showSnackbar = false;
             try {
-                newestComicNumber = new Comic(0).getComicNumber();
+                newestComicNumber = RealmComic.findNewestComicNumber();
                 if (newestComicNumber > prefHelper.getHighestOffline()) {
                     showSnackbar = prefHelper.getNotificationInterval() == 0 && lastComicNumber != newestComicNumber;
                     OkHttpClient client = new OkHttpClient();
@@ -142,9 +140,9 @@ public class OfflineFragment extends ComicFragment {
                     File dir = new File(sdCard.getAbsolutePath() + OFFLINE_PATH);
                     for (int i = prefHelper.getHighestOffline() + 1; i <= newestComicNumber; i++) {
                         Log.d("comic added", String.valueOf(i));
-                        Comic comic = new Comic(i, getActivity());
+                        RealmComic comic = databaseManager.getRealmComic(i);
                         Request request = new Request.Builder()
-                                .url(comic.getComicData()[2])
+                                .url(comic.getUrl())
                                 .build();
                         Response response = client.newCall(request).execute();
                         try {
@@ -165,9 +163,7 @@ public class OfflineFragment extends ComicFragment {
                             }
                         }
                         response.body().close();
-                        prefHelper.addTitle(comic.getComicData()[0], i);
-                        prefHelper.addAlt(comic.getComicData()[1], i);
-                        prefHelper.setHighestOffline(newestComicNumber);
+                        prefHelper.setHighestOffline(i);
                         prefHelper.setNewestComic(i);
                     }
                 }
@@ -265,7 +261,7 @@ public class OfflineFragment extends ComicFragment {
                         .load(getGifId(position))
                         .into(new GlideDrawableImageViewTarget(pvComic));
             else {
-                Bitmap bitmap = OfflineComic.getBitmap(comicNumber, context, prefHelper);
+                Bitmap bitmap = RealmComic.getOfflineBitmap(comicNumber, context, prefHelper);
                 if (themePrefs.invertColors(false) && themePrefs.bitmapContainsColor(bitmap, comicNumber))
                     pvComic.clearColorFilter();
                 pvComic.setImageBitmap(bitmap);

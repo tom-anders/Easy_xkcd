@@ -11,13 +11,10 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CountDownLatch;
 
 import de.tap.easy_xkcd.fragments.comics.ComicFragment;
-import de.tap.easy_xkcd.utils.Comic;
 import de.tap.easy_xkcd.utils.PrefHelper;
 import io.realm.Realm;
 import okhttp3.Call;
@@ -55,10 +52,13 @@ public class updateComicDatabase extends AsyncTask<Void, Integer, Void> {
         }
     }
 
-    int findNewest() {
+    private int findNewest() {
         try {
-            return new Comic(0).getComicNumber();
+            return RealmComic.findNewestComicNumber();
         } catch (IOException e) {
+            return prefHelper.getNewest();
+        } catch (JSONException e) {
+            Timber.wtf("Latest JSON at https://xkcd.com/info.0.json doesnt have a number?!");
             return prefHelper.getNewest();
         }
     }
@@ -83,11 +83,11 @@ public class updateComicDatabase extends AsyncTask<Void, Integer, Void> {
             OkHttpClient client = getNewHttpClient();
             final CountDownLatch latch = new CountDownLatch(newest - highest);
 
-            final ConcurrentHashMap<Integer, Comic> comics = new ConcurrentHashMap<>(newest - highest - 1);
+            final ConcurrentHashMap<Integer, JSONObject> jsons = new ConcurrentHashMap<>(newest - highest - 1);
 
             for (int i = highest + 1; i <= newest; i++) {
                 final int num = i;
-                client.newCall(new Request.Builder().url(Comic.getJsonUrl(i)).build()).enqueue(new Callback() {
+                client.newCall(new Request.Builder().url(RealmComic.getJsonUrl(i)).build()).enqueue(new Callback() {
                     @Override
                     public void onFailure(Call call, IOException e) {
                         e.printStackTrace();
@@ -96,23 +96,22 @@ public class updateComicDatabase extends AsyncTask<Void, Integer, Void> {
 
                     @Override
                     public void onResponse(Call call, Response response) throws IOException {
-                        JSONObject json = null;
+                        JSONObject json = new JSONObject();
                         try {
                             json = new JSONObject(response.body().string());
                         } catch (JSONException e) {
-                            Log.e("error", "json exception at " + num + ": " + e.getMessage());
+                            if (num == 404) {
+                                Timber.i("Json not found, but that's expected for comic 404");
+                            } else {
+                                Timber.e("json exception at %d: %s", num, e.getMessage());
+                            }
                         }
-                        try {
-                            comics.put(num,  new Comic(num, json, context));
-                        } catch (IOException e) {
-                            Log.e("error", "ioexception at " + num + ": " + e.getMessage());
-                        } finally {
-                            response.body().close();
-                        }
+                        jsons.put(num, json);
+                        response.body().close();
+
                         int p = (int) (((newest - highest - latch.getCount()) / ((float) newest - highest)) * 100);
                         publishProgress(p);
                         latch.countDown();
-                        //Log.d("test", latch.getCount() + "/" + comics.size() + "/" + num);
                     }
                 });
             }
@@ -126,19 +125,16 @@ public class updateComicDatabase extends AsyncTask<Void, Integer, Void> {
 
             Realm realm = Realm.getDefaultInstance();
             realm.beginTransaction();
-            for (Integer num : comics.keySet()) {
-                Comic comic = comics.get(num);
+            for (Integer num : jsons.keySet()) {
+                JSONObject json = jsons.get(num);
                 RealmComic realmComic = realm.where(RealmComic.class).equalTo("comicNumber", num).findFirst();
                 if (realmComic == null) {
-                    realmComic = realm.createObject(RealmComic.class);
+                    realmComic = RealmComic.buildFromJson(realm, num, json, context);
                     Timber.d("created new comic %d", num);
                 } else {
                     Timber.d("Comic %d already exists in database", num);
                 }
-                realmComic.setComicNumber(num);
-                realmComic.setTitle(comic.getComicData()[0]);
-                realmComic.setTranscript(comic.getTranscript());
-                realmComic.setUrl(comic.getComicData()[2]);
+
                 if (!realmComic.isFavorite() && legacyFav != null) {
                     boolean isFav = databaseManager.checkFavoriteLegacy(num);
                     realmComic.setFavorite(isFav);
@@ -153,7 +149,7 @@ public class updateComicDatabase extends AsyncTask<Void, Integer, Void> {
                     if (isRead)
                         Timber.d("comic %d was legacy read!", num);
                 }
-                realmComic.setAltText(comic.getComicData()[1]);
+
                 realm.copyToRealmOrUpdate(realmComic);
 
                 int p = (int) (((num - highest) / ((float) newest - highest)) * 100);

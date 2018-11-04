@@ -28,6 +28,7 @@ import android.util.Log;
 import com.commonsware.cwac.wakeful.WakefulIntentService;
 import com.tap.xkcd_reader.R;
 
+import org.json.JSONException;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.select.Elements;
@@ -35,8 +36,9 @@ import org.jsoup.select.Elements;
 import java.io.IOException;
 import java.util.Calendar;
 
-import de.tap.easy_xkcd.utils.Comic;
+import de.tap.easy_xkcd.database.RealmComic;
 import de.tap.easy_xkcd.utils.PrefHelper;
+import io.realm.Realm;
 
 public class ComicNotifier extends WakefulIntentService {
 
@@ -62,12 +64,12 @@ public class ComicNotifier extends WakefulIntentService {
 
     void updateComics() {
         boolean found = false;
-        Comic comic = null;
+        RealmComic comic = null;
         try {
-            comic = new Comic(0);
+            comic = RealmComic.findNewestComic(Realm.getDefaultInstance(), getApplicationContext());
             if (comic.getComicNumber() > prefHelper.getNewest())
                 found = true;
-        } catch (IOException e) {
+        } catch (IOException | JSONException e) {
             e.printStackTrace();
         }
         if (found) {
@@ -75,7 +77,7 @@ public class ComicNotifier extends WakefulIntentService {
                     new NotificationCompat.Builder(getApplicationContext())
                             .setSmallIcon(R.drawable.ic_notification)
                             .setContentTitle(getResources().getString(R.string.new_comic))
-                            .setContentText(String.valueOf(comic.getComicNumber()) + ": " + comic.getComicData()[0])
+                            .setContentText(String.valueOf(comic.getComicNumber()) + ": " + comic.getTitle())
                             .setAutoCancel(true);
 
             Intent intent = new Intent("de.tap.easy_xkcd.ACTION_COMIC");

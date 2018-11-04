@@ -17,8 +17,7 @@ import com.tap.xkcd_reader.R;
 import java.io.IOException;
 
 import de.tap.easy_xkcd.database.DatabaseManager;
-import de.tap.easy_xkcd.utils.Comic;
-import de.tap.easy_xkcd.utils.OfflineComic;
+import de.tap.easy_xkcd.database.RealmComic;
 import de.tap.easy_xkcd.utils.PrefHelper;
 
 
@@ -39,13 +38,6 @@ public class WidgetRandomProvider extends AppWidgetProvider {
 
         RemoteViews remoteViews = new RemoteViews(context.getPackageName(), R.layout.widget_random_layout);
 
-        if (prefHelper.fullOfflineEnabled()) {
-            remoteViews.setImageViewBitmap(R.id.ivComic, OfflineComic.getBitmap(lastComicNumber, context, prefHelper));
-            remoteViews.setTextViewText(R.id.tvTitle, lastComicNumber + ": " + (new DatabaseManager(context)).getRealmComic(lastComicNumber).getTitle());
-        } else if (prefHelper.isOnline(context)) {
-            new LoadComicTask(context).execute();
-        }
-
         Intent intent = new Intent(context, WidgetRandomProvider.class);
         intent.setAction(AppWidgetManager.ACTION_APPWIDGET_UPDATE);
         intent.putExtra(AppWidgetManager.EXTRA_APPWIDGET_IDS, appWidgetIds);
@@ -59,47 +51,24 @@ public class WidgetRandomProvider extends AppWidgetProvider {
 
         appWidgetManager.updateAppWidget(appWidgetIds, remoteViews);
 
+        AppWidgetTarget appWidgetTarget = new AppWidgetTarget(context, remoteViews, R.id.ivComic, appWidgetIds);
+
+        RealmComic comic = (new DatabaseManager(context)).getRealmComic(lastComicNumber);
+        if (prefHelper.fullOfflineEnabled()) {
+            remoteViews.setImageViewBitmap(R.id.ivComic, RealmComic.getOfflineBitmap(lastComicNumber, context, prefHelper));
+        } else {
+            Glide.with(context)
+                    .load(comic.getUrl())
+                    .asBitmap()
+                    .into(appWidgetTarget);
+        }
+
+        String title = prefHelper.widgetShowComicNumber() ? (lastComicNumber + ": ") : "";
+        remoteViews.setTextViewText(R.id.tvTitle, title + comic.getTitle());
+        remoteViews.setTextViewText(R.id.tvAlt, comic.getAltText());
+        if (prefHelper.widgetShowAlt())
+            remoteViews.setViewVisibility(R.id.tvAlt, View.VISIBLE);
     }
 
-    private class LoadComicTask extends AsyncTask<Void, Void, Comic> {
-        Context context;
-
-        public LoadComicTask(Context context) {
-            this.context = context;
-        }
-
-        @Override
-        protected Comic doInBackground(Void... dummy) {
-            Comic comic = null;
-            try {
-                comic = new Comic(lastComicNumber);
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-            return comic;
-        }
-
-        @Override
-        protected void onPostExecute(Comic comic) {
-            AppWidgetManager appWidgetManager = AppWidgetManager.getInstance(context);
-            ComponentName thisAppWidget = new ComponentName(context.getPackageName(), WidgetRandomProvider.class.getName());
-            int[] appWidgetIds = appWidgetManager.getAppWidgetIds(thisAppWidget);
-            RemoteViews remoteViews = new RemoteViews(context.getPackageName(), R.layout.widget_random_layout);
-            AppWidgetTarget appWidgetTarget = new AppWidgetTarget(context, remoteViews, R.id.ivComic, appWidgetIds);
-
-            if (comic != null) {
-                Glide.with(context)
-                        .load(comic.getComicData()[2])
-                        .asBitmap()
-                        .into(appWidgetTarget);
-
-                String title = prefHelper.widgetShowComicNumber() ? (lastComicNumber + ": ") : "";
-                remoteViews.setTextViewText(R.id.tvTitle, title + comic.getComicData()[0]);
-                remoteViews.setTextViewText(R.id.tvAlt, comic.getComicData()[1]);
-                if (prefHelper.widgetShowAlt())
-                    remoteViews.setViewVisibility(R.id.tvAlt, View.VISIBLE);
-            }
-        }
-    }
 
 }

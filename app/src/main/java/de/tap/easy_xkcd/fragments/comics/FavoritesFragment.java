@@ -63,8 +63,7 @@ import de.tap.easy_xkcd.Activities.CustomFilePickerActivity;
 import de.tap.easy_xkcd.Activities.MainActivity;
 import de.tap.easy_xkcd.database.DatabaseManager;
 import de.tap.easy_xkcd.database.RealmComic;
-import de.tap.easy_xkcd.utils.Comic;
-import de.tap.easy_xkcd.utils.OfflineComic;
+import io.realm.Realm;
 import io.realm.RealmResults;
 import uk.co.senab.photoview.PhotoView;
 
@@ -169,7 +168,7 @@ public class FavoritesFragment extends ComicFragment {
                         .load(getGifId(favoriteComic.getComicNumber() - 1))
                         .into(new GlideDrawableImageViewTarget(pvComic));
             else {
-                Bitmap bitmap = OfflineComic.getBitmap(favoriteComic.getComicNumber(), context, prefHelper);
+                Bitmap bitmap = RealmComic.getOfflineBitmap(favoriteComic.getComicNumber(), context, prefHelper);
                 if (themePrefs.invertColors(false) && themePrefs.bitmapContainsColor(bitmap, position+1))
                     pvComic.clearColorFilter();
                 if (bitmap != null)
@@ -293,16 +292,15 @@ public class FavoritesFragment extends ComicFragment {
         protected Void doInBackground(Void... dummy) {
             while (!favStack.isEmpty()) {
                 try {
-                    int num = favStack.pop();
-                    Comic comic = new Comic(num, getActivity());
+                    RealmComic comic = RealmComic.findNewestComic(Realm.getDefaultInstance(), getActivity());
                     mBitmap = Glide
                             .with(getActivity())
-                            .load(comic.getComicData()[2])
+                            .load(comic.getUrl())
                             .asBitmap()
                             .diskCacheStrategy(DiskCacheStrategy.SOURCE)
                             .into(-1, -1)
                             .get();
-                    saveComic(num, mBitmap);
+                    saveComic(comic.getComicNumber(), mBitmap);
                 } catch (Exception e) {
                     e.printStackTrace();
                 }
@@ -433,7 +431,7 @@ public class FavoritesFragment extends ComicFragment {
     @Override
     protected boolean modifyFavorites(MenuItem item) {
         final int mRemoved = favorites.get(favoriteIndex).getComicNumber();
-        final Bitmap mRemovedBitmap = OfflineComic.getBitmap(favorites.get(favoriteIndex).getComicNumber(), getActivity(), prefHelper);
+        final Bitmap mRemovedBitmap = RealmComic.getOfflineBitmap(favorites.get(favoriteIndex).getComicNumber(), getActivity(), prefHelper);
         final String mAlt = prefHelper.getAlt(favorites.get(favoriteIndex).getComicNumber());
         final String mTitle = prefHelper.getTitle(favorites.get(favoriteIndex).getComicNumber());
 

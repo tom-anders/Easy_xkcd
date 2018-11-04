@@ -66,7 +66,6 @@ import de.tap.easy_xkcd.database.DatabaseManager;
 import de.tap.easy_xkcd.database.RealmComic;
 import de.tap.easy_xkcd.fragments.overview.OverviewListFragment;
 import de.tap.easy_xkcd.misc.HackyViewPager;
-import de.tap.easy_xkcd.utils.Comic;
 import de.tap.easy_xkcd.utils.PrefHelper;
 import de.tap.easy_xkcd.utils.ThemePrefs;
 import timber.log.Timber;

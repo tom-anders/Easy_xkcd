@@ -14,10 +14,15 @@ import com.bumptech.glide.Glide;
 import com.bumptech.glide.request.target.AppWidgetTarget;
 import com.tap.xkcd_reader.R;
 
+import org.json.JSONException;
+import org.json.JSONObject;
+
 import java.io.IOException;
 
-import de.tap.easy_xkcd.utils.Comic;
+import de.tap.easy_xkcd.database.RealmComic;
 import de.tap.easy_xkcd.utils.PrefHelper;
+import io.realm.Realm;
+import timber.log.Timber;
 
 public class WidgetLatestProvider extends AppWidgetProvider {
     private PrefHelper prefHelper;
@@ -44,7 +49,7 @@ public class WidgetLatestProvider extends AppWidgetProvider {
 
     }
 
-    private class LoadComicTask extends AsyncTask<Void, Void, Comic> {
+    private class LoadComicTask extends AsyncTask<Void, Void, RealmComic> {
         Context context;
 
         public LoadComicTask(Context context) {
@@ -52,18 +57,18 @@ public class WidgetLatestProvider extends AppWidgetProvider {
         }
 
         @Override
-        protected Comic doInBackground(Void... dummy) {
-            Comic comic = null;
+        protected RealmComic doInBackground(Void... dummy) {
+            RealmComic comic = null;
             try {
-                comic = new Comic(0);
-            } catch (IOException e) {
-                e.printStackTrace();
+                comic = RealmComic.findNewestComic(Realm.getDefaultInstance(), context);
+            } catch (IOException | JSONException e) {
+                Timber.e(e);
             }
             return comic;
         }
 
         @Override
-        protected void onPostExecute(Comic comic) {
+        protected void onPostExecute(RealmComic comic) {
             AppWidgetManager appWidgetManager = AppWidgetManager.getInstance(context);
             ComponentName thisAppWidget = new ComponentName(context.getPackageName(), WidgetLatestProvider.class.getName());
             int[] appWidgetIds = appWidgetManager.getAppWidgetIds(thisAppWidget);
@@ -73,12 +78,12 @@ public class WidgetLatestProvider extends AppWidgetProvider {
             if (comic != null) {
                 newestComicNumber = comic.getComicNumber();
                 Glide.with(context)
-                        .load(comic.getComicData()[2])
+                        .load(comic.getUrl())
                         .asBitmap()
                         .into(appWidgetTarget);
                 String title = prefHelper.widgetShowComicNumber() ? (newestComicNumber + ": ") : "";
-                remoteViews.setTextViewText(R.id.tvTitle, title + comic.getComicData()[0]);
-                remoteViews.setTextViewText(R.id.tvAlt, comic.getComicData()[1]);
+                remoteViews.setTextViewText(R.id.tvTitle, title + comic.getTitle());
+                remoteViews.setTextViewText(R.id.tvAlt, comic.getAltText());
                 if (prefHelper.widgetShowAlt())
                     remoteViews.setViewVisibility(R.id.tvAlt, View.VISIBLE);
 

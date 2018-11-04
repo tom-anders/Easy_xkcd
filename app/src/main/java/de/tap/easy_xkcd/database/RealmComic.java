@@ -18,8 +18,31 @@
 
 package de.tap.easy_xkcd.database;
 
+import android.content.Context;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.os.Build;
+import android.util.Log;
+
+import com.tap.xkcd_reader.R;
+
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.io.UnsupportedEncodingException;
+import java.util.Arrays;
+import java.util.concurrent.ConcurrentHashMap;
+
+import de.tap.easy_xkcd.utils.PrefHelper;
+import io.realm.Realm;
 import io.realm.RealmObject;
 import io.realm.annotations.PrimaryKey;
+import timber.log.Timber;
+
+import static de.tap.easy_xkcd.utils.JsonParser.getJSONFromUrl;
 
 public class RealmComic extends RealmObject {
 
@@ -97,5 +120,141 @@ public class RealmComic extends RealmObject {
 
     public void setAltText(String altText) {
         this.altText = altText;
+    }
+
+    public static boolean isInteractiveComic(int number, Context context) {
+        return Arrays.binarySearch(context.getResources().getIntArray(R.array.interactive_comics), number) >= 0;
+    }
+
+    public static boolean isLargeComic(int number, Context context) {
+        return Arrays.binarySearch(context.getResources().getIntArray(R.array.large_comics), number) >= 0;
+    }
+
+    //Thanks to /u/doncajon https://www.reddit.com/r/xkcd/comments/667yaf/xkcd_1826_birdwatching/
+    public static String getDoubleResolutionUrl(String url, int number) {
+        int no2xVersion[] = {1097, 1103, 1127, 1151, 1182, 1193, 1229, 1253, 1335, 1349, 1350, 1446, 1452, 1506, 1608, 1663, 1667, 1735, 1739, 1744, 1778};
+
+        if(number >= 1084 && Arrays.binarySearch(no2xVersion, number) < 0 &&  !url.contains("_2x.png"))
+            return url.substring(0, url.lastIndexOf('.')) + "_2x.png";
+
+        return url;
+    }
+
+    public static String getJsonUrl(int number) {
+        if (number != 0) {
+            return "https://xkcd.com/" + number + "/info.0.json";
+        } else {
+            return "https://xkcd.com/info.0.json";
+        }
+    }
+
+    public static int findNewestComicNumber() throws IOException, JSONException {
+        return getJSONFromUrl(getJsonUrl(0)).getInt("num");
+    }
+
+    public static RealmComic findNewestComic(Realm realm, Context context) throws IOException, JSONException {
+        JSONObject json = getJSONFromUrl(getJsonUrl(0));
+        return buildFromJson(realm, json.getInt("num"), json, context);
+    }
+
+    public static RealmComic buildFromJson(Realm realm, int comicNumber, JSONObject json, Context context) {
+        RealmComic realmComic = new RealmComic();
+
+        String title = "", altText = "", url = "", transcript = "";
+        if (comicNumber == 404) {
+            title = "404";
+            altText = "404";
+            url = "http://i.imgur.com/p0eKxKs.png";
+        } else if (json.length() != 0) {
+            try {
+                title = new String(json.getString("title").getBytes("ISO-8859-1"), "UTF-8");
+                if (isInteractiveComic(comicNumber, context)) {
+                    title += " (interactive)";
+                }
+
+                url = json.getString("img");
+                if (!isLargeComic(comicNumber, context) && !isInteractiveComic(comicNumber, context)) {
+                    url = getDoubleResolutionUrl(url, comicNumber);
+                }
+                if (isLargeComic(comicNumber, context)) {
+                    url = context.getResources().
+                            getStringArray(R.array.large_comics_urls)[Arrays.binarySearch(context.getResources().getIntArray(R.array.large_comics), comicNumber)];
+                }
+
+                altText = new String(json.getString("alt").getBytes("ISO-8859-1"), "UTF-8");
+                transcript = json.getString("transcript");
+
+                // some image and title fixes
+                switch (comicNumber) {
+                    case 1037: url = "http://www.explainxkcd.com/wiki/images/f/ff/umwelt_the_void.jpg";
+                        break;
+                    case 1608: url = "http://www.explainxkcd.com/wiki/images/4/41/hoverboard.png";
+                        break;
+                    case 1350: url = "http://www.explainxkcd.com/wiki/images/3/3d/lorenz.png";
+                        break;
+                    case 104: url = "http://i.imgur.com/dnCNfPo.jpg";
+                        break;
+                    case 76: url = "http://i.imgur.com/h3fi2RV.jpg";
+                        break;
+                    case 80: url = "http://i.imgur.com/lWmI1lB.jpg";
+                        break;
+                    case 1663: url = "http://explainxkcd.com/wiki/images/c/ce/garden.png";
+                        break;
+                    case 1193: url = "https://www.explainxkcd.com/wiki/images/0/0b/externalities.png";
+                        break;
+                    case 1054: title = "The Bacon";
+                        break;
+                    case 1137: title = "RTL";
+                        break;
+                }
+
+                if(Build.VERSION.SDK_INT < Build.VERSION_CODES.LOLLIPOP) { //https doesn't work on KitKat and lower for some reason...
+                    url = url.replaceAll("https", "http");
+                }
+            } catch (JSONException | UnsupportedEncodingException e) {
+                Timber.wtf(e);
+            }
+        } else {
+            Timber.wtf("json is empty but comic number is not 404!");
+        }
+
+        realmComic.setComicNumber(comicNumber);
+        realmComic.setTitle(title);
+        realmComic.setAltText(altText);
+        realmComic.setUrl(url);
+        realmComic.setTranscript(transcript); //TODO fix the transcripts that are of by one or two...
+
+        return realmComic;
+    }
+
+    public static Bitmap getOfflineBitmap(int comicNumber, Context context, PrefHelper prefHelper) {
+        final String OFFLINE_PATH = "/easy xkcd";
+
+        //Fix for offline users who downloaded the HUGE version of #1826
+        if(comicNumber == 1826) {
+            BitmapFactory.Options options = new BitmapFactory.Options();
+            options.inScaled = false;
+            return BitmapFactory.decodeResource(context.getResources(), R.mipmap.birdwatching, options);
+        }
+
+        Bitmap mBitmap = null;
+        try {
+            File sdCard = prefHelper.getOfflinePath();
+            File dir = new File(sdCard.getAbsolutePath() + OFFLINE_PATH);
+            File file = new File(dir, String.valueOf(comicNumber) + ".png");
+            FileInputStream fis = new FileInputStream(file);
+            mBitmap = BitmapFactory.decodeStream(fis);
+            fis.close();
+        } catch (IOException e) {
+            Log.e("Error", "Image not found, looking in internal storage");
+            try {
+                FileInputStream fis = context.openFileInput(String.valueOf(comicNumber));
+                mBitmap = BitmapFactory.decodeStream(fis);
+                fis.close();
+            } catch (Exception e2) {
+                e2.printStackTrace();
+            }
+        }
+        return mBitmap;
     }
 }

@@ -62,7 +62,6 @@ import java.util.Arrays;
 import de.tap.easy_xkcd.Activities.MainActivity;
 import de.tap.easy_xkcd.database.DatabaseManager;
 import de.tap.easy_xkcd.database.RealmComic;
-import de.tap.easy_xkcd.utils.Comic;
 import io.realm.RealmResults;
 import timber.log.Timber;
 import uk.co.senab.photoview.PhotoView;
@@ -181,7 +180,7 @@ public class ComicBrowserFragment extends ComicFragment {
             }
 
             if (getGifId(position) == 0) {
-                loadImage(position, Comic.getDoubleResolutionUrl(comic.getUrl(), comicNumber, context), pvComic);
+                loadImage(position, comic.getUrl(), pvComic);
             } else {
                 loadGif(position, pvComic);
             }

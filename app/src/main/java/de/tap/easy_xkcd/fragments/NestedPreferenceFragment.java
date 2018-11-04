@@ -57,9 +57,9 @@ import java.io.FileOutputStream;
 import de.tap.easy_xkcd.Activities.MainActivity;
 import de.tap.easy_xkcd.Activities.NestedSettingsActivity;
 import de.tap.easy_xkcd.database.DatabaseManager;
+import de.tap.easy_xkcd.database.RealmComic;
 import de.tap.easy_xkcd.services.ArticleDownloadService;
 import de.tap.easy_xkcd.services.ComicDownloadService;
-import de.tap.easy_xkcd.utils.Comic;
 import de.tap.easy_xkcd.utils.PrefHelper;
 import de.tap.easy_xkcd.utils.ThemePrefs;
 import okhttp3.OkHttpClient;
@@ -536,7 +536,7 @@ public class NestedPreferenceFragment extends PreferenceFragment {
         protected Void doInBackground(Void... params) {
             int newest;
             try {
-                newest = new Comic(0).getComicNumber();
+                newest = RealmComic.findNewestComicNumber();
                 prefHelper.setNewestComic(newest);
                 prefHelper.setHighestOffline(newest);
             } catch (Exception e) {
@@ -573,9 +573,9 @@ public class NestedPreferenceFragment extends PreferenceFragment {
             File sdCard = prefHelper.getOfflinePath();
             File dir = new File(sdCard.getAbsolutePath() + OFFLINE_PATH);
             try {
-                Comic comic = new Comic(i, getActivity());
+                RealmComic comic = (new DatabaseManager(getActivity())).getRealmComic(i);
                 Request request = new Request.Builder()
-                        .url(comic.getComicData()[2])
+                        .url(comic.getUrl())
                         .build();
                 Response response = client.newCall(request).execute();
                 try {
@@ -596,8 +596,6 @@ public class NestedPreferenceFragment extends PreferenceFragment {
                     }
                 }
                 response.body().close();
-                prefHelper.addTitle(comic.getComicData()[0], i);
-                prefHelper.addAlt(comic.getComicData()[1], i);
             } catch (Exception e) {
                 e.printStackTrace();
             }

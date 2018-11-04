@@ -46,7 +46,6 @@ import java.util.concurrent.CountDownLatch;
 
 import de.tap.easy_xkcd.database.DatabaseManager;
 import de.tap.easy_xkcd.database.RealmComic;
-import de.tap.easy_xkcd.utils.Comic;
 import de.tap.easy_xkcd.utils.PrefHelper;
 import io.realm.RealmResults;
 import okhttp3.CacheControl;
