@@ -292,7 +292,7 @@ public class MainActivity extends BaseActivity {
                 else
                     overviewBaseFragment.showRandomComic(databaseManager.getRandomUnread());
             else
-                overviewBaseFragment.showComic(new Random().nextInt(databaseManager.getFavComicsLegacy().length));
+                overviewBaseFragment.showComic(new Random().nextInt(databaseManager.getFavComics().size()));
         } else { // The user is browsing comics or favorites
             switch (currentFragment) {
                 case R.id.nav_browser: {

@@ -94,7 +94,14 @@ public abstract class OverviewBaseFragment extends android.support.v4.app.Fragme
                     .hide(fragmentManager.findFragmentByTag(BROWSER_TAG))
                     .hide(fragmentManager.findFragmentByTag(OVERVIEW_TAG));
             fragment = (FavoritesFragment) fragmentManager.findFragmentByTag(FAV_TAG);
-            int index = Arrays.binarySearch(databaseManager.getFavComicsLegacy(), number + 1);
+            //int index = Arrays.binarySearch(databaseManager.getFavComicsLegacy(), number + 1);
+            RealmResults<RealmComic> favorites = databaseManager.getFavComics();
+            int index = 0;
+            for (int i = 0; i < favorites.size(); i++) {
+                if (favorites.get(i).getComicNumber() == number + 1) {
+                    index = i;
+                }
+            }
             if (fragment == null || index < 0) {
                 if (index < 0) { // If the comic for some reason is in realm, but not in shared prefs, add it now
                     index = -index - 1;
@@ -107,7 +114,7 @@ public abstract class OverviewBaseFragment extends android.support.v4.app.Fragme
                 fragment.scrollTo(index, false);
             }
             fragment.favoriteIndex = index;
-            subtitle = databaseManager.getFavComicsLegacy()[fragment.favoriteIndex];
+            subtitle = number + 1;
             transaction.commit();
 
             ((MainActivity) getActivity()).setCurrentFragment(R.id.nav_favorites);

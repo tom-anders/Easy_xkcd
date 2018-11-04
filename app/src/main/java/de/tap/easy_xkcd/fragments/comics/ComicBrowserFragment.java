@@ -234,6 +234,11 @@ public class ComicBrowserFragment extends ComicFragment {
                 if (((MainActivity) getActivity()).getProgressDialog() != null)
                     ((MainActivity) getActivity()).getProgressDialog().dismiss();
             }
+            if (position == lastComicNumber + 1
+                    || (position == lastComicNumber - 1 && lastComicNumber == newestComicNumber)
+                    || (position == lastComicNumber && lastComicNumber == newestComicNumber - 1)) {
+                loadingImages = false;
+            }
         }
 
         @Override

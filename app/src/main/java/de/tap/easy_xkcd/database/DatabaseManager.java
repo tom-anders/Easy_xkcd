@@ -39,9 +39,7 @@ public class DatabaseManager {
     public Realm realm;
     private static final String REALM_DATABASE_LOADED = "pref_realm_database_loaded";
     private static final String HIGHEST_DATABASE = "highest_database_newversion";
-    private static final String HIGHEST_DATABASE_LEGACY = "highest_database";
     private static final String COMIC_READ = "comic_read";
-    private static final String FAVORITES_MOVED = "fav_moved";
     private static final String FAVORITES = "favorites";
 
     private static RealmConfiguration config;
@@ -131,34 +129,6 @@ public class DatabaseManager {
         }
         realm.commitTransaction();
     }
-
-    /*private void addFavorite(int fav) {
-        String favorites = getSharedPrefs().getString(FAVORITES, null);
-        if (favorites == null)
-            favorites = String.valueOf(fav);
-        else
-            favorites += "," + String.valueOf(fav);
-        getSharedPrefs().edit().putString(FAVORITES, favorites).apply();
-    }
-
-    private void removeFavorite(int favToRemove) {
-        int[] old = getFavComicsLegacy();
-        int a = Arrays.binarySearch(old, favToRemove);
-        int[] out = new int[old.length - 1];
-        if (out.length != 0 && a >= 0) {
-            System.arraycopy(old, 0, out, 0, a);
-            System.arraycopy(old, a + 1, out, a, out.length - a);
-            StringBuilder sb = new StringBuilder();
-            sb.append(out[0]);
-            for (int i = 1; i < out.length; i++) {
-                sb.append(",");
-                sb.append(out[i]);
-            }
-            getSharedPrefs().edit().putString(FAVORITES, sb.toString()).apply();
-        } else {
-            getSharedPrefs().edit().putString(FAVORITES, null).apply();
-        }
-    }*/
 
     public void removeAllFavorites() {
         RealmResults<RealmComic> favorites = getFavComics();
