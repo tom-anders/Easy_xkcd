@@ -103,7 +103,7 @@ public class updateComicDatabase extends AsyncTask<Void, Integer, Void> {
                             Log.e("error", "json exception at " + num + ": " + e.getMessage());
                         }
                         try {
-                            comics.put(num,  new Comic(num, json));
+                            comics.put(num,  new Comic(num, json, context));
                         } catch (IOException e) {
                             Log.e("error", "ioexception at " + num + ": " + e.getMessage());
                         } finally {

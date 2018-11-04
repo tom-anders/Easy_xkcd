@@ -29,6 +29,7 @@ import org.json.JSONObject;
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.StringTokenizer;
+import java.util.concurrent.ConcurrentHashMap;
 
 
 public class Comic {
@@ -65,10 +66,10 @@ public class Comic {
         }
     }
 
-    public Comic(int number, JSONObject json) throws IOException {
+    public Comic(int number, JSONObject json, Context context) throws IOException {
         this.json = json;
         try {
-            comicData = loadComicData(number, null);
+            comicData = loadComicData(number, context);
         } catch (JSONException e) {
             e.printStackTrace();
         }
@@ -125,9 +126,10 @@ public class Comic {
             case 1137: result[0] = "RTL";
                 break;
         }
-        if(Build.VERSION.SDK_INT < Build.VERSION_CODES.LOLLIPOP) {
-            result[0] = result[0].replaceAll("https", "http");
+        if(Build.VERSION.SDK_INT < Build.VERSION_CODES.LOLLIPOP) { //https doesn't work on KitKat and lower for some reason...
+            result[2] = result[2].replaceAll("https", "http");
         }
+
         return result;
     }
 
@@ -150,12 +152,10 @@ public class Comic {
     //Thanks to /u/doncajon https://www.reddit.com/r/xkcd/comments/667yaf/xkcd_1826_birdwatching/
     static public String getDoubleResolutionUrl(String url, int number, Context context) {
         boolean largeComic = context != null && Arrays.binarySearch(context.getResources().getIntArray(R.array.large_comics), number) >= 0;
-        int no2xVersion[] = {1193, 1446, 1350, 1608, 1663, 1667, 1735, 1739, 1744, 1778};
+        boolean interactiveComic = context != null && Arrays.binarySearch(context.getResources().getIntArray(R.array.interactive_comics), number) >= 0; //Check for interactive comic
+        int no2xVersion[] = {1097, 1103, 1182, 1193, 1253, 1335, 1349, 1350, 1446, 1452, 1506, 1608, 1663, 1667, 1735, 1739, 1744, 1778};
 
-        if(Build.VERSION.SDK_INT < Build.VERSION_CODES.LOLLIPOP) { //https doesn't work on KitKat and lower for some reason...
-            url = url.replaceAll("https", "http");
-        }
-        if(number >= 1084 && Arrays.binarySearch(no2xVersion, number) < 0 && !largeComic && !url.contains("_2x.png"))
+        if(number >= 1084 && Arrays.binarySearch(no2xVersion, number) < 0 && !largeComic && !interactiveComic && !url.contains("_2x.png"))
             return url.substring(0, url.lastIndexOf('.')) + "_2x.png";
         return url;
     }
