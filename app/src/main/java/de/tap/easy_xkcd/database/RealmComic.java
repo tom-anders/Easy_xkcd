@@ -58,6 +58,8 @@ public class RealmComic extends RealmObject {
     private String altText;
     private String preview;
 
+    public static final String OFFLINE_PATH = "/easy xkcd";
+
     public int getComicNumber() {
         return comicNumber;
     }
@@ -228,8 +230,6 @@ public class RealmComic extends RealmObject {
     }
 
     public static Bitmap getOfflineBitmap(int comicNumber, Context context, PrefHelper prefHelper) {
-        final String OFFLINE_PATH = "/easy xkcd";
-
         //Fix for offline users who downloaded the HUGE version of #1826
         if(comicNumber == 1826) {
             BitmapFactory.Options options = new BitmapFactory.Options();

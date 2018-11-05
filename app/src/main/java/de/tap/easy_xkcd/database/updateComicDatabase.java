@@ -3,13 +3,17 @@ package de.tap.easy_xkcd.database;
 import android.app.ProgressDialog;
 import android.content.Context;
 import android.os.AsyncTask;
+import android.os.Build;
 import android.util.Log;
 
+import com.tap.xkcd_reader.BuildConfig;
 import com.tap.xkcd_reader.R;
 
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CountDownLatch;
@@ -22,6 +26,8 @@ import okhttp3.Callback;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.Response;
+import okio.BufferedSink;
+import okio.Okio;
 import timber.log.Timber;
 
 import static de.tap.easy_xkcd.utils.JsonParser.getNewHttpClient;
@@ -120,16 +126,20 @@ public class updateComicDatabase extends AsyncTask<Void, Integer, Void> {
             } catch (InterruptedException e) {
                 e.printStackTrace();
             }
-            final int[] legacyRead = databaseManager.getReadComicsLegacy();
-            final int[] legacyFav = databaseManager.getFavComicsLegacy();
 
-            Realm realm = Realm.getDefaultInstance();
+            final Realm realm = Realm.getDefaultInstance();
             realm.beginTransaction();
+            boolean fullOffline = prefHelper.fullOfflineEnabled();
+            final CountDownLatch latch2 = new CountDownLatch(newest - highest);
+            if (fullOffline) {
+                progress.setMessage(context.getResources().getString(R.string.update_database_message_offline));
+            }
             for (Integer num : jsons.keySet()) {
                 JSONObject json = jsons.get(num);
                 RealmComic oldRealmComic = realm.where(RealmComic.class).equalTo("comicNumber", num).findFirst();
-                RealmComic newRealmComic = RealmComic.buildFromJson(realm, num, json, context);
+                final RealmComic newRealmComic = RealmComic.buildFromJson(realm, num, json, context);
 
+                //Import read and favorite comics from the old database
                 if (oldRealmComic != null && oldRealmComic.isFavorite()) {
                     Timber.d("comic %d was a favorite in the old realm database!", num);
                     newRealmComic.setFavorite(true);
@@ -147,13 +157,77 @@ public class updateComicDatabase extends AsyncTask<Void, Integer, Void> {
 
                 realm.copyToRealmOrUpdate(newRealmComic);
 
-                int p = (int) (((num - highest) / ((float) newest - highest)) * 100);
-                publishProgress(p);
+                if (fullOffline) {
+                    Request request = new Request.Builder()
+                            .url(newRealmComic.getUrl())
+                            .build();
+                    client.newCall(request).enqueue(new Callback() {
+                        @Override
+                        public void onFailure(Call call, IOException e) {
+                            Timber.e("call to comic %d failed", newRealmComic.getComicNumber());
+                        }
+
+                        @Override
+                        public void onResponse(Call call, Response response) throws IOException {
+                            try {
+                                File sdCard = prefHelper.getOfflinePath();
+                                File dir = new File(sdCard.getAbsolutePath() + RealmComic.OFFLINE_PATH);
+                                File file = new File(dir, newRealmComic.getComicNumber() + ".png");
+                                BufferedSink sink = Okio.buffer(Okio.sink(file));
+                                sink.writeAll(response.body().source());
+                                sink.close();
+                            } catch (Exception e) {
+                                Timber.e("Error at comic %d: Saving to external storage failed!", newRealmComic.getComicNumber());
+                                Timber.e(e);
+                                try {
+                                    FileOutputStream fos = context.openFileOutput(String.valueOf(newRealmComic.getComicNumber()), Context.MODE_PRIVATE);
+                                    BufferedSink sink = Okio.buffer(Okio.sink(fos));
+                                    sink.writeAll(response.body().source());
+                                    fos.close();
+                                    sink.close();
+                                } catch (Exception e2) {
+                                    Timber.e("Error at comic %d: Saving to internal storage failed!", newRealmComic.getComicNumber());
+                                }
+                            }
+                            response.body().close();
+                            int prog = (int) (((newest - highest - latch2.getCount()) / ((float) newest - highest)) * 100);
+                            publishProgress(prog);
+                            latch2.countDown();
+                            Timber.d("Saved offline comic %s", newRealmComic.getComicNumber());
+                        }
+                    });
+                } else {
+                    int prog = (int) (((num - highest) / ((float) newest - highest)) * 100);
+                    publishProgress(prog);
+                    latch2.countDown();
+                }
+
             }
+            try {
+                latch2.await();
+            } catch (InterruptedException e) {
+                Timber.e(e);
+            }
+            prefHelper.setHighestOffline(newest);
+
             realm.commitTransaction();
             realm.close();
 
             databaseManager.setHighestInDatabase(newest);
+
+            Timber.d("Highest Offline: %d, highest databse: %d", newest, newest); //We dont actually need highestOffline now!
+        }
+
+        if (!prefHelper.nomediaCreated()) {
+            File sdCard = prefHelper.getOfflinePath();
+            File dir = new File(sdCard.getAbsolutePath() + "/easy xkcd");
+            File nomedia = new File(dir, ".nomedia");
+            try {
+                boolean created = nomedia.createNewFile();
+                Timber.d("created nomedia in external storage: %s", created);
+            } catch (IOException e) {
+                Timber.e(e);
+            }
         }
 
         return null;

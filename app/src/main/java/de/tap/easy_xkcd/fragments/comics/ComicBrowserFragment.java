@@ -307,6 +307,7 @@ public class ComicBrowserFragment extends ComicFragment {
     @Override
     public boolean getRandomComic() {
         if (prefHelper.isOnline(getActivity()) && newestComicNumber != 0) {
+            //TODO does the progress dialog have to be in MainActivity? Could it be a member of ComicFragment instead?
             ((MainActivity) getActivity()).setProgressDialog(getActivity().getResources().getString(R.string.loading_random), false);
             return super.getRandomComic();
         }

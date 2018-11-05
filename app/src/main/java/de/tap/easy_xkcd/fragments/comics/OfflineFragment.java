@@ -63,7 +63,6 @@ import uk.co.senab.photoview.PhotoView;
 
 public class OfflineFragment extends ComicFragment {
     private Boolean randomSelected = false;
-    private static final String OFFLINE_PATH = "/easy xkcd";
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
@@ -73,21 +72,11 @@ public class OfflineFragment extends ComicFragment {
             ((MainActivity) getActivity()).getProgressDialog().dismiss();
 
 
-        if (savedInstanceState == null && prefHelper.isOnline(getActivity()) && (prefHelper.isWifi(getActivity()) | prefHelper.mobileEnabled()) && !fromSearch) {
-            new updateImages(true).execute();
-        } else {
-            newestComicNumber = prefHelper.getHighestOffline();
-            scrollViewPager();
-            adapter = new OfflineBrowserPagerAdapter(getActivity(), newestComicNumber);
-            pager.setAdapter(adapter);
-            new updateImages(false).execute();
-        }
+        updatePager();
 
         pager.addOnPageChangeListener(new ViewPager.OnPageChangeListener() {
             @Override
-            public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) {
-
-            }
+            public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) {}
 
             @Override
             public void onPageSelected(int position) {
@@ -95,9 +84,7 @@ public class OfflineFragment extends ComicFragment {
             }
 
             @Override
-            public void onPageScrollStateChanged(int state) {
-
-            }
+            public void onPageScrollStateChanged(int state) {}
         });
 
         return v;
@@ -105,109 +92,25 @@ public class OfflineFragment extends ComicFragment {
 
     @Override
     public void updatePager() {
-        new updateImages(false).execute();
+        newestComicNumber = prefHelper.getHighestOffline();
+        scrollViewPager();
+        adapter = new OfflineBrowserPagerAdapter(getActivity(), newestComicNumber);
+        pager.setAdapter(adapter);
+        if (newComicFound && lastComicNumber != newestComicNumber && (prefHelper.getNotificationInterval() == 0)) {
+            View.OnClickListener oc = new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    getLatestComic();
+                }
+            };
+            FloatingActionButton fab = getActivity().findViewById(R.id.fab);
+            //noinspection ResourceType (android studio won't let you set a custom snackbar length)
+            Snackbar.make(fab, getActivity().getResources().getString(R.string.new_comic), 4000)
+                    .setAction(getActivity().getResources().getString(R.string.new_comic_view), oc)
+                    .show();
+        }
     }
 
-    public class updateImages extends AsyncTask<Void, Void, Boolean> {
-        private ProgressDialog progress;
-        private boolean showProgress;
-
-        public updateImages(boolean showProgress) {
-            this.showProgress = showProgress;
-        }
-
-        @Override
-        protected void onPreExecute() {
-            if (showProgress) {
-                progress = new ProgressDialog(getActivity());
-                progress.setTitle(getResources().getString(R.string.loading_comics));
-                progress.setCancelable(false);
-                progress.show();
-            }
-            Log.d("info", "updateImages started");
-        }
-
-        @SuppressWarnings("ResultOfMethodCallIgnored")
-        @Override
-        protected Boolean doInBackground(Void... pos) {
-            boolean showSnackbar = false;
-            try {
-                newestComicNumber = RealmComic.findNewestComicNumber();
-                if (newestComicNumber > prefHelper.getHighestOffline()) {
-                    showSnackbar = prefHelper.getNotificationInterval() == 0 && lastComicNumber != newestComicNumber;
-                    OkHttpClient client = new OkHttpClient();
-                    File sdCard = prefHelper.getOfflinePath();
-                    File dir = new File(sdCard.getAbsolutePath() + OFFLINE_PATH);
-                    for (int i = prefHelper.getHighestOffline() + 1; i <= newestComicNumber; i++) {
-                        Log.d("comic added", String.valueOf(i));
-                        RealmComic comic = databaseManager.getRealmComic(i);
-                        Request request = new Request.Builder()
-                                .url(comic.getUrl())
-                                .build();
-                        Response response = client.newCall(request).execute();
-                        try {
-                            File file = new File(dir, String.valueOf(i) + ".png");
-                            BufferedSink sink = Okio.buffer(Okio.sink(file));
-                            sink.writeAll(response.body().source());
-                            sink.close();
-                        } catch (Exception e) {
-                            Log.e("Error at comic" + i, "Saving to external storage failed");
-                            try {
-                                FileOutputStream fos = getActivity().openFileOutput(String.valueOf(i), Context.MODE_PRIVATE);
-                                BufferedSink sink = Okio.buffer(Okio.sink(fos));
-                                sink.writeAll(response.body().source());
-                                fos.close();
-                                sink.close();
-                            } catch (Exception e2) {
-                                e2.printStackTrace();
-                            }
-                        }
-                        response.body().close();
-                        prefHelper.setHighestOffline(i);
-                        prefHelper.setNewestComic(i);
-                    }
-                }
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-            if (!prefHelper.nomediaCreated()) {
-                File sdCard = prefHelper.getOfflinePath();
-                File dir = new File(sdCard.getAbsolutePath() + "/easy xkcd");
-                File nomedia = new File(dir, ".nomedia");
-                try {
-                    boolean created = nomedia.createNewFile();
-                    Log.d("created", String.valueOf(created));
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-            }
-            return showSnackbar;
-        }
-
-        @Override
-        protected void onPostExecute(Boolean showSnackbar) {
-            if (showProgress)
-                progress.dismiss();
-            if (((MainActivity) getActivity()).getProgressDialog() != null)
-                ((MainActivity) getActivity()).getProgressDialog().dismiss();
-            scrollViewPager();
-            adapter = new OfflineBrowserPagerAdapter(getActivity(), newestComicNumber);
-            pager.setAdapter(adapter);
-            if (showSnackbar) {
-                View.OnClickListener oc = new View.OnClickListener() {
-                    @Override
-                    public void onClick(View v) {
-                        getLatestComic();
-                    }
-                };
-                FloatingActionButton fab = (FloatingActionButton) getActivity().findViewById(R.id.fab);
-                //noinspection ResourceType (android studio won't let you set a custom snackbar length)
-                Snackbar.make(fab, getActivity().getResources().getString(R.string.new_comic), 4000)
-                        .setAction(getActivity().getResources().getString(R.string.new_comic_view), oc)
-                        .show();
-            }
-        }
-    }
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
