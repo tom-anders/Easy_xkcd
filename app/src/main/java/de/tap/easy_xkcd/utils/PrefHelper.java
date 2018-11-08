@@ -116,6 +116,9 @@ public class PrefHelper {
     private static final String WIDGET_COMIC_NUMBER = "widget_comicNumber";
     private static final String NAV_DRAWER_SWIPE = "disable_nav_drawer_swipe";
 
+    private static final String FAB_DISABLED_COMICBROWSER = "pref_random_comics";
+    private static final String FAB_DISABLED_FAVORITES = "pref_random_favorites";
+
     public PrefHelper(Context context) {
         sharedPrefs = context.getSharedPreferences("MainActivity", Activity.MODE_PRIVATE);
         prefs = PreferenceManager.getDefaultSharedPreferences(context);
@@ -137,8 +140,16 @@ public class PrefHelper {
         prefs.edit().putBoolean(NAV_DRAWER_SWIPE, value).apply();
     }
 
-    public boolean fabDisabled(String prefTag) {
+    public boolean fabDisabled(String prefTag) { //TODO make this private
         return prefs.getStringSet("pref_random", new HashSet<String>()).contains(prefTag);
+    }
+
+    public boolean fabDisabledComicBrowser() {
+        return fabDisabled(FAB_DISABLED_COMICBROWSER);
+    }
+
+    public boolean fabDisabledFavorites() {
+        return fabDisabled(FAB_DISABLED_FAVORITES);
     }
 
     public boolean subtitleEnabled() {

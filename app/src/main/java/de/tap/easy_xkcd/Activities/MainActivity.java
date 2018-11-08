@@ -37,6 +37,8 @@ import android.preference.PreferenceManager;
 import android.support.design.widget.CoordinatorLayout;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.NavigationView;
+import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.view.GravityCompat;
@@ -110,15 +112,16 @@ public class MainActivity extends BaseActivity {
     private static final String COMIC_INTENT = "de.tap.easy_xkcd.ACTION_COMIC";
     private static final String WHATIF_INTENT = "de.tap.easy_xkcd.ACTION_WHAT_IF";
     private static final String SAVED_INSTANCE_CURRENT_FRAGMENT = "CurrentFragment";
-    private static final String BROWSER_TAG = "browser";
+    private static final String BROWSER_TAG = "browser"; //TODO get rid of these tags
     private static final String FAV_TAG = "favorites";
     private static final String WHATIF_TAG = "whatif";
     private static final String OVERVIEW_TAG = "overview";
     public static final int UPDATE_ALARM = 2;
 
+    private static final String FRAGMENT_TAG = "MainActivityFragments";
 
     @Override
-    protected void onCreate(Bundle savedInstanceState) {
+    protected void onCreate(final Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         ButterKnife.bind(this);
@@ -230,7 +233,7 @@ public class MainActivity extends BaseActivity {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
                         MenuItem m = mNavView.getMenu().findItem(R.id.nav_favorites);
-                        selectDrawerItem(m, false, false, true);
+                        selectDrawerItem(m, false, false, true, savedInstanceState == null);
                     }
                 });
             }
@@ -272,7 +275,7 @@ public class MainActivity extends BaseActivity {
                 showOverview = savedInstanceState.getBoolean(OVERVIEW_TAG, false); //Check if overview mode was active before the device was rotated
             else
                 overviewLaunch = prefHelper.launchToOverview() && !getIntent().getAction().equals(Intent.ACTION_VIEW); //Check if the user chose overview to be shown by default
-            selectDrawerItem(item, showOverview, !showOverview, !fromOnRestart);
+            selectDrawerItem(item, showOverview, !showOverview, !fromOnRestart, savedInstanceState == null ^ fromOnRestart);
             unlockRotation();
             super.onPostExecute(dummy);
         }
@@ -331,11 +334,41 @@ public class MainActivity extends BaseActivity {
                 new NavigationView.OnNavigationItemSelectedListener() {
                     @Override
                     public boolean onNavigationItemSelected(MenuItem menuItem) {
-                        selectDrawerItem(menuItem, false, false, true);
+                        selectDrawerItem(menuItem, false, false, true, true);
                         return true;
                     }
                 });
         themePrefs.setupNavdrawerColor(navigationView);
+    }
+
+    void showFavoritesFragment(boolean animate) {
+        FragmentManager fragmentManager = getSupportFragmentManager();
+            mFab.setVisibility(prefHelper.fabDisabledFavorites() ? View.GONE : View.VISIBLE);
+            getSupportActionBar().setTitle(getResources().getString(R.string.nv_favorites));
+
+            FavoritesFragment favoritesFragment = new FavoritesFragment();
+            FragmentTransaction transaction = fragmentManager.beginTransaction();
+            if (animate)
+                    transaction.setCustomAnimations(R.anim.slide_in_bottom, R.anim.slide_out_top);
+            transaction
+                    .replace(R.id.flContent, favoritesFragment, FRAGMENT_TAG)
+                    .addToBackStack(null)
+                    .commitAllowingStateLoss();
+    }
+
+    void showBrowserFragment(boolean animate) {
+        FragmentManager fragmentManager = getSupportFragmentManager();
+            mFab.setVisibility(prefHelper.fabDisabledComicBrowser() ? View.GONE : View.VISIBLE);
+            getSupportActionBar().setTitle(getResources().getString(R.string.nv_comicbrowser));
+
+            ComicFragment comicFragment = fullOffline ? new OfflineFragment() : new ComicBrowserFragment();
+            FragmentTransaction transaction = fragmentManager.beginTransaction();
+            if (animate)
+                transaction.setCustomAnimations(R.anim.slide_in_top, R.anim.slide_out_bottom);
+            transaction
+                    .replace(R.id.flContent, comicFragment, FRAGMENT_TAG)
+                    .addToBackStack(null)
+                    .commitAllowingStateLoss();
     }
 
     /**
@@ -346,7 +379,8 @@ public class MainActivity extends BaseActivity {
      * @param animateOverview  should be false when the device was rotated and the app showed overview mode before the rotation
      * @param shouldAnimateToolbar wether to animate the toolbar, should be false when coming from onRestart()
      */
-    public void selectDrawerItem(final MenuItem menuItem, final boolean showOverview, final boolean animateOverview, final boolean shouldAnimateToolbar) {
+    public void selectDrawerItem(final MenuItem menuItem, final boolean showOverview, final boolean animateOverview, final boolean shouldAnimateToolbar, boolean animateTransition) {
+        mDrawer.closeDrawers();
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) { //Setup the toolbar elevation for WhatIf overview
             if (menuItem.getItemId() == R.id.nav_whatif)
                 toolbar.setElevation(0);
@@ -363,7 +397,8 @@ public class MainActivity extends BaseActivity {
                     return;
                 }
                 if (shouldAnimateToolbar) animateToolbar(-300);
-                showFragment("pref_random_comics", menuItem.getItemId(), "Comics", BROWSER_TAG, FAV_TAG, WHATIF_TAG, showOverview, animateOverview);
+                //showFragment("pref_random_comics", menuItem.getItemId(), "Comics", BROWSER_TAG, FAV_TAG, WHATIF_TAG, showOverview, animateOverview);
+                showBrowserFragment(animateTransition);
                 break;
             case R.id.nav_favorites:
                 if (databaseManager.noFavorites()) {
@@ -371,7 +406,8 @@ public class MainActivity extends BaseActivity {
                     return;
                 }
                 if (shouldAnimateToolbar) animateToolbar(300);
-                showFragment("pref_random_favorites", menuItem.getItemId(), getResources().getString(R.string.nv_favorites), FAV_TAG, BROWSER_TAG, WHATIF_TAG, showOverview, animateOverview);
+                //showFragment("pref_random_favorites", menuItem.getItemId(), getResources().getString(R.string.nv_favorites), FAV_TAG, BROWSER_TAG, WHATIF_TAG, showOverview, animateOverview);
+                showFavoritesFragment(animateTransition);
                 break;
             case R.id.nav_whatif:
                 if (!prefHelper.isOnline(this) && !fullOfflineWhatIf) {
@@ -423,7 +459,6 @@ public class MainActivity extends BaseActivity {
                 return;
         }
         menuItem.setChecked(true);
-        mDrawer.closeDrawers();
         currentFragment = menuItem.getItemId();
         invalidateOptionsMenu();
     }
@@ -470,7 +505,7 @@ public class MainActivity extends BaseActivity {
      */
 
     private void showFragment(String prefTag, int itemId, String toolbarTitle, String fragmentTagShow, String fragmentTagHide, String fragmentTagHide2, boolean showOverview, boolean animateOverview) {
-        android.support.v4.app.FragmentManager fragmentManager = getSupportFragmentManager();
+        FragmentManager fragmentManager = getSupportFragmentManager();
         assert getSupportActionBar() != null;  //We always have an ActionBar available, so this stops Android Studio from complaining about possible NullPointerExceptions
         //Setup FAB
         if (prefHelper.fabDisabled(prefTag) || fragmentTagShow.equals(WHATIF_TAG))
@@ -558,14 +593,14 @@ public class MainActivity extends BaseActivity {
             case Intent.ACTION_VIEW:
                 if (intent.getDataString().contains("what")) {
                     MenuItem item = mNavView.getMenu().findItem(R.id.nav_whatif);
-                    selectDrawerItem(item, false, false, false);
+                    selectDrawerItem(item, false, false, false, false);
                     WhatIfActivity.WhatIfIndex = getNumberFromUrl(intent.getDataString(), 1);
                     Intent whatIf = new Intent(MainActivity.this, WhatIfActivity.class);
                     prefHelper.setLastWhatIf(WhatIfActivity.WhatIfIndex);
                     startActivity(whatIf);
                 } else {
                     MenuItem item = mNavView.getMenu().findItem(R.id.nav_browser);
-                    selectDrawerItem(item, false, false, true);
+                    selectDrawerItem(item, false, false, true, false);
                     ComicFragment comicFragment = (ComicFragment) getSupportFragmentManager().findFragmentByTag(BROWSER_TAG);
                     comicFragment.lastComicNumber = getNumberFromUrl(intent.getDataString(), comicFragment.lastComicNumber);
                     comicFragment.scrollTo(comicFragment.lastComicNumber - 1, false);
@@ -579,14 +614,14 @@ public class MainActivity extends BaseActivity {
                     progress = ProgressDialog.show(this, "", this.getResources().getString(R.string.loading_comics), true);
                 fragment.updatePager();*/
                 MenuItem item = mNavView.getMenu().findItem(R.id.nav_browser);
-                selectDrawerItem(item, false, false, true);
+                selectDrawerItem(item, false, false, true, false);
                 ComicFragment comicFragment = (ComicFragment) getSupportFragmentManager().findFragmentByTag(BROWSER_TAG);
                 comicFragment.lastComicNumber = intent.getIntExtra("number", 1);
                 comicFragment.scrollTo(comicFragment.lastComicNumber - 1, false);
                 break;
             case WHATIF_INTENT:
                 item = mNavView.getMenu().findItem(R.id.nav_whatif);
-                selectDrawerItem(item, false, false, false);
+                selectDrawerItem(item, false, false, false, false);
                 WhatIfActivity.WhatIfIndex = intent.getIntExtra("number", 1);
                 Intent whatIf = new Intent(MainActivity.this, WhatIfActivity.class);
                 prefHelper.setLastWhatIf(WhatIfActivity.WhatIfIndex);

@@ -27,6 +27,7 @@ import android.graphics.Bitmap;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.support.annotation.Nullable;
 import android.support.design.widget.Snackbar;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.content.FileProvider;
@@ -70,7 +71,6 @@ import uk.co.senab.photoview.PhotoView;
 
 public class FavoritesFragment extends ComicFragment {
 
-    //public int[] favorites;
     public RealmResults<RealmComic> favorites;
 
     @Override
@@ -360,7 +360,7 @@ public class FavoritesFragment extends ComicFragment {
                         databaseManager.removeAllFavorites();
 
                         MenuItem mBrowser = ((MainActivity) getActivity()).getNavView().getMenu().findItem(R.id.nav_browser);
-                        ((MainActivity) getActivity()).selectDrawerItem(mBrowser, false, false, false);
+                        ((MainActivity) getActivity()).selectDrawerItem(mBrowser, false, false, false, true);
 
                         Toast toast = Toast.makeText(getActivity(), R.string.favorites_cleared, Toast.LENGTH_SHORT);
                         toast.show();
@@ -394,7 +394,7 @@ public class FavoritesFragment extends ComicFragment {
             if (databaseManager.noFavorites()) {
                 //If there are no favorites left, show ComicBrowserFragment
                 MenuItem mBrowser = ((MainActivity) getActivity()).getNavView().getMenu().findItem(R.id.nav_browser);
-                ((MainActivity) getActivity()).selectDrawerItem(mBrowser, false, false, true);
+                ((MainActivity) getActivity()).selectDrawerItem(mBrowser, false, false, true, true);
                 FragmentManager fragmentManager = getActivity().getSupportFragmentManager();
                 fragmentManager.beginTransaction().remove(fragmentManager.findFragmentByTag("favorites")).commitAllowingStateLoss();
                 return;
