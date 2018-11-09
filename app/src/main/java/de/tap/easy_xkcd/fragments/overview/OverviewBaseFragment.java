@@ -19,6 +19,8 @@
 package de.tap.easy_xkcd.fragments.overview;
 
 import android.content.DialogInterface;
+import android.os.Bundle;
+import android.support.annotation.Nullable;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
@@ -40,6 +42,7 @@ import de.tap.easy_xkcd.utils.ThemePrefs;
 import io.realm.Realm;
 import io.realm.RealmResults;
 import io.realm.Sort;
+import timber.log.Timber;
 
 public abstract class OverviewBaseFragment extends android.support.v4.app.Fragment {
     protected RealmResults<RealmComic> comics;
@@ -50,6 +53,41 @@ public abstract class OverviewBaseFragment extends android.support.v4.app.Fragme
     protected static final String BROWSER_TAG = "browser";
     protected static final String OVERVIEW_TAG = "overview";
     private static final String FAV_TAG = "favorites";
+
+    protected static final String LAST_COMIC = "lastcomic";
+
+    protected int lastComicNumber = 1;
+
+    @Override
+    public void onCreate(@Nullable Bundle savedInstanceState) {
+        if (savedInstanceState != null) {
+            lastComicNumber = savedInstanceState.getInt(LAST_COMIC);
+        } else {
+            lastComicNumber = getArguments().getInt(LAST_COMIC);
+        }
+        super.onCreate(savedInstanceState);
+    }
+
+    static public OverviewBaseFragment getOverviewFragment(PrefHelper prefHelper, int lastComic) {
+        OverviewBaseFragment overviewBaseFragment;
+        switch (prefHelper.getOverviewStyle()) {
+            case 0:
+                overviewBaseFragment = new OverviewListFragment();
+                break;
+            case 2:
+                overviewBaseFragment = new OverviewStaggeredGridFragment();
+                break;
+            case 1:
+            default:
+                overviewBaseFragment = new OverviewCardsFragment();
+                break;
+        }
+        Bundle args = new Bundle();
+        args.putInt(LAST_COMIC, lastComic);
+        overviewBaseFragment.setArguments(args);
+
+        return overviewBaseFragment;
+    }
 
     protected void setupVariables() {
         prefHelper = ((MainActivity) getActivity()).getPrefHelper();
@@ -117,7 +155,7 @@ public abstract class OverviewBaseFragment extends android.support.v4.app.Fragme
             subtitle = number + 1;
             transaction.commit();
 
-            ((MainActivity) getActivity()).setCurrentFragment(R.id.nav_favorites);
+            ((MainActivity) getActivity()).setCurrentFragment(MainActivity.CurrentFragment.Favorites);
             ((MainActivity) getActivity()).getSupportActionBar().setTitle(getActivity().getResources().getString(R.string.nv_favorites));
             ((MainActivity) getActivity()).getNavView().getMenu().findItem(R.id.nav_favorites).setChecked(true);
         }

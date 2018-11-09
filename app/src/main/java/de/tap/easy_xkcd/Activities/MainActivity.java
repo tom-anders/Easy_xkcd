@@ -34,9 +34,13 @@ import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.preference.PreferenceManager;
+import android.support.annotation.NonNull;
 import android.support.design.widget.CoordinatorLayout;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.NavigationView;
+import android.support.transition.Explode;
+import android.support.transition.Slide;
+import android.support.transition.Transition;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
@@ -54,6 +58,9 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.animation.AccelerateInterpolator;
+import android.view.animation.AnticipateInterpolator;
+import android.view.animation.BounceInterpolator;
+import android.view.animation.OvershootInterpolator;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.SearchView;
 import android.widget.Toast;
@@ -61,6 +68,7 @@ import android.widget.Toast;
 import com.commonsware.cwac.wakeful.WakefulIntentService;
 import com.nbsp.materialfilepicker.ui.FilePickerActivity;
 import com.tap.xkcd_reader.R;
+import com.turhanoz.android.reactivedirectorychooser.event.CurrentRootDirectoryChangedEvent;
 
 import java.util.Random;
 
@@ -102,10 +110,11 @@ public class MainActivity extends BaseActivity {
     public static boolean fromSearch = false;
     public static boolean overviewLaunch;
 
+    public int lastComicNumber = 0;
+
     public ActionBarDrawerToggle drawerToggle;
     private MenuItem searchMenuItem;
     private CustomTabActivityHelper customTabActivityHelper;
-    private int currentFragment;
     private ProgressDialog progress;
     private DatabaseManager databaseManager;
 
@@ -119,6 +128,9 @@ public class MainActivity extends BaseActivity {
     public static final int UPDATE_ALARM = 2;
 
     private static final String FRAGMENT_TAG = "MainActivityFragments";
+
+    public enum CurrentFragment {Browser, Favorites, Overview, WhatIf};
+    private CurrentFragment currentFragment = null; //TODO use the enum instead
 
     @Override
     protected void onCreate(final Bundle savedInstanceState) {
@@ -136,6 +148,14 @@ public class MainActivity extends BaseActivity {
                 WakefulIntentService.scheduleAlarms(new ComicListener(), this, true);
             else
                 WakefulIntentService.cancelAlarms(this);
+        }
+
+        if (currentFragment == null) {
+            if (savedInstanceState != null) {
+                currentFragment = (CurrentFragment) savedInstanceState.getSerializable(SAVED_INSTANCE_CURRENT_FRAGMENT);
+            } else {
+                currentFragment = CurrentFragment.Browser; //Open Browser by default
+            }
         }
 
         fullOffline = prefHelper.fullOfflineEnabled();
@@ -218,7 +238,7 @@ public class MainActivity extends BaseActivity {
             } else {
                 task.onPostExecute(null);
             }
-        } else if ((currentFragment != R.id.nav_favorites)) { //Don't show the dialog if the user is currently browsing his favorites or full offline is enabled
+        } else if ((currentFragment != CurrentFragment.Favorites)) { //Don't show the dialog if the user is currently browsing his favorites or full offline is enabled
             AlertDialog.Builder dialog = new AlertDialog.Builder(this);
             dialog.setMessage(R.string.no_connection)
                     .setPositiveButton(R.string.no_connection_retry, new DialogInterface.OnClickListener() {
@@ -258,10 +278,27 @@ public class MainActivity extends BaseActivity {
 
         @Override
         public void onPostExecute(Void dummy) {
-            MenuItem item;
+            super.onPostExecute(dummy);
+            updateToolbarTitle();
+            if ((getSupportFragmentManager().findFragmentByTag(FRAGMENT_TAG) == null || newComicFound)) {
+                Timber.d("Creating a new Fragment...");
+                switch (currentFragment) {
+                    case Browser:
+                        showBrowserFragment(savedInstanceState == null ^ fromOnRestart);
+                        break;
+                    case Favorites:
+                        showFavoritesFragment(savedInstanceState == null ^ fromOnRestart);
+                        break;
+                    case Overview:
+                        showOverview(savedInstanceState == null ^ fromOnRestart);
+                        break;
+                }
+            }
+            unlockRotation();
+            /*MenuItem item;
             boolean showOverview = false;
             if (savedInstanceState != null) { //Show the current Fragment
-                currentFragment = savedInstanceState.getInt(SAVED_INSTANCE_CURRENT_FRAGMENT);
+                currentFragment = (CurrentFragment) savedInstanceState.getSerializable(SAVED_INSTANCE_CURRENT_FRAGMENT);
                 item = mNavView.getMenu().findItem(currentFragment);
             } else if (fromOnRestart) {
                 item = mNavView.getMenu().findItem(currentFragment);
@@ -275,9 +312,24 @@ public class MainActivity extends BaseActivity {
                 showOverview = savedInstanceState.getBoolean(OVERVIEW_TAG, false); //Check if overview mode was active before the device was rotated
             else
                 overviewLaunch = prefHelper.launchToOverview() && !getIntent().getAction().equals(Intent.ACTION_VIEW); //Check if the user chose overview to be shown by default
-            selectDrawerItem(item, showOverview, !showOverview, !fromOnRestart, savedInstanceState == null ^ fromOnRestart);
-            unlockRotation();
-            super.onPostExecute(dummy);
+            selectDrawerItem(item, showOverview, !showOverview, !fromOnRestart, savedInstanceState == null ^ fromOnRestart);*/
+        }
+    }
+
+    void updateToolbarTitle() {
+        switch (currentFragment) {
+            case Browser:
+                getSupportActionBar().setTitle(getResources().getString(R.string.comicbrowser_title));
+                break;
+            case Favorites:
+                getSupportActionBar().setTitle(getResources().getString(R.string.nv_favorites));
+                break;
+            case Overview:
+                getSupportActionBar().setTitle("");
+                break;
+            case WhatIf:
+                getSupportActionBar().setTitle(getResources().getString(R.string.nv_whatif));
+                break;
         }
     }
 
@@ -298,7 +350,7 @@ public class MainActivity extends BaseActivity {
                 overviewBaseFragment.showComic(new Random().nextInt(databaseManager.getFavComics().size()));
         } else { // The user is browsing comics or favorites
             switch (currentFragment) {
-                case R.id.nav_browser: {
+                case Browser: {
                     ((ComicFragment) fragmentManager.findFragmentByTag(BROWSER_TAG)).getRandomComic();
                     if (prefHelper.showRandomTip()) {
                         Toast.makeText(this, getResources().getString(R.string.random_tip), Toast.LENGTH_LONG).show();
@@ -306,7 +358,7 @@ public class MainActivity extends BaseActivity {
                     }
                     break;
                 }
-                case R.id.nav_favorites: {
+                case Favorites: {
                     ((FavoritesFragment) fragmentManager.findFragmentByTag(FAV_TAG)).getRandomComic();
                     break;
                 }
@@ -321,7 +373,7 @@ public class MainActivity extends BaseActivity {
         OverviewBaseFragment overviewBaseFragment = (OverviewBaseFragment) fragmentManager.findFragmentByTag(OVERVIEW_TAG);
         if (overviewBaseFragment != null && overviewBaseFragment.isVisible())
             return false; // Long click does not work in overview
-        else if (currentFragment == R.id.nav_browser)
+        else if (currentFragment == CurrentFragment.Browser)
             ((ComicFragment) fragmentManager.findFragmentByTag(BROWSER_TAG)).getPreviousRandom();
         return true;
     }
@@ -341,34 +393,134 @@ public class MainActivity extends BaseActivity {
         themePrefs.setupNavdrawerColor(navigationView);
     }
 
+    public void showOverview(boolean animate) {
+        FragmentManager fragmentManager = getSupportFragmentManager();
+        FragmentTransaction transaction = fragmentManager.beginTransaction();
+
+        assert getSupportActionBar() != null;
+        getSupportActionBar().setSubtitle("");
+
+        OverviewBaseFragment overviewBaseFragment = OverviewBaseFragment.getOverviewFragment(prefHelper, lastComicNumber != 0 ? lastComicNumber : prefHelper.getLastComic());
+
+        if (animate) {
+            Fragment oldFragment = fragmentManager.findFragmentByTag(FRAGMENT_TAG);
+            if (oldFragment != null) {
+                Explode explode = new Explode();
+                explode.setInterpolator(new AccelerateInterpolator(2.0f));
+                oldFragment.setExitTransition(explode);
+            }
+            Slide slideIn = new Slide(Gravity.LEFT);
+            slideIn.setInterpolator(new OvershootInterpolator(1.5f));
+            overviewBaseFragment.setEnterTransition(slideIn);
+            overviewBaseFragment.setAllowEnterTransitionOverlap(false);
+        }
+        transaction.replace(R.id.flContent, overviewBaseFragment, FRAGMENT_TAG)
+                .addToBackStack(null)
+                .commitAllowingStateLoss();
+
+        currentFragment = CurrentFragment.Overview;
+    }
+
+
     void showFavoritesFragment(boolean animate) {
         FragmentManager fragmentManager = getSupportFragmentManager();
             mFab.setVisibility(prefHelper.fabDisabledFavorites() ? View.GONE : View.VISIBLE);
-            getSupportActionBar().setTitle(getResources().getString(R.string.nv_favorites));
 
             FavoritesFragment favoritesFragment = new FavoritesFragment();
             FragmentTransaction transaction = fragmentManager.beginTransaction();
-            if (animate)
-                    transaction.setCustomAnimations(R.anim.slide_in_bottom, R.anim.slide_out_top);
+            if (animate) {
+                Fragment oldFragment = fragmentManager.findFragmentByTag(FRAGMENT_TAG);
+                if (oldFragment != null) {
+                    Slide slideOut = new Slide(currentFragment == CurrentFragment.Browser ? Gravity.TOP : Gravity.BOTTOM);
+                    slideOut.setInterpolator(new AccelerateInterpolator(2.0f));
+                    oldFragment.setExitTransition(slideOut);
+                }
+                Slide slideIn = new Slide(currentFragment == CurrentFragment.Browser ? Gravity.BOTTOM : Gravity.TOP);
+                slideIn.setInterpolator(new OvershootInterpolator(1.5f));
+                favoritesFragment.setEnterTransition(slideIn);
+                favoritesFragment.setAllowEnterTransitionOverlap(false);
+            }
             transaction
                     .replace(R.id.flContent, favoritesFragment, FRAGMENT_TAG)
                     .addToBackStack(null)
                     .commitAllowingStateLoss();
+            currentFragment = CurrentFragment.Favorites;
+    }
+
+    void showWhatifFragment(boolean animate) {
+        FragmentManager fragmentManager = getSupportFragmentManager();
+
+        WhatIfOverviewFragment whatIfFragment = new WhatIfOverviewFragment();
+        FragmentTransaction transaction = fragmentManager.beginTransaction();
+        Fragment oldFragment = fragmentManager.findFragmentByTag(FRAGMENT_TAG);
+        if (oldFragment != null) {
+            Slide slideOut = new Slide(Gravity.TOP);
+            slideOut.setInterpolator(new AccelerateInterpolator(2.0f));
+            oldFragment.setExitTransition(slideOut);
+        }
+
+        Slide slideIn = new Slide(Gravity.BOTTOM);
+        slideIn.setInterpolator(new OvershootInterpolator(1.5f));
+        //For some reason we have to add an empty listener here, so that the listener in WhatIfOverviewFragment works ¯\_(ツ)_/¯
+        slideIn.addListener(new Transition.TransitionListener() {
+            @Override
+            public void onTransitionStart(@NonNull Transition transition) {
+
+            }
+
+            @Override
+            public void onTransitionEnd(@NonNull Transition transition) {
+
+            }
+
+            @Override
+            public void onTransitionCancel(@NonNull Transition transition) {
+
+            }
+
+            @Override
+            public void onTransitionPause(@NonNull Transition transition) {
+
+            }
+
+            @Override
+            public void onTransitionResume(@NonNull Transition transition) {
+
+            }
+        });
+        whatIfFragment.setEnterTransition(slideIn);
+        whatIfFragment.setAllowEnterTransitionOverlap(false);
+        transaction
+                .replace(R.id.flContent, whatIfFragment, FRAGMENT_TAG)
+                .addToBackStack(null)
+                .commitAllowingStateLoss();
+        currentFragment = CurrentFragment.WhatIf;
     }
 
     void showBrowserFragment(boolean animate) {
         FragmentManager fragmentManager = getSupportFragmentManager();
-            mFab.setVisibility(prefHelper.fabDisabledComicBrowser() ? View.GONE : View.VISIBLE);
-            getSupportActionBar().setTitle(getResources().getString(R.string.nv_comicbrowser));
+        mFab.setVisibility(prefHelper.fabDisabledComicBrowser() ? View.GONE : View.VISIBLE);
 
-            ComicFragment comicFragment = fullOffline ? new OfflineFragment() : new ComicBrowserFragment();
-            FragmentTransaction transaction = fragmentManager.beginTransaction();
-            if (animate)
-                transaction.setCustomAnimations(R.anim.slide_in_top, R.anim.slide_out_bottom);
-            transaction
-                    .replace(R.id.flContent, comicFragment, FRAGMENT_TAG)
-                    .addToBackStack(null)
-                    .commitAllowingStateLoss();
+        ComicFragment comicFragment = fullOffline ? new OfflineFragment() : new ComicBrowserFragment();
+        FragmentTransaction transaction = fragmentManager.beginTransaction();
+        if (animate) {
+            Fragment oldFragment = fragmentManager.findFragmentByTag(FRAGMENT_TAG);
+            if (oldFragment != null) {
+                Slide slideOut = new Slide(Gravity.BOTTOM);
+                slideOut.setInterpolator(new AccelerateInterpolator(2.0f));
+                oldFragment.setExitTransition(slideOut);
+            }
+
+            Slide slideIn = new Slide(Gravity.TOP);
+            slideIn.setInterpolator(new OvershootInterpolator(1.5f));
+            comicFragment.setEnterTransition(slideIn);
+            comicFragment.setAllowEnterTransitionOverlap(false);
+        }
+        transaction
+                .replace(R.id.flContent, comicFragment, FRAGMENT_TAG)
+                .addToBackStack(null)
+                .commitAllowingStateLoss();
+        currentFragment = CurrentFragment.Browser;
     }
 
     /**
@@ -379,7 +531,7 @@ public class MainActivity extends BaseActivity {
      * @param animateOverview  should be false when the device was rotated and the app showed overview mode before the rotation
      * @param shouldAnimateToolbar wether to animate the toolbar, should be false when coming from onRestart()
      */
-    public void selectDrawerItem(final MenuItem menuItem, final boolean showOverview, final boolean animateOverview, final boolean shouldAnimateToolbar, boolean animateTransition) {
+    public void selectDrawerItem(final MenuItem menuItem, final boolean showOverview, final boolean animateOverview, final boolean shouldAnimateToolbar, final boolean animateTransition) {
         mDrawer.closeDrawers();
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) { //Setup the toolbar elevation for WhatIf overview
             if (menuItem.getItemId() == R.id.nav_whatif)
@@ -415,7 +567,7 @@ public class MainActivity extends BaseActivity {
                     return;
                 }
                 if (shouldAnimateToolbar) animateToolbar(300);
-                if (getSupportFragmentManager().findFragmentByTag(WHATIF_TAG) == null) {
+                /*if (getSupportFragmentManager().findFragmentByTag(WHATIF_TAG) == null) {
                     mDrawer.closeDrawers();
                     new Handler().postDelayed(new Runnable() { //If the fragment is not added yet, add a small delay to avoid lag
                         @Override
@@ -424,7 +576,13 @@ public class MainActivity extends BaseActivity {
                         }
                     }, 150);
                 } else
-                    showFragment("", menuItem.getItemId(), "What if?", WHATIF_TAG, FAV_TAG, BROWSER_TAG, showOverview, animateOverview);
+                    showFragment("", menuItem.getItemId(), "What if?", WHATIF_TAG, FAV_TAG, BROWSER_TAG, showOverview, animateOverview);*/
+                new Handler().postDelayed(new Runnable() { //Add a small delay to avoid lag
+                    @Override
+                    public void run() {
+                        showWhatifFragment(animateTransition);
+                    }
+                }, 150);
                 break;
 
             case R.id.nav_settings:
@@ -459,7 +617,7 @@ public class MainActivity extends BaseActivity {
                 return;
         }
         menuItem.setChecked(true);
-        currentFragment = menuItem.getItemId();
+        //currentFragment = menuItem.getItemId();
         invalidateOptionsMenu();
     }
 
@@ -470,8 +628,8 @@ public class MainActivity extends BaseActivity {
      */
     private void showDrawerErrorToast(int errorId) {
         Toast.makeText(this, errorId, Toast.LENGTH_SHORT).show();
-        MenuItem m = mNavView.getMenu().findItem(currentFragment);
-        m.setChecked(true);
+        /*MenuItem m = mNavView.getMenu().findItem(itemId);
+        m.setChecked(true);*/ //TODO figure out here how to leave the last item checked
         mDrawer.closeDrawers();
     }
 
@@ -746,47 +904,10 @@ public class MainActivity extends BaseActivity {
         return true;
     }
 
-    public void showOverview(boolean animate) {
-        android.support.v4.app.FragmentManager fragmentManager = getSupportFragmentManager();
-        FragmentTransaction transaction = fragmentManager.beginTransaction();
-
-        if (fragmentManager.findFragmentByTag(OVERVIEW_TAG) != null) { //Scroll to the current comic
-            int pos = ((ComicFragment) fragmentManager.findFragmentByTag(BROWSER_TAG)).lastComicNumber;
-            ((OverviewBaseFragment) fragmentManager.findFragmentByTag(OVERVIEW_TAG)).notifyAdapter(pos);
-        }
-
-        if (animate)
-            transaction.setCustomAnimations(R.anim.slide_in_left, R.anim.slide_out_right);
-        OverviewBaseFragment overviewBaseFragment = (OverviewBaseFragment) fragmentManager.findFragmentByTag(OVERVIEW_TAG);
-        if (overviewBaseFragment == null || (overviewBaseFragment.overViewFav() != (currentFragment == R.id.nav_favorites)) ) {
-            switch (prefHelper.getOverviewStyle()) {
-                case 0:
-                    overviewBaseFragment = new OverviewListFragment();
-                    break;
-                case 1:
-                    overviewBaseFragment = new OverviewCardsFragment();
-                    break;
-                case 2:
-                    overviewBaseFragment = new OverviewStaggeredGridFragment();
-                    break;
-            }
-            transaction.add(R.id.flContent, overviewBaseFragment, OVERVIEW_TAG);
-        } else
-            transaction.show(fragmentManager.findFragmentByTag(OVERVIEW_TAG));
-        if (fragmentManager.findFragmentByTag(BROWSER_TAG) != null)
-            transaction.hide(fragmentManager.findFragmentByTag(BROWSER_TAG));
-        if (fragmentManager.findFragmentByTag(FAV_TAG) != null)
-            transaction.hide(fragmentManager.findFragmentByTag(FAV_TAG));
-        transaction.commitAllowingStateLoss();
-
-        assert getSupportActionBar() != null;
-        getSupportActionBar().setSubtitle("");
-    }
-
     @Override
     public void onSaveInstanceState(Bundle savedInstanceState) {
         //Save the current fragment
-        savedInstanceState.putInt(SAVED_INSTANCE_CURRENT_FRAGMENT, currentFragment);
+        savedInstanceState.putSerializable(SAVED_INSTANCE_CURRENT_FRAGMENT, currentFragment);
         //Remember if overview is currently visible
         if (getSupportFragmentManager().findFragmentByTag(OVERVIEW_TAG) != null)
             savedInstanceState.putBoolean(OVERVIEW_TAG, getSupportFragmentManager().findFragmentByTag(OVERVIEW_TAG).isVisible());
@@ -816,15 +937,15 @@ public class MainActivity extends BaseActivity {
             getSearchMenuItem().collapseActionView();
         } else if (mDrawer != null && mDrawer.isDrawerOpen(GravityCompat.START)) {
             mDrawer.closeDrawer(GravityCompat.START);
-        } else if ((currentFragment == R.id.nav_browser || currentFragment == R.id.nav_favorites) && (fragmentManager.findFragmentByTag(OVERVIEW_TAG) == null || !fragmentManager.findFragmentByTag(OVERVIEW_TAG).isVisible())) {
+        } else if (currentFragment == CurrentFragment.Browser || currentFragment == CurrentFragment.Favorites) {
             boolean zoomReset;
-            zoomReset = ((ComicFragment) fragmentManager.findFragmentByTag(BROWSER_TAG)).zoomReset(); //Reset the zoom level of the current image
+            zoomReset = ((ComicFragment) fragmentManager.findFragmentByTag(FRAGMENT_TAG)).zoomReset(); //Reset the zoom level of the current image
             if (!zoomReset) {
                 if (!SearchResultsActivity.isOpen && !getIntent().getAction().equals(Intent.ACTION_VIEW)) {
-                    prefHelper.setOverviewFav(currentFragment == R.id.nav_favorites);
-                    if (currentFragment == R.id.nav_favorites && (prefHelper.isOnline(this) || prefHelper.fullOfflineEnabled())) {
+                    prefHelper.setOverviewFav(currentFragment == CurrentFragment.Favorites);
+                    if (currentFragment == CurrentFragment.Favorites && (prefHelper.isOnline(this) || prefHelper.fullOfflineEnabled())) {
                         showOverview(true);
-                        currentFragment = R.id.nav_browser;
+                        currentFragment = CurrentFragment.Browser;
                         getSupportActionBar().setTitle("Comics");
                         mNavView.getMenu().findItem(R.id.nav_browser).setChecked(true);
                     } else {
@@ -837,10 +958,6 @@ public class MainActivity extends BaseActivity {
                         super.onBackPressed();
                 }
             }
-        } else if (currentFragment == R.id.nav_favorites) {
-            FavoritesFragment favoritesFragment = (FavoritesFragment) fragmentManager.findFragmentByTag(FAV_TAG);
-            if (!favoritesFragment.zoomReset())
-                super.onBackPressed();
         } else {
             super.onBackPressed();
         }
@@ -861,11 +978,11 @@ public class MainActivity extends BaseActivity {
     @Override
     protected void onResume() {
         super.onResume();
-        try {
-            mNavView.getMenu().findItem(getCurrentFragment()).setChecked(true);
+        /*try {
+            mNavView.getMenu().findItem(getCurrentFragment()).setChecked(true); //TODO add this back
         } catch (NullPointerException e) {
             Timber.e(e);
-        }
+        }*/
     }
 
     @Override
@@ -876,7 +993,7 @@ public class MainActivity extends BaseActivity {
             if (fullOffline || (prefHelper.isWifi(this) || prefHelper.mobileEnabled()))
                 fragment.updatePager(); //Update the pager in case a new comic has ben posted while the app was still active in the background
         */
-        new updateComicsTask(prefHelper, databaseManager, this, null, false, true, true).execute();
+        new updateComicsTask(prefHelper, databaseManager, this, null, false, false, true).execute();
         if (fromSearch)
             fromSearch = false;
         super.onRestart();
@@ -913,7 +1030,7 @@ public class MainActivity extends BaseActivity {
         switch (requestCode) {
             case 1:
                 if (grantResults[0] == PackageManager.PERMISSION_GRANTED)
-                    if (currentFragment == R.id.nav_favorites) {
+                    if (currentFragment == CurrentFragment.Favorites) {
                         FavoritesFragment fragment = (FavoritesFragment) getSupportFragmentManager().findFragmentByTag(FAV_TAG);
                         fragment.shareComic(true);
                     } else {
@@ -948,11 +1065,11 @@ public class MainActivity extends BaseActivity {
         return mNavView;
     }
 
-    public int getCurrentFragment() {
+    public CurrentFragment getCurrentFragment() {
         return currentFragment;
     }
 
-    public void setCurrentFragment(int id) {currentFragment = id;}
+    public void setCurrentFragment(CurrentFragment currentFragment) {this.currentFragment = currentFragment;}
 
     public ProgressDialog getProgressDialog() {
         return progress;

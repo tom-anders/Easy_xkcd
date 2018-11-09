@@ -21,6 +21,7 @@ package de.tap.easy_xkcd.fragments.overview;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
@@ -40,6 +41,7 @@ import java.io.FileInputStream;
 import de.tap.easy_xkcd.Activities.MainActivity;
 import de.tap.easy_xkcd.database.RealmComic;
 import de.tap.easy_xkcd.fragments.comics.ComicFragment;
+import timber.log.Timber;
 
 public class OverviewCardsFragment extends OverviewRecyclerBaseFragment {
 
@@ -157,14 +159,21 @@ public class OverviewCardsFragment extends OverviewRecyclerBaseFragment {
     @Override
     protected void setupAdapter() {
         super.setupAdapter();
-        ComicFragment comicFragment = (ComicFragment) getActivity().getSupportFragmentManager().findFragmentByTag(BROWSER_TAG);
+        //ComicFragment comicFragment = (ComicFragment) getActivity().getSupportFragmentManager().findFragmentByTag(BROWSER_TAG);
 
         rvAdapter = new CardsAdapter();
         rv.setAdapter(rvAdapter);
 
-        if (comicFragment.lastComicNumber <= comics.size())
-            rv.scrollToPosition(comics.size() - comicFragment.lastComicNumber);
+        if (lastComicNumber <= comics.size())
+            rv.scrollToPosition(comics.size() - lastComicNumber);
 
+    }
+
+    @Override
+    public void onSaveInstanceState(@NonNull Bundle outState) {
+        outState.putInt(LAST_COMIC, prefHelper.getNewest() - ((LinearLayoutManager) rv.getLayoutManager()).findFirstVisibleItemPosition());
+        Timber.d("put last comic %d", outState.getInt(LAST_COMIC));
+        super.onSaveInstanceState(outState);
     }
 
     @Override

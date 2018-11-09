@@ -9,6 +9,9 @@ import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.TabLayout;
+import android.support.transition.Slide;
+import android.support.transition.Transition;
+import android.support.transition.TransitionSet;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentPagerAdapter;
@@ -17,6 +20,7 @@ import android.support.v4.view.ViewPager;
 import android.support.v7.widget.CardView;
 import android.support.v7.widget.RecyclerView;
 import android.util.TypedValue;
+import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -50,6 +54,7 @@ import de.tap.easy_xkcd.utils.ThemePrefs;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.Response;
+import timber.log.Timber;
 
 public class WhatIfOverviewFragment extends android.support.v4.app.Fragment {
 
@@ -65,7 +70,7 @@ public class WhatIfOverviewFragment extends android.support.v4.app.Fragment {
         View v = inflater.inflate(R.layout.whatif_pager, container, false);
         ButterKnife.bind(this, v);
         setHasOptionsMenu(true);
-        PrefHelper prefHelper = ((MainActivity) getActivity()).getPrefHelper();
+        final PrefHelper prefHelper = ((MainActivity) getActivity()).getPrefHelper();
 
         if (savedInstanceState==null) {
             TypedValue typedValue = new TypedValue();
@@ -81,12 +86,30 @@ public class WhatIfOverviewFragment extends android.support.v4.app.Fragment {
         tabLayout.setTabGravity(TabLayout.GRAVITY_FILL);
         tabLayout.setBackgroundColor(((MainActivity) getActivity()).getThemePrefs().getPrimaryColor(false));
 
-        if (doc == null && !prefHelper.fullOfflineWhatIf()) {
-            new GetDoc().execute();
+        Slide transition = (Slide) getEnterTransition();
+        if (transition != null) {
+            transition.addListener(new Transition.TransitionListener() {
+                @Override
+                public void onTransitionStart(@NonNull Transition transition) { }
+
+                @Override
+                public void onTransitionEnd(@NonNull Transition transition) {
+                    showOverview(prefHelper); //TODO execute showOverview() always outside this listener, but pospone the enter transition and start it when the loading is finished
+                }
+
+                @Override
+                public void onTransitionCancel(@NonNull Transition transition) { }
+
+                @Override
+                public void onTransitionPause(@NonNull Transition transition) { }
+
+                @Override
+                public void onTransitionResume(@NonNull Transition transition) { }
+            });
         } else {
-            adapter = new FragmentAdapter(getChildFragmentManager());
-            pager.setAdapter(adapter);
+            showOverview(prefHelper); //If there was no transition, just show overview right away
         }
+
         pager.addOnPageChangeListener(new TabLayout.TabLayoutOnPageChangeListener(tabLayout));
         tabLayout.setOnTabSelectedListener(new TabLayout.OnTabSelectedListener() {
             @Override
@@ -106,6 +129,15 @@ public class WhatIfOverviewFragment extends android.support.v4.app.Fragment {
         });
 
         return v;
+    }
+
+    void showOverview(PrefHelper prefHelper) {
+        if (doc == null && !prefHelper.fullOfflineWhatIf()) {
+            new GetDoc().execute();
+        } else {
+            adapter = new FragmentAdapter(getChildFragmentManager());
+            pager.setAdapter(adapter);
+        }
     }
 
     @OnClick(R.id.fab) void onClick() {
@@ -167,9 +199,13 @@ public class WhatIfOverviewFragment extends android.support.v4.app.Fragment {
         @Override
         public Fragment getItem(int position) {
             if (position==0) {
-                return new WhatIfFragment();
+                WhatIfFragment whatIfFragment = new WhatIfFragment();
+                whatIfFragment.setEnterTransition(new Slide(Gravity.BOTTOM));
+                return whatIfFragment;
             } else {
-                return new WhatIfFavoritesFragment();
+                WhatIfFavoritesFragment whatIfFragment = new WhatIfFavoritesFragment();
+                whatIfFragment.setEnterTransition(new Slide(Gravity.BOTTOM));
+                return whatIfFragment;
             }
         }
     }

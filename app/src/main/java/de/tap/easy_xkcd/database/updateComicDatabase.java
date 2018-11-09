@@ -38,6 +38,7 @@ public class updateComicDatabase extends AsyncTask<Void, Integer, Void> {
     protected DatabaseManager databaseManager;
     protected Context context;
     protected boolean showProgress = true;
+    protected boolean newComicFound = false;
 
     public updateComicDatabase(PrefHelper prefHelper, DatabaseManager databaseManager, Context context) {
         this.prefHelper = prefHelper;
@@ -76,6 +77,7 @@ public class updateComicDatabase extends AsyncTask<Void, Integer, Void> {
             if (newest > prefHelper.getNewest()) {
                 ComicFragment.newComicFound = prefHelper.getNewest() != 0.0; //TODO test if this still works
                 prefHelper.setNewestComic(newest);
+                newComicFound = true;
             }
             if (prefHelper.getLastComic() == 0) { //Should only be true on first startup
                 prefHelper.setLastComic(newest);

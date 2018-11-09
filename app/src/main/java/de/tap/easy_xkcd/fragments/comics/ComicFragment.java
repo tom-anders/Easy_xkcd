@@ -119,7 +119,7 @@ public abstract class ComicFragment extends android.support.v4.app.Fragment {
             }
         }
 
-        if (((MainActivity) getActivity()).getCurrentFragment() == R.id.nav_browser && prefHelper.subtitleEnabled() && (this instanceof ComicBrowserFragment || this instanceof OfflineFragment))
+        if (((MainActivity) getActivity()).getCurrentFragment() == MainActivity.CurrentFragment.Browser && prefHelper.subtitleEnabled() && (this instanceof ComicBrowserFragment || this instanceof OfflineFragment))
             ((MainActivity) getActivity()).getToolbar().setSubtitle(String.valueOf(lastComicNumber));
 
         return view;
@@ -549,7 +549,8 @@ public abstract class ComicFragment extends android.support.v4.app.Fragment {
         }
         databaseManager.setRead(position + 1, true);
         lastComicNumber = position + 1;
-        if (prefHelper.subtitleEnabled() && ((MainActivity) getActivity()).getCurrentFragment() == R.id.nav_browser)
+        ((MainActivity) getActivity()).lastComicNumber = lastComicNumber;
+        if (prefHelper.subtitleEnabled() && ((MainActivity) getActivity()).getCurrentFragment() == MainActivity.CurrentFragment.Browser)
             ((MainActivity) getActivity()).getToolbar().setSubtitle(String.valueOf(lastComicNumber));
 
         animateToolbar();

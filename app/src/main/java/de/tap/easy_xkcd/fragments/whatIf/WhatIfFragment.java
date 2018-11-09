@@ -56,6 +56,7 @@ import okhttp3.Request;
 import okhttp3.Response;
 import okio.BufferedSink;
 import okio.Okio;
+import timber.log.Timber;
 
 public class WhatIfFragment extends android.support.v4.app.Fragment {
 
@@ -107,7 +108,7 @@ public class WhatIfFragment extends android.support.v4.app.Fragment {
 
         @Override
         protected void onPreExecute() {
-            showProgress = ((MainActivity) getActivity()).getCurrentFragment() == R.id.nav_whatif;
+            showProgress = ((MainActivity) getActivity()).getCurrentFragment() == MainActivity.CurrentFragment.WhatIf;
             if (showProgress) {
                 progress = new ProgressDialog(getActivity());
                 progress.setMessage(getResources().getString(R.string.loading_articles));
@@ -300,6 +301,7 @@ public class WhatIfFragment extends android.support.v4.app.Fragment {
                 newIntent = false;
             }
         }
+
     }
 
     public class WhatIfRVAdapter extends WhatIfOverviewFragment.RVAdapter {
@@ -550,6 +552,7 @@ public class WhatIfFragment extends android.support.v4.app.Fragment {
     @Override
     public void onDestroyView() {
         super.onDestroyView();
+        Timber.d("destroyed");
         ButterKnife.unbind(this);
     }
 

@@ -87,13 +87,15 @@ public class FavoritesFragment extends ComicFragment {
                 favoriteIndex = position;
                 try {
                     //Update the ActionBar Subtitle
-                    if (prefHelper.subtitleEnabled() && ((MainActivity) getActivity()).getCurrentFragment() == R.id.nav_favorites)
+                    if (prefHelper.subtitleEnabled() && ((MainActivity) getActivity()).getCurrentFragment() == MainActivity.CurrentFragment.Favorites)
                         ((MainActivity) getActivity()).getToolbar().setSubtitle(String.valueOf(favorites.get(position).getComicNumber()));
 
                     getActivity().invalidateOptionsMenu();
                 } catch (NullPointerException e) {
                     e.printStackTrace();
                 }
+                lastComicNumber = favorites.get(favoriteIndex).getComicNumber();
+                ((MainActivity) getActivity()).lastComicNumber = lastComicNumber;
             }
 
             @Override
@@ -124,7 +126,7 @@ public class FavoritesFragment extends ComicFragment {
         pager.setCurrentItem(favoriteIndex);
 
         Toolbar toolbar = ((MainActivity) getActivity()).getToolbar();
-        if (prefHelper.subtitleEnabled() && ((MainActivity) getActivity()).getCurrentFragment() == R.id.nav_favorites)
+        if (prefHelper.subtitleEnabled() && ((MainActivity) getActivity()).getCurrentFragment() == MainActivity.CurrentFragment.Favorites)
             toolbar.setSubtitle(String.valueOf(favorites.get(favoriteIndex).getComicNumber()));
 
         animateToolbar();
