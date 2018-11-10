@@ -6,6 +6,7 @@ import android.content.res.Resources;
 import android.graphics.Color;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.os.Handler;
 import android.support.annotation.NonNull;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.TabLayout;
@@ -94,7 +95,7 @@ public class WhatIfOverviewFragment extends android.support.v4.app.Fragment {
 
                 @Override
                 public void onTransitionEnd(@NonNull Transition transition) {
-                    showOverview(prefHelper); //TODO execute showOverview() always outside this listener, but pospone the enter transition and start it when the loading is finished
+                    showOverview(prefHelper);
                 }
 
                 @Override

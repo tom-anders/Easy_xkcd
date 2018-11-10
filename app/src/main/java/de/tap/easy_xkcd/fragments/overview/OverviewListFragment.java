@@ -182,11 +182,11 @@ public class OverviewListFragment extends OverviewBaseFragment {
     @Override
     protected void setupAdapter() {
         super.setupAdapter();
-        ComicFragment comicFragment = (ComicFragment) getActivity().getSupportFragmentManager().findFragmentByTag(BROWSER_TAG);
+        //ComicFragment comicFragment = (ComicFragment) getActivity().getSupportFragmentManager().findFragmentByTag(BROWSER_TAG);
         listAdapter = new ListAdapter();
         list.setAdapter(listAdapter);
-        if (comicFragment.lastComicNumber <= comics.size())
-            list.setSelection(comics.size() - comicFragment.lastComicNumber);
+        if (lastComicNumber <= comics.size())
+            list.setSelection(comics.size() - lastComicNumber);
         list.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {

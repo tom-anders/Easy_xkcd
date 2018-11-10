@@ -31,6 +31,7 @@ import android.view.View;
 import com.tap.xkcd_reader.R;
 
 import java.util.Arrays;
+import java.util.Random;
 
 import de.tap.easy_xkcd.Activities.MainActivity;
 import de.tap.easy_xkcd.database.DatabaseManager;
@@ -50,9 +51,9 @@ public abstract class OverviewBaseFragment extends android.support.v4.app.Fragme
     protected ThemePrefs themePrefs;
     protected DatabaseManager databaseManager;
     public static int bookmark;
-    protected static final String BROWSER_TAG = "browser";
+    /*protected static final String BROWSER_TAG = "browser";
     protected static final String OVERVIEW_TAG = "overview";
-    private static final String FAV_TAG = "favorites";
+    private static final String FAV_TAG = "favorites";*/
 
     protected static final String LAST_COMIC = "lastcomic";
 
@@ -106,12 +107,13 @@ public abstract class OverviewBaseFragment extends android.support.v4.app.Fragme
         goToComic(comics.get(pos).getComicNumber() - 1);
     }
 
-    public void showRandomComic(final int number) {
-        goToComic(number - 1);
+    public void showRandomComic() {
+        goToComic(comics.get(new Random().nextInt(comics.size())).getComicNumber());
     }
 
     public void goToComic(final int number) {
-        android.support.v4.app.FragmentManager fragmentManager = getActivity().getSupportFragmentManager();
+        //TODO add shared elements, maybe?
+        /*android.support.v4.app.FragmentManager fragmentManager = getActivity().getSupportFragmentManager();
         ComicFragment fragment;
         FragmentTransaction transaction = getFragmentManager().beginTransaction();
         int subtitle;
@@ -162,7 +164,7 @@ public abstract class OverviewBaseFragment extends android.support.v4.app.Fragme
 
 
         if (prefHelper.subtitleEnabled())
-            ((MainActivity) getActivity()).getToolbar().setSubtitle(String.valueOf(subtitle));
+            ((MainActivity) getActivity()).getToolbar().setSubtitle(String.valueOf(subtitle)); */
     }
 
     @Override
@@ -196,19 +198,7 @@ public abstract class OverviewBaseFragment extends android.support.v4.app.Fragme
                             public void onClick(DialogInterface dialogInterface, int i) {
                                 prefHelper.setOverviewStyle(i);
                                 dialogInterface.dismiss();
-                                FragmentTransaction transaction = getActivity().getSupportFragmentManager().beginTransaction();
-                                transaction.detach(getActivity().getSupportFragmentManager().findFragmentByTag(OVERVIEW_TAG));
-                                switch (i) {
-                                    case 0:
-                                        transaction.add(R.id.flContent, new OverviewListFragment(), OVERVIEW_TAG);
-                                        break;
-                                    case 1:
-                                        transaction.add(R.id.flContent, new OverviewCardsFragment(), OVERVIEW_TAG);
-                                        break;
-                                    case 2:
-                                        transaction.add(R.id.flContent, new OverviewStaggeredGridFragment(), OVERVIEW_TAG);
-                                }
-                                transaction.commit();
+                                ((MainActivity) getActivity()).showOverview(true);
                             }
                         }).show();
                 break;
