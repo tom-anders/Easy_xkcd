@@ -70,24 +70,6 @@ public class OverviewListFragment extends OverviewBaseFragment {
 
         setEnterTransition(new Slide(Gravity.LEFT));
         setSharedElementEnterTransition(TransitionInflater.from(getContext()).inflateTransition(R.transition.image_shared_element_transition));
-        setEnterSharedElementCallback(
-                new SharedElementCallback() {
-                    @Override
-                    public void onMapSharedElements(List<String> names, Map<String, View> sharedElements) {
-                        //View view = rv.getLayoutManager().findViewByPosition(prefHelper.getNewest() - lastComicNumber);
-                        //View view = list.findViewWithTag();
-                        TextView title = lastTitle;
-                        Timber.d("title in list fragment: %s", title.getText());
-
-                        // Map the first shared element name to the child ImageView.
-                        sharedElements.put(names.get(0), title);
-                    }
-
-                    @Override
-                    public void onRejectSharedElements(List<View> rejectedSharedElements) {
-                        super.onRejectSharedElements(rejectedSharedElements);
-                    }
-                });
 
         return v;
     }

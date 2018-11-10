@@ -37,10 +37,8 @@ import android.support.annotation.NonNull;
 import android.support.design.widget.CoordinatorLayout;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.NavigationView;
-import android.support.transition.ChangeBounds;
-import android.support.transition.Explode;
-import android.support.transition.Slide;
-import android.support.transition.Transition;
+import android.transition.Explode;
+import android.transition.Slide;
 import android.support.transition.TransitionInflater;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
@@ -53,6 +51,7 @@ import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.widget.Toolbar;
+import android.transition.Transition;
 import android.util.Log;
 import android.util.TypedValue;
 import android.view.Gravity;
@@ -130,7 +129,7 @@ public class MainActivity extends BaseActivity {
 
     private static final int WAIT_TIME_FOR_DRAWER = 150; //Time in ms to wait for the Drawer to close before committing the fragment transaction
 
-    private static final String FRAGMENT_TAG = "MainActivityFragments";
+    public static final String FRAGMENT_TAG = "MainActivityFragments";
 
     public enum CurrentFragment {Browser, Favorites, Overview, WhatIf};
     private CurrentFragment currentFragment = null;

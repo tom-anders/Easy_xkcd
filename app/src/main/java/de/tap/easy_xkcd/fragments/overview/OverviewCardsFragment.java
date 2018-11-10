@@ -68,25 +68,6 @@ public class OverviewCardsFragment extends OverviewRecyclerBaseFragment {
         }
 
         setSharedElementEnterTransition(TransitionInflater.from(getContext()).inflateTransition(R.transition.image_shared_element_transition));
-        setEnterSharedElementCallback(
-                new SharedElementCallback() {
-                    @Override
-                    public void onMapSharedElements(List<String> names, Map<String, View> sharedElements) {
-                        View view = rv.getLayoutManager().findViewByPosition(prefHelper.getNewest() - lastComicNumber);
-                        TextView title = view.findViewById(R.id.comic_title);
-                        ImageView thumbnail = view.findViewById(R.id.thumbnail);
-                        Timber.d("title in cards fragment: %s", title.getText());
-
-                        // Map the first shared element name to the child ImageView.
-                        sharedElements.put(names.get(0), title);
-                        sharedElements.put(names.get(1), thumbnail);
-                    }
-
-                    @Override
-                    public void onRejectSharedElements(List<View> rejectedSharedElements) {
-                        super.onRejectSharedElements(rejectedSharedElements);
-                    }
-                });
 
         return v;
     }
