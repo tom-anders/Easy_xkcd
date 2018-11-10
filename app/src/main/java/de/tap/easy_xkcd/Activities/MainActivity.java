@@ -24,7 +24,6 @@ import android.app.SearchManager;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.content.pm.ActivityInfo;
 import android.content.pm.PackageManager;
 import android.content.res.Configuration;
 import android.content.res.Resources;
@@ -38,12 +37,15 @@ import android.support.annotation.NonNull;
 import android.support.design.widget.CoordinatorLayout;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.NavigationView;
+import android.support.transition.ChangeBounds;
 import android.support.transition.Explode;
 import android.support.transition.Slide;
 import android.support.transition.Transition;
+import android.support.transition.TransitionInflater;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
+import android.support.v4.app.SharedElementCallback;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.view.MenuItemCompat;
@@ -58,19 +60,18 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.animation.AccelerateInterpolator;
-import android.view.animation.AnticipateInterpolator;
-import android.view.animation.BounceInterpolator;
 import android.view.animation.OvershootInterpolator;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.SearchView;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.commonsware.cwac.wakeful.WakefulIntentService;
 import com.nbsp.materialfilepicker.ui.FilePickerActivity;
 import com.tap.xkcd_reader.R;
-import com.turhanoz.android.reactivedirectorychooser.event.CurrentRootDirectoryChangedEvent;
 
-import java.util.Random;
+import java.util.List;
+import java.util.Map;
 
 import butterknife.Bind;
 import butterknife.ButterKnife;
@@ -84,15 +85,13 @@ import de.tap.easy_xkcd.fragments.comics.ComicFragment;
 import de.tap.easy_xkcd.fragments.comics.FavoritesFragment;
 import de.tap.easy_xkcd.fragments.comics.OfflineFragment;
 import de.tap.easy_xkcd.fragments.overview.OverviewBaseFragment;
-import de.tap.easy_xkcd.fragments.overview.OverviewCardsFragment;
-import de.tap.easy_xkcd.fragments.overview.OverviewListFragment;
-import de.tap.easy_xkcd.fragments.overview.OverviewStaggeredGridFragment;
 import de.tap.easy_xkcd.fragments.whatIf.WhatIfFragment;
 import de.tap.easy_xkcd.fragments.whatIf.WhatIfOverviewFragment;
 import de.tap.easy_xkcd.notifications.ComicListener;
 import de.tap.easy_xkcd.utils.PrefHelper;
 import de.tap.easy_xkcd.utils.ThemePrefs;
 import timber.log.Timber;
+import uk.co.senab.photoview.PhotoView;
 
 
 public class MainActivity extends BaseActivity {
@@ -385,8 +384,30 @@ public class MainActivity extends BaseActivity {
 
         OverviewBaseFragment overviewBaseFragment = OverviewBaseFragment.getOverviewFragment(prefHelper, lastComicNumber != 0 ? lastComicNumber : prefHelper.getLastComic());
 
-        if (animate) {
-            Fragment oldFragment = fragmentManager.findFragmentByTag(FRAGMENT_TAG);
+        Fragment oldFragment = fragmentManager.findFragmentByTag(FRAGMENT_TAG);
+        final TextView title;
+        final PhotoView image;
+        if (currentFragment == CurrentFragment.Browser || currentFragment == CurrentFragment.Favorites) {
+            title = ((ComicFragment) oldFragment).getCurrentTitleTextView();
+            image = ((ComicFragment) oldFragment).getCurrentPhotoView();
+            Timber.d("Current title: %s", title.getText());
+
+            /*oldFragment.setExitSharedElementCallback(new SharedElementCallback() {
+                @Override
+                public void onMapSharedElements(List<String> names, Map<String, View> sharedElements) {
+                    Timber.d("shared element exit");
+                    sharedElements.put(names.get(0), image);
+                    sharedElements.put(names.get(1), title);
+                }
+            });*/
+            transaction.setReorderingAllowed(true);
+            transaction.addSharedElement(title, title.getTransitionName());
+            transaction.addSharedElement(image, image.getTransitionName());
+
+            //overviewBaseFragment.setEnterTransition(new Slide(Gravity.LEFT));
+            Timber.d("added shared element");
+            //oldFragment.setSharedElementEnterTransition(R.transition.image_shared_element_transition);
+        } else if (animate) {
             if (oldFragment != null) {
                 Explode explode = new Explode();
                 explode.setInterpolator(new AccelerateInterpolator(2.0f));

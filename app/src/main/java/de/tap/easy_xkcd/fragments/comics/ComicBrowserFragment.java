@@ -71,289 +71,293 @@ public class ComicBrowserFragment extends ComicFragment {
     private static boolean loadingImages;
     public static boolean newestUpdated = false;
 
-    private ComicBrowserPagerAdapter adapter;
+private ComicBrowserPagerAdapter adapter;
 
-    @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        View v = inflateLayout(R.layout.pager_layout, inflater, container, savedInstanceState);
+@Override
+public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+    View v = inflateLayout(R.layout.pager_layout, inflater, container, savedInstanceState);
 
-        loadingImages = true;
+    loadingImages = true;
 
-        newestComicNumber = prefHelper.getNewest();
-        if (lastComicNumber == 0) {
-            lastComicNumber = newestComicNumber;
-        }
-        prefHelper.setLastComic(lastComicNumber);
-        newestComicNumber = prefHelper.getNewest();
-        scrollViewPager();
-        adapter = new ComicBrowserPagerAdapter(getActivity(), newestComicNumber);
-        pager.setAdapter(adapter);
+    newestComicNumber = prefHelper.getNewest();
+    if (lastComicNumber == 0) {
+        lastComicNumber = newestComicNumber;
+    }
+    prefHelper.setLastComic(lastComicNumber);
+    newestComicNumber = prefHelper.getNewest();
+    scrollViewPager();
+    adapter = new ComicBrowserPagerAdapter(getActivity(), newestComicNumber);
+    pager.setAdapter(adapter);
 
-        if (newComicFound && lastComicNumber != newestComicNumber && (prefHelper.getNotificationInterval() == 0)) {
-            View.OnClickListener oc = new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    getLatestComic();
-                }
-            };
-            FloatingActionButton fab = (FloatingActionButton) getActivity().findViewById(R.id.fab);
-            //noinspection ResourceType
-            Snackbar.make(fab, getActivity().getResources().getString(R.string.new_comic), 4000)
-                    .setAction(getActivity().getResources().getString(R.string.new_comic_view), oc)
-                    .show();
-        }
-
-        pager.addOnPageChangeListener(new ViewPager.OnPageChangeListener() {
-            @Override
-            public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) {
-            }
-
-            @Override
-            public void onPageSelected(int position) {
-                pageSelected(position);
-                if (!prefHelper.isOnline(getActivity()))  //Don't update if the device is not online
-                    Toast.makeText(getActivity(), R.string.no_connection, Toast.LENGTH_SHORT).show();
-            }
-
-            @Override
-            public void onPageScrollStateChanged(int state) {
-
-            }
-        });
-
-        newComicFound = false;
-
-        return v;
+    if (newComicFound && lastComicNumber != newestComicNumber && (prefHelper.getNotificationInterval() == 0)) {
+        View.OnClickListener oc = new View.OnClickListener() {
+                              @Override
+                              public void onClick(View v) {
+                                      getLatestComic();
+                                                       }
+                                                       };
+        FloatingActionButton fab = (FloatingActionButton) getActivity().findViewById(R.id.fab);
+        //noinspection ResourceType
+        Snackbar.make(fab, getActivity().getResources().getString(R.string.new_comic), 4000)
+                .setAction(getActivity().getResources().getString(R.string.new_comic_view), oc)
+                .show();
     }
 
-    @Override
-    public void updatePager() { }
-
-    private class ComicBrowserPagerAdapter extends ComicAdapter {
-
-        private RealmResults<RealmComic> comics;
-
-        public ComicBrowserPagerAdapter(Context context, int count) {
-            super(context, count);
-            comics = databaseManager.getRealmComics();
+    pager.addOnPageChangeListener(new ViewPager.OnPageChangeListener() {
+        @Override
+        public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) {
         }
 
         @Override
-        public int getCount() {
-            return count;
+        public void onPageSelected(int position) {
+            pageSelected(position);
+            if (!prefHelper.isOnline(getActivity()))  //Don't update if the device is not online
+                Toast.makeText(getActivity(), R.string.no_connection, Toast.LENGTH_SHORT).show();
         }
 
         @Override
-        public Object instantiateItem(final ViewGroup container, final int position) {
-            View itemView = setupPager(container, position);
-            final PhotoView pvComic = itemView.findViewById(R.id.ivComic);
-            final TextView tvAlt = itemView.findViewById(R.id.tvAlt);
-            final TextView tvTitle = itemView.findViewById(R.id.tvTitle);
+        public void onPageScrollStateChanged(int state) {
 
-            //If the FAB is disabled, remove the right margin of the alt text
-            if (prefHelper.fabDisabled("pref_random_comics")) {
-                RelativeLayout.LayoutParams params = (RelativeLayout.LayoutParams) tvAlt.getLayoutParams();
-                params.rightMargin = getResources().getDimensionPixelSize(R.dimen.activity_horizontal_margin);
-            }
-            //If the FAB is left, swap the margins
-            if (prefHelper.fabLeft()) {
-                RelativeLayout.LayoutParams params = (RelativeLayout.LayoutParams) tvAlt.getLayoutParams();
-                params.leftMargin = getResources().getDimensionPixelSize(R.dimen.text_alt_margin_right);
-                params.rightMargin = getResources().getDimensionPixelSize(R.dimen.activity_horizontal_margin);
-            }
-
-            if (Arrays.binarySearch(context.getResources().getIntArray(R.array.large_comics), position+1) >= 0)
-                pvComic.setMaximumScale(15.0f);
-
-            final int comicNumber = position + 1; //Note that position starts at 0, so we have to add 1
-            RealmComic comic = databaseManager.getRealmComic(comicNumber);
-
-            tvAlt.setText(comic.getAltText());
-            tvTitle.setText(Html.fromHtml(comic.getTitle()));
-            if (comicNumber == lastComicNumber) {
-                animateToolbar();
-            }
-
-            if (fromSearch && comicNumber == lastComicNumber) {
-                fromSearch = false;
-                transition = ActivityTransition.with(getActivity().getIntent()).duration(300).to(pvComic).start(null);
-            }
-
-            if (getGifId(position) == 0) {
-                loadImage(position, comic.getUrl(), pvComic);
-            } else {
-                loadGif(position, pvComic);
-            }
-            Timber.d("Loaded comic %d with url %s", position + 1, comic.getUrl());
-            container.addView(itemView);
-            return itemView;
         }
+    });
 
-        public void loadImage(final int position, String url, final PhotoView pvComic) {
-            Glide.with(getActivity())
-                    .load(url)
-                    .asBitmap()
-                    .diskCacheStrategy(DiskCacheStrategy.SOURCE)
-                    .into(new SimpleTarget<Bitmap>() {
-                        @Override
-                        public void onResourceReady(Bitmap resource, GlideAnimation<? super Bitmap> glideAnimation) {
-                            if (themePrefs.invertColors(false) && themePrefs.bitmapContainsColor(resource, position + 1))
-                                pvComic.clearColorFilter();
+    newComicFound = false;
 
-                            pvComic.setAlpha(0f);
-                            pvComic.setImageBitmap(resource);
-                            pvComic.animate()
-                                    .alpha(1f)
-                                    .setDuration(200);
+    return v;
+}
 
-                        mainActivityCallback(position);
-                        }
-                    });
-        }
+@Override
+public void updatePager() { }
 
-        public void loadGif(final int position, final PhotoView pvComic) {
-            Glide.with(getActivity()) //TODO use with(ComicBrowserFragment.this) here
-                    .load(getGifId(position))
-                    .listener(new RequestListener<Integer, GlideDrawable>() {
-                        @Override
-                        public boolean onException(Exception e, Integer model, Target<GlideDrawable> target, boolean isFirstResource) {
-                            return false;
-                        }
+private class ComicBrowserPagerAdapter extends ComicAdapter {
 
-                        @Override
-                        public boolean onResourceReady(GlideDrawable resource, Integer model, Target<GlideDrawable> target, boolean isFromMemoryCache, boolean isFirstResource) {
-                            mainActivityCallback(position);
-                            return false;
-                        }
-                    })
-                    .into(new GlideDrawableImageViewTarget(pvComic));
-        }
+    private RealmResults<RealmComic> comics;
 
-        void mainActivityCallback(int position) {
-            if (position == lastComicNumber - 1) {
-                if (((MainActivity) getActivity()).getProgressDialog() != null)
-                    ((MainActivity) getActivity()).getProgressDialog().dismiss();
-            }
-            if (position == lastComicNumber + 1
-                    || (position == lastComicNumber - 1 && lastComicNumber == newestComicNumber)
-                    || (position == lastComicNumber && lastComicNumber == newestComicNumber - 1)) {
-                loadingImages = false;
-            }
-        }
-
-        @Override
-        public void destroyItem(ViewGroup container, int position, Object object) {
-            container.removeView((RelativeLayout) object);
-            Glide.clear(((RelativeLayout) object).findViewById(R.id.ivComic));
-        }
-
+    public ComicBrowserPagerAdapter(Context context, int count) {
+        super(context, count);
+        comics = databaseManager.getRealmComics();
     }
 
     @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        switch (item.getItemId()) {
-            case R.id.action_favorite:
-                return modifyFavorites(item);
-            case R.id.action_share:
-                return shareComic();
-            case R.id.action_latest:
-                return getLatestComic();
-            case R.id.action_random:
-                return getRandomComic();
-            case R.id.action_thread:
-                return DatabaseManager.showThread(databaseManager.getRealmComic(lastComicNumber).getTitle(), getActivity(), false);
-        }
-        return super.onOptionsItemSelected(item);
-    }
+    public int getCount() {
+                        return count;
+                                     }
 
     @Override
-    protected boolean getLatestComic() {
-        if (prefHelper.isOnline(getActivity())) {
-            if (newestComicNumber - lastComicNumber > 4)
-                ((MainActivity) getActivity()).setProgressDialog(this.getResources().getString(R.string.loading_latest), false);
-            return super.getLatestComic();
-        }
-        return true;
-    }
+    public Object instantiateItem(final ViewGroup container, final int position) {
+        View itemView = setupPager(container, position);
+        final PhotoView pvComic = itemView.findViewById(R.id.ivComic);
+        final TextView tvAlt = itemView.findViewById(R.id.tvAlt);
+        final TextView tvTitle = itemView.findViewById(R.id.tvTitle);
 
-    /*************************
-     * Favorite Modification
-     ************************/
-
-    @Override
-    protected boolean modifyFavorites(MenuItem item) {
-        if (!prefHelper.isOnline(getActivity())) {
-            Toast.makeText(getActivity(), R.string.no_connection, Toast.LENGTH_SHORT).show();
-            return true;
+        //If the FAB is disabled, remove the right margin of the alt text
+        if (prefHelper.fabDisabled("pref_random_comics")) {
+            RelativeLayout.LayoutParams params = (RelativeLayout.LayoutParams) tvAlt.getLayoutParams();
+            params.rightMargin = getResources().getDimensionPixelSize(R.dimen.activity_horizontal_margin);
         }
-        if (databaseManager.isFavorite(lastComicNumber)) {
-            new DeleteComicImageTask(lastComicNumber).execute(true);
-            item.setIcon(R.drawable.ic_favorite_outline);
+        //If the FAB is left, swap the margins
+        if (prefHelper.fabLeft()) {
+            RelativeLayout.LayoutParams params = (RelativeLayout.LayoutParams) tvAlt.getLayoutParams();
+            params.leftMargin = getResources().getDimensionPixelSize(R.dimen.text_alt_margin_right);
+            params.rightMargin = getResources().getDimensionPixelSize(R.dimen.activity_horizontal_margin);
+        }
+
+        if (Arrays.binarySearch(context.getResources().getIntArray(R.array.large_comics), position+1) >= 0)
+            pvComic.setMaximumScale(15.0f);
+
+        final int comicNumber = position + 1; //Note that position starts at 0, so we have to add 1
+        RealmComic comic = databaseManager.getRealmComic(comicNumber);
+
+        pvComic.setTransitionName("im" + comicNumber);
+        tvTitle.setTransitionName(String.valueOf(comicNumber));
+
+
+        tvAlt.setText(comic.getAltText());
+        tvTitle.setText(Html.fromHtml(comic.getTitle()));
+        if (comicNumber == lastComicNumber) {
+            animateToolbar();
+        }
+
+        if (fromSearch && comicNumber == lastComicNumber) {
+            fromSearch = false;
+            transition = ActivityTransition.with(getActivity().getIntent()).duration(300).to(pvComic).start(null);
+        }
+
+        if (getGifId(position) == 0) {
+            loadImage(position, comic.getUrl(), pvComic);
         } else {
-            if (!(ContextCompat.checkSelfPermission(getActivity(), Manifest.permission.WRITE_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED)) {
-                ActivityCompat.requestPermissions(getActivity(), new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE}, 2);
-                return true;
-            }
-            new SaveComicImageTask(lastComicNumber).execute(true);
-            item.setIcon(R.drawable.ic_action_favorite);
+            loadGif(position, pvComic);
         }
-        return true;
+        Timber.d("Loaded comic %d with url %s", position + 1, comic.getUrl());
+        container.addView(itemView);
+        return itemView;
     }
 
-    /*********************************
-     * Random Comics
-     ***********************************/
+    public void loadImage(final int position, String url, final PhotoView pvComic) {
+        Glide.with(getActivity())
+                .load(url)
+                .asBitmap()
+                .diskCacheStrategy(DiskCacheStrategy.SOURCE)
+                .into(new SimpleTarget<Bitmap>() {
+                  @Override
+                  public void onResourceReady(Bitmap resource, GlideAnimation<? super Bitmap> glideAnimation) {
+                        if (themePrefs.invertColors(false) && themePrefs.bitmapContainsColor(resource, position + 1))
+                            pvComic.clearColorFilter();
+
+                        pvComic.setAlpha(0f);
+                        pvComic.setImageBitmap(resource);
+                        pvComic.animate()
+                                .alpha(1f)
+                                .setDuration(200);
+
+                    mainActivityCallback(position);
+                }
+            });
+    }
+
+    public void loadGif(final int position, final PhotoView pvComic) {
+        Glide.with(getActivity()) //TODO use with(ComicBrowserFragment.this) here
+                .load(getGifId(position))
+                .listener(new RequestListener<Integer, GlideDrawable>() {
+                    @Override
+                    public boolean onException(Exception e, Integer model, Target<GlideDrawable> target, boolean isFirstResource) {
+                        return false;
+                    }
+
+                    @Override
+                    public boolean onResourceReady(GlideDrawable resource, Integer model, Target<GlideDrawable> target, boolean isFromMemoryCache, boolean isFirstResource) {
+                        mainActivityCallback(position);
+                        return false;
+                    }
+                })
+                .into(new GlideDrawableImageViewTarget(pvComic));
+    }
+
+    void mainActivityCallback(int position) {
+        if (position == lastComicNumber - 1) {
+            if (((MainActivity) getActivity()).getProgressDialog() != null)
+                ((MainActivity) getActivity()).getProgressDialog().dismiss();
+        }
+        if (position == lastComicNumber + 1
+                || (position == lastComicNumber - 1 && lastComicNumber == newestComicNumber)
+                || (position == lastComicNumber && lastComicNumber == newestComicNumber - 1)) {
+            loadingImages = false;
+        }
+    }
 
     @Override
-    public boolean getRandomComic() {
-        if (prefHelper.isOnline(getActivity()) && newestComicNumber != 0) {
-            //TODO does the progress dialog have to be in MainActivity? Could it be a member of ComicFragment instead?
-            ((MainActivity) getActivity()).setProgressDialog(getActivity().getResources().getString(R.string.loading_random), false);
-            return super.getRandomComic();
-        }
+    public void destroyItem(ViewGroup container, int position, Object object) {
+        container.removeView((RelativeLayout) object);
+        Glide.clear(((RelativeLayout) object).findViewById(R.id.ivComic));
+    }
+
+}
+
+@Override
+public boolean onOptionsItemSelected(MenuItem item) {
+    switch (item.getItemId()) {
+        case R.id.action_favorite:
+            return modifyFavorites(item);
+        case R.id.action_share:
+            return shareComic();
+        case R.id.action_latest:
+            return getLatestComic();
+        case R.id.action_random:
+            return getRandomComic();
+        case R.id.action_thread:
+            return DatabaseManager.showThread(databaseManager.getRealmComic(lastComicNumber).getTitle(), getActivity(), false);
+    }
+    return super.onOptionsItemSelected(item);
+}
+
+@Override
+protected boolean getLatestComic() {
+    if (prefHelper.isOnline(getActivity())) {
+        if (newestComicNumber - lastComicNumber > 4)
+            ((MainActivity) getActivity()).setProgressDialog(this.getResources().getString(R.string.loading_latest), false);
+        return super.getLatestComic();
+    }
+    return true;
+}
+
+/*************************
+ * Favorite Modification
+ ************************/
+
+@Override
+protected boolean modifyFavorites(MenuItem item) {
+    if (!prefHelper.isOnline(getActivity())) {
         Toast.makeText(getActivity(), R.string.no_connection, Toast.LENGTH_SHORT).show();
         return true;
     }
-
-    @Override
-    public void getPreviousRandom() {
-        if (prefHelper.isOnline(getActivity()) && newestComicNumber != 0)
-            super.getPreviousRandom();
-        else
-            Toast.makeText(getActivity(), R.string.no_connection, Toast.LENGTH_SHORT).show();
-    }
-
-    /*******************
-     * Sharing
-     **************************/
-
-    protected boolean shareComic() {
-        if (prefHelper.shareImage()) {
-            shareComicImage();
+    if (databaseManager.isFavorite(lastComicNumber)) {
+        new DeleteComicImageTask(lastComicNumber).execute(true);
+        item.setIcon(R.drawable.ic_favorite_outline);
+    } else {
+        if (!(ContextCompat.checkSelfPermission(getActivity(), Manifest.permission.WRITE_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED)) {
+            ActivityCompat.requestPermissions(getActivity(), new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE}, 2);
             return true;
         }
-        AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
-        builder.setItems(R.array.share_dialog, new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialog, int which) {
-                switch (which) {
-                    case 0:
-                        shareComicImage();
-                        break;
-                    case 1:
-                        shareComicUrl(databaseManager.getRealmComic(lastComicNumber));
-                        break;
-                }
-            }
-        });
-        AlertDialog alert = builder.create();
-        alert.show();
+        new SaveComicImageTask(lastComicNumber).execute(true);
+        item.setIcon(R.drawable.ic_action_favorite);
+    }
+    return true;
+}
+
+/*********************************
+ * Random Comics
+ ***********************************/
+
+@Override
+public boolean getRandomComic() {
+    if (prefHelper.isOnline(getActivity()) && newestComicNumber != 0) {
+        //TODO does the progress dialog have to be in MainActivity? Could it be a member of ComicFragment instead?
+        ((MainActivity) getActivity()).setProgressDialog(getActivity().getResources().getString(R.string.loading_random), false);
+        return super.getRandomComic();
+    }
+    Toast.makeText(getActivity(), R.string.no_connection, Toast.LENGTH_SHORT).show();
+    return true;
+}
+
+@Override
+public void getPreviousRandom() {
+    if (prefHelper.isOnline(getActivity()) && newestComicNumber != 0)
+        super.getPreviousRandom();
+    else
+        Toast.makeText(getActivity(), R.string.no_connection, Toast.LENGTH_SHORT).show();
+}
+
+/*******************
+ * Sharing
+ **************************/
+
+protected boolean shareComic() {
+    if (prefHelper.shareImage()) {
+        shareComicImage();
         return true;
     }
+    AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
+    builder.setItems(R.array.share_dialog, new DialogInterface.OnClickListener() {
+                                       @Override
+                                       public void onClick(DialogInterface dialog, int which) {
+            switch (which) {
+                case 0:
+                    shareComicImage();
+                    break;
+                case 1:
+                    shareComicUrl(databaseManager.getRealmComic(lastComicNumber));
+                    break;
+            }
+    }
+});
+    AlertDialog alert = builder.create();
+    alert.show();
+    return true;
+}
 
-    public void shareComicImage() {
-        if (!(ContextCompat.checkSelfPermission(getActivity(), Manifest.permission.WRITE_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED)) {
-            ActivityCompat.requestPermissions(getActivity(), new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE}, 1);
+public void shareComicImage() {
+    if (!(ContextCompat.checkSelfPermission(getActivity(), Manifest.permission.WRITE_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED)) {
+        ActivityCompat.requestPermissions(getActivity(), new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE}, 1);
             return;
         }
         new ShareImageTask().execute(databaseManager.getRealmComic(lastComicNumber).getUrl());

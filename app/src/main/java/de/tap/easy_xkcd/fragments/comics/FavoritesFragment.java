@@ -165,6 +165,9 @@ public class FavoritesFragment extends ComicFragment {
             tvAlt.setText(favoriteComic.getAltText());
             tvTitle.setText(Html.fromHtml(favoriteComic.getTitle()));
 
+            pvComic.setTransitionName("im" + favoriteComic.getComicNumber());
+            tvTitle.setTransitionName(String.valueOf(favoriteComic.getComicNumber()));
+
             if (getGifId(favoriteComic.getComicNumber() - 1) != 0)
                 Glide.with(getActivity())
                         .load(getGifId(favoriteComic.getComicNumber() - 1))
@@ -220,6 +223,11 @@ public class FavoritesFragment extends ComicFragment {
                 return DatabaseManager.showThread(favorites.get(favoriteIndex).getTitle(), getActivity(), false);
         }
         return super.onOptionsItemSelected(item);
+    }
+
+    @Override
+    public TextView getCurrentTitleTextView() {
+        return pager.findViewWithTag(favoriteIndex).findViewById(R.id.tvTitle);
     }
 
     private boolean exportImportFavorites() {

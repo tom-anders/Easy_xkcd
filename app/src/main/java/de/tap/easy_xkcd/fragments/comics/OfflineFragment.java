@@ -150,6 +150,8 @@ public class OfflineFragment extends ComicFragment {
 
             final int comicNumber = position + 1;
 
+            pvComic.setTransitionName("im" + comicNumber);
+            tvTitle.setTransitionName(String.valueOf(comicNumber));
             //comicMap.put(comicNumber, new OfflineComic(comicNumber, getActivity(), ((MainActivity) getActivity()).getPrefHelper()));
 
             RealmComic realmComic = databaseManager.getRealmComic(comicNumber);

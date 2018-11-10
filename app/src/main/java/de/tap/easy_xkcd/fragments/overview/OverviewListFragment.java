@@ -21,9 +21,13 @@ package de.tap.easy_xkcd.fragments.overview;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.os.Bundle;
+import android.support.v4.app.SharedElementCallback;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AlertDialog;
+import android.transition.Slide;
+import android.transition.TransitionInflater;
 import android.util.TypedValue;
+import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -37,12 +41,18 @@ import android.widget.Toast;
 
 import com.tap.xkcd_reader.R;
 
+import java.util.List;
+import java.util.Map;
+
 import de.tap.easy_xkcd.database.RealmComic;
 import de.tap.easy_xkcd.fragments.comics.ComicFragment;
+import timber.log.Timber;
 
 public class OverviewListFragment extends OverviewBaseFragment {
     private ListAdapter listAdapter;
     private ListView list;
+
+    private TextView lastTitle;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
@@ -54,7 +64,30 @@ public class OverviewListFragment extends OverviewBaseFragment {
         setupAdapter();
         if (savedInstanceState == null) {
             animateToolbar();
+
+            postponeEnterTransition();
         }
+
+        setEnterTransition(new Slide(Gravity.LEFT));
+        setSharedElementEnterTransition(TransitionInflater.from(getContext()).inflateTransition(R.transition.image_shared_element_transition));
+        setEnterSharedElementCallback(
+                new SharedElementCallback() {
+                    @Override
+                    public void onMapSharedElements(List<String> names, Map<String, View> sharedElements) {
+                        //View view = rv.getLayoutManager().findViewByPosition(prefHelper.getNewest() - lastComicNumber);
+                        //View view = list.findViewWithTag();
+                        TextView title = lastTitle;
+                        Timber.d("title in list fragment: %s", title.getText());
+
+                        // Map the first shared element name to the child ImageView.
+                        sharedElements.put(names.get(0), title);
+                    }
+
+                    @Override
+                    public void onRejectSharedElements(List<View> rejectedSharedElements) {
+                        super.onRejectSharedElements(rejectedSharedElements);
+                    }
+                });
 
         return v;
     }
@@ -119,6 +152,13 @@ public class OverviewListFragment extends OverviewBaseFragment {
                 holder.textView.setTextColor(typedValue.data);
             }
             holder.textView.setText(label);
+            holder.textView.setTransitionName(String.valueOf(comic.getComicNumber()));
+
+            if (comic.getComicNumber() == lastComicNumber) {
+                lastTitle = holder.textView;
+                startPostponedEnterTransition();
+            }
+            Timber.d("loaded %d", comic.getComicNumber());
             return view;
         }
     }
@@ -186,7 +226,7 @@ public class OverviewListFragment extends OverviewBaseFragment {
         listAdapter = new ListAdapter();
         list.setAdapter(listAdapter);
         if (lastComicNumber <= comics.size())
-            list.setSelection(comics.size() - lastComicNumber);
+            list.setSelection(comics.size() - lastComicNumber - 7);
         list.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {

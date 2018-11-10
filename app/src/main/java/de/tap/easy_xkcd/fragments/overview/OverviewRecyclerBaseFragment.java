@@ -71,6 +71,9 @@ public abstract class OverviewRecyclerBaseFragment extends OverviewBaseFragment 
             comicViewHolder.comicInfo.setText(String.valueOf(number));
             comicViewHolder.comicTitle.setText(title);
 
+            comicViewHolder.comicTitle.setTransitionName(String.valueOf(number));
+            comicViewHolder.thumbnail.setTransitionName("im"+String.valueOf(number));
+
             if (themePrefs.invertColors(false))
                 comicViewHolder.thumbnail.setColorFilter(themePrefs.getNegativeColorFilter());
         }
@@ -89,15 +92,15 @@ public abstract class OverviewRecyclerBaseFragment extends OverviewBaseFragment 
 
             ComicViewHolder(View itemView) {
                 super(itemView);
-                cv = (CardView) itemView.findViewById(R.id.cv);
+                cv = (CardView) itemView;
                 if (themePrefs.amoledThemeEnabled()) {
                     cv.setCardBackgroundColor(Color.BLACK);
                 } else if (themePrefs.nightThemeEnabled()) {
                     cv.setCardBackgroundColor(ContextCompat.getColor(getActivity(), R.color.background_material_dark));
                 }
-                comicTitle = (TextView) itemView.findViewById(R.id.comic_title);
-                comicInfo = (TextView) itemView.findViewById(R.id.comic_info);
-                thumbnail = (ImageView) itemView.findViewById(R.id.thumbnail);
+                comicTitle = itemView.findViewById(R.id.comic_title);
+                comicInfo = itemView.findViewById(R.id.comic_info);
+                thumbnail = itemView.findViewById(R.id.thumbnail);
             }
         }
     }

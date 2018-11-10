@@ -142,9 +142,9 @@ public abstract class ComicFragment extends android.support.v4.app.Fragment {
         protected View setupPager(ViewGroup container, int position) {
             final View itemView = mLayoutInflater.inflate(R.layout.pager_item, container, false);
             itemView.setTag(position);
-            final PhotoView pvComic = (PhotoView) itemView.findViewById(R.id.ivComic);
-            final TextView tvAlt = (TextView) itemView.findViewById(R.id.tvAlt);
-            final TextView tvTitle = (TextView) itemView.findViewById(R.id.tvTitle);
+            final PhotoView pvComic = itemView.findViewById(R.id.ivComic);
+            final TextView tvAlt = itemView.findViewById(R.id.tvAlt);
+            final TextView tvTitle = itemView.findViewById(R.id.tvTitle);
 
             if (themePrefs.nightThemeEnabled()) {
                 tvAlt.setTextColor(Color.WHITE);
@@ -257,6 +257,14 @@ public abstract class ComicFragment extends android.support.v4.app.Fragment {
         public void destroyItem(ViewGroup container, int position, Object object) {
             container.removeView((RelativeLayout) object);
         }
+    }
+
+    public TextView getCurrentTitleTextView() {
+        return pager.findViewWithTag(lastComicNumber - 1).findViewById(R.id.tvTitle);
+    }
+
+    public PhotoView getCurrentPhotoView() {
+        return pager.findViewWithTag(lastComicNumber - 1).findViewById(R.id.ivComic);
     }
 
     protected void animateToolbar() {
