@@ -27,16 +27,16 @@ import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Vibrator;
-import android.support.customtabs.CustomTabsIntent;
-import android.support.design.widget.FloatingActionButton;
-import android.support.design.widget.Snackbar;
-import android.support.v4.content.FileProvider;
-import android.support.v4.view.PagerAdapter;
-import android.support.v4.view.ViewPager;
-import android.support.v7.widget.Toolbar;
+import androidx.browser.customtabs.CustomTabsIntent;
+import com.google.android.material.floatingactionbutton.FloatingActionButton;
+import com.google.android.material.snackbar.Snackbar;
+import androidx.core.content.FileProvider;
+import androidx.fragment.app.Fragment;
+import androidx.viewpager.widget.PagerAdapter;
+import androidx.viewpager.widget.ViewPager;
+import androidx.appcompat.widget.Toolbar;
 import android.transition.TransitionInflater;
 import android.util.Log;
-import android.util.SparseArray;
 import android.view.GestureDetector;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -51,7 +51,6 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.bumptech.glide.Glide;
-import com.bumptech.glide.load.engine.DiskCacheStrategy;
 import com.kogitune.activity_transition.ExitActivityTransition;
 import com.tap.xkcd_reader.R;
 
@@ -78,7 +77,7 @@ import uk.co.senab.photoview.PhotoViewAttacher;
  * Superclass for ComicBrowserFragment, OfflineFragment & FavoritesFragment
  */
 
-public abstract class ComicFragment extends android.support.v4.app.Fragment {
+public abstract class ComicFragment extends Fragment {
     public int lastComicNumber;
     public int newestComicNumber;
     public int favoriteIndex = 0;
@@ -193,7 +192,7 @@ public abstract class ComicFragment extends android.support.v4.app.Fragment {
                         if (prefHelper.classicAltStyle()) {
                             toggleVisibility(tvAlt);
                         } else {
-                            android.support.v7.app.AlertDialog.Builder mDialog = new android.support.v7.app.AlertDialog.Builder(getActivity());
+                            androidx.appcompat.app.AlertDialog.Builder mDialog = new androidx.appcompat.app.AlertDialog.Builder(getActivity());
                             mDialog.setMessage(tvAlt.getText());
                             mDialog.show();
                         }
@@ -446,7 +445,7 @@ public abstract class ComicFragment extends android.support.v4.app.Fragment {
     }
 
     protected boolean showTranscript(String trans) {
-        android.support.v7.app.AlertDialog.Builder mDialog = new android.support.v7.app.AlertDialog.Builder(getActivity());
+        androidx.appcompat.app.AlertDialog.Builder mDialog = new androidx.appcompat.app.AlertDialog.Builder(getActivity());
         mDialog.setMessage(trans);
         mDialog.show();
         return true;
@@ -541,7 +540,7 @@ public abstract class ComicFragment extends android.support.v4.app.Fragment {
         if (prefHelper.classicAltStyle()) {
             toggleVisibility(tvAlt);
         } else {
-            android.support.v7.app.AlertDialog.Builder mDialog = new android.support.v7.app.AlertDialog.Builder(getActivity());
+            androidx.appcompat.app.AlertDialog.Builder mDialog = new androidx.appcompat.app.AlertDialog.Builder(getActivity());
             mDialog.setMessage(tvAlt.getText());
             mDialog.show();
         }

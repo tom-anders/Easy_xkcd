@@ -1,14 +1,13 @@
 package de.tap.easy_xkcd.Activities;
 
 import android.app.Activity;
-import android.app.Instrumentation;
 import android.app.ProgressDialog;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Build;
-import android.support.v4.content.ContextCompat;
-import android.support.v7.app.AlertDialog;
+import androidx.core.content.ContextCompat;
+import androidx.appcompat.app.AlertDialog;
 import android.os.Bundle;
 import android.text.Html;
 import android.text.method.LinkMovementMethod;
@@ -56,7 +55,7 @@ public class WhatIfActivity extends BaseActivity {
         setContentView(R.layout.activity_what_if);
         ButterKnife.bind(this);
 
-        android.support.v7.widget.Toolbar toolbar = (android.support.v7.widget.Toolbar) findViewById(R.id.toolbar);
+        androidx.appcompat.widget.Toolbar toolbar = (androidx.appcompat.widget.Toolbar) findViewById(R.id.toolbar);
         setupToolbar(toolbar);
 
         web.addJavascriptInterface(new altObject(), "img");
@@ -77,7 +76,7 @@ public class WhatIfActivity extends BaseActivity {
     private class altObject {
         @JavascriptInterface
         public void performClick(String alt) {
-            android.support.v7.app.AlertDialog.Builder mDialog = new android.support.v7.app.AlertDialog.Builder(WhatIfActivity.this);
+            androidx.appcompat.app.AlertDialog.Builder mDialog = new androidx.appcompat.app.AlertDialog.Builder(WhatIfActivity.this);
             mDialog.setMessage(alt);
             mDialog.show();
         }
@@ -100,7 +99,7 @@ public class WhatIfActivity extends BaseActivity {
                 builder.create().show();
                 return;
             }
-            ((TextView) new android.support.v7.app.AlertDialog.Builder(WhatIfActivity.this)
+            ((TextView) new androidx.appcompat.app.AlertDialog.Builder(WhatIfActivity.this)
                     .setMessage(Html.fromHtml(loadedArticle.getRefs().get(Integer.parseInt(n))))
                     .show()
                     .findViewById(android.R.id.message))

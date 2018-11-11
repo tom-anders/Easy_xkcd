@@ -21,19 +21,17 @@ package de.tap.easy_xkcd.fragments.overview;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.os.Bundle;
-import android.support.annotation.NonNull;
-import android.support.annotation.Nullable;
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import android.transition.TransitionInflater;
-import android.support.v4.app.SharedElementCallback;
-import android.support.v7.widget.LinearLayoutManager;
-import android.support.v7.widget.RecyclerView;
+import androidx.core.app.SharedElementCallback;
+import androidx.recyclerview.widget.LinearLayoutManager;
+
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ImageView;
-import android.widget.TextView;
 
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.load.DataSource;
@@ -44,12 +42,9 @@ import com.tap.xkcd_reader.R;
 
 import java.io.File;
 import java.io.FileInputStream;
-import java.util.List;
-import java.util.Map;
 
 import de.tap.easy_xkcd.Activities.MainActivity;
 import de.tap.easy_xkcd.database.RealmComic;
-import de.tap.easy_xkcd.fragments.comics.ComicFragment;
 import timber.log.Timber;
 
 public class OverviewCardsFragment extends OverviewRecyclerBaseFragment {

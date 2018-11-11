@@ -20,24 +20,19 @@ package de.tap.easy_xkcd.fragments.overview;
 
 import android.content.DialogInterface;
 import android.graphics.Color;
-import android.support.v4.content.ContextCompat;
-import android.support.v7.app.AlertDialog;
-import android.support.v7.widget.CardView;
-import android.support.v7.widget.RecyclerView;
-import android.util.Log;
+import androidx.core.content.ContextCompat;
+import androidx.appcompat.app.AlertDialog;
+import androidx.cardview.widget.CardView;
+import androidx.recyclerview.widget.RecyclerView;
+
 import android.util.TypedValue;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.simplecityapps.recyclerview_fastscroll.views.FastScrollRecyclerView;
 import com.tap.xkcd_reader.R;
-
-import org.w3c.dom.Text;
-
-import java.util.Arrays;
 
 import de.tap.easy_xkcd.Activities.MainActivity;
 import de.tap.easy_xkcd.database.RealmComic;

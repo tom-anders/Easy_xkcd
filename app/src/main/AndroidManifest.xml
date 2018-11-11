@@ -185,7 +185,7 @@
         <service android:name="de.tap.easy_xkcd.services.ArticleDownloadService" />
 
         <provider
-            android:name="android.support.v4.content.FileProvider"
+            android:name="androidx.core.content.FileProvider"
             android:authorities="de.tap.easy_xkcd.fileProvider"
             android:exported="false"
             android:grantUriPermissions="true">

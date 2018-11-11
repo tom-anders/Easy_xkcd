@@ -19,17 +19,14 @@
 package de.tap.easy_xkcd.fragments.comics;
 
 import android.app.AlertDialog;
-import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.graphics.Bitmap;
-import android.os.AsyncTask;
 import android.os.Bundle;
-import android.support.design.widget.FloatingActionButton;
-import android.support.design.widget.Snackbar;
-import android.support.v4.view.ViewPager;
+import com.google.android.material.floatingactionbutton.FloatingActionButton;
+import com.google.android.material.snackbar.Snackbar;
+import androidx.viewpager.widget.ViewPager;
 import android.text.Html;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.View;
@@ -42,22 +39,11 @@ import com.bumptech.glide.Glide;
 import com.kogitune.activity_transition.ActivityTransition;
 import com.tap.xkcd_reader.R;
 
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.IOException;
 import java.util.Arrays;
 
 import de.tap.easy_xkcd.Activities.MainActivity;
 import de.tap.easy_xkcd.database.DatabaseManager;
 import de.tap.easy_xkcd.database.RealmComic;
-import io.realm.Realm;
-import io.realm.RealmResults;
-import okhttp3.OkHttpClient;
-import okhttp3.Request;
-import okhttp3.Response;
-import okio.BufferedSink;
-import okio.Okio;
-import timber.log.Timber;
 import uk.co.senab.photoview.PhotoView;
 
 public class OfflineFragment extends ComicFragment {

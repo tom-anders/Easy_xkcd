@@ -33,12 +33,12 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.preference.Preference;
 import android.preference.PreferenceFragment;
-import android.support.v4.app.ActivityCompat;
-import android.support.v4.app.DialogFragment;
-import android.support.v4.app.FragmentTransaction;
-import android.support.v4.content.ContextCompat;
-import android.support.v7.app.AlertDialog;
-import android.support.v7.widget.CardView;
+import androidx.core.app.ActivityCompat;
+import androidx.fragment.app.DialogFragment;
+import androidx.fragment.app.FragmentTransaction;
+import androidx.core.content.ContextCompat;
+import androidx.appcompat.app.AlertDialog;
+import androidx.cardview.widget.CardView;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -282,7 +282,7 @@ public class NestedPreferenceFragment extends PreferenceFragment {
                             }
                             return false;
                         } else {
-                            android.support.v7.app.AlertDialog.Builder mDialog = new android.support.v7.app.AlertDialog.Builder(getActivity());
+                            androidx.appcompat.app.AlertDialog.Builder mDialog = new androidx.appcompat.app.AlertDialog.Builder(getActivity());
                             mDialog.setMessage(R.string.delete_offline_dialog)
                                     .setNegativeButton(R.string.dialog_cancel, new DialogInterface.OnClickListener() {
                                         public void onClick(DialogInterface dialog, int which) {
@@ -326,7 +326,7 @@ public class NestedPreferenceFragment extends PreferenceFragment {
                             }
 
                         } else {
-                            android.support.v7.app.AlertDialog.Builder mDialog = new android.support.v7.app.AlertDialog.Builder(getActivity());
+                            androidx.appcompat.app.AlertDialog.Builder mDialog = new androidx.appcompat.app.AlertDialog.Builder(getActivity());
                             mDialog.setMessage(R.string.delete_offline_whatif_dialog)
                                     .setNegativeButton(R.string.dialog_cancel, new DialogInterface.OnClickListener() {
                                         public void onClick(DialogInterface dialog, int which) {

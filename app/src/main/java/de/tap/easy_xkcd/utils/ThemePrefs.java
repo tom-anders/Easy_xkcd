@@ -29,9 +29,9 @@ import android.graphics.Color;
 import android.graphics.ColorFilter;
 import android.graphics.ColorMatrixColorFilter;
 import android.preference.PreferenceManager;
-import android.support.design.widget.NavigationView;
-import android.support.v4.content.ContextCompat;
-import android.support.v7.graphics.Palette;
+import com.google.android.material.navigation.NavigationView;
+import androidx.core.content.ContextCompat;
+import androidx.palette.graphics.Palette;
 import android.util.Log;
 
 import com.tap.xkcd_reader.R;

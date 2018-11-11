@@ -8,12 +8,13 @@ import android.content.Intent;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
-import android.support.annotation.NonNull;
-import android.support.v4.content.ContextCompat;
-import android.support.v4.view.MenuItemCompat;
-import android.support.v7.widget.LinearLayoutManager;
-import android.support.v7.widget.RecyclerView;
-import android.support.v7.widget.Toolbar;
+import androidx.annotation.NonNull;
+import androidx.core.content.ContextCompat;
+import androidx.core.view.MenuItemCompat;
+import androidx.fragment.app.Fragment;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
+import androidx.appcompat.widget.Toolbar;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -49,7 +50,6 @@ import de.tap.easy_xkcd.Activities.WhatIfActivity;
 import de.tap.easy_xkcd.utils.JsonParser;
 import de.tap.easy_xkcd.utils.PrefHelper;
 import de.tap.easy_xkcd.utils.ThemePrefs;
-import jp.wasabeef.recyclerview.adapters.AlphaInAnimationAdapter;
 import jp.wasabeef.recyclerview.adapters.SlideInBottomAnimationAdapter;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
@@ -58,7 +58,7 @@ import okio.BufferedSink;
 import okio.Okio;
 import timber.log.Timber;
 
-public class WhatIfFragment extends android.support.v4.app.Fragment {
+public class WhatIfFragment extends Fragment {
 
     public static ArrayList<String> mTitles = new ArrayList<>();
     private static ArrayList<String> mImgs = new ArrayList<>();

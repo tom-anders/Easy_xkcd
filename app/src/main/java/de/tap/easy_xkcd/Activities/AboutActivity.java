@@ -38,7 +38,7 @@ public class AboutActivity extends BaseActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_about);
 
-        android.support.v7.widget.Toolbar toolbar = (android.support.v7.widget.Toolbar) findViewById(R.id.toolbar);
+        androidx.appcompat.widget.Toolbar toolbar = (androidx.appcompat.widget.Toolbar) findViewById(R.id.toolbar);
         setupToolbar(toolbar);
         TextView tvAbout = (TextView) findViewById(R.id.tvAbout);
         InputStream is = getResources().openRawResource(R.raw.licenses);

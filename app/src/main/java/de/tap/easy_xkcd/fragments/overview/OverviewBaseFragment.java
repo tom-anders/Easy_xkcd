@@ -20,11 +20,12 @@ package de.tap.easy_xkcd.fragments.overview;
 
 import android.content.DialogInterface;
 import android.os.Bundle;
-import android.support.annotation.Nullable;
-import android.support.transition.TransitionInflater;
-import android.support.v4.app.FragmentTransaction;
-import android.support.v7.widget.Toolbar;
-import android.transition.Slide;
+import androidx.annotation.Nullable;
+import androidx.transition.TransitionInflater;
+import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentTransaction;
+import androidx.appcompat.widget.Toolbar;
+
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
@@ -35,7 +36,6 @@ import android.widget.Toast;
 
 import com.tap.xkcd_reader.R;
 
-import java.util.Arrays;
 import java.util.Random;
 
 import de.tap.easy_xkcd.Activities.MainActivity;
@@ -52,7 +52,7 @@ import io.realm.RealmResults;
 import io.realm.Sort;
 import timber.log.Timber;
 
-public abstract class OverviewBaseFragment extends android.support.v4.app.Fragment {
+public abstract class OverviewBaseFragment extends Fragment {
     protected RealmResults<RealmComic> comics;
     protected PrefHelper prefHelper;
     protected ThemePrefs themePrefs;
@@ -233,7 +233,7 @@ public abstract class OverviewBaseFragment extends android.support.v4.app.Fragme
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
             case R.id.action_overview_style:
-                android.support.v7.app.AlertDialog.Builder mDialog = new android.support.v7.app.AlertDialog.Builder(getActivity());
+                androidx.appcompat.app.AlertDialog.Builder mDialog = new androidx.appcompat.app.AlertDialog.Builder(getActivity());
                 mDialog.setTitle(R.string.overview_style_title)
                         .setSingleChoiceItems(R.array.overview_style, prefHelper.getOverviewStyle(), new DialogInterface.OnClickListener() {
                             @Override

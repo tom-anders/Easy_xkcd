@@ -21,9 +21,9 @@ package de.tap.easy_xkcd.fragments.overview;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.os.Bundle;
-import android.support.v4.app.SharedElementCallback;
-import android.support.v4.content.ContextCompat;
-import android.support.v7.app.AlertDialog;
+import androidx.core.app.SharedElementCallback;
+import androidx.core.content.ContextCompat;
+import androidx.appcompat.app.AlertDialog;
 import android.transition.Slide;
 import android.transition.TransitionInflater;
 import android.util.TypedValue;
@@ -38,15 +38,10 @@ import android.widget.BaseAdapter;
 import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.tap.xkcd_reader.R;
 
-import java.util.List;
-import java.util.Map;
-
 import de.tap.easy_xkcd.database.RealmComic;
-import de.tap.easy_xkcd.fragments.comics.ComicFragment;
 import timber.log.Timber;
 
 public class OverviewListFragment extends OverviewBaseFragment {

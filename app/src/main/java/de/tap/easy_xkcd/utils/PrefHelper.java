@@ -27,8 +27,8 @@ import android.net.NetworkInfo;
 import android.net.Uri;
 import android.os.Environment;
 import android.preference.PreferenceManager;
-import android.support.design.widget.FloatingActionButton;
-import android.support.design.widget.Snackbar;
+import com.google.android.material.floatingactionbutton.FloatingActionButton;
+import com.google.android.material.snackbar.Snackbar;
 import android.util.Log;
 import android.view.View;
 
@@ -44,7 +44,6 @@ import java.util.List;
 import java.util.Random;
 
 import de.tap.easy_xkcd.Activities.NestedSettingsActivity;
-import de.tap.easy_xkcd.database.DatabaseManager;
 
 public class PrefHelper {
     private SharedPreferences sharedPrefs;

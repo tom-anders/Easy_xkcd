@@ -24,8 +24,9 @@ import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.os.AsyncTask;
 import android.os.Bundle;
-import android.support.v4.app.DialogFragment;
-import android.support.v4.app.FragmentTransaction;
+import androidx.fragment.app.DialogFragment;
+import androidx.fragment.app.FragmentManager;
+import androidx.fragment.app.FragmentTransaction;
 import android.widget.Toast;
 
 import com.tap.xkcd_reader.R;
@@ -61,7 +62,7 @@ public class NestedSettingsActivity extends BaseActivity implements OnDirectoryC
         setContentView(R.layout.activity_settings);
 
         //Setup toolbar and status bar color
-        android.support.v7.widget.Toolbar toolbar = (android.support.v7.widget.Toolbar) findViewById(R.id.toolbar);
+        androidx.appcompat.widget.Toolbar toolbar = (androidx.appcompat.widget.Toolbar) findViewById(R.id.toolbar);
         setupToolbar(toolbar);
 
         if (savedInstanceState==null) {
@@ -137,7 +138,7 @@ public class NestedSettingsActivity extends BaseActivity implements OnDirectoryC
         }
     }
 
-    public android.support.v4.app.FragmentManager getManger() {
+    public FragmentManager getManger() {
         return getSupportFragmentManager();
     }
 

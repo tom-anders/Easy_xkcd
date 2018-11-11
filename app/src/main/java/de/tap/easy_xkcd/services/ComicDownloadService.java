@@ -23,24 +23,14 @@ import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
-import android.provider.ContactsContract;
-import android.support.v4.app.NotificationCompat;
-import android.util.Log;
 
-import com.bumptech.glide.Glide;
-import com.bumptech.glide.load.DecodeFormat;
-import com.bumptech.glide.load.engine.DiskCacheStrategy;
-import com.bumptech.glide.request.FutureTarget;
-import com.bumptech.glide.request.target.Target;
-import com.tap.xkcd_reader.BuildConfig;
+import androidx.core.app.NotificationCompat;
+
 import com.tap.xkcd_reader.R;
 
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.InputStream;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CountDownLatch;
 
@@ -48,7 +38,6 @@ import de.tap.easy_xkcd.database.DatabaseManager;
 import de.tap.easy_xkcd.database.RealmComic;
 import de.tap.easy_xkcd.utils.PrefHelper;
 import io.realm.RealmResults;
-import okhttp3.CacheControl;
 import okhttp3.Call;
 import okhttp3.Callback;
 import okhttp3.OkHttpClient;

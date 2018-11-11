@@ -27,12 +27,12 @@ import android.graphics.Bitmap;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
-import android.support.annotation.Nullable;
-import android.support.design.widget.Snackbar;
-import android.support.v4.app.FragmentManager;
-import android.support.v4.content.FileProvider;
-import android.support.v4.view.ViewPager;
-import android.support.v7.widget.Toolbar;
+import androidx.annotation.Nullable;
+import com.google.android.material.snackbar.Snackbar;
+import androidx.fragment.app.FragmentManager;
+import androidx.core.content.FileProvider;
+import androidx.viewpager.widget.ViewPager;
+import androidx.appcompat.widget.Toolbar;
 import android.text.Html;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -45,7 +45,6 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.bumptech.glide.Glide;
-import com.bumptech.glide.load.engine.DiskCacheStrategy;
 import com.nbsp.materialfilepicker.ui.FilePickerActivity;
 import com.tap.xkcd_reader.R;
 
@@ -382,7 +381,7 @@ public class FavoritesFragment extends ComicFragment {
     }
 
     private boolean deleteAllFavorites() {
-        new android.support.v7.app.AlertDialog.Builder(getActivity())
+        new androidx.appcompat.app.AlertDialog.Builder(getActivity())
                 .setMessage(R.string.delete_favorites_dialog)
                 .setPositiveButton(R.string.dialog_yes, new DialogInterface.OnClickListener() {
                     public void onClick(DialogInterface dialog, int which) {
