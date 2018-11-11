@@ -38,6 +38,7 @@ import android.support.design.widget.CoordinatorLayout;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.NavigationView;
 import android.transition.Explode;
+import android.transition.Fade;
 import android.transition.Slide;
 import android.support.transition.TransitionInflater;
 import android.support.v4.app.Fragment;
@@ -389,7 +390,7 @@ public class MainActivity extends BaseActivity {
         if (currentFragment == CurrentFragment.Browser || currentFragment == CurrentFragment.Favorites) {
             title = ((ComicFragment) oldFragment).getCurrentTitleTextView();
             image = ((ComicFragment) oldFragment).getCurrentPhotoView();
-            Timber.d("Current title: %s", title.getText());
+            Timber.d("Current title: %s", title.getText()); //TODO wrong for favorites
 
             /*oldFragment.setExitSharedElementCallback(new SharedElementCallback() {
                 @Override
@@ -412,9 +413,14 @@ public class MainActivity extends BaseActivity {
                 explode.setInterpolator(new AccelerateInterpolator(2.0f));
                 oldFragment.setExitTransition(explode);
             }
-            Slide slideIn = new Slide(Gravity.LEFT);
-            slideIn.setInterpolator(new OvershootInterpolator(1.5f));
-            overviewBaseFragment.setEnterTransition(slideIn);
+            Transition enterTransition;
+            if (currentFragment == CurrentFragment.Overview) { //If we are just changing to a different overview style, let the new fragment fade in
+                enterTransition = new Fade();
+            } else { //If we come from Browser or Favorites, the overview slides in from the left
+                enterTransition = new Slide(Gravity.LEFT);
+                enterTransition.setInterpolator(new OvershootInterpolator(1.5f));
+            }
+            overviewBaseFragment.setEnterTransition(enterTransition);
             overviewBaseFragment.setAllowEnterTransitionOverlap(false);
         }
         transaction.replace(R.id.flContent, overviewBaseFragment, FRAGMENT_TAG)
@@ -872,6 +878,8 @@ public class MainActivity extends BaseActivity {
                     super.onBackPressed();
                 }
             }
+        } else if (currentFragment == CurrentFragment.Overview) {
+            //Do nothing here
         } else {
             super.onBackPressed();
         }

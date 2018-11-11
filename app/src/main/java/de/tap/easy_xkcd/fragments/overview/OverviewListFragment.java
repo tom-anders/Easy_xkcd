@@ -156,7 +156,7 @@ public class OverviewListFragment extends OverviewBaseFragment {
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
             case R.id.action_boomark:
-                super.goToComic(bookmark );
+                super.goToComic(bookmark, -1);
                 break;
             case R.id.action_unread:
                 databaseManager.setComicsRead(false);
@@ -205,9 +205,9 @@ public class OverviewListFragment extends OverviewBaseFragment {
     }
 
     @Override
-    protected TextView getCurrentTitleTextView(int number) {
+    protected TextView getCurrentTitleTextView(int position) {
         try {
-            return list.getAdapter().getView(comics.size() - number, null, list).findViewById(R.id.tv);
+            return list.getAdapter().getView(position, null, list).findViewById(R.id.tv);
         } catch (NullPointerException e) {
             return null;
         }

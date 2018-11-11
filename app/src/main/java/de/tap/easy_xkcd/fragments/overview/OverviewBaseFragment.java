@@ -110,28 +110,31 @@ public abstract class OverviewBaseFragment extends android.support.v4.app.Fragme
     }
 
     public void showComic(final int pos) {
-        goToComic(comics.get(pos).getComicNumber());
+        goToComic(comics.get(pos).getComicNumber(), pos);
     }
 
     public void showRandomComic() {
-        goToComic(comics.get(new Random().nextInt(comics.size())).getComicNumber());
+        goToComic(comics.get(new Random().nextInt(comics.size())).getComicNumber(), -1); //Pass a negative position here cause we don't need a shared element transition
     }
 
-    abstract protected TextView getCurrentTitleTextView(int number);
+    abstract protected TextView getCurrentTitleTextView(int position);
 
-    abstract protected ImageView getCurrentThumbnail(int number);
+    abstract protected ImageView getCurrentThumbnail(int position);
 
-    public void goToComic(final int number) {
+    public void goToComic(final int number, final int position) {
         //TODO add shared elements, maybe?
         Timber.d("number: %d", number);
         ((MainActivity) getActivity()).lastComicNumber = number;
         FragmentTransaction transaction = getActivity().getSupportFragmentManager().beginTransaction();
         transaction.setReorderingAllowed(true);
-        if (getCurrentTitleTextView(number) != null) {
-                transaction.addSharedElement(getCurrentTitleTextView(number), getCurrentTitleTextView(number).getTransitionName());
+        TextView title = getCurrentTitleTextView(position);
+        if (title != null) {
+            transaction.addSharedElement(title, title.getTransitionName());
+            Timber.d("selected title %s", title.getText());
         }
-        if (getCurrentThumbnail(number) != null) {
-            transaction.addSharedElement(getCurrentThumbnail(number), getCurrentThumbnail(number).getTransitionName());
+        ImageView thumbnail = getCurrentThumbnail(position);
+        if (thumbnail != null) {
+            transaction.addSharedElement(thumbnail, thumbnail.getTransitionName());
         }
 
         ComicFragment comicFragment;
@@ -246,7 +249,7 @@ public abstract class OverviewBaseFragment extends android.support.v4.app.Fragme
                     try {
                         RealmComic comic = comics.where().equalTo("isRead", false).findAllSorted("comicNumber", Sort.ASCENDING).first();
                         if (comic != null)
-                            goToComic(comic.getComicNumber());
+                            goToComic(comic.getComicNumber(), -1);
                     } catch (IndexOutOfBoundsException e) {
                         e.printStackTrace();
                     }

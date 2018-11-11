@@ -148,8 +148,8 @@ public abstract class OverviewRecyclerBaseFragment extends OverviewBaseFragment 
     }
 
     @Override
-    protected TextView getCurrentTitleTextView(int number) {
-        View view = rv.getLayoutManager().findViewByPosition(prefHelper.getNewest() - number);
+    protected TextView getCurrentTitleTextView(int position) {
+        View view = rv.getLayoutManager().findViewByPosition(position);
         if (view != null) {
             return view.findViewById(R.id.comic_title);
         } else {
@@ -158,8 +158,8 @@ public abstract class OverviewRecyclerBaseFragment extends OverviewBaseFragment 
     }
 
     @Override
-    protected ImageView getCurrentThumbnail(int number) {
-        View view = rv.getLayoutManager().findViewByPosition(prefHelper.getNewest() - number);
+    protected ImageView getCurrentThumbnail(int position) {
+        View view = rv.getLayoutManager().findViewByPosition(position);
         if (view != null) {
             return view.findViewById(R.id.thumbnail);
         } else {
@@ -194,7 +194,7 @@ public abstract class OverviewRecyclerBaseFragment extends OverviewBaseFragment 
                 setupAdapter();
                 break;
             case R.id.action_boomark:
-                super.goToComic(bookmark);
+                super.goToComic(bookmark, -1);
                 break;
             case R.id.action_unread:
                 databaseManager.setComicsRead(false);

@@ -195,6 +195,8 @@ public class FavoritesFragment extends ComicFragment {
                     transitionPending = false;
                 }
             }
+
+            Timber.d("loaded favorite %d", favoriteComic.getComicNumber());
             if (Arrays.binarySearch(context.getResources().getIntArray(R.array.large_comics), favoriteComic.getComicNumber()) >= 0)
                 pvComic.setMaximumScale(13.0f);
 
@@ -242,6 +244,11 @@ public class FavoritesFragment extends ComicFragment {
     @Override
     public TextView getCurrentTitleTextView() {
         return pager.findViewWithTag(favoriteIndex).findViewById(R.id.tvTitle);
+    }
+
+    @Override
+    public PhotoView getCurrentPhotoView() {
+        return pager.findViewWithTag(favoriteIndex).findViewById(R.id.ivComic);
     }
 
     private boolean exportImportFavorites() {
