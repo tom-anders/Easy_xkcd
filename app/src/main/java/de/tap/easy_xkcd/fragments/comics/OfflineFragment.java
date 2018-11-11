@@ -170,6 +170,10 @@ public class OfflineFragment extends ComicFragment {
                 if (themePrefs.invertColors(false) && themePrefs.bitmapContainsColor(bitmap, comicNumber))
                     pvComic.clearColorFilter();
                 pvComic.setImageBitmap(bitmap);
+                if (transitionPending && comicNumber == lastComicNumber) {
+                    startPostponedEnterTransition();
+                    transitionPending = false;
+                }
             }
 
             if (randomSelected && position == lastComicNumber - 1) {

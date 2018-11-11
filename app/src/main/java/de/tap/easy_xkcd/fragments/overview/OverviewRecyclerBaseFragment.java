@@ -35,6 +35,8 @@ import android.widget.Toast;
 import com.simplecityapps.recyclerview_fastscroll.views.FastScrollRecyclerView;
 import com.tap.xkcd_reader.R;
 
+import org.w3c.dom.Text;
+
 import java.util.Arrays;
 
 import de.tap.easy_xkcd.database.RealmComic;
@@ -146,6 +148,26 @@ public abstract class OverviewRecyclerBaseFragment extends OverviewBaseFragment 
     }
 
     @Override
+    protected TextView getCurrentTitleTextView(int number) {
+        View view = rv.getLayoutManager().findViewByPosition(prefHelper.getNewest() - number);
+        if (view != null) {
+            return view.findViewById(R.id.comic_title);
+        } else {
+            return null;
+        }
+    }
+
+    @Override
+    protected ImageView getCurrentThumbnail(int number) {
+        View view = rv.getLayoutManager().findViewByPosition(prefHelper.getNewest() - number);
+        if (view != null) {
+            return view.findViewById(R.id.thumbnail);
+        } else {
+            return null;
+        }
+    }
+
+    @Override
     public void notifyAdapter(int number) {
         if (prefHelper == null)
             return;
@@ -172,7 +194,7 @@ public abstract class OverviewRecyclerBaseFragment extends OverviewBaseFragment 
                 setupAdapter();
                 break;
             case R.id.action_boomark:
-                super.goToComic(bookmark - 1);
+                super.goToComic(bookmark);
                 break;
             case R.id.action_unread:
                 databaseManager.setComicsRead(false);

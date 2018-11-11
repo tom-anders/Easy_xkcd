@@ -35,6 +35,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.BaseAdapter;
+import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -73,6 +74,8 @@ public class OverviewListFragment extends OverviewBaseFragment {
 
         return v;
     }
+
+
 
     @Override
     protected void updateBookmark(int i) {
@@ -153,7 +156,7 @@ public class OverviewListFragment extends OverviewBaseFragment {
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
             case R.id.action_boomark:
-                super.goToComic(bookmark - 1);
+                super.goToComic(bookmark );
                 break;
             case R.id.action_unread:
                 databaseManager.setComicsRead(false);
@@ -202,13 +205,27 @@ public class OverviewListFragment extends OverviewBaseFragment {
     }
 
     @Override
+    protected TextView getCurrentTitleTextView(int number) {
+        try {
+            return list.getAdapter().getView(comics.size() - number, null, list).findViewById(R.id.tv);
+        } catch (NullPointerException e) {
+            return null;
+        }
+    }
+
+    @Override
+    protected ImageView getCurrentThumbnail(int number) {
+        return null;
+    }
+
+    @Override
     protected void setupAdapter() {
         super.setupAdapter();
         //ComicFragment comicFragment = (ComicFragment) getActivity().getSupportFragmentManager().findFragmentByTag(BROWSER_TAG);
         listAdapter = new ListAdapter();
         list.setAdapter(listAdapter);
         if (lastComicNumber <= comics.size())
-            list.setSelection(comics.size() - lastComicNumber - 7);
+            list.setSelection(comics.size() - lastComicNumber);
         list.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {

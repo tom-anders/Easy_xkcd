@@ -29,6 +29,8 @@ import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.ImageView;
+import android.widget.TextView;
 
 import com.tap.xkcd_reader.R;
 
@@ -38,8 +40,10 @@ import java.util.Random;
 import de.tap.easy_xkcd.Activities.MainActivity;
 import de.tap.easy_xkcd.database.DatabaseManager;
 import de.tap.easy_xkcd.database.RealmComic;
+import de.tap.easy_xkcd.fragments.comics.ComicBrowserFragment;
 import de.tap.easy_xkcd.fragments.comics.ComicFragment;
 import de.tap.easy_xkcd.fragments.comics.FavoritesFragment;
+import de.tap.easy_xkcd.fragments.comics.OfflineFragment;
 import de.tap.easy_xkcd.utils.PrefHelper;
 import de.tap.easy_xkcd.utils.ThemePrefs;
 import io.realm.Realm;
@@ -106,15 +110,44 @@ public abstract class OverviewBaseFragment extends android.support.v4.app.Fragme
     }
 
     public void showComic(final int pos) {
-        goToComic(comics.get(pos).getComicNumber() - 1);
+        goToComic(comics.get(pos).getComicNumber());
     }
 
     public void showRandomComic() {
         goToComic(comics.get(new Random().nextInt(comics.size())).getComicNumber());
     }
 
+    abstract protected TextView getCurrentTitleTextView(int number);
+
+    abstract protected ImageView getCurrentThumbnail(int number);
+
     public void goToComic(final int number) {
         //TODO add shared elements, maybe?
+        Timber.d("number: %d", number);
+        ((MainActivity) getActivity()).lastComicNumber = number;
+        FragmentTransaction transaction = getActivity().getSupportFragmentManager().beginTransaction();
+        transaction.setReorderingAllowed(true);
+        if (getCurrentTitleTextView(number) != null) {
+                transaction.addSharedElement(getCurrentTitleTextView(number), getCurrentTitleTextView(number).getTransitionName());
+        }
+        if (getCurrentThumbnail(number) != null) {
+            transaction.addSharedElement(getCurrentThumbnail(number), getCurrentThumbnail(number).getTransitionName());
+        }
+
+        ComicFragment comicFragment;
+        if (prefHelper.overviewFav()) {
+            comicFragment = new FavoritesFragment();
+        } else if (prefHelper.fullOfflineEnabled()) {
+            comicFragment = new OfflineFragment();
+        } else {
+            comicFragment = new ComicBrowserFragment();
+        }
+        comicFragment.lastComicNumber = number;
+        comicFragment.transitionPending = true;
+        transaction.replace(R.id.flContent, comicFragment, MainActivity.FRAGMENT_TAG)
+                .addToBackStack(null)
+                .commitAllowingStateLoss();
+        ((MainActivity) getActivity()).setCurrentFragment(prefHelper.overviewFav() ? MainActivity.CurrentFragment.Favorites : MainActivity.CurrentFragment.Browser);
         /*android.support.v4.app.FragmentManager fragmentManager = getActivity().getSupportFragmentManager();
         ComicFragment fragment;
         FragmentTransaction transaction = getFragmentManager().beginTransaction();
@@ -213,7 +246,7 @@ public abstract class OverviewBaseFragment extends android.support.v4.app.Fragme
                     try {
                         RealmComic comic = comics.where().equalTo("isRead", false).findAllSorted("comicNumber", Sort.ASCENDING).first();
                         if (comic != null)
-                            goToComic(comic.getComicNumber() - 1);
+                            goToComic(comic.getComicNumber());
                     } catch (IndexOutOfBoundsException e) {
                         e.printStackTrace();
                     }

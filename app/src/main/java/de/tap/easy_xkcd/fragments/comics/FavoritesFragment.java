@@ -66,6 +66,7 @@ import de.tap.easy_xkcd.database.DatabaseManager;
 import de.tap.easy_xkcd.database.RealmComic;
 import io.realm.Realm;
 import io.realm.RealmResults;
+import timber.log.Timber;
 import uk.co.senab.photoview.PhotoView;
 
 
@@ -121,6 +122,14 @@ public class FavoritesFragment extends ComicFragment {
         /*for (int i = 0; i < favorites.size(); i++)
             comicMap.put(i, new OfflineComic(favorites.get(i).getComicNumber(), getActivity(), ((MainActivity) getActivity()).getPrefHelper()));*/
 
+        if (lastComicNumber != 0) {
+            for (int i = 0; i < favorites.size(); i++) {
+                if (favorites.get(i).getComicNumber() == lastComicNumber) {
+                    favoriteIndex = i;
+                }
+            }
+        }
+
         adapter = new FavoritesPagerAdapter(getActivity(), 0);
         pager.setAdapter(adapter);
         pager.setCurrentItem(favoriteIndex);
@@ -161,7 +170,7 @@ public class FavoritesFragment extends ComicFragment {
                 params.rightMargin = getResources().getDimensionPixelSize(R.dimen.activity_horizontal_margin);
             }
 
-            RealmComic favoriteComic = favorites.get(position);
+            final RealmComic favoriteComic = favorites.get(position);
             tvAlt.setText(favoriteComic.getAltText());
             tvTitle.setText(Html.fromHtml(favoriteComic.getTitle()));
 
@@ -180,6 +189,11 @@ public class FavoritesFragment extends ComicFragment {
                     pvComic.setImageBitmap(bitmap);
                 else
                     new RedownloadFavorite().execute(favorites.get(position).getComicNumber()); // If the image is gone for some reason download it and refresh the fragment
+                if (transitionPending && favoriteComic.getComicNumber() == lastComicNumber) {
+                    Timber.d("start postponed at %d", lastComicNumber);
+                    startPostponedEnterTransition(); //TODO shared elements transition not working yet here, maybe load with glide instead?
+                    transitionPending = false;
+                }
             }
             if (Arrays.binarySearch(context.getResources().getIntArray(R.array.large_comics), favoriteComic.getComicNumber()) >= 0)
                 pvComic.setMaximumScale(13.0f);

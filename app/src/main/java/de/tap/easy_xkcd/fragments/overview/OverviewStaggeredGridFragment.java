@@ -84,9 +84,9 @@ public class OverviewStaggeredGridFragment extends OverviewRecyclerBaseFragment 
 
         @Override
         public void onBindViewHolder(final ComicViewHolder comicViewHolder, int i) {
-            Timber.d("loaded position %d", i);
             final RealmComic comic = comics.get(i);
             final int number = comic.getComicNumber();
+            Timber.d("loaded comic %d", number);
             String title = comic.getTitle();
 
             setupCard(comicViewHolder, comic, title, number);
@@ -176,6 +176,9 @@ public class OverviewStaggeredGridFragment extends OverviewRecyclerBaseFragment 
         rv.setLayoutManager(new StaggeredGridLayoutManager(2, StaggeredGridLayoutManager.VERTICAL));
         rvAdapter = new GridAdapter();
         rv.setAdapter(rvAdapter);
+
+        if (lastComicNumber <= comics.size())
+            rv.scrollToPosition(comics.size() - lastComicNumber);
     }
 
     @Override

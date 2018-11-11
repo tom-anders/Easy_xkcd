@@ -31,6 +31,7 @@ import android.os.Environment;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
 import android.support.v4.app.ActivityCompat;
+import android.support.v4.app.SharedElementCallback;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.content.FileProvider;
 import android.support.v4.view.ViewPager;
@@ -58,6 +59,8 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.Arrays;
+import java.util.List;
+import java.util.Map;
 
 import de.tap.easy_xkcd.Activities.MainActivity;
 import de.tap.easy_xkcd.database.DatabaseManager;
@@ -70,6 +73,9 @@ public class ComicBrowserFragment extends ComicFragment {
 
     private static boolean loadingImages;
     public static boolean newestUpdated = false;
+
+    /*TextView sharedTitle;
+    PhotoView sharedPhotoView;*/
 
 private ComicBrowserPagerAdapter adapter;
 
@@ -121,6 +127,14 @@ public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle sa
         }
     });
 
+    /*setEnterSharedElementCallback(new SharedElementCallback() {
+        @Override
+        public void onMapSharedElements(List<String> names, Map<String, View> sharedElements) {
+            sharedElements.put(names.get(0), sharedTitle);
+            sharedElements.put(names.get(1), sharedPhotoView);
+        }
+    });*/
+
     newComicFound = false;
 
     return v;
@@ -168,14 +182,16 @@ private class ComicBrowserPagerAdapter extends ComicAdapter {
         final int comicNumber = position + 1; //Note that position starts at 0, so we have to add 1
         RealmComic comic = databaseManager.getRealmComic(comicNumber);
 
+        tvAlt.setText(comic.getAltText());
+        tvTitle.setText(Html.fromHtml(comic.getTitle()));
         pvComic.setTransitionName("im" + comicNumber);
         tvTitle.setTransitionName(String.valueOf(comicNumber));
 
-
-        tvAlt.setText(comic.getAltText());
-        tvTitle.setText(Html.fromHtml(comic.getTitle()));
         if (comicNumber == lastComicNumber) {
             animateToolbar();
+
+            /*sharedTitle = tvTitle;
+            sharedPhotoView = pvComic;*/
         }
 
         if (fromSearch && comicNumber == lastComicNumber) {
@@ -204,13 +220,19 @@ private class ComicBrowserPagerAdapter extends ComicAdapter {
                         if (themePrefs.invertColors(false) && themePrefs.bitmapContainsColor(resource, position + 1))
                             pvComic.clearColorFilter();
 
-                        pvComic.setAlpha(0f);
+                        //pvComic.setAlpha(0f);
                         pvComic.setImageBitmap(resource);
-                        pvComic.animate()
+                        /*pvComic.animate()
                                 .alpha(1f)
-                                .setDuration(200);
+                                .setDuration(200);*/
 
                     mainActivityCallback(position);
+
+                    if (transitionPending && position + 1 == lastComicNumber) {
+                        Timber.d("start transition at %d", position+1);
+                        startPostponedEnterTransition();
+                        transitionPending = false;
+                    }
                 }
             });
     }

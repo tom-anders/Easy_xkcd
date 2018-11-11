@@ -72,7 +72,6 @@ public class OverviewCardsFragment extends OverviewRecyclerBaseFragment {
         return v;
     }
 
-
     public class CardsAdapter extends RVAdapter {
 
         @Override

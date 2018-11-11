@@ -34,6 +34,7 @@ import android.support.v4.content.FileProvider;
 import android.support.v4.view.PagerAdapter;
 import android.support.v4.view.ViewPager;
 import android.support.v7.widget.Toolbar;
+import android.transition.TransitionInflater;
 import android.util.Log;
 import android.util.SparseArray;
 import android.view.GestureDetector;
@@ -88,7 +89,9 @@ public abstract class ComicFragment extends android.support.v4.app.Fragment {
     public static boolean newComicFound = false;
     public static boolean fromSearch = false;
     static final String LAST_FAV = "last fav";
-    static final String LAST_COMIC = "Last Comic";
+    public static final String LAST_COMIC = "Last Comic";
+
+    public boolean transitionPending = false;
 
     protected PrefHelper prefHelper;
     protected ThemePrefs themePrefs;
@@ -117,6 +120,11 @@ public abstract class ComicFragment extends android.support.v4.app.Fragment {
                 MainActivity.overviewLaunch = false;
                 ((MainActivity) getActivity()).showOverview(false);
             }
+        }
+
+        if (savedInstanceState == null && transitionPending) {
+            postponeEnterTransition();
+            setSharedElementEnterTransition(TransitionInflater.from(getContext()).inflateTransition(R.transition.image_shared_element_transition));
         }
 
         if (((MainActivity) getActivity()).getCurrentFragment() == MainActivity.CurrentFragment.Browser && prefHelper.subtitleEnabled() && (this instanceof ComicBrowserFragment || this instanceof OfflineFragment))
