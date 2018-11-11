@@ -397,7 +397,7 @@
     <string name="loading_thread">Loading thread&#8230;</string>
 
     <string name="widget_random">Random Comic</string>
-    <string name="widget_latest">Latest Comic</string>
+    <string name="widget_latest">Most recent Comic</string>
 
     <string-array name="forum_thread" translatable="false">
         <item>Reddit</item>
