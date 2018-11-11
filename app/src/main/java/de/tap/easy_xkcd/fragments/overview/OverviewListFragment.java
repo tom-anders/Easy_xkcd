@@ -79,8 +79,6 @@ public class OverviewListFragment extends OverviewBaseFragment {
 
     @Override
     protected void updateBookmark(int i) {
-        if (bookmark == 0)
-            Toast.makeText(getActivity(), R.string.bookmark_toast_2, Toast.LENGTH_LONG).show();
         super.updateBookmark(i);
         listAdapter.notifyDataSetChanged();
     }

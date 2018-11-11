@@ -22,7 +22,7 @@
         android:title="@string/search_title"
         android:icon="@drawable/ic_action_search"
         app:actionViewClass="android.widget.SearchView"
-        app:showAsAction="always|collapseActionView" />
+        app:showAsAction="ifRoom|collapseActionView" />
 
     <item android:id="@+id/action_night_mode"
         android:title="@string/action_night_mode"

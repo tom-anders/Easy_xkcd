@@ -319,7 +319,7 @@ public class MainActivity extends BaseActivity {
         }
     }
 
-    void updateToolbarTitle() {
+    public void updateToolbarTitle() {
         Timber.d("Current fragment: %s", String.valueOf(currentFragment));
         switch (currentFragment) {
             case Browser:
@@ -329,7 +329,11 @@ public class MainActivity extends BaseActivity {
                 getSupportActionBar().setTitle(getResources().getString(R.string.nv_favorites));
                 break;
             case Overview:
-                getSupportActionBar().setTitle("");
+                if (prefHelper.overviewFav()) {
+                    getSupportActionBar().setTitle(getResources().getString(R.string.nv_favorites));
+                } else {
+                    getSupportActionBar().setTitle(getResources().getString(R.string.comicbrowser_title));
+                }
                 break;
             case WhatIf:
                 getSupportActionBar().setTitle(getResources().getString(R.string.nv_whatif));

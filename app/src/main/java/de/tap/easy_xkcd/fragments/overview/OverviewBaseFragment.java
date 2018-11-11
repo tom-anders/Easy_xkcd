@@ -31,6 +31,7 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.tap.xkcd_reader.R;
 
@@ -105,8 +106,11 @@ public abstract class OverviewBaseFragment extends android.support.v4.app.Fragme
     }
 
     protected void updateBookmark(int i) {
+        if (bookmark == 0)
+            Toast.makeText(getActivity(), R.string.bookmark_toast_2, Toast.LENGTH_LONG).show();
         bookmark = comics.get(i).getComicNumber();
         prefHelper.setBookmark(bookmark);
+        getActivity().invalidateOptionsMenu();
     }
 
     public void showComic(final int pos) {

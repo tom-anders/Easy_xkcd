@@ -39,6 +39,7 @@ import org.w3c.dom.Text;
 
 import java.util.Arrays;
 
+import de.tap.easy_xkcd.Activities.MainActivity;
 import de.tap.easy_xkcd.database.RealmComic;
 
 public abstract class OverviewRecyclerBaseFragment extends OverviewBaseFragment {
@@ -141,10 +142,9 @@ public abstract class OverviewRecyclerBaseFragment extends OverviewBaseFragment 
 
     @Override
     protected void updateBookmark(int i) {
-        if (bookmark == 0)
-            Toast.makeText(getActivity(), R.string.bookmark_toast_2, Toast.LENGTH_LONG).show();
         super.updateBookmark(i);
         rvAdapter.notifyDataSetChanged();
+
     }
 
     @Override
@@ -190,6 +190,7 @@ public abstract class OverviewRecyclerBaseFragment extends OverviewBaseFragment 
                     item.setTitle(R.string.action_overview);
                 }
                 prefHelper.setOverviewFav(!prefHelper.overviewFav());
+                ((MainActivity) getActivity()).updateToolbarTitle();
                 getActivity().invalidateOptionsMenu();
                 setupAdapter();
                 break;
