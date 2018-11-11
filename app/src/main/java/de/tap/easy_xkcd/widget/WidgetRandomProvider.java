@@ -51,15 +51,15 @@ public class WidgetRandomProvider extends AppWidgetProvider {
 
         appWidgetManager.updateAppWidget(appWidgetIds, remoteViews);
 
-        AppWidgetTarget appWidgetTarget = new AppWidgetTarget(context, remoteViews, R.id.ivComic, appWidgetIds);
+        AppWidgetTarget appWidgetTarget = new AppWidgetTarget(context, R.id.ivComic, remoteViews, appWidgetIds);
 
         RealmComic comic = (new DatabaseManager(context)).getRealmComic(lastComicNumber);
         if (prefHelper.fullOfflineEnabled()) {
             remoteViews.setImageViewBitmap(R.id.ivComic, RealmComic.getOfflineBitmap(lastComicNumber, context, prefHelper));
         } else {
             Glide.with(context)
-                    .load(comic.getUrl())
                     .asBitmap()
+                    .load(comic.getUrl())
                     .into(appWidgetTarget);
         }
 

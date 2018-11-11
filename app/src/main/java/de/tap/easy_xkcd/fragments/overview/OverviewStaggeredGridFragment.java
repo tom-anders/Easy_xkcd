@@ -22,6 +22,8 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.support.v4.app.SharedElementCallback;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.StaggeredGridLayoutManager;
@@ -34,12 +36,14 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.bumptech.glide.Glide;
+import com.bumptech.glide.load.DataSource;
 import com.bumptech.glide.load.engine.DiskCacheStrategy;
-import com.bumptech.glide.load.resource.drawable.GlideDrawable;
+import com.bumptech.glide.load.engine.GlideException;
 import com.bumptech.glide.request.RequestListener;
-import com.bumptech.glide.request.animation.GlideAnimation;
+import com.bumptech.glide.request.RequestOptions;
 import com.bumptech.glide.request.target.SimpleTarget;
 import com.bumptech.glide.request.target.Target;
+import com.bumptech.glide.request.transition.Transition;
 import com.tap.xkcd_reader.R;
 
 import java.io.File;
@@ -94,22 +98,19 @@ public class OverviewStaggeredGridFragment extends OverviewRecyclerBaseFragment 
             if (!MainActivity.fullOffline) {
                 comicViewHolder.thumbnail.layout(0, 0, 0, 0);
                 Glide.with(getActivity())
-                        .load(comic.getUrl())
                         .asBitmap()
-                        .dontAnimate()
-                        .override(Target.SIZE_ORIGINAL, Target.SIZE_ORIGINAL)
-                        .listener(new RequestListener<String, Bitmap>() {
+                        .load(comic.getUrl())
+                        .listener(new RequestListener<Bitmap>() {
                             @Override
-                            public boolean onException(Exception e, String model, Target<Bitmap> target, boolean isFirstResource) {
+                            public boolean onLoadFailed(@Nullable GlideException e, Object model, Target<Bitmap> target, boolean isFirstResource) {
                                 if (number == lastComicNumber) {
                                     startPostponedEnterTransition();
                                 }
                                 return false;
                             }
 
-
                             @Override
-                            public boolean onResourceReady(Bitmap resource, String model, Target<Bitmap> target, boolean isFromMemoryCache, boolean isFirstResource) {
+                            public boolean onResourceReady(Bitmap resource, Object model, Target<Bitmap> target, DataSource dataSource, boolean isFirstResource) {
                                 if (themePrefs.invertColors(false) && themePrefs.bitmapContainsColor(resource, comic.getComicNumber()))
                                     comicViewHolder.thumbnail.clearColorFilter();
 
@@ -119,6 +120,7 @@ public class OverviewStaggeredGridFragment extends OverviewRecyclerBaseFragment 
                                 return false;
                             }
                         })
+                        .apply(new RequestOptions().override(Target.SIZE_ORIGINAL, Target.SIZE_ORIGINAL).dontAnimate())
                         .into(comicViewHolder.thumbnail);
             } else {
                 try {
@@ -132,25 +134,25 @@ public class OverviewStaggeredGridFragment extends OverviewRecyclerBaseFragment 
                     comicViewHolder.thumbnail.setImageBitmap(Bitmap.createBitmap(options.outWidth, options.outHeight, Bitmap.Config.ALPHA_8));
 
                     Glide.with(getActivity())
-                            .load(file)
                             .asBitmap()
-                            .diskCacheStrategy(DiskCacheStrategy.SOURCE)
+                            .load(file)
+                            //.diskCacheStrategy(DiskCacheStrategy.SOURCE)
                             .into(new SimpleTarget<Bitmap>() {
                                 @Override
-                                public void onLoadFailed(Exception e, Drawable errorDrawable) {
-                                    if (number == lastComicNumber) {
-                                        startPostponedEnterTransition();
-                                    }
-                                    super.onLoadFailed(e, errorDrawable);
-                                }
-
-                                @Override
-                                public void onResourceReady(Bitmap resource, GlideAnimation<? super Bitmap> glideAnimation) {
+                                public void onResourceReady(@NonNull Bitmap resource, @Nullable Transition<? super Bitmap> transition) {
                                     comicViewHolder.thumbnail.setImageBitmap(resource);
 
                                     if (number == lastComicNumber) {
                                         startPostponedEnterTransition();
                                     }
+                                }
+
+                                @Override
+                                public void onLoadFailed(@Nullable Drawable errorDrawable) {
+                                    if (number == lastComicNumber) {
+                                        startPostponedEnterTransition();
+                                    }
+                                    super.onLoadFailed(errorDrawable);
                                 }
                             });
                 } catch (Exception e) {

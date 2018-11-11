@@ -329,9 +329,9 @@ public abstract class ComicFragment extends android.support.v4.app.Fragment {
                 try {
                     mBitmap = Glide
                             .with(getActivity())
-                            .load(databaseManager.getRealmComic(addedNumber).getUrl())
                             .asBitmap()
-                            .diskCacheStrategy(DiskCacheStrategy.SOURCE)
+                            .load(databaseManager.getRealmComic(addedNumber).getUrl())
+                            //.diskCacheStrategy(DiskCacheStrategy.SOURCE)
                             .into(-1, -1)
                             .get();
                 } catch (Exception e) {

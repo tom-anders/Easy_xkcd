@@ -46,7 +46,6 @@ import android.widget.Toast;
 
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.load.engine.DiskCacheStrategy;
-import com.bumptech.glide.request.target.GlideDrawableImageViewTarget;
 import com.nbsp.materialfilepicker.ui.FilePickerActivity;
 import com.tap.xkcd_reader.R;
 
@@ -183,7 +182,8 @@ public class FavoritesFragment extends ComicFragment {
             if (getGifId(favoriteComic.getComicNumber() - 1) != 0)
                 Glide.with(getActivity())
                         .load(getGifId(favoriteComic.getComicNumber() - 1))
-                        .into(new GlideDrawableImageViewTarget(pvComic));
+                        .into(pvComic);
+                        //.into(new GlideDrawableImageViewTarget(pvComic));
             else {
                 Bitmap bitmap = RealmComic.getOfflineBitmap(favoriteComic.getComicNumber(), context, prefHelper);
                 if (themePrefs.invertColors(false) && themePrefs.bitmapContainsColor(bitmap, position+1))
@@ -329,9 +329,9 @@ public class FavoritesFragment extends ComicFragment {
                     RealmComic comic = RealmComic.findNewestComic(Realm.getDefaultInstance(), getActivity());
                     mBitmap = Glide
                             .with(getActivity())
-                            .load(comic.getUrl())
                             .asBitmap()
-                            .diskCacheStrategy(DiskCacheStrategy.SOURCE)
+                            .load(comic.getUrl())
+                            //.diskCacheStrategy(DiskCacheStrategy.SOURCE)
                             .into(-1, -1)
                             .get();
                     saveComic(comic.getComicNumber(), mBitmap);
@@ -444,9 +444,9 @@ public class FavoritesFragment extends ComicFragment {
             try {
                 Bitmap bitmap = Glide
                         .with(getActivity())
-                        .load((new DatabaseManager(getActivity())).getRealmComic(pos[0]).getUrl())
                         .asBitmap()
-                        .diskCacheStrategy(DiskCacheStrategy.SOURCE)
+                        .load((new DatabaseManager(getActivity())).getRealmComic(pos[0]).getUrl())
+                        //.diskCacheStrategy(DiskCacheStrategy.SOURCE)
                         .into(-1, -1)
                         .get();
                 saveComic(pos[0], bitmap);

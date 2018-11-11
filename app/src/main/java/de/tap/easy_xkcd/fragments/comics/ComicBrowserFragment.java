@@ -24,10 +24,13 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
+import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Environment;
+import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
 import android.support.v4.app.ActivityCompat;
@@ -45,13 +48,14 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.bumptech.glide.Glide;
+import com.bumptech.glide.load.DataSource;
 import com.bumptech.glide.load.engine.DiskCacheStrategy;
-import com.bumptech.glide.load.resource.drawable.GlideDrawable;
+import com.bumptech.glide.load.engine.GlideException;
 import com.bumptech.glide.request.RequestListener;
-import com.bumptech.glide.request.animation.GlideAnimation;
-import com.bumptech.glide.request.target.GlideDrawableImageViewTarget;
+import com.bumptech.glide.request.RequestOptions;
 import com.bumptech.glide.request.target.SimpleTarget;
 import com.bumptech.glide.request.target.Target;
+import com.bumptech.glide.request.transition.Transition;
 import com.kogitune.activity_transition.ActivityTransition;
 import com.tap.xkcd_reader.R;
 
@@ -211,22 +215,33 @@ private class ComicBrowserPagerAdapter extends ComicAdapter {
 
     public void loadImage(final int position, String url, final PhotoView pvComic) {
         Glide.with(getActivity())
-                .load(url)
                 .asBitmap()
-                .diskCacheStrategy(DiskCacheStrategy.SOURCE)
+                .load(url)
+                //.diskCacheStrategy(DiskCacheStrategy.SOURCE)
                 .into(new SimpleTarget<Bitmap>() {
-                  @Override
-                  public void onResourceReady(Bitmap resource, GlideAnimation<? super Bitmap> glideAnimation) {
-                        if (themePrefs.invertColors(false) && themePrefs.bitmapContainsColor(resource, position + 1))
+                    @Override
+                    public void onLoadFailed(@Nullable Drawable errorDrawable) {
+                        if (transitionPending && position + 1 == lastComicNumber) {
+                            Timber.d("start transition at %d", position+1);
+                            startPostponedEnterTransition();
+                            transitionPending = false;
+                        }
+                    }
+
+                    @Override
+                  public void onResourceReady(@NonNull Bitmap resource, Transition<? super Bitmap> transition) {
+                      if (themePrefs.invertColors(false) && themePrefs.bitmapContainsColor(resource, position + 1))
                             pvComic.clearColorFilter();
 
-                        //pvComic.setAlpha(0f);
-                        pvComic.setImageBitmap(resource);
-                        /*pvComic.animate()
+                      if (!transitionPending) {
+                          pvComic.setAlpha(0f);
+                          pvComic.animate()
                                 .alpha(1f)
-                                .setDuration(200);*/
+                                .setDuration(200);
+                      }
+                        pvComic.setImageBitmap(resource);
 
-                    mainActivityCallback(position);
+                      mainActivityCallback(position);
 
                     if (transitionPending && position + 1 == lastComicNumber) {
                         Timber.d("start transition at %d", position+1);
@@ -238,21 +253,32 @@ private class ComicBrowserPagerAdapter extends ComicAdapter {
     }
 
     public void loadGif(final int position, final PhotoView pvComic) {
-        Glide.with(getActivity()) //TODO use with(ComicBrowserFragment.this) here
+        Glide.with(ComicBrowserFragment.this)
                 .load(getGifId(position))
-                .listener(new RequestListener<Integer, GlideDrawable>() {
+                .listener(new RequestListener<Drawable>() {
                     @Override
-                    public boolean onException(Exception e, Integer model, Target<GlideDrawable> target, boolean isFirstResource) {
+                    public boolean onLoadFailed(@Nullable GlideException e, Object model, Target<Drawable> target, boolean isFirstResource) {
+                        if (transitionPending && position + 1 == lastComicNumber) {
+                            Timber.d("start transition at %d", position+1);
+                            startPostponedEnterTransition();
+                            transitionPending = false;
+                        }
                         return false;
                     }
 
                     @Override
-                    public boolean onResourceReady(GlideDrawable resource, Integer model, Target<GlideDrawable> target, boolean isFromMemoryCache, boolean isFirstResource) {
+                    public boolean onResourceReady(Drawable resource, Object model, Target<Drawable> target, DataSource dataSource, boolean isFirstResource) {
                         mainActivityCallback(position);
+                        if (transitionPending && position + 1 == lastComicNumber) {
+                            Timber.d("start transition at %d", position+1);
+                            startPostponedEnterTransition();
+                            transitionPending = false;
+                        }
                         return false;
                     }
                 })
-                .into(new GlideDrawableImageViewTarget(pvComic));
+                .into(pvComic);
+                //.into(new GlideDrawableImageViewTarget(pvComic));
     }
 
     void mainActivityCallback(int position) {
@@ -270,7 +296,7 @@ private class ComicBrowserPagerAdapter extends ComicAdapter {
     @Override
     public void destroyItem(ViewGroup container, int position, Object object) {
         container.removeView((RelativeLayout) object);
-        Glide.clear(((RelativeLayout) object).findViewById(R.id.ivComic));
+        Glide.with(container.getContext()).clear(((RelativeLayout) object).findViewById(R.id.ivComic));
     }
 
 }
@@ -391,9 +417,9 @@ public void shareComicImage() {
             String url = params[0];
             try {
                 return Glide.with(getActivity())
-                        .load(url)
                         .asBitmap()
-                        .diskCacheStrategy(DiskCacheStrategy.SOURCE)
+                        .load(url)
+                        //.diskCacheStrategy(DiskCacheStrategy.SOURCE)
                         .into(-1, -1)
                         .get();
             } catch (Exception e) {

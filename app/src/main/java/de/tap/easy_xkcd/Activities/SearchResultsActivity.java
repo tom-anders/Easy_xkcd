@@ -225,9 +225,9 @@ public class SearchResultsActivity extends BaseActivity {
             //Load the thumbnail
             if (!MainActivity.fullOffline) {
                 Glide.with(SearchResultsActivity.this)
-                        .load(url)
                         .asBitmap()
-                        .diskCacheStrategy(DiskCacheStrategy.SOURCE)
+                        .load(url)
+                        //.diskCacheStrategy(DiskCacheStrategy.SOURCE)
                         .into(comicViewHolder.thumbnail);
             } else {
                 try {
@@ -242,8 +242,8 @@ public class SearchResultsActivity extends BaseActivity {
                         File dir = new File(sdCard.getAbsolutePath() + "/easy xkcd");
                         File file = new File(dir, String.valueOf(number) + ".png");
                         Glide.with(getApplicationContext())
-                                .load(file)
                                 .asBitmap()
+                                .load(file)
                                 .into(comicViewHolder.thumbnail);
                     } catch (Exception e2) {
                         e2.printStackTrace();

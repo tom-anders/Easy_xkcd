@@ -22,6 +22,7 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.transition.TransitionInflater;
 import android.support.v4.app.SharedElementCallback;
 import android.support.v7.widget.LinearLayoutManager;
@@ -35,6 +36,8 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.bumptech.glide.Glide;
+import com.bumptech.glide.load.DataSource;
+import com.bumptech.glide.load.engine.GlideException;
 import com.bumptech.glide.request.RequestListener;
 import com.bumptech.glide.request.target.Target;
 import com.tap.xkcd_reader.R;
@@ -97,20 +100,19 @@ public class OverviewCardsFragment extends OverviewRecyclerBaseFragment {
 
             if (!MainActivity.fullOffline) {
                 Glide.with(getActivity())
-                        .load(comic.getUrl())
                         .asBitmap()
-                        .listener(new RequestListener<String, Bitmap>() {
+                        .load(comic.getUrl())
+                        .listener(new RequestListener<Bitmap>() {
                             @Override
-                            public boolean onException(Exception e, String model, Target<Bitmap> target, boolean isFirstResource) {
+                            public boolean onLoadFailed(@Nullable GlideException e, Object model, Target<Bitmap> target, boolean isFirstResource) {
                                 if (number == lastComicNumber) {
                                     startPostponedEnterTransition();
                                 }
                                 return false;
                             }
 
-
                             @Override
-                            public boolean onResourceReady(Bitmap resource, String model, Target<Bitmap> target, boolean isFromMemoryCache, boolean isFirstResource) {
+                            public boolean onResourceReady(Bitmap resource, Object model, Target<Bitmap> target, DataSource dataSource, boolean isFirstResource) {
                                 if (themePrefs.invertColors(false) && themePrefs.bitmapContainsColor(resource, comic.getComicNumber()))
                                     comicViewHolder.thumbnail.clearColorFilter();
 
@@ -128,11 +130,11 @@ public class OverviewCardsFragment extends OverviewRecyclerBaseFragment {
                     File dir = new File(sdCard.getAbsolutePath() + "/easy xkcd");
                     File file = new File(dir, String.valueOf(number) + ".png");
                     Glide.with(getActivity())
-                            .load(file)
                             .asBitmap()
-                            .listener(new RequestListener<File, Bitmap>() {
+                            .load(file)
+                            .listener(new RequestListener<Bitmap>() {
                                 @Override
-                                public boolean onException(Exception e, File model, Target<Bitmap> target, boolean isFirstResource) {
+                                public boolean onLoadFailed(@Nullable GlideException e, Object model, Target<Bitmap> target, boolean isFirstResource) {
                                     if (number == lastComicNumber) {
                                         startPostponedEnterTransition();
                                     }
@@ -140,7 +142,7 @@ public class OverviewCardsFragment extends OverviewRecyclerBaseFragment {
                                 }
 
                                 @Override
-                                public boolean onResourceReady(Bitmap resource, File model, Target<Bitmap> target, boolean isFromMemoryCache, boolean isFirstResource) {
+                                public boolean onResourceReady(Bitmap resource, Object model, Target<Bitmap> target, DataSource dataSource, boolean isFirstResource) {
                                     if (themePrefs.invertColors(false) && themePrefs.bitmapContainsColor(resource, comic.getComicNumber()))
                                         comicViewHolder.thumbnail.clearColorFilter();
 

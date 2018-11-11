@@ -73,13 +73,13 @@ public class WidgetLatestProvider extends AppWidgetProvider {
             ComponentName thisAppWidget = new ComponentName(context.getPackageName(), WidgetLatestProvider.class.getName());
             int[] appWidgetIds = appWidgetManager.getAppWidgetIds(thisAppWidget);
             RemoteViews remoteViews = new RemoteViews(context.getPackageName(), R.layout.widget_latest_layout);
-            AppWidgetTarget appWidgetTarget = new AppWidgetTarget(context, remoteViews, R.id.ivComic, appWidgetIds);
+            AppWidgetTarget appWidgetTarget = new AppWidgetTarget(context, R.id.ivComic, remoteViews, appWidgetIds);
 
             if (comic != null) {
                 newestComicNumber = comic.getComicNumber();
                 Glide.with(context)
-                        .load(comic.getUrl())
                         .asBitmap()
+                        .load(comic.getUrl())
                         .into(appWidgetTarget);
                 String title = prefHelper.widgetShowComicNumber() ? (newestComicNumber + ": ") : "";
                 remoteViews.setTextViewText(R.id.tvTitle, title + comic.getTitle());

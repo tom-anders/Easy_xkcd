@@ -39,7 +39,6 @@ import android.view.animation.AnimationUtils;
 import android.widget.TextView;
 
 import com.bumptech.glide.Glide;
-import com.bumptech.glide.request.target.GlideDrawableImageViewTarget;
 import com.kogitune.activity_transition.ActivityTransition;
 import com.tap.xkcd_reader.R;
 
@@ -164,7 +163,8 @@ public class OfflineFragment extends ComicFragment {
             if (getGifId(position) != 0)
                 Glide.with(getActivity())
                         .load(getGifId(position))
-                        .into(new GlideDrawableImageViewTarget(pvComic));
+                        //.into(new GlideDrawableImageViewTarget(pvComic));
+                        .into(pvComic);
             else {
                 Bitmap bitmap = RealmComic.getOfflineBitmap(comicNumber, context, prefHelper);
                 if (themePrefs.invertColors(false) && themePrefs.bitmapContainsColor(bitmap, comicNumber))
