@@ -382,6 +382,7 @@ public class MainActivity extends BaseActivity {
         assert getSupportActionBar() != null;
         getSupportActionBar().setSubtitle("");
 
+        Timber.d("last comic: %d", lastComicNumber);
         OverviewBaseFragment overviewBaseFragment = OverviewBaseFragment.getOverviewFragment(prefHelper, lastComicNumber != 0 ? lastComicNumber : prefHelper.getLastComic());
 
         Fragment oldFragment = fragmentManager.findFragmentByTag(FRAGMENT_TAG);
@@ -390,7 +391,7 @@ public class MainActivity extends BaseActivity {
         if (currentFragment == CurrentFragment.Browser || currentFragment == CurrentFragment.Favorites) {
             title = ((ComicFragment) oldFragment).getCurrentTitleTextView();
             image = ((ComicFragment) oldFragment).getCurrentPhotoView();
-            Timber.d("Current title: %s", title.getText()); //TODO wrong for favorites
+            Timber.d("Current title: %s name %s", title.getText(), title.getTransitionName());
 
             /*oldFragment.setExitSharedElementCallback(new SharedElementCallback() {
                 @Override
@@ -867,7 +868,7 @@ public class MainActivity extends BaseActivity {
                     prefHelper.setOverviewFav(currentFragment == CurrentFragment.Favorites);
                     if (currentFragment == CurrentFragment.Favorites && (prefHelper.isOnline(this) || prefHelper.fullOfflineEnabled())) {
                         showOverview(true);
-                        currentFragment = CurrentFragment.Browser;
+                        //currentFragment = CurrentFragment.Browser;
                         getSupportActionBar().setTitle("Comics");
                         mNavView.getMenu().findItem(R.id.nav_browser).setChecked(true);
                     } else {
@@ -878,8 +879,8 @@ public class MainActivity extends BaseActivity {
                     super.onBackPressed();
                 }
             }
-        } else if (currentFragment == CurrentFragment.Overview) {
-            //Do nothing here
+        } else if (currentFragment == CurrentFragment.Overview || currentFragment == CurrentFragment.WhatIf) {
+            return; //Do nothing here
         } else {
             super.onBackPressed();
         }

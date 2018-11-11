@@ -216,6 +216,8 @@ public abstract class OverviewRecyclerBaseFragment extends OverviewBaseFragment 
     @Override
     protected void setupAdapter() {
         super.setupAdapter();
+
+        rv.scrollToPosition(getIndexForNumber(lastComicNumber));
     }
 
 }

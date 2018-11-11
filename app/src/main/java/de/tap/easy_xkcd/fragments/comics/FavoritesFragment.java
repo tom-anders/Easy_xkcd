@@ -129,6 +129,9 @@ public class FavoritesFragment extends ComicFragment {
                 }
             }
         }
+        
+        lastComicNumber = favorites.get(favoriteIndex).getComicNumber();
+        ((MainActivity) getActivity()).lastComicNumber = lastComicNumber;
 
         adapter = new FavoritesPagerAdapter(getActivity(), 0);
         pager.setAdapter(adapter);

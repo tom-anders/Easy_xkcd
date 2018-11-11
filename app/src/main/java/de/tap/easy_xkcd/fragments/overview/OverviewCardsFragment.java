@@ -117,6 +117,7 @@ public class OverviewCardsFragment extends OverviewRecyclerBaseFragment {
                                 if (number == lastComicNumber) {
                                     startPostponedEnterTransition();
                                 }
+                                Timber.d("Loaded overview comic %d", number);
                                 return false;
                             }
                         })
@@ -187,9 +188,6 @@ public class OverviewCardsFragment extends OverviewRecyclerBaseFragment {
 
         rvAdapter = new CardsAdapter();
         rv.setAdapter(rvAdapter);
-
-        if (lastComicNumber <= comics.size())
-            rv.scrollToPosition(comics.size() - lastComicNumber);
 
     }
 

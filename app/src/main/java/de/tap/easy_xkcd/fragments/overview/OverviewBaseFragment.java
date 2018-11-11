@@ -260,6 +260,23 @@ public abstract class OverviewBaseFragment extends android.support.v4.app.Fragme
 
     public abstract void notifyAdapter(int number);
 
+    protected int getIndexForNumber(int number) {
+        if (prefHelper.overviewFav()) {
+            for (int i = 0; i < comics.size(); i++) {
+                if (comics.get(i).getComicNumber() == lastComicNumber) {
+                    return i;
+                }
+            }
+            return 0;
+        } else {
+            if (lastComicNumber <= comics.size()) {
+                return (comics.size() - lastComicNumber);
+            }
+            return 0;
+        }
+
+    }
+
     protected void setupAdapter() {
         Realm realm = Realm.getDefaultInstance();
         if (prefHelper.overviewFav()) {

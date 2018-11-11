@@ -224,8 +224,8 @@ public class OverviewListFragment extends OverviewBaseFragment {
         //ComicFragment comicFragment = (ComicFragment) getActivity().getSupportFragmentManager().findFragmentByTag(BROWSER_TAG);
         listAdapter = new ListAdapter();
         list.setAdapter(listAdapter);
-        if (lastComicNumber <= comics.size())
-            list.setSelection(comics.size() - lastComicNumber);
+        list.setSelection(getIndexForNumber(lastComicNumber));
+
         list.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {

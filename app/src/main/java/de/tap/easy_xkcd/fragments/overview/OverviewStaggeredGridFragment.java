@@ -170,15 +170,13 @@ public class OverviewStaggeredGridFragment extends OverviewRecyclerBaseFragment 
 
     @Override
     protected void setupAdapter() {
-        super.setupAdapter();
         StaggeredGridLayoutManager manager = new StaggeredGridLayoutManager(2, StaggeredGridLayoutManager.VERTICAL);
         manager.setGapStrategy(StaggeredGridLayoutManager.GAP_HANDLING_NONE);
         rv.setLayoutManager(new StaggeredGridLayoutManager(2, StaggeredGridLayoutManager.VERTICAL));
         rvAdapter = new GridAdapter();
         rv.setAdapter(rvAdapter);
 
-        if (lastComicNumber <= comics.size())
-            rv.scrollToPosition(comics.size() - lastComicNumber);
+        super.setupAdapter();
     }
 
     @Override
