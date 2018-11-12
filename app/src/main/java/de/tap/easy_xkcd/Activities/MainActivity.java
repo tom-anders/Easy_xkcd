@@ -365,17 +365,59 @@ public class MainActivity extends BaseActivity {
     /**
      * Adds the listener for the navigationView and adjusts the colors according to our theme
      */
+    private MenuItem selectedMenuItem = null;
+
     private void setupDrawerContent(NavigationView navigationView) {
         navigationView.setNavigationItemSelectedListener(
                 new NavigationView.OnNavigationItemSelectedListener() {
                     @Override
                     public boolean onNavigationItemSelected(MenuItem menuItem) {
-                        selectDrawerItem(menuItem, false, false, true, true);
+                        mDrawer.closeDrawers();
+                        prepareToolbarAnimation(-300);
+                        switch (menuItem.getItemId()) { //Update the currentFragment enum here to get the correct toolbar title
+                            case R.id.nav_browser:
+                                currentFragment = CurrentFragment.Browser;
+                                break;
+                            case R.id.nav_favorites:
+                                currentFragment = CurrentFragment.Favorites;
+                                break;
+                            case R.id.nav_whatif:
+                                currentFragment = CurrentFragment.WhatIf;
+                        }
+                        updateToolbarTitle();
+                        selectedMenuItem = menuItem;
                         return true;
                     }
                 });
+        mDrawer.addDrawerListener(new DrawerLayout.DrawerListener() {
+            @Override
+            public void onDrawerClosed(@NonNull View drawerView) {
+                if (selectedMenuItem != null) {
+                    animateToolbar(-300);
+                    selectDrawerItem(selectedMenuItem, false, false, false, true);
+                    selectedMenuItem = null;
+                }
+            }
+
+            @Override
+            public void onDrawerStateChanged(int newState) {
+
+            }
+
+            @Override
+            public void onDrawerSlide(@NonNull View drawerView, float slideOffset) {
+            }
+
+            @Override
+            public void onDrawerOpened(@NonNull View drawerView) {
+
+            }
+
+        });
         themePrefs.setupNavdrawerColor(navigationView);
     }
+
+
 
     public void showOverview(boolean animate) {
         FragmentManager fragmentManager = getSupportFragmentManager();
@@ -457,12 +499,7 @@ public class MainActivity extends BaseActivity {
                 .replace(R.id.flContent, favoritesFragment, FRAGMENT_TAG)
                 .addToBackStack(null);
         currentFragment = CurrentFragment.Favorites;
-        new Handler().postDelayed(new Runnable() {
-            @Override
-            public void run() {
-                transaction.commitAllowingStateLoss();
-            }
-        }, animate ? WAIT_TIME_FOR_DRAWER : 0); //TODO use a listener for when the drawer is closed, return the transaction here and the execute the transaction when the drawer is closed
+        transaction.commitAllowingStateLoss();
     }
 
     void showWhatifFragment(boolean animate) {
@@ -513,12 +550,7 @@ public class MainActivity extends BaseActivity {
         transaction.replace(R.id.flContent, whatIfFragment, FRAGMENT_TAG)
                 .addToBackStack(null);
         currentFragment = CurrentFragment.WhatIf;
-        new Handler().postDelayed(new Runnable() {
-            @Override
-            public void run() {
-                transaction.commitAllowingStateLoss();
-            }
-        }, animate ? WAIT_TIME_FOR_DRAWER : 0);
+        transaction.commitAllowingStateLoss();
     }
 
     void showBrowserFragment(boolean animate) {
@@ -543,12 +575,7 @@ public class MainActivity extends BaseActivity {
         transaction.replace(R.id.flContent, comicFragment, FRAGMENT_TAG)
                 .addToBackStack(null);
         currentFragment = CurrentFragment.Browser;
-        new Handler().postDelayed(new Runnable() {
-            @Override
-            public void run() {
-                transaction.commitAllowingStateLoss();
-            }
-        }, animate ? WAIT_TIME_FOR_DRAWER : 0);
+        transaction.commitAllowingStateLoss();
     }
 
     /**
@@ -560,7 +587,6 @@ public class MainActivity extends BaseActivity {
      * @param shouldAnimateToolbar wether to animate the toolbar, should be false when coming from onRestart()
      */
     public void selectDrawerItem(final MenuItem menuItem, final boolean showOverview, final boolean animateOverview, final boolean shouldAnimateToolbar, final boolean animateTransition) {
-        mDrawer.closeDrawers();
         switch (menuItem.getItemId()) {
             case R.id.nav_browser:
                 if (!prefHelper.isOnline(this) && !fullOffline) {
@@ -589,37 +615,21 @@ public class MainActivity extends BaseActivity {
 
             case R.id.nav_settings:
                 mDrawer.closeDrawers();
-                new Handler().postDelayed(new Runnable() { //Wait for the drawer to be closed to avoid lag
-                    @Override
-                    public void run() {
-                        startActivityForResult(new Intent(MainActivity.this, SettingsActivity.class), 1);
-                    }
-                }, 200);
+                startActivityForResult(new Intent(MainActivity.this, SettingsActivity.class), 1);
                 return;
 
             case R.id.nav_feedback:
                 mDrawer.closeDrawers();
-                new Handler().postDelayed(new Runnable() {
-                    @Override
-                    public void run() {
-                        Intent i = new Intent(Intent.ACTION_SENDTO, Uri.fromParts("mailto", "easyxkcd@gmail.com", null));
-                        startActivity(Intent.createChooser(i, getResources().getString(R.string.nav_feedback_send)));
-                    }
-                }, 200);
+                Intent i = new Intent(Intent.ACTION_SENDTO, Uri.fromParts("mailto", "easyxkcd@gmail.com", null));
+                startActivity(Intent.createChooser(i, getResources().getString(R.string.nav_feedback_send)));
                 return;
 
             case R.id.nav_about:
                 mDrawer.closeDrawers();
-                new Handler().postDelayed(new Runnable() {
-                    @Override
-                    public void run() {
-                        startActivity(new Intent(MainActivity.this, AboutActivity.class));
-                    }
-                }, 250);
+                startActivity(new Intent(MainActivity.this, AboutActivity.class));
                 return;
         }
         menuItem.setChecked(true);
-        updateToolbarTitle();
         updateToolbarElevation();
         invalidateOptionsMenu();
     }
@@ -648,19 +658,27 @@ public class MainActivity extends BaseActivity {
         mDrawer.closeDrawers();
     }
 
+    private void prepareToolbarAnimation(int translation) {
+        //View view;
+        for (int i = 2; i < toolbar.getChildCount(); i++) {
+            View view = toolbar.getChildAt(i);
+            view.setTranslationY(-300);
+        }
+        toolbar.getChildAt(0).setAlpha(0);
+    }
+
     /**
      * Animates the toolbar and its childs
      *
      * @param translation The initial vertical translation of the menu items
      */
     private void animateToolbar(int translation) {
-        View view;
         for (int i = 2; i < toolbar.getChildCount(); i++) {
-            view = toolbar.getChildAt(i);
-            view.setTranslationY(translation);
-            view.animate().setStartDelay(50 * (i + 1)).setDuration(70 * (i + 1)).translationY(0);
+            View view = toolbar.getChildAt(i);
+            //view.setTranslationY(translation);
+            view.animate().setStartDelay(50 * (i - 2)).setDuration(150 * (i + 1)).translationY(0);
         }
-        toolbar.getChildAt(0).setAlpha(0);
+        //toolbar.getChildAt(0).setAlpha(0);
         toolbar.getChildAt(0).animate().alpha(1).setDuration(200).setInterpolator(new AccelerateInterpolator());
     }
 
