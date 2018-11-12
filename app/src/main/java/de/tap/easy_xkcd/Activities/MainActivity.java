@@ -436,7 +436,8 @@ public class MainActivity extends BaseActivity {
 
     void showFavoritesFragment(boolean animate) {
         FragmentManager fragmentManager = getSupportFragmentManager();
-        mFab.setVisibility(prefHelper.fabDisabledFavorites() ? View.GONE : View.VISIBLE);
+        //mFab.setVisibility(prefHelper.fabDisabledFavorites() ? View.GONE : View.VISIBLE);
+        if (prefHelper.fabDisabledFavorites()) mFab.hide(); else mFab.show();
 
         FavoritesFragment favoritesFragment = new FavoritesFragment();
         final FragmentTransaction transaction = fragmentManager.beginTransaction();
@@ -466,7 +467,8 @@ public class MainActivity extends BaseActivity {
 
     void showWhatifFragment(boolean animate) {
         FragmentManager fragmentManager = getSupportFragmentManager();
-        mFab.setVisibility(View.GONE); //WhatIf Fragment has its own FAB
+        //mFab.setVisibility(View.GONE);
+        mFab.hide(); //WhatIf Fragment has its own FAB
 
         WhatIfOverviewFragment whatIfFragment = new WhatIfOverviewFragment();
         final FragmentTransaction transaction = fragmentManager.beginTransaction();
@@ -521,7 +523,7 @@ public class MainActivity extends BaseActivity {
 
     void showBrowserFragment(boolean animate) {
         FragmentManager fragmentManager = getSupportFragmentManager();
-        mFab.setVisibility(prefHelper.fabDisabledComicBrowser() ? View.GONE : View.VISIBLE);
+        if (prefHelper.fabDisabledComicBrowser()) mFab.hide(); else mFab.show();
 
         ComicFragment comicFragment = fullOffline ? new OfflineFragment() : new ComicBrowserFragment();
         final FragmentTransaction transaction = fragmentManager.beginTransaction();
