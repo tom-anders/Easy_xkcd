@@ -28,6 +28,8 @@ import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import androidx.annotation.Nullable;
+
+import com.github.chrisbanes.photoview.PhotoView;
 import com.google.android.material.snackbar.Snackbar;
 import androidx.fragment.app.FragmentManager;
 import androidx.core.content.FileProvider;
@@ -65,7 +67,6 @@ import de.tap.easy_xkcd.database.RealmComic;
 import io.realm.Realm;
 import io.realm.RealmResults;
 import timber.log.Timber;
-import uk.co.senab.photoview.PhotoView;
 
 
 public class FavoritesFragment extends ComicFragment {
@@ -331,7 +332,7 @@ public class FavoritesFragment extends ComicFragment {
                             .asBitmap()
                             .load(comic.getUrl())
                             //.diskCacheStrategy(DiskCacheStrategy.SOURCE)
-                            .into(-1, -1)
+                            .into(-1, -1) //TODO replace all .into(-1,-1) with the simple target
                             .get();
                     saveComic(comic.getComicNumber(), mBitmap);
                 } catch (Exception e) {

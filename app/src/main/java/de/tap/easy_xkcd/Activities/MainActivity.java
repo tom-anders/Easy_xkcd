@@ -35,6 +35,8 @@ import android.os.Handler;
 import android.preference.PreferenceManager;
 import androidx.annotation.NonNull;
 import androidx.coordinatorlayout.widget.CoordinatorLayout;
+
+import com.github.chrisbanes.photoview.PhotoView;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.navigation.NavigationView;
 import android.transition.Explode;
@@ -88,7 +90,6 @@ import de.tap.easy_xkcd.notifications.ComicListener;
 import de.tap.easy_xkcd.utils.PrefHelper;
 import de.tap.easy_xkcd.utils.ThemePrefs;
 import timber.log.Timber;
-import uk.co.senab.photoview.PhotoView;
 
 
 public class MainActivity extends BaseActivity {
@@ -962,7 +963,8 @@ public class MainActivity extends BaseActivity {
                 break;
             case 2:
                 if (grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                    ((ComicBrowserFragment) getSupportFragmentManager().findFragmentByTag(FRAGMENT_TAG)).new SaveComicImageTask(lastComicNumber).execute(true);
+                    //((ComicBrowserFragment) getSupportFragmentManager().findFragmentByTag(FRAGMENT_TAG)).new SaveComicImageTask(lastComicNumber).execute(true);
+                    ((ComicBrowserFragment) getSupportFragmentManager().findFragmentByTag(FRAGMENT_TAG)).saveComicImage(lastComicNumber, true);
                 }
 
         }

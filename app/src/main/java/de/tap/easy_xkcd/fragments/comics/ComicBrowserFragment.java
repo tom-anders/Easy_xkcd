@@ -31,6 +31,8 @@ import android.os.Bundle;
 import android.os.Environment;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+
+import com.github.chrisbanes.photoview.PhotoView;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.snackbar.Snackbar;
 import androidx.core.app.ActivityCompat;
@@ -67,7 +69,6 @@ import de.tap.easy_xkcd.database.DatabaseManager;
 import de.tap.easy_xkcd.database.RealmComic;
 import io.realm.RealmResults;
 import timber.log.Timber;
-import uk.co.senab.photoview.PhotoView;
 
 public class ComicBrowserFragment extends ComicFragment {
 
@@ -342,7 +343,8 @@ protected boolean modifyFavorites(MenuItem item) {
             ActivityCompat.requestPermissions(getActivity(), new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE}, 2);
             return true;
         }
-        new SaveComicImageTask(lastComicNumber).execute(true);
+        //new SaveComicImageTask(lastComicNumber).execute(true);
+        saveComicImage(lastComicNumber, true);
         item.setIcon(R.drawable.ic_action_favorite);
     }
     return true;

@@ -28,6 +28,12 @@ import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Vibrator;
 import androidx.browser.customtabs.CustomTabsIntent;
+
+import com.bumptech.glide.request.target.SimpleTarget;
+import com.bumptech.glide.request.target.Target;
+import com.bumptech.glide.request.transition.Transition;
+import com.github.chrisbanes.photoview.OnMatrixChangedListener;
+import com.github.chrisbanes.photoview.PhotoView;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.snackbar.Snackbar;
 import androidx.core.content.FileProvider;
@@ -70,8 +76,6 @@ import de.tap.easy_xkcd.misc.HackyViewPager;
 import de.tap.easy_xkcd.utils.PrefHelper;
 import de.tap.easy_xkcd.utils.ThemePrefs;
 import timber.log.Timber;
-import uk.co.senab.photoview.PhotoView;
-import uk.co.senab.photoview.PhotoViewAttacher;
 
 /**
  * Superclass for ComicBrowserFragment, OfflineFragment & FavoritesFragment
@@ -228,7 +232,7 @@ public abstract class ComicFragment extends Fragment {
                 pvComic.setColorFilter(themePrefs.getNegativeColorFilter());
 
             if (prefHelper.scrollDisabledWhileZoom() && prefHelper.defaultZoom())
-                pvComic.setOnMatrixChangeListener(new PhotoViewAttacher.OnMatrixChangedListener() {
+                pvComic.setOnMatrixChangeListener(new OnMatrixChangedListener() {
                     @Override
                     public void onMatrixChanged(RectF rectF) {
                         if (pvComic.getScale() > 1.4) {
@@ -311,7 +315,37 @@ public abstract class ComicFragment extends Fragment {
         }
     }
 
-    public class SaveComicImageTask extends AsyncTask<Boolean, Void, Void> {
+    public void saveComicImage(final int addedNumber, boolean downloadImage) {
+        DatabaseManager databaseManager = new DatabaseManager(getActivity()); //Create a new one here since we're in a background thread
+        if (downloadImage) {
+            try {
+                Glide.with(getActivity())
+                        .asBitmap()
+                        .load(databaseManager.getRealmComic(addedNumber).getUrl())
+                        //.diskCacheStrategy(DiskCacheStrategy.SOURCE)
+                        //.into(-1, -1)
+                        .into(new SimpleTarget<Bitmap>() {
+                            @Override
+                            public void onResourceReady(Bitmap resource, Transition<? super Bitmap> transition) {
+                                saveComic(addedNumber, resource);
+                            }
+                        });
+            } catch (Exception e) {
+                databaseManager.setFavorite(addedNumber, false);
+                Timber.d("Saving Image failed for Comic %d!", addedNumber);
+            }
+        }
+
+        databaseManager.setFavorite(addedNumber, true);
+        //refresh the FavoritesFragment
+        FavoritesFragment f = (FavoritesFragment) getActivity().getSupportFragmentManager().findFragmentByTag("favorites");
+        if (f != null)
+            f.refresh();
+        //Sometimes the floating action button does not animate back to the bottom when the snackbar is dismissed, so force it to its original position
+        ((MainActivity) getActivity()).getFab().forceLayout();
+        getActivity().invalidateOptionsMenu();
+    }
+   /* public class SaveComicImageTask extends AsyncTask<Boolean, Void, Void> {
         protected int addedNumber;
         private Bitmap mBitmap;
         private boolean downloadImage;
@@ -331,7 +365,8 @@ public abstract class ComicFragment extends Fragment {
                             .asBitmap()
                             .load(databaseManager.getRealmComic(addedNumber).getUrl())
                             //.diskCacheStrategy(DiskCacheStrategy.SOURCE)
-                            .into(-1, -1)
+                            //.into(-1, -1)
+                            .into(new Target<Bitmap>())
                             .get();
                 } catch (Exception e) {
                     databaseManager.setFavorite(addedNumber, false);
@@ -345,18 +380,8 @@ public abstract class ComicFragment extends Fragment {
 
         @Override
         protected void onPostExecute(Void dummy) {
-            if (downloadImage) {
-                saveComic(addedNumber, mBitmap);
-            }
-            //refresh the FavoritesFragment
-            FavoritesFragment f = (FavoritesFragment) getActivity().getSupportFragmentManager().findFragmentByTag("favorites");
-            if (f != null)
-                f.refresh();
-            //Sometimes the floating action button does not animate back to the bottom when the snackbar is dismissed, so force it to its original position
-            ((MainActivity) getActivity()).getFab().forceLayout();
-            getActivity().invalidateOptionsMenu();
         }
-    }
+    }*/
 
     protected class DeleteComicImageTask extends AsyncTask<Boolean, Void, Void> {
         private int removedNumber;
@@ -381,7 +406,8 @@ public abstract class ComicFragment extends Fragment {
             oc = new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    new SaveComicImageTask(removedNumber).execute(deleteImage[0]);
+                    //new SaveComicImageTask(removedNumber).execute(deleteImage[0]);
+                    saveComicImage(removedNumber, deleteImage[0]);
                 }
             };
             (new DatabaseManager(getActivity())).setFavorite(removedNumber, false);

@@ -23,6 +23,8 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.graphics.Bitmap;
 import android.os.Bundle;
+
+import com.github.chrisbanes.photoview.PhotoView;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.snackbar.Snackbar;
 import androidx.viewpager.widget.ViewPager;
@@ -44,7 +46,6 @@ import java.util.Arrays;
 import de.tap.easy_xkcd.Activities.MainActivity;
 import de.tap.easy_xkcd.database.DatabaseManager;
 import de.tap.easy_xkcd.database.RealmComic;
-import uk.co.senab.photoview.PhotoView;
 
 public class OfflineFragment extends ComicFragment {
     private Boolean randomSelected = false;
@@ -211,7 +212,8 @@ public class OfflineFragment extends ComicFragment {
             item.setIcon(R.drawable.ic_favorite_outline);
         } else {
             //save image to internal storage
-            new SaveComicImageTask(lastComicNumber).execute(false);
+            //new SaveComicImageTask(lastComicNumber).execute(false);
+            saveComicImage(lastComicNumber, false);
             item.setIcon(R.drawable.ic_action_favorite);
         }
         return true;
