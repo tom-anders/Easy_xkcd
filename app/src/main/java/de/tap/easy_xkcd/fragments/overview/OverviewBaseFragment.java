@@ -152,7 +152,6 @@ public abstract class OverviewBaseFragment extends Fragment {
         comicFragment.lastComicNumber = number;
         comicFragment.transitionPending = true;
         transaction.replace(R.id.flContent, comicFragment, MainActivity.FRAGMENT_TAG)
-                .addToBackStack(null)
                 .commitAllowingStateLoss();
         ((MainActivity) getActivity()).setCurrentFragment(prefHelper.overviewFav() ? MainActivity.CurrentFragment.Favorites : MainActivity.CurrentFragment.Browser);
         /*android.support.v4.app.FragmentManager fragmentManager = getActivity().getSupportFragmentManager();

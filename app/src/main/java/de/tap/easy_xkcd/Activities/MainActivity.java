@@ -469,7 +469,6 @@ public class MainActivity extends BaseActivity {
             overviewBaseFragment.setAllowEnterTransitionOverlap(false);
         }
         transaction.replace(R.id.flContent, overviewBaseFragment, FRAGMENT_TAG)
-                .addToBackStack(null)
                 .commitAllowingStateLoss();
 
         currentFragment = CurrentFragment.Overview;
@@ -496,8 +495,7 @@ public class MainActivity extends BaseActivity {
             favoritesFragment.setAllowEnterTransitionOverlap(false);
         }
         transaction
-                .replace(R.id.flContent, favoritesFragment, FRAGMENT_TAG)
-                .addToBackStack(null);
+                .replace(R.id.flContent, favoritesFragment, FRAGMENT_TAG);
         currentFragment = CurrentFragment.Favorites;
         transaction.commitAllowingStateLoss();
     }
@@ -547,8 +545,7 @@ public class MainActivity extends BaseActivity {
         });
         whatIfFragment.setEnterTransition(slideIn);
         whatIfFragment.setAllowEnterTransitionOverlap(false);
-        transaction.replace(R.id.flContent, whatIfFragment, FRAGMENT_TAG)
-                .addToBackStack(null);
+        transaction.replace(R.id.flContent, whatIfFragment, FRAGMENT_TAG);
         currentFragment = CurrentFragment.WhatIf;
         transaction.commitAllowingStateLoss();
     }
@@ -572,8 +569,7 @@ public class MainActivity extends BaseActivity {
             comicFragment.setEnterTransition(slideIn);
             comicFragment.setAllowEnterTransitionOverlap(false);
         }
-        transaction.replace(R.id.flContent, comicFragment, FRAGMENT_TAG)
-                .addToBackStack(null);
+        transaction.replace(R.id.flContent, comicFragment, FRAGMENT_TAG);
         currentFragment = CurrentFragment.Browser;
         transaction.commitAllowingStateLoss();
     }
