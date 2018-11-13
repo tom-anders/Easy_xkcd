@@ -42,11 +42,10 @@ import com.google.android.material.navigation.NavigationView;
 import android.transition.Explode;
 import android.transition.Fade;
 import android.transition.Slide;
-import androidx.transition.TransitionInflater;
+
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentTransaction;
-import androidx.core.app.SharedElementCallback;
 import androidx.core.content.ContextCompat;
 import androidx.core.view.GravityCompat;
 import androidx.core.view.MenuItemCompat;
@@ -980,7 +979,7 @@ public class MainActivity extends BaseActivity {
             case 2:
                 if (grantResults[0] == PackageManager.PERMISSION_GRANTED) {
                     //((ComicBrowserFragment) getSupportFragmentManager().findFragmentByTag(FRAGMENT_TAG)).new SaveComicImageTask(lastComicNumber).execute(true);
-                    ((ComicBrowserFragment) getSupportFragmentManager().findFragmentByTag(FRAGMENT_TAG)).saveComicImage(lastComicNumber, true);
+                    ((ComicBrowserFragment) getSupportFragmentManager().findFragmentByTag(FRAGMENT_TAG)).addFavorite(lastComicNumber, true);
                 }
 
         }

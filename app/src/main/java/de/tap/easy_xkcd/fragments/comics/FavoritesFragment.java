@@ -29,12 +29,15 @@ import android.os.AsyncTask;
 import android.os.Bundle;
 import androidx.annotation.Nullable;
 
+import com.bumptech.glide.request.target.Target;
 import com.github.chrisbanes.photoview.PhotoView;
 import com.google.android.material.snackbar.Snackbar;
 import androidx.fragment.app.FragmentManager;
 import androidx.core.content.FileProvider;
 import androidx.viewpager.widget.ViewPager;
 import androidx.appcompat.widget.Toolbar;
+
+import android.provider.ContactsContract;
 import android.text.Html;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -292,12 +295,10 @@ public class FavoritesFragment extends ComicFragment {
                 if (!databaseManager.isFavorite(number)) {
                     newFavorites.push(number);
                     databaseManager.setFavorite(number, true);
-                    if (number <= ((MainActivity) getActivity()).getDatabaseManager().getHighestInDatabase())
-                        ((MainActivity) getActivity()).getDatabaseManager().setFavorite(number, true);
                 }
-                if (!prefHelper.fullOfflineEnabled()) {
-                    new DownloadImageTask(newFavorites).execute();
-                }
+            }
+            if (!prefHelper.fullOfflineEnabled()) {
+                new DownloadImageTask(newFavorites).execute();
             }
         } catch (Exception e) {
             e.printStackTrace();
@@ -324,17 +325,20 @@ public class FavoritesFragment extends ComicFragment {
 
         @Override
         protected Void doInBackground(Void... dummy) {
+            DatabaseManager databaseManager = new DatabaseManager(getActivity());
             while (!favStack.isEmpty()) {
                 try {
-                    RealmComic comic = RealmComic.findNewestComic(Realm.getDefaultInstance(), getActivity());
+                    //RealmComic comic = RealmComic.findNewestComic(Realm.getDefaultInstance(), getActivity());
+                    RealmComic comic = databaseManager.getRealmComic(favStack.pop());
                     mBitmap = Glide
                             .with(getActivity())
                             .asBitmap()
                             .load(comic.getUrl())
                             //.diskCacheStrategy(DiskCacheStrategy.SOURCE)
-                            .into(-1, -1) //TODO replace all .into(-1,-1) with the simple target
+                            .into(Target.SIZE_ORIGINAL, Target.SIZE_ORIGINAL) //TODO replace all .into(-1,-1) with the simple target
                             .get();
                     saveComic(comic.getComicNumber(), mBitmap);
+                    Timber.d("comic %d saved...", comic.getComicNumber());
                 } catch (Exception e) {
                     e.printStackTrace();
                 }
@@ -447,7 +451,7 @@ public class FavoritesFragment extends ComicFragment {
                         .asBitmap()
                         .load((new DatabaseManager(getActivity())).getRealmComic(pos[0]).getUrl())
                         //.diskCacheStrategy(DiskCacheStrategy.SOURCE)
-                        .into(-1, -1)
+                        .into(Target.SIZE_ORIGINAL, Target.SIZE_ORIGINAL)
                         .get();
                 saveComic(pos[0], bitmap);
             } catch (Exception e) {

@@ -24,13 +24,11 @@ import android.graphics.Bitmap;
 import android.graphics.Color;
 import android.graphics.RectF;
 import android.net.Uri;
-import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Vibrator;
 import androidx.browser.customtabs.CustomTabsIntent;
 
 import com.bumptech.glide.request.target.SimpleTarget;
-import com.bumptech.glide.request.target.Target;
 import com.bumptech.glide.request.transition.Transition;
 import com.github.chrisbanes.photoview.OnMatrixChangedListener;
 import com.github.chrisbanes.photoview.PhotoView;
@@ -127,6 +125,7 @@ public abstract class ComicFragment extends Fragment {
 
         if (savedInstanceState == null && transitionPending) {
             postponeEnterTransition();
+            Timber.d("posponing transition...");
             setSharedElementEnterTransition(TransitionInflater.from(getContext()).inflateTransition(R.transition.image_shared_element_transition));
         }
 
@@ -292,6 +291,8 @@ public abstract class ComicFragment extends Fragment {
         }
     }
 
+
+
     protected void saveComic(int number, Bitmap bitmap) {
         try {
             File sdCard = prefHelper.getOfflinePath();
@@ -315,8 +316,8 @@ public abstract class ComicFragment extends Fragment {
         }
     }
 
-    public void saveComicImage(final int addedNumber, boolean downloadImage) {
-        DatabaseManager databaseManager = new DatabaseManager(getActivity()); //Create a new one here since we're in a background thread
+    public void addFavorite(final int addedNumber, boolean downloadImage) {
+        //DatabaseManager databaseManager = new DatabaseManager(getActivity()); //Create a new one here since we're in a background thread
         if (downloadImage) {
             try {
                 Glide.with(getActivity())
@@ -337,53 +338,12 @@ public abstract class ComicFragment extends Fragment {
         }
 
         databaseManager.setFavorite(addedNumber, true);
-        //refresh the FavoritesFragment
-        FavoritesFragment f = (FavoritesFragment) getActivity().getSupportFragmentManager().findFragmentByTag("favorites");
-        if (f != null)
-            f.refresh();
         //Sometimes the floating action button does not animate back to the bottom when the snackbar is dismissed, so force it to its original position
         ((MainActivity) getActivity()).getFab().forceLayout();
         getActivity().invalidateOptionsMenu();
     }
-   /* public class SaveComicImageTask extends AsyncTask<Boolean, Void, Void> {
-        protected int addedNumber;
-        private Bitmap mBitmap;
-        private boolean downloadImage;
 
-        public SaveComicImageTask(int addedNumber) {
-            this.addedNumber = addedNumber;
-        }
-
-        @Override
-        protected Void doInBackground(Boolean... downloadImage) {
-            this.downloadImage = downloadImage[0];
-            DatabaseManager databaseManager = new DatabaseManager(getActivity()); //Create a new one here since we're in a background thread
-            if (this.downloadImage) {
-                try {
-                    mBitmap = Glide
-                            .with(getActivity())
-                            .asBitmap()
-                            .load(databaseManager.getRealmComic(addedNumber).getUrl())
-                            //.diskCacheStrategy(DiskCacheStrategy.SOURCE)
-                            //.into(-1, -1)
-                            .into(new Target<Bitmap>())
-                            .get();
-                } catch (Exception e) {
-                    databaseManager.setFavorite(addedNumber, false);
-                    Timber.d("Saving Image failed for Comic %d!", addedNumber);
-                }
-            }
-
-            databaseManager.setFavorite(addedNumber, true);
-            return null;
-        }
-
-        @Override
-        protected void onPostExecute(Void dummy) {
-        }
-    }*/
-
-    protected class DeleteComicImageTask extends AsyncTask<Boolean, Void, Void> {
+    /*protected class DeleteComicImageTask extends AsyncTask<Boolean, Void, Void> {
         private int removedNumber;
         private View.OnClickListener oc;
 
@@ -407,7 +367,7 @@ public abstract class ComicFragment extends Fragment {
                 @Override
                 public void onClick(View v) {
                     //new SaveComicImageTask(removedNumber).execute(deleteImage[0]);
-                    saveComicImage(removedNumber, deleteImage[0]);
+                    addFavorite(removedNumber, deleteImage[0]);
                 }
             };
             (new DatabaseManager(getActivity())).setFavorite(removedNumber, false);
@@ -424,6 +384,27 @@ public abstract class ComicFragment extends Fragment {
             if (f != null)
                 f.refresh();
         }
+    }*/
+
+    protected void removeFavorite(final int number, final boolean deleteImage) {
+        if (deleteImage) {
+            if (!getActivity().deleteFile(number + ".png")) {
+                Timber.d("trying to delete from external storage");
+                File sdCard = prefHelper.getOfflinePath();
+                File file = new File(sdCard.getAbsolutePath() + "/easy xkcd/" + number + ".png");
+                boolean deleted = file.delete();
+                Timber.d("deleted: %s", deleted);
+            }
+        }
+        databaseManager.setFavorite(number, false);
+        Snackbar.make(((MainActivity) getActivity()).getFab(), R.string.snackbar_remove, Snackbar.LENGTH_LONG)
+                .setAction(R.string.snackbar_undo, new View.OnClickListener() {
+                    @Override
+                    public void onClick(View view) {
+                        addFavorite(number, deleteImage);
+                    }
+                })
+                .show();
     }
 
     public boolean zoomReset() {
