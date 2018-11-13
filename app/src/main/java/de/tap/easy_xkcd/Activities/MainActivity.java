@@ -21,6 +21,9 @@ package de.tap.easy_xkcd.Activities;
 import android.app.Activity;
 import android.app.ProgressDialog;
 import android.app.SearchManager;
+import android.app.job.JobInfo;
+import android.app.job.JobScheduler;
+import android.content.ComponentName;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -86,6 +89,7 @@ import de.tap.easy_xkcd.fragments.overview.OverviewBaseFragment;
 import de.tap.easy_xkcd.fragments.whatIf.WhatIfFragment;
 import de.tap.easy_xkcd.fragments.whatIf.WhatIfOverviewFragment;
 import de.tap.easy_xkcd.notifications.ComicListener;
+import de.tap.easy_xkcd.notifications.ComicNotifierJob;
 import de.tap.easy_xkcd.utils.PrefHelper;
 import de.tap.easy_xkcd.utils.ThemePrefs;
 import timber.log.Timber;
@@ -144,10 +148,20 @@ public class MainActivity extends BaseActivity {
 
         if (savedInstanceState == null) {
             //Setup the notifications in case the device was restarted
-            if (prefHelper.getNotificationInterval() != 0)
+            /*if (prefHelper.getNotificationInterval() != 0)
                 WakefulIntentService.scheduleAlarms(new ComicListener(), this, true);
             else
-                WakefulIntentService.cancelAlarms(this);
+                WakefulIntentService.cancelAlarms(this);*/
+            if (prefHelper.getNotificationInterval() != 0) {
+                JobScheduler jobScheduler = (JobScheduler) getSystemService(Context.JOB_SCHEDULER_SERVICE);
+                jobScheduler.schedule(new JobInfo.Builder(0, new ComponentName(this, ComicNotifierJob.class))
+                                        .setRequiredNetworkType(JobInfo.NETWORK_TYPE_ANY)
+                        .setPeriodic(prefHelper.getNotificationInterval())
+                        .build()
+                );
+                Timber.d("Job scheduled!");
+            }
+
         }
 
         if (currentFragment == null) {
