@@ -143,28 +143,10 @@
                 android:resource="@xml/searchable" />
         </activity>
 
-        <!--<service android:name="de.tap.easy_xkcd.notifications.ComicNotifier" />-->
         <service
             android:name="de.tap.easy_xkcd.notifications.ComicNotifierJob"
             android:permission="android.permission.BIND_JOB_SERVICE"
             android:exported="true"/>
-
-        <receiver android:name="com.commonsware.cwac.wakeful.AlarmReceiver" >
-            <intent-filter>
-                <action android:name="android.intent.action.BOOT_COMPLETED" />
-            </intent-filter>
-
-            <meta-data
-                android:name="com.commonsware.cwac.wakeful"
-                android:resource="@xml/wakeful" />
-        </receiver>
-        <receiver
-            android:name="de.tap.easy_xkcd.notifications.ConnectivityReceiver"
-            android:enabled="false" >
-            <intent-filter>
-                <action android:name="android.net.conn.CONNECTIVITY_CHANGE" />
-            </intent-filter>
-        </receiver>
 
         <activity
             android:name="de.tap.easy_xkcd.Activities.WhatIfActivity"

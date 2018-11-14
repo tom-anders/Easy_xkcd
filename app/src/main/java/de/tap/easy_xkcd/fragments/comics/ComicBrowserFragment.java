@@ -283,7 +283,7 @@ public class ComicBrowserFragment extends ComicFragment {
 
         void mainActivityCallback(int position) {
             if (position == lastComicNumber - 1) {
-                if (((MainActivity) getActivity()).getProgressDialog() != null)
+                if (((MainActivity) getActivity()).getProgressDialog() != null) //TODO crashes here when clicking new comic notification while app is active and we found a new comic
                     ((MainActivity) getActivity()).getProgressDialog().dismiss();
             }
             if (position == lastComicNumber + 1

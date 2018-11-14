@@ -281,7 +281,7 @@ public class PrefHelper {
         switch (hours) {
             case "12":
             case "6":
-                hours = "5"; //TODO wtf is happening here?
+                hours = "5";
                 break;
         }
         return Integer.parseInt(hours) * 60 * 60 * 1000;

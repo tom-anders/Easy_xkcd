@@ -70,7 +70,6 @@ import android.widget.SearchView;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.commonsware.cwac.wakeful.WakefulIntentService;
 import com.nbsp.materialfilepicker.ui.FilePickerActivity;
 import com.tap.xkcd_reader.R;
 
@@ -88,7 +87,6 @@ import de.tap.easy_xkcd.fragments.comics.OfflineFragment;
 import de.tap.easy_xkcd.fragments.overview.OverviewBaseFragment;
 import de.tap.easy_xkcd.fragments.whatIf.WhatIfFragment;
 import de.tap.easy_xkcd.fragments.whatIf.WhatIfOverviewFragment;
-import de.tap.easy_xkcd.notifications.ComicListener;
 import de.tap.easy_xkcd.notifications.ComicNotifierJob;
 import de.tap.easy_xkcd.utils.PrefHelper;
 import de.tap.easy_xkcd.utils.ThemePrefs;
@@ -111,6 +109,8 @@ public class MainActivity extends BaseActivity {
     public static boolean overviewLaunch;
 
     public int lastComicNumber = 0;
+
+    private static final int UPDATE_JOB_ID = 1;
 
     public ActionBarDrawerToggle drawerToggle;
     private MenuItem searchMenuItem;
@@ -154,7 +154,7 @@ public class MainActivity extends BaseActivity {
                 WakefulIntentService.cancelAlarms(this);*/
             if (prefHelper.getNotificationInterval() != 0) {
                 JobScheduler jobScheduler = (JobScheduler) getSystemService(Context.JOB_SCHEDULER_SERVICE);
-                jobScheduler.schedule(new JobInfo.Builder(0, new ComponentName(this, ComicNotifierJob.class))
+                jobScheduler.schedule(new JobInfo.Builder(UPDATE_JOB_ID, new ComponentName(this, ComicNotifierJob.class))
                                         .setRequiredNetworkType(JobInfo.NETWORK_TYPE_ANY)
                         .setPeriodic(prefHelper.getNotificationInterval())
                         .build()
@@ -964,10 +964,18 @@ public class MainActivity extends BaseActivity {
                     startActivity(getIntent());
                     break;
                 case UPDATE_ALARM:
-                    if (prefHelper.getNotificationInterval() != 0)
-                        WakefulIntentService.scheduleAlarms(new ComicListener(), this, true);
-                    else
-                        WakefulIntentService.cancelAlarms(this);
+                    JobScheduler jobScheduler = (JobScheduler) getSystemService(Context.JOB_SCHEDULER_SERVICE);
+                    if (prefHelper.getNotificationInterval() != 0) {
+                        jobScheduler.schedule(new JobInfo.Builder(UPDATE_JOB_ID, new ComponentName(this, ComicNotifierJob.class))
+                                .setRequiredNetworkType(JobInfo.NETWORK_TYPE_ANY)
+                                .setPeriodic(prefHelper.getNotificationInterval())
+                                .build()
+                        );
+                        Timber.d("Job rescheduled!");
+                    } else {
+                        jobScheduler.cancel(UPDATE_JOB_ID);
+                        Timber.d("Job canceled!");
+                    }
                     break;
             }
         } else if (requestCode == 2 && resultCode == FilePickerActivity.RESULT_OK) {
