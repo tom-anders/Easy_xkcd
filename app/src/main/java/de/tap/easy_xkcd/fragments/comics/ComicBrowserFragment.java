@@ -98,7 +98,7 @@ public class ComicBrowserFragment extends ComicFragment {
         adapter = new ComicBrowserPagerAdapter(getActivity(), newestComicNumber);
         pager.setAdapter(adapter);
 
-        if (newComicFound && lastComicNumber != newestComicNumber && (prefHelper.getNotificationInterval() == 0)) {
+        if (newComicFound && lastComicNumber != newestComicNumber) {
             View.OnClickListener oc = new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
