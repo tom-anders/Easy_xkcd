@@ -80,6 +80,7 @@ public class updateComicDatabase extends AsyncTask<Void, Integer, Void> {
                 newComicFound = true;
             }
             if (prefHelper.getLastComic() == 0) { //Should only be true on first startup
+                Timber.d("prefHelper.getLastComic() was 0, either this is the first launch or we're coming from a notification");
                 prefHelper.setLastComic(newest);
             }
             final int highest = databaseManager.getHighestInDatabase(); //TODO make a new key in sharedPreferences for that, such old users update their database as well!
@@ -217,7 +218,7 @@ public class updateComicDatabase extends AsyncTask<Void, Integer, Void> {
 
             databaseManager.setHighestInDatabase(newest);
 
-            Timber.d("Highest Offline: %d, highest databse: %d", newest, newest); //We dont actually need highestOffline now!
+            Timber.d("Highest Offline: %d, highest databse: %d", prefHelper.getHighestOffline(), databaseManager.getHighestInDatabase()); //We dont actually need highestOffline now!
         }
 
         if (!prefHelper.nomediaCreated()) {

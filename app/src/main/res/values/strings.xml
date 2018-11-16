@@ -464,4 +464,11 @@
 
     <string name="pref_nav_swipe">Swipe to open Navigation Drawer</string>
 
+    <string name="crash_dialog_title">Easy xkcd has crashed</string>
+    <string name="crash_dialog_disable">Don\'t show this dialog again</string>
+    <string name="crash_dialog_text">Would you like to email a log of this crash to me? That would probably help to make sure this doesn\'t happen again :)</string>
+    <string name="crash_dialog_comment_prompt">You can add some extra information here: </string>
+    <string name="crash_ok">OK</string>
+    <string name="crash_cancel">CANCEL</string>
+    <string name="title_activity_crash_report">CrashReportActivity</string>
 </resources>

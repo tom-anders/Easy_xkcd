@@ -26,7 +26,6 @@ public abstract class BaseActivity extends AppCompatActivity {
         themePrefs = new ThemePrefs(this);
 
         setTheme(themePrefs.getNewTheme());
-        Log.d("info", "amoled enabled " + String.valueOf(themePrefs.amoledThemeEnabled()));
         if (themePrefs.amoledThemeEnabled()) {
             getWindow().getDecorView().setBackgroundColor(Color.BLACK);
         }

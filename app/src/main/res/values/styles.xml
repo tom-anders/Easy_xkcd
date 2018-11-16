@@ -143,6 +143,10 @@
         <item name="android:colorBackground">@color/PrimaryBlack</item>
     </style>
 
+    <style name="LimeTheme.AppBarOverlay" parent="ThemeOverlay.AppCompat.Dark.ActionBar" />
+
+    <style name="LimeTheme.PopupOverlay" parent="ThemeOverlay.AppCompat.Light" />
+
 </resources>
 
 

@@ -9,6 +9,7 @@ import android.content.Intent;
 import android.os.AsyncTask;
 import android.util.Log;
 
+import com.tap.xkcd_reader.BuildConfig;
 import com.tap.xkcd_reader.R;
 
 import org.json.JSONException;
@@ -30,8 +31,8 @@ public class ComicNotifierJob extends JobService {
 
     @Override
     public boolean onStartJob(JobParameters jobParameters) {
-        Timber.i("Job fired!");
-        new updateCheck(new PrefHelper(getApplicationContext()), jobParameters).execute();
+        Timber.e("Job fired at %s!", Calendar.getInstance().getTime().toString());
+        new updateCheck(new PrefHelper(this), jobParameters).execute();
         return true;
     }
 
@@ -53,24 +54,18 @@ public class ComicNotifierJob extends JobService {
 
         @Override
         protected Void doInBackground(Void... voids) {
-            int day = Calendar.getInstance().get(Calendar.DAY_OF_WEEK);
-            if (!prefHelper.checkComicUpdated(day)) {
-                Timber.i("Comic task executed");
-                updateComics();
-            }
-            if (!prefHelper.checkWhatIfUpdated(day)) {
-                Timber.i("WhatIf task executed");
-                updateWhatIf();
-            }
+            updateComics();
+            updateWhatIf();
             return null;
         }
 
         void updateComics() {
             try {
-                newComic = RealmComic.findNewestComic(Realm.getDefaultInstance(), getApplicationContext());
+                newComic = RealmComic.findNewestComic(Realm.getDefaultInstance(), ComicNotifierJob.this);
                 newComicFound = newComic.getComicNumber() > prefHelper.getNewest();
-            } catch (IOException | JSONException e) {
-                e.printStackTrace();
+            } catch (Exception e) {
+                Timber.e(e);
+                newComicFound = false;
             }
         }
 
@@ -87,7 +82,8 @@ public class ComicNotifierJob extends JobService {
                     newWhatIfNumber = titles.size();
                 }
             } catch (Exception e) {
-                e.printStackTrace();
+                Timber.e(e);
+                newWhatifFound = false;
             }
         }
 
@@ -95,14 +91,13 @@ public class ComicNotifierJob extends JobService {
         protected void onPostExecute(Void aVoid) {
             if (newComicFound) {
                 NotificationCompat.Builder mBuilder =
-                        new NotificationCompat.Builder(getApplicationContext())
+                        new NotificationCompat.Builder(ComicNotifierJob.this)
                                 .setSmallIcon(R.drawable.ic_notification)
                                 .setContentTitle(getResources().getString(R.string.new_comic))
                                 .setContentText(String.valueOf(newComic.getComicNumber()) + ": " + newComic.getTitle())
                                 .setAutoCancel(true);
 
-                Intent intent = new Intent("de.tap.easy_xkcd.ACTION_COMIC");
-                intent.putExtra("number", newComic.getComicNumber());
+                Intent intent = new Intent("de.tap.easy_xkcd.ACTION_COMIC_NOTIFICATION");
                 PendingIntent pendingIntent = PendingIntent.getActivity(getApplicationContext(), 1, intent, PendingIntent.FLAG_UPDATE_CURRENT);
 
                 mBuilder.setContentIntent(pendingIntent);
@@ -110,15 +105,23 @@ public class ComicNotifierJob extends JobService {
 
                 NotificationManager mNotificationManager =
                         (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
-                mNotificationManager.notify(1, mBuilder.build());
+                if (mNotificationManager != null) {
+                    mNotificationManager.notify(1, mBuilder.build());
+                }
             } else {
                 Timber.d("ComicNotifier found no new comic...");
+                if (BuildConfig.DEBUG) {
+                    ((NotificationManager) getSystemService(NOTIFICATION_SERVICE)).notify(1, new NotificationCompat.Builder(ComicNotifierJob.this).setSmallIcon(R.drawable.ic_notification)
+                            .setContentTitle("Debug: No new comic found!")
+                            .setAutoCancel(true)
+                            .build()
+                    );
+                }
             }
-            prefHelper.setUpdated(Calendar.getInstance().get(Calendar.DAY_OF_WEEK), newComicFound);
 
             if (newWhatifFound) {
                 NotificationCompat.Builder mBuilder =
-                        new NotificationCompat.Builder(getApplicationContext())
+                        new NotificationCompat.Builder(ComicNotifierJob.this)
                                 .setSmallIcon(R.drawable.ic_notification)
                                 .setContentTitle(getResources().getString(R.string.new_whatif))
                                 .setContentText(newWhatIfTitle)
@@ -133,14 +136,15 @@ public class ComicNotifierJob extends JobService {
 
                 NotificationManager mNotificationManager =
                         (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
-                mNotificationManager.notify(0, mBuilder.build());
+                if (mNotificationManager != null) {
+                    mNotificationManager.notify(0, mBuilder.build());
+                }
             }
-            prefHelper.setWhatIfUpdated(Calendar.getInstance().get(Calendar.DAY_OF_WEEK), newWhatifFound);
 
+            Timber.d("Job finished at %s!", Calendar.getInstance().getTime().toString());
             jobFinished(jobParameters, false);
         }
     }
-
 
 
     @Override

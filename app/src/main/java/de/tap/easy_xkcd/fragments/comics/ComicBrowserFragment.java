@@ -296,7 +296,7 @@ public class ComicBrowserFragment extends ComicFragment {
         @Override
         public void destroyItem(ViewGroup container, int position, Object object) {
             container.removeView((RelativeLayout) object);
-            Glide.with(container.getContext()).clear(((RelativeLayout) object).findViewById(R.id.ivComic));
+            Glide.with(container.getContext()).clear((View) ((RelativeLayout) object).findViewById(R.id.ivComic));
         }
 
     }

@@ -1,5 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
-<!--
+<?xml version="1.0" encoding="utf-8"?><!--
   ~ Copyright 2015, Tom Praschan
   ~
   ~ Licensed under the Apache License, Version 2.0 (the "License");
@@ -17,7 +16,7 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     package="com.tap.xkcd_reader"
-    android:installLocation="auto" >
+    android:installLocation="auto">
 
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
@@ -26,20 +25,21 @@
     <uses-permission android:name="android.permission.VIBRATE" />
     <uses-permission android:name="android.permission.WAKE_LOCK" />
     <uses-permission android:name="com.android.vending.BILLING" />
+    <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
 
     <application
+        android:name="de.tap.easy_xkcd.EasyXkcdApp"
         android:allowBackup="true"
         android:icon="@mipmap/ic_launcher"
-        android:roundIcon="@mipmap/ic_launcher_round"
         android:label="@string/app_name"
+        android:roundIcon="@mipmap/ic_launcher_round"
         android:theme="@style/LimeTheme"
-        android:name="de.tap.easy_xkcd.EasyXkcdApp"
-        tools:replace="android:theme, android:label" >
+        tools:replace="android:theme, android:label">
         <activity
             android:name="de.tap.easy_xkcd.Activities.MainActivity"
-            android:label="@string/app_name"
             android:hardwareAccelerated="true"
-            android:launchMode="singleTop" >
+            android:label="@string/app_name"
+            android:launchMode="singleTop">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
@@ -49,6 +49,11 @@
             </intent-filter>
             <intent-filter>
                 <action android:name="de.tap.easy_xkcd.ACTION_COMIC" />
+
+                <category android:name="android.intent.category.DEFAULT" />
+            </intent-filter>
+            <intent-filter>
+                <action android:name="de.tap.easy_xkcd.ACTION_COMIC_NOTIFICATION" />
 
                 <category android:name="android.intent.category.DEFAULT" />
             </intent-filter>
@@ -104,7 +109,7 @@
             android:name="de.tap.easy_xkcd.Activities.SettingsActivity"
             android:label="@string/pref_title"
             android:launchMode="singleTop"
-            android:parentActivityName="de.tap.easy_xkcd.Activities.MainActivity" >
+            android:parentActivityName="de.tap.easy_xkcd.Activities.MainActivity">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value="de.tap.easy_xkcd.Activities.MainActivity" />
@@ -113,7 +118,7 @@
             android:name="de.tap.easy_xkcd.Activities.NestedSettingsActivity"
             android:label="@string/pref_title"
             android:launchMode="singleTop"
-            android:parentActivityName="de.tap.easy_xkcd.Activities.SettingsActivity" >
+            android:parentActivityName="de.tap.easy_xkcd.Activities.SettingsActivity">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value="de.tap.easy_xkcd.Activities.SettingsActivity" />
@@ -121,7 +126,7 @@
         <activity
             android:name="de.tap.easy_xkcd.Activities.AboutActivity"
             android:label="@string/title_activity_about"
-            android:parentActivityName="de.tap.easy_xkcd.Activities.MainActivity" >
+            android:parentActivityName="de.tap.easy_xkcd.Activities.MainActivity">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value="de.tap.easy_xkcd.Activities.MainActivity" />
@@ -130,7 +135,7 @@
             android:name="de.tap.easy_xkcd.Activities.SearchResultsActivity"
             android:label="@string/title_activity_search_results"
             android:launchMode="singleTop"
-            android:parentActivityName="de.tap.easy_xkcd.Activities.MainActivity" >
+            android:parentActivityName="de.tap.easy_xkcd.Activities.MainActivity">
             <intent-filter>
                 <action android:name="android.intent.action.SEARCH" />
             </intent-filter>
@@ -145,14 +150,14 @@
 
         <service
             android:name="de.tap.easy_xkcd.notifications.ComicNotifierJob"
-            android:permission="android.permission.BIND_JOB_SERVICE"
-            android:exported="true"/>
+            android:exported="true"
+            android:permission="android.permission.BIND_JOB_SERVICE" />
 
         <activity
             android:name="de.tap.easy_xkcd.Activities.WhatIfActivity"
             android:label="@string/title_activity_what_if"
             android:launchMode="singleTop"
-            android:parentActivityName="de.tap.easy_xkcd.Activities.MainActivity" >
+            android:parentActivityName="de.tap.easy_xkcd.Activities.MainActivity">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value="de.tap.easy_xkcd.Activities.MainActivity" />
@@ -161,7 +166,7 @@
             android:name="de.tap.easy_xkcd.Activities.DonateActivity"
             android:label="@string/title_activity_donate"
             android:launchMode="singleInstance"
-            android:parentActivityName="de.tap.easy_xkcd.Activities.MainActivity" >
+            android:parentActivityName="de.tap.easy_xkcd.Activities.MainActivity">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value="de.tap.easy_xkcd.Activities.MainActivity" />
@@ -181,24 +186,33 @@
                 android:resource="@xml/file_provider_paths" />
         </provider>
 
-        <receiver android:name="de.tap.easy_xkcd.widget.WidgetRandomProvider"
+        <receiver
+            android:name="de.tap.easy_xkcd.widget.WidgetRandomProvider"
             android:label="@string/widget_random">
             <intent-filter>
                 <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
             </intent-filter>
-            <meta-data android:name="android.appwidget.provider"
+
+            <meta-data
+                android:name="android.appwidget.provider"
                 android:resource="@xml/widget_random_info" />
         </receiver>
-
-        <receiver android:name="de.tap.easy_xkcd.widget.WidgetLatestProvider"
+        <receiver
+            android:name="de.tap.easy_xkcd.widget.WidgetLatestProvider"
             android:label="@string/widget_latest">
             <intent-filter>
                 <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
             </intent-filter>
-            <meta-data android:name="android.appwidget.provider"
+
+            <meta-data
+                android:name="android.appwidget.provider"
                 android:resource="@xml/widget_latest_info" />
         </receiver>
 
+        <activity
+            android:name="de.tap.easy_xkcd.acra.CrashReportActivity"
+            android:label="@string/title_activity_crash_report"
+            android:theme="@style/LimeTheme"></activity>
     </application>
 
 </manifest>
