@@ -118,6 +118,7 @@ public class MainActivity extends BaseActivity {
     private ProgressDialog progress;
     private DatabaseManager databaseManager;
 
+    private static final String COMIC_NOTIFICATION_INTENT = "de.tap.easy_xkcd.ACTION_COMIC_NOTIFICATION";
     private static final String COMIC_INTENT = "de.tap.easy_xkcd.ACTION_COMIC";
     private static final String WHATIF_INTENT = "de.tap.easy_xkcd.ACTION_WHAT_IF";
     private static final String SAVED_INSTANCE_CURRENT_FRAGMENT = "CurrentFragment";
@@ -148,20 +149,18 @@ public class MainActivity extends BaseActivity {
 
         if (savedInstanceState == null) {
             //Setup the notifications in case the device was restarted
-            /*if (prefHelper.getNotificationInterval() != 0)
-                WakefulIntentService.scheduleAlarms(new ComicListener(), this, true);
-            else
-                WakefulIntentService.cancelAlarms(this);*/
             if (prefHelper.getNotificationInterval() != 0) {
                 JobScheduler jobScheduler = (JobScheduler) getSystemService(Context.JOB_SCHEDULER_SERVICE);
                 jobScheduler.schedule(new JobInfo.Builder(UPDATE_JOB_ID, new ComponentName(this, ComicNotifierJob.class))
                                         .setRequiredNetworkType(JobInfo.NETWORK_TYPE_ANY)
                         .setPeriodic(prefHelper.getNotificationInterval())
+                        .setPersisted(true)
                         .build()
                 );
                 Timber.d("Job scheduled!");
             }
 
+            Timber.d("savedInstanceState is null.");
         }
 
         if (currentFragment == null) {
@@ -190,6 +189,10 @@ public class MainActivity extends BaseActivity {
             case COMIC_INTENT:
                 int number = getIntent().getIntExtra("number", 0);
                 prefHelper.setLastComic(number);
+                break;
+            case COMIC_NOTIFICATION_INTENT:
+                prefHelper.setLastComic(0); // In updateComicDatabase this will lead to prefHelper.setLastComic(newest)
+                Timber.d("started from Comic Notification Intent");
                 break;
             case WHATIF_INTENT:
                 WhatIfActivity.WhatIfIndex = getIntent().getIntExtra("number", 0);
@@ -698,7 +701,6 @@ public class MainActivity extends BaseActivity {
     }
 
     private void handleIntent(Intent intent) {
-        FragmentManager fm = getSupportFragmentManager();
         switch (intent.getAction()) {
             case Intent.ACTION_VIEW:
                 if (intent.getDataString().contains("what")) {
@@ -728,6 +730,12 @@ public class MainActivity extends BaseActivity {
                 ComicFragment comicFragment = (ComicFragment) getSupportFragmentManager().findFragmentByTag(FRAGMENT_TAG);
                 comicFragment.lastComicNumber = intent.getIntExtra("number", 1);
                 comicFragment.scrollTo(comicFragment.lastComicNumber - 1, false);
+                break;
+            case COMIC_NOTIFICATION_INTENT:
+                databaseManager.setHighestInDatabase(databaseManager.getHighestInDatabase() - 3);
+                finish();
+                startActivity(getIntent());
+                Timber.d("Notification intent while activity was running");
                 break;
             case WHATIF_INTENT:
                 item = mNavView.getMenu().findItem(R.id.nav_whatif);
@@ -862,11 +870,7 @@ public class MainActivity extends BaseActivity {
     public void onSaveInstanceState(Bundle savedInstanceState) {
         //Save the current fragment
         savedInstanceState.putSerializable(SAVED_INSTANCE_CURRENT_FRAGMENT, currentFragment);
-        //Remember if overview is currently visible
-        /*if (getSupportFragmentManager().findFragmentByTag(OVERVIEW_TAG) != null)
-            savedInstanceState.putBoolean(OVERVIEW_TAG, getSupportFragmentManager().findFragmentByTag(OVERVIEW_TAG).isVisible());
-        else
-            savedInstanceState.putBoolean(OVERVIEW_TAG, false);*/
+        Timber.d("instanceState saved");
         super.onSaveInstanceState(savedInstanceState);
     }
 
@@ -969,6 +973,7 @@ public class MainActivity extends BaseActivity {
                         jobScheduler.schedule(new JobInfo.Builder(UPDATE_JOB_ID, new ComponentName(this, ComicNotifierJob.class))
                                 .setRequiredNetworkType(JobInfo.NETWORK_TYPE_ANY)
                                 .setPeriodic(prefHelper.getNotificationInterval())
+                                .setPersisted(true)
                                 .build()
                         );
                         Timber.d("Job rescheduled!");
