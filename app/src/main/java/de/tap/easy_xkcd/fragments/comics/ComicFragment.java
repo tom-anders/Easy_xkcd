@@ -55,7 +55,6 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.bumptech.glide.Glide;
-import com.kogitune.activity_transition.ExitActivityTransition;
 import com.tap.xkcd_reader.R;
 
 import java.io.File;
@@ -88,7 +87,6 @@ public abstract class ComicFragment extends Fragment {
     protected ComicAdapter adapter;
 
     public static boolean newComicFound = false;
-    public static boolean fromSearch = false;
     static final String LAST_FAV = "last fav";
     public static final String LAST_COMIC = "Last Comic";
 
@@ -97,7 +95,6 @@ public abstract class ComicFragment extends Fragment {
     protected PrefHelper prefHelper;
     protected ThemePrefs themePrefs;
     protected DatabaseManager databaseManager;
-    public ExitActivityTransition transition;
 
     protected View inflateLayout(int resId, LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View view = inflater.inflate(resId, container, false);
@@ -137,7 +134,7 @@ public abstract class ComicFragment extends Fragment {
 
     abstract protected boolean modifyFavorites(MenuItem item);
 
-    abstract protected class ComicAdapter extends PagerAdapter {
+    abstract protected class ComicAdapter extends PagerAdapter {  //TODO ise FragmentPaderAdapter instead
         protected Context context;
         protected LayoutInflater mLayoutInflater;
         protected Boolean fingerLifted = true;

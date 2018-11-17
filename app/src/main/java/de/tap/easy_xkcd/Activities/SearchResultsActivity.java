@@ -17,6 +17,7 @@
  */
 package de.tap.easy_xkcd.Activities;
 
+import android.Manifest;
 import android.app.ProgressDialog;
 import android.app.SearchManager;
 import android.content.Context;
@@ -26,7 +27,10 @@ import android.graphics.BitmapFactory;
 import android.graphics.drawable.BitmapDrawable;
 import android.os.AsyncTask;
 import android.os.Bundle;
+
+import androidx.core.app.ActivityOptionsCompat;
 import androidx.core.content.ContextCompat;
+import androidx.core.util.Pair;
 import androidx.core.view.MenuItemCompat;
 import androidx.cardview.widget.CardView;
 import androidx.recyclerview.widget.LinearLayoutManager;
@@ -47,7 +51,6 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.bumptech.glide.Glide;
-import com.kogitune.activity_transition.ActivityTransitionLauncher;
 import com.tap.xkcd_reader.R;
 
 import java.io.File;
@@ -61,6 +64,7 @@ import butterknife.ButterKnife;
 import de.tap.easy_xkcd.database.DatabaseManager;
 import de.tap.easy_xkcd.database.RealmComic;
 import de.tap.easy_xkcd.fragments.comics.ComicBrowserFragment;
+import de.tap.easy_xkcd.fragments.comics.ComicFragment;
 import de.tap.easy_xkcd.fragments.comics.OfflineFragment;
 import io.realm.Case;
 import io.realm.Realm;
@@ -198,7 +202,6 @@ public class SearchResultsActivity extends BaseActivity {
         @Override
         public ComicViewHolder onCreateViewHolder(ViewGroup viewGroup, int i) {
             View v = LayoutInflater.from(viewGroup.getContext()).inflate(R.layout.search_result, viewGroup, false);
-            v.setOnClickListener(new CustomOnClickListener());
             return new ComicViewHolder(v);
         }
 
@@ -259,7 +262,7 @@ public class SearchResultsActivity extends BaseActivity {
             super.onAttachedToRecyclerView(recyclerView);
         }
 
-        public class ComicViewHolder extends RecyclerView.ViewHolder {
+        public class ComicViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
             CardView cv;
             TextView comicTitle;
             TextView comicInfo;
@@ -268,14 +271,37 @@ public class SearchResultsActivity extends BaseActivity {
 
             ComicViewHolder(View itemView) {
                 super(itemView);
-                cv = (CardView) itemView.findViewById(R.id.cv);
+                cv = itemView.findViewById(R.id.cv);
                 if (themePrefs.nightThemeEnabled())
                     cv.setCardBackgroundColor(ContextCompat.getColor(SearchResultsActivity.this, R.color.background_material_dark));
-                comicTitle = (TextView) itemView.findViewById(R.id.comic_title);
-                comicInfo = (TextView) itemView.findViewById(R.id.comic_info);
-                thumbnail = (ImageView) itemView.findViewById(R.id.thumbnail);
+                comicTitle = itemView.findViewById(R.id.comic_title);
+                comicInfo = itemView.findViewById(R.id.comic_info);
+                thumbnail = itemView.findViewById(R.id.thumbnail);
+                itemView.setOnClickListener(this);
             }
+
+            @Override
+            public void onClick(View view) {
+                Intent intent = new Intent("de.tap.easy_xkcd.ACTION_COMIC");
+
+                int pos = rv.getChildAdapterPosition(view);
+                int number;
+                if (pos < resultsTitle.size()) {
+                    number = resultsTitle.get(pos);
+                } else {
+                    number = resultsTranscript.get(pos - resultsTitle.size());
+                }
+                intent.putExtra("number", number);
+
+                MainActivity.fromSearch = true;
+                Pair<View, String> imagePair = Pair.create(view.findViewById(R.id.thumbnail), "im" + number);
+                Pair<View, String> titlePair = Pair.create(view.findViewById(R.id.comic_title), String.valueOf(number));
+                ActivityOptionsCompat options = ActivityOptionsCompat.makeSceneTransitionAnimation(SearchResultsActivity.this, imagePair, titlePair);
+                startActivity(intent, options.toBundle());
+            }
+
         }
+
 
     }
 
@@ -316,27 +342,6 @@ public class SearchResultsActivity extends BaseActivity {
         } catch (PatternSyntaxException e) {
             e.printStackTrace();
             return " ";
-        }
-    }
-
-    class CustomOnClickListener implements View.OnClickListener {
-        @Override
-        public void onClick(View v) {
-            ImageView imageView = (ImageView) v.findViewById(R.id.thumbnail);
-            if (imageView.getDrawable() != null) {
-                int pos = rv.getChildAdapterPosition(v);
-                Intent intent = new Intent("de.tap.easy_xkcd.ACTION_COMIC");
-                if (pos < resultsTitle.size())
-                    intent.putExtra("number", resultsTitle.get(pos));
-                else
-                    intent.putExtra("number", resultsTranscript.get(pos - resultsTitle.size()));
-                Bitmap bitmap = ((BitmapDrawable) imageView.getDrawable()).getBitmap();
-                if (!prefHelper.fullOfflineEnabled())
-                    ComicBrowserFragment.fromSearch = true;
-                else
-                    OfflineFragment.fromSearch = true;
-                ActivityTransitionLauncher.with(SearchResultsActivity.this).from(v.findViewById(R.id.thumbnail)).image(bitmap).launch(intent);
-            }
         }
     }
 

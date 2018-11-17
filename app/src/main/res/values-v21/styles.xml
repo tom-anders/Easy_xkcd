@@ -20,6 +20,7 @@
     <style name="DefaultTheme" parent="Theme.AppCompat.Light.NoActionBar">
         <item name="android:windowDrawsSystemBarBackgrounds">true</item>
         <item name="android:statusBarColor">@android:color/transparent</item>
+        <item name="android:windowContentTransitions">true</item>
     </style>
 
     <style name="RedTheme" parent="DefaultTheme">
@@ -162,6 +163,7 @@
     <style name="DefaultNightTheme" parent="Theme.AppCompat.NoActionBar">
         <item name="android:windowDrawsSystemBarBackgrounds">true</item>
         <item name="android:statusBarColor">@android:color/transparent</item>
+        <item name="android:windowContentTransitions">true</item>
     </style>
 
     <style name="RedNightTheme" parent="DefaultNightTheme">

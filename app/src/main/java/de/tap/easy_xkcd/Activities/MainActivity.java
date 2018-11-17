@@ -157,9 +157,12 @@ public class MainActivity extends BaseActivity {
                         .setPersisted(true)
                         .build()
                 );
-                Timber.d("Job scheduled!");
             }
 
+            if (fromSearch) {
+                postponeEnterTransition();
+                Timber.d("posponing transition...");
+            }
             Timber.d("savedInstanceState is null.");
         }
 
@@ -696,6 +699,7 @@ public class MainActivity extends BaseActivity {
 
     @Override
     protected void onNewIntent(Intent intent) {
+        Timber.d("received new intent %s", intent.getAction());
         setIntent(intent);
         handleIntent(intent);
     }

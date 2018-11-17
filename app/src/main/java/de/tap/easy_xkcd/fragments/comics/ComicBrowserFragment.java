@@ -58,7 +58,6 @@ import com.bumptech.glide.request.RequestListener;
 import com.bumptech.glide.request.target.SimpleTarget;
 import com.bumptech.glide.request.target.Target;
 import com.bumptech.glide.request.transition.Transition;
-import com.kogitune.activity_transition.ActivityTransition;
 import com.tap.xkcd_reader.R;
 
 import java.io.File;
@@ -161,6 +160,8 @@ public class ComicBrowserFragment extends ComicFragment {
             return count;
         }
 
+
+
         @Override
         public Object instantiateItem(final ViewGroup container, final int position) {
             View itemView = setupPager(container, position);
@@ -196,11 +197,6 @@ public class ComicBrowserFragment extends ComicFragment {
 
             /*sharedTitle = tvTitle;
             sharedPhotoView = pvComic;*/
-            }
-
-            if (fromSearch && comicNumber == lastComicNumber) {
-                fromSearch = false;
-                transition = ActivityTransition.with(getActivity().getIntent()).duration(300).to(pvComic).start(null);
             }
 
             if (getGifId(position) == 0) {
@@ -243,11 +239,19 @@ public class ComicBrowserFragment extends ComicFragment {
 
                             mainActivityCallback(position);
 
-                            if (transitionPending && position + 1 == lastComicNumber) {
-                                Timber.d("start transition at %d", position + 1);
-                                startPostponedEnterTransition();
-                                transitionPending = false;
+                            if (position + 1 == lastComicNumber) {
+                                if (transitionPending) {
+                                    Timber.d("start transition at %d", position + 1);
+                                    startPostponedEnterTransition();
+                                    transitionPending = false;
+                                }
+                                if (MainActivity.fromSearch) {
+                                    Timber.d("start transition at %d", position + 1);
+                                    getActivity().startPostponedEnterTransition();
+                                    MainActivity.fromSearch = false;
+                                }
                             }
+
                         }
                     });
         }

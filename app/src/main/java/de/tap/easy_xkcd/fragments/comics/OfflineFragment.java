@@ -38,7 +38,6 @@ import android.view.animation.AnimationUtils;
 import android.widget.TextView;
 
 import com.bumptech.glide.Glide;
-import com.kogitune.activity_transition.ActivityTransition;
 import com.tap.xkcd_reader.R;
 
 import java.util.Arrays;
@@ -46,6 +45,7 @@ import java.util.Arrays;
 import de.tap.easy_xkcd.Activities.MainActivity;
 import de.tap.easy_xkcd.database.DatabaseManager;
 import de.tap.easy_xkcd.database.RealmComic;
+import timber.log.Timber;
 
 public class OfflineFragment extends ComicFragment {
     private Boolean randomSelected = false;
@@ -143,10 +143,6 @@ public class OfflineFragment extends ComicFragment {
             RealmComic realmComic = databaseManager.getRealmComic(comicNumber);
             tvTitle.setText(Html.fromHtml(realmComic.getTitle()));
             tvAlt.setText(realmComic.getAltText());
-            if (fromSearch) {
-                fromSearch = false;
-                transition = ActivityTransition.with(getActivity().getIntent()).duration(300).to(pvComic).start(null);
-            }
             if (getGifId(position) != 0)
                 Glide.with(getActivity())
                         .load(getGifId(position))
@@ -157,9 +153,18 @@ public class OfflineFragment extends ComicFragment {
                 if (themePrefs.invertColors(false) && themePrefs.bitmapContainsColor(bitmap, comicNumber))
                     pvComic.clearColorFilter();
                 pvComic.setImageBitmap(bitmap);
-                if (transitionPending && comicNumber == lastComicNumber) {
-                    startPostponedEnterTransition();
-                    transitionPending = false;
+
+                if (comicNumber == lastComicNumber) {
+                    if (transitionPending) {
+                        Timber.d("start transition at %d", position + 1);
+                        startPostponedEnterTransition();
+                        transitionPending = false;
+                    }
+                    if (MainActivity.fromSearch) {
+                        Timber.d("start transition at %d", position + 1);
+                        getActivity().startPostponedEnterTransition();
+                        MainActivity.fromSearch = false;
+                    }
                 }
             }
 
