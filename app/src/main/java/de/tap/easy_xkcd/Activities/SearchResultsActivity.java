@@ -61,6 +61,7 @@ import java.util.regex.PatternSyntaxException;
 
 import butterknife.Bind;
 import butterknife.ButterKnife;
+import butterknife.OnClick;
 import de.tap.easy_xkcd.database.DatabaseManager;
 import de.tap.easy_xkcd.database.RealmComic;
 import de.tap.easy_xkcd.fragments.comics.ComicBrowserFragment;
@@ -70,6 +71,7 @@ import io.realm.Case;
 import io.realm.Realm;
 import io.realm.RealmResults;
 import jp.wasabeef.recyclerview.adapters.SlideInBottomAnimationAdapter;
+import timber.log.Timber;
 
 
 public class SearchResultsActivity extends BaseActivity {
@@ -262,26 +264,22 @@ public class SearchResultsActivity extends BaseActivity {
             super.onAttachedToRecyclerView(recyclerView);
         }
 
-        public class ComicViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
-            CardView cv;
-            TextView comicTitle;
-            TextView comicInfo;
-
-            ImageView thumbnail;
+        public class ComicViewHolder extends RecyclerView.ViewHolder {
+            @Bind(R.id.cv) CardView cardView;
+            @Bind(R.id.comic_title) TextView comicTitle;
+            @Bind(R.id.comic_info) TextView comicInfo;
+            @Bind(R.id.thumbnail) ImageView thumbnail;
 
             ComicViewHolder(View itemView) {
                 super(itemView);
-                cv = itemView.findViewById(R.id.cv);
-                if (themePrefs.nightThemeEnabled())
-                    cv.setCardBackgroundColor(ContextCompat.getColor(SearchResultsActivity.this, R.color.background_material_dark));
-                comicTitle = itemView.findViewById(R.id.comic_title);
-                comicInfo = itemView.findViewById(R.id.comic_info);
-                thumbnail = itemView.findViewById(R.id.thumbnail);
-                itemView.setOnClickListener(this);
+                ButterKnife.bind(this, itemView);
+                if (themePrefs.nightThemeEnabled()) {
+                    cardView.setCardBackgroundColor(ContextCompat.getColor(SearchResultsActivity.this, R.color.background_material_dark));
+                }
             }
 
-            @Override
-            public void onClick(View view) {
+            @OnClick(R.id.cv)
+            void onClick(View view) {
                 Intent intent = new Intent("de.tap.easy_xkcd.ACTION_COMIC");
 
                 int pos = rv.getChildAdapterPosition(view);
