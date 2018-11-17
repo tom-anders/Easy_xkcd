@@ -393,17 +393,7 @@ public class MainActivity extends BaseActivity {
                     public boolean onNavigationItemSelected(MenuItem menuItem) {
                         mDrawer.closeDrawers();
                         prepareToolbarAnimation(-300);
-                        switch (menuItem.getItemId()) { //Update the currentFragment enum here to get the correct toolbar title
-                            case R.id.nav_browser:
-                                currentFragment = CurrentFragment.Browser;
-                                break;
-                            case R.id.nav_favorites:
-                                currentFragment = CurrentFragment.Favorites;
-                                break;
-                            case R.id.nav_whatif:
-                                currentFragment = CurrentFragment.WhatIf;
-                        }
-                        updateToolbarTitle();
+                        //updateToolbarTitle();
                         selectedMenuItem = menuItem;
                         return true;
                     }
@@ -444,6 +434,8 @@ public class MainActivity extends BaseActivity {
 
         assert getSupportActionBar() != null;
         getSupportActionBar().setSubtitle("");
+
+        prefHelper.setOverviewFav(currentFragment == CurrentFragment.Favorites);
 
         Timber.d("last comic: %d", lastComicNumber);
         OverviewBaseFragment overviewBaseFragment = OverviewBaseFragment.getOverviewFragment(prefHelper, lastComicNumber != 0 ? lastComicNumber : prefHelper.getLastComic());
@@ -606,7 +598,7 @@ public class MainActivity extends BaseActivity {
             case R.id.nav_browser:
                 if (!prefHelper.isOnline(this) && !fullOffline) {
                     showDrawerErrorToast(R.string.no_connection); //No connection, so show Error toast and return
-                    return;
+                    break;
                 }
                 if (shouldAnimateToolbar) animateToolbar(-300);
                 showBrowserFragment(animateTransition);
@@ -614,7 +606,7 @@ public class MainActivity extends BaseActivity {
             case R.id.nav_favorites:
                 if (databaseManager.noFavorites()) {
                     showDrawerErrorToast(R.string.no_favorites); //No favorites, so show Error Toast and return
-                    return;
+                    break;
                 }
                 if (shouldAnimateToolbar) animateToolbar(300);
                 showFavoritesFragment(animateTransition);
@@ -622,7 +614,7 @@ public class MainActivity extends BaseActivity {
             case R.id.nav_whatif:
                 if (!prefHelper.isOnline(this) && !fullOfflineWhatIf) {
                     showDrawerErrorToast(R.string.no_connection); //No connection, so show Error toast and return
-                    return;
+                    break;
                 }
                 if (shouldAnimateToolbar) animateToolbar(300);
                 showWhatifFragment(animateTransition);
@@ -644,7 +636,8 @@ public class MainActivity extends BaseActivity {
                 startActivity(new Intent(MainActivity.this, AboutActivity.class));
                 return;
         }
-        menuItem.setChecked(true);
+        mNavView.setCheckedItem(currentFragmentToNavId());
+        updateToolbarTitle();
         updateToolbarElevation();
         invalidateOptionsMenu();
     }
@@ -937,9 +930,25 @@ public class MainActivity extends BaseActivity {
         customTabActivityHelper.unbindCustomTabsService(this);
     }
 
+    public int currentFragmentToNavId() {
+        switch (currentFragment) {
+            case Browser:
+                return R.id.nav_browser;
+            case Favorites:
+                return R.id.nav_favorites;
+            case Overview:
+                return prefHelper.overviewFav() ? R.id.nav_favorites : R.id.nav_browser;
+            case WhatIf:
+                return R.id.nav_whatif;
+            default:
+                return R.id.nav_browser;
+        }
+    }
+
     @Override
     protected void onResume() {
         super.onResume();
+        mNavView.setCheckedItem(currentFragmentToNavId());
         /*try {
             mNavView.getMenu().findItem(getCurrentFragment()).setChecked(true); //TODO add this back
         } catch (NullPointerException e) {

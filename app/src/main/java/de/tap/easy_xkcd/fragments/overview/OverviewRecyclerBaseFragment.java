@@ -185,8 +185,10 @@ public abstract class OverviewRecyclerBaseFragment extends OverviewBaseFragment 
                     item.setTitle(R.string.action_overview);
                 }
                 prefHelper.setOverviewFav(!prefHelper.overviewFav());
-                ((MainActivity) getActivity()).updateToolbarTitle();
-                getActivity().invalidateOptionsMenu();
+                MainActivity mainActivity = (MainActivity) getActivity();
+                mainActivity.updateToolbarTitle();
+                mainActivity.getNavView().setCheckedItem(mainActivity.currentFragmentToNavId());
+                mainActivity.invalidateOptionsMenu();
                 setupAdapter();
                 break;
             case R.id.action_boomark:
