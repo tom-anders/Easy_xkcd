@@ -68,12 +68,12 @@ import java.util.Arrays;
 import de.tap.easy_xkcd.Activities.MainActivity;
 import de.tap.easy_xkcd.database.DatabaseManager;
 import de.tap.easy_xkcd.database.RealmComic;
+import io.realm.Realm;
 import io.realm.RealmResults;
 import timber.log.Timber;
 
 public class ComicBrowserFragment extends ComicFragment {
 
-    private static boolean loadingImages;
     public static boolean newestUpdated = false;
 
     /*TextView sharedTitle;
@@ -84,8 +84,6 @@ public class ComicBrowserFragment extends ComicFragment {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View v = inflateLayout(R.layout.pager_layout, inflater, container, savedInstanceState);
-
-        loadingImages = true;
 
         newestComicNumber = prefHelper.getNewest();
         if (lastComicNumber == 0) {
@@ -160,141 +158,32 @@ public class ComicBrowserFragment extends ComicFragment {
             return count;
         }
 
-
+        @Override
+        RealmComic getRealmComic(int position) {
+            return databaseManager.getRealmComic(position + 1);
+        }
 
         @Override
-        public Object instantiateItem(final ViewGroup container, final int position) {
-            View itemView = setupPager(container, position);
-            final PhotoView pvComic = itemView.findViewById(R.id.ivComic);
-            final TextView tvAlt = itemView.findViewById(R.id.tvAlt);
-            final TextView tvTitle = itemView.findViewById(R.id.tvTitle);
-
-            //If the FAB is disabled, remove the right margin of the alt text
-            if (prefHelper.fabDisabled("pref_random_comics")) {
-                RelativeLayout.LayoutParams params = (RelativeLayout.LayoutParams) tvAlt.getLayoutParams();
-                params.rightMargin = getResources().getDimensionPixelSize(R.dimen.activity_horizontal_margin);
-            }
-            //If the FAB is left, swap the margins
-            if (prefHelper.fabLeft()) {
-                RelativeLayout.LayoutParams params = (RelativeLayout.LayoutParams) tvAlt.getLayoutParams();
-                params.leftMargin = getResources().getDimensionPixelSize(R.dimen.text_alt_margin_right);
-                params.rightMargin = getResources().getDimensionPixelSize(R.dimen.activity_horizontal_margin);
-            }
-
-            if (Arrays.binarySearch(context.getResources().getIntArray(R.array.large_comics), position + 1) >= 0)
-                pvComic.setMaximumScale(15.0f);
-
-            final int comicNumber = position + 1; //Note that position starts at 0, so we have to add 1
-            RealmComic comic = databaseManager.getRealmComic(comicNumber);
-
-            tvAlt.setText(comic.getAltText());
-            tvTitle.setText(Html.fromHtml(comic.getTitle()));
-            pvComic.setTransitionName("im" + comicNumber);
-            tvTitle.setTransitionName(String.valueOf(comicNumber));
-
-            if (comicNumber == lastComicNumber) {
-                animateToolbar();
-
-            /*sharedTitle = tvTitle;
-            sharedPhotoView = pvComic;*/
-            }
-
-            if (getGifId(position) == 0) {
-                loadImage(position, comic.getUrl(), pvComic);
-            } else {
-                loadGif(position, pvComic);
-            }
-            Timber.d("Loaded comic %d with url %s", position + 1, comic.getUrl());
-            container.addView(itemView);
-            return itemView;
-        }
-
-        public void loadImage(final int position, String url, final PhotoView pvComic) {
-            Glide.with(getActivity())
-                    .asBitmap()
-                    .load(url)
-                    //.diskCacheStrategy(DiskCacheStrategy.SOURCE)
-                    .into(new SimpleTarget<Bitmap>() {
-                        @Override
-                        public void onLoadFailed(@Nullable Drawable errorDrawable) {
-                            if (transitionPending && position + 1 == lastComicNumber) {
-                                Timber.d("start transition at %d", position + 1);
-                                startPostponedEnterTransition();
-                                transitionPending = false;
-                            }
-                        }
-
-                        @Override
-                        public void onResourceReady(@NonNull Bitmap resource, Transition<? super Bitmap> transition) {
-                            if (themePrefs.invertColors(false) && themePrefs.bitmapContainsColor(resource, position + 1))
-                                pvComic.clearColorFilter();
-
-                            if (!transitionPending) {
-                                pvComic.setAlpha(0f);
-                                pvComic.animate()
-                                        .alpha(1f)
-                                        .setDuration(200);
-                            }
-                            pvComic.setImageBitmap(resource);
-
-                            mainActivityCallback(position);
-
-                            if (position + 1 == lastComicNumber) {
-                                if (transitionPending) {
-                                    Timber.d("start transition at %d", position + 1);
-                                    startPostponedEnterTransition();
-                                    transitionPending = false;
-                                }
-                                if (MainActivity.fromSearch) {
-                                    Timber.d("start transition at %d", position + 1);
-                                    getActivity().startPostponedEnterTransition();
-                                    MainActivity.fromSearch = false;
-                                }
+        void loadComicImage(RealmComic comic, PhotoView pvComic) {
+            if (!loadGif(comic.getComicNumber(), pvComic)) {
+                Glide.with(ComicBrowserFragment.this)
+                        .asBitmap()
+                        .load(comic.getUrl())
+                        .into(new SimpleTarget<Bitmap>() {
+                            @Override
+                            public void onLoadFailed(@Nullable Drawable errorDrawable) {
+                                postImageLoaded(comic.getComicNumber());
                             }
 
-                        }
-                    });
-        }
-
-        public void loadGif(final int position, final PhotoView pvComic) {
-            Glide.with(ComicBrowserFragment.this)
-                    .load(getGifId(position))
-                    .listener(new RequestListener<Drawable>() {
-                        @Override
-                        public boolean onLoadFailed(@Nullable GlideException e, Object model, Target<Drawable> target, boolean isFirstResource) {
-                            if (transitionPending && position + 1 == lastComicNumber) {
-                                Timber.d("start transition at %d", position + 1);
-                                startPostponedEnterTransition();
-                                transitionPending = false;
+                            @Override
+                            public void onResourceReady(@NonNull Bitmap resource, Transition<? super Bitmap> transition) {
+                                postImageLoadedSetupPhotoView(pvComic, resource, comic);
+                                pvComic.setImageBitmap(resource);
+                                postImageLoaded(comic.getComicNumber());
                             }
-                            return false;
-                        }
-
-                        @Override
-                        public boolean onResourceReady(Drawable resource, Object model, Target<Drawable> target, DataSource dataSource, boolean isFirstResource) {
-                            mainActivityCallback(position);
-                            if (transitionPending && position + 1 == lastComicNumber) {
-                                Timber.d("start transition at %d", position + 1);
-                                startPostponedEnterTransition();
-                                transitionPending = false;
-                            }
-                            return false;
-                        }
-                    })
-                    .into(pvComic);
-            //.into(new GlideDrawableImageViewTarget(pvComic));
-        }
-
-        void mainActivityCallback(int position) {
-            if (position == lastComicNumber - 1) {
-                if (((MainActivity) getActivity()).getProgressDialog() != null) //TODO crashes here when clicking new comic notification while app is active and we found a new comic
-                    ((MainActivity) getActivity()).getProgressDialog().dismiss();
+                        });
             }
-            if (position == lastComicNumber + 1
-                    || (position == lastComicNumber - 1 && lastComicNumber == newestComicNumber)
-                    || (position == lastComicNumber && lastComicNumber == newestComicNumber - 1)) {
-                loadingImages = false;
-            }
+            Timber.d("Loaded comic %d with url %s", comic.getComicNumber(), comic.getUrl());
         }
 
         @Override
@@ -414,13 +303,18 @@ public class ComicBrowserFragment extends ComicFragment {
             ActivityCompat.requestPermissions(getActivity(), new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE}, 1);
             return;
         }
-        //new ShareImageTask().execute(databaseManager.getRealmComic(lastComicNumber).getUrl());
         Glide.with(this)
                 .asBitmap()
                 .load(databaseManager.getRealmComic(lastComicNumber).getUrl())
-                .into(new SimpleTarget<Bitmap>() {
+                .listener(new RequestListener<Bitmap>() {
                     @Override
-                    public void onResourceReady(@NonNull Bitmap resource, @Nullable Transition<? super Bitmap> transition) {
+                    public boolean onLoadFailed(@Nullable GlideException e, Object model, Target<Bitmap> target, boolean isFirstResource) {
+                        Timber.e("sharing failed!");
+                        return false;
+                    }
+
+                    @Override
+                    public boolean onResourceReady(Bitmap resource, Object model, Target<Bitmap> target, DataSource dataSource, boolean isFirstResource) {
                         try {
                             String cachePath = Environment.getExternalStorageDirectory() + "/easy xkcd";
                             File dir = new File(cachePath);
@@ -434,51 +328,9 @@ public class ComicBrowserFragment extends ComicFragment {
                         } catch (IOException e) {
                             e.printStackTrace();
                         }
+                        return true;
                     }
-                });
-    }
-
-    /*private class ShareImageTask extends AsyncTask<String, Void, Bitmap> {
-        @Override
-        protected Bitmap doInBackground(String... params) {
-            String url = params[0];
-            try {
-                return Glide.with(getActivity())
-                        .asBitmap()
-                        .load(url)
-                        //.diskCacheStrategy(DiskCacheStrategy.SOURCE)
-                        .into(-1, -1)
-                        .get();
-            } catch (Exception e) {
-                e.printStackTrace();
-                return null;
-            }
-        }
-
-        @SuppressWarnings("ResultOfMethodCallIgnored")
-        @Override
-        protected void onPostExecute(Bitmap result) {
-            if (result == null) {
-                return;
-            }
-            try {
-                String cachePath = Environment.getExternalStorageDirectory() + "/easy xkcd";
-                File dir = new File(cachePath);
-                dir.mkdirs();
-                File file = new File(dir, String.valueOf(lastComicNumber) + ".png");
-                FileOutputStream stream = new FileOutputStream(file);
-                result.compress(Bitmap.CompressFormat.PNG, 100, stream);
-                stream.close();
-                Uri uri = FileProvider.getUriForFile(getActivity(), "de.tap.easy_xkcd.fileProvider", file);
-                ComicBrowserFragment.super.shareComicImage(uri, databaseManager.getRealmComic(lastComicNumber));
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-        }
-    }*/
-
-    public boolean zoomReset() {
-        return loadingImages || super.zoomReset();
+                }).submit();
     }
 }
 

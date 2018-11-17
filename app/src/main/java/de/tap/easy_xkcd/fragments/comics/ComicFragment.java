@@ -23,12 +23,17 @@ import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.Color;
 import android.graphics.RectF;
+import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Vibrator;
 import androidx.browser.customtabs.CustomTabsIntent;
 
+import com.bumptech.glide.load.DataSource;
+import com.bumptech.glide.load.engine.GlideException;
+import com.bumptech.glide.request.RequestListener;
 import com.bumptech.glide.request.target.SimpleTarget;
+import com.bumptech.glide.request.target.Target;
 import com.bumptech.glide.request.transition.Transition;
 import com.github.chrisbanes.photoview.OnMatrixChangedListener;
 import com.github.chrisbanes.photoview.PhotoView;
@@ -39,6 +44,8 @@ import androidx.fragment.app.Fragment;
 import androidx.viewpager.widget.PagerAdapter;
 import androidx.viewpager.widget.ViewPager;
 import androidx.appcompat.widget.Toolbar;
+
+import android.text.Html;
 import android.transition.TransitionInflater;
 import android.util.Log;
 import android.view.GestureDetector;
@@ -56,6 +63,8 @@ import android.widget.Toast;
 
 import com.bumptech.glide.Glide;
 import com.tap.xkcd_reader.R;
+
+import org.jetbrains.annotations.Nullable;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -140,10 +149,91 @@ public abstract class ComicFragment extends Fragment {
         protected Boolean fingerLifted = true;
         protected int count;
 
+        abstract RealmComic getRealmComic(int position);
+
+        abstract void loadComicImage(RealmComic comic, PhotoView pvComic);
+
+        boolean loadGif(int number, PhotoView pvComic) {
+            if (getGifId(number) != 0) {
+                Timber.d("loading gif %d", number);
+                Glide.with(ComicFragment.this)
+                        .load(getGifId(number))
+                        .listener(new RequestListener<Drawable>() {
+                            @Override
+                            public boolean onLoadFailed(@Nullable GlideException e, Object model, Target<Drawable> target, boolean isFirstResource) {
+                                postImageLoaded(number);
+                                return false;
+                            }
+
+                            @Override
+                            public boolean onResourceReady(Drawable resource, Object model, Target<Drawable> target, DataSource dataSource, boolean isFirstResource) {
+                                postImageLoaded(number);
+                                return false;
+                            }
+                        })
+                        .into(pvComic);
+                return true;
+            }
+            return false;
+        }
+
         public ComicAdapter(Context context, int count) {
             this.count = count;
             this.context = context;
             mLayoutInflater = (LayoutInflater) this.context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+        }
+
+        @Override
+        public Object instantiateItem(final ViewGroup container, final int position) {
+            View itemView = setupPager(container, position);
+            final PhotoView pvComic = itemView.findViewById(R.id.ivComic);
+            final TextView tvAlt = itemView.findViewById(R.id.tvAlt);
+            final TextView tvTitle = itemView.findViewById(R.id.tvTitle);
+
+            RealmComic comic = getRealmComic(position);
+
+            tvAlt.setText(comic.getAltText());
+            tvTitle.setText(Html.fromHtml(comic.getTitle()));
+            pvComic.setTransitionName("im" + comic.getComicNumber());
+            tvTitle.setTransitionName(String.valueOf(comic.getComicNumber()));
+
+            loadComicImage(comic, pvComic);
+
+            container.addView(itemView);
+            return itemView;
+        }
+
+        protected void postImageLoadedSetupPhotoView(PhotoView pvComic, Bitmap bitmap, RealmComic comic) {
+            if (themePrefs.invertColors(false) && themePrefs.bitmapContainsColor(bitmap, comic.getComicNumber()))
+                pvComic.clearColorFilter();
+
+            if (!transitionPending) {
+                pvComic.setAlpha(0f);
+                pvComic.animate()
+                        .alpha(1f)
+                        .setDuration(200);
+            }
+        }
+
+        protected void postImageLoaded(int number) {
+            if (number == lastComicNumber) {
+                if (transitionPending) {
+                    Timber.d("start transition at %d", number);
+                    startPostponedEnterTransition();
+                    transitionPending = false;
+                }
+                MainActivity mainActivity = (MainActivity) getActivity();
+                if (MainActivity.fromSearch) {
+                    Timber.d("start transition at %d", number);
+                    mainActivity.startPostponedEnterTransition();
+                    MainActivity.fromSearch = false;
+                }
+
+                if (mainActivity.getProgressDialog() != null) {
+                    mainActivity.getProgressDialog().dismiss();
+                }
+                animateToolbar();
+            }
         }
 
         protected View setupPager(ViewGroup container, int position) {
@@ -152,6 +242,21 @@ public abstract class ComicFragment extends Fragment {
             final PhotoView pvComic = itemView.findViewById(R.id.ivComic);
             final TextView tvAlt = itemView.findViewById(R.id.tvAlt);
             final TextView tvTitle = itemView.findViewById(R.id.tvTitle);
+
+            //If the FAB is disabled, remove the right margin of the alt text
+            if ((ComicFragment.this instanceof FavoritesFragment && prefHelper.fabDisabledFavorites()) || prefHelper.fabDisabledComicBrowser()) {
+                RelativeLayout.LayoutParams params = (RelativeLayout.LayoutParams) tvAlt.getLayoutParams();
+                params.rightMargin = getResources().getDimensionPixelSize(R.dimen.activity_horizontal_margin);
+            }
+            //If the FAB is left, swap the margins
+            if (prefHelper.fabLeft()) {
+                RelativeLayout.LayoutParams params = (RelativeLayout.LayoutParams) tvAlt.getLayoutParams();
+                params.leftMargin = getResources().getDimensionPixelSize(R.dimen.text_alt_margin_right);
+                params.rightMargin = getResources().getDimensionPixelSize(R.dimen.activity_horizontal_margin);
+            }
+
+            if (Arrays.binarySearch(context.getResources().getIntArray(R.array.large_comics), position + 1) >= 0)
+                pvComic.setMaximumScale(15.0f);
 
             if (themePrefs.nightThemeEnabled()) {
                 tvAlt.setTextColor(Color.WHITE);
@@ -242,8 +347,8 @@ public abstract class ComicFragment extends Fragment {
             return itemView;
         }
 
-        protected int getGifId(int position) {
-            switch (position + 1) {
+        protected int getGifId(int number) {
+            switch (number) {
                 case 961:
                     return R.raw.eternal_flame;
                 case 1116:

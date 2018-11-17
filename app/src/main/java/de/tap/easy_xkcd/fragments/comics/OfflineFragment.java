@@ -22,11 +22,18 @@ import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.graphics.Bitmap;
+import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 
+import com.bumptech.glide.load.DataSource;
+import com.bumptech.glide.load.engine.GlideException;
+import com.bumptech.glide.request.RequestListener;
+import com.bumptech.glide.request.target.Target;
 import com.github.chrisbanes.photoview.PhotoView;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.snackbar.Snackbar;
+
+import androidx.annotation.Nullable;
 import androidx.viewpager.widget.ViewPager;
 import android.text.Html;
 import android.view.LayoutInflater;
@@ -128,60 +135,18 @@ public class OfflineFragment extends ComicFragment {
         }
 
         @Override
-        public Object instantiateItem(ViewGroup container, final int position) {
-            View itemView = setupPager(container, position);
-            PhotoView pvComic = (PhotoView) itemView.findViewById(R.id.ivComic);
-            TextView tvAlt = (TextView) itemView.findViewById(R.id.tvAlt);
-            TextView tvTitle = (TextView) itemView.findViewById(R.id.tvTitle);
+        RealmComic getRealmComic(int position) {
+            return databaseManager.getRealmComic(position + 1);
+        }
 
-            final int comicNumber = position + 1;
-
-            pvComic.setTransitionName("im" + comicNumber);
-            tvTitle.setTransitionName(String.valueOf(comicNumber));
-            //comicMap.put(comicNumber, new OfflineComic(comicNumber, getActivity(), ((MainActivity) getActivity()).getPrefHelper()));
-
-            RealmComic realmComic = databaseManager.getRealmComic(comicNumber);
-            tvTitle.setText(Html.fromHtml(realmComic.getTitle()));
-            tvAlt.setText(realmComic.getAltText());
-            if (getGifId(position) != 0)
-                Glide.with(getActivity())
-                        .load(getGifId(position))
-                        //.into(new GlideDrawableImageViewTarget(pvComic));
-                        .into(pvComic);
-            else {
-                Bitmap bitmap = RealmComic.getOfflineBitmap(comicNumber, context, prefHelper);
-                if (themePrefs.invertColors(false) && themePrefs.bitmapContainsColor(bitmap, comicNumber))
-                    pvComic.clearColorFilter();
+        @Override
+        void loadComicImage(RealmComic comic, PhotoView pvComic) {
+            if (!loadGif(comic.getComicNumber(), pvComic)) {
+                Bitmap bitmap = RealmComic.getOfflineBitmap(comic.getComicNumber(), context, prefHelper);
+                postImageLoadedSetupPhotoView(pvComic, bitmap, comic);
                 pvComic.setImageBitmap(bitmap);
-
-                if (comicNumber == lastComicNumber) {
-                    if (transitionPending) {
-                        Timber.d("start transition at %d", position + 1);
-                        startPostponedEnterTransition();
-                        transitionPending = false;
-                    }
-                    if (MainActivity.fromSearch) {
-                        Timber.d("start transition at %d", position + 1);
-                        getActivity().startPostponedEnterTransition();
-                        MainActivity.fromSearch = false;
-                    }
-                }
+                postImageLoaded(comic.getComicNumber());
             }
-
-            if (randomSelected && position == lastComicNumber - 1) {
-                Animation animation = AnimationUtils.loadAnimation(getActivity().getApplicationContext(), android.R.anim.fade_in);
-                itemView.setAnimation(animation);
-                randomSelected = false;
-            }
-
-            if (Arrays.binarySearch(context.getResources().getIntArray(R.array.large_comics), position+1) >= 0)
-                pvComic.setMaximumScale(15.0f);
-
-            if (position == lastComicNumber - 1)
-                animateToolbar();
-
-            container.addView(itemView);
-            return itemView;
         }
     }
 

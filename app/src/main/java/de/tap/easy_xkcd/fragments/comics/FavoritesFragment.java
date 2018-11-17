@@ -24,11 +24,15 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Bitmap;
+import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import androidx.annotation.Nullable;
 
+import com.bumptech.glide.load.DataSource;
+import com.bumptech.glide.load.engine.GlideException;
+import com.bumptech.glide.request.RequestListener;
 import com.bumptech.glide.request.target.Target;
 import com.github.chrisbanes.photoview.PhotoView;
 import com.google.android.material.snackbar.Snackbar;
@@ -152,63 +156,29 @@ public class FavoritesFragment extends ComicFragment {
         }
 
         @Override
+        RealmComic getRealmComic(int position) {
+            return favorites.get(position);
+        }
+
+        @Override
+        void loadComicImage(RealmComic comic, PhotoView pvComic) {
+            if (!loadGif(comic.getComicNumber(), pvComic)) {
+                Bitmap bitmap = RealmComic.getOfflineBitmap(comic.getComicNumber(), context, prefHelper);
+                postImageLoadedSetupPhotoView(pvComic, bitmap, comic);
+                if (bitmap != null) {
+                    pvComic.setImageBitmap(bitmap);
+                } else {
+                    new RedownloadFavorite().execute(comic.getComicNumber()); // If the image is gone for some reason download it and refresh the fragment
+                }
+                postImageLoaded(comic.getComicNumber());
+            }
+        }
+
+        @Override
         public int getCount() {
             return favorites.size();
         }
 
-        @Override
-        public Object instantiateItem(ViewGroup container, final int position) {
-            View itemView = setupPager(container, position);
-            final PhotoView pvComic = (PhotoView) itemView.findViewById(R.id.ivComic);
-            final TextView tvAlt = (TextView) itemView.findViewById(R.id.tvAlt);
-            final TextView tvTitle = (TextView) itemView.findViewById(R.id.tvTitle);
-
-            //If the FAB is disabled, remove the right margin of the alt text
-            if (prefHelper.fabDisabled("pref_random_favorites")) {
-                RelativeLayout.LayoutParams params = (RelativeLayout.LayoutParams) tvAlt.getLayoutParams();
-                params.rightMargin = getResources().getDimensionPixelSize(R.dimen.activity_horizontal_margin);
-            }
-            //If the FAB is left, swap the margins
-            if (prefHelper.fabLeft()) {
-                RelativeLayout.LayoutParams params = (RelativeLayout.LayoutParams) tvAlt.getLayoutParams();
-                params.leftMargin = getResources().getDimensionPixelSize(R.dimen.text_alt_margin_right);
-                params.rightMargin = getResources().getDimensionPixelSize(R.dimen.activity_horizontal_margin);
-            }
-
-            final RealmComic favoriteComic = favorites.get(position);
-            tvAlt.setText(favoriteComic.getAltText());
-            tvTitle.setText(Html.fromHtml(favoriteComic.getTitle()));
-
-            pvComic.setTransitionName("im" + favoriteComic.getComicNumber());
-            tvTitle.setTransitionName(String.valueOf(favoriteComic.getComicNumber()));
-
-            if (getGifId(favoriteComic.getComicNumber() - 1) != 0)
-                Glide.with(getActivity())
-                        .load(getGifId(favoriteComic.getComicNumber() - 1))
-                        .into(pvComic);
-                        //.into(new GlideDrawableImageViewTarget(pvComic));
-            else {
-                Bitmap bitmap = RealmComic.getOfflineBitmap(favoriteComic.getComicNumber(), context, prefHelper);
-                if (themePrefs.invertColors(false) && themePrefs.bitmapContainsColor(bitmap, position+1))
-                    pvComic.clearColorFilter();
-                if (bitmap != null)
-                    pvComic.setImageBitmap(bitmap);
-                else
-                    new RedownloadFavorite().execute(favorites.get(position).getComicNumber()); // If the image is gone for some reason download it and refresh the fragment
-                if (transitionPending && favoriteComic.getComicNumber() == lastComicNumber) {
-                    Timber.d("start postponed at %d", lastComicNumber);
-                    startPostponedEnterTransition(); //TODO shared elements transition not working yet here, maybe load with glide instead?
-                    transitionPending = false;
-                }
-            }
-
-            Timber.d("loaded favorite %d", favoriteComic.getComicNumber());
-            if (Arrays.binarySearch(context.getResources().getIntArray(R.array.large_comics), favoriteComic.getComicNumber()) >= 0)
-                pvComic.setMaximumScale(13.0f);
-
-            container.addView(itemView);
-            return itemView;
-        }
     }
 
     @Override
