@@ -553,8 +553,11 @@ public abstract class ComicFragment extends Fragment {
         return true;
     }
 
-    protected boolean showTranscript(String trans) {
+    protected boolean showTranscript(String trans, int number) {
         androidx.appcompat.app.AlertDialog.Builder mDialog = new androidx.appcompat.app.AlertDialog.Builder(getActivity());
+        if (number >= 1675) {
+            trans = getResources().getString(R.string.no_transcript);
+        }
         mDialog.setMessage(trans);
         mDialog.show();
         return true;
@@ -703,7 +706,7 @@ public abstract class ComicFragment extends Fragment {
                 return openComicInBrowser(lastComicNumber);
 
             case R.id.action_trans:
-                return showTranscript(databaseManager.getRealmComic(lastComicNumber).getTranscript());
+                return showTranscript(databaseManager.getRealmComic(lastComicNumber).getTranscript(), lastComicNumber);
 
             case R.id.action_boomark:
                 return addBookmark(lastComicNumber);

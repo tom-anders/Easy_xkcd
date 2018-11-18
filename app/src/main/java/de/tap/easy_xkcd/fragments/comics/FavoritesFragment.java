@@ -206,7 +206,7 @@ public class FavoritesFragment extends ComicFragment {
                 return openComicInBrowser(favorites.get(favoriteIndex).getComicNumber());
 
             case R.id.action_trans:
-                return showTranscript(favorites.get(favoriteIndex).getTranscript());
+                return showTranscript(favorites.get(favoriteIndex).getTranscript(), favorites.get(favoriteIndex).getComicNumber());
 
             case R.id.export_import_favorites:
                 return exportImportFavorites();

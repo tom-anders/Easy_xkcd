@@ -88,6 +88,7 @@ public class RealmComic extends RealmObject {
         return transcript;
     }
 
+
     public void setTranscript(String transcript) {
         this.transcript = transcript;
     }

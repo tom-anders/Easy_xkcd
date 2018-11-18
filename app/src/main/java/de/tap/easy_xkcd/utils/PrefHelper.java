@@ -119,6 +119,8 @@ public class PrefHelper {
     private static final String FAB_DISABLED_COMICBROWSER = "pref_random_comics";
     private static final String FAB_DISABLED_FAVORITES = "pref_random_favorites";
 
+    private static final String TRANSCRIPTS_FIXED = "transcripts_fixed";
+
     public PrefHelper(Context context) {
         sharedPrefs = context.getSharedPreferences("MainActivity", Activity.MODE_PRIVATE);
         prefs = PreferenceManager.getDefaultSharedPreferences(context);
@@ -130,6 +132,14 @@ public class PrefHelper {
 
     public void setFullOffline(boolean value) {
         prefs.edit().putBoolean(FULL_OFFLINE, value).apply();
+    }
+
+    public boolean transcriptsFixed() {
+        return prefs.getBoolean(TRANSCRIPTS_FIXED, false);
+    }
+
+    public void setTranscriptsFixed() {
+        prefs.edit().putBoolean(FULL_OFFLINE, true).apply();
     }
 
     public boolean navDrawerSwipe() {
@@ -520,8 +530,10 @@ public class PrefHelper {
     }
 
     public boolean showUpdateMessage() {
+        boolean show = sharedPrefs.getBoolean(SHOW_UPDATE_MESSAGE, true);
+        setUpdateMessageShown();
         //If getNewest()==0, this is a new install and we don't need to show the message
-        return sharedPrefs.getBoolean(SHOW_UPDATE_MESSAGE, true) && getNewest() != 0;
+        return show && getNewest() != 0;
     }
 
     public void setUpdateMessageShown() {

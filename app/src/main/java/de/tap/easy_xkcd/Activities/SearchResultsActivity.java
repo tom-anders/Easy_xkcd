@@ -190,10 +190,10 @@ public class SearchResultsActivity extends BaseActivity {
     }
 
     public class RVAdapter extends RecyclerView.Adapter<RVAdapter.ComicViewHolder> {
-        private Realm realm;
+        private DatabaseManager databaseManager;
 
         public RVAdapter() {
-            realm = Realm.getDefaultInstance();
+            databaseManager = new DatabaseManager(SearchResultsActivity.this);
         }
 
         @Override
@@ -210,10 +210,12 @@ public class SearchResultsActivity extends BaseActivity {
         @Override
         public void onBindViewHolder(final ComicViewHolder comicViewHolder, int i) {
             RealmComic comic;
-            if (i < resultsTitle.size())
-                comic = realm.where(RealmComic.class).equalTo("comicNumber", resultsTitle.get(i)).findFirst();
-            else
-                comic = realm.where(RealmComic.class).equalTo("comicNumber", resultsTranscript.get(i - resultsTitle.size())).findFirst();
+            if (i < resultsTitle.size()) {
+                comic = databaseManager.getRealmComic(resultsTitle.get(i));
+            }
+            else {
+                comic = databaseManager.getRealmComic(resultsTranscript.get(i - resultsTitle.size()));
+            }
 
             int number = comic.getComicNumber();
             String title = comic.getTitle();

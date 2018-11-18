@@ -137,6 +137,8 @@ public class MainActivity extends BaseActivity {
     public enum CurrentFragment {Browser, Favorites, Overview, WhatIf};
     private CurrentFragment currentFragment = null;
 
+    private boolean updateTaskRunning = false;
+
     @Override
     protected void onCreate(final Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -254,7 +256,7 @@ public class MainActivity extends BaseActivity {
 
         //Load fragment
         if (fullOffline || prefHelper.isOnline(this) || fullOfflineWhatIf) { //Do we have internet or are in offline mode?
-            updateComicsTask task = new updateComicsTask(prefHelper, databaseManager, this, savedInstanceState, whatIfIntent, savedInstanceState == null, false);
+            updateComicsTask task = new updateComicsTask(prefHelper, this, savedInstanceState, whatIfIntent, savedInstanceState == null, false);
             if (savedInstanceState == null) {
                 task.execute();
             } else {
@@ -288,9 +290,15 @@ public class MainActivity extends BaseActivity {
         private boolean whatIfIntent;
         private boolean fromOnRestart;
 
+        @Override
+        protected void onPreExecute() {
+            updateTaskRunning = true;
+            super.onPreExecute();
+        }
+
         //TODO Splashscreen?
-        public updateComicsTask(PrefHelper prefHelper, DatabaseManager databaseManager, Context context, Bundle savedInstanceState, boolean whatIfIntent, boolean showProgress, boolean fromOnRestart) {
-            super(prefHelper, databaseManager, context);
+        public updateComicsTask(PrefHelper prefHelper, Context context, Bundle savedInstanceState, boolean whatIfIntent, boolean showProgress, boolean fromOnRestart) {
+            super(prefHelper, context);
             lockRotation();
             this.savedInstanceState = savedInstanceState;
             this.whatIfIntent = whatIfIntent;
@@ -328,6 +336,7 @@ public class MainActivity extends BaseActivity {
                 );
                 Timber.d("job scheduled...");
             }
+            updateTaskRunning = false;
         }
     }
 
@@ -475,7 +484,7 @@ public class MainActivity extends BaseActivity {
             overviewBaseFragment.setAllowEnterTransitionOverlap(false);
         }
         transaction.replace(R.id.flContent, overviewBaseFragment, FRAGMENT_TAG)
-                .commitNow();
+                .commitNowAllowingStateLoss();
 
         currentFragment = CurrentFragment.Overview;
     }
@@ -503,7 +512,7 @@ public class MainActivity extends BaseActivity {
         transaction
                 .replace(R.id.flContent, favoritesFragment, FRAGMENT_TAG);
         currentFragment = CurrentFragment.Favorites;
-        transaction.commitNow();
+        transaction.commitNowAllowingStateLoss();
     }
 
     void showWhatifFragment(boolean animate) {
@@ -553,7 +562,7 @@ public class MainActivity extends BaseActivity {
         whatIfFragment.setAllowEnterTransitionOverlap(false);
         transaction.replace(R.id.flContent, whatIfFragment, FRAGMENT_TAG);
         currentFragment = CurrentFragment.WhatIf;
-        transaction.commitNow();
+        transaction.commitNowAllowingStateLoss();
     }
 
     void showBrowserFragment(boolean animate) {
@@ -577,7 +586,7 @@ public class MainActivity extends BaseActivity {
         }
         transaction.replace(R.id.flContent, comicFragment, FRAGMENT_TAG);
         currentFragment = CurrentFragment.Browser;
-        transaction.commitNow();
+        transaction.commitNowAllowingStateLoss();
     }
 
     /**
@@ -959,7 +968,11 @@ public class MainActivity extends BaseActivity {
             if (fullOffline || (prefHelper.isWifi(this) || prefHelper.mobileEnabled()))
                 fragment.updatePager(); //Update the pager in case a new comic has ben posted while the app was still active in the background
         */
-        new updateComicsTask(prefHelper, databaseManager, this, null, false, false, true).execute();
+        if (!updateTaskRunning) {
+            new updateComicsTask(prefHelper, this, null, false, false, true).execute();
+        } else {
+            Timber.d("update Task is already running!");
+        }
         if (fromSearch)
             fromSearch = false;
         super.onRestart();

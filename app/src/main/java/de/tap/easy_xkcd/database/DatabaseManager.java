@@ -241,18 +241,6 @@ public class DatabaseManager {
         getSharedPrefs().edit().putBoolean(REALM_DATABASE_LOADED, loaded).apply();
     }
 
-    /**
-     * Gets the transcript of a comic
-     * @param number the comic number
-     * @return the comics transcript or " " if the comic does not exist in the database
-     */
-    public static String getTranscript(int number, Context context) {
-        RealmComic comic = Realm.getDefaultInstance().where(RealmComic.class).equalTo("comicNumber", number).findFirst();
-        if (comic != null)
-            return comic.getTranscript();
-        return " ";
-    }
-
     ////////////////// WHAT IF DATABASE /////////////////////////
 
     /**
@@ -389,8 +377,20 @@ public class DatabaseManager {
         }
     }
 
-
-
+    public void fixTranscripts() {
+        realm.beginTransaction();
+        for (int number = 1609; number < 1664; number++) {
+            RealmComic comic = getRealmComic(number);
+            comic.setTranscript(getRealmComic(number + 2).getTranscript());
+            realm.copyToRealmOrUpdate(comic);
+        }
+        for (int number = 1664; number < 1674; number++) {
+            RealmComic comic = getRealmComic(number);
+            comic.setTranscript(getRealmComic(number + 3).getTranscript());
+            realm.copyToRealmOrUpdate(comic);
+        }
+        realm.commitTransaction();
+    }
 }
 
 

@@ -40,9 +40,8 @@ public class updateComicDatabase extends AsyncTask<Void, Integer, Void> {
     protected boolean showProgress = true;
     protected boolean newComicFound = false;
 
-    public updateComicDatabase(PrefHelper prefHelper, DatabaseManager databaseManager, Context context) {
+    public updateComicDatabase(PrefHelper prefHelper, Context context) {
         this.prefHelper = prefHelper;
-        this.databaseManager = databaseManager;
         this.context = context;
     }
 
@@ -73,6 +72,7 @@ public class updateComicDatabase extends AsyncTask<Void, Integer, Void> {
     @Override
     protected Void doInBackground(Void... params) {
         if (prefHelper.isOnline(context)) {
+            databaseManager = new DatabaseManager(context);
             final int newest = findNewest();
             if (newest > prefHelper.getNewest()) {
                 ComicFragment.newComicFound = prefHelper.getNewest() != 0.0; //TODO test if this still works
@@ -140,34 +140,29 @@ public class updateComicDatabase extends AsyncTask<Void, Integer, Void> {
             for (Integer num : jsons.keySet()) {
                 JSONObject json = jsons.get(num);
                 RealmComic oldRealmComic = realm.where(RealmComic.class).equalTo("comicNumber", num).findFirst();
-                final RealmComic newRealmComic = RealmComic.buildFromJson(realm, num, json, context);
+
+                final RealmComic comic = oldRealmComic != null ? oldRealmComic : RealmComic.buildFromJson(realm, num, json, context);
 
                 //Import read and favorite comics from the old database
-                if (oldRealmComic != null && oldRealmComic.isFavorite()) {
-                    Timber.d("comic %d was a favorite in the old realm database!", num);
-                    newRealmComic.setFavorite(true);
-                } else if (databaseManager.checkFavoriteLegacy(num)) {
+                if (databaseManager.checkFavoriteLegacy(num)) {
                     Timber.d("comic %d was a legacy favorite!", num);
-                    newRealmComic.setFavorite(true);
+                    comic.setFavorite(true);
                 }
-                if (oldRealmComic != null && oldRealmComic.isRead()) {
-                    Timber.d("comic %d was read in the old realm database!", num);
-                    newRealmComic.setRead(true);
-                } else if (databaseManager.checkReadLegacy(num)) {
+                if (databaseManager.checkReadLegacy(num)) {
                     Timber.d("comic %d was legacy read!", num);
-                    newRealmComic.setRead(true);
+                    comic.setRead(true);
                 }
 
-                realm.copyToRealmOrUpdate(newRealmComic);
+                realm.copyToRealmOrUpdate(comic);
 
                 if (fullOffline) {
                     Request request = new Request.Builder()
-                            .url(newRealmComic.getUrl())
+                            .url(comic.getUrl())
                             .build();
                     client.newCall(request).enqueue(new Callback() {
                         @Override
                         public void onFailure(Call call, IOException e) {
-                            Timber.e("call to comic %d failed", newRealmComic.getComicNumber());
+                            Timber.e("call to comic %d failed", comic.getComicNumber());
                         }
 
                         @Override
@@ -175,28 +170,28 @@ public class updateComicDatabase extends AsyncTask<Void, Integer, Void> {
                             try {
                                 File sdCard = prefHelper.getOfflinePath();
                                 File dir = new File(sdCard.getAbsolutePath() + RealmComic.OFFLINE_PATH);
-                                File file = new File(dir, newRealmComic.getComicNumber() + ".png");
+                                File file = new File(dir, comic.getComicNumber() + ".png");
                                 BufferedSink sink = Okio.buffer(Okio.sink(file));
                                 sink.writeAll(response.body().source());
                                 sink.close();
                             } catch (Exception e) {
-                                Timber.e("Error at comic %d: Saving to external storage failed!", newRealmComic.getComicNumber());
+                                Timber.e("Error at comic %d: Saving to external storage failed!", comic.getComicNumber());
                                 Timber.e(e);
                                 try {
-                                    FileOutputStream fos = context.openFileOutput(String.valueOf(newRealmComic.getComicNumber()), Context.MODE_PRIVATE);
+                                    FileOutputStream fos = context.openFileOutput(String.valueOf(comic.getComicNumber()), Context.MODE_PRIVATE);
                                     BufferedSink sink = Okio.buffer(Okio.sink(fos));
                                     sink.writeAll(response.body().source());
                                     fos.close();
                                     sink.close();
                                 } catch (Exception e2) {
-                                    Timber.e("Error at comic %d: Saving to internal storage failed!", newRealmComic.getComicNumber());
+                                    Timber.e("Error at comic %d: Saving to internal storage failed!", comic.getComicNumber());
                                 }
                             }
                             response.body().close();
                             int prog = (int) (((newest - highest - latch2.getCount()) / ((float) newest - highest)) * 100);
                             publishProgress(prog);
                             latch2.countDown();
-                            Timber.d("Saved offline comic %s", newRealmComic.getComicNumber());
+                            Timber.d("Saved offline comic %s", comic.getComicNumber());
                         }
                     });
                 } else {
@@ -217,6 +212,12 @@ public class updateComicDatabase extends AsyncTask<Void, Integer, Void> {
             realm.close();
 
             databaseManager.setHighestInDatabase(newest);
+
+            if (!prefHelper.transcriptsFixed()) {
+                databaseManager.fixTranscripts();
+                prefHelper.setTranscriptsFixed();
+                Timber.d("Transcripts fixed!");
+            }
 
             Timber.d("Highest Offline: %d, highest databse: %d", prefHelper.getHighestOffline(), databaseManager.getHighestInDatabase()); //We dont actually need highestOffline now!
         }
