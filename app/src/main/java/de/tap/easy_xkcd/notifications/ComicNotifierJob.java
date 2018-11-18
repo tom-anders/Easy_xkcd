@@ -31,7 +31,7 @@ public class ComicNotifierJob extends JobService {
 
     @Override
     public boolean onStartJob(JobParameters jobParameters) {
-        Timber.e("Job fired at %s!", Calendar.getInstance().getTime().toString());
+        Timber.d("Job fired at %s!", Calendar.getInstance().getTime().toString());
         new updateCheck(new PrefHelper(this), jobParameters).execute();
         return true;
     }
@@ -110,13 +110,6 @@ public class ComicNotifierJob extends JobService {
                 }
             } else {
                 Timber.d("ComicNotifier found no new comic...");
-                if (BuildConfig.DEBUG) {
-                    ((NotificationManager) getSystemService(NOTIFICATION_SERVICE)).notify(1, new NotificationCompat.Builder(ComicNotifierJob.this).setSmallIcon(R.drawable.ic_notification)
-                            .setContentTitle("Debug: No new comic found!")
-                            .setAutoCancel(true)
-                            .build()
-                    );
-                }
             }
 
             if (newWhatifFound) {

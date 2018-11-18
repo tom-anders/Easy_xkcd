@@ -148,17 +148,6 @@ public class MainActivity extends BaseActivity {
         databaseManager = new DatabaseManager(this);
 
         if (savedInstanceState == null) {
-            //Setup the notifications in case the device was restarted
-            if (prefHelper.getNotificationInterval() != 0) {
-                JobScheduler jobScheduler = (JobScheduler) getSystemService(Context.JOB_SCHEDULER_SERVICE);
-                jobScheduler.schedule(new JobInfo.Builder(UPDATE_JOB_ID, new ComponentName(this, ComicNotifierJob.class))
-                                        .setRequiredNetworkType(JobInfo.NETWORK_TYPE_ANY)
-                        .setPeriodic(prefHelper.getNotificationInterval())
-                        .setPersisted(true)
-                        .build()
-                );
-            }
-
             if (fromSearch) {
                 postponeEnterTransition();
                 Timber.d("posponing transition...");
@@ -328,24 +317,17 @@ public class MainActivity extends BaseActivity {
             }
             updateToolbarTitle();
             unlockRotation();
-            /*MenuItem item;
-            boolean showOverview = false;
-            if (savedInstanceState != null) { //Show the current Fragment
-                currentFragment = (CurrentFragment) savedInstanceState.getSerializable(SAVED_INSTANCE_CURRENT_FRAGMENT);
-                item = mNavView.getMenu().findItem(currentFragment);
-            } else if (fromOnRestart) {
-                item = mNavView.getMenu().findItem(currentFragment);
-            } else {
-                if (!whatIfIntent && fullOffline | prefHelper.isOnline(context))
-                    item = mNavView.getMenu().findItem(R.id.nav_browser);
-                else
-                    item = mNavView.getMenu().findItem(R.id.nav_whatif);
+            //Setup the notifications in case the device was restarted
+            if (savedInstanceState == null && prefHelper.getNotificationInterval() != 0) {
+                JobScheduler jobScheduler = (JobScheduler) getSystemService(Context.JOB_SCHEDULER_SERVICE);
+                jobScheduler.schedule(new JobInfo.Builder(UPDATE_JOB_ID, new ComponentName(MainActivity.this, ComicNotifierJob.class))
+                        .setRequiredNetworkType(JobInfo.NETWORK_TYPE_ANY)
+                        .setPeriodic(prefHelper.getNotificationInterval())
+                        .setPersisted(true)
+                        .build()
+                );
+                Timber.d("job scheduled...");
             }
-            if (savedInstanceState != null)
-                showOverview = savedInstanceState.getBoolean(OVERVIEW_TAG, false); //Check if overview mode was active before the device was rotated
-            else
-                overviewLaunch = prefHelper.launchToOverview() && !getIntent().getAction().equals(Intent.ACTION_VIEW); //Check if the user chose overview to be shown by default
-            selectDrawerItem(item, showOverview, !showOverview, !fromOnRestart, savedInstanceState == null ^ fromOnRestart);*/
         }
     }
 
