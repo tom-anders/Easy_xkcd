@@ -250,6 +250,19 @@ public class MainActivity extends BaseActivity {
             }, 1500);
         }
 
+        if (prefHelper.showUpdateMessage()) {
+            new AlertDialog.Builder(this).setMessage(R.string.update_message)
+                    .setPositiveButton(R.string.got_it, new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialogInterface, int i) {
+                            prefHelper.setUpdateMessageShown();
+                            finish();
+                            startActivity(getIntent());
+                        }
+                    }).show();
+            return;
+        }
+
         //Load fragment
         if (fullOffline || prefHelper.isOnline(this) || fullOfflineWhatIf) { //Do we have internet or are in offline mode?
             updateComicsTask task = new updateComicsTask(prefHelper, databaseManager, this, savedInstanceState, whatIfIntent, savedInstanceState == null, false);

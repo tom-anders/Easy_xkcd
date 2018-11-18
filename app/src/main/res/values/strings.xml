@@ -471,4 +471,18 @@
     <string name="crash_ok">OK</string>
     <string name="crash_cancel">CANCEL</string>
     <string name="title_activity_crash_report">CrashReportActivity</string>
+
+    <string name="update_message">
+    Hey there!\n\n
+    This update features a complete rewrite of the app\'s database, meaning comics will load faster
+    and there will hopefully be less crashes (e.g. when adding favorites).
+    In order for everything to work correctly, the app will know reload the entire database which
+    may take a few minutes.
+    If you enabled offline mode, this will also redownload all offline comics.\n\n
+    Some other cool features in this update include AMOLED night mode, better crash reporting and smoother transitions
+    when entering overview mode.
+    Of course a large update like that might introduce some new bugs, so if you encounter any issues
+    feel free to let me know: <a href="http://somesite.com/">easyxkcd@gmail.com</a>
+    </string>
+    <string name="got_it">GOT IT!</string>
 </resources>

@@ -114,6 +114,7 @@ public class PrefHelper {
     private static final String WIDGET_ALT = "widget_alt";
     private static final String WIDGET_COMIC_NUMBER = "widget_comicNumber";
     private static final String NAV_DRAWER_SWIPE = "disable_nav_drawer_swipe";
+    private static final String SHOW_UPDATE_MESSAGE = "show_update_message";
 
     private static final String FAB_DISABLED_COMICBROWSER = "pref_random_comics";
     private static final String FAB_DISABLED_FAVORITES = "pref_random_favorites";
@@ -516,6 +517,15 @@ public class PrefHelper {
 
     public void setSwipeEnabled(boolean value) {
         sharedPrefs.edit().putBoolean(SWIPE_ENABLED, value).apply();
+    }
+
+    public boolean showUpdateMessage() {
+        //If getNewest()==0, this is a new install and we don't need to show the message
+        return sharedPrefs.getBoolean(SHOW_UPDATE_MESSAGE, true) && getNewest() != 0;
+    }
+
+    public void setUpdateMessageShown() {
+        sharedPrefs.edit().putBoolean(SHOW_UPDATE_MESSAGE, false).apply();
     }
 
     public boolean showRateDialog() {
