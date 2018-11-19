@@ -243,12 +243,12 @@ public class MainActivity extends BaseActivity {
 
         if (prefHelper.showUpdateMessage()) {
             new AlertDialog.Builder(this).setMessage(R.string.update_message)
+                    .setCancelable(false)
                     .setPositiveButton(R.string.got_it, new DialogInterface.OnClickListener() {
                         @Override
                         public void onClick(DialogInterface dialogInterface, int i) {
                             prefHelper.setUpdateMessageShown();
-                            finish();
-                            startActivity(getIntent());
+                            recreate();
                         }
                     }).show();
             return;
@@ -326,7 +326,8 @@ public class MainActivity extends BaseActivity {
             updateToolbarTitle();
             unlockRotation();
             //Setup the notifications in case the device was restarted
-            if (savedInstanceState == null && prefHelper.getNotificationInterval() != 0) {
+            Timber.d("interval: %d", prefHelper.getNotificationInterval());
+            if (!fromOnRestart && savedInstanceState == null && prefHelper.getNotificationInterval() != 0) {
                 JobScheduler jobScheduler = (JobScheduler) getSystemService(Context.JOB_SCHEDULER_SERVICE);
                 jobScheduler.schedule(new JobInfo.Builder(UPDATE_JOB_ID, new ComponentName(MainActivity.this, ComicNotifierJob.class))
                         .setRequiredNetworkType(JobInfo.NETWORK_TYPE_ANY)
@@ -991,6 +992,7 @@ public class MainActivity extends BaseActivity {
                 case UPDATE_ALARM:
                     JobScheduler jobScheduler = (JobScheduler) getSystemService(Context.JOB_SCHEDULER_SERVICE);
                     if (prefHelper.getNotificationInterval() != 0) {
+                        jobScheduler.cancel(UPDATE_JOB_ID);
                         jobScheduler.schedule(new JobInfo.Builder(UPDATE_JOB_ID, new ComponentName(this, ComicNotifierJob.class))
                                 .setRequiredNetworkType(JobInfo.NETWORK_TYPE_ANY)
                                 .setPeriodic(prefHelper.getNotificationInterval())

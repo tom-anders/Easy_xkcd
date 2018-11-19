@@ -28,11 +28,13 @@ import io.realm.Realm;
 import timber.log.Timber;
 
 public class ComicNotifierJob extends JobService {
+    private updateCheck task;
 
     @Override
     public boolean onStartJob(JobParameters jobParameters) {
         Timber.d("Job fired at %s!", Calendar.getInstance().getTime().toString());
-        new updateCheck(new PrefHelper(this), jobParameters).execute();
+        task = new updateCheck(new PrefHelper(this), jobParameters);
+        task.execute();
         return true;
     }
 
@@ -143,6 +145,11 @@ public class ComicNotifierJob extends JobService {
     @Override
     public boolean onStopJob(JobParameters jobParameters) {
         Timber.d("Job stopped!");
+        if (task != null) {
+            task.cancel(true);
+            task = null;
+            Timber.d("canceled task");
+        }
         return true;
     }
 }
