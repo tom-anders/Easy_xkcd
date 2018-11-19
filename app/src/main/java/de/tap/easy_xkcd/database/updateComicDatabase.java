@@ -69,8 +69,25 @@ public class updateComicDatabase extends AsyncTask<Void, Integer, Void> {
         }
     }
 
+    void createNoMediaFile() {
+        if (!prefHelper.nomediaCreated()) {
+            File sdCard = prefHelper.getOfflinePath();
+            File dir = new File(sdCard.getAbsolutePath() + "/easy xkcd");
+            File nomedia = new File(dir, ".nomedia");
+            try {
+                boolean created = nomedia.createNewFile();
+                Timber.d("created .nomedia in external storage: %s", created);
+                prefHelper.setNomediaCreated();
+            } catch (IOException e) {
+                Timber.e(e);
+            }
+        }
+    }
+
     @Override
     protected Void doInBackground(Void... params) {
+        createNoMediaFile();
+
         if (prefHelper.isOnline(context)) {
             databaseManager = new DatabaseManager(context);
             final int newest = findNewest();
@@ -222,17 +239,6 @@ public class updateComicDatabase extends AsyncTask<Void, Integer, Void> {
             Timber.d("Highest Offline: %d, highest databse: %d", prefHelper.getHighestOffline(), databaseManager.getHighestInDatabase()); //We dont actually need highestOffline now!
         }
 
-        if (!prefHelper.nomediaCreated()) {
-            File sdCard = prefHelper.getOfflinePath();
-            File dir = new File(sdCard.getAbsolutePath() + "/easy xkcd");
-            File nomedia = new File(dir, ".nomedia");
-            try {
-                boolean created = nomedia.createNewFile();
-                Timber.d("created nomedia in external storage: %s", created);
-            } catch (IOException e) {
-                Timber.e(e);
-            }
-        }
 
         return null;
     }
@@ -244,6 +250,7 @@ public class updateComicDatabase extends AsyncTask<Void, Integer, Void> {
 
     @Override
     protected void onPostExecute(Void dummy) {
+
         if (showProgress)
             progress.dismiss();
     }

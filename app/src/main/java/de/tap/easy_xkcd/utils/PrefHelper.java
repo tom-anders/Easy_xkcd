@@ -89,7 +89,7 @@ public class PrefHelper {
     private static final String RATE_SNACKBAR = "rate_snackbar";
     private static final String WHATIF_OFFLINE = "pref_offline_whatif";
     private static final String WHATIF_TITLES = "whatif_titles";
-    private static final String NOMEDIA_CREATED = "nomedia_created";
+    private static final String NOMEDIA_CREATED = "nomedia_created_fix";
     private static final String SHARE_ALT = "pref_share_alt";
     private static final String PREF_ZOOM = "pref_zoom";
     private static final String PREF_DONATE = "pref_hide_donate";
@@ -601,11 +601,11 @@ public class PrefHelper {
     }
 
     public boolean nomediaCreated() {
-        SharedPreferences.Editor editor = sharedPrefs.edit();
-        boolean created = sharedPrefs.getBoolean(NOMEDIA_CREATED, false);
-        if (!created)
-            editor.putBoolean(NOMEDIA_CREATED, true).apply();
-        return created;
+        return sharedPrefs.getBoolean(NOMEDIA_CREATED, false);
+    }
+
+    public void setNomediaCreated() {
+        sharedPrefs.edit().putBoolean(NOMEDIA_CREATED, true).apply();
     }
 
     public boolean shareAlt() {
