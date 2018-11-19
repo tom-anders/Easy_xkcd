@@ -394,48 +394,32 @@ public class MainActivity extends BaseActivity {
         return true;
     }
 
+    void closeDrawer() {
+        new Handler().postDelayed(new Runnable() {
+            @Override
+            public void run() {
+                mDrawer.closeDrawers();
+            }
+        }, 1);
+    }
+
     /**
      * Adds the listener for the navigationView and adjusts the colors according to our theme
      */
-    private MenuItem selectedMenuItem = null;
-
     private void setupDrawerContent(NavigationView navigationView) {
         navigationView.setNavigationItemSelectedListener(
                 new NavigationView.OnNavigationItemSelectedListener() {
                     @Override
                     public boolean onNavigationItemSelected(MenuItem menuItem) {
-                        mDrawer.closeDrawers();
+                        closeDrawer();
+                        //mDrawer.closeDrawers();
                         prepareToolbarAnimation(-300);
                         //updateToolbarTitle();
-                        selectedMenuItem = menuItem;
-                        return true;
+                        animateToolbar(-300);
+                        selectDrawerItem(menuItem, false, false, false, true);
+                        return false;
                     }
                 });
-        mDrawer.addDrawerListener(new DrawerLayout.DrawerListener() {
-            @Override
-            public void onDrawerClosed(@NonNull View drawerView) {
-                if (selectedMenuItem != null) {
-                    animateToolbar(-300);
-                    selectDrawerItem(selectedMenuItem, false, false, false, true);
-                    selectedMenuItem = null;
-                }
-            }
-
-            @Override
-            public void onDrawerStateChanged(int newState) {
-
-            }
-
-            @Override
-            public void onDrawerSlide(@NonNull View drawerView, float slideOffset) {
-            }
-
-            @Override
-            public void onDrawerOpened(@NonNull View drawerView) {
-
-            }
-
-        });
         themePrefs.setupNavdrawerColor(navigationView);
     }
 
@@ -634,18 +618,28 @@ public class MainActivity extends BaseActivity {
                 break;
 
             case R.id.nav_settings:
-                mDrawer.closeDrawers();
-                startActivityForResult(new Intent(MainActivity.this, SettingsActivity.class), 1);
+                new Handler().postDelayed(new Runnable() {
+                    @Override
+                    public void run() {
+                        mDrawer.closeDrawers();
+                        startActivityForResult(new Intent(MainActivity.this, SettingsActivity.class), 1);
+                    }
+                }, 1);
                 return;
 
             case R.id.nav_feedback:
-                mDrawer.closeDrawers();
-                Intent i = new Intent(Intent.ACTION_SENDTO, Uri.fromParts("mailto", "easyxkcd@gmail.com", null));
-                startActivity(Intent.createChooser(i, getResources().getString(R.string.nav_feedback_send)));
+                new Handler().postDelayed(new Runnable() {
+                    @Override
+                    public void run() {
+                        mDrawer.closeDrawers();
+                        Intent i = new Intent(Intent.ACTION_SENDTO, Uri.fromParts("mailto", "easyxkcd@gmail.com", null));
+                        startActivity(Intent.createChooser(i, getResources().getString(R.string.nav_feedback_send)));
+                    }
+                }, 1);
                 return;
 
             case R.id.nav_about:
-                mDrawer.closeDrawers();
+                closeDrawer();
                 startActivity(new Intent(MainActivity.this, AboutActivity.class));
                 return;
         }
@@ -676,7 +670,7 @@ public class MainActivity extends BaseActivity {
         Toast.makeText(this, errorId, Toast.LENGTH_SHORT).show();
         /*MenuItem m = mNavView.getMenu().findItem(itemId);
         m.setChecked(true);*/ //TODO figure out here how to leave the last item checked
-        mDrawer.closeDrawers();
+        closeDrawer();
     }
 
     private void prepareToolbarAnimation(int translation) {
