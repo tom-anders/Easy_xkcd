@@ -375,7 +375,7 @@ public class MainActivity extends BaseActivity {
     @OnClick(R.id.fab)
     void onClick() {
         if (currentFragment == CurrentFragment.Overview) { //The user is in overview mode
-            ((OverviewBaseFragment) getSupportFragmentManager().findFragmentByTag(FRAGMENT_TAG)).showRandomComic();
+            ((OverviewBaseFragment) getSupportFragmentManager().findFragmentByTag(FRAGMENT_TAG)).showRandomComic(); //TODO smooth scroll here first?
         } else { // The user is browsing comics or favorites
             ((ComicFragment) getSupportFragmentManager().findFragmentByTag(FRAGMENT_TAG)).getRandomComic();
             if (currentFragment == CurrentFragment.Browser && prefHelper.showRandomTip()) {

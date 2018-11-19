@@ -255,8 +255,7 @@ public class ComicBrowserFragment extends ComicFragment {
     public boolean getRandomComic() {
         if (prefHelper.isOnline(getActivity()) && newestComicNumber != 0) {
             //TODO does the progress dialog have to be in MainActivity? Could it be a member of ComicFragment instead?
-            ((MainActivity) getActivity()).setProgressDialog(getActivity().getResources().getString(R.string.loading_random), false);
-            return super.getRandomComic();
+            return super.getRandomComic(); //TODO we should show a placeholder here... with glide?
         }
         Toast.makeText(getActivity(), R.string.no_connection, Toast.LENGTH_SHORT).show();
         return true;
