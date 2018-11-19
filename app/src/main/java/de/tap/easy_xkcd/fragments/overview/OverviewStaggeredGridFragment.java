@@ -44,9 +44,11 @@ import com.tap.xkcd_reader.R;
 
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.IOException;
 
 import de.tap.easy_xkcd.Activities.MainActivity;
 import de.tap.easy_xkcd.GlideApp;
+import de.tap.easy_xkcd.GlideRequest;
 import de.tap.easy_xkcd.database.RealmComic;
 import timber.log.Timber;
 
@@ -90,78 +92,7 @@ public class OverviewStaggeredGridFragment extends OverviewRecyclerBaseFragment 
 
             setupCard(comicViewHolder, comic, title, number);
 
-            if (!MainActivity.fullOffline) {
-                comicViewHolder.thumbnail.layout(0, 0, 0, 0);
-                GlideApp.with(getActivity())
-                        .asBitmap()
-                        .load(comic.getUrl())
-                        .listener(new RequestListener<Bitmap>() {
-                            @Override
-                            public boolean onLoadFailed(@Nullable GlideException e, Object model, Target<Bitmap> target, boolean isFirstResource) {
-                                if (number == lastComicNumber) {
-                                    startPostponedEnterTransition();
-                                }
-                                return false;
-                            }
-
-                            @Override
-                            public boolean onResourceReady(Bitmap resource, Object model, Target<Bitmap> target, DataSource dataSource, boolean isFirstResource) {
-                                if (themePrefs.invertColors(false) && themePrefs.bitmapContainsColor(resource, comic.getComicNumber()))
-                                    comicViewHolder.thumbnail.clearColorFilter();
-
-                                if (number == lastComicNumber) {
-                                    startPostponedEnterTransition();
-                                }
-                                return false;
-                            }
-                        })
-                        .apply(new RequestOptions().override(Target.SIZE_ORIGINAL, Target.SIZE_ORIGINAL).dontAnimate())
-                        .into(comicViewHolder.thumbnail);
-            } else {
-                try {
-                    File sdCard = prefHelper.getOfflinePath();
-                    File dir = new File(sdCard.getAbsolutePath() + "/easy xkcd");
-                    File file = new File(dir, String.valueOf(number) + ".png");
-                    BitmapFactory.Options options = new BitmapFactory.Options();
-                    options.inJustDecodeBounds = true;
-                    BitmapFactory.decodeFile(file.getAbsolutePath(), options);
-
-                    comicViewHolder.thumbnail.setImageBitmap(Bitmap.createBitmap(options.outWidth, options.outHeight, Bitmap.Config.ALPHA_8));
-
-                    GlideApp.with(getActivity())
-                            .asBitmap()
-                            .load(file)
-                            //.diskCacheStrategy(DiskCacheStrategy.SOURCE)
-                            .into(new SimpleTarget<Bitmap>() {
-                                @Override
-                                public void onResourceReady(@NonNull Bitmap resource, @Nullable Transition<? super Bitmap> transition) {
-                                    comicViewHolder.thumbnail.setImageBitmap(resource);
-
-                                    if (number == lastComicNumber) {
-                                        startPostponedEnterTransition();
-                                    }
-                                }
-
-                                @Override
-                                public void onLoadFailed(@Nullable Drawable errorDrawable) {
-                                    if (number == lastComicNumber) {
-                                        startPostponedEnterTransition();
-                                    }
-                                    super.onLoadFailed(errorDrawable);
-                                }
-                            });
-                } catch (Exception e) {
-                    Log.e("Error", "loading from external storage failed");
-                    try {
-                        FileInputStream fis = getActivity().openFileInput(String.valueOf(number));
-                        Bitmap mBitmap = BitmapFactory.decodeStream(fis);
-                        fis.close();
-                        comicViewHolder.thumbnail.setImageBitmap(mBitmap);
-                    } catch (Exception e2) {
-                        e2.printStackTrace();
-                    }
-                }
-            }
+            loadComicImage(comic, comicViewHolder);
         }
     }
 

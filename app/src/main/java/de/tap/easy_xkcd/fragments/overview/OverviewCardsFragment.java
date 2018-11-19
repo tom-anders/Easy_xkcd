@@ -43,9 +43,12 @@ import com.tap.xkcd_reader.R;
 
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.IOException;
 
 import de.tap.easy_xkcd.Activities.MainActivity;
 import de.tap.easy_xkcd.GlideApp;
+import de.tap.easy_xkcd.GlideRequest;
+import de.tap.easy_xkcd.GlideRequests;
 import de.tap.easy_xkcd.database.RealmComic;
 import timber.log.Timber;
 
@@ -95,76 +98,7 @@ public class OverviewCardsFragment extends OverviewRecyclerBaseFragment {
 
             setupCard(comicViewHolder, comic, title, number);
 
-            //TODO we can use glide for all these requests and simplify this call!
-            if (!MainActivity.fullOffline) {
-                GlideApp.with(OverviewCardsFragment.this)
-                        .asBitmap()
-                        .load(comic.getUrl())
-                        .listener(new RequestListener<Bitmap>() {
-                            @Override
-                            public boolean onLoadFailed(@Nullable GlideException e, Object model, Target<Bitmap> target, boolean isFirstResource) {
-                                if (number == lastComicNumber) {
-                                    startPostponedEnterTransition();
-                                }
-                                return false;
-                            }
-
-                            @Override
-                            public boolean onResourceReady(Bitmap resource, Object model, Target<Bitmap> target, DataSource dataSource, boolean isFirstResource) {
-                                if (themePrefs.invertColors(false) && themePrefs.bitmapContainsColor(resource, comic.getComicNumber()))
-                                    comicViewHolder.thumbnail.clearColorFilter();
-
-                                if (number == lastComicNumber) {
-                                    startPostponedEnterTransition();
-                                }
-                                Timber.d("Loaded overview comic %d", number);
-                                return false;
-                            }
-                        })
-                        .into(comicViewHolder.thumbnail);
-            } else {
-                try {
-                    File sdCard = prefHelper.getOfflinePath();
-                    File dir = new File(sdCard.getAbsolutePath() + "/easy xkcd");
-                    File file = new File(dir, String.valueOf(number) + ".png");
-                    GlideApp.with(OverviewCardsFragment.this)
-                            .asBitmap()
-                            .load(file)
-                            .listener(new RequestListener<Bitmap>() {
-                                @Override
-                                public boolean onLoadFailed(@Nullable GlideException e, Object model, Target<Bitmap> target, boolean isFirstResource) {
-                                    if (number == lastComicNumber) {
-                                        startPostponedEnterTransition();
-                                    }
-                                    return false;
-                                }
-
-                                @Override
-                                public boolean onResourceReady(Bitmap resource, Object model, Target<Bitmap> target, DataSource dataSource, boolean isFirstResource) {
-                                    if (themePrefs.invertColors(false) && themePrefs.bitmapContainsColor(resource, comic.getComicNumber()))
-                                        comicViewHolder.thumbnail.clearColorFilter();
-
-                                    if (number == lastComicNumber) {
-                                        startPostponedEnterTransition();
-                                    }
-                                    return false;
-                                }
-                            })
-                            .into(comicViewHolder.thumbnail);
-                } catch (Exception e) {
-                    Log.e("Error", "loading from external storage failed");
-                    try {
-                        FileInputStream fis = getActivity().openFileInput(String.valueOf(number));
-                        Bitmap mBitmap = BitmapFactory.decodeStream(fis);
-                        fis.close();
-                        comicViewHolder.thumbnail.setImageBitmap(mBitmap);
-                        if (themePrefs.invertColors(false) && themePrefs.bitmapContainsColor(mBitmap, comic.getComicNumber()))
-                            comicViewHolder.thumbnail.clearColorFilter();
-                    } catch (Exception e2) {
-                        e2.printStackTrace();
-                    }
-                }
-            }
+            loadComicImage(comic, comicViewHolder);
         }
 
     }

@@ -8,6 +8,8 @@ import android.os.AsyncTask;
 import android.os.Bundle;
 
 import androidx.annotation.NonNull;
+
+import com.bumptech.glide.request.RequestOptions;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.tabs.TabLayout;
 import android.transition.Slide;
@@ -17,6 +19,7 @@ import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentPagerAdapter;
 import androidx.core.content.ContextCompat;
+import androidx.swiperefreshlayout.widget.CircularProgressDrawable;
 import androidx.viewpager.widget.ViewPager;
 import androidx.cardview.widget.CardView;
 import androidx.recyclerview.widget.RecyclerView;
@@ -233,6 +236,15 @@ public class WhatIfOverviewFragment extends Fragment {
             themePrefs = activity.getThemePrefs();
         }
 
+        private CircularProgressDrawable getCircularProgress() {
+            CircularProgressDrawable circularProgressDrawable = new CircularProgressDrawable(context);
+            circularProgressDrawable.setCenterRadius(60.0f);
+            circularProgressDrawable.setStrokeWidth(5.0f);
+            circularProgressDrawable.setColorSchemeColors(themePrefs.getAccentColor());
+            circularProgressDrawable.start();
+            return circularProgressDrawable;
+        }
+
         @Override
         public void onBindViewHolder(final ComicViewHolder comicViewHolder, int i) {
             comicViewHolder.articleTitle.setText(titles.get(i));
@@ -253,10 +265,12 @@ public class WhatIfOverviewFragment extends Fragment {
 
                 GlideApp.with(context)
                         .load(file)
+                        .apply(new RequestOptions().placeholder(getCircularProgress()))
                         .into(comicViewHolder.thumbnail);
             } else {
                 GlideApp.with(context)
                         .load(imgs.get(i))
+                        .apply(new RequestOptions().placeholder(getCircularProgress()))
                         .into(comicViewHolder.thumbnail);
             }
         }

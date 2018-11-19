@@ -19,6 +19,7 @@
 package de.tap.easy_xkcd.fragments.overview;
 
 import android.content.DialogInterface;
+import android.graphics.Bitmap;
 import android.graphics.Color;
 import androidx.core.content.ContextCompat;
 import androidx.appcompat.app.AlertDialog;
@@ -31,11 +32,26 @@ import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import com.bumptech.glide.load.DataSource;
+import com.bumptech.glide.load.engine.GlideException;
+import com.bumptech.glide.request.RequestListener;
+import com.bumptech.glide.request.RequestOptions;
+import com.bumptech.glide.request.target.Target;
 import com.simplecityapps.recyclerview_fastscroll.views.FastScrollRecyclerView;
 import com.tap.xkcd_reader.R;
 
+import org.jetbrains.annotations.Nullable;
+
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
+
+import androidx.swiperefreshlayout.widget.CircularProgressDrawable;
 import de.tap.easy_xkcd.Activities.MainActivity;
+import de.tap.easy_xkcd.GlideApp;
+import de.tap.easy_xkcd.GlideRequest;
 import de.tap.easy_xkcd.database.RealmComic;
+import timber.log.Timber;
 
 public abstract class OverviewRecyclerBaseFragment extends OverviewBaseFragment {
     protected RVAdapter rvAdapter;
@@ -46,6 +62,60 @@ public abstract class OverviewRecyclerBaseFragment extends OverviewBaseFragment 
         @Override
         public int getItemCount() {
             return comics.size();
+        }
+
+        private CircularProgressDrawable getCircularProgress() {
+            CircularProgressDrawable circularProgressDrawable = new CircularProgressDrawable(getActivity());
+            circularProgressDrawable.setCenterRadius(60.0f);
+            circularProgressDrawable.setStrokeWidth(5.0f);
+            circularProgressDrawable.setColorSchemeColors(themePrefs.getAccentColor());
+            circularProgressDrawable.start();
+            return circularProgressDrawable;
+        }
+
+        protected void loadComicImage(RealmComic comic, ComicViewHolder comicViewHolder) {
+            GlideRequest<Bitmap> request = GlideApp.with(OverviewRecyclerBaseFragment.this).asBitmap();
+            if (!MainActivity.fullOffline) {
+                request =  request.load(comic.getUrl());
+            } else {
+                File sdCard = prefHelper.getOfflinePath();
+                File dir = new File(sdCard.getAbsolutePath() + "/easy xkcd");
+                File file = new File(dir, String.valueOf(comic.getComicNumber()) + ".png");
+                if (file.exists()) {
+                    request = request.load(file);
+                } else {
+                    Timber.d("Offline file is not in external storage");
+                    try {
+                        FileInputStream fis = getActivity().openFileInput(String.valueOf(comic.getComicNumber()));
+                        request = request.load(fis);
+                    } catch (IOException e) {
+                        Timber.e(e);
+                    }
+                }
+            }
+            request.apply(new RequestOptions().placeholder(getCircularProgress()))
+                .listener(new RequestListener<Bitmap>() {
+                @Override
+                public boolean onLoadFailed(@Nullable GlideException e, Object model, Target<Bitmap> target, boolean isFirstResource) {
+                    if (comic.getComicNumber() == lastComicNumber) {
+                        startPostponedEnterTransition();
+                    }
+                    return false;
+                }
+
+                @Override
+                public boolean onResourceReady(Bitmap resource, Object model, Target<Bitmap> target, DataSource dataSource, boolean isFirstResource) {
+                    if (themePrefs.invertColors(false) && themePrefs.bitmapContainsColor(resource, comic.getComicNumber()))
+                        comicViewHolder.thumbnail.clearColorFilter();
+
+                    if (comic.getComicNumber() == lastComicNumber) {
+                        startPostponedEnterTransition();
+                    }
+                    Timber.d("Loaded overview comic %d", comic.getComicNumber());
+                    return false;
+                }
+            }).into(comicViewHolder.thumbnail);
+
         }
 
         protected void setupCard(ComicViewHolder comicViewHolder, RealmComic comic, String title, int number) {
