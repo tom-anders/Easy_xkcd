@@ -46,6 +46,7 @@ import butterknife.ButterKnife;
 import butterknife.OnClick;
 import de.tap.easy_xkcd.Activities.BaseActivity;
 import de.tap.easy_xkcd.Activities.MainActivity;
+import de.tap.easy_xkcd.GlideApp;
 import de.tap.easy_xkcd.database.DatabaseManager;
 import de.tap.easy_xkcd.utils.JsonParser;
 import de.tap.easy_xkcd.utils.PrefHelper;
@@ -250,11 +251,11 @@ public class WhatIfOverviewFragment extends Fragment {
                 File dir = new File(offlinePath.getAbsolutePath() + OFFLINE_WHATIF_OVERVIEW_PATH);
                 File file = new File(dir, String.valueOf(n) + ".png");
 
-                Glide.with(context)
+                GlideApp.with(context)
                         .load(file)
                         .into(comicViewHolder.thumbnail);
             } else {
-                Glide.with(context)
+                GlideApp.with(context)
                         .load(imgs.get(i))
                         .into(comicViewHolder.thumbnail);
             }

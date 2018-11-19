@@ -20,6 +20,7 @@ package de.tap.easy_xkcd.fragments.overview;
 
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -44,6 +45,7 @@ import java.io.File;
 import java.io.FileInputStream;
 
 import de.tap.easy_xkcd.Activities.MainActivity;
+import de.tap.easy_xkcd.GlideApp;
 import de.tap.easy_xkcd.database.RealmComic;
 import timber.log.Timber;
 
@@ -93,8 +95,9 @@ public class OverviewCardsFragment extends OverviewRecyclerBaseFragment {
 
             setupCard(comicViewHolder, comic, title, number);
 
+            //TODO we can use glide for all these requests and simplify this call!
             if (!MainActivity.fullOffline) {
-                Glide.with(getActivity())
+                GlideApp.with(OverviewCardsFragment.this)
                         .asBitmap()
                         .load(comic.getUrl())
                         .listener(new RequestListener<Bitmap>() {
@@ -124,7 +127,7 @@ public class OverviewCardsFragment extends OverviewRecyclerBaseFragment {
                     File sdCard = prefHelper.getOfflinePath();
                     File dir = new File(sdCard.getAbsolutePath() + "/easy xkcd");
                     File file = new File(dir, String.valueOf(number) + ".png");
-                    Glide.with(getActivity())
+                    GlideApp.with(OverviewCardsFragment.this)
                             .asBitmap()
                             .load(file)
                             .listener(new RequestListener<Bitmap>() {

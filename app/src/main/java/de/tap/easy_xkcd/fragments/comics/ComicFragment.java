@@ -41,6 +41,7 @@ import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.snackbar.Snackbar;
 import androidx.core.content.FileProvider;
 import androidx.fragment.app.Fragment;
+import androidx.swiperefreshlayout.widget.CircularProgressDrawable;
 import androidx.viewpager.widget.PagerAdapter;
 import androidx.viewpager.widget.ViewPager;
 import androidx.appcompat.widget.Toolbar;
@@ -75,6 +76,7 @@ import de.tap.easy_xkcd.Activities.MainActivity;
 import de.tap.easy_xkcd.Activities.SearchResultsActivity;
 import de.tap.easy_xkcd.CustomTabHelpers.BrowserFallback;
 import de.tap.easy_xkcd.CustomTabHelpers.CustomTabActivityHelper;
+import de.tap.easy_xkcd.GlideApp;
 import de.tap.easy_xkcd.database.DatabaseManager;
 import de.tap.easy_xkcd.database.RealmComic;
 import de.tap.easy_xkcd.fragments.overview.OverviewListFragment;
@@ -156,7 +158,7 @@ public abstract class ComicFragment extends Fragment {
         boolean loadGif(int number, PhotoView pvComic) {
             if (getGifId(number) != 0) {
                 Timber.d("loading gif %d", number);
-                Glide.with(ComicFragment.this)
+                GlideApp.with(ComicFragment.this)
                         .load(getGifId(number))
                         .listener(new RequestListener<Drawable>() {
                             @Override
@@ -181,6 +183,15 @@ public abstract class ComicFragment extends Fragment {
             this.count = count;
             this.context = context;
             mLayoutInflater = (LayoutInflater) this.context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+        }
+
+        protected CircularProgressDrawable getProgressCircle() {
+            CircularProgressDrawable circularProgressDrawable = new CircularProgressDrawable(getActivity());
+            circularProgressDrawable.setStrokeWidth(5.0f);
+            circularProgressDrawable.setCenterRadius(100.0f);
+            circularProgressDrawable.setColorSchemeColors(themePrefs.getAccentColor());
+            circularProgressDrawable.start();
+            return circularProgressDrawable;
         }
 
         @Override
@@ -422,17 +433,23 @@ public abstract class ComicFragment extends Fragment {
         //DatabaseManager databaseManager = new DatabaseManager(getActivity()); //Create a new one here since we're in a background thread
         if (downloadImage) {
             try {
-                Glide.with(getActivity())
+                GlideApp.with(this)
                         .asBitmap()
                         .load(databaseManager.getRealmComic(addedNumber).getUrl())
-                        //.diskCacheStrategy(DiskCacheStrategy.SOURCE)
-                        //.into(-1, -1)
-                        .into(new SimpleTarget<Bitmap>() {
+                        .listener(new RequestListener<Bitmap>() {
                             @Override
-                            public void onResourceReady(Bitmap resource, Transition<? super Bitmap> transition) {
-                                saveComic(addedNumber, resource);
+                            public boolean onLoadFailed(@androidx.annotation.Nullable GlideException e, Object model, Target<Bitmap> target, boolean isFirstResource) {
+                                Timber.e("Sharing failed!");
+                                return true;
                             }
-                        });
+
+                            @Override
+                            public boolean onResourceReady(Bitmap resource, Object model, Target<Bitmap> target, DataSource dataSource, boolean isFirstResource) {
+                                saveComic(addedNumber, resource);
+                                Timber.d("Save successful!");
+                                return true;
+                            }
+                        }).submit();
             } catch (Exception e) {
                 databaseManager.setFavorite(addedNumber, false);
                 Timber.d("Saving Image failed for Comic %d!", addedNumber);

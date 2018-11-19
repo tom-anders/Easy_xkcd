@@ -62,6 +62,7 @@ import java.util.regex.PatternSyntaxException;
 import butterknife.Bind;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
+import de.tap.easy_xkcd.GlideApp;
 import de.tap.easy_xkcd.database.DatabaseManager;
 import de.tap.easy_xkcd.database.RealmComic;
 import de.tap.easy_xkcd.fragments.comics.ComicBrowserFragment;
@@ -230,10 +231,8 @@ public class SearchResultsActivity extends BaseActivity {
 
             //Load the thumbnail
             if (!MainActivity.fullOffline) {
-                Glide.with(SearchResultsActivity.this)
-                        .asBitmap()
+                GlideApp.with(SearchResultsActivity.this)
                         .load(url)
-                        //.diskCacheStrategy(DiskCacheStrategy.SOURCE)
                         .into(comicViewHolder.thumbnail);
             } else {
                 try {
@@ -247,8 +246,7 @@ public class SearchResultsActivity extends BaseActivity {
                         File sdCard = prefHelper.getOfflinePath();
                         File dir = new File(sdCard.getAbsolutePath() + "/easy xkcd");
                         File file = new File(dir, String.valueOf(number) + ".png");
-                        Glide.with(getApplicationContext())
-                                .asBitmap()
+                        GlideApp.with(SearchResultsActivity.this)
                                 .load(file)
                                 .into(comicViewHolder.thumbnail);
                     } catch (Exception e2) {

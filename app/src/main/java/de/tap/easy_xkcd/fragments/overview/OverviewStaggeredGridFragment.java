@@ -46,6 +46,7 @@ import java.io.File;
 import java.io.FileInputStream;
 
 import de.tap.easy_xkcd.Activities.MainActivity;
+import de.tap.easy_xkcd.GlideApp;
 import de.tap.easy_xkcd.database.RealmComic;
 import timber.log.Timber;
 
@@ -91,7 +92,7 @@ public class OverviewStaggeredGridFragment extends OverviewRecyclerBaseFragment 
 
             if (!MainActivity.fullOffline) {
                 comicViewHolder.thumbnail.layout(0, 0, 0, 0);
-                Glide.with(getActivity())
+                GlideApp.with(getActivity())
                         .asBitmap()
                         .load(comic.getUrl())
                         .listener(new RequestListener<Bitmap>() {
@@ -127,7 +128,7 @@ public class OverviewStaggeredGridFragment extends OverviewRecyclerBaseFragment 
 
                     comicViewHolder.thumbnail.setImageBitmap(Bitmap.createBitmap(options.outWidth, options.outHeight, Bitmap.Config.ALPHA_8));
 
-                    Glide.with(getActivity())
+                    GlideApp.with(getActivity())
                             .asBitmap()
                             .load(file)
                             //.diskCacheStrategy(DiskCacheStrategy.SOURCE)

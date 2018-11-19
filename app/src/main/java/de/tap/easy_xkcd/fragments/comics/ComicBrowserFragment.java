@@ -33,6 +33,7 @@ import android.os.Environment;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
+import com.bumptech.glide.request.RequestOptions;
 import com.github.chrisbanes.photoview.PhotoView;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.snackbar.Snackbar;
@@ -40,6 +41,7 @@ import com.google.android.material.snackbar.Snackbar;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 import androidx.core.content.FileProvider;
+import androidx.swiperefreshlayout.widget.CircularProgressDrawable;
 import androidx.viewpager.widget.ViewPager;
 
 import android.text.Html;
@@ -66,6 +68,7 @@ import java.io.IOException;
 import java.util.Arrays;
 
 import de.tap.easy_xkcd.Activities.MainActivity;
+import de.tap.easy_xkcd.GlideApp;
 import de.tap.easy_xkcd.database.DatabaseManager;
 import de.tap.easy_xkcd.database.RealmComic;
 import io.realm.Realm;
@@ -166,22 +169,25 @@ public class ComicBrowserFragment extends ComicFragment {
         @Override
         void loadComicImage(RealmComic comic, PhotoView pvComic) {
             if (!loadGif(comic.getComicNumber(), pvComic)) {
-                Glide.with(ComicBrowserFragment.this)
+                GlideApp.with(ComicBrowserFragment.this)
                         .asBitmap()
+                        .apply(new RequestOptions().placeholder(getProgressCircle()))
                         .load(comic.getUrl())
-                        .into(new SimpleTarget<Bitmap>() {
+                        .listener(new RequestListener<Bitmap>() {
                             @Override
-                            public void onLoadFailed(@Nullable Drawable errorDrawable) {
+                            public boolean onLoadFailed(@Nullable GlideException e, Object model, Target<Bitmap> target, boolean isFirstResource) {
                                 postImageLoaded(comic.getComicNumber());
+                                return false;
                             }
 
                             @Override
-                            public void onResourceReady(@NonNull Bitmap resource, Transition<? super Bitmap> transition) {
+                            public boolean onResourceReady(Bitmap resource, Object model, Target<Bitmap> target, DataSource dataSource, boolean isFirstResource) {
                                 postImageLoadedSetupPhotoView(pvComic, resource, comic);
-                                pvComic.setImageBitmap(resource);
                                 postImageLoaded(comic.getComicNumber());
+                                return false;
                             }
-                        });
+                        })
+                        .into(pvComic);
             }
             Timber.d("Loaded comic %d with url %s", comic.getComicNumber(), comic.getUrl());
         }
@@ -189,7 +195,7 @@ public class ComicBrowserFragment extends ComicFragment {
         @Override
         public void destroyItem(ViewGroup container, int position, Object object) {
             container.removeView((RelativeLayout) object);
-            Glide.with(container.getContext()).clear((View) ((RelativeLayout) object).findViewById(R.id.ivComic));
+            GlideApp.with(container.getContext()).clear((View) ((RelativeLayout) object).findViewById(R.id.ivComic));
         }
 
     }
@@ -302,7 +308,7 @@ public class ComicBrowserFragment extends ComicFragment {
             ActivityCompat.requestPermissions(getActivity(), new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE}, 1);
             return;
         }
-        Glide.with(this)
+        GlideApp.with(this)
                 .asBitmap()
                 .load(databaseManager.getRealmComic(lastComicNumber).getUrl())
                 .listener(new RequestListener<Bitmap>() {

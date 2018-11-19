@@ -16,6 +16,7 @@ import com.tap.xkcd_reader.R;
 
 import java.io.IOException;
 
+import de.tap.easy_xkcd.GlideApp;
 import de.tap.easy_xkcd.database.DatabaseManager;
 import de.tap.easy_xkcd.database.RealmComic;
 import de.tap.easy_xkcd.utils.PrefHelper;
@@ -57,7 +58,7 @@ public class WidgetRandomProvider extends AppWidgetProvider {
         if (prefHelper.fullOfflineEnabled()) {
             remoteViews.setImageViewBitmap(R.id.ivComic, RealmComic.getOfflineBitmap(lastComicNumber, context, prefHelper));
         } else {
-            Glide.with(context)
+            GlideApp.with(context)
                     .asBitmap()
                     .load(comic.getUrl())
                     .into(appWidgetTarget);
