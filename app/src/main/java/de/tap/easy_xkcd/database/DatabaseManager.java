@@ -109,7 +109,12 @@ public class DatabaseManager {
     }
 
     public boolean isFavorite(int fav) {
-        return realm.where(RealmComic.class).equalTo("comicNumber", fav).findFirst().isFavorite();
+        try {
+            return realm.where(RealmComic.class).equalTo("comicNumber", fav).findFirst().isFavorite();
+        } catch (NullPointerException e) {
+            Timber.e("favorite comic not in database!");
+            return false;
+        }
     }
 
     /**
