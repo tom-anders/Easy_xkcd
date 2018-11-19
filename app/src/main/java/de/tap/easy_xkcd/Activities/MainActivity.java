@@ -242,11 +242,13 @@ public class MainActivity extends BaseActivity {
         }
 
         if (prefHelper.showUpdateMessage()) {
+            lockRotation();
             new AlertDialog.Builder(this).setMessage(R.string.update_message)
                     .setCancelable(false)
                     .setPositiveButton(R.string.got_it, new DialogInterface.OnClickListener() {
                         @Override
                         public void onClick(DialogInterface dialogInterface, int i) {
+                            unlockRotation();
                             prefHelper.setUpdateMessageShown();
                             recreate();
                         }
