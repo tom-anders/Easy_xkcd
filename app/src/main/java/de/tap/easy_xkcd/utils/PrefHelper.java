@@ -630,10 +630,6 @@ public class PrefHelper {
         prefs.edit().putBoolean(PREF_DONATE, value).apply();
     }
 
-    public boolean altLongTap() {
-        return Integer.parseInt(prefs.getString(ALT_ACTIVATION, "1")) == 1;
-    }
-
     public void showSurveySnackbar(final Context context, FloatingActionButton fab) {
         int n = sharedPrefs.getInt("survey count", 0);
         if (!sharedPrefs.getBoolean(SURVEY_SNACKBAR, false) && n == 15) {

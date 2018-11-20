@@ -139,6 +139,8 @@ public class MainActivity extends BaseActivity {
 
     private boolean updateTaskRunning = false;
 
+    private boolean fullscreenEnabled = false;
+
     @Override
     protected void onCreate(final Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -241,6 +243,16 @@ public class MainActivity extends BaseActivity {
             }, 1500);
         }
 
+        // Show/hide toolbar when fullscreen is exited/entered
+        getWindow().getDecorView().setOnSystemUiVisibilityChangeListener(visibility -> {
+            fullscreenEnabled = (visibility & View.SYSTEM_UI_FLAG_FULLSCREEN) != 0;
+            new Handler().postDelayed(() -> {
+                toolbar.setTranslationY(fullscreenEnabled ? 0f : - toolbar.getHeight());
+                toolbar.animate().translationY(fullscreenEnabled ? - toolbar.getHeight() : 0f);
+                toolbar.setVisibility(fullscreenEnabled ? View.GONE : View.VISIBLE);
+            }, 180);
+        });
+
         if (prefHelper.showUpdateMessage()) {
             lockRotation();
             new AlertDialog.Builder(this).setMessage(R.string.update_message)
@@ -291,6 +303,24 @@ public class MainActivity extends BaseActivity {
             }
             dialog.show();
         }
+    }
+
+    public void toggleFullscreen() {
+        mDrawer.setFitsSystemWindows(fullscreenEnabled);
+        if (!fullscreenEnabled) {
+            getWindow().getDecorView().setSystemUiVisibility(
+                    View.SYSTEM_UI_FLAG_IMMERSIVE
+                            | View.SYSTEM_UI_FLAG_LAYOUT_STABLE
+                            // | View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION
+                            // | View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN
+                            // Hide the nav bar and status bar
+                            | View.SYSTEM_UI_FLAG_HIDE_NAVIGATION
+                            | View.SYSTEM_UI_FLAG_FULLSCREEN
+            );
+        } else {
+            getWindow().getDecorView().setSystemUiVisibility(defaultVisibility);
+        }
+        fullscreenEnabled = !fullscreenEnabled;
     }
 
     private class updateComicsTask extends updateComicDatabase {

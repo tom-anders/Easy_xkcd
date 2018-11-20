@@ -114,8 +114,6 @@ public abstract class ComicFragment extends Fragment {
     protected ThemePrefs themePrefs;
     protected DatabaseManager databaseManager;
 
-    private static boolean fullscreen = false;
-
     protected View inflateLayout(int resId, LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View view = inflater.inflate(resId, container, false);
         setHasOptionsMenu(true);
@@ -313,40 +311,7 @@ public abstract class ComicFragment extends Fragment {
 
                 @Override
                 public boolean onSingleTapConfirmed(MotionEvent e) {
-                    if (!prefHelper.altLongTap()) {
-                        if (prefHelper.classicAltStyle()) {
-                            toggleVisibility(tvAlt);
-                        } else {
-                            androidx.appcompat.app.AlertDialog.Builder mDialog = new androidx.appcompat.app.AlertDialog.Builder(getActivity());
-                            mDialog.setMessage(tvAlt.getText());
-                            mDialog.show();
-                        }
-                    }
-                    getActivity().getWindow().getDecorView().setOnSystemUiVisibilityChangeListener(visibility -> {
-                        fullscreen = (visibility & View.SYSTEM_UI_FLAG_FULLSCREEN) != 0;
-                        new Handler().postDelayed(() -> {
-                            Toolbar toolbar = ((MainActivity) getActivity()).getToolbar();
-                            toolbar.setTranslationY(fullscreen ? 0f : - toolbar.getHeight());
-                            toolbar.animate().translationY(fullscreen ? - toolbar.getHeight() : 0f);
-                            toolbar.setVisibility(fullscreen ? View.GONE : View.VISIBLE);
-                        }, 180);
-                    });
-                    if (!fullscreen) {
-                        getActivity().findViewById(R.id.drawer_layout).setFitsSystemWindows(false);
-                        getActivity().getWindow().getDecorView().setSystemUiVisibility(
-                                View.SYSTEM_UI_FLAG_IMMERSIVE
-                                       | View.SYSTEM_UI_FLAG_LAYOUT_STABLE
-                                        // | View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION
-                                        // | View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN
-                                        // Hide the nav bar and status bar
-                                        | View.SYSTEM_UI_FLAG_HIDE_NAVIGATION
-                                        | View.SYSTEM_UI_FLAG_FULLSCREEN
-                        );
-                    } else {
-                        getActivity().findViewById(R.id.drawer_layout).setFitsSystemWindows(true);
-                        getActivity().getWindow().getDecorView().setSystemUiVisibility(((BaseActivity) getActivity()).defaultVisibility);
-                    }
-                    fullscreen = !fullscreen;
+                    ((MainActivity) getActivity()).toggleFullscreen();
                     return false;
                 }
 
@@ -363,7 +328,7 @@ public abstract class ComicFragment extends Fragment {
             pvComic.setOnLongClickListener(new View.OnLongClickListener() {
                 @Override
                 public boolean onLongClick(View v) {
-                    if (fingerLifted && prefHelper.altLongTap()) {
+                    if (fingerLifted) {
                         if (prefHelper.altVibration())
                             if (getActivity().getSystemService(Context.VIBRATOR_SERVICE) != null) {
                                 ((Vibrator) getActivity().getSystemService(Context.VIBRATOR_SERVICE)).vibrate(25);

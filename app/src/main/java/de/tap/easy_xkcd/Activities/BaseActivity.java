@@ -9,6 +9,8 @@ import android.os.Build;
 import android.os.Bundle;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
+
+import android.os.Handler;
 import android.util.Log;
 import android.view.View;
 import android.view.WindowManager;
@@ -58,6 +60,7 @@ public abstract class BaseActivity extends AppCompatActivity {
         if (themePrefs.amoledThemeEnabled()) {
             toolbar.setPopupTheme(R.style.ThemeOverlay_AmoledBackground);
         }
+
     }
 
     //Useful for when starting a Async Task that would be leaked by screen rotation
