@@ -10,6 +10,8 @@ import android.os.Bundle;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 import android.util.Log;
+import android.view.View;
+import android.view.WindowManager;
 
 import com.tap.xkcd_reader.R;
 
@@ -19,11 +21,14 @@ import de.tap.easy_xkcd.utils.ThemePrefs;
 public abstract class BaseActivity extends AppCompatActivity {
     protected PrefHelper prefHelper;
     protected ThemePrefs themePrefs;
+    public int defaultVisibility;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         prefHelper = new PrefHelper(this);
         themePrefs = new ThemePrefs(this);
+
+        defaultVisibility = getWindow().getDecorView().getSystemUiVisibility();
 
         setTheme(themePrefs.getNewTheme());
         if (themePrefs.amoledThemeEnabled()) {

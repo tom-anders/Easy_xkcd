@@ -17,6 +17,7 @@
 <!-- TODO why no linear layout? -->
 <RelativeLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
+    android:fitsSystemWindows="false"
     android:id="@+id/content"
     android:clipToPadding="false"
     android:layout_height="match_parent"

@@ -18,7 +18,6 @@
     <!-- Standard themes -->
     
     <style name="DefaultTheme" parent="Theme.AppCompat.Light.NoActionBar">
-        <item name="android:windowDrawsSystemBarBackgrounds">true</item>
         <item name="android:statusBarColor">@android:color/transparent</item>
         <item name="android:windowContentTransitions">true</item>
     </style>

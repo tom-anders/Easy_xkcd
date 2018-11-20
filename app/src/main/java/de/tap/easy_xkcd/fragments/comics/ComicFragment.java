@@ -18,6 +18,7 @@
 
 package de.tap.easy_xkcd.fragments.comics;
 
+import android.animation.Animator;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
@@ -26,7 +27,10 @@ import android.graphics.RectF;
 import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.Bundle;
+import android.os.Handler;
 import android.os.Vibrator;
+
+import androidx.appcompat.app.ActionBar;
 import androidx.browser.customtabs.CustomTabsIntent;
 
 import com.bumptech.glide.load.DataSource;
@@ -57,6 +61,7 @@ import android.view.MenuItem;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.WindowManager;
 import android.widget.ImageView;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
@@ -66,12 +71,14 @@ import com.bumptech.glide.Glide;
 import com.tap.xkcd_reader.R;
 
 import org.jetbrains.annotations.Nullable;
+import org.jsoup.Connection;
 
 import java.io.File;
 import java.io.FileOutputStream;
 import java.lang.reflect.Field;
 import java.util.Arrays;
 
+import de.tap.easy_xkcd.Activities.BaseActivity;
 import de.tap.easy_xkcd.Activities.MainActivity;
 import de.tap.easy_xkcd.Activities.SearchResultsActivity;
 import de.tap.easy_xkcd.CustomTabHelpers.BrowserFallback;
@@ -106,6 +113,8 @@ public abstract class ComicFragment extends Fragment {
     protected PrefHelper prefHelper;
     protected ThemePrefs themePrefs;
     protected DatabaseManager databaseManager;
+
+    private static boolean fullscreen = false;
 
     protected View inflateLayout(int resId, LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View view = inflater.inflate(resId, container, false);
@@ -313,6 +322,31 @@ public abstract class ComicFragment extends Fragment {
                             mDialog.show();
                         }
                     }
+                    getActivity().getWindow().getDecorView().setOnSystemUiVisibilityChangeListener(visibility -> {
+                        fullscreen = (visibility & View.SYSTEM_UI_FLAG_FULLSCREEN) != 0;
+                        new Handler().postDelayed(() -> {
+                            Toolbar toolbar = ((MainActivity) getActivity()).getToolbar();
+                            toolbar.setTranslationY(fullscreen ? 0f : - toolbar.getHeight());
+                            toolbar.animate().translationY(fullscreen ? - toolbar.getHeight() : 0f);
+                            toolbar.setVisibility(fullscreen ? View.GONE : View.VISIBLE);
+                        }, 180);
+                    });
+                    if (!fullscreen) {
+                        getActivity().findViewById(R.id.drawer_layout).setFitsSystemWindows(false);
+                        getActivity().getWindow().getDecorView().setSystemUiVisibility(
+                                View.SYSTEM_UI_FLAG_IMMERSIVE
+                                       | View.SYSTEM_UI_FLAG_LAYOUT_STABLE
+                                        // | View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION
+                                        // | View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN
+                                        // Hide the nav bar and status bar
+                                        | View.SYSTEM_UI_FLAG_HIDE_NAVIGATION
+                                        | View.SYSTEM_UI_FLAG_FULLSCREEN
+                        );
+                    } else {
+                        getActivity().findViewById(R.id.drawer_layout).setFitsSystemWindows(true);
+                        getActivity().getWindow().getDecorView().setSystemUiVisibility(((BaseActivity) getActivity()).defaultVisibility);
+                    }
+                    fullscreen = !fullscreen;
                     return false;
                 }
 
