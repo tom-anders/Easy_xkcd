@@ -165,12 +165,14 @@ public class updateComicDatabase extends AsyncTask<Void, Integer, Void> {
 
                 //Import read and favorite comics from the old database
                 if (oldRealmComic != null && oldRealmComic.isFavorite()) {
+                    Timber.d("comic %d was a favorite in the old database!", num);
                     comic.setFavorite(true);
                 } else if (databaseManager.checkFavoriteLegacy(num)) {
                     Timber.d("comic %d was a legacy favorite!", num);
                     comic.setFavorite(true);
                 }
                 if (oldRealmComic != null && oldRealmComic.isRead()) {
+                    Timber.d("comic %d was read in the old database!", num);
                     comic.setRead(true);
                 } else if (databaseManager.checkReadLegacy(num)) {
                     Timber.d("comic %d was legacy read!", num);
@@ -230,7 +232,9 @@ public class updateComicDatabase extends AsyncTask<Void, Integer, Void> {
             } catch (InterruptedException e) {
                 Timber.e(e);
             }
-            prefHelper.setHighestOffline(newest);
+            if (fullOffline) {
+                prefHelper.setHighestOffline(newest);
+            }
 
             realm.commitTransaction();
             realm.close();
