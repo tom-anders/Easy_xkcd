@@ -94,7 +94,7 @@ public class PrefHelper {
     private static final String PREF_ZOOM = "pref_zoom";
     private static final String PREF_DONATE = "pref_hide_donate";
     private static final String DATABASE_LOADED = "database_loaded";
-    private static final String ALT_STYLE = "pref_alt_style";
+    private static final String ALT_STYLE = "pref_alt_style_new";
     private static final String ALT_OPTIONS = "pref_alt_options";
     private static final String ALT_ACTIVATION = "pref_alt_activation";
     private static final String SURVEY_SNACKBAR = "survey_snackbar";
