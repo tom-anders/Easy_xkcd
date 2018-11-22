@@ -139,7 +139,7 @@ public class PrefHelper {
     }
 
     public void setTranscriptsFixed() {
-        prefs.edit().putBoolean(FULL_OFFLINE, true).apply();
+        prefs.edit().putBoolean(TRANSCRIPTS_FIXED, true).apply();
     }
 
     public boolean navDrawerSwipe() {

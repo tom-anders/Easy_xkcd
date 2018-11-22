@@ -15,6 +15,7 @@ import org.json.JSONObject;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.StreamCorruptedException;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CountDownLatch;
 
@@ -43,6 +44,8 @@ public class updateComicDatabase extends AsyncTask<Void, Integer, Void> {
     public updateComicDatabase(PrefHelper prefHelper, Context context) {
         this.prefHelper = prefHelper;
         this.context = context;
+
+        Timber.d("offline mode enabled: %s", String.valueOf(prefHelper.fullOfflineEnabled()));
     }
 
     @Override
@@ -239,6 +242,7 @@ public class updateComicDatabase extends AsyncTask<Void, Integer, Void> {
             Timber.d("Highest Offline: %d, highest databse: %d", prefHelper.getHighestOffline(), databaseManager.getHighestInDatabase()); //We dont actually need highestOffline now!
         }
 
+        Timber.d("offline mode enabled: %s", String.valueOf(prefHelper.fullOfflineEnabled()));
 
         return null;
     }
