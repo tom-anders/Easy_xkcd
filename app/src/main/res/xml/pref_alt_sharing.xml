@@ -16,7 +16,7 @@
             android:key="pref_alt_style"
             android:entries="@array/alt_style_entries"
             android:entryValues="@array/alt_style_values"
-            android:defaultValue="0" />
+            android:defaultValue="1" />
 
     </PreferenceCategory>
 

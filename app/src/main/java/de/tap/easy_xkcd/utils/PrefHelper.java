@@ -179,7 +179,7 @@ public class PrefHelper {
     }
 
     public boolean classicAltStyle() {
-        return Integer.parseInt(prefs.getString(ALT_STYLE, "0")) == 0;
+        return Integer.parseInt(prefs.getString(ALT_STYLE, "1")) == 0;
     }
 
     public boolean databaseLoaded() {
