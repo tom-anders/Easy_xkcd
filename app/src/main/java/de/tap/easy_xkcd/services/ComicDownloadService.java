@@ -50,6 +50,7 @@ import timber.log.Timber;
 
 import static de.tap.easy_xkcd.utils.JsonParser.getNewHttpClient;
 
+//TODO just restart the app and reload the databse!
 public class ComicDownloadService extends IntentService {
 
     private static final String OFFLINE_PATH = "/easy xkcd";

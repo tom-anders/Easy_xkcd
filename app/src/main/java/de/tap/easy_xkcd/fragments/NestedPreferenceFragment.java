@@ -67,10 +67,12 @@ import okhttp3.Request;
 import okhttp3.Response;
 import okio.BufferedSink;
 import okio.Okio;
+import timber.log.Timber;
 import uz.shift.colorpicker.LineColorPicker;
 
 public class NestedPreferenceFragment extends PreferenceFragment {
     private static final String APPEARANCE = "appearance";
+    private static final String OFFLINE_NOTIFICATIONS = "offline_notifications";
     private static final String BEHAVIOR = "behavior";
     private static final String ALT_SHARING = "altSharing";
     private static final String ADVANCED = "advanced";
@@ -126,6 +128,7 @@ public class NestedPreferenceFragment extends PreferenceFragment {
 
     private void checkPreferenceResource() {
         String key = getArguments().getString(TAG_KEY);
+        Timber.d("key: %s", key);
         assert key != null;
         // Load the preferences from an XML resource
         switch (key) {
@@ -256,8 +259,8 @@ public class NestedPreferenceFragment extends PreferenceFragment {
                 });
                 break;
 
-            case BEHAVIOR:
-                addPreferencesFromResource(R.xml.pref_behavior);
+            case OFFLINE_NOTIFICATIONS:
+                addPreferencesFromResource(R.xml.pref_offline_notifications);
                 findPreference(NOTIFICATIONS_INTERVAL).setOnPreferenceChangeListener(new Preference.OnPreferenceChangeListener() {
                     @Override
                     public boolean onPreferenceChange(final Preference preference, Object o) {
@@ -349,7 +352,11 @@ public class NestedPreferenceFragment extends PreferenceFragment {
                         }
                     }
                 });
+                break;
 
+
+            case BEHAVIOR:
+                addPreferencesFromResource(R.xml.pref_behavior);
                 findPreference(NAV_DRAWER_SWIPE).setOnPreferenceChangeListener(new Preference.OnPreferenceChangeListener() {
                     @Override
                     public boolean onPreferenceChange(Preference preference, Object newValue) {

@@ -209,7 +209,7 @@ public abstract class ComicFragment extends Fragment {
             final TextView tvAlt = itemView.findViewById(R.id.tvAlt);
             final TextView tvTitle = itemView.findViewById(R.id.tvTitle);
 
-            RealmComic comic = getRealmComic(position);
+            RealmComic comic = getRealmComic(position); //TODO check if comic is null
 
             tvAlt.setText(comic.getAltText());
             tvTitle.setText(Html.fromHtml(comic.getTitle()));

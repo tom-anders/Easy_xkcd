@@ -70,6 +70,7 @@ public class SettingsActivity extends BaseActivity {
     public static class CustomPreferenceFragment extends PreferenceFragment implements Preference.OnPreferenceClickListener {
         private static final String APPEARANCE = "appearance";
         private static final String BEHAVIOR = "behavior";
+        private static final String OFFLINE_NOTIFICATIONS = "offline_notifications";
         private static final String ALT_SHARING = "altSharing";
         private static final String ADVANCED = "advanced";
         private static final String NIGHT = "night";
@@ -81,6 +82,7 @@ public class SettingsActivity extends BaseActivity {
             addPreferencesFromResource(R.xml.preferences);
 
             findPreference(APPEARANCE).setOnPreferenceClickListener(this);
+            findPreference(OFFLINE_NOTIFICATIONS).setOnPreferenceClickListener(this);
             findPreference(BEHAVIOR).setOnPreferenceClickListener(this);
             findPreference(ALT_SHARING).setOnPreferenceClickListener(this);
             findPreference(ADVANCED).setOnPreferenceClickListener(this);

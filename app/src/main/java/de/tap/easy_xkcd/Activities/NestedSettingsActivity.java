@@ -47,10 +47,12 @@ import java.util.TimerTask;
 import de.tap.easy_xkcd.fragments.NestedPreferenceFragment;
 import de.tap.easy_xkcd.services.ArticleDownloadService;
 import de.tap.easy_xkcd.services.ComicDownloadService;
+import timber.log.Timber;
 
 public class NestedSettingsActivity extends BaseActivity implements OnDirectoryChooserFragmentInteraction  {
     private static final String APPEARANCE = "appearance";
     private static final String BEHAVIOR = "behavior";
+    private static final String OFFLINE_NOTIFICATIONS = "offline_notifications";
     private static final String ALT_SHARING = "altSharing";
     private static final String ADVANCED = "advanced";
     private static final String NIGHT = "night";
@@ -67,6 +69,7 @@ public class NestedSettingsActivity extends BaseActivity implements OnDirectoryC
 
         if (savedInstanceState==null) {
             String key = getIntent().getStringExtra("key");
+            Timber.d("key: %s", key);
             getFragmentManager().beginTransaction().replace(R.id.content_frame, NestedPreferenceFragment.newInstance(key), "nested").commit();
             assert getSupportActionBar() != null;
             switch (key) {
@@ -75,6 +78,9 @@ public class NestedSettingsActivity extends BaseActivity implements OnDirectoryC
                     break;
                 case BEHAVIOR:
                     getSupportActionBar().setTitle(getResources().getString(R.string.pref_behavior));
+                    break;
+                case OFFLINE_NOTIFICATIONS:
+                    getSupportActionBar().setTitle(R.string.pref_offline_notifications);
                     break;
                 case ALT_SHARING:
                     getSupportActionBar().setTitle(getResources().getString(R.string.pref_alt_sharing));

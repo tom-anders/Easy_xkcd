@@ -311,6 +311,7 @@
     <string name="pref_share_title">Sharing</string>
     <string name="pref_share_link">Include comic link</string>
     <string name="pref_share_link_sum">Also include the link to the comic when sharing an image</string>
+    <string name="pref_offline_notifications">Offline mode &amp; notifications</string>
     <string name="pref_behavior">Behavior</string>
     <string name="pref_behavior_sum">Enable offline mode, notifications</string>
     <string name="pref_appearance">Appearance</string>

@@ -115,7 +115,7 @@ public class ComicNotifierJob extends JobService {
             }
 
             if (newWhatifFound) {
-                NotificationCompat.Builder mBuilder =
+                NotificationCompat.Builder mBuilder = //TODO provide a notification channel to make this show up on oreo
                         new NotificationCompat.Builder(ComicNotifierJob.this)
                                 .setSmallIcon(R.drawable.ic_notification)
                                 .setContentTitle(getResources().getString(R.string.new_whatif))
