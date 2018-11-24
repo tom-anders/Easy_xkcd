@@ -299,7 +299,7 @@ public abstract class OverviewBaseFragment extends Fragment {
             toolbar.setTranslationY(-300);
             toolbar.animate().setDuration(300).translationY(0).alpha(1);
             View view;
-            for (int i = 0; i < toolbar.getChildCount(); i++) {
+            for (int i = 2; i < toolbar.getChildCount(); i++) {
                 view = toolbar.getChildAt(i);
                 view.setTranslationY(-300);
                 view.animate().setStartDelay(50 * (i + 1)).setDuration(70 * (i + 1)).translationY(0);
@@ -309,10 +309,6 @@ public abstract class OverviewBaseFragment extends Fragment {
 
     public boolean overViewFav() {
         return comics == null || comics.size() != prefHelper.getNewest();
-    }
-
-    public void updateDatabasePostExecute() {
-        animateToolbar();
     }
 
 }

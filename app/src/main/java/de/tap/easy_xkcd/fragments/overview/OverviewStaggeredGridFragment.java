@@ -106,10 +106,4 @@ public class OverviewStaggeredGridFragment extends OverviewRecyclerBaseFragment 
 
         super.setupAdapter();
     }
-
-    @Override
-    public void updateDatabasePostExecute() {
-        setupAdapter();
-        animateToolbar();
-    }
 }

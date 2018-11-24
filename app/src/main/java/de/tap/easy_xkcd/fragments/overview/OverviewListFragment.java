@@ -239,10 +239,4 @@ public class OverviewListFragment extends OverviewBaseFragment {
         });
     }
 
-    @Override
-    public void updateDatabasePostExecute() {
-        setupAdapter();
-        super.updateDatabasePostExecute();
-    }
-
 }

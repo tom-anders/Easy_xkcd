@@ -86,6 +86,7 @@ import de.tap.easy_xkcd.CustomTabHelpers.CustomTabActivityHelper;
 import de.tap.easy_xkcd.GlideApp;
 import de.tap.easy_xkcd.database.DatabaseManager;
 import de.tap.easy_xkcd.database.RealmComic;
+import de.tap.easy_xkcd.fragments.ImmersiveDialogFragment;
 import de.tap.easy_xkcd.fragments.overview.OverviewListFragment;
 import de.tap.easy_xkcd.misc.HackyViewPager;
 import de.tap.easy_xkcd.utils.PrefHelper;
@@ -653,7 +654,7 @@ public abstract class ComicFragment extends Fragment {
 
     protected boolean setAltText(boolean fromMenu) {
         //If the user selected the menu item for the first time, show the toast
-        if (prefHelper.showAltTip() && fromMenu) {
+        if (fromMenu && prefHelper.showAltTip()) {
             Toast toast = Toast.makeText(getActivity(), R.string.action_alt_tip, Toast.LENGTH_LONG);
             toast.show();
             prefHelper.setAltTip(false);
@@ -668,9 +669,10 @@ public abstract class ComicFragment extends Fragment {
         if (prefHelper.classicAltStyle()) {
             toggleVisibility(tvAlt);
         } else {
-            androidx.appcompat.app.AlertDialog.Builder mDialog = new androidx.appcompat.app.AlertDialog.Builder(getActivity());
-            mDialog.setMessage(tvAlt.getText());
-            mDialog.show();
+            //androidx.appcompat.app.AlertDialog.Builder dialog = new androidx.appcompat.app.AlertDialog.Builder(getActivity());
+            //dialog.setMessage(tvAlt.getText());
+            //dialog.show();
+            ImmersiveDialogFragment.getInstance(String.valueOf(tvAlt.getText())).showImmersive(((MainActivity) getActivity()));
         }
         return true;
     }

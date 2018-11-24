@@ -132,10 +132,4 @@ public class OverviewCardsFragment extends OverviewRecyclerBaseFragment {
         super.onSaveInstanceState(outState);
     }
 
-    @Override
-    public void updateDatabasePostExecute() {
-        setupAdapter();
-        super.updateDatabasePostExecute();
-    }
-
 }
