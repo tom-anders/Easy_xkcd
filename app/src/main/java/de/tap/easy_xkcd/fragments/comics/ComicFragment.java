@@ -649,6 +649,7 @@ public abstract class ComicFragment extends Fragment {
             //androidx.appcompat.app.AlertDialog.Builder dialog = new androidx.appcompat.app.AlertDialog.Builder(getActivity());
             //dialog.setMessage(tvAlt.getText());
             //dialog.show();
+            //ImmersiveDialogFragment.getInstance(String.valueOf(tvAlt.getText())).showImmersive(((MainActivity) getActivity()));
             ImmersiveDialogFragment.getInstance(String.valueOf(tvAlt.getText())).showImmersive(((MainActivity) getActivity()));
         }
         return true;

@@ -8,6 +8,7 @@ import android.view.WindowManager;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.DialogFragment;
+import timber.log.Timber;
 
 // Adapted from https://stackoverflow.com/a/28016335/5136129
 public class ImmersiveDialogFragment extends DialogFragment {
@@ -28,11 +29,15 @@ public class ImmersiveDialogFragment extends DialogFragment {
 
         // Temporarily set the dialogs window to not focusable to prevent the short
         // popup of the navigation bar.
-        alertDialog.getWindow().addFlags(WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE);
+        if (savedInstanceState == null) {
+            alertDialog.getWindow().addFlags(WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE);
+        }
 
         return alertDialog;
 
     }
+
+
 
     public void showImmersive(AppCompatActivity activity) {
 
