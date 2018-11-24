@@ -406,12 +406,6 @@ public abstract class ComicFragment extends Fragment {
         }
     }
 
-
-
-    protected void saveComic(int number, Bitmap bitmap) {
-
-    }
-
     public void addFavorite(final int addedNumber, boolean downloadImage) {
         //DatabaseManager databaseManager = new DatabaseManager(getActivity()); //Create a new one here since we're in a background thread
         if (downloadImage) {
@@ -428,7 +422,7 @@ public abstract class ComicFragment extends Fragment {
 
                             @Override
                             public boolean onResourceReady(Bitmap resource, Object model, Target<Bitmap> target, DataSource dataSource, boolean isFirstResource) {
-                                saveComic(addedNumber, resource);
+                                RealmComic.saveOfflineBitmap(resource, prefHelper, addedNumber, getActivity());
                                 Timber.d("Save successful!");
                                 return true;
                             }

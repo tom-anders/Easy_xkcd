@@ -103,31 +103,13 @@ public class ComicDownloadService extends IntentService {
                 @Override
                 public void onFailure(Call call, IOException e) {
                     latch.countDown();
-                    Timber.e("Downloading comic %d failed", number);
-                    Timber.e(e);
+                    Timber.e("Downloading comic %d failed: %s", number, e.getMessage());
                 }
 
                 @Override
                 public void onResponse(Call call, Response response) throws IOException {
-                    try {
-                        File file = new File(dir, String.valueOf(number) + ".png");
-                        BufferedSink sink = Okio.buffer(Okio.sink(file));
-                        sink.writeAll(response.body().source());
-                        sink.close();
-                    } catch (IOException e) {
-                        Timber.e("Saving Comic %d to external storage failed", number);
-                        try {
-                            FileOutputStream fos = getApplicationContext().openFileOutput(String.valueOf(number), Context.MODE_PRIVATE);
-                            BufferedSink sink = Okio.buffer(Okio.sink(fos));
-                            sink.writeAll(response.body().source());
-                            //FIRST close the sink, THEN close the FileOutputStream
-                            sink.close();
-                            fos.close();
-                        } catch (IOException e2) {
-                            Timber.e("Saving Comic %d to internal storage failed", number);
-                        }
-                    }
-                    response.body().close();
+                    RealmComic.saveOfflineBitmap(response, prefHelper, number, getApplicationContext());
+
                     int p = (int) (number / ((float) size) * 100);
                     NotificationCompat.Builder builder = getNotificationBuilder("download");
                     builder.setProgress(100, p, false);
@@ -135,7 +117,6 @@ public class ComicDownloadService extends IntentService {
                     notificationManager.notify(0, builder.build());
 
                     latch.countDown();
-                    Timber.d("Latch count: %d", latch.getCount());
                 }
             });
         }

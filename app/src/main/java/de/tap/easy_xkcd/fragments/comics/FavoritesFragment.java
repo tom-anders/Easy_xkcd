@@ -307,7 +307,7 @@ public class FavoritesFragment extends ComicFragment {
                             //.diskCacheStrategy(DiskCacheStrategy.SOURCE)
                             .into(Target.SIZE_ORIGINAL, Target.SIZE_ORIGINAL) //TODO replace all .into(-1,-1) with the simple target
                             .get();
-                    saveComic(comic.getComicNumber(), mBitmap);
+                    RealmComic.saveOfflineBitmap(mBitmap, prefHelper, comic.getComicNumber(), getActivity());
                     Timber.d("comic %d saved...", comic.getComicNumber());
                 } catch (Exception e) {
                     e.printStackTrace();
@@ -423,7 +423,7 @@ public class FavoritesFragment extends ComicFragment {
                         //.diskCacheStrategy(DiskCacheStrategy.SOURCE)
                         .into(Target.SIZE_ORIGINAL, Target.SIZE_ORIGINAL)
                         .get();
-                saveComic(pos[0], bitmap);
+                RealmComic.saveOfflineBitmap(bitmap, prefHelper, pos[0], getActivity());
             } catch (Exception e) {
                 e.printStackTrace();
             }
@@ -451,7 +451,7 @@ public class FavoritesFragment extends ComicFragment {
                 databaseManager.setFavorite(mRemoved, true);
                 if (mRemoved <= ((MainActivity) getActivity()).getDatabaseManager().getHighestInDatabase())
                     ((MainActivity) getActivity()).getDatabaseManager().setFavorite(mRemoved, true);
-                saveComic(mRemoved, mRemovedBitmap);
+                RealmComic.saveOfflineBitmap(mRemovedBitmap, prefHelper, mRemoved, getActivity());
                 prefHelper.addTitle(mTitle, mRemoved);
                 prefHelper.addAlt(mAlt, mRemoved);
                 refresh();

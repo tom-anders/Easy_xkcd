@@ -235,7 +235,30 @@ public class RealmComic extends RealmObject {
         return realmComic;
     }
 
-    public static void saveOfflineBitmap(Response response, PrefHelper prefHelper, int number, Activity activity) {
+    public static void saveOfflineBitmap(Bitmap bitmap, PrefHelper prefHelper, int number, Context context) {
+        try {
+            File sdCard = prefHelper.getOfflinePath();
+            File dir = new File(sdCard.getAbsolutePath() + "/easy xkcd");
+            //noinspection ResultOfMethodCallIgnored
+            dir.mkdirs();
+            File file = new File(dir, String.valueOf(number) + ".png");
+            FileOutputStream fos = new FileOutputStream(file);
+            bitmap.compress(Bitmap.CompressFormat.PNG, 100, fos);
+            fos.flush();
+            fos.close();
+        } catch (Exception e) {
+            Timber.e("Error at comic %d: Saving to external storage failed: %s", number, e.getMessage());
+            try {
+                FileOutputStream fos = context.openFileOutput(String.valueOf(number), Context.MODE_PRIVATE);
+                bitmap.compress(Bitmap.CompressFormat.PNG, 100, fos);
+                fos.close();
+            } catch (Exception e2) {
+                Timber.e("Error at comic %d: Saving to external storage failed: %s", number, e2.getMessage());
+            }
+        }
+    }
+
+    public static void saveOfflineBitmap(Response response, PrefHelper prefHelper, int number, Context context) {
         try {
             File sdCard = prefHelper.getOfflinePath();
             File dir = new File(sdCard.getAbsolutePath() + RealmComic.OFFLINE_PATH);
@@ -244,16 +267,15 @@ public class RealmComic extends RealmObject {
             sink.writeAll(response.body().source());
             sink.close();
         } catch (Exception e) {
-            Timber.e("Error at comic %d: Saving to external storage failed!", number);
-            Timber.e(e);
+            Timber.e("Error at comic %d: Saving to external storage failed: %s", number, e.getMessage());
             try {
-                FileOutputStream fos = activity.openFileOutput(String.valueOf(number), Context.MODE_PRIVATE);
+                FileOutputStream fos = context.openFileOutput(String.valueOf(number), Context.MODE_PRIVATE);
                 BufferedSink sink = Okio.buffer(Okio.sink(fos));
                 sink.writeAll(response.body().source());
                 fos.close();
                 sink.close();
             } catch (Exception e2) {
-                Timber.e("Error at comic %d: Saving to internal storage failed!", number);
+                Timber.e("Error at comic %d: Saving to external storage failed: %s", number, e2.getMessage());
             }
         } finally {
             response.body().close();
