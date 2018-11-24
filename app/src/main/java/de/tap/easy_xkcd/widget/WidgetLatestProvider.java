@@ -20,6 +20,7 @@ import org.json.JSONObject;
 import java.io.IOException;
 
 import de.tap.easy_xkcd.GlideApp;
+import de.tap.easy_xkcd.database.DatabaseManager;
 import de.tap.easy_xkcd.database.RealmComic;
 import de.tap.easy_xkcd.utils.PrefHelper;
 import io.realm.Realm;
@@ -61,7 +62,7 @@ public class WidgetLatestProvider extends AppWidgetProvider {
         protected RealmComic doInBackground(Void... dummy) {
             RealmComic comic = null;
             try {
-                comic = RealmComic.findNewestComic(Realm.getDefaultInstance(), context);
+                comic = new DatabaseManager(context).findNewestComic(context);
             } catch (IOException | JSONException e) {
                 Timber.e(e);
             }

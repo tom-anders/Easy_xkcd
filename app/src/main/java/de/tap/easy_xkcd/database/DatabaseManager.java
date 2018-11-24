@@ -15,8 +15,11 @@ import android.widget.Toast;
 
 import com.tap.xkcd_reader.R;
 
+import org.json.JSONException;
+import org.json.JSONObject;
 import org.jsoup.Jsoup;
 
+import java.io.IOException;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Random;
@@ -33,6 +36,8 @@ import io.realm.RealmObjectSchema;
 import io.realm.RealmResults;
 import io.realm.RealmSchema;
 import timber.log.Timber;
+
+import static de.tap.easy_xkcd.utils.JsonParser.getJSONFromUrl;
 
 public class DatabaseManager {
     private Context context;
@@ -304,13 +309,13 @@ public class DatabaseManager {
         @Override
         protected String doInBackground(String... title) {
             try {
-                return "https://www.reddit.com" + JsonParser.getJSONFromUrl("https://www.reddit.com/r/xkcd/search.json?q=" + title[0] + "&restrict_sr=on")
+                return "https://www.reddit.com" + getJSONFromUrl("https://www.reddit.com/r/xkcd/search.json?q=" + title[0] + "&restrict_sr=on")
                         .getJSONObject("data")
                         .getJSONArray("children").getJSONObject(0).getJSONObject("data").getString("permalink");
             } catch (Exception e) {
                 Log.d("reddit link", "timeout, trying again...");
                 try {
-                    return "https://www.reddit.com" + JsonParser.getJSONFromUrl("https://www.reddit.com/r/xkcd/search.json?q=" + title[0] + "&restrict_sr=on")
+                    return "https://www.reddit.com" + getJSONFromUrl("https://www.reddit.com/r/xkcd/search.json?q=" + title[0] + "&restrict_sr=on")
                             .getJSONObject("data")
                             .getJSONArray("children").getJSONObject(0).getJSONObject("data").getString("permalink");
                 } catch (Exception e2) {
@@ -396,6 +401,12 @@ public class DatabaseManager {
         }
         realm.commitTransaction();
     }
+
+    public RealmComic findNewestComic(Context context) throws IOException, JSONException {
+        JSONObject json = getJSONFromUrl(RealmComic.getJsonUrl(0));
+        return RealmComic.buildFromJson(realm, json.getInt("num"), json, context);
+    }
+
 }
 
 

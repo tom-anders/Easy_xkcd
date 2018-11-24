@@ -1,4 +1,4 @@
-## 7.0
+## 7.0.1
 
 - Notifications now use native Android API and should be much more reliable
 - New transitions when entering and leaving overview mode

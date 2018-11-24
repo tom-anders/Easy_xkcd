@@ -160,11 +160,6 @@ public class RealmComic extends RealmObject {
         return getJSONFromUrl(getJsonUrl(0)).getInt("num");
     }
 
-    public static RealmComic findNewestComic(Realm realm, Context context) throws IOException, JSONException {
-        JSONObject json = getJSONFromUrl(getJsonUrl(0));
-        return buildFromJson(realm, json.getInt("num"), json, context);
-    }
-
     public static RealmComic buildFromJson(Realm realm, int comicNumber, JSONObject json, Context context) {
         RealmComic realmComic = new RealmComic();
 

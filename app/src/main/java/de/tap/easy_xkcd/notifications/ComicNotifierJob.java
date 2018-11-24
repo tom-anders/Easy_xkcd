@@ -65,7 +65,7 @@ public class ComicNotifierJob extends JobService {
 
         void updateComics() {
             try {
-                newComic = RealmComic.findNewestComic(Realm.getDefaultInstance(), ComicNotifierJob.this);
+                newComic = new DatabaseManager(ComicNotifierJob.this).findNewestComic(ComicNotifierJob.this);
                 newComicFound = newComic.getComicNumber() > prefHelper.getNewest();
             } catch (Exception e) {
                 Timber.e(e);
