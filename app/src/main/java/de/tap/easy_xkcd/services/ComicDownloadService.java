@@ -19,10 +19,12 @@
 package de.tap.easy_xkcd.services;
 
 import android.app.IntentService;
+import android.app.NotificationChannel;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
+import android.os.Build;
 
 import androidx.core.app.NotificationCompat;
 
@@ -59,8 +61,8 @@ public class ComicDownloadService extends IntentService {
         super("ComicDownloadService");
     }
 
-    NotificationCompat.Builder getNotificationBuilder() {
-        return new NotificationCompat.Builder(this)
+    NotificationCompat.Builder getNotificationBuilder(String channel) {
+        return new NotificationCompat.Builder(this, channel)
                         .setSmallIcon(R.drawable.ic_notification)
                         .setProgress(100, 0, false)
                         .setContentTitle(getResources().getString(R.string.loading_offline))
@@ -74,7 +76,13 @@ public class ComicDownloadService extends IntentService {
         final DatabaseManager databaseManager = new DatabaseManager(getApplicationContext());
 
         final NotificationManager notificationManager = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
-        notificationManager.notify(0, getNotificationBuilder().build());
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            notificationManager.deleteNotificationChannel("comic");
+            notificationManager.deleteNotificationChannel("download");
+            notificationManager.createNotificationChannel(new NotificationChannel("comic", getResources().getString(R.string.notification_channel_comic), NotificationManager.IMPORTANCE_HIGH));
+            notificationManager.createNotificationChannel(new NotificationChannel("download", getResources().getString(R.string.notification_channel_download), NotificationManager.IMPORTANCE_LOW));
+        }
+        notificationManager.notify(0, getNotificationBuilder("comic").build());
 
         File sdCard = prefHelper.getOfflinePath();
         final File dir = new File(sdCard.getAbsolutePath() + OFFLINE_PATH);
@@ -94,6 +102,7 @@ public class ComicDownloadService extends IntentService {
             client.newCall(request).enqueue(new Callback() {
                 @Override
                 public void onFailure(Call call, IOException e) {
+                    latch.countDown();
                     Timber.e("Downloading comic %d failed", number);
                     Timber.e(e);
                 }
@@ -120,7 +129,7 @@ public class ComicDownloadService extends IntentService {
                     }
                     response.body().close();
                     int p = (int) (number / ((float) size) * 100);
-                    NotificationCompat.Builder builder = getNotificationBuilder();
+                    NotificationCompat.Builder builder = getNotificationBuilder("download");
                     builder.setProgress(100, p, false);
                     builder.setContentText(size - latch.getCount() - 1 + "/" + size);
                     notificationManager.notify(0, builder.build());
@@ -142,7 +151,7 @@ public class ComicDownloadService extends IntentService {
         Intent restart = new Intent("de.tap.easy_xkcd.ACTION_COMIC");
         restart.putExtra("number", prefHelper.getLastComic());
         PendingIntent pendingIntent = PendingIntent.getActivity(this, 1, restart, PendingIntent.FLAG_UPDATE_CURRENT);
-        NotificationCompat.Builder builder = getNotificationBuilder();
+        NotificationCompat.Builder builder = getNotificationBuilder("comic");
         builder.setContentIntent(pendingIntent);
         builder.setContentText(getResources().getString(R.string.not_restart));
         notificationManager.cancel(0);

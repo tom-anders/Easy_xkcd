@@ -490,4 +490,7 @@
 
     <string name="pref_fullscreen_enabled">Enable fullscreen mode</string>
     <string name="pref_fullscreen_enabled_sum">Tap a comic to enter fullscreen mode</string>
+
+    <string name="notification_channel_comic">Comic notifications</string>
+    <string name="notification_channel_download">Download notifications</string>
 </resources>

@@ -19,11 +19,15 @@
 package de.tap.easy_xkcd.services;
 
 import android.app.IntentService;
+import android.app.Notification;
+import android.app.NotificationChannel;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.content.Intent;
 
 import androidx.core.app.NotificationCompat;
+
+import android.os.Build;
 import android.util.Log;
 
 import com.tap.xkcd_reader.BuildConfig;
@@ -55,18 +59,26 @@ public class ArticleDownloadService extends IntentService {
         super("ArticleDownloadService");
     }
 
+    NotificationCompat.Builder getNotificationBuilder(String channel) {
+        return new NotificationCompat.Builder(this, channel)
+                .setSmallIcon(R.drawable.ic_notification)
+                .setProgress(100, 0, false)
+                .setContentTitle(getResources().getString(R.string.loading_offline))
+                .setOngoing(true)
+                .setAutoCancel(true);
+    }
+
     @Override
     protected void onHandleIntent(Intent intent) {
-        NotificationCompat.Builder mBuilder =
-                new NotificationCompat.Builder(this)
-                        .setSmallIcon(R.drawable.ic_notification)
-                        .setProgress(100, 0, false)
-                        .setOngoing(true)
-                        .setContentTitle(getResources().getString(R.string.loading_offline_whatif))
-                        .setAutoCancel(true);
 
-        NotificationManager mNotificationManager = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
-        mNotificationManager.notify(1, mBuilder.build());
+        NotificationManager notificationManager = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            notificationManager.deleteNotificationChannel("comic");
+            notificationManager.deleteNotificationChannel("download");
+            notificationManager.createNotificationChannel(new NotificationChannel("comic", getResources().getString(R.string.notification_channel_comic), NotificationManager.IMPORTANCE_HIGH));
+            notificationManager.createNotificationChannel(new NotificationChannel("download", getResources().getString(R.string.notification_channel_download), NotificationManager.IMPORTANCE_LOW));
+        }
+        notificationManager.notify(1, getNotificationBuilder("comic").build());
 
         PrefHelper prefHelper = new PrefHelper(getApplicationContext());
         File sdCard = prefHelper.getOfflinePath();
@@ -110,8 +122,9 @@ public class ArticleDownloadService extends IntentService {
                         e.printStackTrace();
                     }
                     int p = (int) (count / ((float) img.size()) * 100);
-                    mBuilder.setProgress(100, p, false);
-                    mNotificationManager.notify(1, mBuilder.build());
+                    NotificationCompat.Builder builder = getNotificationBuilder("download");
+                    builder.setProgress(100, p, false);
+                    notificationManager.notify(1, builder.build());
                     count++;
                 }
                 if (prefHelper.getNewestWhatIf() == 0)
@@ -153,9 +166,10 @@ public class ArticleDownloadService extends IntentService {
                         }
                     }
                     int p = (int) (i / ((float) size) * 100);
-                    mBuilder.setProgress(100, p, false);
-                    mBuilder.setContentText(i + "/" + size);
-                    mNotificationManager.notify(1, mBuilder.build());
+                    NotificationCompat.Builder builder = getNotificationBuilder("download");
+                    builder.setProgress(100, p, false);
+                    builder.setContentText(i + "/" + size);
+                    notificationManager.notify(1, builder.build());
                 } catch (Exception e) {
                     Log.e("article" + i, e.getMessage());
                 }
@@ -166,9 +180,10 @@ public class ArticleDownloadService extends IntentService {
         Intent restart = new Intent("de.tap.easy_xkcd.ACTION_COMIC");
         restart.putExtra("number", prefHelper.getLastComic());
         PendingIntent pendingIntent = PendingIntent.getActivity(this, 1, restart, PendingIntent.FLAG_UPDATE_CURRENT);
-        mBuilder.setContentIntent(pendingIntent)
+        NotificationCompat.Builder builder = getNotificationBuilder("comic");
+        builder.setContentIntent(pendingIntent)
                 .setContentText(getResources().getString(R.string.not_restart));
-        mNotificationManager.notify(1, mBuilder.build());
+        notificationManager.notify(1, builder.build());
     }
 
 }

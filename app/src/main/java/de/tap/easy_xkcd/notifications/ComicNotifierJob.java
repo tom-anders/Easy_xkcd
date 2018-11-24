@@ -1,12 +1,14 @@
 package de.tap.easy_xkcd.notifications;
 
 import android.app.Notification;
+import android.app.NotificationChannel;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.app.job.JobParameters;
 import android.app.job.JobService;
 import android.content.Intent;
 import android.os.AsyncTask;
+import android.os.Build;
 import android.util.Log;
 
 import com.tap.xkcd_reader.BuildConfig;
@@ -93,22 +95,26 @@ public class ComicNotifierJob extends JobService {
         protected void onPostExecute(Void aVoid) {
             if (newComicFound) {
                 NotificationCompat.Builder mBuilder =
-                        new NotificationCompat.Builder(ComicNotifierJob.this)
+                        new NotificationCompat.Builder(ComicNotifierJob.this, "comic")
                                 .setSmallIcon(R.drawable.ic_notification)
                                 .setContentTitle(getResources().getString(R.string.new_comic))
                                 .setContentText(String.valueOf(newComic.getComicNumber()) + ": " + newComic.getTitle())
                                 .setAutoCancel(true);
-
                 Intent intent = new Intent("de.tap.easy_xkcd.ACTION_COMIC_NOTIFICATION");
                 PendingIntent pendingIntent = PendingIntent.getActivity(getApplicationContext(), 1, intent, PendingIntent.FLAG_UPDATE_CURRENT);
 
                 mBuilder.setContentIntent(pendingIntent);
                 mBuilder.setDefaults(Notification.DEFAULT_SOUND | Notification.DEFAULT_LIGHTS | Notification.DEFAULT_VIBRATE);
 
-                NotificationManager mNotificationManager =
+                NotificationManager notificationManager =
                         (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
-                if (mNotificationManager != null) {
-                    mNotificationManager.notify(1, mBuilder.build());
+                if (notificationManager != null) {
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                        notificationManager.deleteNotificationChannel("comic");
+                        notificationManager.createNotificationChannel(new NotificationChannel("comic", getResources().getString(R.string.notification_channel_comic), NotificationManager.IMPORTANCE_HIGH));
+                    }
+                    notificationManager.notify(1, mBuilder.build());
+
                 }
             } else {
                 Timber.d("ComicNotifier found no new comic...");
