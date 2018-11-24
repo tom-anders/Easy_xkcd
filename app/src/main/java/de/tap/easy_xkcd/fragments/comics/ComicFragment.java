@@ -312,7 +312,9 @@ public abstract class ComicFragment extends Fragment {
 
                 @Override
                 public boolean onSingleTapConfirmed(MotionEvent e) {
-                    ((MainActivity) getActivity()).toggleFullscreen();
+                    if (prefHelper.fullscreenModeEnabled()) {
+                        ((MainActivity) getActivity()).toggleFullscreen();
+                    }
                     return false;
                 }
 

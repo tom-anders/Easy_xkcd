@@ -120,6 +120,7 @@ public class PrefHelper {
     private static final String FAB_DISABLED_FAVORITES = "pref_random_favorites";
 
     private static final String TRANSCRIPTS_FIXED = "transcripts_fixed";
+    private static final String FULLSCREEN_ENABLED = "pref_fullscreen_enabled";
 
     public PrefHelper(Context context) {
         sharedPrefs = context.getSharedPreferences("MainActivity", Activity.MODE_PRIVATE);
@@ -888,6 +889,9 @@ public class PrefHelper {
         return prefs.getBoolean(WIDGET_COMIC_NUMBER, true);
     }
 
+    public boolean fullscreenModeEnabled() {
+        return prefs.getBoolean(FULLSCREEN_ENABLED, true);
+    }
 }
 
 
