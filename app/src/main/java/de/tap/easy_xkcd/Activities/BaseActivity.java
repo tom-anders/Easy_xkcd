@@ -17,6 +17,7 @@ import android.view.WindowManager;
 
 import com.tap.xkcd_reader.R;
 
+import androidx.core.content.ContextCompat;
 import de.tap.easy_xkcd.utils.PrefHelper;
 import de.tap.easy_xkcd.utils.ThemePrefs;
 
@@ -35,6 +36,8 @@ public abstract class BaseActivity extends AppCompatActivity {
         setTheme(themePrefs.getNewTheme());
         if (themePrefs.amoledThemeEnabled()) {
             getWindow().getDecorView().setBackgroundColor(Color.BLACK);
+        } else if (themePrefs.nightThemeEnabled()) {
+            getWindow().getDecorView().setBackgroundColor(ContextCompat.getColor(this, R.color.background_material_dark));
         }
         super.onCreate(savedInstanceState);
     }

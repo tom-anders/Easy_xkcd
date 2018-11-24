@@ -68,7 +68,7 @@ public abstract class OverviewRecyclerBaseFragment extends OverviewBaseFragment 
             CircularProgressDrawable circularProgressDrawable = new CircularProgressDrawable(getActivity());
             circularProgressDrawable.setCenterRadius(60.0f);
             circularProgressDrawable.setStrokeWidth(5.0f);
-            circularProgressDrawable.setColorSchemeColors(themePrefs.getAccentColor());
+            circularProgressDrawable.setColorSchemeColors(themePrefs.nightThemeEnabled() ? themePrefs.getAccentColorNight() : themePrefs.getAccentColor());
             circularProgressDrawable.start();
             return circularProgressDrawable;
         }

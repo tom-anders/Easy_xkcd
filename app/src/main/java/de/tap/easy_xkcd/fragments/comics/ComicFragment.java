@@ -197,7 +197,7 @@ public abstract class ComicFragment extends Fragment {
             CircularProgressDrawable circularProgressDrawable = new CircularProgressDrawable(getActivity());
             circularProgressDrawable.setStrokeWidth(5.0f);
             circularProgressDrawable.setCenterRadius(100.0f);
-            circularProgressDrawable.setColorSchemeColors(themePrefs.getAccentColor());
+            circularProgressDrawable.setColorSchemeColors(themePrefs.nightThemeEnabled() ? themePrefs.getAccentColorNight() : themePrefs.getAccentColor());
             circularProgressDrawable.start();
             return circularProgressDrawable;
         }
