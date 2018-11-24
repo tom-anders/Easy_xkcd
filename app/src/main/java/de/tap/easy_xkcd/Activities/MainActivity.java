@@ -347,7 +347,10 @@ public class MainActivity extends BaseActivity {
         @Override
         public void onPostExecute(Void dummy) {
             super.onPostExecute(dummy);
-            if (getSupportFragmentManager().findFragmentByTag(FRAGMENT_TAG) == null || newComicFound) {
+            if (!fromOnRestart && savedInstanceState == null && prefHelper.launchToOverview()) {
+                currentFragment = CurrentFragment.Overview;
+                showOverview(false);
+            } else if (getSupportFragmentManager().findFragmentByTag(FRAGMENT_TAG) == null || newComicFound) {
                 Timber.d("Creating a new Fragment...");
                 switch (currentFragment) {
                     case Browser:
