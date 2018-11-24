@@ -325,5 +325,36 @@
     <string name="nv_style">Style</string>
     <string name="pref_amoled">AMOLED night mode</string>
     <string name="pref_amoled_sum">Saves battery on devices with an AMOLED screen</string>
+    <string name="comicbrowser_title">Comics</string>
+    <string name="pref_offline_notifications">Offline mode &amp; notifications</string>
+    <string name="update_database_message">Caching comic data</string>
+    <string name="update_database_message_offline">Downloading offline comics…</string>
+    <string name="crash_dialog_title">Easy xkcd has crashed</string>
+    <string name="crash_dialog_disable">Don\'t show this dialog again</string>
+    <string name="crash_dialog_text">Would you like to email a log of this crash to me? That would probably help to make sure this doesn\'t happen again :)</string>
+    <string name="crash_dialog_comment_prompt">"You can add some extra information here: "</string>
+    <string name="crash_ok">OK</string>
+    <string name="crash_cancel">CANCEL</string>
+    <string name="got_it">GOT IT!</string>
+    <string name="no_transcript">Sorry, comics newer than #1674 don\'t have a transcript :(</string>
+    <string name="pref_fullscreen_enabled">Enable fullscreen mode</string>
+    <string name="pref_fullscreen_enabled_sum">Tap a comic to enter fullscreen mode</string>
+    <string name="notification_channel_comic">Comic notifications</string>
+    <string name="notification_channel_download">Downloading notifications</string>
+    <string name="offline_image_missing">Image seems to be missing!</string>
+    <string name="offline_image_missing_redownload">Download</string>
+    <string name="offline_image_missing_failed">Download failed!</string>
 
+    <string name="update_message">
+    Hey there!\n\n
+    This update features a complete rewrite of the app\'s database, meaning comics will load faster
+    and there will hopefully be less crashes (e.g. when adding favorites).
+    In order for everything to work correctly, the app will now reload the entire database which
+    may take a few minutes (only for the first time).
+    If you enabled offline mode, this will also redownload all offline comics.\n\n
+    Some other cool features in this update include AMOLED night mode, better crash reporting and smoother transitions
+    when entering overview mode.
+    Of course a large update like this might introduce some new bugs, so if you encounter any issues
+    feel free to let me know: <a href="easyxkcd@gmail.com">easyxkcd@gmail.com</a>
+    </string>
 </resources>

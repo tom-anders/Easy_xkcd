@@ -318,5 +318,33 @@
     <string name="nv_style">Stil</string>
     <string name="pref_amoled">AMOLED Nacht Modus</string>
     <string name="pref_amoled_sum">Spart Akku auf Geräten mit AMOLED Bildschirm</string>
+    <string name="comicbrowser_title">Comics</string>
+    <string name="pref_offline_notifications">Offline Modus &amp; Benachrichtigungen</string>
+    <string name="update_database_message">Comic Daten speichern</string>
+    <string name="update_database_message_offline">Lade Offline Comics</string>
+    <string name="crash_dialog_title">Easy xkcd is abgestürzt</string>
+    <string name="crash_dialog_disable">Diesen Dialog nicht mehr anzeigen</string>
+    <string name="crash_dialog_text">Möchtest du mir einen Absturzbericht schicken?</string>
+    <string name="crash_dialog_comment_prompt">Hier kannst du noch ein paar Worte zum Absturz verlieren:</string>
+    <string name="crash_ok">OK</string>
+    <string name="crash_cancel">Abbrechen</string>
+    <string name="got_it">ALLES KLAR!</string>
+    <string name="no_transcript">Sorry, Comics nach #1674 haben kein Transcript mehr :(</string>
+    <string name="pref_fullscreen_enabled">Vollbildmodus aktivieren</string>
+    <string name="pref_fullscreen_enabled_sum">Tippe ein Comic an, um den Vollbildmodus zu aktivieren</string>
+    <string name="notification_channel_comic">Comic Benachtichtigungen</string>
+    <string name="notification_channel_download">Downloads Benachtichtigungen</string>
+    <string name="offline_image_missing">Dieses Bild fehlt anscheinend!</string>
+    <string name="offline_image_missing_redownload">Runterladen</string>
+    <string name="offline_image_missing_failed">Download fehlgeschlagen!</string>
 
+    <string name="update_message">
+    Hallo!\n\n
+        In diesem Update wurde die Datenbank der App komplett neu programmiert, das heißt Comics laden schneller
+        und es gibt hoffentlich weniger Abstürze.
+        Damit alles reibungslos über die Bühne geht, lädt die App jetzt einmalig die komplette Datenbank neu.
+        Wenn du den Offline Modus aktiviert hast, wird auch dieser neu aufgebaut.\n\n
+
+        Falls du irgendwelche Probleme mit diesem Update hast, schreib mir doch eine Mail: <a href="mailto:easyxkcd@gmail.com">easyxkcd@gmail.com</a>
+    </string>
 </resources>
