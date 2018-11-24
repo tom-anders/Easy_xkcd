@@ -347,7 +347,7 @@ public class MainActivity extends BaseActivity {
         @Override
         public void onPostExecute(Void dummy) {
             super.onPostExecute(dummy);
-            if ((getSupportFragmentManager().findFragmentByTag(FRAGMENT_TAG) == null || newComicFound)) {
+            if (getSupportFragmentManager().findFragmentByTag(FRAGMENT_TAG) == null || newComicFound) {
                 Timber.d("Creating a new Fragment...");
                 switch (currentFragment) {
                     case Browser:
@@ -985,22 +985,13 @@ public class MainActivity extends BaseActivity {
     @Override
     protected void onResume() {
         super.onResume();
+        Timber.d("onResume called");
         mNavView.setCheckedItem(currentFragmentToNavId());
-        /*try {
-            mNavView.getMenu().findItem(getCurrentFragment()).setChecked(true); //TODO add this back
-        } catch (NullPointerException e) {
-            Timber.e(e);
-        }*/
     }
 
     @Override
     protected void onRestart() {
         Timber.d("onRestart called");
-        /*ComicFragment fragment = (ComicFragment) getSupportFragmentManager().findFragmentByTag(BROWSER_TAG);
-        if (fragment != null && prefHelper.isOnline(this) && !fromSearch)
-            if (fullOffline || (prefHelper.isWifi(this) || prefHelper.mobileEnabled()))
-                fragment.updatePager(); //Update the pager in case a new comic has ben posted while the app was still active in the background
-        */
         if (!updateTaskRunning) {
             new updateComicsTask(prefHelper, this, null, false, false, true).execute();
         } else {
