@@ -24,6 +24,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.graphics.Color;
 import android.graphics.drawable.BitmapDrawable;
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -274,7 +275,9 @@ public class SearchResultsActivity extends BaseActivity {
             ComicViewHolder(View itemView) {
                 super(itemView);
                 ButterKnife.bind(this, itemView);
-                if (themePrefs.nightThemeEnabled()) {
+                if (themePrefs.amoledThemeEnabled()) {
+                    cardView.setCardBackgroundColor(Color.BLACK);
+                } else if (themePrefs.nightThemeEnabled()) {
                     cardView.setCardBackgroundColor(ContextCompat.getColor(SearchResultsActivity.this, R.color.background_material_dark));
                 }
             }
