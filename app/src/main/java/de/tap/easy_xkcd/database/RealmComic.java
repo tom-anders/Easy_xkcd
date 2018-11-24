@@ -18,6 +18,7 @@
 
 package de.tap.easy_xkcd.database;
 
+import android.app.Activity;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
@@ -31,6 +32,7 @@ import org.json.JSONObject;
 
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.util.Arrays;
@@ -40,6 +42,9 @@ import de.tap.easy_xkcd.utils.PrefHelper;
 import io.realm.Realm;
 import io.realm.RealmObject;
 import io.realm.annotations.PrimaryKey;
+import okhttp3.Response;
+import okio.BufferedSink;
+import okio.Okio;
 import timber.log.Timber;
 
 import static de.tap.easy_xkcd.utils.JsonParser.getJSONFromUrl;
@@ -230,6 +235,31 @@ public class RealmComic extends RealmObject {
         return realmComic;
     }
 
+    public static void saveOfflineBitmap(Response response, PrefHelper prefHelper, int number, Activity activity) {
+        try {
+            File sdCard = prefHelper.getOfflinePath();
+            File dir = new File(sdCard.getAbsolutePath() + RealmComic.OFFLINE_PATH);
+            File file = new File(dir, number + ".png");
+            BufferedSink sink = Okio.buffer(Okio.sink(file));
+            sink.writeAll(response.body().source());
+            sink.close();
+        } catch (Exception e) {
+            Timber.e("Error at comic %d: Saving to external storage failed!", number);
+            Timber.e(e);
+            try {
+                FileOutputStream fos = activity.openFileOutput(String.valueOf(number), Context.MODE_PRIVATE);
+                BufferedSink sink = Okio.buffer(Okio.sink(fos));
+                sink.writeAll(response.body().source());
+                fos.close();
+                sink.close();
+            } catch (Exception e2) {
+                Timber.e("Error at comic %d: Saving to internal storage failed!", number);
+            }
+        } finally {
+            response.body().close();
+        }
+    }
+
     public static Bitmap getOfflineBitmap(int comicNumber, Context context, PrefHelper prefHelper) {
         //Fix for offline users who downloaded the HUGE version of #1826
         if(comicNumber == 1826) {
@@ -247,13 +277,13 @@ public class RealmComic extends RealmObject {
             mBitmap = BitmapFactory.decodeStream(fis);
             fis.close();
         } catch (IOException e) {
-            Log.e("Error", "Image not found, looking in internal storage");
+            Timber.e( "Image not found, looking in internal storage");
             try {
                 FileInputStream fis = context.openFileInput(String.valueOf(comicNumber));
                 mBitmap = BitmapFactory.decodeStream(fis);
                 fis.close();
             } catch (Exception e2) {
-                e2.printStackTrace();
+                Timber.e(e2.getMessage());
             }
         }
         return mBitmap;

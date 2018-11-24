@@ -493,4 +493,9 @@
 
     <string name="notification_channel_comic">Comic notifications</string>
     <string name="notification_channel_download">Download notifications</string>
+
+    <string name="offline_image_missing">Image seems to be missing!</string>
+    <string name="offline_image_missing_redownload">Download</string>
+    <string name="offline_image_missing_failed">Download failed!</string>
+
 </resources>

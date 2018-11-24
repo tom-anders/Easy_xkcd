@@ -409,26 +409,7 @@ public abstract class ComicFragment extends Fragment {
 
 
     protected void saveComic(int number, Bitmap bitmap) {
-        try {
-            File sdCard = prefHelper.getOfflinePath();
-            File dir = new File(sdCard.getAbsolutePath() + "/easy xkcd");
-            //noinspection ResultOfMethodCallIgnored
-            dir.mkdirs();
-            File file = new File(dir, String.valueOf(number) + ".png");
-            FileOutputStream fos = new FileOutputStream(file);
-            bitmap.compress(Bitmap.CompressFormat.PNG, 100, fos);
-            fos.flush();
-            fos.close();
-        } catch (Exception e) {
-            Log.e("Error", "Saving to external storage failed");
-            try {
-                FileOutputStream fos = getActivity().openFileOutput(String.valueOf(number), Context.MODE_PRIVATE);
-                bitmap.compress(Bitmap.CompressFormat.PNG, 100, fos);
-                fos.close();
-            } catch (Exception e2) {
-                e2.printStackTrace();
-            }
-        }
+
     }
 
     public void addFavorite(final int addedNumber, boolean downloadImage) {

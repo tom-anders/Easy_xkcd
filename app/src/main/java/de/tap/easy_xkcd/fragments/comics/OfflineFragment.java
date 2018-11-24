@@ -23,6 +23,7 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.graphics.Bitmap;
 import android.graphics.drawable.Drawable;
+import android.os.AsyncTask;
 import android.os.Bundle;
 
 import com.bumptech.glide.load.DataSource;
@@ -43,19 +44,36 @@ import android.view.ViewGroup;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.bumptech.glide.Glide;
 import com.tap.xkcd_reader.R;
 
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
 import java.util.Arrays;
 
 import de.tap.easy_xkcd.Activities.MainActivity;
 import de.tap.easy_xkcd.database.DatabaseManager;
 import de.tap.easy_xkcd.database.RealmComic;
+import io.realm.Realm;
+import okhttp3.Call;
+import okhttp3.Callback;
+import okhttp3.OkHttpClient;
+import okhttp3.Request;
+import okhttp3.Response;
+import okio.BufferedSink;
+import okio.Okio;
 import timber.log.Timber;
+
+import static de.tap.easy_xkcd.utils.JsonParser.getNewHttpClient;
 
 public class OfflineFragment extends ComicFragment {
     private Boolean randomSelected = false;
+    private static final String MISSING_IMAGE = "missing_image";
+
+    private Snackbar missingImageSnackbar;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
@@ -81,6 +99,58 @@ public class OfflineFragment extends ComicFragment {
         });
 
         return v;
+    }
+
+    @Override
+    protected void pageSelected(int position) {
+        super.pageSelected(position);
+
+        View page = pager.findViewWithTag(position);
+        if (page != null && page.findViewById(R.id.ivComic).getTag() == MISSING_IMAGE) {
+            missingImageSnackbar = Snackbar.make(((MainActivity) getActivity()).getFab(), R.string.offline_image_missing, Snackbar.LENGTH_INDEFINITE)
+                    .setAction(R.string.offline_image_missing_redownload, view -> {
+                        Timber.e("bitmap for %d is null!", position + 1);
+                        RealmComic comic = databaseManager.getRealmComic(position + 1);
+                        new redownloadComicImageTask(comic.getUrl(), comic.getComicNumber()).execute();
+                    });
+            missingImageSnackbar.show();
+        } else {
+            if (missingImageSnackbar != null) {
+                missingImageSnackbar.dismiss();
+            }
+        }
+
+    }
+
+    private class redownloadComicImageTask extends AsyncTask<Void, Void, Boolean> {
+        String url;
+        int number;
+
+        public redownloadComicImageTask(String url, int number) {
+            this.url = url;
+            this.number = number;
+        }
+
+        @Override
+        protected Boolean doInBackground(Void... voids) {
+            try {
+                RealmComic.saveOfflineBitmap(getNewHttpClient().newCall(new Request.Builder().url(url).build()).execute(), prefHelper, number, getActivity());
+                return true;
+            } catch (IOException e) {
+                Timber.e(e);
+                return false;
+            }
+        }
+        @Override
+        protected void onPostExecute(Boolean successful) {
+            if (successful) {
+                Timber.d("download successful!");
+                updatePager();
+            } else {
+                Toast.makeText(getActivity(), R.string.offline_image_missing_failed, Toast.LENGTH_SHORT).show();
+            }
+        }
+
     }
 
     @Override
@@ -144,7 +214,11 @@ public class OfflineFragment extends ComicFragment {
             if (!loadGif(comic.getComicNumber(), pvComic)) {
                 Bitmap bitmap = RealmComic.getOfflineBitmap(comic.getComicNumber(), context, prefHelper);
                 postImageLoadedSetupPhotoView(pvComic, bitmap, comic);
-                pvComic.setImageBitmap(bitmap);
+                if (bitmap != null) {
+                    pvComic.setImageBitmap(bitmap);
+                } else {
+                    pvComic.setTag(MISSING_IMAGE);
+                }
                 postImageLoaded(comic.getComicNumber());
             }
         }

@@ -74,48 +74,49 @@ public abstract class OverviewRecyclerBaseFragment extends OverviewBaseFragment 
         }
 
         protected void loadComicImage(RealmComic comic, ComicViewHolder comicViewHolder) {
-            GlideRequest<Bitmap> request = GlideApp.with(OverviewRecyclerBaseFragment.this).asBitmap();
+            GlideRequest<Bitmap> request = GlideApp.with(OverviewRecyclerBaseFragment.this)
+                    .asBitmap()
+                    .apply(new RequestOptions().placeholder(getCircularProgress()))
+                    .listener(new RequestListener<Bitmap>() {
+                        @Override
+                        public boolean onLoadFailed(@Nullable GlideException e, Object model, Target<Bitmap> target, boolean isFirstResource) {
+                            if (comic.getComicNumber() == lastComicNumber) {
+                                startPostponedEnterTransition();
+                            }
+                            return false;
+                        }
+
+                        @Override
+                        public boolean onResourceReady(Bitmap resource, Object model, Target<Bitmap> target, DataSource dataSource, boolean isFirstResource) {
+                            if (themePrefs.invertColors(false) && themePrefs.bitmapContainsColor(resource, comic.getComicNumber()))
+                                comicViewHolder.thumbnail.clearColorFilter();
+
+                            if (comic.getComicNumber() == lastComicNumber) {
+                                startPostponedEnterTransition();
+                            }
+                            Timber.d("Loaded overview comic %d", comic.getComicNumber());
+                            return false;
+                        }
+                    });
+
             if (!MainActivity.fullOffline) {
-                request =  request.load(comic.getUrl());
+                request.load(comic.getUrl()).into(comicViewHolder.thumbnail);
             } else {
                 File sdCard = prefHelper.getOfflinePath();
                 File dir = new File(sdCard.getAbsolutePath() + "/easy xkcd");
                 File file = new File(dir, String.valueOf(comic.getComicNumber()) + ".png");
                 if (file.exists()) {
-                    request = request.load(file);
+                    request.load(file).into(comicViewHolder.thumbnail);
                 } else {
                     Timber.d("Offline file is not in external storage");
                     try {
                         FileInputStream fis = getActivity().openFileInput(String.valueOf(comic.getComicNumber()));
-                        request = request.load(fis);
+                        request.load(fis).into(comicViewHolder.thumbnail);
                     } catch (IOException e) {
                         Timber.e(e);
                     }
                 }
             }
-            request.apply(new RequestOptions().placeholder(getCircularProgress()))
-                .listener(new RequestListener<Bitmap>() {
-                @Override
-                public boolean onLoadFailed(@Nullable GlideException e, Object model, Target<Bitmap> target, boolean isFirstResource) {
-                    if (comic.getComicNumber() == lastComicNumber) {
-                        startPostponedEnterTransition();
-                    }
-                    return false;
-                }
-
-                @Override
-                public boolean onResourceReady(Bitmap resource, Object model, Target<Bitmap> target, DataSource dataSource, boolean isFirstResource) {
-                    if (themePrefs.invertColors(false) && themePrefs.bitmapContainsColor(resource, comic.getComicNumber()))
-                        comicViewHolder.thumbnail.clearColorFilter();
-
-                    if (comic.getComicNumber() == lastComicNumber) {
-                        startPostponedEnterTransition();
-                    }
-                    Timber.d("Loaded overview comic %d", comic.getComicNumber());
-                    return false;
-                }
-            }).into(comicViewHolder.thumbnail);
-
         }
 
         protected void setupCard(ComicViewHolder comicViewHolder, RealmComic comic, String title, int number) {
