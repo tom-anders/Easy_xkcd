@@ -139,6 +139,7 @@ public class SearchResultsActivity extends BaseActivity {
         else
             intent.putExtra("number", number);
         mProgress.dismiss();
+        finish();
         startActivity(intent);
         if (task != null)
             task.cancel(true);
