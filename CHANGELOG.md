@@ -1,3 +1,17 @@
+## 7.0
+
+- Notifications now use native Android API and should be much more reliable
+- New transitions when entering and leaving overview mode
+- Added AMOLED night theme
+- Complete rewrite of the App's database
+- Added a fullscreen mode that is toggled by tapping a comic (Can be disabled in the settings)
+- Missing offline comics can now be downloaded manually directly from the comic browser
+- Changed default style for the alt text
+- Added a progress dialog while a comic image is loading
+- Fixed comic transcripts being off by one or two 
+
+In case you have any issues with this update, let me know: easyxkcd@gmail.com
+
 ## 6.1.2
 
 - Added fast scrolling to What-If overview
