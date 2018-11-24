@@ -691,7 +691,11 @@ public class PrefHelper {
             }
             return result;
         } catch (IndexOutOfBoundsException e) {
-            return (new Random()).nextInt(getNewest()-1) + 1;
+            if (getNewest() > 0) {
+                return (new Random()).nextInt(getNewest()-1) + 1;
+            } else {
+                return 1;
+            }
         }
     }
 

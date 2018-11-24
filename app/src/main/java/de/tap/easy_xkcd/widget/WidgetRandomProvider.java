@@ -55,20 +55,22 @@ public class WidgetRandomProvider extends AppWidgetProvider {
         AppWidgetTarget appWidgetTarget = new AppWidgetTarget(context, R.id.ivComic, remoteViews, appWidgetIds);
 
         RealmComic comic = (new DatabaseManager(context)).getRealmComic(lastComicNumber);
-        if (prefHelper.fullOfflineEnabled()) {
-            remoteViews.setImageViewBitmap(R.id.ivComic, RealmComic.getOfflineBitmap(lastComicNumber, context, prefHelper));
-        } else {
-            GlideApp.with(context)
-                    .asBitmap()
-                    .load(comic.getUrl())
-                    .into(appWidgetTarget);
-        }
+        if (comic != null) {
+            if (prefHelper.fullOfflineEnabled()) {
+                remoteViews.setImageViewBitmap(R.id.ivComic, RealmComic.getOfflineBitmap(lastComicNumber, context, prefHelper));
+            } else {
+                GlideApp.with(context)
+                        .asBitmap()
+                        .load(comic.getUrl())
+                        .into(appWidgetTarget);
+            }
 
-        String title = prefHelper.widgetShowComicNumber() ? (lastComicNumber + ": ") : "";
-        remoteViews.setTextViewText(R.id.tvTitle, title + comic.getTitle());
-        remoteViews.setTextViewText(R.id.tvAlt, comic.getAltText());
-        if (prefHelper.widgetShowAlt())
-            remoteViews.setViewVisibility(R.id.tvAlt, View.VISIBLE);
+            String title = prefHelper.widgetShowComicNumber() ? (lastComicNumber + ": ") : "";
+            remoteViews.setTextViewText(R.id.tvTitle, title + comic.getTitle());
+            remoteViews.setTextViewText(R.id.tvAlt, comic.getAltText());
+            if (prefHelper.widgetShowAlt())
+                remoteViews.setViewVisibility(R.id.tvAlt, View.VISIBLE);
+        }
     }
 
 
