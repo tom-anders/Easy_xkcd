@@ -1,4 +1,4 @@
-## 7.0.4
+## 7.0.5
 
 - Small bug fixes
 

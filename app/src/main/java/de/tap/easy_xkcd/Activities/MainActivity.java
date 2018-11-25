@@ -952,12 +952,9 @@ public class MainActivity extends BaseActivity {
                         showOverview(true);
                     }
                 } else {
-                    //TODO check if we came from search - maybe we can add the search fragment to the back stack?
                     super.onBackPressed();
                 }
             }
-        } else if (currentFragment == CurrentFragment.Overview || currentFragment == CurrentFragment.WhatIf) {
-            return; //Do nothing here
         } else {
             super.onBackPressed();
         }
