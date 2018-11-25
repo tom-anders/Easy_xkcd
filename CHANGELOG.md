@@ -1,4 +1,8 @@
-## 7.0.3
+## 7.0.4
+
+- Small bug fixes
+
+## 7.0
 
 - Notifications now use native Android API and should be much more reliable
 - New transitions when entering and leaving overview mode
