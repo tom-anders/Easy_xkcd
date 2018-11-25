@@ -236,6 +236,7 @@ public abstract class ComicFragment extends Fragment {
 
         protected void postImageLoaded(int number) {
             if (number == lastComicNumber) {
+                animateToolbar();
                 if (transitionPending) {
                     Timber.d("start transition at %d", number);
                     startPostponedEnterTransition();
@@ -251,7 +252,6 @@ public abstract class ComicFragment extends Fragment {
                 if (mainActivity.getProgressDialog() != null) {
                     mainActivity.getProgressDialog().dismiss();
                 }
-                animateToolbar();
             }
         }
 
@@ -396,7 +396,7 @@ public abstract class ComicFragment extends Fragment {
         Toolbar toolbar = ((MainActivity) getActivity()).getToolbar();
         if (toolbar.getAlpha() == 0) {
             toolbar.setTranslationY(-300);
-            toolbar.animate().setDuration(300).translationY(0).alpha(1);
+            toolbar.animate().setDuration(380).translationY(0).alpha(1);
             View view;
             for (int i = 0; i < toolbar.getChildCount(); i++) {
                 view = toolbar.getChildAt(i);
