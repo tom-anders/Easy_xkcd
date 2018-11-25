@@ -462,8 +462,9 @@ public class MainActivity extends BaseActivity {
         FragmentManager fragmentManager = getSupportFragmentManager();
         FragmentTransaction transaction = fragmentManager.beginTransaction();
 
-        assert getSupportActionBar() != null;
-        getSupportActionBar().setSubtitle("");
+        if (getSupportActionBar() != null) {
+            getSupportActionBar().setSubtitle("");
+        }
 
         prefHelper.setOverviewFav(currentFragment == CurrentFragment.Favorites);
 
@@ -545,6 +546,10 @@ public class MainActivity extends BaseActivity {
         FragmentManager fragmentManager = getSupportFragmentManager();
         //mFab.setVisibility(View.GONE);
         mFab.hide(); //WhatIf Fragment has its own FAB
+
+        if (getSupportActionBar() != null) {
+            getSupportActionBar().setSubtitle("");
+        }
 
         WhatIfOverviewFragment whatIfFragment = new WhatIfOverviewFragment();
         final FragmentTransaction transaction = fragmentManager.beginTransaction();
