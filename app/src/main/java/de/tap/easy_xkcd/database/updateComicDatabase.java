@@ -26,7 +26,7 @@ import timber.log.Timber;
 
 import static de.tap.easy_xkcd.utils.JsonParser.getNewHttpClient;
 
-public class updateComicDatabase extends AsyncTask<Void, Integer, Void> {
+public class updateComicDatabase extends AsyncTask<Void, String, Void> {
     protected ProgressDialog progress;
     protected PrefHelper prefHelper;
     protected DatabaseManager databaseManager;
@@ -111,7 +111,8 @@ public class updateComicDatabase extends AsyncTask<Void, Integer, Void> {
                     response.body().close();
 
                     int p = (int) (((newest - highest - latch.getCount()) / ((float) newest - highest)) * 100);
-                    publishProgress(p);
+                    String[] prog = {String.valueOf(p), ""};
+                    publishProgress(prog);
                     latch.countDown();
                 }
             });
@@ -148,7 +149,8 @@ public class updateComicDatabase extends AsyncTask<Void, Integer, Void> {
         if (prefHelper.fullOfflineEnabled()) {
             saveOfflineImage(latch, comic);
         } else {
-            int prog = (int) (((num - highest) / ((float) newest - highest)) * 100);
+            int p = (int) (((num - highest) / ((float) newest - highest)) * 100);
+            String[] prog = {String.valueOf(p), ""};
             publishProgress(prog);
             latch.countDown();
         }
@@ -169,7 +171,8 @@ public class updateComicDatabase extends AsyncTask<Void, Integer, Void> {
             @Override
             public void onResponse(Call call, Response response) throws IOException {
                 RealmComic.saveOfflineBitmap(response, prefHelper, comic.getComicNumber(), context);
-                int prog = (int) (((newest - highest - latch.getCount()) / ((float) newest - highest)) * 100);
+                int p = (int) (((newest - highest - latch.getCount()) / ((float) newest - highest)) * 100);
+                String[] prog = {String.valueOf(p), ""};
                 publishProgress(prog);
                 latch.countDown();
                 Timber.d("Saved offline comic %s", comic.getComicNumber());
@@ -195,7 +198,8 @@ public class updateComicDatabase extends AsyncTask<Void, Integer, Void> {
             }
             highest = databaseManager.getHighestInDatabase();
             if (highest == newest) {
-                publishProgress(100);
+                String[] prog = {"100", ""};
+                publishProgress(prog);
                 Timber.d("No new comic found!");
                 return null;  //Database already up to date
             }
@@ -207,7 +211,10 @@ public class updateComicDatabase extends AsyncTask<Void, Integer, Void> {
             realm.beginTransaction();
 
             if (prefHelper.fullOfflineEnabled()) {
-                progress.setMessage(context.getResources().getString(R.string.update_database_message_offline));
+                String[] prog = new String[2];
+                prog[0] = "0";
+                prog[1] = context.getResources().getString(R.string.update_database_message_offline);
+                publishProgress(prog);
             }
 
             final CountDownLatch latch = new CountDownLatch(newest - highest);
@@ -243,9 +250,14 @@ public class updateComicDatabase extends AsyncTask<Void, Integer, Void> {
         return null;
     }
 
-    protected void onProgressUpdate(Integer... pro) {
-        if (showProgress)
-            progress.setProgress(pro[0]);
+    protected void onProgressUpdate(String... pro) {
+        if (showProgress) {
+            progress.setProgress(Integer.parseInt(pro[0]));
+        }
+        if (!pro[1].equals("")) {
+            Timber.d("prog[1]: %s", pro[1]);
+            progress.setMessage(pro[1]);
+        }
     }
 
     @Override
