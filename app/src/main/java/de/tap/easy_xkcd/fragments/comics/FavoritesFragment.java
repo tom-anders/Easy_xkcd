@@ -403,8 +403,6 @@ public class FavoritesFragment extends ComicFragment {
                 //If there are no favorites left, show ComicBrowserFragment
                 MenuItem mBrowser = ((MainActivity) getActivity()).getNavView().getMenu().findItem(R.id.nav_browser);
                 ((MainActivity) getActivity()).selectDrawerItem(mBrowser, false, false, true, true);
-                FragmentManager fragmentManager = getActivity().getSupportFragmentManager();
-                fragmentManager.beginTransaction().remove(fragmentManager.findFragmentByTag("favorites")).commitAllowingStateLoss();
                 return;
             }
             refresh();
@@ -440,27 +438,19 @@ public class FavoritesFragment extends ComicFragment {
     protected boolean modifyFavorites(MenuItem item) {
         final int mRemoved = favorites.get(favoriteIndex).getComicNumber();
         final Bitmap mRemovedBitmap = RealmComic.getOfflineBitmap(favorites.get(favoriteIndex).getComicNumber(), getActivity(), prefHelper);
-        final String mAlt = prefHelper.getAlt(favorites.get(favoriteIndex).getComicNumber());
-        final String mTitle = prefHelper.getTitle(favorites.get(favoriteIndex).getComicNumber());
+
+        if (favorites.size() > 1) {
+            Snackbar.make(((MainActivity) getActivity()).getFab(), R.string.snackbar_remove, Snackbar.LENGTH_LONG)
+                    .setAction(R.string.snackbar_undo, view -> {
+                        databaseManager.setFavorite(mRemoved, true);
+                        RealmComic.saveOfflineBitmap(mRemovedBitmap, prefHelper, mRemoved, getActivity());
+                        refresh();
+                    })
+                    .show();
+        }
 
         new DeleteImageTask().execute(mRemoved);
 
-        View.OnClickListener oc = new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                databaseManager.setFavorite(mRemoved, true);
-                if (mRemoved <= ((MainActivity) getActivity()).getDatabaseManager().getHighestInDatabase())
-                    ((MainActivity) getActivity()).getDatabaseManager().setFavorite(mRemoved, true);
-                RealmComic.saveOfflineBitmap(mRemovedBitmap, prefHelper, mRemoved, getActivity());
-                prefHelper.addTitle(mTitle, mRemoved);
-                prefHelper.addAlt(mAlt, mRemoved);
-                refresh();
-            }
-        };
-
-        Snackbar.make(((MainActivity) getActivity()).getFab(), R.string.snackbar_remove, Snackbar.LENGTH_LONG)
-                .setAction(R.string.snackbar_undo, oc)
-                .show();
         return true;
     }
 
