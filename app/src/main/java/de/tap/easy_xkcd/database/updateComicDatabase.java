@@ -251,12 +251,13 @@ public class updateComicDatabase extends AsyncTask<Void, String, Void> {
     }
 
     protected void onProgressUpdate(String... pro) {
-        if (showProgress) {
+        if (showProgress && progress != null) {
             progress.setProgress(Integer.parseInt(pro[0]));
-        }
-        if (!pro[1].equals("")) {
-            Timber.d("prog[1]: %s", pro[1]);
-            progress.setMessage(pro[1]);
+
+            if (!pro[1].equals("")) {
+                Timber.d("prog[1]: %s", pro[1]);
+                progress.setMessage(pro[1]);
+            }
         }
     }
 
