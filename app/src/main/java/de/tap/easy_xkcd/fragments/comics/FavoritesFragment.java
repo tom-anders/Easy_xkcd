@@ -119,7 +119,10 @@ public class FavoritesFragment extends ComicFragment {
             getActivity().invalidateOptionsMenu();
         }
 
-        updateFavorites();
+        if (getActivity() != null) {
+            updateFavorites();
+        }
+
         return v;
     }
 
