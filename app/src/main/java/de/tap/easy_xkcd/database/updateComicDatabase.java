@@ -262,8 +262,12 @@ public class updateComicDatabase extends AsyncTask<Void, String, Void> {
 
     @Override
     protected void onPostExecute(Void dummy) {
-
-        if (showProgress)
-            progress.dismiss();
+        if (showProgress) {
+            try {
+                progress.dismiss();
+            } catch (Exception e) {
+                Timber.e(e);
+            }
+        }
     }
 }
