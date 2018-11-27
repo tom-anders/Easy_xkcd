@@ -38,6 +38,7 @@
         tools:replace="android:theme, android:label">
         <activity
             android:name="de.tap.easy_xkcd.Activities.MainActivity"
+            android:resizeableActivity="false"
             android:hardwareAccelerated="true"
             android:label="@string/app_name"
             android:launchMode="singleTop">
