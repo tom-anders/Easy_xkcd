@@ -221,8 +221,8 @@
     <string name="pref_zoom">Увеличање текста за „What If“?</string>
     <string name="pref_zoom_sum">May fix layout issues on some devices</string>
     <string name="pref_advanced">Напредно</string>
-    <string name="pref_repair">Поправи локалне стрипове</string>
-    <string name="pref_repair_sum">Ако видите празне стрипове, овом опцијом ћетепоново да их преузмете</string>
+    <string name="pref_repair">Reload Comic Database</string>
+    <string name="pref_repair_sum">If you see some blank comics or encounter crashes, this might be the solution</string>
     <string name="pref_export">Export Favorites</string>
     <string name="pref_hide_donate">Сакриј дугме за донацију</string>
     <string name="title_activity_donate">Донирање</string>

@@ -158,7 +158,7 @@
 <string name="theme_accent_color_dialog" modified="true">选择一个强调色</string>
 <string name="pref_widget_alt" modified="true">显示图片描述</string>
 <string name="add_bookmark" modified="true">添加书签</string>
-<string name="pref_repair_sum" modified="true">如果您看到一些空白漫画，这个选项应该能通过重新下载它来解决</string>
+<string name="pref_repair_sum" modified="true">If you see some blank comics or encounter crashes, this might be the solution</string>
 <string name="pref_offline_sum" modified="true">将所有漫画下载至外部存储。新漫画将会自动添加。占用约 150MB。</string>
 <string name="pref_alt_activation_sum" modified="true">长按或单击</string>
 <string name="favorites_cleared" modified="true">已清除收藏</string>
@@ -184,7 +184,7 @@
 <string name="thread_not_found" modified="true">未找到主题贴！</string>
 <string name="no_connection_favorites" modified="true">查看收藏</string>
 <string name="pref_show_alt" modified="true">默认显示图片描述</string>
-<string name="pref_repair" modified="true">修理离线漫画</string>
+<string name="pref_repair" modified="true">Reload Comic Database</string>
 <string name="pref_overview_default" modified="true">启动至概览模式</string>
 <string name="pref_default_zoom_sum" modified="true">若禁用，漫画在大屏设备上视觉效果可能更好</string>
 <string name="search_title" modified="true">查找</string>

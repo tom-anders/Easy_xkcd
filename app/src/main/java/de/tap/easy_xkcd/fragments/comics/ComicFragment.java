@@ -211,12 +211,17 @@ public abstract class ComicFragment extends Fragment {
 
             RealmComic comic = getRealmComic(position); //TODO check if comic is null
 
-            tvAlt.setText(comic.getAltText());
-            tvTitle.setText(Html.fromHtml(comic.getTitle()));
-            pvComic.setTransitionName("im" + comic.getComicNumber());
-            tvTitle.setTransitionName(String.valueOf(comic.getComicNumber()));
+            try {
+                tvAlt.setText(comic.getAltText());
+                tvTitle.setText(Html.fromHtml(comic.getTitle()));
+                pvComic.setTransitionName("im" + comic.getComicNumber());
+                tvTitle.setTransitionName(String.valueOf(comic.getComicNumber()));
 
-            loadComicImage(comic, pvComic);
+                loadComicImage(comic, pvComic);
+            } catch (NullPointerException e) {
+                Timber.e(e, "NullPointerException at %s", position);
+            }
+
 
             container.addView(itemView);
             return itemView;

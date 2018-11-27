@@ -222,8 +222,8 @@
     <string name="pref_zoom">What If? Zvětšení textu</string>
     <string name="pref_zoom_sum">Může spravit problémy s rozvržením na některých přístrojích</string>
     <string name="pref_advanced">Rozšířené</string>
-    <string name="pref_repair">Opravit offline komixy</string>
-    <string name="pref_repair_sum">Pokud vidíte prázdné komixy, tato možnost je napraví novým stažením</string>
+    <string name="pref_repair">Reload Comic Database</string>
+    <string name="pref_repair_sum">If you see some blank comics or encounter crashes, this might be the solution</string>
     <string name="pref_export_import">Exportovat/Importovat oblíbené</string>
     <string name="pref_export">Exportuje vaše oblíbené</string>
     <string name="pref_import_success">Oblíbené importovány!</string>

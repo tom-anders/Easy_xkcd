@@ -334,8 +334,8 @@
     <string name="pref_zoom">What If? Text Zoom</string>
     <string name="pref_zoom_sum">May fix layout issues on some devices</string>
     <string name="pref_advanced">Advanced</string>
-    <string name="pref_repair">Repair offline comics</string>
-    <string name="pref_repair_sum">If you see some blank comics, this option should fix it by re-downloading them</string>
+    <string name="pref_repair">Reload Comic Database</string>
+    <string name="pref_repair_sum">If you see some blank comics or encounter crashes, this might be the solution</string>
     <string name="pref_export_import">Export/Import Favorites</string>
     <string name="pref_export">Export your Favorites</string>
     <string name="pref_import_success">Favorites imported!</string>

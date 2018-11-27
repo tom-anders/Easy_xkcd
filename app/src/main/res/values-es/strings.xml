@@ -222,8 +222,8 @@
     <string name="pref_zoom">Zoom al texto en What If?</string>
     <string name="pref_zoom_sum">Es posible que corrija errores de visualización en algunos dispositivos</string>
     <string name="pref_advanced">Ajustes avanzados</string>
-    <string name="pref_repair">Reparar cómics sin conexión</string>
-    <string name="pref_repair_sum">Si ves algunos cómics en blanco, esta opción debería corregirlo descargándolos de nuevo</string>
+    <string name="pref_repair">Reload Comic Database</string>
+    <string name="pref_repair_sum">If you see some blank comics or encounter crashes, this might be the solution</string>
     <string name="pref_export_import">Exportar/importar favoritos</string>
     <string name="pref_export">Exportar tus favoritos</string>
     <string name="pref_import_success">¡Favoritos importados!</string>

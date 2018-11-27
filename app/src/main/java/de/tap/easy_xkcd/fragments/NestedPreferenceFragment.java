@@ -93,7 +93,6 @@ public class NestedPreferenceFragment extends PreferenceFragment {
     private static final String AUTO_NIGHT_END = "pref_auto_night_end";
     private static final String INVERT_COLORS = "pref_invert";
     private static final String DETECT_COLOR = "pref_detect_color";
-    private static final String REPAIR = "pref_repair";
     private static final String MOBILE_ENABLED = "pref_update_mobile";
     private static final String FAB_OPTIONS = "pref_random";
     private static final String FAB_LEFT = "pref_fab_left";
@@ -511,24 +510,8 @@ public class NestedPreferenceFragment extends PreferenceFragment {
 
             case ADVANCED:
                 addPreferencesFromResource(R.xml.pref_advanced);
-                findPreference(REPAIR).setEnabled(MainActivity.fullOffline);
                 findPreference(MOBILE_ENABLED).setEnabled(MainActivity.fullOffline | MainActivity.fullOfflineWhatIf);
 
-                findPreference(REPAIR).setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
-                    @Override
-                    public boolean onPreferenceClick(Preference preference) {
-                        if (prefHelper.isOnline(getActivity())) {
-                            if (ContextCompat.checkSelfPermission(getActivity(), Manifest.permission.WRITE_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED) {
-                                new repairComicsTask().execute();
-                            } else {
-                                ActivityCompat.requestPermissions(getActivity(), new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE}, 5);
-                            }
-                        } else {
-                            Toast.makeText(getActivity(), R.string.no_connection, Toast.LENGTH_SHORT).show();
-                        }
-                        return true;
-                    }
-                });
                 findPreference(OFFLINE_PATH_PREF).setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
                     @Override
                     public boolean onPreferenceClick(Preference preference) {

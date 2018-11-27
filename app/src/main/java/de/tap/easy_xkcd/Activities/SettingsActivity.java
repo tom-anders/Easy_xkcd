@@ -16,12 +16,17 @@
 
 package de.tap.easy_xkcd.Activities;
 
+import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
 import android.preference.Preference;
 import android.preference.PreferenceFragment;
+import android.widget.Toast;
 
 import com.tap.xkcd_reader.R;
+
+import de.tap.easy_xkcd.database.DatabaseManager;
+import de.tap.easy_xkcd.utils.PrefHelper;
 
 public class SettingsActivity extends BaseActivity {
 
@@ -75,6 +80,7 @@ public class SettingsActivity extends BaseActivity {
         private static final String ADVANCED = "advanced";
         private static final String NIGHT = "night";
         private static final String WIDGET = "widget";
+        private static final String REPAIR = "pref_repair";
 
         @Override
         public void onCreate(final Bundle savedInstanceState) {
@@ -88,6 +94,20 @@ public class SettingsActivity extends BaseActivity {
             findPreference(ADVANCED).setOnPreferenceClickListener(this);
             findPreference(NIGHT).setOnPreferenceClickListener(this);
             findPreference(WIDGET).setOnPreferenceClickListener(this);
+
+            findPreference(REPAIR).setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
+                @Override
+                public boolean onPreferenceClick(Preference preference) {
+                    if (new PrefHelper(getActivity()).isOnline(getActivity())) {
+                        new DatabaseManager(getActivity()).setHighestInDatabase(1);
+                        getActivity().setResult(Activity.RESULT_OK);
+                        getActivity().finish();
+                    } else {
+                        Toast.makeText(getActivity(), R.string.no_connection, Toast.LENGTH_SHORT).show();
+                    }
+                    return true;
+                }
+            });
         }
 
         @Override
