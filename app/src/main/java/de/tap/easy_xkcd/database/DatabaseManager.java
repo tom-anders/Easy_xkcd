@@ -58,6 +58,16 @@ public class DatabaseManager {
                 objectSchema.addField("altText", String.class);
             }
         }
+
+        @Override
+        public int hashCode() {
+            return 37;
+        }
+
+        @Override
+        public boolean equals(Object o) {
+            return (o instanceof Migration);
+        }
     }
 
     public DatabaseManager(Context context) {
