@@ -155,7 +155,7 @@ public class OfflineFragment extends ComicFragment {
 
     @Override
     public void updatePager() {
-        newestComicNumber = prefHelper.getHighestOffline();
+        newestComicNumber = databaseManager.getHighestInDatabase();
         scrollViewPager();
         adapter = new OfflineBrowserPagerAdapter(getActivity(), newestComicNumber);
         pager.setAdapter(adapter);

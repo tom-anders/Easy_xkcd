@@ -44,9 +44,9 @@ import java.io.OutputStream;
 import java.util.Timer;
 import java.util.TimerTask;
 
+import de.tap.easy_xkcd.database.DatabaseManager;
 import de.tap.easy_xkcd.fragments.NestedPreferenceFragment;
 import de.tap.easy_xkcd.services.ArticleDownloadService;
-import de.tap.easy_xkcd.services.ComicDownloadService;
 import timber.log.Timber;
 
 public class NestedSettingsActivity extends BaseActivity implements OnDirectoryChooserFragmentInteraction  {
@@ -105,7 +105,10 @@ public class NestedSettingsActivity extends BaseActivity implements OnDirectoryC
             case 1:
                 if (grantResults[0] == PackageManager.PERMISSION_GRANTED) {
                     Toast.makeText(getApplicationContext(), getResources().getString(R.string.loading_comics), Toast.LENGTH_SHORT).show();
-                    startService(new Intent(this, ComicDownloadService.class));
+                    new DatabaseManager(NestedSettingsActivity.this).setHighestInDatabase(1);
+                    prefHelper.setFullOffline(true);
+                    setResult(Activity.RESULT_OK);
+                    finish();
                 }
                 break;
             case 2:
@@ -127,9 +130,6 @@ public class NestedSettingsActivity extends BaseActivity implements OnDirectoryC
                 else
                     prefHelper.setFullOfflineWhatIf(true);
                 break;
-            case 5:
-                if (grantResults[0] == PackageManager.PERMISSION_GRANTED)
-                    fragment.new repairComicsTask().execute();
             case 12:
                 if (grantResults[0] == PackageManager.PERMISSION_GRANTED) {
                     new Timer().schedule(new TimerTask() {

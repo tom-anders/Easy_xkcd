@@ -22,11 +22,9 @@ import android.Manifest;
 import android.app.Activity;
 import android.app.ProgressDialog;
 import android.app.TimePickerDialog;
-import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
-import android.graphics.BitmapFactory;
 import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
@@ -39,7 +37,7 @@ import androidx.fragment.app.FragmentTransaction;
 import androidx.core.content.ContextCompat;
 import androidx.appcompat.app.AlertDialog;
 import androidx.cardview.widget.CardView;
-import android.util.Log;
+
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.TextView;
@@ -51,22 +49,13 @@ import com.tap.xkcd_reader.R;
 import com.turhanoz.android.reactivedirectorychooser.ui.DirectoryChooserFragment;
 
 import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
 
 import de.tap.easy_xkcd.Activities.MainActivity;
 import de.tap.easy_xkcd.Activities.NestedSettingsActivity;
 import de.tap.easy_xkcd.database.DatabaseManager;
-import de.tap.easy_xkcd.database.RealmComic;
 import de.tap.easy_xkcd.services.ArticleDownloadService;
-import de.tap.easy_xkcd.services.ComicDownloadService;
 import de.tap.easy_xkcd.utils.PrefHelper;
 import de.tap.easy_xkcd.utils.ThemePrefs;
-import okhttp3.OkHttpClient;
-import okhttp3.Request;
-import okhttp3.Response;
-import okio.BufferedSink;
-import okio.Okio;
 import timber.log.Timber;
 import uz.shift.colorpicker.LineColorPicker;
 
@@ -275,7 +264,10 @@ public class NestedPreferenceFragment extends PreferenceFragment {
                             if (prefHelper.isOnline(getActivity())) {
                                 if (ContextCompat.checkSelfPermission(getActivity(), Manifest.permission.WRITE_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED) {
                                     Toast.makeText(getActivity(), getResources().getString(R.string.loading_comics), Toast.LENGTH_SHORT).show();
-                                    getActivity().startService(new Intent(getActivity(), ComicDownloadService.class));
+                                    new DatabaseManager(getActivity()).setHighestInDatabase(1);
+                                    prefHelper.setFullOffline(true);
+                                    getActivity().setResult(Activity.RESULT_OK);
+                                    getActivity().finish();
                                 } else {
                                     ActivityCompat.requestPermissions(getActivity(), new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE}, 1);
                                 }
@@ -531,101 +523,6 @@ public class NestedPreferenceFragment extends PreferenceFragment {
         }
     }
 
-    public class repairComicsTask extends AsyncTask<Void, Integer, Void> {
-        private ProgressDialog progress;
-
-        @Override
-        protected void onPreExecute() {
-            progress = new ProgressDialog(getActivity());
-            progress.setTitle(getResources().getString(R.string.loading_offline));
-            progress.setMessage(getResources().getString(R.string.loading_offline_message));
-            progress.setIndeterminate(false);
-            progress.setProgressStyle(ProgressDialog.STYLE_HORIZONTAL);
-            progress.setCancelable(false);
-            progress.show();
-        }
-
-        @Override
-        protected Void doInBackground(Void... params) {
-            int newest;
-            try {
-                newest = RealmComic.findNewestComicNumber();
-                prefHelper.setNewestComic(newest);
-                prefHelper.setHighestOffline(newest);
-            } catch (Exception e) {
-                newest = prefHelper.getNewest();
-            }
-            for (int i = 1; i <= newest; i++) {
-                Log.d("i", String.valueOf(i));
-                try {
-                    File sdCard = prefHelper.getOfflinePath();
-                    File dir = new File(sdCard.getAbsolutePath() + OFFLINE_PATH);
-                    File file = new File(dir, String.valueOf(i) + ".png");
-                    FileInputStream fis = new FileInputStream(file);
-                    BitmapFactory.decodeStream(fis);
-                    fis.close();
-                } catch (Exception e) {
-                    Log.e("error", i + " not found in external");
-                    try {
-                        FileInputStream fis = getActivity().openFileInput(String.valueOf(i));
-                        fis.close();
-                    } catch (Exception e2) {
-                        Log.e("error", i + " not found in internal");
-                        redownloadComic(i);
-                    }
-                }
-                int p = (int) (i / ((float) newest) * 100);
-                publishProgress(p);
-            }
-
-            return null;
-        }
-
-        private void redownloadComic(int i) {
-            OkHttpClient client = new OkHttpClient();
-            File sdCard = prefHelper.getOfflinePath();
-            File dir = new File(sdCard.getAbsolutePath() + OFFLINE_PATH);
-            try {
-                RealmComic comic = (new DatabaseManager(getActivity())).getRealmComic(i);
-                Request request = new Request.Builder()
-                        .url(comic.getUrl())
-                        .build();
-                Response response = client.newCall(request).execute();
-                try {
-                    File file = new File(dir, String.valueOf(i) + ".png");
-                    BufferedSink sink = Okio.buffer(Okio.sink(file));
-                    sink.writeAll(response.body().source());
-                    sink.close();
-                } catch (Exception e) {
-                    Log.e("Error at comic" + i, "Saving to external storage failed");
-                    try {
-                        FileOutputStream fos = getActivity().openFileOutput(String.valueOf(i), Context.MODE_PRIVATE);
-                        BufferedSink sink = Okio.buffer(Okio.sink(fos));
-                        sink.writeAll(response.body().source());
-                        fos.close();
-                        sink.close();
-                    } catch (Exception e2) {
-                        Log.e("Error at comic" + i, "Saving to internal storage failed");
-                    }
-                }
-                response.body().close();
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-        }
-
-        protected void onProgressUpdate(Integer... pro) {
-            progress.setProgress(pro[0]);
-        }
-
-        @Override
-        protected void onPostExecute(Void dummy) {
-            progress.dismiss();
-            getActivity().setResult(Activity.RESULT_OK);
-            getActivity().finish();
-        }
-    }
-
     public class deleteComicsTask extends AsyncTask<Void, Integer, Void> {
         private ProgressDialog progress;
 
@@ -660,7 +557,6 @@ public class NestedPreferenceFragment extends PreferenceFragment {
                     }
                 }
             }
-            prefHelper.setHighestOffline(0);
             prefHelper.setFullOffline(false);
             return null;
         }

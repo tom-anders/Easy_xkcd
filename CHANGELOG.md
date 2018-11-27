@@ -1,3 +1,7 @@
+## 7-1
+
+- Added an option in the settings to reload the database manually
+
 ## 7.0.5
 
 - Fixed large comics resolutions

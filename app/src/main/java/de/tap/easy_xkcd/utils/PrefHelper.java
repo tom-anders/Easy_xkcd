@@ -223,14 +223,6 @@ public class PrefHelper {
         return sharedPrefs.getString(OFFLINE_ALT + String.valueOf(number), "");
     }
 
-    public void setHighestOffline(int number) {
-        sharedPrefs.edit().putInt(OFFLINE_HIGHEST, number).apply();
-    }
-
-    public int getHighestOffline() {
-        return sharedPrefs.getInt(OFFLINE_HIGHEST, 0);
-    }
-
     public int getNewest() {
         return sharedPrefs.getInt(NEWEST_COMIC, 0);
     }

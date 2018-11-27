@@ -175,7 +175,6 @@
         </activity>
         <activity android:name="de.tap.easy_xkcd.Activities.CustomFilePickerActivity" />
 
-        <service android:name="de.tap.easy_xkcd.services.ComicDownloadService" />
         <service android:name="de.tap.easy_xkcd.services.ArticleDownloadService" />
 
         <provider

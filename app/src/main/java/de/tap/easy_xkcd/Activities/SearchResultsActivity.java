@@ -135,7 +135,7 @@ public class SearchResultsActivity extends BaseActivity {
      */
     private boolean getComicByNumber(int number) {
         Intent intent = new Intent("de.tap.easy_xkcd.ACTION_COMIC");
-        if ((number > prefHelper.getNewest() && number > prefHelper.getHighestOffline()) | number < 1) //check if the number is a valid comic
+        if ((number > prefHelper.getNewest()) | number < 1) //check if the number is a valid comic
             intent.putExtra("number", prefHelper.getNewest());
         else
             intent.putExtra("number", number);

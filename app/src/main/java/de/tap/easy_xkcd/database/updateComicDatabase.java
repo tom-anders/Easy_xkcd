@@ -233,9 +233,6 @@ public class updateComicDatabase extends AsyncTask<Void, String, Void> {
             realm.close();
 
             databaseManager.setHighestInDatabase(newest);
-            if (prefHelper.fullOfflineEnabled()) {
-                prefHelper.setHighestOffline(newest);
-            }
 
 
             if (!prefHelper.transcriptsFixed()) {
@@ -244,7 +241,7 @@ public class updateComicDatabase extends AsyncTask<Void, String, Void> {
                 Timber.d("Transcripts fixed!");
             }
 
-            Timber.d("Highest Offline: %d, highest databse: %d", prefHelper.getHighestOffline(), databaseManager.getHighestInDatabase()); //We dont actually need highestOffline now!
+            Timber.d("highest database: %d", databaseManager.getHighestInDatabase()); //We dont actually need highestOffline now!
         }
 
         return null;
