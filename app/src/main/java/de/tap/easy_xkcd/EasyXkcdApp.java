@@ -25,7 +25,8 @@ import timber.log.Timber;
                 ReportField.BRAND,
                 ReportField.PHONE_MODEL,
                 ReportField.STACK_TRACE,
-                ReportField.SHARED_PREFERENCES
+                ReportField.SHARED_PREFERENCES,
+                ReportField.LOGCAT
         }
 )
 
