@@ -1,5 +1,6 @@
 ## 7.0.5
 
+- Fixed large comics resolutions
 - Small bug fixes
 
 ## 7.0

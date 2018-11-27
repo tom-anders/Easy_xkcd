@@ -34,11 +34,16 @@ import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.bumptech.glide.Glide;
+import com.bumptech.glide.RequestManager;
+import com.bumptech.glide.request.RequestOptions;
 import com.tap.xkcd_reader.R;
 
 import java.util.Random;
 
 import de.tap.easy_xkcd.Activities.MainActivity;
+import de.tap.easy_xkcd.GlideApp;
+import de.tap.easy_xkcd.GlideRequests;
 import de.tap.easy_xkcd.database.DatabaseManager;
 import de.tap.easy_xkcd.database.RealmComic;
 import de.tap.easy_xkcd.fragments.comics.ComicBrowserFragment;
@@ -73,6 +78,8 @@ public abstract class OverviewBaseFragment extends Fragment {
         } else {
             lastComicNumber = getArguments().getInt(LAST_COMIC);
         }
+        //We don't need override(Target.SIZE_ORIGINAL) here, so set empty defaultRequestOptions for Glide
+        GlideApp.with(this).setDefaultRequestOptions(new RequestOptions());
         super.onCreate(savedInstanceState);
     }
 
