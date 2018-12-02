@@ -183,44 +183,8 @@ public class PrefHelper {
         return Integer.parseInt(prefs.getString(ALT_STYLE, "1")) == 0;
     }
 
-    public boolean databaseLoaded() {
-        return sharedPrefs.getBoolean(DATABASE_LOADED, false);
-    }
-
-    public void setDatabaseLoaded() {
-        sharedPrefs.edit().putBoolean(DATABASE_LOADED, true).apply();
-    }
-
-    public void setTitles(String titles) {
-        sharedPrefs.edit().putString(COMIC_TITLES, titles).apply();
-    }
-
-    public void setUrls(String urls, int highest) {
-        sharedPrefs.edit().putString(COMIC_URLS, urls).putInt(HIGHEST_COMIC_URL, highest).apply();
-    }
-
-    public void setTrans(String trans) {
-        sharedPrefs.edit().putString(COMIC_TRANS, trans).apply();
-    }
-
-    public int getHighestUrls() {
-        return sharedPrefs.getInt(HIGHEST_COMIC_URL, 0);
-    }
-
-    public void addTitle(String title, int i) {
-        sharedPrefs.edit().putString(OFFLINE_TITLE + String.valueOf(i), title).apply();
-    }
-
-    public String getTitle(int number) {
-        return sharedPrefs.getString(OFFLINE_TITLE + String.valueOf(number), "");
-    }
-
-    public void addAlt(String alt, int i) {
-        sharedPrefs.edit().putString(OFFLINE_ALT + String.valueOf(i), alt).apply();
-    }
-
-    public String getAlt(int number) {
-        return sharedPrefs.getString(OFFLINE_ALT + String.valueOf(number), "");
+    public boolean altLongTap() {
+        return Integer.parseInt(prefs.getString(ALT_ACTIVATION, "1")) == 1;
     }
 
     public int getNewest() {

@@ -317,8 +317,16 @@ public abstract class ComicFragment extends Fragment {
 
                 @Override
                 public boolean onSingleTapConfirmed(MotionEvent e) {
-                    if (prefHelper.fullscreenModeEnabled()) {
-                        ((MainActivity) getActivity()).toggleFullscreen();
+                    if (prefHelper.altLongTap()) {
+                        if (prefHelper.fullscreenModeEnabled()) {
+                            ((MainActivity) getActivity()).toggleFullscreen();
+                        }
+                    } else {
+                        if (prefHelper.altVibration())
+                            if (getActivity().getSystemService(Context.VIBRATOR_SERVICE) != null) {
+                                ((Vibrator) getActivity().getSystemService(Context.VIBRATOR_SERVICE)).vibrate(25);
+                            }
+                        setAltText(false);
                     }
                     return false;
                 }
@@ -333,32 +341,32 @@ public abstract class ComicFragment extends Fragment {
                 }
             });
 
-            pvComic.setOnLongClickListener(new View.OnLongClickListener() {
-                @Override
-                public boolean onLongClick(View v) {
-                    if (fingerLifted) {
+            pvComic.setOnLongClickListener(v -> {
+                if (fingerLifted) {
+                    if (prefHelper.altLongTap()) {
                         if (prefHelper.altVibration())
                             if (getActivity().getSystemService(Context.VIBRATOR_SERVICE) != null) {
                                 ((Vibrator) getActivity().getSystemService(Context.VIBRATOR_SERVICE)).vibrate(25);
                             }
                         setAltText(false);
+                    } else {
+                        if (prefHelper.fullscreenModeEnabled()) {
+                            ((MainActivity) getActivity()).toggleFullscreen();
+                        }
                     }
-                    return true;
                 }
+                return true;
             });
 
             if (themePrefs.invertColors(false))
                 pvComic.setColorFilter(themePrefs.getNegativeColorFilter());
 
             if (prefHelper.scrollDisabledWhileZoom() && prefHelper.defaultZoom())
-                pvComic.setOnMatrixChangeListener(new OnMatrixChangedListener() {
-                    @Override
-                    public void onMatrixChanged(RectF rectF) {
-                        if (pvComic.getScale() > 1.4) {
-                            pager.setLocked(true);
-                        } else {
-                            pager.setLocked(false);
-                        }
+                pvComic.setOnMatrixChangeListener(rectF -> {
+                    if (pvComic.getScale() > 1.4) {
+                        pager.setLocked(true);
+                    } else {
+                        pager.setLocked(false);
                     }
                 });
 

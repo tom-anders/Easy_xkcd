@@ -18,6 +18,13 @@
             android:entryValues="@array/alt_style_values"
             android:defaultValue="1" />
 
+        <ListPreference
+            android:title="@string/pref_alt_activation"
+            android:summary="@string/pref_alt_activation_sum"
+            android:key="pref_alt_activation"
+            android:entries="@array/alt_activation"
+            android:entryValues="@array/alt_activation_values"
+            android:defaultValue="1" />
     </PreferenceCategory>
 
     <PreferenceCategory android:title="@string/pref_share_title">
