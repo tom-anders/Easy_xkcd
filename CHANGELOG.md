@@ -1,4 +1,8 @@
-## 7-1
+## 7.2
+
+- Added dividers in the overflow menu
+
+## 7.1
 
 - Added an option in the settings to reload the database manually
 
