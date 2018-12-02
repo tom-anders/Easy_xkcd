@@ -219,7 +219,7 @@ public class ComicBrowserFragment extends ComicFragment {
 
     @Override
     protected boolean getLatestComic() {
-        if (prefHelper.isOnline(getActivity())) {
+        if (getActivity() != null && prefHelper.isOnline(getActivity())) {
             if (newestComicNumber - lastComicNumber > 4)
                 ((MainActivity) getActivity()).setProgressDialog(this.getResources().getString(R.string.loading_latest), false);
             return super.getLatestComic();
