@@ -2,9 +2,9 @@ package de.tap.easy_xkcd;
 
 import android.app.Application;
 import android.content.Context;
+import android.util.Log;
 
 import com.tap.xkcd_reader.BuildConfig;
-import com.tap.xkcd_reader.R;
 
 import org.acra.ACRA;
 import org.acra.ReportField;
@@ -45,14 +45,18 @@ public class EasyXkcdApp extends Application {
         if (BuildConfig.DEBUG) {
             Timber.plant(new Timber.DebugTree());
         } else {
-            Timber.plant(new NoLogTree());
+            Timber.plant(new NoDebugTree());
         }
 
     }
 
-    private class NoLogTree extends Timber.Tree {
+    private class NoDebugTree extends Timber.DebugTree {
         @Override
         protected void log(final int priority, final String tag, final String message, final Throwable throwable) {
+            //No Debug messages in the final app
+            if (priority != Log.DEBUG) {
+                super.log(priority, tag, message, throwable);
+            }
         }
     }
 }
