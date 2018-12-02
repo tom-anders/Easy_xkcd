@@ -84,11 +84,11 @@ public class FavoritesFragment extends ComicFragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container, final Bundle savedInstanceState) {
         View v = inflateLayout(R.layout.pager_layout, inflater, container, savedInstanceState);
 
-        if (((MainActivity) getActivity()).getProgressDialog() != null) {
-            ((MainActivity) getActivity()).getProgressDialog().dismiss();
+        if (getMainActivity().getProgressDialog() != null) {
+            getMainActivity().getProgressDialog().dismiss();
         }
 
-        if (prefHelper.fabDisabledFavorites()) ((MainActivity) getActivity()).getFab().hide(); else ((MainActivity) getActivity()).getFab().show();
+        if (prefHelper.fabDisabledFavorites()) getMainActivity().getFab().hide(); else getMainActivity().getFab().show();
 
         pager.addOnPageChangeListener(new ViewPager.OnPageChangeListener() {
             @Override
@@ -96,15 +96,15 @@ public class FavoritesFragment extends ComicFragment {
                 favoriteIndex = position;
                 try {
                     //Update the ActionBar Subtitle
-                    if (prefHelper.subtitleEnabled() && ((MainActivity) getActivity()).getCurrentFragment() == MainActivity.CurrentFragment.Favorites)
-                        ((MainActivity) getActivity()).getToolbar().setSubtitle(String.valueOf(favorites.get(position).getComicNumber()));
+                    if (prefHelper.subtitleEnabled() && getMainActivity().getCurrentFragment() == MainActivity.CurrentFragment.Favorites)
+                        getMainActivity().getToolbar().setSubtitle(String.valueOf(favorites.get(position).getComicNumber()));
 
                     getActivity().invalidateOptionsMenu();
                 } catch (NullPointerException e) {
                     e.printStackTrace();
                 }
                 lastComicNumber = favorites.get(favoriteIndex).getComicNumber();
-                ((MainActivity) getActivity()).lastComicNumber = lastComicNumber;
+                getMainActivity().lastComicNumber = lastComicNumber;
             }
 
             @Override
@@ -142,14 +142,14 @@ public class FavoritesFragment extends ComicFragment {
         }
         
         lastComicNumber = favorites.get(favoriteIndex).getComicNumber();
-        ((MainActivity) getActivity()).lastComicNumber = lastComicNumber;
+        getMainActivity().lastComicNumber = lastComicNumber;
 
         adapter = new FavoritesPagerAdapter(getActivity(), 0);
         pager.setAdapter(adapter);
         pager.setCurrentItem(favoriteIndex);
 
-        Toolbar toolbar = ((MainActivity) getActivity()).getToolbar();
-        if (prefHelper.subtitleEnabled() && ((MainActivity) getActivity()).getCurrentFragment() == MainActivity.CurrentFragment.Favorites)
+        Toolbar toolbar = getMainActivity().getToolbar();
+        if (prefHelper.subtitleEnabled() && getMainActivity().getCurrentFragment() == MainActivity.CurrentFragment.Favorites)
             toolbar.setSubtitle(String.valueOf(favorites.get(favoriteIndex).getComicNumber()));
 
         animateToolbar();
@@ -372,8 +372,8 @@ public class FavoritesFragment extends ComicFragment {
 
                         databaseManager.removeAllFavorites();
 
-                        MenuItem mBrowser = ((MainActivity) getActivity()).getNavView().getMenu().findItem(R.id.nav_browser);
-                        ((MainActivity) getActivity()).selectDrawerItem(mBrowser, false, false, false, true);
+                        MenuItem mBrowser = getMainActivity().getNavView().getMenu().findItem(R.id.nav_browser);
+                        getMainActivity().selectDrawerItem(mBrowser, false, false, false, true);
 
                         Toast toast = Toast.makeText(getActivity(), R.string.favorites_cleared, Toast.LENGTH_SHORT);
                         toast.show();
@@ -406,8 +406,8 @@ public class FavoritesFragment extends ComicFragment {
         protected void onPostExecute(Void v) {
             if (databaseManager.noFavorites()) {
                 //If there are no favorites left, show ComicBrowserFragment
-                MenuItem mBrowser = ((MainActivity) getActivity()).getNavView().getMenu().findItem(R.id.nav_browser);
-                ((MainActivity) getActivity()).selectDrawerItem(mBrowser, false, false, true, true);
+                MenuItem mBrowser = getMainActivity().getNavView().getMenu().findItem(R.id.nav_browser);
+                getMainActivity().selectDrawerItem(mBrowser, false, false, true, true);
                 return;
             }
             refresh();
@@ -445,7 +445,7 @@ public class FavoritesFragment extends ComicFragment {
         final Bitmap mRemovedBitmap = RealmComic.getOfflineBitmap(favorites.get(favoriteIndex).getComicNumber(), getActivity(), prefHelper);
 
         if (favorites.size() > 1) {
-            Snackbar.make(((MainActivity) getActivity()).getFab(), R.string.snackbar_remove, Snackbar.LENGTH_LONG)
+            Snackbar.make(getMainActivity().getFab(), R.string.snackbar_remove, Snackbar.LENGTH_LONG)
                     .setAction(R.string.snackbar_undo, view -> {
                         databaseManager.setFavorite(mRemoved, true);
                         RealmComic.saveOfflineBitmap(mRemovedBitmap, prefHelper, mRemoved, getActivity());
@@ -497,7 +497,7 @@ public class FavoritesFragment extends ComicFragment {
         fav.setTitle(R.string.action_favorite_remove);*/
 
         //If the FAB is visible, hide the random comic menu item
-        if (((MainActivity) getActivity()).getFab().getVisibility() == View.GONE) {
+        if (getMainActivity().getFab().getVisibility() == View.GONE) {
             menu.findItem(R.id.action_random).setVisible(true);
         } else {
             menu.findItem(R.id.action_random).setVisible(false);

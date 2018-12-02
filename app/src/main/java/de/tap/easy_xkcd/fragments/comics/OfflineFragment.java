@@ -79,10 +79,10 @@ public class OfflineFragment extends ComicFragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View v = inflateLayout(R.layout.pager_layout, inflater, container, savedInstanceState);
 
-        if (((MainActivity) getActivity()).getProgressDialog() != null)
-            ((MainActivity) getActivity()).getProgressDialog().dismiss();
+        if (getMainActivity().getProgressDialog() != null)
+            getMainActivity().getProgressDialog().dismiss();
 
-        if (prefHelper.fabDisabledComicBrowser()) ((MainActivity) getActivity()).getFab().hide(); else ((MainActivity) getActivity()).getFab().show();
+        if (prefHelper.fabDisabledComicBrowser()) getMainActivity().getFab().hide(); else getMainActivity().getFab().show();
 
         updatePager();
 
@@ -108,7 +108,7 @@ public class OfflineFragment extends ComicFragment {
 
         View page = pager.findViewWithTag(position);
         if (page != null && page.findViewById(R.id.ivComic).getTag() == MISSING_IMAGE) {
-            missingImageSnackbar = Snackbar.make(((MainActivity) getActivity()).getFab(), R.string.offline_image_missing, Snackbar.LENGTH_INDEFINITE)
+            missingImageSnackbar = Snackbar.make(getMainActivity().getFab(), R.string.offline_image_missing, Snackbar.LENGTH_INDEFINITE)
                     .setAction(R.string.offline_image_missing_redownload, view -> {
                         Timber.e("bitmap for %d is null!", position + 1);
                         RealmComic comic = databaseManager.getRealmComic(position + 1);

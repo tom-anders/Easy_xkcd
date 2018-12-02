@@ -123,9 +123,9 @@ public abstract class ComicFragment extends Fragment {
         pager = (HackyViewPager) view.findViewById(R.id.pager);
         pager.setOffscreenPageLimit(2);
 
-        prefHelper = ((MainActivity) getActivity()).getPrefHelper();
-        themePrefs = ((MainActivity) getActivity()).getThemePrefs();
-        databaseManager = ((MainActivity) getActivity()).getDatabaseManager();
+        prefHelper = getMainActivity().getPrefHelper();
+        themePrefs = getMainActivity().getThemePrefs();
+        databaseManager = getMainActivity().getDatabaseManager();
 
         if (!(this instanceof FavoritesFragment)) {
             if (savedInstanceState != null) {
@@ -136,7 +136,7 @@ public abstract class ComicFragment extends Fragment {
             if (MainActivity.overviewLaunch && !SearchResultsActivity.isOpen
                     ) {
                 MainActivity.overviewLaunch = false;
-                ((MainActivity) getActivity()).showOverview(false);
+                getMainActivity().showOverview(false);
             }
         }
 
@@ -146,8 +146,8 @@ public abstract class ComicFragment extends Fragment {
             setSharedElementEnterTransition(TransitionInflater.from(getContext()).inflateTransition(R.transition.image_shared_element_transition));
         }
 
-        if (((MainActivity) getActivity()).getCurrentFragment() == MainActivity.CurrentFragment.Browser && prefHelper.subtitleEnabled() && (this instanceof ComicBrowserFragment || this instanceof OfflineFragment))
-            ((MainActivity) getActivity()).getToolbar().setSubtitle(String.valueOf(lastComicNumber));
+        if (getMainActivity().getCurrentFragment() == MainActivity.CurrentFragment.Browser && prefHelper.subtitleEnabled() && (this instanceof ComicBrowserFragment || this instanceof OfflineFragment))
+            getMainActivity().getToolbar().setSubtitle(String.valueOf(lastComicNumber));
 
         return view;
     }
@@ -300,7 +300,7 @@ public abstract class ComicFragment extends Fragment {
                 @Override
                 public boolean onDoubleTap(MotionEvent e) {
                     if (prefHelper.doubleTapToFavorite()) {
-                        modifyFavorites(((MainActivity) getActivity()).getToolbar().getMenu().findItem(R.id.action_favorite));
+                        modifyFavorites(getMainActivity().getToolbar().getMenu().findItem(R.id.action_favorite));
                         if (getActivity().getSystemService(Context.VIBRATOR_SERVICE) != null) {
                             ((Vibrator) getActivity().getSystemService(Context.VIBRATOR_SERVICE)).vibrate(100);
                         }
@@ -320,7 +320,7 @@ public abstract class ComicFragment extends Fragment {
                 public boolean onSingleTapConfirmed(MotionEvent e) {
                     if (prefHelper.altLongTap()) {
                         if (prefHelper.fullscreenModeEnabled()) {
-                            ((MainActivity) getActivity()).toggleFullscreen();
+                            getMainActivity().toggleFullscreen();
                         }
                     } else {
                         if (prefHelper.altVibration())
@@ -352,7 +352,7 @@ public abstract class ComicFragment extends Fragment {
                         setAltText(false);
                     } else {
                         if (prefHelper.fullscreenModeEnabled()) {
-                            ((MainActivity) getActivity()).toggleFullscreen();
+                            getMainActivity().toggleFullscreen();
                         }
                     }
                 }
@@ -407,7 +407,7 @@ public abstract class ComicFragment extends Fragment {
     }
 
     protected void animateToolbar() {
-        Toolbar toolbar = ((MainActivity) getActivity()).getToolbar();
+        Toolbar toolbar = getMainActivity().getToolbar();
         if (toolbar.getAlpha() == 0) {
             toolbar.setTranslationY(-300);
             toolbar.animate().setDuration(380).translationY(0).alpha(1);
@@ -449,7 +449,7 @@ public abstract class ComicFragment extends Fragment {
 
         databaseManager.setFavorite(addedNumber, true);
         //Sometimes the floating action button does not animate back to the bottom when the snackbar is dismissed, so force it to its original position
-        ((MainActivity) getActivity()).getFab().forceLayout();
+        getMainActivity().getFab().forceLayout();
         getActivity().invalidateOptionsMenu();
     }
 
@@ -507,7 +507,7 @@ public abstract class ComicFragment extends Fragment {
             }
         }
         databaseManager.setFavorite(number, false);
-        Snackbar.make(((MainActivity) getActivity()).getFab(), R.string.snackbar_remove, Snackbar.LENGTH_LONG)
+        Snackbar.make(getMainActivity().getFab(), R.string.snackbar_remove, Snackbar.LENGTH_LONG)
                 .setAction(R.string.snackbar_undo, new View.OnClickListener() {
                     @Override
                     public void onClick(View view) {
@@ -664,7 +664,7 @@ public abstract class ComicFragment extends Fragment {
             //dialog.setMessage(tvAlt.getText());
             //dialog.show();
             //ImmersiveDialogFragment.getInstance(String.valueOf(tvAlt.getText())).showImmersive(((MainActivity) getActivity()));
-            ImmersiveDialogFragment.getInstance(String.valueOf(tvAlt.getText())).showImmersive(((MainActivity) getActivity()));
+            ImmersiveDialogFragment.getInstance(String.valueOf(tvAlt.getText())).showImmersive(getMainActivity());
         }
         return true;
     }
@@ -686,9 +686,9 @@ public abstract class ComicFragment extends Fragment {
         }
         databaseManager.setRead(position + 1, true);
         lastComicNumber = position + 1;
-        ((MainActivity) getActivity()).lastComicNumber = lastComicNumber;
-        if (prefHelper.subtitleEnabled() && ((MainActivity) getActivity()).getCurrentFragment() == MainActivity.CurrentFragment.Browser)
-            ((MainActivity) getActivity()).getToolbar().setSubtitle(String.valueOf(lastComicNumber));
+        getMainActivity().lastComicNumber = lastComicNumber;
+        if (prefHelper.subtitleEnabled() && getMainActivity().getCurrentFragment() == MainActivity.CurrentFragment.Browser)
+            getMainActivity().getToolbar().setSubtitle(String.valueOf(lastComicNumber));
 
         animateToolbar();
     }
@@ -737,7 +737,7 @@ public abstract class ComicFragment extends Fragment {
         }
         //If the FAB is visible, hide the random comic menu item
         if (getActivity() != null) {
-            FloatingActionButton fab = ((MainActivity) getActivity()).getFab();
+            FloatingActionButton fab = getMainActivity().getFab();
             menu.findItem(R.id.action_random).setVisible(fab != null && fab.getVisibility() == View.GONE);
         }
         menu.findItem(R.id.action_alt).setVisible(prefHelper.showAltTip());
@@ -762,6 +762,14 @@ public abstract class ComicFragment extends Fragment {
 
     public void scrollTo(int pos, boolean smooth) {
         pager.setCurrentItem(pos, smooth);
+    }
+
+    public MainActivity getMainActivity() {
+        //if getActivity is not null, it will always be an instance of MainActivity, so the cast is safe
+        if (getActivity() != null) {
+            return (MainActivity) getActivity();
+        }
+        return null;
     }
 
 }
