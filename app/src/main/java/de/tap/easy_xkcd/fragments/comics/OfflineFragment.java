@@ -82,6 +82,7 @@ public class OfflineFragment extends ComicFragment {
         if (((MainActivity) getActivity()).getProgressDialog() != null)
             ((MainActivity) getActivity()).getProgressDialog().dismiss();
 
+        if (prefHelper.fabDisabledComicBrowser()) ((MainActivity) getActivity()).getFab().hide(); else ((MainActivity) getActivity()).getFab().show();
 
         updatePager();
 

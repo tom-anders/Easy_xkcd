@@ -88,6 +88,8 @@ public class FavoritesFragment extends ComicFragment {
             ((MainActivity) getActivity()).getProgressDialog().dismiss();
         }
 
+        if (prefHelper.fabDisabledFavorites()) ((MainActivity) getActivity()).getFab().hide(); else ((MainActivity) getActivity()).getFab().show();
+
         pager.addOnPageChangeListener(new ViewPager.OnPageChangeListener() {
             @Override
             public void onPageSelected(int position) {

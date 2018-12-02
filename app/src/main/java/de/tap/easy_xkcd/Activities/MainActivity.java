@@ -520,7 +520,6 @@ public class MainActivity extends BaseActivity {
     void showFavoritesFragment(boolean animate) {
         FragmentManager fragmentManager = getSupportFragmentManager();
         //mFab.setVisibility(prefHelper.fabDisabledFavorites() ? View.GONE : View.VISIBLE);
-        if (prefHelper.fabDisabledFavorites()) mFab.hide(); else mFab.show();
 
         FavoritesFragment favoritesFragment = new FavoritesFragment();
         final FragmentTransaction transaction = fragmentManager.beginTransaction();
