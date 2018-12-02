@@ -318,16 +318,21 @@ public abstract class ComicFragment extends Fragment {
 
                 @Override
                 public boolean onSingleTapConfirmed(MotionEvent e) {
-                    if (prefHelper.altLongTap()) {
-                        if (prefHelper.fullscreenModeEnabled()) {
-                            getMainActivity().toggleFullscreen();
+                    MainActivity mainActivity = getMainActivity();
+                    if (mainActivity != null) {
+                        if (prefHelper.altLongTap()) {
+                            if (prefHelper.fullscreenModeEnabled()) {
+                                mainActivity.toggleFullscreen();
+                            }
+                        } else {
+                            if (prefHelper.altVibration())
+                                if (getActivity().getSystemService(Context.VIBRATOR_SERVICE) != null) {
+                                    ((Vibrator) mainActivity.getSystemService(Context.VIBRATOR_SERVICE)).vibrate(25);
+                                }
+                            setAltText(false);
                         }
                     } else {
-                        if (prefHelper.altVibration())
-                            if (getActivity().getSystemService(Context.VIBRATOR_SERVICE) != null) {
-                                ((Vibrator) getActivity().getSystemService(Context.VIBRATOR_SERVICE)).vibrate(25);
-                            }
-                        setAltText(false);
+                        Timber.e("Main Activity is null!");
                     }
                     return false;
                 }
