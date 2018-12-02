@@ -7,34 +7,35 @@
         app:showAsAction="ifRoom"
         android:icon="@drawable/ic_favorite_outline"/>
 
-    <item android:id="@+id/action_share"
-        android:title="@string/action_share"
-        android:icon="@drawable/ic_action_share"
-        app:showAsAction="ifRoom" />
+    <item android:id="@+id/action_overview"
+        android:title="@string/action_overview"
+        app:showAsAction="never" />
+
+    <item android:id="@+id/action_latest"
+        android:title="@string/action_latest"
+        app:showAsAction="never" />
 
     <item android:id="@+id/action_random"
         android:title="@string/action_random"
         app:showAsAction="ifRoom"
         android:icon="@drawable/ic_action_shuffle"/>
 
-    <item android:id="@+id/action_alt"
-        android:title="@string/action_alt"
-        app:showAsAction="never" />
-
-    <item android:id="@+id/action_trans"
-        android:title="@string/action_trans"
-        app:showAsAction="never" />
-
-    <item android:id="@+id/action_overview"
-        android:title="@string/action_overview"
-        app:showAsAction="never" />
 
     <item android:id="@+id/action_boomark"
         app:showAsAction="never"
         android:title="@string/add_bookmark" />
 
-    <item android:id="@+id/action_latest"
-        android:title="@string/action_latest"
+    <item android:id="@+id/action_share"
+        android:title="@string/action_share"
+        android:icon="@drawable/ic_action_share"
+        app:showAsAction="ifRoom" />
+
+    <item android:id="@+id/action_trans"
+        android:title="@string/action_trans"
+        app:showAsAction="never" />
+
+    <item android:id="@+id/action_alt"
+        android:title="@string/action_alt"
         app:showAsAction="never" />
 
     <item android:id="@+id/action_explain"

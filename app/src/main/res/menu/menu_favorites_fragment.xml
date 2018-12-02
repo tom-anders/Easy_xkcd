@@ -16,12 +16,12 @@
         app:showAsAction="ifRoom"
         android:icon="@mipmap/ic_shuffle"/>
 
-    <item android:id="@+id/action_alt"
-        android:title="@string/action_alt"
-        app:showAsAction="never" />
-
     <item android:id="@+id/action_trans"
         android:title="@string/action_trans"
+        app:showAsAction="never" />
+
+    <item android:id="@+id/action_alt"
+        android:title="@string/action_alt"
         app:showAsAction="never" />
 
     <item android:id="@+id/action_explain"
