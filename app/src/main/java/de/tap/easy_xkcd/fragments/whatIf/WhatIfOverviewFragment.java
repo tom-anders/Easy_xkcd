@@ -15,6 +15,7 @@ import com.google.android.material.tabs.TabLayout;
 import android.transition.Slide;
 import android.transition.Transition;
 
+import androidx.core.view.MenuCompat;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentPagerAdapter;
@@ -308,6 +309,7 @@ public class WhatIfOverviewFragment extends Fragment {
     @Override
     public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
         inflater.inflate(R.menu.menu_what_if_fragment, menu);
+        MenuCompat.setGroupDividerEnabled(menu, true);
         super.onCreateOptionsMenu(menu, inflater);
     }
 }

@@ -44,6 +44,7 @@ import com.github.chrisbanes.photoview.PhotoView;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.snackbar.Snackbar;
 import androidx.core.content.FileProvider;
+import androidx.core.view.MenuCompat;
 import androidx.fragment.app.Fragment;
 import androidx.swiperefreshlayout.widget.CircularProgressDrawable;
 import androidx.viewpager.widget.PagerAdapter;
@@ -748,6 +749,7 @@ public abstract class ComicFragment extends Fragment {
     public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
         if (!(this instanceof FavoritesFragment))
             inflater.inflate(R.menu.menu_comic_fragment, menu);
+        MenuCompat.setGroupDividerEnabled(menu, true);
         super.onCreateOptionsMenu(menu, inflater);
     }
 

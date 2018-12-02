@@ -4,17 +4,19 @@
     xmlns:tools="http://schemas.android.com/tools"
     tools:context=".MainActivity">
 
-    <item android:id="@+id/action_unread"
-        android:title="@string/action_unread"
-        app:showAsAction="never" />
+    <group android:id="@+id/grouptWhatIf">
+        <item android:id="@+id/action_unread"
+            android:title="@string/action_unread"
+            app:showAsAction="never" />
 
-    <item android:id="@+id/action_all_read"
-        android:title="@string/action_all_read"
-        app:showAsAction="never" />
+        <item android:id="@+id/action_all_read"
+            android:title="@string/action_all_read"
+            app:showAsAction="never" />
 
-    <item android:id="@+id/action_hide_read"
-        android:title="@string/action_hide_read_articles"
-        android:checkable="true"
-        app:showAsAction="never" />
+        <item android:id="@+id/action_hide_read"
+            android:title="@string/action_hide_read_articles"
+            android:checkable="true"
+            app:showAsAction="never" />
 
+    </group>
 </menu>

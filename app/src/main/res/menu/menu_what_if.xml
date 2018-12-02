@@ -2,46 +2,50 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools" tools:context="de.tap.easy_xkcd.Activities.WhatIfActivity">
 
-    <item android:id="@+id/action_favorite"
-        android:title="@string/action_favorite"
-        app:showAsAction="ifRoom"
-        android:icon="@drawable/ic_favorite_outline"/>
+    <group android:id="@+id/groupWhatifCurrent">
+        <item android:id="@+id/action_share"
+            android:title="@string/action_share_article"
+            android:icon="@drawable/ic_action_share"
+            app:showAsAction="ifRoom" />
 
-    <item android:id="@+id/action_back"
-        android:title="@string/action_share_article"
-        android:icon="@drawable/ic_whatif_back"
-        app:showAsAction="always" />
+        <item android:id="@+id/action_favorite"
+            android:title="@string/action_favorite"
+            app:showAsAction="ifRoom"
+            android:icon="@drawable/ic_favorite_outline"/>
 
-    <item android:id="@+id/action_next"
-        android:title="@string/action_favorite"
-        app:showAsAction="always"
-        android:icon="@drawable/ic_whatif_next"/>
+        <item android:id="@+id/action_browser"
+            android:title="@string/action_browser"
+            app:showAsAction="never" />
 
-    <item android:id="@+id/action_share"
-        android:title="@string/action_share_article"
-        android:icon="@drawable/ic_action_share"
-        app:showAsAction="ifRoom" />
+        <item android:id="@+id/action_thread"
+            android:title="@string/action_thread"
+            app:showAsAction="never" />
+    </group>
+    <group android:id="@+id/groupWhatifNavigation">
+        <item android:id="@+id/action_back"
+            android:title="@string/action_share_article"
+            android:icon="@drawable/ic_whatif_back"
+            app:showAsAction="always" />
 
-    <item android:id="@+id/action_browser"
-        android:title="@string/action_browser"
-        app:showAsAction="never" />
+        <item android:id="@+id/action_next"
+            android:title="@string/action_favorite"
+            app:showAsAction="always"
+            android:icon="@drawable/ic_whatif_next"/>
+
+        <item android:id="@+id/action_swipe"
+            android:title="@string/action_swipe"
+            android:checkable="true"
+            app:showAsAction="never" />
+
+        <item android:id="@+id/action_random"
+            android:title="@string/action_random_article"
+            app:showAsAction="never" />
+
+    </group>
 
     <item android:id="@+id/action_night_mode"
         android:title="@string/action_night_mode"
         android:checkable="true"
-        app:showAsAction="never" />
-
-    <item android:id="@+id/action_swipe"
-        android:title="@string/action_swipe"
-        android:checkable="true"
-        app:showAsAction="never" />
-
-    <item android:id="@+id/action_random"
-        android:title="@string/action_random_article"
-        app:showAsAction="never" />
-
-    <item android:id="@+id/action_thread"
-        android:title="@string/action_thread"
         app:showAsAction="never" />
 
 </menu>

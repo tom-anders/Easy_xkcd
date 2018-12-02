@@ -31,6 +31,7 @@ import org.jsoup.nodes.Document;
 import java.io.IOException;
 import java.util.Random;
 
+import androidx.core.view.MenuCompat;
 import butterknife.Bind;
 import butterknife.ButterKnife;
 import de.tap.easy_xkcd.database.DatabaseManager;
@@ -207,6 +208,7 @@ public class WhatIfActivity extends BaseActivity {
         getMenuInflater().inflate(R.menu.menu_what_if, menu);
         menu.findItem(R.id.action_night_mode).setChecked(themePrefs.nightThemeEnabled());
         menu.findItem(R.id.action_swipe).setChecked(prefHelper.swipeEnabled());
+        MenuCompat.setGroupDividerEnabled(menu, true);
         return true;
     }
 
