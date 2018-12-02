@@ -1,4 +1,4 @@
-/**
+/*
  * *******************************************************************************
  * Copyright 2015 Tom Praschan
  * <p/>
@@ -25,7 +25,6 @@ import android.app.job.JobInfo;
 import android.app.job.JobScheduler;
 import android.content.ComponentName;
 import android.content.Context;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.content.res.Configuration;
@@ -36,26 +35,9 @@ import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.preference.PreferenceManager;
-import androidx.annotation.NonNull;
-import androidx.coordinatorlayout.widget.CoordinatorLayout;
-
-import com.github.chrisbanes.photoview.PhotoView;
-import com.google.android.material.floatingactionbutton.FloatingActionButton;
-import com.google.android.material.navigation.NavigationView;
 import android.transition.Explode;
 import android.transition.Fade;
 import android.transition.Slide;
-
-import androidx.fragment.app.Fragment;
-import androidx.fragment.app.FragmentManager;
-import androidx.fragment.app.FragmentTransaction;
-import androidx.core.content.ContextCompat;
-import androidx.core.view.GravityCompat;
-import androidx.core.view.MenuItemCompat;
-import androidx.drawerlayout.widget.DrawerLayout;
-import androidx.appcompat.app.ActionBarDrawerToggle;
-import androidx.appcompat.app.AlertDialog;
-import androidx.appcompat.widget.Toolbar;
 import android.transition.Transition;
 import android.util.Log;
 import android.util.TypedValue;
@@ -70,9 +52,26 @@ import android.widget.SearchView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.github.chrisbanes.photoview.PhotoView;
+import com.google.android.material.floatingactionbutton.FloatingActionButton;
+import com.google.android.material.navigation.NavigationView;
 import com.nbsp.materialfilepicker.ui.FilePickerActivity;
 import com.tap.xkcd_reader.R;
 
+import java.util.Objects;
+
+import androidx.annotation.NonNull;
+import androidx.appcompat.app.ActionBarDrawerToggle;
+import androidx.appcompat.app.AlertDialog;
+import androidx.appcompat.widget.Toolbar;
+import androidx.coordinatorlayout.widget.CoordinatorLayout;
+import androidx.core.content.ContextCompat;
+import androidx.core.view.GravityCompat;
+import androidx.core.view.MenuItemCompat;
+import androidx.drawerlayout.widget.DrawerLayout;
+import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentManager;
+import androidx.fragment.app.FragmentTransaction;
 import butterknife.Bind;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
@@ -123,18 +122,12 @@ public class MainActivity extends BaseActivity {
     private static final String WHATIF_INTENT = "de.tap.easy_xkcd.ACTION_WHAT_IF";
     private static final String SAVED_INSTANCE_CURRENT_FRAGMENT = "CurrentFragment";
 
-    /*private static final String BROWSER_TAG = "browser"; //TODO get rid of these tags
-    private static final String FAV_TAG = "favorites";
-    private static final String WHATIF_TAG = "whatif";
-    private static final String OVERVIEW_TAG = "overview";*/
-
     public static final int UPDATE_ALARM = 2;
-
-    private static final int WAIT_TIME_FOR_DRAWER = 150; //Time in ms to wait for the Drawer to close before committing the fragment transaction
 
     public static final String FRAGMENT_TAG = "MainActivityFragments";
 
-    public enum CurrentFragment {Browser, Favorites, Overview, WhatIf};
+    public enum CurrentFragment {Browser, Favorites, Overview, WhatIf}
+
     private CurrentFragment currentFragment = null;
 
     private boolean updateTaskRunning = false;
@@ -172,30 +165,34 @@ public class MainActivity extends BaseActivity {
         boolean whatIfIntent = false;
 
         //Check for intents
-        switch (getIntent().getAction()) {
-            case Intent.ACTION_VIEW:
-                if (getIntent().getDataString().contains("what")) {
-                    WhatIfActivity.WhatIfIndex = (getNumberFromUrl(getIntent().getDataString(), 1));
+        try {
+            switch (Objects.requireNonNull(getIntent().getAction())) {
+                case Intent.ACTION_VIEW:
+                    if (Objects.requireNonNull(getIntent().getDataString()).contains("what")) {
+                        WhatIfActivity.WhatIfIndex = (getNumberFromUrl(getIntent().getDataString(), 1));
+                        prefHelper.setLastWhatIf(WhatIfActivity.WhatIfIndex);
+                        whatIfIntent = true;
+                        WhatIfFragment.newIntent = true;
+                    } else
+                        prefHelper.setLastComic(getNumberFromUrl(getIntent().getDataString(), prefHelper.getLastComic()));
+                    break;
+                case COMIC_INTENT:
+                    int number = getIntent().getIntExtra("number", 0);
+                    prefHelper.setLastComic(number);
+                    break;
+                case COMIC_NOTIFICATION_INTENT:
+                    prefHelper.setLastComic(0); // In updateComicDatabase this will lead to prefHelper.setLastComic(newest)
+                    Timber.d("started from Comic Notification Intent");
+                    break;
+                case WHATIF_INTENT:
+                    WhatIfActivity.WhatIfIndex = getIntent().getIntExtra("number", 0);
                     prefHelper.setLastWhatIf(WhatIfActivity.WhatIfIndex);
                     whatIfIntent = true;
                     WhatIfFragment.newIntent = true;
-                } else
-                    prefHelper.setLastComic(getNumberFromUrl(getIntent().getDataString(), prefHelper.getLastComic()));
-                break;
-            case COMIC_INTENT:
-                int number = getIntent().getIntExtra("number", 0);
-                prefHelper.setLastComic(number);
-                break;
-            case COMIC_NOTIFICATION_INTENT:
-                prefHelper.setLastComic(0); // In updateComicDatabase this will lead to prefHelper.setLastComic(newest)
-                Timber.d("started from Comic Notification Intent");
-                break;
-            case WHATIF_INTENT:
-                WhatIfActivity.WhatIfIndex = getIntent().getIntExtra("number", 0);
-                prefHelper.setLastWhatIf(WhatIfActivity.WhatIfIndex);
-                whatIfIntent = true;
-                WhatIfFragment.newIntent = true;
-                break;
+                    break;
+            }
+        } catch (NullPointerException e) {
+            Timber.e("Null Pointer exception when checking intent: %s", e.getMessage());
         }
 
         setupToolbar(toolbar);
@@ -222,24 +219,18 @@ public class MainActivity extends BaseActivity {
 
         if(!prefHelper.navDrawerSwipe()) {
             mDrawer.setDrawerLockMode(DrawerLayout.LOCK_MODE_LOCKED_CLOSED);
-            toolbar.setNavigationOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    if(v.getId() == -1)
-                        mDrawer.openDrawer(mNavView, true);
-                    Log.d("test", String.valueOf(v.getId()));
-                }
+            toolbar.setNavigationOnClickListener(v -> {
+                if(v.getId() == -1)
+                    mDrawer.openDrawer(mNavView, true);
+                Log.d("test", String.valueOf(v.getId()));
             });
         }
 
         if (savedInstanceState == null) {
-            new Handler().postDelayed(new Runnable() {
-                @Override
-                public void run() {
-                    prefHelper.showRateSnackbar(MainActivity.this.getPackageName(), MainActivity.this, mFab);
-                    prefHelper.showSurveySnackbar(MainActivity.this, mFab);
-                    //prefHelper.showFeatureSnackbar(MainActivity.this, mFab);
-                }
+            new Handler().postDelayed(() -> {
+                prefHelper.showRateSnackbar(MainActivity.this.getPackageName(), MainActivity.this, mFab);
+                prefHelper.showSurveySnackbar(MainActivity.this, mFab);
+                //prefHelper.showFeatureSnackbar(MainActivity.this, mFab);
             }, 1500);
         }
 
@@ -257,19 +248,16 @@ public class MainActivity extends BaseActivity {
             lockRotation();
             new AlertDialog.Builder(this).setMessage(R.string.update_message)
                     .setCancelable(false)
-                    .setPositiveButton(R.string.got_it, new DialogInterface.OnClickListener() {
-                        @Override
-                        public void onClick(DialogInterface dialogInterface, int i) {
-                            unlockRotation();
-                            prefHelper.setUpdateMessageShown();
-                            Intent intent = getIntent();
-                            intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK
-                                    | Intent.FLAG_ACTIVITY_NO_ANIMATION);
-                            overridePendingTransition(0, 0);
-                            finish();
-                            overridePendingTransition(0, 0);
-                            startActivity(intent);
-                        }
+                    .setPositiveButton(R.string.got_it, (dialogInterface, i) -> {
+                        unlockRotation();
+                        prefHelper.setUpdateMessageShown();
+                        Intent intent = getIntent();
+                        intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK
+                                | Intent.FLAG_ACTIVITY_NO_ANIMATION);
+                        overridePendingTransition(0, 0);
+                        finish();
+                        overridePendingTransition(0, 0);
+                        startActivity(intent);
                     }).show();
             return;
         }
@@ -285,20 +273,16 @@ public class MainActivity extends BaseActivity {
         } else if ((currentFragment != CurrentFragment.Favorites)) { //Don't show the dialog if the user is currently browsing his favorites or full offline is enabled
             AlertDialog.Builder dialog = new AlertDialog.Builder(this);
             dialog.setMessage(R.string.no_connection)
-                    .setPositiveButton(R.string.no_connection_retry, new DialogInterface.OnClickListener() {
-                        public void onClick(DialogInterface dialog, int which) {
-                            finish();
-                            startActivity(getIntent());
-                        }
+                    .setPositiveButton(R.string.no_connection_retry, (dialog1, which) -> {
+                        finish();
+                        startActivity(getIntent());
                     })
                     .setCancelable(false);
             if (!databaseManager.noFavorites()) {
-                dialog.setNegativeButton(R.string.no_connection_favorites, new DialogInterface.OnClickListener() { //We have favorites, so let give the user the option to view them
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                        MenuItem m = mNavView.getMenu().findItem(R.id.nav_favorites);
-                        selectDrawerItem(m, false, false, true, savedInstanceState == null);
-                    }
+                //We have favorites, so let give the user the option to view them
+                dialog.setNegativeButton(R.string.no_connection_favorites, (dialog12, which) -> {
+                    MenuItem m = mNavView.getMenu().findItem(R.id.nav_favorites);
+                    selectDrawerItem(m, false, false, true, savedInstanceState == null);
                 });
             }
             dialog.show();
@@ -384,6 +368,9 @@ public class MainActivity extends BaseActivity {
 
     public void updateToolbarTitle() {
         Timber.d("Current fragment: %s", String.valueOf(currentFragment));
+        if (getSupportActionBar() == null) {
+            return;
+        }
         switch (currentFragment) {
             case Browser:
                 getSupportActionBar().setTitle(getResources().getString(R.string.comicbrowser_title));
@@ -422,19 +409,15 @@ public class MainActivity extends BaseActivity {
     @SuppressWarnings("unused")
     @OnLongClick(R.id.fab)
     boolean onLongClick() {
-        if (currentFragment == CurrentFragment.Browser) {
-            ((ComicFragment) getSupportFragmentManager().findFragmentByTag(FRAGMENT_TAG)).getPreviousRandom();
+        Fragment fragment = getSupportFragmentManager().findFragmentByTag(FRAGMENT_TAG);
+        if (currentFragment == CurrentFragment.Browser && fragment instanceof ComicFragment) {
+            ((ComicFragment) fragment).getPreviousRandom();
         }
         return true;
     }
 
     void closeDrawer() {
-        new Handler().postDelayed(new Runnable() {
-            @Override
-            public void run() {
-                mDrawer.closeDrawers();
-            }
-        }, 1);
+        new Handler().postDelayed(() -> mDrawer.closeDrawers(), 1);
     }
 
     /**
@@ -442,17 +425,14 @@ public class MainActivity extends BaseActivity {
      */
     private void setupDrawerContent(NavigationView navigationView) {
         navigationView.setNavigationItemSelectedListener(
-                new NavigationView.OnNavigationItemSelectedListener() {
-                    @Override
-                    public boolean onNavigationItemSelected(MenuItem menuItem) {
-                        closeDrawer();
-                        //mDrawer.closeDrawers();
-                        prepareToolbarAnimation(-300);
-                        //updateToolbarTitle();
-                        animateToolbar(-300);
-                        selectDrawerItem(menuItem, false, false, false, true);
-                        return false;
-                    }
+                menuItem -> {
+                    closeDrawer();
+                    //mDrawer.closeDrawers();
+                    prepareToolbarAnimation(-300);
+                    //updateToolbarTitle();
+                    animateToolbar(-300);
+                    selectDrawerItem(menuItem, false, false, false, true);
+                    return false;
                 });
         themePrefs.setupNavdrawerColor(navigationView);
     }
@@ -656,23 +636,17 @@ public class MainActivity extends BaseActivity {
                 break;
 
             case R.id.nav_settings:
-                new Handler().postDelayed(new Runnable() {
-                    @Override
-                    public void run() {
-                        mDrawer.closeDrawers();
-                        startActivityForResult(new Intent(MainActivity.this, SettingsActivity.class), 1);
-                    }
+                new Handler().postDelayed(() -> {
+                    mDrawer.closeDrawers();
+                    startActivityForResult(new Intent(MainActivity.this, SettingsActivity.class), 1);
                 }, 1);
                 return;
 
             case R.id.nav_feedback:
-                new Handler().postDelayed(new Runnable() {
-                    @Override
-                    public void run() {
-                        mDrawer.closeDrawers();
-                        Intent i = new Intent(Intent.ACTION_SENDTO, Uri.fromParts("mailto", "easyxkcd@gmail.com", null));
-                        startActivity(Intent.createChooser(i, getResources().getString(R.string.nav_feedback_send)));
-                    }
+                new Handler().postDelayed(() -> {
+                    mDrawer.closeDrawers();
+                    Intent i = new Intent(Intent.ACTION_SENDTO, Uri.fromParts("mailto", "easyxkcd@gmail.com", null));
+                    startActivity(Intent.createChooser(i, getResources().getString(R.string.nav_feedback_send)));
                 }, 1);
                 return;
 
