@@ -9,6 +9,7 @@ import android.os.Build;
 import androidx.core.content.ContextCompat;
 import androidx.appcompat.app.AlertDialog;
 import android.os.Bundle;
+import android.os.FileUriExposedException;
 import android.text.Html;
 import android.text.method.LinkMovementMethod;
 import android.view.Menu;
@@ -39,6 +40,7 @@ import de.tap.easy_xkcd.misc.OnSwipeTouchListener;
 import de.tap.easy_xkcd.utils.Article;
 import de.tap.easy_xkcd.fragments.whatIf.WhatIfFavoritesFragment;
 import de.tap.easy_xkcd.fragments.whatIf.WhatIfFragment;
+import timber.log.Timber;
 
 public class WhatIfActivity extends BaseActivity {
 
@@ -149,7 +151,15 @@ public class WhatIfActivity extends BaseActivity {
                     @Override
                     public boolean shouldOverrideUrlLoading(WebView view, String url) {
                         Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(url));
-                        startActivity(intent);
+                        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.N) {
+                            try {
+                                startActivity(intent);
+                            } catch (FileUriExposedException e) {
+                                Timber.e(e);
+                            }
+                        } else {
+                            startActivity(intent);
+                        }
                         return true;
                     }
 
