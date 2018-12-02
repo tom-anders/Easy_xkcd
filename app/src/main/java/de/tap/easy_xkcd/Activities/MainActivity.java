@@ -407,14 +407,15 @@ public class MainActivity extends BaseActivity {
     @SuppressWarnings("unused") // it's actually used, just injected by Butter Knife
     @OnClick(R.id.fab)
     void onClick() {
-        if (currentFragment == CurrentFragment.Overview) { //The user is in overview mode
-            ((OverviewBaseFragment) getSupportFragmentManager().findFragmentByTag(FRAGMENT_TAG)).showRandomComic(); //TODO smooth scroll here first?
-        } else { // The user is browsing comics or favorites
-            ((ComicFragment) getSupportFragmentManager().findFragmentByTag(FRAGMENT_TAG)).getRandomComic();
-            if (currentFragment == CurrentFragment.Browser && prefHelper.showRandomTip()) {
+        Fragment fragment = getSupportFragmentManager().findFragmentByTag(FRAGMENT_TAG);
+        if (fragment instanceof OverviewBaseFragment) {
+            ((OverviewBaseFragment) fragment).showRandomComic();
+        } else if (fragment instanceof ComicFragment) {
+            if (prefHelper.showRandomTip()) {
                 Toast.makeText(this, getResources().getString(R.string.random_tip), Toast.LENGTH_LONG).show();
                 prefHelper.setRandomTip(false);
             }
+            ((ComicFragment) fragment).getRandomComic();
         }
     }
 
