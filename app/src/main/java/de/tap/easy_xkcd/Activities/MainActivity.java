@@ -988,6 +988,7 @@ public class MainActivity extends BaseActivity {
         if (requestCode == 1) {
             switch (resultCode) {
                 case RESULT_OK: //restart the activity when something major was changed in the settings
+                    updateTaskRunning = true; // Prevents creation of a new updateTask in onRestart()
                     finish();
                     startActivity(getIntent());
                     break;
