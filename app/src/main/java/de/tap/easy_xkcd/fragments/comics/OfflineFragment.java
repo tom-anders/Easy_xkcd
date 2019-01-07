@@ -242,7 +242,7 @@ public class OfflineFragment extends ComicFragment {
     public void getPreviousRandom() {
         if (newestComicNumber != 0) {
             randomSelected = true;
-            super.getRandomComic();
+            super.getPreviousRandom();
         }
     }
 
