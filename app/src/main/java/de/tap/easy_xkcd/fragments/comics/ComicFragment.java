@@ -22,11 +22,13 @@ import android.animation.Animator;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.graphics.Color;
 import android.graphics.RectF;
 import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.Bundle;
+import android.os.Environment;
 import android.os.Handler;
 import android.os.Vibrator;
 
@@ -75,7 +77,10 @@ import org.jetbrains.annotations.Nullable;
 import org.jsoup.Connection;
 
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
+import java.io.IOException;
 import java.lang.reflect.Field;
 import java.util.Arrays;
 
@@ -594,6 +599,9 @@ public abstract class ComicFragment extends Fragment {
     }
 
     protected void shareComicImage(Uri uri, RealmComic comic) {
+        if (uri == null) {
+            return;
+        }
         Intent share = new Intent(Intent.ACTION_SEND);
         share.setType("image/*");
         share.putExtra(Intent.EXTRA_STREAM, uri);
@@ -611,10 +619,34 @@ public abstract class ComicFragment extends Fragment {
     }
 
     protected Uri getURI(int number) {
-        File sdCard = prefHelper.getOfflinePath();
-        File dir = new File(sdCard.getAbsolutePath() + "/easy xkcd");
-        File path = new File(dir, String.valueOf(number) + ".png");
-        return FileProvider.getUriForFile(getActivity(), "de.tap.easy_xkcd.fileProvider", path);
+        try {
+            File sdCard = prefHelper.getOfflinePath();
+            File dir = new File(sdCard.getAbsolutePath() + "/easy xkcd");
+            File path = new File(dir, String.valueOf(number) + ".png");
+            return FileProvider.getUriForFile(getActivity(), "de.tap.easy_xkcd.fileProvider", path);
+        } catch (IllegalArgumentException e) {
+            Timber.e( "Image not found, looking in internal storage");
+
+            try {
+                String cachePath = Environment.getExternalStorageDirectory() + "/easy xkcd";
+                File dir = new File(cachePath);
+                dir.mkdirs();
+                File file = new File(dir, String.valueOf(lastComicNumber) + ".png");
+                FileOutputStream stream = new FileOutputStream(file);
+
+                FileInputStream fis = getActivity().openFileInput(String.valueOf(number));
+                Bitmap resource = BitmapFactory.decodeStream(fis);
+                fis.close();
+
+                resource.compress(Bitmap.CompressFormat.PNG, 100, stream);
+                stream.close();
+                Uri uri = FileProvider.getUriForFile(getActivity(), "de.tap.easy_xkcd.fileProvider", file);
+                return uri;
+            } catch (Exception e2) {
+                Toast.makeText(getActivity(), getResources().getString(R.string.comic_error), Toast.LENGTH_SHORT).show();
+                return null;
+            }
+        }
     }
 
     public void getPreviousRandom() {
