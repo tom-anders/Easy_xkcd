@@ -134,6 +134,7 @@ public abstract class OverviewBaseFragment extends Fragment {
 
     public void goToComic(final int number, final int position) {
         //TODO add shared elements, maybe?
+        databaseManager.setRead(number, true);
         Timber.d("number: %d", number);
         ((MainActivity) getActivity()).lastComicNumber = number;
         FragmentTransaction transaction = getActivity().getSupportFragmentManager().beginTransaction();
