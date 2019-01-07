@@ -1,3 +1,8 @@
+## 7.2.1
+
+- Fixed previous random comic in offline mode
+- Fixed some comics not being marked as read
+
 ## 7.2
 
 - Added dividers in the overflow menu
