@@ -1,3 +1,7 @@
+## 7.3
+
+- Fixed F-Droid build (hopefully)
+
 ## 7.2.1
 
 - Fixed previous random comic in offline mode
