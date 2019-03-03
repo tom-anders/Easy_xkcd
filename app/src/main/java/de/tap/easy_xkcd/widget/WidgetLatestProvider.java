@@ -6,12 +6,14 @@ import android.appwidget.AppWidgetProvider;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
+import android.graphics.Bitmap;
 import android.os.AsyncTask;
 import android.view.View;
 import android.widget.RemoteViews;
 
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.request.target.AppWidgetTarget;
+import com.bumptech.glide.request.transition.Transition;
 import com.tap.xkcd_reader.R;
 
 import org.json.JSONException;
@@ -19,6 +21,8 @@ import org.json.JSONObject;
 
 import java.io.IOException;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import de.tap.easy_xkcd.GlideApp;
 import de.tap.easy_xkcd.database.DatabaseManager;
 import de.tap.easy_xkcd.database.RealmComic;
@@ -75,7 +79,16 @@ public class WidgetLatestProvider extends AppWidgetProvider {
             ComponentName thisAppWidget = new ComponentName(context.getPackageName(), WidgetLatestProvider.class.getName());
             int[] appWidgetIds = appWidgetManager.getAppWidgetIds(thisAppWidget);
             RemoteViews remoteViews = new RemoteViews(context.getPackageName(), R.layout.widget_latest_layout);
-            AppWidgetTarget appWidgetTarget = new AppWidgetTarget(context, R.id.ivComic, remoteViews, appWidgetIds);
+            AppWidgetTarget appWidgetTarget = new AppWidgetTarget(context, R.id.ivComic, remoteViews, appWidgetIds) {
+                @Override
+                public void onResourceReady(@NonNull Bitmap resource, @Nullable Transition<? super Bitmap> transition) {
+                    try {
+                        super.onResourceReady(resource, transition);
+                    } catch (IllegalArgumentException e) {
+                        Timber.e(e, "Loading image failed for %d", comic.getComicNumber());
+                    }
+                }
+            };
 
             if (comic != null) {
                 newestComicNumber = comic.getComicNumber();

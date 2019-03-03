@@ -6,20 +6,25 @@ import android.appwidget.AppWidgetProvider;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
+import android.graphics.Bitmap;
 import android.os.AsyncTask;
 import android.view.View;
 import android.widget.RemoteViews;
 
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.request.target.AppWidgetTarget;
+import com.bumptech.glide.request.transition.Transition;
 import com.tap.xkcd_reader.R;
 
 import java.io.IOException;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import de.tap.easy_xkcd.GlideApp;
 import de.tap.easy_xkcd.database.DatabaseManager;
 import de.tap.easy_xkcd.database.RealmComic;
 import de.tap.easy_xkcd.utils.PrefHelper;
+import timber.log.Timber;
 
 
 public class WidgetRandomProvider extends AppWidgetProvider {
@@ -52,9 +57,19 @@ public class WidgetRandomProvider extends AppWidgetProvider {
 
         appWidgetManager.updateAppWidget(appWidgetIds, remoteViews);
 
-        AppWidgetTarget appWidgetTarget = new AppWidgetTarget(context, R.id.ivComic, remoteViews, appWidgetIds);
-
         RealmComic comic = (new DatabaseManager(context)).getRealmComic(lastComicNumber);
+
+        AppWidgetTarget appWidgetTarget = new AppWidgetTarget(context, R.id.ivComic, remoteViews, appWidgetIds) {
+            @Override
+            public void onResourceReady(@NonNull Bitmap resource, @Nullable Transition<? super Bitmap> transition) {
+                try {
+                    super.onResourceReady(resource, transition);
+                } catch (IllegalArgumentException e) {
+                    Timber.e(e, "Loading image failed for %d", comic.getComicNumber());
+                }
+            }
+        };
+
         if (comic != null) {
             if (prefHelper.fullOfflineEnabled()) {
                 remoteViews.setImageViewBitmap(R.id.ivComic, RealmComic.getOfflineBitmap(lastComicNumber, context, prefHelper));
