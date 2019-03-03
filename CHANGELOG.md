@@ -1,3 +1,8 @@
+## 7.3.1
+
+- Fix color of bullet points in What-If night mode
+- Fixed crash caused by widget
+
 ## 7.3
 
 - Fixed F-Droid build (hopefully)
