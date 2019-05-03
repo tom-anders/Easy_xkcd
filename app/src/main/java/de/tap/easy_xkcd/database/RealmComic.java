@@ -235,7 +235,9 @@ public class RealmComic extends RealmObject {
             File sdCard = prefHelper.getOfflinePath();
             File dir = new File(sdCard.getAbsolutePath() + "/easy xkcd");
             //noinspection ResultOfMethodCallIgnored
-            dir.mkdirs();
+            if (!dir.exists()) {
+                dir.mkdirs();
+            }
             File file = new File(dir, String.valueOf(number) + ".png");
             FileOutputStream fos = new FileOutputStream(file);
             bitmap.compress(Bitmap.CompressFormat.PNG, 100, fos);
@@ -257,7 +259,11 @@ public class RealmComic extends RealmObject {
         String comicFileName = comicNumber + ".png"; // TODO: Some early comics are .jpg
         try {
             File sdCard = prefHelper.getOfflinePath();
-            try (FileOutputStream fos = new FileOutputStream(sdCard.getAbsolutePath() + RealmComic.OFFLINE_PATH + comicFileName)) {
+            File dir = new File(sdCard.getAbsolutePath() + RealmComic.OFFLINE_PATH);
+            if (!dir.exists()) {
+                dir.mkdirs();
+            }
+            try (FileOutputStream fos = new FileOutputStream(sdCard.getAbsolutePath() + RealmComic.OFFLINE_PATH + "/" + comicFileName)) {
                 fos.write(response.body().bytes());
             }
         } catch (Exception e) {
