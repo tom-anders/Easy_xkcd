@@ -778,8 +778,7 @@ public abstract class ComicFragment extends Fragment {
             menu.findItem(R.id.action_random).setVisible(fab != null && fab.getVisibility() == View.GONE);
         }
         menu.findItem(R.id.action_alt).setVisible(prefHelper.showAltTip());
-        if (Arrays.binarySearch(getResources().getIntArray(R.array.interactive_comics), lastComicNumber) >= 0)
-            menu.findItem(R.id.action_browser).setVisible(true);
+        menu.findItem(R.id.action_browser).setVisible(true);
     }
 
     @Override
