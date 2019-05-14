@@ -1,3 +1,9 @@
+## 7.3.2
+
+- Fix bug where offline comics had black bars at the bottom. 
+  You need to disable and then enable offline mode again in the settings for the changes to take effect.
+- Add back "Open in Browser" option
+
 ## 7.3.1
 
 - Fix color of bullet points in What-If night mode
