@@ -268,7 +268,7 @@ public class RealmComic extends RealmObject {
             }
         } catch (Exception e) {
             Timber.e("Error at comic %d: Saving to external storage failed: %s", comicNumber, e.getMessage());
-            try (FileOutputStream fos = context.openFileOutput(comicFileName, Context.MODE_PRIVATE)) {
+            try (FileOutputStream fos = context.openFileOutput(String.valueOf(comicNumber), Context.MODE_PRIVATE)) {
                 fos.write(response.body().bytes());
             } catch (Exception e2) {
                 Timber.e("Error at comic %d: Saving to internal storage failed: %s", comicNumber, e2.getMessage());
@@ -298,7 +298,7 @@ public class RealmComic extends RealmObject {
         } catch (IOException e) {
             Timber.e( "Image not found, looking in internal storage");
             try {
-                FileInputStream fis = context.openFileInput(comicFileName);
+                FileInputStream fis = context.openFileInput(String.valueOf(comicNumber));
                 mBitmap = BitmapFactory.decodeStream(fis);
                 fis.close();
             } catch (Exception e2) {
