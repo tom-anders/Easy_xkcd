@@ -341,14 +341,8 @@
 
     <string name="update_message">
     Hey there!\n\n
-    This update features a complete rewrite of the app\'s database, meaning comics will load faster
-    and there will hopefully be less crashes (e.g. when adding favorites).
-    In order for everything to work correctly, the app will now reload the entire database which
-    may take a few minutes (only for the first time).
-    If you enabled offline mode, this will also redownload all offline comics.\n\n
-    Some other cool features in this update include AMOLED night mode, better crash reporting and smoother transitions
-    when entering overview mode.
-    Of course a large update like this might introduce some new bugs, so if you encounter any issues
-    feel free to let me know: <a href="easyxkcd@gmail.com">easyxkcd@gmail.com</a>
+    This update finally fixes the bug where offline comics have black bars on the bottom (thanks to Mason Cooper on Github!)
+    For the changes to take effect, you will have to manually disable offline mode in the settings and then enable it again. \n\n
+    Thanks for using the app!
     </string>
 </resources>

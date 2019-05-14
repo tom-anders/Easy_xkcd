@@ -339,12 +339,9 @@
     <string name="offline_image_missing_failed">Download fehlgeschlagen!</string>
 
     <string name="update_message">
-    Hallo!\n\n
-        In diesem Update wurde die Datenbank der App komplett neu programmiert, das heißt Comics laden schneller
-        und es gibt hoffentlich weniger Abstürze.
-        Damit alles reibungslos über die Bühne geht, lädt die App jetzt einmalig die komplette Datenbank neu.
-        Wenn du den Offline Modus aktiviert hast, wird auch dieser neu aufgebaut.\n\n
-
-        Falls du irgendwelche Probleme mit diesem Update hast, schreib mir doch eine Mail: <a href="mailto:easyxkcd@gmail.com">easyxkcd@gmail.com</a>
+    Hey there!\n\n
+    This update finally fixes the bug where offline comics have black bars on the bottom (thanks to Mason Cooper on Github!)
+    For the changes to take effect, you will have to manually disable offline mode in the settings and then enable it again. \n\n
+    Thanks for using the app!
     </string>
 </resources>

@@ -114,7 +114,7 @@ public class PrefHelper {
     private static final String WIDGET_ALT = "widget_alt";
     private static final String WIDGET_COMIC_NUMBER = "widget_comicNumber";
     private static final String NAV_DRAWER_SWIPE = "disable_nav_drawer_swipe";
-    private static final String SHOW_UPDATE_MESSAGE = "show_update_message";
+    private static final String SHOW_UPDATE_MESSAGE = "show_update_message_5_2019";
 
     private static final String FAB_DISABLED_COMICBROWSER = "pref_random_comics";
     private static final String FAB_DISABLED_FAVORITES = "pref_random_favorites";
