@@ -71,7 +71,10 @@ public class updateComicDatabase extends AsyncTask<Void, String, Void> {
     void createNoMediaFile() {
         if (!prefHelper.nomediaCreated()) {
             File sdCard = prefHelper.getOfflinePath();
-            File dir = new File(sdCard.getAbsolutePath() + "/easy xkcd");
+            File dir = new File(sdCard.getAbsolutePath() + "/easy xkcd/");
+            if (!dir.exists()) {
+                dir.mkdirs();
+            }
             File nomedia = new File(dir, ".nomedia");
             try {
                 boolean created = nomedia.createNewFile();
