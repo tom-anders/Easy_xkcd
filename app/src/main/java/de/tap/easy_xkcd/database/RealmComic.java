@@ -235,7 +235,9 @@ public class RealmComic extends RealmObject {
             File sdCard = prefHelper.getOfflinePath();
             File dir = new File(sdCard.getAbsolutePath() + "/easy xkcd");
             //noinspection ResultOfMethodCallIgnored
-            dir.mkdirs();
+            if (!dir.exists()) {
+                dir.mkdirs();
+            }
             File file = new File(dir, String.valueOf(number) + ".png");
             FileOutputStream fos = new FileOutputStream(file);
             bitmap.compress(Bitmap.CompressFormat.PNG, 100, fos);
@@ -253,24 +255,23 @@ public class RealmComic extends RealmObject {
         }
     }
 
-    public static void saveOfflineBitmap(Response response, PrefHelper prefHelper, int number, Context context) {
+    public static void saveOfflineBitmap(Response response, PrefHelper prefHelper, int comicNumber, Context context) {
+        String comicFileName = comicNumber + ".png"; // TODO: Some early comics are .jpg
         try {
             File sdCard = prefHelper.getOfflinePath();
             File dir = new File(sdCard.getAbsolutePath() + RealmComic.OFFLINE_PATH);
-            File file = new File(dir, number + ".png");
-            BufferedSink sink = Okio.buffer(Okio.sink(file));
-            sink.writeAll(response.body().source());
-            sink.close();
+            if (!dir.exists()) {
+                dir.mkdirs();
+            }
+            try (FileOutputStream fos = new FileOutputStream(sdCard.getAbsolutePath() + RealmComic.OFFLINE_PATH + "/" + comicFileName)) {
+                fos.write(response.body().bytes());
+            }
         } catch (Exception e) {
-            Timber.e("Error at comic %d: Saving to external storage failed: %s", number, e.getMessage());
-            try {
-                FileOutputStream fos = context.openFileOutput(String.valueOf(number), Context.MODE_PRIVATE);
-                BufferedSink sink = Okio.buffer(Okio.sink(fos));
-                sink.writeAll(response.body().source());
-                fos.close();
-                sink.close();
+            Timber.e("Error at comic %d: Saving to external storage failed: %s", comicNumber, e.getMessage());
+            try (FileOutputStream fos = context.openFileOutput(comicFileName, Context.MODE_PRIVATE)) {
+                fos.write(response.body().bytes());
             } catch (Exception e2) {
-                Timber.e("Error at comic %d: Saving to external storage failed: %s", number, e2.getMessage());
+                Timber.e("Error at comic %d: Saving to internal storage failed: %s", comicNumber, e2.getMessage());
             }
         } finally {
             response.body().close();
@@ -286,17 +287,18 @@ public class RealmComic extends RealmObject {
         }
 
         Bitmap mBitmap = null;
+        String comicFileName = comicNumber + ".png";
         try {
             File sdCard = prefHelper.getOfflinePath();
             File dir = new File(sdCard.getAbsolutePath() + OFFLINE_PATH);
-            File file = new File(dir, String.valueOf(comicNumber) + ".png");
+            File file = new File(dir, comicFileName);
             FileInputStream fis = new FileInputStream(file);
             mBitmap = BitmapFactory.decodeStream(fis);
             fis.close();
         } catch (IOException e) {
             Timber.e( "Image not found, looking in internal storage");
             try {
-                FileInputStream fis = context.openFileInput(String.valueOf(comicNumber));
+                FileInputStream fis = context.openFileInput(comicFileName);
                 mBitmap = BitmapFactory.decodeStream(fis);
                 fis.close();
             } catch (Exception e2) {
