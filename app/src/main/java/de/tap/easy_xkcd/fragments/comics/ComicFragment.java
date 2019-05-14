@@ -218,7 +218,7 @@ public abstract class ComicFragment extends Fragment {
             RealmComic comic = getRealmComic(position); //TODO check if comic is null
 
             try {
-                tvAlt.setText(comic.getAltText());
+                tvAlt.setText(Html.fromHtml(comic.getAltText()));
                 tvTitle.setText(Html.fromHtml(comic.getTitle()));
                 pvComic.setTransitionName("im" + comic.getComicNumber());
                 tvTitle.setTransitionName(String.valueOf(comic.getComicNumber()));
