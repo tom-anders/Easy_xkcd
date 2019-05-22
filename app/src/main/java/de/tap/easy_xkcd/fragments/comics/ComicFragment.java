@@ -566,7 +566,7 @@ public abstract class ComicFragment extends Fragment {
     }
 
     protected boolean openComicInBrowser(int number) {
-        Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse("https://xkcd.com/" + String.valueOf(number)));
+        Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse("https://m.xkcd.com/" + String.valueOf(number)));
         startActivity(intent);
         return true;
     }
