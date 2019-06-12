@@ -287,17 +287,14 @@ public class ComicBrowserFragment extends ComicFragment {
             return true;
         }
         AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
-        builder.setItems(R.array.share_dialog, new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialog, int which) {
-                switch (which) {
-                    case 0:
-                        shareComicImage();
-                        break;
-                    case 1:
-                        shareComicUrl(databaseManager.getRealmComic(lastComicNumber));
-                        break;
-                }
+        builder.setItems(R.array.share_dialog, (dialog, which) -> {
+            switch (which) {
+                case 0:
+                    shareComicImage();
+                    break;
+                case 1:
+                    shareComicUrl(databaseManager.getRealmComic(lastComicNumber));
+                    break;
             }
         });
         AlertDialog alert = builder.create();
@@ -326,7 +323,7 @@ public class ComicBrowserFragment extends ComicFragment {
                             String cachePath = Environment.getExternalStorageDirectory() + "/easy xkcd";
                             File dir = new File(cachePath);
                             dir.mkdirs();
-                            File file = new File(dir, String.valueOf(lastComicNumber) + ".png");
+                            File file = new File(dir, lastComicNumber + ".png");
                             FileOutputStream stream = new FileOutputStream(file);
                             resource.compress(Bitmap.CompressFormat.PNG, 100, stream);
                             stream.close();

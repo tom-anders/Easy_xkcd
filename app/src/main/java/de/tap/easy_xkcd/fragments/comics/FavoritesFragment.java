@@ -466,17 +466,14 @@ public class FavoritesFragment extends ComicFragment {
         }
 
         AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
-        builder.setItems(R.array.share_dialog, new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialog, int which) {
-                switch (which) {
-                    case 0:
-                        shareComicImage(getURI(favorites.get(favoriteIndex).getComicNumber()), favorites.get(favoriteIndex));
-                        break;
-                    case 1:
-                        shareComicUrl(favorites.get(favoriteIndex));
-                        break;
-                }
+        builder.setItems(R.array.share_dialog, (dialog, which) -> {
+            switch (which) {
+                case 0:
+                    shareComicImage(getURI(favorites.get(favoriteIndex).getComicNumber()), favorites.get(favoriteIndex));
+                    break;
+                case 1:
+                    shareComicUrl(favorites.get(favoriteIndex));
+                    break;
             }
         });
         AlertDialog alert = builder.create();
