@@ -54,6 +54,7 @@ import androidx.viewpager.widget.ViewPager;
 import androidx.appcompat.widget.Toolbar;
 
 import android.text.Html;
+import android.text.TextUtils;
 import android.transition.TransitionInflater;
 import android.util.Log;
 import android.view.GestureDetector;
@@ -598,7 +599,7 @@ public abstract class ComicFragment extends Fragment {
         startActivity(Intent.createChooser(share, this.getResources().getString(R.string.share_url)));
     }
 
-    protected void shareComicImage(Uri uri, RealmComic comic) {
+    protected void shareComicImage(@Nullable Uri uri, RealmComic comic) {
         if (uri == null) {
             return;
         }
@@ -607,11 +608,15 @@ public abstract class ComicFragment extends Fragment {
         share.putExtra(Intent.EXTRA_STREAM, uri);
         share.putExtra(Intent.EXTRA_SUBJECT, comic.getTitle());
 
-        String extraText = prefHelper.shareAlt() ? comic.getAltText() : "";
-        if (prefHelper.includeLink())
-            extraText += " https://" + (prefHelper.shareMobile() ? "m." : "") + "xkcd.com/" + comic.getComicNumber() + "/";
-        if (!extraText.equals(""))
-            share.putExtra(Intent.EXTRA_TEXT, extraText);
+        String extraText = comic.getTitle();
+        if (prefHelper.shareAlt()) {
+            extraText += "\n" + comic.getAltText();
+        }
+        if (prefHelper.includeLink()) {
+            extraText += "\n" + "https://" + (prefHelper.shareMobile() ? "m." : "")
+                    + "xkcd.com/" + comic.getComicNumber() + "/";
+        }
+        share.putExtra(Intent.EXTRA_TEXT, extraText);
 
         share.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
 
