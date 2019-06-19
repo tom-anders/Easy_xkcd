@@ -1,0 +1,500 @@
+<!--
+  ~ Copyright 2019, Tom Praschan
+  ~
+  ~ Brazilian Portuguese translation of Easy xkcd
+  ~ by Rafael Fontenelle, 2019
+  ~
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~ http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+  -->
+<resources>
+    <string name="app_name">Easy xkcd</string>
+    <string name="pref_title">Configurações</string>
+    <string name="title_activity_about">Sobre</string>
+    <string name="title_activity_search_results">Resultados para</string>
+
+    <!-- dialog strings -->
+    <string name="delete_favorites">Limpar favoritos</string>
+    <string name="delete_favorites_dialog">Tem certeza que deseja excluir todos os seus favoritos?</string>
+    <string name="favorites_cleared">Favoritos apagados</string>
+    <string name="delete_offline_dialog">Tem certeza que deseja desativar o modo offline? Isso vai excluir todas as imagens salvas(exceto favoritas)</string>
+    <string name="delete_offline_whatif_dialog">Tem certeza que deseja desativar o modo offline? Isso vai excluir todos os artigos salvos</string>
+
+    <string name="share_url">Compartilhar url com&#8230;</string>
+    <string name="share_image">Compartilhar imagem com&#8230;</string>
+    <string name="dialog_cancel">Cancelar</string>
+    <string name="dialog_yes">Sim</string>
+    <string name="loading_random">Carregando quadrinho aleatório&#8230;</string>
+    <string name="no_favorites">Você ainda não adicionou nenhum favorito!</string>
+    <string name="loading_comics">Carregando quadrinhos&#8230;</string>
+    <string name="loading_articles">Baixando novos artigos&#8230;</string>
+    <string name="loading_article">Carregando artigo&#8230;</string>
+    <string name="loading_results">Carregando resultados de pesquisa&#8230;</string>
+    <string name="no_connection">Sem conexão&#8230;</string>
+    <string name="no_connection_retry">Tente novamente</string>
+    <string name="no_connection_favorites">Ver favoritos</string>
+    <string name="comic_error">Quadrinho não disponível</string>
+    <string name="search_error">Nenhum quadrinho encontrado</string>
+    <string name="loading_latest">Carregando o quadrinho mais recente&#8230;</string>
+    <string name="loading_offline">Baixando quadrinhos&#8230;</string>
+    <string name="loading_offline_whatif">Baixando artigos&#8230;</string>
+    <string name="loading_offline_message">Não feche o aplicativo!</string>
+    <string name="loading_offline_2">Isso pode levar um tempo, relaxe&#8230;</string>
+    <string name="loading_offline_20">Talvez você devesse pegar um café ou algo assim&#8230;</string>
+    <string name="loading_offline_50">Apenas mais metade para acabar!</string>
+    <string name="loading_offline_80">Quase lá&#8230;</string>
+    <string name="loading_offline_95">Ocorreu um erro! Tente novamente</string>
+    <string name="loading_offline_96">Brincaderinha.</string>
+    <string name="loading_offline_97">Você deveria ver sua cara!</string>
+    <string name="delete_offline">Excluindo quadrinhos&#8230;</string>
+    <string name="delete_offline_articles">Excluindo artigos&#8230;</string>
+
+    <string name="snackbar_remove">Quadrinho removida dos favoritos</string>
+    <string name="snackbar_add">Quadrinho adicionado aos favoritos</string>
+    <string name="snackbar_remove_all">Favoritos apagados</string>
+    <string name="snackbar_undo">Desfazer</string>
+    <string name="snackbar_rate">Então, você gosta do Easy xkcd?</string>
+    <string name="snackbar_rate_action">Avaliar</string>
+
+    <!-- ActionBar strings -->
+    <string name="action_settings">Configurações</string>
+    <string name="action_unread">Marcar tudo como não lido</string>
+    <string name="action_all_read">Marcar tudo como lido</string>
+    <string name="action_hide_read_articles">Ocultar artigos lidos</string>
+    <string name="action_hide_read_comics">Ocultar quadrinhos lidas</string>
+    <string name="action_favorite">Adicionar aos favoritos</string>
+    <string name="action_favorite_remove">Remover dos favoritos</string>
+    <string name="action_latest">Quadrinho mais recente</string>
+    <string name="action_share">Compartilhar quadrinho</string>
+    <string name="action_share_article">Compartilhar artigo</string>
+    <string name="action_random">Quadrinho aleatório</string>
+    <string name="action_random_article">Artigo aleatório</string>
+    <string name="action_explain">Explicar quadrinho</string>
+    <string name="action_alt">Ver texto alt</string>
+    <string name="action_night_mode">Modo noturno</string>
+    <string name="action_browser">Abrir no navegador</string>
+    <string name="action_swipe">Deslize para navegar</string>
+    <string name="action_donate">Doar</string>
+    <string name="action_trans">Ver transcrição</string>
+    <string name="action_alt_tip">Dica: Você também pode ver o texto alternativo pressionando e segurando a imagem do quadrinho.</string>
+    <string name="what_if_tip">Você sabia? Toque em uma imagem para ver seu texto de mouseover!</string>
+    <string name="random_tip">Você sabia? Pressione e segure o botão para acessar a história em quadrinhos anterior!</string>
+    <string name="search_title">Pesquisar</string>
+    <string name="search_hint">Pesquise um quadrinho</string>
+    <string name="search_hint_whatif">Pesquise um artigo</string>
+    <string name="drawer_open">Abrir painel de navegação</string>
+    <string name="drawer_close">Fechar painel de navegação</string>
+    <string name="new_comic">Novo quadrinho!</string>
+    <string name="new_comic_view">Ver</string>
+    <string name="new_whatif">Novo What If!</string>
+    <string name="apply_theme">Reiniciar agora para aplicar o novo tema?</string>
+
+    <string name="add_bookmark">Adicionar marcador</string>
+    <string name="open_bookmark">Ir para marcador</string>
+    <string name="bookmark_toast">Você pode retornar para seu marcador a partir do modo de visão geral. Ele também será realçado na lista de quadrinhos</string>
+    <string name="bookmark_toast_2">Marcador adicionado</string>
+    <string name="no_bookmark">Você ainda não adicionou um marcador! Você pode adicionar um no navegador de quadrinhos ou pressionando e segurando um quadrinho nessa lista</string>
+
+    <string-array name="share_dialog">
+        <item>Compartilhar imagem</item>
+        <item>Compartilhar URL</item>
+    </string-array>
+
+    <string-array name="export_import_dialog">
+        <item>Exportar</item>
+        <item>Importar</item>
+    </string-array>
+
+    <string-array name="whatif_card_long_click">
+        <item>Compartilhar</item>
+        <item>Abrir no navegador</item>
+        <item>Adicionar aos favoritos</item>
+    </string-array>
+
+    <string-array name="whatif_card_long_click_remove">
+        <item>Compartilhar</item>
+        <item>Abrir no navegador</item>
+        <item>Remover dos favoritos</item>
+    </string-array>
+
+    <string-array name="card_long_click">
+        <item>Adicionar marcador</item>
+        <item>Marcar como lido</item>
+    </string-array>
+
+    <string-array name="card_long_click_remove">
+        <item>Adicionar marcador</item>
+        <item>Marcar como não lido</item>
+    </string-array>
+
+    <string-array name="pref_orientation">
+        <item>Padrão</item>
+        <item>Porta-retrato</item>
+        <item>Paisagem</item>
+    </string-array>
+
+    <string-array name="pref_notifications">
+        <item>1 hora</item>
+        <item>3 hora</item>
+        <item>5 hora</item>
+        <item>nunca</item>
+    </string-array>
+
+    <string-array name="pref_theme">
+        <item>Azul/Cinza (Padrão)</item>
+        <item>Vermelhor</item>
+        <item>Azul claro</item>
+        <item>Preto</item>
+        <item>Roxo</item>
+        <item>Limão</item>
+        <item>Verde</item>
+    </string-array>
+
+    <string-array name="pref_theme_entries" translatable="false">
+        <item>1</item>
+        <item>2</item>
+        <item>3</item>
+        <item>4</item>
+        <item>5</item>
+        <item>6</item>
+        <item>7</item>
+    </string-array>
+
+    <string-array name="pref_zoom">
+        <item>40%</item>
+        <item>70%</item>
+        <item>100%</item>
+        <item>130%</item>
+        <item>170%</item>
+        <item>200%</item>
+        <item>Exibição padrão</item>
+    </string-array>
+
+    <string-array name="pref_zoom_entries" translatable="false">
+        <item>40</item>
+        <item>70</item>
+        <item>100</item>
+        <item>130</item>
+        <item>170</item>
+        <item>200</item>
+        <item>default</item>
+    </string-array>
+
+    <string-array name="pref_notifications_entries" translatable="false">
+        <item>1</item>
+        <item>3</item>
+        <item>5</item>
+        <item>0</item>
+    </string-array>
+
+    <string-array name="pref_orientation_entries" translatable="false">
+        <item>1</item>
+        <item>2</item>
+        <item>3</item>
+    </string-array>
+
+    <integer-array name="interactive_comics" translatable="false">
+        <item>826</item>
+        <item>1037</item>
+        <item>1110</item>
+        <item>1190</item>
+        <item>1193</item>
+        <item>1264</item>
+        <item>1331</item>
+        <item>1350</item>
+        <item>1416</item>
+        <item>1506</item>
+        <item>1525</item>
+        <item>1572</item>
+        <item>1608</item>
+        <item>1663</item>
+        <item>1975</item>
+        <item>2067</item>
+    </integer-array>
+
+    <integer-array name="large_comics" translatable="false">
+        <item>256</item>
+        <item>482</item>
+        <item>657</item>
+        <item>681</item>
+        <item>802</item>
+        <item>832</item>
+        <item>930</item>
+        <item>1000</item>
+        <item>1040</item>
+        <item>1071</item>
+        <item>1079</item>
+        <item>1080</item>
+        <item>1196</item>
+        <item>1256</item>
+        <item>1298</item>
+        <item>1389</item>
+        <item>1392</item>
+        <item>1461</item>
+        <item>1491</item>
+        <item>1509</item>
+        <item>1688</item>
+        <item>1732</item>
+    </integer-array>
+
+
+    <string-array name="large_comics_urls" translatable="false">
+        <item>http://imgs.xkcd.com/comics/online_communities.png</item>
+        <item>http://imgs.xkcd.com/comics/height.png</item>
+        <item>http://imgs.xkcd.com/comics/movie_narrative_charts_large.png</item>
+        <item>http://imgs.xkcd.com/comics/gravity_wells_large.png</item>
+        <item>http://imgs.xkcd.com/comics/online_communities_2_large.png</item>
+        <item>http://i.imgur.com/EObZHw1.jpg</item>
+        <item>http://imgs.xkcd.com/comics/days_of_the_week_large.png</item>
+        <item>http://imgs.xkcd.com/comics/1000_comics_large.png</item>
+        <item>http://imgs.xkcd.com/comics/lakes_and_oceans_large.png</item>
+        <item>http://imgs.xkcd.com/comics/exoplanets_large.png</item>
+        <item>http://imgs.xkcd.com/comics/united_shapes_large.png</item>
+        <item>http://imgs.xkcd.com/comics/visual_field_large.png</item>
+        <item>http://imgs.xkcd.com/comics/subways_large.png</item>
+        <item>http://imgs.xkcd.com/comics/questions_large.png</item>
+        <item>http://imgs.xkcd.com/comics/exoplanet_neighborhood_large.png</item>
+        <item>http://imgs.xkcd.com/comics/surface_area_large.png</item>
+        <item>http://imgs.xkcd.com/comics/dominant_players_large.png</item>
+        <item>http://imgs.xkcd.com/comics/payloads_large.png</item>
+        <item>http://imgs.xkcd.com/comics/stories_of_the_past_and_future_large.png</item>
+        <item>http://imgs.xkcd.com/comics/scenery_cheat_sheet_large.png</item>
+        <item>http://imgs.xkcd.com/comics/map_age_guide_large.png</item>
+        <item>http://imgs.xkcd.com/comics/earth_temperature_timeline.png</item>
+    </string-array>
+
+    <string name="title_interactive">(interativo)</string>
+
+    <!-- navigation drawer -->
+    <string name="nv_comicbrowser">Navegador de quadrinhos</string>
+    <string name="comicbrowser_title">Quadrinhos</string>
+    <string name="nv_favorites">Favoritos</string>
+    <string name="nv_style">Estilo</string>
+    <string name="nv_about">Sobre</string>
+    <string name="nv_feedback">Feedback</string>
+    <string name="nav_feedback_send">Envie um e-mail com&#8230;</string>
+    <string name="nv_whatif" translatable="false">What if?</string>
+
+    <!-- preference strings -->
+    <string name="pref_night">Tema noturno</string>
+    <string name="pref_invert">Inverter imagens em preto/branco</string>
+    <string name="pref_detect_color">Inverter imagens contendo cores</string>
+    <string name="pref_amoled">Modo noturno AMOLED</string>
+    <string name="pref_amoled_sum">Economia bateria em dispositivos com uma tela AMOLED</string>
+    <string name="pref_alt_activation">Ativação</string>
+    <string name="pref_alt_activation_sum">Toque longo ou toque simples</string>
+    <string name="pref_alt_options">Opções gerais</string>
+    <string name="pref_alt_options_sum">Sempre mostrar texto alternativo, compartilhar texto alt, feedback tátil</string>
+    <string name="pref_random">Ocultar botão de ação flutuante</string>
+    <string name="pref_random_title">Ocultar LGA em&#8230;</string>
+    <string name="pref_alt_style_sum">Clássico ou pop-up</string>
+    <string name="pref_alt_style_title">Selecione seu estilo preferido</string>
+    <string name="pref_alt">Feedback tátil sobre texto alt</string>
+    <string name="pref_alt_sum">Ativa o feedback tátil ao pressionar e segurar imagens</string>
+    <string name="pref_subtitle">Mostrar legenda da barra de ação</string>
+    <string name="pref_subtitle_sum">Define o número do quadrinho atual como legenda da barra de ação(LGA)</string>
+    <string name="pref_random_favorites">Ocultar LGA na tela de favoritos</string>
+    <string name="pref_random_comics">Ocultar LGA na tela de quadrinhos</string>
+    <string name="pref_fab_left">Alinhar botão de ação flutuante à esquerda</string>
+    <string name="pref_fab_left_hint">Pode ser conveniente para usuários canhotos</string>
+    <string name="pref_chrome_custom_tabs">Usar abas personalizados do Chrome</string>
+    <string name="pref_random_sum">Oculta o botão de ação flutuante. Quando oculto, haverá um botão no menu overflow</string>
+    <string name="pref_share">Sempre compartilhar imagem do quadrinho</string>
+    <string name="pref_share_sum">Não me perguntar para decidir entre compartilhar a imagem do quadrinho ou compartilhar sua URL</string>
+    <string name="pref_share_alt">Incluir texto alt ao compartilhar</string>
+    <string name="pref_share_title">Compartilhamento</string>
+    <string name="pref_share_link">Incluir link do quadrinho</string>
+    <string name="pref_share_link_sum">Também incluir o link para o quadrinho ao compartilhar uma imagem</string>
+    <string name="pref_offline_notifications">Modo offline &amp; notificações</string>
+    <string name="pref_behavior">Comportamento</string>
+    <string name="pref_behavior_sum">Ativa modo offline, notificações</string>
+    <string name="pref_appearance">Aparência</string>
+    <string name="pref_appearance_sum">Altere o visual do aplicativo</string>
+    <string name="pref_large">Imagens grandes de quadrinhos</string>
+    <string name="pref_large_sum">Carrega imagens grandes, se disponível (p.ex., #657). Pode reduzir o desempenho em dispositivos antigos </string>
+    <string name="pref_offline">Modo offline</string>
+    <string name="pref_offline_sum">Baixa todos os quadrinhos para um armazenamento externo. Novos quadrinhos serão adicionados automaticamente. Ocupa cerca de ~150MB.</string>
+    <string name="pref_offline_whatif">Modo offline do "What if?"</string>
+    <string name="pref_offline_whatif_sum" translatable="false">~20 MB</string>
+    <string name="pref_mobile">Compartilhar links móveis</string>
+    <string name="pref_mobile_sum">Compartilhe links do m.xkcd.com em vez do xkcd.com</string>
+    <string name="pref_orientation">Orientação da tela</string>
+    <string name="pref_orientation_sum">Padrão, porta-retrato ou paisagem</string>
+    <string name="pref_notifications">Atualizar intervalo para notificações</string>
+    <string name="pref_notifications_sum">Verifica na segunda-feira, quarta-feira e sexta-feira por novos quadrinhos, verifica na terça-feira por novos What If.</string>
+    <string name="pref_show_alt">Mostrar texto alt por padrão</string>
+    <string name="pref_theme">Tema</string>
+    <string name="pref_theme_sum">Você precisa reiniciar o aplicativo para que o tema seja aplicado</string>
+    <string name="pref_zoom">Zoom do texto do What If?</string>
+    <string name="pref_zoom_sum">Pode corrigir alguns problemas de layout em alguns dispositivo</string>
+    <string name="pref_advanced">Avançado</string>
+    <string name="pref_repair">Recarregar banco de dados de quadrinhos</string>
+    <string name="pref_repair_sum">Se você vir alguns quadrinhos vazios ou presenciar travamentos, isso pode ser a solução</string>
+    <string name="pref_export_import">Exportar/Importar favoritos</string>
+    <string name="pref_export">Exportar seus favoritos</string>
+    <string name="pref_import_success">Favoritos importados!</string>
+    <string name="pref_hide_donate">Ocultar botão de doação</string>
+    <string name="title_activity_what_if" translatable="false">What if?</string>
+    <string name="title_activity_donate">Doar</string>
+    <string name="pref_alt_title">Texto alt</string>
+    <string name="pref_alt_style">Estilo</string>
+    <string name="snackbar_survey">Tem uns minutos e deseja ajudar a melhorar esse aplicativo?</string>
+    <string name="snackbar_survey_oc">Responda à pesquisa</string>
+    <string name="pref_navbar">Barra de navegação colorida</string>
+    <string name="pref_update_mobile">Atualizar em dados móveis</string>
+    <string name="pref_update_mobile_sum">Quando desabilitado, quadrinhos offline e artigos do What If são atualizados apenas no WiFi</string>
+    <string name="pref_alt_sharing">Texto alt &#38; compartilhamento</string>
+    <string name="pref_alt_sharing_sum">Configure o comportamento do texto alternativo e compartilhamento</string>
+    <string name="pref_night_options">Opções noturnas</string>
+    <string name="pref_night_options_sum">Configure o tema noturno</string>
+    <string name="pref_auto_night">Tema noturno automático</string>
+    <string name="pref_auto_night_start">Horário de início</string>
+    <string name="pref_auto_night_end">Horário de término</string>
+    <string name="snackbar_feature">Novo recurso: Temas personalizados!</string>
+    <string name="snackbar_feature_oc">Confira</string>
+    <string name="whatif_overview">Visão geral</string>
+    <string name="pref_offline_path">Caminho para os dados offline (experimental)</string>
+    <string name="pref_offline_path_sum">O padrão é o diretório raiz do armazenamento externo.</string>
+    <string name="copy_folder">Movendo pastas e arquivos &#8230;</string>
+    <string name="action_overview">Visão geral de quadrinhos</string>
+    <string name="pref_zoom_scroll">Desabilitar rolagem enquanto usa zoom na imagem de uma quadrinho</string>
+    <string name="not_restart">Feito. Toque para reiniciar o aplicativo.</string>
+    <string name="pref_overview_default">Iniciar no modo visão geral</string>
+    <string name="pref_overview_default_sum">Ao inciar o aplicativo, mostra o modo visão geral por padrão</string>
+
+    <string name="pref_widget">Configurações de widget</string>
+    <string name="pref_widget_sum">Para as alterações terem efeito, remova o widget de sua tela inicial e adicione-o novamente</string>
+    <string name="pref_widget_alt">Exibir o texto alt</string>
+    <string name="pref_widget_comicNumber">Exibir o número do quadrinho</string>
+
+    <string name="pref_doubletap">Toque duplo para favoritar</string>
+    <string name="pref_doubletap_sum">Em vez de controlar o nível de zoom, toque duplo sobre um quadrinho vai adicioná-lo a seus favoritos</string>
+
+    <string name="dialog_donate">Quanto você gostaria de doar?</string>
+    <string name="update_database">Atualizando banco de dados&#8230;</string>
+    <string name="update_database_message">Fazendo cache de dados de quadrinho</string>
+    <string name="update_database_message_offline">Baixando quadrinhos offline…</string>
+    <string name="pref_default_zoom">Ajustar imagens à tela do dispositivo por padrão</string>
+    <string name="pref_default_zoom_sum">Quando desativado, quadrinhos pode ficar melhor me dispositivos grandes</string>
+
+    <string name="overview_style_title">Escolha seu estilo preferido</string>
+
+    <string name="theme_primary_color">Cor primária</string>
+    <string name="theme_primary_color_dialog">Selecione uma cor primária</string>
+    <string name="theme_accent_color">Cor de destaque</string>
+    <string name="theme_accent_color_dialog">Selecione uma cor de destaque</string>
+    <string name="pref_edit_theme">Personalizar tema</string>
+    <string name="pref_theme_ok">OK</string>
+
+    <string name="action_earliest_unread">Primeiro não lida</string>
+    <string name="action_thread">Abrir tópico de fórum/reddit</string>
+    <string name="thread_not_found">Tópico não encontrado!</string>
+    <string name="loading_thread">Carregando tópico&#8230;</string>
+
+    <string name="widget_random">Quadrinho aleatório</string>
+    <string name="widget_latest">Quadrinho mais recente</string>
+
+    <string-array name="forum_thread" translatable="false">
+        <item>Reddit</item>
+        <item>xkcd Forum</item>
+    </string-array>
+
+    <string-array name="overview_style">
+        <item>Lista</item>
+        <item>Cartas compactas</item>
+        <item>Cartas (funciona melhor no modo offline)</item>
+    </string-array>
+
+    <string-array name="random_entries">
+        <item>Navegador de quadrinho</item>
+        <item>Favoritos</item>
+    </string-array>
+
+    <string-array name="random_values" translatable="false">
+        <item>pref_random_comics</item>
+        <item>pref_random_favorites</item>
+    </string-array>
+
+    <string-array name="random_default" translatable="false">
+        <item>pref_random_whatif</item>
+    </string-array>
+
+    <string-array name="alt_style_entries">
+        <item>Clássico</item>
+        <item>Pop-up</item>
+    </string-array>
+
+    <string-array name="alt_style_values" translatable="false">
+        <item>0</item>
+        <item>1</item>
+    </string-array>
+
+    <string-array name="alt_options_entries">
+        <item>Sempre mostrar texto alt</item>
+        <item>Incluir texto alt ao compartilhar</item>
+        <item>Feedback tátil</item>
+        <item>Botão de voltar para mostrar o texto alt</item>
+    </string-array>
+
+    <string-array name="alt_options_values" translatable="false">
+        <item>pref_show_alt</item>
+        <item>pref_share_alt</item>
+        <item>pref_alt</item>
+        <item>pref_alt_back</item>
+    </string-array>
+
+    <string-array name="alt_options_default" translatable="false">
+        <item>pref_alt</item>
+    </string-array>
+
+    <string-array name="alt_activation">
+        <item>Toque simples</item>
+        <item>Toque longo</item>
+    </string-array>
+
+    <string-array name="alt_activation_values" translatable="false">
+        <item>0</item>
+        <item>1</item>
+    </string-array>
+
+    <string name="pref_nav_swipe">Deslizar para abrir o painel de navegação</string>
+
+    <string name="crash_dialog_title">Easy xkcd travou</string>
+    <string name="crash_dialog_disable">Não mostrar esse diálogo novamente</string>
+    <string name="crash_dialog_text">Gostaria de enviar por e-mail um log dessa falha para mim? Isso provavelmente ajudaria a garantir que isso não aconteça novamente :)</string>
+    <string name="crash_dialog_comment_prompt">Você pode adicionar algumas informações extras aqui (p.ex., passos para reproduzir): </string>
+    <string name="crash_ok">OK</string>
+    <string name="crash_cancel">CANCELAR</string>
+    <string name="title_activity_crash_report" translatable="false">CrashReportActivity</string>
+
+    <string name="got_it">ENTENDI!</string>
+    <string name="no_transcript">Desculpe, quadrinhos mais novos que #1674 não possuem transcrição :(</string>
+
+    <string name="pref_fullscreen_enabled">Ativa modo tela cheia</string>
+    <string name="pref_fullscreen_enabled_sum">Toque em um quadrinho para entrar no modo tela cheia</string>
+
+    <string name="notification_channel_comic">Notificações de quadrinho</string>
+    <string name="notification_channel_download">Baixando notificações</string>
+
+    <string name="offline_image_missing">A imagem parece estar em falta!</string>
+    <string name="offline_image_missing_redownload">Baixar</string>
+    <string name="offline_image_missing_failed">Download falhou!</string>
+
+    <string name="update_message">
+    Olá!\n\n
+    Essa atualização finalmente corrige o problema no qual quadrinhos offline tinham barras pretas na parte inferior (graças
+    a Mason Cooper no GitHub!). Para que as alterações tenha efeito, você terá que desativar manualmente o modo offline nas
+    configurações e então habilitá-las novamente \n\n
+    Obrigado por usar esse aplicativo!
+    </string>
+
+</resources>
