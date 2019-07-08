@@ -108,13 +108,15 @@ public class ComicNotifierJob extends JobService {
 
                 NotificationManager notificationManager =
                         (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
-                if (notificationManager != null) {
+                if (notificationManager != null && newComic.getComicNumber() > prefHelper.getLastNotification()) {
                     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
                         notificationManager.deleteNotificationChannel("comic");
                         notificationManager.createNotificationChannel(new NotificationChannel("comic", getResources().getString(R.string.notification_channel_comic), NotificationManager.IMPORTANCE_HIGH));
                     }
                     notificationManager.notify(1, mBuilder.build());
 
+                    //Make sure the notification is not shown again in case the user dimisses it
+                    prefHelper.setLastNotification(newComic.getComicNumber());
                 }
             } else {
                 Timber.d("ComicNotifier found no new comic...");

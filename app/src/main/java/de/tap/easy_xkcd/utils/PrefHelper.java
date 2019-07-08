@@ -72,6 +72,7 @@ public class PrefHelper {
     private static final String SHARE_IMAGE = "pref_share";
     private static final String SHARE_MOBILE = "pref_mobile";
     private static final String NOTIFICATIONS_INTERVAL = "pref_notifications";
+    private static final String LAST_NOTIFICATION = "pref_last_notification";
     private static final String MONDAY_UPDATE = "monday_update";
     private static final String WEDNESDAY_UPDATE = "wednesday_update";
     private static final String FRIDAY_UPDATE = "friday_update";
@@ -235,6 +236,14 @@ public class PrefHelper {
         sharedPrefs.edit().putBoolean(RANDOM_TIP, value).apply();
     }
 
+    // Number of the last notification shown
+    public int getLastNotification() {
+        return sharedPrefs.getInt(LAST_NOTIFICATION, 0);
+    }
+
+    public void setLastNotification(int num) {
+        sharedPrefs.edit().putInt(LAST_NOTIFICATION, num).apply();
+    }
 
     public boolean shareImage() {
         return prefs.getBoolean(SHARE_IMAGE, false);
