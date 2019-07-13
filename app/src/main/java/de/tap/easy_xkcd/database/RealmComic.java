@@ -48,6 +48,7 @@ import okio.Okio;
 import timber.log.Timber;
 
 import static de.tap.easy_xkcd.utils.JsonParser.getJSONFromUrl;
+import static java.nio.charset.StandardCharsets.UTF_8;
 
 public class RealmComic extends RealmObject {
 
@@ -184,7 +185,7 @@ public class RealmComic extends RealmObject {
                             getStringArray(R.array.large_comics_urls)[Arrays.binarySearch(context.getResources().getIntArray(R.array.large_comics), comicNumber)];
                 }
 
-                altText = new String(json.getString("alt").getBytes("ISO-8859-1"), "UTF-8");
+                altText = new String(json.getString("alt").getBytes(UTF_8));
                 transcript = json.getString("transcript");
 
                 // some image and title fixes
