@@ -215,7 +215,7 @@ public class RealmComic extends RealmObject {
                 if(Build.VERSION.SDK_INT < Build.VERSION_CODES.LOLLIPOP) { //https doesn't work on KitKat and lower for some reason...
                     url = url.replaceAll("https", "http");
                 }
-            } catch (JSONException | UnsupportedEncodingException e) {
+            } catch (JSONException e) {
                 Timber.wtf(e);
             }
         } else {
