@@ -171,7 +171,7 @@ public class RealmComic extends RealmObject {
             url = "http://i.imgur.com/p0eKxKs.png";
         } else if (json.length() != 0) {
             try {
-                title = new String(json.getString("title").getBytes("ISO-8859-1"), "UTF-8");
+                title = new String(json.getString("title").getBytes(UTF_8));
                 if (isInteractiveComic(comicNumber, context)) {
                     title += " (interactive)";
                 }
