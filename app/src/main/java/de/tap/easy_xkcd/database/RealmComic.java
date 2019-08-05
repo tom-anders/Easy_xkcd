@@ -48,6 +48,7 @@ import okio.Okio;
 import timber.log.Timber;
 
 import static de.tap.easy_xkcd.utils.JsonParser.getJSONFromUrl;
+import static java.nio.charset.StandardCharsets.UTF_8;
 
 public class RealmComic extends RealmObject {
 
@@ -170,7 +171,7 @@ public class RealmComic extends RealmObject {
             url = "http://i.imgur.com/p0eKxKs.png";
         } else if (json.length() != 0) {
             try {
-                title = new String(json.getString("title").getBytes("ISO-8859-1"), "UTF-8");
+                title = new String(json.getString("title").getBytes(UTF_8));
                 if (isInteractiveComic(comicNumber, context)) {
                     title += " (interactive)";
                 }
@@ -184,7 +185,7 @@ public class RealmComic extends RealmObject {
                             getStringArray(R.array.large_comics_urls)[Arrays.binarySearch(context.getResources().getIntArray(R.array.large_comics), comicNumber)];
                 }
 
-                altText = new String(json.getString("alt").getBytes("ISO-8859-1"), "UTF-8");
+                altText = new String(json.getString("alt").getBytes(UTF_8));
                 transcript = json.getString("transcript");
 
                 // some image and title fixes
@@ -214,7 +215,7 @@ public class RealmComic extends RealmObject {
                 if(Build.VERSION.SDK_INT < Build.VERSION_CODES.LOLLIPOP) { //https doesn't work on KitKat and lower for some reason...
                     url = url.replaceAll("https", "http");
                 }
-            } catch (JSONException | UnsupportedEncodingException e) {
+            } catch (JSONException e) {
                 Timber.wtf(e);
             }
         } else {
