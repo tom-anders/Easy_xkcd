@@ -220,7 +220,7 @@ public abstract class ComicFragment extends Fragment {
 
             try {
                 tvAlt.setText(Html.fromHtml(comic.getAltText()));
-                tvTitle.setText(Html.fromHtml(comic.getTitle()));
+                tvTitle.setText((prefHelper.subtitleEnabled() ? "" : comic.getComicNumber() + ": ") + Html.fromHtml(comic.getTitle()));
                 pvComic.setTransitionName("im" + comic.getComicNumber());
                 tvTitle.setTransitionName(String.valueOf(comic.getComicNumber()));
 

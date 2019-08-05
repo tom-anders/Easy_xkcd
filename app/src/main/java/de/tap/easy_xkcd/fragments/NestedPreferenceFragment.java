@@ -68,6 +68,7 @@ public class NestedPreferenceFragment extends PreferenceFragment {
     private static final String NIGHT = "night";
     private static final String WIDGET = "widget";
     private static final String TAG_KEY = "NESTED_KEY";
+    private static final String SUBTITLE_ENABLED = "pref_subtitle";
 
     private static final String COLORED_NAVBAR = "pref_navbar";
     private static final String COLOR_PRIMARY = "pref_color_primary";
@@ -135,6 +136,14 @@ public class NestedPreferenceFragment extends PreferenceFragment {
 
                         getActivity().overridePendingTransition(0, 0);
                         startActivity(intent);
+                        return true;
+                    }
+                });
+
+                findPreference(SUBTITLE_ENABLED).setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
+                    @Override
+                    public boolean onPreferenceClick(Preference preference) {
+                        getActivity().setResult(Activity.RESULT_OK);
                         return true;
                     }
                 });
