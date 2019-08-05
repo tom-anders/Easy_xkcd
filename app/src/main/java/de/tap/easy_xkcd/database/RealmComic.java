@@ -210,6 +210,8 @@ public class RealmComic extends RealmObject {
                         break;
                     case 1137: title = "RTL";
                         break;
+                    case 2175: altText = new String("When Salvador Dalí died, it took months to get all the flagpoles sufficiently melted.".getBytes(UTF_8));
+                        break;
                 }
 
                 if(Build.VERSION.SDK_INT < Build.VERSION_CODES.LOLLIPOP) { //https doesn't work on KitKat and lower for some reason...

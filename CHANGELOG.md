@@ -1,3 +1,8 @@
+## 7.3.3
+
+- Add Brazilian Portuguese translation
+- Fix encoding of 
+
 ## 7.3.2
 
 - Fix bug where offline comics had black bars at the bottom. 
