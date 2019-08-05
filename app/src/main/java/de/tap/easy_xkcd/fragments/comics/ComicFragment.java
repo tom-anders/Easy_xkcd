@@ -152,8 +152,8 @@ public abstract class ComicFragment extends Fragment {
             setSharedElementEnterTransition(TransitionInflater.from(getContext()).inflateTransition(R.transition.image_shared_element_transition));
         }
 
-        if (getMainActivity().getCurrentFragment() == MainActivity.CurrentFragment.Browser && prefHelper.subtitleEnabled() && (this instanceof ComicBrowserFragment || this instanceof OfflineFragment))
-            getMainActivity().getToolbar().setSubtitle(String.valueOf(lastComicNumber));
+        if (getMainActivity().getCurrentFragment() == MainActivity.CurrentFragment.Browser && (this instanceof ComicBrowserFragment || this instanceof OfflineFragment))
+            getMainActivity().getToolbar().setSubtitle(prefHelper.subtitleEnabled() ? String.valueOf(lastComicNumber) : "");
 
         return view;
     }
@@ -729,8 +729,8 @@ public abstract class ComicFragment extends Fragment {
         databaseManager.setRead(position + 1, true);
         lastComicNumber = position + 1;
         getMainActivity().lastComicNumber = lastComicNumber;
-        if (prefHelper.subtitleEnabled() && getMainActivity().getCurrentFragment() == MainActivity.CurrentFragment.Browser)
-            getMainActivity().getToolbar().setSubtitle(String.valueOf(lastComicNumber));
+        if (getMainActivity().getCurrentFragment() == MainActivity.CurrentFragment.Browser)
+            getMainActivity().getToolbar().setSubtitle(prefHelper.subtitleEnabled() ? String.valueOf(lastComicNumber) : "");
 
         animateToolbar();
     }

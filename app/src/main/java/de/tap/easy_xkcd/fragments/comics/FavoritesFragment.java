@@ -96,8 +96,8 @@ public class FavoritesFragment extends ComicFragment {
                 favoriteIndex = position;
                 try {
                     //Update the ActionBar Subtitle
-                    if (prefHelper.subtitleEnabled() && getMainActivity().getCurrentFragment() == MainActivity.CurrentFragment.Favorites)
-                        getMainActivity().getToolbar().setSubtitle(String.valueOf(favorites.get(position).getComicNumber()));
+                    if (getMainActivity().getCurrentFragment() == MainActivity.CurrentFragment.Favorites)
+                        getMainActivity().getToolbar().setSubtitle(prefHelper.subtitleEnabled() ? String.valueOf(favorites.get(position).getComicNumber()) : "");
 
                     getActivity().invalidateOptionsMenu();
                 } catch (NullPointerException e) {
@@ -149,8 +149,8 @@ public class FavoritesFragment extends ComicFragment {
         pager.setCurrentItem(favoriteIndex);
 
         Toolbar toolbar = getMainActivity().getToolbar();
-        if (prefHelper.subtitleEnabled() && getMainActivity().getCurrentFragment() == MainActivity.CurrentFragment.Favorites)
-            toolbar.setSubtitle(String.valueOf(favorites.get(favoriteIndex).getComicNumber()));
+        if (getMainActivity().getCurrentFragment() == MainActivity.CurrentFragment.Favorites)
+            toolbar.setSubtitle(prefHelper.subtitleEnabled() ? String.valueOf(favorites.get(favoriteIndex).getComicNumber()) : "");
 
         animateToolbar();
     }
