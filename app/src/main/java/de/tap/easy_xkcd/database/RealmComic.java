@@ -210,8 +210,6 @@ public class RealmComic extends RealmObject {
                         break;
                     case 1137: title = "RTL";
                         break;
-                    case 2175: altText = new String("When Salvador Dalí died, it took months to get all the flagpoles sufficiently melted.".getBytes(UTF_8));
-                        break;
                 }
 
                 if(Build.VERSION.SDK_INT < Build.VERSION_CODES.LOLLIPOP) { //https doesn't work on KitKat and lower for some reason...
@@ -283,10 +281,14 @@ public class RealmComic extends RealmObject {
 
     public static Bitmap getOfflineBitmap(int comicNumber, Context context, PrefHelper prefHelper) {
         //Fix for offline users who downloaded the HUGE version of #1826
-        if(comicNumber == 1826) {
+        if (comicNumber == 1826) {
             BitmapFactory.Options options = new BitmapFactory.Options();
             options.inScaled = false;
             return BitmapFactory.decodeResource(context.getResources(), R.mipmap.birdwatching, options);
+        } else if (comicNumber == 2185) {
+            BitmapFactory.Options options = new BitmapFactory.Options();
+            options.inScaled = false;
+            return BitmapFactory.decodeResource(context.getResources(), R.mipmap.cumulonimbus_2x, options);
         }
 
         Bitmap mBitmap = null;

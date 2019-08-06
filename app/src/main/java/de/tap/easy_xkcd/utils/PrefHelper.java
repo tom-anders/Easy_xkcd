@@ -121,6 +121,7 @@ public class PrefHelper {
     private static final String FAB_DISABLED_FAVORITES = "pref_random_favorites";
 
     private static final String TRANSCRIPTS_FIXED = "transcripts_fixed";
+    private static final String CACHE_FIXED = "cache_fixed_7.3.3";
     private static final String FULLSCREEN_ENABLED = "pref_fullscreen_enabled";
 
     public PrefHelper(Context context) {
@@ -142,6 +143,14 @@ public class PrefHelper {
 
     public void setTranscriptsFixed() {
         prefs.edit().putBoolean(TRANSCRIPTS_FIXED, true).apply();
+    }
+
+    public boolean cacheFixed() {
+        return prefs.getBoolean(CACHE_FIXED, false);
+    }
+
+    public void setCacheFixed() {
+        prefs.edit().putBoolean(CACHE_FIXED, true).apply();
     }
 
     public boolean navDrawerSwipe() {

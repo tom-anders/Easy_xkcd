@@ -38,6 +38,7 @@ import io.realm.RealmSchema;
 import timber.log.Timber;
 
 import static de.tap.easy_xkcd.utils.JsonParser.getJSONFromUrl;
+import static java.nio.charset.StandardCharsets.UTF_8;
 
 public class DatabaseManager {
     private Context context;
@@ -395,6 +396,23 @@ public class DatabaseManager {
             }
 
         }
+    }
+
+    // Implement some fixes for comic data that may have already been cached
+    public void fixCache() {
+        realm.beginTransaction();
+
+        RealmComic comic = getRealmComic(2175);
+        comic.setAltText(new String("When Salvador Dalí died, it took months to get all the flagpoles sufficiently melted.".getBytes(UTF_8)));
+        realm.copyToRealmOrUpdate(comic);
+
+        //This one may have been wrongly cached due to the Disappearing Sunday Update (https://www.explainxkcd.com/wiki/index.php/Disappearing_Sunday_Update)
+        comic = getRealmComic(2185);
+        comic.setTitle("Cumulonimbus");
+        comic.setAltText("The rarest of all clouds is the altocumulenticulostratonimbulocirruslenticulomammanoctilucent cloud, caused by an interaction between warm moist air, cool dry air, cold slippery air, cursed air, and a cloud of nanobots.");
+        comic.setUrl("https://imgs.xkcd.com/comics/cumulonimbus_2x.png");
+
+        realm.commitTransaction();
     }
 
     public void fixTranscripts() {

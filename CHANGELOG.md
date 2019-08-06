@@ -1,7 +1,9 @@
 ## 7.3.3
 
+- Fix for comic 2185
 - Add Brazilian Portuguese translation
-- Fix encoding of 
+- Fix encoding of comic 2175 alt text
+- Fix option to hide the action bar subtitle
 
 ## 7.3.2
 

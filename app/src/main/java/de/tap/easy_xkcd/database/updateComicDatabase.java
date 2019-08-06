@@ -189,6 +189,13 @@ public class updateComicDatabase extends AsyncTask<Void, String, Void> {
 
         if (prefHelper.isOnline(context)) {
             databaseManager = new DatabaseManager(context);
+
+            if (!prefHelper.cacheFixed()) {
+                databaseManager.fixCache();
+                prefHelper.setCacheFixed();
+                Timber.d("Fixed cache!");
+            }
+
             newest = findNewest();
             if (newest > prefHelper.getNewest()) {
                 ComicFragment.newComicFound = prefHelper.getNewest() != 0.0; //TODO test if this still works
