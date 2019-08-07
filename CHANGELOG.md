@@ -1,3 +1,7 @@
+## 7.3.4
+
+- Fix crash introduced in previous version
+
 ## 7.3.3
 
 - Fix for comic 2185
