@@ -2,7 +2,7 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto">
     <item android:id="@+id/action_overview_style"
-        android:title="@string/nv_favorites"
+        android:title="@string/nv_style"
         app:showAsAction="always"
         android:icon="@drawable/ic_action_sort" />
 
