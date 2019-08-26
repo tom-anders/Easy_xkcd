@@ -783,21 +783,16 @@ public class MainActivity extends BaseActivity {
         final SearchView searchView = (SearchView) menu.findItem(R.id.action_search).getActionView();
         searchView.setSearchableInfo(searchManager.getSearchableInfo(getComponentName()));
         searchView.setIconifiedByDefault(false);
+        searchView.setIconified(false); // Workaround for the keyboard to appear when the search item is pressed, see https://stackoverflow.com/a/47287337
 
         searchMenuItem = menu.findItem(R.id.action_search);
 
         searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
             @Override
             public boolean onQueryTextSubmit(String query) {
-                MenuItem searchMenuItem = getSearchMenuItem();
-                searchMenuItem.collapseActionView();
+                getSearchMenuItem().collapseActionView();
                 searchView.setQuery("", false);
-                //Hide Keyboard
-                View view = MainActivity.this.getCurrentFocus();
-                if (view != null) {
-                    InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
-                    imm.hideSoftInputFromWindow(view.getWindowToken(), 0);
-                }
+                hideKeyboard();
                 return false;
             }
 
@@ -806,35 +801,38 @@ public class MainActivity extends BaseActivity {
                 return false;
             }
         });
-        MenuItemCompat.setOnActionExpandListener(searchMenuItem, new MenuItemCompat.OnActionExpandListener() {
+
+
+        searchMenuItem.setOnActionExpandListener(new MenuItem.OnActionExpandListener() {
             @Override
-            public boolean onMenuItemActionExpand(MenuItem item) {
-                //Show keyboard
-                View view = getCurrentFocus();
-                if (view != null) {
-                    InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
-                    imm.showSoftInput(view, 0);
+            public boolean onMenuItemActionExpand(MenuItem menuItem) {
+                //Hide the other menu items to the right
+                for (int i = 0; i < menu.size(); ++i) {
+                    menu.getItem(i).setVisible(menu.getItem(i) == searchMenuItem);
                 }
-                searchView.requestFocus();
                 return true;
             }
 
             @Override
-            public boolean onMenuItemActionCollapse(MenuItem item) {
-                //Hide keyboard
-                View view = getCurrentFocus();
-                if (view != null) {
-                    InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
-                    imm.hideSoftInputFromWindow(view.getWindowToken(), 0);
-                }
+            public boolean onMenuItemActionCollapse(MenuItem menuItem) {
+                invalidateOptionsMenu(); // Brings back the hidden menu items in onMenuItemActionExpand()
+
+                hideKeyboard();
                 return true;
             }
         });
-        if (prefHelper.hideDonate())
-            menu.findItem(R.id.action_donate).setVisible(false);
+
+        menu.findItem(R.id.action_donate).setVisible(!prefHelper.hideDonate());
         menu.findItem(R.id.action_night_mode).setChecked(themePrefs.nightEnabledThemeIgnoreAutoNight());
         menu.findItem(R.id.action_night_mode).setVisible(!themePrefs.autoNightEnabled());
         return true;
+    }
+
+    private void hideKeyboard() {
+        InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
+        if (imm != null) {
+                imm.toggleSoftInput(InputMethodManager.HIDE_IMPLICIT_ONLY, 0);
+        }
     }
 
     @Override
