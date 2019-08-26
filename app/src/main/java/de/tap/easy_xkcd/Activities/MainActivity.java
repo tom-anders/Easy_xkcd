@@ -783,6 +783,7 @@ public class MainActivity extends BaseActivity {
         final SearchView searchView = (SearchView) menu.findItem(R.id.action_search).getActionView();
         searchView.setSearchableInfo(searchManager.getSearchableInfo(getComponentName()));
         searchView.setIconifiedByDefault(false);
+
         searchMenuItem = menu.findItem(R.id.action_search);
 
         searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
