@@ -202,25 +202,6 @@
         <item>3</item>
     </string-array>
 
-    <integer-array name="interactive_comics" translatable="false">
-        <item>826</item>
-        <item>1037</item>
-        <item>1110</item>
-        <item>1190</item>
-        <item>1193</item>
-        <item>1264</item>
-        <item>1331</item>
-        <item>1350</item>
-        <item>1416</item>
-        <item>1506</item>
-        <item>1525</item>
-        <item>1572</item>
-        <item>1608</item>
-        <item>1663</item>
-        <item>1975</item>
-        <item>2067</item>
-    </integer-array>
-
     <integer-array name="large_comics" translatable="false">
         <item>256</item>
         <item>482</item>

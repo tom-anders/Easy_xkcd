@@ -86,6 +86,15 @@ public class RealmComic extends RealmObject {
         return title;
     }
 
+    public static String getInteractiveTitle(RealmComic comic, Context context) {
+        //In older versions of the database getTitle() may return a string that already contains
+        // the (interactive) string, so we need to check for this here
+        if (isInteractiveComic(comic.getComicNumber(), context) && !comic.getTitle().contains("(interactive)")) {
+            return comic.getTitle() + " (interactive)";
+        }
+        return comic.getTitle();
+    }
+
     public void setTitle(String title) {
         this.title = title;
     }
@@ -93,7 +102,6 @@ public class RealmComic extends RealmObject {
     public String getTranscript() {
         return transcript;
     }
-
 
     public void setTranscript(String transcript) {
         this.transcript = transcript;
