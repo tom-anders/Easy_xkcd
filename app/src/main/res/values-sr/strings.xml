@@ -345,4 +345,5 @@
     For the changes to take effect, you will have to manually disable offline mode in the settings and then enable it again. \n\n
     Thanks for using the app!
     </string>
+    <string name="chooser_title">Open with…</string>
 </resources>

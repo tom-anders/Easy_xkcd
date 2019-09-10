@@ -101,6 +101,8 @@
     <string name="bookmark_toast_2">Bookmark added</string>
     <string name="no_bookmark">You didn\'t add a bookmark yet! You can add one in the Comic Browser or by long pressing a comic in this list</string>
 
+    <string name="chooser_title">Open with…</string>
+
     <string-array name="share_dialog">
         <item>Share Image</item>
         <item>Share URL</item>

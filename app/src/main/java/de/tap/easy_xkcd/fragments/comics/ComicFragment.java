@@ -19,17 +19,22 @@
 package de.tap.easy_xkcd.fragments.comics;
 
 import android.animation.Animator;
+import android.content.ActivityNotFoundException;
 import android.content.Context;
 import android.content.Intent;
+import android.content.pm.PackageManager;
+import android.content.pm.ResolveInfo;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Color;
 import android.graphics.RectF;
 import android.graphics.drawable.Drawable;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
 import android.os.Handler;
+import android.os.Parcelable;
 import android.os.Vibrator;
 
 import androidx.appcompat.app.ActionBar;
@@ -83,7 +88,11 @@ import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.lang.reflect.Field;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 
 import de.tap.easy_xkcd.Activities.BaseActivity;
 import de.tap.easy_xkcd.Activities.MainActivity;
@@ -575,7 +584,42 @@ public abstract class ComicFragment extends Fragment {
         // We open the mobile site (m.xkcd.com) by default
         // For interactive comics we use the desktop since it has better support for some interactive comics
         Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse("https://" + (RealmComic.isInteractiveComic(number, getActivity()) ? "" : "m.") + "xkcd.com/" + number));
-        startActivity(intent);
+
+        // Since the app also handles xkcd intents, we need to exxlude it from the intent chooser
+        // Code adapted from https://codedogg.wordpress.com/2018/11/09/how-to-exclude-your-own-activity-from-activity-startactivityintent-chooser/
+        PackageManager packageManager = getActivity().getPackageManager();
+        List<Intent> possibleIntents = new ArrayList<>();
+
+        Set<String> possiblePackageNames = new HashSet<>();
+        for (ResolveInfo resolveInfo : packageManager.queryIntentActivities(intent, 0)) {
+
+            String packageName = resolveInfo.activityInfo.packageName;
+            if (!packageName.equals(getActivity().getPackageName())) {
+
+                Intent possibleIntent = new Intent(intent);
+                possibleIntent.setPackage(resolveInfo.activityInfo.packageName);
+                possiblePackageNames.add(resolveInfo.activityInfo.packageName);
+
+                possibleIntents.add(possibleIntent);
+            }
+        }
+
+        @Nullable ResolveInfo defaultResolveInfo = packageManager.resolveActivity(intent, 0);
+
+        if (defaultResolveInfo == null || possiblePackageNames.isEmpty()) {
+            Timber.e("No browser found!");
+            return false;
+        }
+
+        // If there is a default app to handle the intent (which is not this app), use it.
+        if (possiblePackageNames.contains(defaultResolveInfo.activityInfo.packageName)) {
+            getActivity().startActivity(intent);
+        } else { // Otherwise, let the user choose.
+            Intent intentChooser = Intent.createChooser(possibleIntents.remove(0), getActivity().getResources().getString(R.string.chooser_title));
+            intentChooser.putExtra(Intent.EXTRA_INITIAL_INTENTS, possibleIntents.toArray(new Parcelable[]{}));
+            getActivity().startActivity(intentChooser);
+        }
+
         return true;
     }
 

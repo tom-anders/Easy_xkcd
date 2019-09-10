@@ -477,5 +477,6 @@
     configurações e então habilitá-las novamente \n\n
     Obrigado por usar esse aplicativo!
     </string>
+    <string name="chooser_title">Open with…</string>
 
 </resources>
