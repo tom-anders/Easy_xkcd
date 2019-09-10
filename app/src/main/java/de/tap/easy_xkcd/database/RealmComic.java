@@ -176,13 +176,10 @@ public class RealmComic extends RealmObject {
         if (comicNumber == 404) {
             title = "404";
             altText = "404";
-            url = "http://i.imgur.com/p0eKxKs.png";
+            url = "https://i.imgur.com/p0eKxKs.png";
         } else if (json.length() != 0) {
             try {
                 title = new String(json.getString("title").getBytes(UTF_8));
-                if (isInteractiveComic(comicNumber, context)) {
-                    title += " (interactive)";
-                }
 
                 url = json.getString("img");
                 if (!isLargeComic(comicNumber, context) && !isInteractiveComic(comicNumber, context)) {
@@ -198,19 +195,19 @@ public class RealmComic extends RealmObject {
 
                 // some image and title fixes
                 switch (comicNumber) {
-                    case 1037: url = "http://www.explainxkcd.com/wiki/images/f/ff/umwelt_the_void.jpg";
+                    case 1037: url = "https://www.explainxkcd.com/wiki/images/f/ff/umwelt_the_void.jpg";
                         break;
-                    case 1608: url = "http://www.explainxkcd.com/wiki/images/4/41/hoverboard.png";
+                    case 1608: url = "https://www.explainxkcd.com/wiki/images/4/41/hoverboard.png";
                         break;
-                    case 1350: url = "http://www.explainxkcd.com/wiki/images/3/3d/lorenz.png";
+                    case 1350: url = "https://www.explainxkcd.com/wiki/images/3/3d/lorenz.png";
                         break;
-                    case 104: url = "http://i.imgur.com/dnCNfPo.jpg";
+                    case 104: url = "https://i.imgur.com/dnCNfPo.jpg";
                         break;
-                    case 76: url = "http://i.imgur.com/h3fi2RV.jpg";
+                    case 76: url = "https://i.imgur.com/h3fi2RV.jpg";
                         break;
-                    case 80: url = "http://i.imgur.com/lWmI1lB.jpg";
+                    case 80: url = "https://i.imgur.com/lWmI1lB.jpg";
                         break;
-                    case 1663: url = "http://explainxkcd.com/wiki/images/c/ce/garden.png";
+                    case 1663: url = "https://explainxkcd.com/wiki/images/c/ce/garden.png";
                         break;
                     case 1193: url = "https://www.explainxkcd.com/wiki/images/0/0b/externalities.png";
                         break;
