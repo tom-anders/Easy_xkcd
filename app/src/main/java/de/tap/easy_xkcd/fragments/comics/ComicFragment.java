@@ -98,6 +98,7 @@ import de.tap.easy_xkcd.fragments.overview.OverviewListFragment;
 import de.tap.easy_xkcd.misc.HackyViewPager;
 import de.tap.easy_xkcd.utils.PrefHelper;
 import de.tap.easy_xkcd.utils.ThemePrefs;
+import io.realm.Realm;
 import timber.log.Timber;
 
 /**
@@ -327,7 +328,9 @@ public abstract class ComicFragment extends Fragment {
                     MainActivity mainActivity = getMainActivity();
                     if (mainActivity != null) {
                         if (prefHelper.altLongTap()) {
-                            if (prefHelper.fullscreenModeEnabled()) {
+                            if (RealmComic.isInteractiveComic(position + 1, getActivity())) {
+                                openComicInBrowser(position + 1);
+                            } else if (prefHelper.fullscreenModeEnabled()) {
                                 mainActivity.toggleFullscreen();
                             }
                         } else {
@@ -362,7 +365,9 @@ public abstract class ComicFragment extends Fragment {
                             }
                         setAltText(false);
                     } else {
-                        if (prefHelper.fullscreenModeEnabled()) {
+                        if (RealmComic.isInteractiveComic(position + 1, getActivity())) {
+                            openComicInBrowser(position + 1);
+                        } else if (prefHelper.fullscreenModeEnabled()) {
                             getMainActivity().toggleFullscreen();
                         }
                     }
@@ -567,7 +572,9 @@ public abstract class ComicFragment extends Fragment {
     }
 
     protected boolean openComicInBrowser(int number) {
-        Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse("https://m.xkcd.com/" + String.valueOf(number)));
+        // We open the mobile site (m.xkcd.com) by default
+        // For interactive comics we use the desktop since it has better support for some interactive comics
+        Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse("https://" + (RealmComic.isInteractiveComic(number, getActivity()) ? "" : "m.") + "xkcd.com/" + number));
         startActivity(intent);
         return true;
     }
