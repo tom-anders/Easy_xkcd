@@ -1,3 +1,9 @@
+## 7.3.5
+
+- Fix comic 2202 
+- Tapping an interactive comic will now trigger "Open in Browser"
+- Update translations
+
 ## 7.3.4
 
 - Fix crash introduced in previous version

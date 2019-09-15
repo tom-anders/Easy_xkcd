@@ -6,8 +6,8 @@ android {
         applicationId "de.tap.easy_xkcd"
         minSdkVersion 21
         targetSdkVersion 28
-        versionCode 161
-        versionName "7.3.4"
+        versionCode 162
+        versionName "7.3.5"
     }
     /*buildTypes {
         release {
