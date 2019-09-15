@@ -195,26 +195,6 @@ public class RealmComic extends RealmObject {
 
                 // some image and title fixes
                 switch (comicNumber) {
-                    case 1037: url = "https://www.explainxkcd.com/wiki/images/f/ff/umwelt_the_void.jpg";
-                        break;
-                    case 1608: url = "https://www.explainxkcd.com/wiki/images/4/41/hoverboard.png";
-                        break;
-                    case 1350: url = "https://www.explainxkcd.com/wiki/images/3/3d/lorenz.png";
-                        break;
-                    case 104: url = "https://i.imgur.com/dnCNfPo.jpg";
-                        break;
-                    case 76: url = "https://i.imgur.com/h3fi2RV.jpg";
-                        break;
-                    case 80: url = "https://i.imgur.com/lWmI1lB.jpg";
-                        break;
-                    case 1663: url = "https://explainxkcd.com/wiki/images/c/ce/garden.png";
-                        break;
-                    case 1193: url = "https://www.explainxkcd.com/wiki/images/0/0b/externalities.png";
-                        break;
-                    case 1054: title = "The Bacon";
-                        break;
-                    case 1137: title = "RTL";
-                        break;
                 }
 
                 if(Build.VERSION.SDK_INT < Build.VERSION_CODES.LOLLIPOP) { //https doesn't work on KitKat and lower for some reason...
@@ -231,7 +211,7 @@ public class RealmComic extends RealmObject {
         realmComic.setTitle(title);
         realmComic.setAltText(altText);
         realmComic.setUrl(url);
-        realmComic.setTranscript(transcript); //TODO fix the transcripts that are of by one or two...
+        realmComic.setTranscript(transcript);
 
         return realmComic;
     }

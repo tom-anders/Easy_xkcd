@@ -3,6 +3,7 @@ package de.tap.easy_xkcd.database;
 import android.app.ProgressDialog;
 import android.content.Context;
 import android.os.AsyncTask;
+import android.provider.ContactsContract;
 
 import com.tap.xkcd_reader.R;
 
@@ -190,12 +191,6 @@ public class updateComicDatabase extends AsyncTask<Void, String, Void> {
         if (prefHelper.isOnline(context)) {
             databaseManager = new DatabaseManager(context);
 
-            if (!prefHelper.cacheFixed()) {
-                databaseManager.fixCache();
-                prefHelper.setCacheFixed();
-                Timber.d("Fixed cache!");
-            }
-
             newest = findNewest();
             if (newest > prefHelper.getNewest()) {
                 ComicFragment.newComicFound = prefHelper.getNewest() != 0.0; //TODO test if this still works
@@ -270,6 +265,13 @@ public class updateComicDatabase extends AsyncTask<Void, String, Void> {
 
     @Override
     protected void onPostExecute(Void dummy) {
+        if (!prefHelper.cacheFixed()) {
+            new DatabaseManager(context).fixCache();
+            prefHelper.setCacheFixed();
+            Timber.d("Fixed cache!");
+        }
+
+
         if (showProgress) {
             try {
                 progress.dismiss();
