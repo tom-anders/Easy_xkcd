@@ -248,28 +248,28 @@
 
 
     <string-array name="large_comics_urls" translatable="false">
-        <item>http://imgs.xkcd.com/comics/online_communities.png</item>
-        <item>http://imgs.xkcd.com/comics/height.png</item>
-        <item>http://imgs.xkcd.com/comics/movie_narrative_charts_large.png</item>
-        <item>http://imgs.xkcd.com/comics/gravity_wells_large.png</item>
-        <item>http://imgs.xkcd.com/comics/online_communities_2_large.png</item>
-        <item>http://i.imgur.com/EObZHw1.jpg</item>
-        <item>http://imgs.xkcd.com/comics/days_of_the_week_large.png</item>
-        <item>http://imgs.xkcd.com/comics/1000_comics_large.png</item>
-        <item>http://imgs.xkcd.com/comics/lakes_and_oceans_large.png</item>
-        <item>http://imgs.xkcd.com/comics/exoplanets_large.png</item>
-        <item>http://imgs.xkcd.com/comics/united_shapes_large.png</item>
-        <item>http://imgs.xkcd.com/comics/visual_field_large.png</item>
-        <item>http://imgs.xkcd.com/comics/subways_large.png</item>
-        <item>http://imgs.xkcd.com/comics/questions_large.png</item>
-        <item>http://imgs.xkcd.com/comics/exoplanet_neighborhood_large.png</item>
-        <item>http://imgs.xkcd.com/comics/surface_area_large.png</item>
-        <item>http://imgs.xkcd.com/comics/dominant_players_large.png</item>
-        <item>http://imgs.xkcd.com/comics/payloads_large.png</item>
-        <item>http://imgs.xkcd.com/comics/stories_of_the_past_and_future_large.png</item>
-        <item>http://imgs.xkcd.com/comics/scenery_cheat_sheet_large.png</item>
-        <item>http://imgs.xkcd.com/comics/map_age_guide_large.png</item>
-        <item>http://imgs.xkcd.com/comics/earth_temperature_timeline.png</item>
+        <item>https://imgs.xkcd.com/comics/online_communities.png</item>
+        <item>https://imgs.xkcd.com/comics/height.png</item>
+        <item>https://imgs.xkcd.com/comics/movie_narrative_charts_large.png</item>
+        <item>https://imgs.xkcd.com/comics/gravity_wells_large.png</item>
+        <item>https://imgs.xkcd.com/comics/online_communities_2_large.png</item>
+        <item>https://i.imgur.com/EObZHw1.jpg</item>
+        <item>https://imgs.xkcd.com/comics/days_of_the_week_large.png</item>
+        <item>https://imgs.xkcd.com/comics/1000_comics_large.png</item>
+        <item>https://imgs.xkcd.com/comics/lakes_and_oceans_large.png</item>
+        <item>https://imgs.xkcd.com/comics/exoplanets_large.png</item>
+        <item>https://imgs.xkcd.com/comics/united_shapes_large.png</item>
+        <item>https://imgs.xkcd.com/comics/visual_field_large.png</item>
+        <item>https://imgs.xkcd.com/comics/subways_large.png</item>
+        <item>https://imgs.xkcd.com/comics/questions_large.png</item>
+        <item>https://imgs.xkcd.com/comics/exoplanet_neighborhood_large.png</item>
+        <item>https://imgs.xkcd.com/comics/surface_area_large.png</item>
+        <item>https://imgs.xkcd.com/comics/dominant_players_large.png</item>
+        <item>https://imgs.xkcd.com/comics/payloads_large.png</item>
+        <item>https://imgs.xkcd.com/comics/stories_of_the_past_and_future_large.png</item>
+        <item>https://imgs.xkcd.com/comics/scenery_cheat_sheet_large.png</item>
+        <item>https://imgs.xkcd.com/comics/map_age_guide_large.png</item>
+        <item>https://imgs.xkcd.com/comics/earth_temperature_timeline.png</item>
     </string-array>
 
     <string name="title_interactive">(interactive)</string>

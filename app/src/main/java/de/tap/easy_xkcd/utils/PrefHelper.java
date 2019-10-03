@@ -121,7 +121,7 @@ public class PrefHelper {
     private static final String FAB_DISABLED_FAVORITES = "pref_random_favorites";
 
     private static final String TRANSCRIPTS_FIXED = "transcripts_fixed";
-    private static final String CACHE_FIXED = "cache_fixed_7.3.4";
+    private static final String CACHE_FIXED = "cache_fixed_7.3.5";
     private static final String FULLSCREEN_ENABLED = "pref_fullscreen_enabled";
 
     public PrefHelper(Context context) {

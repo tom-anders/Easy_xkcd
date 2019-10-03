@@ -448,6 +448,14 @@ public class DatabaseManager {
         }
 
         realm.copyToRealmOrUpdate(comicFixes);
+
+        RealmResults<RealmComic> httpComics = realm.where(RealmComic.class).contains("url", "http://").findAll();
+        for (int i = 0; i < httpComics.size(); i++) {
+            httpComics.get(i).setUrl(httpComics.get(i).getUrl().replace("http", "https"));
+        }
+
+        realm.copyToRealmOrUpdate(httpComics);
+
         realm.commitTransaction();
     }
 
