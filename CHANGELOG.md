@@ -1,3 +1,8 @@
+## 7.3.6
+
+- Fix What If articles not being displayed
+- Fix bug where keyboard would constantly appear
+
 ## 7.3.5
 
 - Fix comic 2202 
