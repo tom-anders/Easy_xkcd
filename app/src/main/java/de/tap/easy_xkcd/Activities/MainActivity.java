@@ -783,7 +783,7 @@ public class MainActivity extends BaseActivity {
         final SearchView searchView = (SearchView) menu.findItem(R.id.action_search).getActionView();
         searchView.setSearchableInfo(searchManager.getSearchableInfo(getComponentName()));
         searchView.setIconifiedByDefault(false);
-        searchView.setIconified(false); // Workaround for the keyboard to appear when the search item is pressed, see https://stackoverflow.com/a/47287337
+        //searchView.setIconified(false); // Workaround for the keyboard to appear when the search item is pressed, see https://stackoverflow.com/a/47287337
 
         searchMenuItem = menu.findItem(R.id.action_search);
 
