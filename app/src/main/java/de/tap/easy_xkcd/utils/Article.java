@@ -62,7 +62,7 @@ public class Article {
         if (!offline) {
             OkHttpClient okHttpClient = JsonParser.getNewHttpClient();
             Request request = new Request.Builder()
-                    .url("http://what-if.xkcd.com/" + String.valueOf(mNumber))
+                    .url("https://what-if.xkcd.com/" + String.valueOf(mNumber))
                     .build();
             Response response = okHttpClient.newCall(request).execute();
             String body = response.body().string();
