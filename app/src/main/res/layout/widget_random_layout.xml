@@ -47,7 +47,8 @@
         android:paddingTop="10dp"
         android:paddingLeft="10dp"
         android:paddingRight="10dp"
-        android:textSize="@dimen/text_body1" />
+        android:textSize="@dimen/text_body1"
+        android:textColor="@color/fab_material_white"/>
 
 
 </RelativeLayout>
