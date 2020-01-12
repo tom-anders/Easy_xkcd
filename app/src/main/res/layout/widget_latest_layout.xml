@@ -1,15 +1,14 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
+    android:layout_height="wrap_content"
     android:orientation="vertical">
 
     <RelativeLayout
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
         android:id="@+id/tvTitleWrapper"
-        android:gravity="top|center"
-        android:layout_alignParentTop="true" >
+        android:gravity="top|center">
         <TextView
             android:id="@+id/tvTitle"
             android:layout_width="wrap_content"
@@ -18,7 +17,8 @@
             android:paddingRight="10dp"
             android:textColor="@android:color/primary_text_dark"
             android:textSize="@dimen/text_title"
-            android:background="@drawable/element_background_box_rounded" />
+            android:background="@drawable/element_background_box_rounded"
+            android:maxLines="1" />
     </RelativeLayout>
 
     <ImageView
@@ -28,15 +28,16 @@
         android:layout_below="@id/tvTitleWrapper"
         android:layout_above="@+id/tvAlt"
         android:layout_gravity="center"
-        android:paddingHorizontal="10dp"
-        android:paddingVertical="0dp" />
+        android:paddingHorizontal="0dp"
+        android:paddingVertical="4dp" />
 
     <TextView
         android:id="@+id/tvAlt"
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
-        android:gravity="bottom|center"
         android:visibility="gone"
+        android:gravity="bottom|center"
+        android:layout_alignParentBottom="true"
         android:padding="10dp"
         android:textSize="@dimen/text_body1"
         android:textColor="@color/fab_material_white"

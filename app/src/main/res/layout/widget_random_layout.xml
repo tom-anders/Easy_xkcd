@@ -28,27 +28,19 @@
         android:layout_below="@id/tvTitleWrapper"
         android:layout_above="@+id/tvAlt"
         android:layout_gravity="center"
-        android:paddingHorizontal="10dp"
+        android:paddingHorizontal="0dp"
         android:paddingVertical="4dp" />
 
     <TextView
         android:id="@+id/tvAlt"
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
-        android:layout_above="@id/shuffle"
         android:visibility="gone"
         android:gravity="bottom|center"
+        android:layout_alignParentBottom="true"
         android:padding="10dp"
         android:textSize="@dimen/text_body1"
         android:textColor="@color/fab_material_white"
         android:background="@drawable/element_background_box_rounded" />
-
-    <ImageView
-        android:id="@+id/shuffle"
-        android:layout_width="50dp"
-        android:layout_height="50dp"
-        android:layout_alignParentBottom="true"
-        android:layout_centerHorizontal="true"
-        android:src="@drawable/ic_action_shuffle" />
 
 </RelativeLayout>
