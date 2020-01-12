@@ -17,7 +17,8 @@
             android:paddingRight="10dp"
             android:textColor="@android:color/primary_text_dark"
             android:textSize="@dimen/text_title"
-            android:background="@drawable/element_background_box_rounded" />
+            android:background="@drawable/element_background_box_rounded"
+            android:maxLines="1" />
     </RelativeLayout>
 
     <ImageView
@@ -28,7 +29,7 @@
         android:layout_above="@+id/tvAlt"
         android:layout_gravity="center"
         android:paddingHorizontal="10dp"
-        android:paddingVertical="0dp" />
+        android:paddingVertical="4dp" />
 
     <TextView
         android:id="@+id/tvAlt"

@@ -8,7 +8,8 @@
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
         android:id="@+id/tvTitleWrapper"
-        android:gravity="top|center">
+        android:gravity="top|center"
+        android:layout_alignParentTop="true" >
         <TextView
             android:id="@+id/tvTitle"
             android:layout_width="wrap_content"
@@ -36,7 +37,6 @@
         android:layout_height="wrap_content"
         android:gravity="bottom|center"
         android:visibility="gone"
-        android:layout_alignParentBottom="true"
         android:padding="10dp"
         android:textSize="@dimen/text_body1"
         android:textColor="@color/fab_material_white"
