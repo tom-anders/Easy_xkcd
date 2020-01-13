@@ -17,43 +17,28 @@
             android:paddingRight="10dp"
             android:textColor="@android:color/primary_text_dark"
             android:textSize="@dimen/text_title"
-            android:background="@drawable/element_background_box_rounded" />
+            android:background="@drawable/element_background_box_rounded"
+            android:maxLines="1" />
     </RelativeLayout>
-
-    <ImageView
-        android:id="@+id/shuffle"
-        android:layout_width="50dp"
-        android:layout_height="50dp"
-        android:layout_alignParentBottom="true"
-        android:layout_centerHorizontal="true"
-        android:layout_marginLeft="10dp"
-        android:layout_marginRight="10dp"
-        android:src="@drawable/ic_action_shuffle" />
-
 
     <ImageView
         android:id="@+id/ivComic"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_above="@+id/tvAlt"
         android:layout_below="@id/tvTitleWrapper"
+        android:layout_above="@+id/tvAlt"
         android:layout_gravity="center"
-        android:paddingLeft="10dp"
-        android:paddingRight="10dp"
-        android:paddingBottom="7dp"
-        android:paddingTop="7dp"/>
+        android:paddingHorizontal="0dp"
+        android:paddingVertical="4dp" />
 
     <TextView
         android:id="@+id/tvAlt"
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
-        android:layout_above="@id/shuffle"
         android:visibility="gone"
         android:gravity="bottom|center"
-        android:paddingTop="10dp"
-        android:paddingLeft="10dp"
-        android:paddingRight="10dp"
-        android:paddingBottom="10dp"
+        android:layout_alignParentBottom="true"
+        android:padding="10dp"
         android:textSize="@dimen/text_body1"
         android:textColor="@color/fab_material_white"
         android:background="@drawable/element_background_box_rounded" />

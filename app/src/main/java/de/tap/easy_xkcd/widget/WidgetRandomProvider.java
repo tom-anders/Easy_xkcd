@@ -48,7 +48,7 @@ public class WidgetRandomProvider extends AppWidgetProvider {
         intent.setAction(AppWidgetManager.ACTION_APPWIDGET_UPDATE);
         intent.putExtra(AppWidgetManager.EXTRA_APPWIDGET_IDS, appWidgetIds);
         PendingIntent pendingIntent = PendingIntent.getBroadcast(context, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT);
-        remoteViews.setOnClickPendingIntent(R.id.shuffle, pendingIntent);
+        remoteViews.setOnClickPendingIntent(R.id.tvAlt, pendingIntent); //Use tvAlt instead of shuffle if available
 
         Intent intent2 = new Intent("de.tap.easy_xkcd.ACTION_COMIC");
         intent2.putExtra("number", lastComicNumber);
