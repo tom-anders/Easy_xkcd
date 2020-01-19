@@ -27,7 +27,7 @@
         android:layout_height="match_parent"
         android:layout_below="@id/tvTitleWrapper"
         android:layout_above="@+id/tvAlt"
-        android:layout_gravity="center"
+        android:gravity="top|center"
         android:paddingHorizontal="0dp"
         android:paddingVertical="4dp" />
 
@@ -41,6 +41,7 @@
         android:padding="10dp"
         android:textSize="@dimen/text_body1"
         android:textColor="@color/fab_material_white"
-        android:background="@drawable/element_background_box_rounded" />
+        android:background="@drawable/element_background_box_rounded"
+        android:maxLines="8" />
 
 </RelativeLayout>
