@@ -1,0 +1,2 @@
+- Fix What If articles not being displayed
+- Fix bug where keyboard would constantly appear
