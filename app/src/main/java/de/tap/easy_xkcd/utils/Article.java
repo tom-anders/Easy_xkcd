@@ -99,7 +99,7 @@ public class Article {
         for (org.jsoup.nodes.Element e : doc.select(".illustration")) {
             if (!offline) {
                 String src = e.attr("src");
-                e.attr("src", "http://what-if.xkcd.com" + src);
+                e.attr("src", "https://what-if.xkcd.com" + src);
             } else {
                 String path = "file://"+base+"/easy xkcd/what if/"+String.valueOf(mNumber)+"/"+String.valueOf(count)+".png";
                 e.attr("src", path);
