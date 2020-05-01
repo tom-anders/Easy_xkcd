@@ -123,7 +123,7 @@ public class Article {
         if (!prefHelper.fullOfflineWhatIf()) {
             //doc.select("script[src]").last().attr("src", "http://aja" +
             //"x.googleapis.com/ajax/libs/jquery/1.10.1/jquery.min.js");
-            doc.select("script[src]").first().attr("src", "http://cdn.mathjax.org/mathjax/latest/MathJax.js");
+            doc.select("script[src]").first().attr("src", "https://cdn.mathjax.org/mathjax/latest/MathJax.js");
         } else {
             //doc.select("script[src]").last().attr("src", "footnotes.js");
             doc.select("script[src]").first().attr("src", "MathJax.js");

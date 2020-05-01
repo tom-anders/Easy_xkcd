@@ -1,2 +1,3 @@
 - Add support for comic 2293 (Thanks, @obfusk!)
+- Fix What-if equations
 - Fix download of images in What-if offline mode
