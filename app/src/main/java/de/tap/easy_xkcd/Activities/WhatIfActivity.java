@@ -254,7 +254,7 @@ public class WhatIfActivity extends BaseActivity {
                 return true;
 
             case R.id.action_browser:
-                Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse("http://what-if.xkcd.com/" + String.valueOf(WhatIfIndex)));
+                Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse("https://what-if.xkcd.com/" + String.valueOf(WhatIfIndex)));
                 startActivity(intent);
                 return true;
 
@@ -262,7 +262,7 @@ public class WhatIfActivity extends BaseActivity {
                 Intent share = new Intent(Intent.ACTION_SEND);
                 share.setType("text/plain");
                 share.putExtra(Intent.EXTRA_SUBJECT, "What if: " + loadedArticle.getTitle());
-                share.putExtra(Intent.EXTRA_TEXT, "http://what-if.xkcd.com/" + String.valueOf(WhatIfIndex));
+                share.putExtra(Intent.EXTRA_TEXT, "https://what-if.xkcd.com/" + String.valueOf(WhatIfIndex));
                 startActivity(share);
                 return true;
 

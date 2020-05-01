@@ -1,6 +1,7 @@
 ## 7.3.8
 
 - Add support for comic 2293 (Thanks, @obfusk!)
+- Fix download of images in What-if offline mode
 
 ## 7.3.7
 

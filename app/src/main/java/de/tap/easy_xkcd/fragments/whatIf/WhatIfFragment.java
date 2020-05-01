@@ -215,7 +215,7 @@ public class WhatIfFragment extends Fragment {
                 int count = 1;
                 for (Element e : doc.select(".illustration")) {
                     try {
-                        String url = "http://what-if.xkcd.com" + e.attr("src");
+                        String url = "https://what-if.xkcd.com" + e.attr("src");
                         Request request = new Request.Builder()
                                 .url(url)
                                 .build();
@@ -395,14 +395,14 @@ public class WhatIfFragment extends Fragment {
                             Intent share = new Intent(Intent.ACTION_SEND);
                             share.setType("text/plain");
                             share.putExtra(Intent.EXTRA_SUBJECT, "What if: " + title);
-                            share.putExtra(Intent.EXTRA_TEXT, "http://what-if.xkcd.com/" + String.valueOf(n));
+                            share.putExtra(Intent.EXTRA_TEXT, "https://what-if.xkcd.com/" + String.valueOf(n));
                             startActivity(share);
                             break;
                         case 1:
                             pos = rv.getChildAdapterPosition(v);
                             title = adapter.titles.get(pos);
                             n = mTitles.size() - mTitles.indexOf(title);
-                            Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse("http://what-if.xkcd.com/" + String.valueOf(n)));
+                            Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse("https://what-if.xkcd.com/" + String.valueOf(n)));
                             startActivity(intent);
                             break;
                         case 2:

@@ -148,7 +148,7 @@ public class ArticleDownloadService extends IntentService {
                     int count = 1;
                     for (Element e : doc.select(".illustration")) {
                         try {
-                            String url = "http://what-if.xkcd.com" + e.attr("src");
+                            String url = "https://what-if.xkcd.com" + e.attr("src");
                             Request request = new Request.Builder()
                                     .url(url)
                                     .build();
