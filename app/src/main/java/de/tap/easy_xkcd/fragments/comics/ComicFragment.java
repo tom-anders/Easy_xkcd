@@ -407,6 +407,8 @@ public abstract class ComicFragment extends Fragment {
                     return R.raw.traffic_lights;
                 case 1264:
                     return R.raw.slideshow;
+                case 2293:
+                    return R.raw.rip_john_conway;
                 default:
                     return 0;
             }
