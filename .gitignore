@@ -3,7 +3,7 @@ bin/
 gen/
 out/
 build/
-app/
+app/release
 
 # Local configuration file (sdk path, etc)
 local.properties
