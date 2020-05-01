@@ -1,8 +1,12 @@
+## 7.3.8
+
+- Add support for comic 2293 (Thanks, @obfusk!)
+
 ## 7.3.7
 
 - Make widget alt text more readable (Thanks, PeterHindes!)
 - Add metadata for F-Droid (Thanks, mueller-ma!)
-- Update Brazilian Portugese translation (Thanks, rffontenelle!)
+- Update Brazilian Portuguese translation (Thanks, rffontenelle!)
 - Fix What-if images not being displayed
 - Fix comic 2281 not being displayed
 
