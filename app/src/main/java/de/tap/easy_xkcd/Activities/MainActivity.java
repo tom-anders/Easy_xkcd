@@ -121,6 +121,7 @@ public class MainActivity extends BaseActivity {
     private static final String COMIC_NOTIFICATION_INTENT = "de.tap.easy_xkcd.ACTION_COMIC_NOTIFICATION";
     private static final String COMIC_INTENT = "de.tap.easy_xkcd.ACTION_COMIC";
     private static final String WHATIF_INTENT = "de.tap.easy_xkcd.ACTION_WHAT_IF";
+    private static final String FAVORITE_INTENT = "de.tap.easy_xkcd.ACTION_FAVORITE";
     private static final String SAVED_INSTANCE_CURRENT_FRAGMENT = "CurrentFragment";
 
     public static final int UPDATE_ALARM = 2;
@@ -190,6 +191,13 @@ public class MainActivity extends BaseActivity {
                     prefHelper.setLastWhatIf(WhatIfActivity.WhatIfIndex);
                     whatIfIntent = true;
                     WhatIfFragment.newIntent = true;
+                    break;
+                case FAVORITE_INTENT:
+                    if (databaseManager.noFavorites()) {
+                        showDrawerErrorToast(R.string.no_favorites);
+                    } else {
+                        showFavoritesFragment(false);
+                    }
                     break;
             }
         } catch (NullPointerException e) {
@@ -750,6 +758,13 @@ public class MainActivity extends BaseActivity {
                 Intent whatIf = new Intent(MainActivity.this, WhatIfActivity.class);
                 prefHelper.setLastWhatIf(WhatIfActivity.WhatIfIndex);
                 startActivity(whatIf);
+                break;
+            case FAVORITE_INTENT:
+                if (databaseManager.noFavorites()) {
+                    showDrawerErrorToast(R.string.no_favorites);
+                } else {
+                    showFavoritesFragment(false);
+                }
                 break;
         }
     }

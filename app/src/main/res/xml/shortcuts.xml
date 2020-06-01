@@ -1,0 +1,24 @@
+<shortcuts xmlns:tools="http://schemas.android.com/tools"
+        xmlns:android="http://schemas.android.com/apk/res/android"
+        tools:targetApi="n_mr1">
+    <shortcut
+            android:shortcutId="favorite"
+            android:enabled="true"
+            android:icon="@mipmap/ic_launcher_shortcut_favorite"
+            android:shortcutShortLabel="@string/nv_favorites">
+        <intent
+                android:action="de.tap.easy_xkcd.ACTION_FAVORITE"
+                android:targetPackage="de.tap.easy_xkcd"
+                android:targetClass="de.tap.easy_xkcd.Activities.MainActivity" />
+    </shortcut>
+    <shortcut
+            android:shortcutId="whatif"
+            android:enabled="true"
+            android:icon="@mipmap/ic_launcher_shortcut_whatif"
+            android:shortcutShortLabel="@string/nv_whatif">
+        <intent
+                android:action="de.tap.easy_xkcd.ACTION_WHAT_IF"
+                android:targetPackage="de.tap.easy_xkcd"
+                android:targetClass="de.tap.easy_xkcd.Activities.MainActivity" />
+    </shortcut>
+</shortcuts>

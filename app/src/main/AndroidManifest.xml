@@ -106,6 +106,9 @@
             <meta-data
                 android:name="android.app.default_searchable"
                 android:value=".Activities.SearchResultsActivity" />
+
+            <meta-data android:name="android.app.shortcuts"
+                    android:resource="@xml/shortcuts" />
         </activity>
         <activity
             android:name="de.tap.easy_xkcd.Activities.SettingsActivity"
