@@ -55,6 +55,8 @@ import android.widget.Toast;
 import com.github.chrisbanes.photoview.PhotoView;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.navigation.NavigationView;
+import com.google.android.material.snackbar.BaseTransientBottomBar;
+import com.google.android.material.snackbar.Snackbar;
 import com.nbsp.materialfilepicker.ui.FilePickerActivity;
 import com.tap.xkcd_reader.R;
 
@@ -67,7 +69,6 @@ import androidx.appcompat.widget.Toolbar;
 import androidx.coordinatorlayout.widget.CoordinatorLayout;
 import androidx.core.content.ContextCompat;
 import androidx.core.view.GravityCompat;
-import androidx.core.view.MenuItemCompat;
 import androidx.drawerlayout.widget.DrawerLayout;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
@@ -387,8 +388,9 @@ public class MainActivity extends BaseActivity {
             ((OverviewBaseFragment) fragment).showRandomComic();
         } else if (fragment instanceof ComicFragment) {
             if (prefHelper.showRandomTip()) {
-                Toast.makeText(this, getResources().getString(R.string.random_tip), Toast.LENGTH_LONG).show();
-                prefHelper.setRandomTip(false);
+                Snackbar snackbar = Snackbar.make(findViewById(android.R.id.content), R.string.random_tip, BaseTransientBottomBar.LENGTH_LONG);
+                snackbar.setAction(R.string.got_it, view -> prefHelper.setShowRandomTip(false));
+                snackbar.show();
             }
             ((ComicFragment) fragment).getRandomComic();
         }

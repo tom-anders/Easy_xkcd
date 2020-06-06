@@ -241,7 +241,7 @@ public class PrefHelper {
         sharedPrefs.edit().putBoolean(WHAT_IF_TIP, value).apply();
     }
 
-    public void setRandomTip(boolean value) {
+    public void setShowRandomTip(boolean value) {
         sharedPrefs.edit().putBoolean(RANDOM_TIP, value).apply();
     }
 
