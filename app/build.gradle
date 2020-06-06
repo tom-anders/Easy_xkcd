@@ -33,6 +33,7 @@ android {
     lintOptions {
         disable 'InvalidPackage'
         checkReleaseBuilds false
+        abortOnError false
     }
     packagingOptions {
         exclude 'META-INF/services/javax.annotation.processing.Processor' // for realm
