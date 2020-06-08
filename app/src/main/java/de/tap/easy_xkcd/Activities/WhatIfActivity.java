@@ -64,7 +64,7 @@ public class WhatIfActivity extends BaseActivity {
         web.addJavascriptInterface(new altObject(), "img");
         web.addJavascriptInterface(new refObject(), "ref");
         web.getSettings().setBuiltInZoomControls(true);
-        web.getSettings().setUseWideViewPort(Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT);
+        web.getSettings().setUseWideViewPort(true);
         web.getSettings().setJavaScriptEnabled(true);
         web.getSettings().setDisplayZoomControls(false);
         web.getSettings().setLoadWithOverviewMode(true);

@@ -68,20 +68,7 @@ public class JsonParser {
     }
 
     public static OkHttpClient getNewHttpClient() {
-        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.LOLLIPOP) {
-            OkHttpClient.Builder client = new OkHttpClient.Builder()
-                    .followRedirects(true)
-                    .followSslRedirects(true)
-                    .retryOnConnectionFailure(true)
-                    .cache(null)
-                    .connectTimeout(5, TimeUnit.SECONDS)
-                    .writeTimeout(5, TimeUnit.SECONDS)
-                    .readTimeout(5, TimeUnit.SECONDS);
-
-            return enableTls12OnPreLollipop(client).build();
-        } else {
-            return new OkHttpClient();
-        }
+        return new OkHttpClient();
     }
 
     public static JSONObject getJSONFromUrl(String url) throws IOException{
