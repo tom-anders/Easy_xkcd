@@ -352,6 +352,7 @@ public class NestedPreferenceFragment extends PreferenceFragment {
                         }
                     }
                 });
+                findPreference(MOBILE_ENABLED).setEnabled(MainActivity.fullOffline | MainActivity.fullOfflineWhatIf);
                 break;
 
 
