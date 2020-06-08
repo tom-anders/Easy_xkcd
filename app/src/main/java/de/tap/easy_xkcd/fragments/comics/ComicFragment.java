@@ -18,8 +18,6 @@
 
 package de.tap.easy_xkcd.fragments.comics;
 
-import android.animation.Animator;
-import android.content.ActivityNotFoundException;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
@@ -27,28 +25,22 @@ import android.content.pm.ResolveInfo;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Color;
-import android.graphics.RectF;
 import android.graphics.drawable.Drawable;
 import android.net.Uri;
-import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
-import android.os.Handler;
 import android.os.Parcelable;
 import android.os.Vibrator;
 
-import androidx.appcompat.app.ActionBar;
 import androidx.browser.customtabs.CustomTabsIntent;
 
 import com.bumptech.glide.load.DataSource;
 import com.bumptech.glide.load.engine.GlideException;
 import com.bumptech.glide.request.RequestListener;
-import com.bumptech.glide.request.target.SimpleTarget;
 import com.bumptech.glide.request.target.Target;
-import com.bumptech.glide.request.transition.Transition;
-import com.github.chrisbanes.photoview.OnMatrixChangedListener;
 import com.github.chrisbanes.photoview.PhotoView;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
+import com.google.android.material.snackbar.BaseTransientBottomBar;
 import com.google.android.material.snackbar.Snackbar;
 import androidx.core.content.FileProvider;
 import androidx.core.view.MenuCompat;
@@ -59,7 +51,6 @@ import androidx.viewpager.widget.ViewPager;
 import androidx.appcompat.widget.Toolbar;
 
 import android.text.Html;
-import android.text.TextUtils;
 import android.transition.TransitionInflater;
 import android.util.Log;
 import android.view.GestureDetector;
@@ -70,23 +61,18 @@ import android.view.MenuItem;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.WindowManager;
 import android.widget.ImageView;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.bumptech.glide.Glide;
 import com.tap.xkcd_reader.R;
 
 import org.jetbrains.annotations.Nullable;
-import org.jsoup.Connection;
 
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
-import java.io.IOException;
 import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -94,7 +80,6 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-import de.tap.easy_xkcd.Activities.BaseActivity;
 import de.tap.easy_xkcd.Activities.MainActivity;
 import de.tap.easy_xkcd.Activities.SearchResultsActivity;
 import de.tap.easy_xkcd.CustomTabHelpers.BrowserFallback;
@@ -107,7 +92,6 @@ import de.tap.easy_xkcd.fragments.overview.OverviewListFragment;
 import de.tap.easy_xkcd.misc.HackyViewPager;
 import de.tap.easy_xkcd.utils.PrefHelper;
 import de.tap.easy_xkcd.utils.ThemePrefs;
-import io.realm.Realm;
 import timber.log.Timber;
 
 /**
@@ -741,9 +725,9 @@ public abstract class ComicFragment extends Fragment {
     protected boolean setAltText(boolean fromMenu) {
         //If the user selected the menu item for the first time, show the toast
         if (fromMenu && prefHelper.showAltTip()) {
-            Toast toast = Toast.makeText(getActivity(), R.string.action_alt_tip, Toast.LENGTH_LONG);
-            toast.show();
-            prefHelper.setAltTip(false);
+            Snackbar snackbar = Snackbar.make(requireActivity().findViewById(android.R.id.content), R.string.action_alt_tip, BaseTransientBottomBar.LENGTH_LONG);
+            snackbar.setAction(R.string.got_it, view -> prefHelper.setShowAltTip(false));
+            snackbar.show();
         }
         //Show alt text
         int index;

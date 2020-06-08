@@ -5,7 +5,7 @@ import android.app.ProgressDialog;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.AsyncTask;
-import android.os.Build;
+
 import androidx.core.content.ContextCompat;
 import androidx.appcompat.app.AlertDialog;
 import android.os.Bundle;
@@ -25,6 +25,8 @@ import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.google.android.material.snackbar.BaseTransientBottomBar;
+import com.google.android.material.snackbar.Snackbar;
 import com.tap.xkcd_reader.R;
 
 import org.jsoup.nodes.Document;
@@ -166,8 +168,9 @@ public class WhatIfActivity extends BaseActivity {
                     public void onPageFinished(WebView view, String url) {
                         WhatIfFragment.getInstance().updateRv();
                         if (prefHelper.showWhatIfTip()) {
-                            Toast.makeText(WhatIfActivity.this, getResources().getString(R.string.what_if_tip), Toast.LENGTH_LONG).show();
-                            prefHelper.setWhatIfTip(false);
+                            Snackbar snackbar = Snackbar.make(findViewById(android.R.id.content), R.string.what_if_tip, BaseTransientBottomBar.LENGTH_LONG);
+                            snackbar.setAction(R.string.got_it, snackbarView -> prefHelper.setShowWhatIfTip(false));
+                            snackbar.show();
                         }
                         if (mProgress != null)
                             mProgress.dismiss();
