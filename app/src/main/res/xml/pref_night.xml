@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
-    <CheckBoxPreference
+    <SwitchPreference
         android:key="pref_night"
         android:title="@string/pref_night"
         android:defaultValue="false" />
@@ -12,26 +12,26 @@
         android:persistent="false"
         />
 
-    <CheckBoxPreference
+    <SwitchPreference
         android:key="pref_amoled"
         android:title="@string/pref_amoled"
         android:summary="@string/pref_amoled_sum"
         android:defaultValue="false"
         android:dependency="pref_night" />
 
-    <CheckBoxPreference
+    <SwitchPreference
         android:key="pref_invert"
         android:title="@string/pref_invert"
         android:defaultValue="true"
         android:dependency="pref_night" />
 
-    <CheckBoxPreference
+    <SwitchPreference
         android:key="pref_detect_color"
         android:title="@string/pref_detect_color"
         android:defaultValue="true"
         android:dependency="pref_invert" />
 
-    <CheckBoxPreference
+    <SwitchPreference
         android:title="@string/pref_auto_night"
         android:key="pref_auto_night"
         android:dependency="pref_night"/>
