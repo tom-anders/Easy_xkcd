@@ -9,13 +9,13 @@
         android:defaultValue="default"
         />
 
-    <CheckBoxPreference
+    <SwitchPreference
         android:defaultValue="true"
         android:key="pref_large"
         android:summary="@string/pref_large_sum"
         android:title="@string/pref_large" />
 
-    <CheckBoxPreference
+    <SwitchPreference
         android:defaultValue="true"
         android:key="pref_update_mobile"
         android:title="@string/pref_update_mobile"

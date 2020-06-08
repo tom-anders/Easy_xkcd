@@ -12,12 +12,12 @@
         android:persistent="false"
         />
 
-    <CheckBoxPreference
+    <SwitchPreference
         android:key="pref_navbar"
         android:title="@string/pref_navbar"
         android:defaultValue="true" />
 
-    <CheckBoxPreference
+    <SwitchPreference
         android:defaultValue="true"
         android:key="pref_subtitle"
         android:summary="@string/pref_subtitle_sum"
@@ -32,12 +32,12 @@
         android:entryValues="@array/random_values"
         android:defaultValue="@array/random_default" />
 
-    <CheckBoxPreference
+    <SwitchPreference
         android:defaultValue="false"
         android:key="pref_hide_donate"
         android:title="@string/pref_hide_donate" />
 
-    <CheckBoxPreference
+    <SwitchPreference
         android:defaultValue="false"
         android:key="pref_fab_left"
         android:summary="@string/pref_fab_left_hint"
