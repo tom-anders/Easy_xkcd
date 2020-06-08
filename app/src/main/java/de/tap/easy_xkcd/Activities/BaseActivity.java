@@ -12,6 +12,7 @@ import androidx.appcompat.widget.Toolbar;
 
 import android.os.Handler;
 import android.util.Log;
+import android.util.TypedValue;
 import android.view.View;
 import android.view.WindowManager;
 
@@ -52,10 +53,36 @@ public abstract class BaseActivity extends AppCompatActivity {
             ActivityManager.TaskDescription description = new ActivityManager.TaskDescription("Easy xkcd", ic, color);
             setTaskDescription(description);
 
-            if (!(this instanceof MainActivity))
+            if (!(this instanceof MainActivity)) {
                 getWindow().setStatusBarColor(themePrefs.getPrimaryDarkColor());
-            if (prefHelper.colorNavbar())
-                getWindow().setNavigationBarColor(themePrefs.getPrimaryColor(false));
+            }
+
+            int navBarColor;
+            int uiOptions = getWindow().getDecorView().getSystemUiVisibility();
+            int flagForLightNavBar = Build.VERSION.SDK_INT >= Build.VERSION_CODES.O ? View.SYSTEM_UI_FLAG_LIGHT_NAVIGATION_BAR : 0;
+            TypedValue backgroundColor = new TypedValue();
+            getTheme().resolveAttribute(android.R.attr.windowBackground, backgroundColor, true);
+
+            if (themePrefs.nightThemeEnabled()) {
+                uiOptions = uiOptions & Integer.reverse(flagForLightNavBar);
+
+                if (backgroundColor.type >= TypedValue.TYPE_FIRST_COLOR_INT && backgroundColor.type <= TypedValue.TYPE_LAST_COLOR_INT) {
+                    navBarColor = backgroundColor.data;
+                } else {
+                    navBarColor = Color.BLACK;
+                }
+            } else {
+                uiOptions = uiOptions | flagForLightNavBar;
+
+                if (backgroundColor.type >= TypedValue.TYPE_FIRST_COLOR_INT && backgroundColor.type <= TypedValue.TYPE_LAST_COLOR_INT &&
+                        Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                    navBarColor = backgroundColor.data;
+                } else {
+                    navBarColor = Color.BLACK;
+                }
+            }
+            getWindow().setNavigationBarColor(navBarColor);
+            getWindow().getDecorView().setSystemUiVisibility(uiOptions);
         }
         setSupportActionBar(toolbar);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
