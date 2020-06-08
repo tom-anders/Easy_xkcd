@@ -6,20 +6,13 @@
         android:summary="@string/pref_zoom_sum"
         android:entries="@array/pref_zoom"
         android:entryValues="@array/pref_zoom_entries"
-        android:defaultValue="default"
-        />
+        android:defaultValue="default" />
 
     <SwitchPreference
         android:defaultValue="true"
         android:key="pref_large"
         android:summary="@string/pref_large_sum"
         android:title="@string/pref_large" />
-
-    <SwitchPreference
-        android:defaultValue="true"
-        android:key="pref_update_mobile"
-        android:title="@string/pref_update_mobile"
-        android:summary="@string/pref_update_mobile_sum" />
 
     <Preference
         android:key="pref_offline_path"

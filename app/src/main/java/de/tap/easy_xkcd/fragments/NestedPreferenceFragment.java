@@ -511,8 +511,6 @@ public class NestedPreferenceFragment extends PreferenceFragment {
 
             case ADVANCED:
                 addPreferencesFromResource(R.xml.pref_advanced);
-                findPreference(MOBILE_ENABLED).setEnabled(MainActivity.fullOffline | MainActivity.fullOfflineWhatIf);
-
                 findPreference(OFFLINE_PATH_PREF).setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
                     @Override
                     public boolean onPreferenceClick(Preference preference) {
