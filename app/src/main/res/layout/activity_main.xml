@@ -50,12 +50,12 @@
                 android:layout_height="wrap_content"
                 android:layout_alignParentBottom="true"
                 android:layout_alignParentRight="true"
-                android:layout_gravity="bottom|right"
-                android:layout_margin="8dp"
+                android:layout_gravity="bottom|right|end"
+                android:layout_margin="16dp"
                 app:elevation="4dp"
                 app:borderWidth="0dp"
                 android:src="@mipmap/ic_shuffle"
-                app:fabSize="mini" />
+                app:fabSize="normal" />
         </androidx.coordinatorlayout.widget.CoordinatorLayout>
 
     </RelativeLayout>

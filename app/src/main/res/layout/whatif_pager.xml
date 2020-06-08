@@ -33,10 +33,10 @@
         android:layout_height="wrap_content"
         android:layout_gravity="bottom|right"
         android:elevation="4dp"
-        app:borderWidth="0dp"
         app:layout_anchorGravity="bottom|right|end"
         android:src="@mipmap/ic_shuffle"
         app:layout_behavior="de.tap.easy_xkcd.misc.ScrollAwareFABBehavior"
+        app:fabSize="normal"
         android:layout_margin="16dp" />
 
 
