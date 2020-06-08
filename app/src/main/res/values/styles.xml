@@ -17,125 +17,286 @@
 
     <!-- Standard themes -->
 
-    <style name="RedTheme" parent="Theme.AppCompat.Light.NoActionBar">
+    <style name="DefaultTheme" parent="Theme.AppCompat.Light.NoActionBar">
+        <item name="android:statusBarColor">@android:color/transparent</item>
+        <item name="android:windowContentTransitions">true</item>
+    </style>
+
+    <style name="RedTheme" parent="DefaultTheme">
+        <item name="colorAccent">@color/AccentRed</item>
+        <item name="alertDialogTheme">@style/AlertDialogRed</item>
+    </style>
+
+    <style name="AlertDialogRed" parent="Theme.AppCompat.Light.Dialog.Alert">
         <item name="colorAccent">@color/AccentRed</item>
     </style>
 
-    <style name="PurpleTheme" parent="Theme.AppCompat.Light.NoActionBar">
+    <style name="PurpleTheme" parent="DefaultTheme">
+        <item name="colorAccent">@color/AccentPurple</item>
+        <item name="alertDialogTheme">@style/AlertDialogPurple</item>
+    </style>
+
+    <style name="AlertDialogPurple" parent="Theme.AppCompat.Light.Dialog.Alert">
         <item name="colorAccent">@color/AccentPurple</item>
     </style>
 
-    <style name="DeepPurpleTheme" parent="Theme.AppCompat.Light.NoActionBar">
+    <style name="DeepPurpleTheme" parent="DefaultTheme">
+        <item name="colorAccent">@color/AccentDeepPurple</item>
+        <item name="alertDialogTheme">@style/AlertDialogDeepPurple</item>
+    </style>
+
+    <style name="AlertDialogDeepPurple" parent="Theme.AppCompat.Light.Dialog.Alert">
         <item name="colorAccent">@color/AccentDeepPurple</item>
     </style>
 
-    <style name="IndigoTheme" parent="Theme.AppCompat.Light.NoActionBar">
+    <style name="IndigoTheme" parent="DefaultTheme">
+        <item name="colorAccent">@color/AccentIndigo</item>
+        <item name="alertDialogTheme">@style/AlertDialogIndigo</item>
+    </style>
+
+    <style name="AlertDialogIndigo" parent="Theme.AppCompat.Light.Dialog.Alert">
         <item name="colorAccent">@color/AccentIndigo</item>
     </style>
 
-    <style name="BlueTheme" parent="Theme.AppCompat.Light.NoActionBar">
+    <style name="BlueTheme" parent="DefaultTheme">
+        <item name="colorAccent">@color/AccentBlue</item>
+        <item name="alertDialogTheme">@style/AlertDialogBlue</item>
+    </style>
+
+    <style name="AlertDialogBlue" parent="Theme.AppCompat.Light.Dialog.Alert">
         <item name="colorAccent">@color/AccentBlue</item>
     </style>
 
-    <style name="LightBlueTheme" parent="Theme.AppCompat.Light.NoActionBar">
+    <style name="LightBlueTheme" parent="DefaultTheme">
         <item name="colorAccent">@color/AccentLightBlue</item>
+        <item name="alertDialogTheme">@style/AlertDialogLightBlue</item>
     </style>
 
-    <style name="CyanTheme" parent="Theme.AppCompat.Light.NoActionBar">
+    <style name="AlertDialogLightBlue" parent="Theme.AppCompat.Light.Dialog.Alert">
+        <item name="colorAccent">@color/AccentBlue</item>
+    </style>
+
+    <style name="CyanTheme" parent="DefaultTheme">
+        <item name="colorAccent">@color/AccentCyan</item>
+        <item name="alertDialogTheme">@style/AlertDialogCyan</item>
+    </style>
+
+    <style name="AlertDialogCyan" parent="Theme.AppCompat.Light.Dialog.Alert">
         <item name="colorAccent">@color/AccentCyan</item>
     </style>
 
-    <style name="TealTheme" parent="Theme.AppCompat.Light.NoActionBar">
+    <style name="TealTheme" parent="DefaultTheme">
+        <item name="colorAccent">@color/AccentTeal</item>
+        <item name="alertDialogTheme">@style/AlertDialogTeal</item>
+    </style>
+
+    <style name="AlertDialogTeal" parent="Theme.AppCompat.Light.Dialog.Alert">
         <item name="colorAccent">@color/AccentTeal</item>
     </style>
 
-    <style name="GreenTheme" parent="Theme.AppCompat.Light.NoActionBar">
+    <style name="GreenTheme" parent="DefaultTheme">
+        <item name="colorAccent">@color/AccentGreen</item>
+        <item name="alertDialogTheme">@style/AlertDialogGreen</item>
+    </style>
+
+    <style name="AlertDialogGreen" parent="Theme.AppCompat.Light.Dialog.Alert">
         <item name="colorAccent">@color/AccentGreen</item>
     </style>
 
-    <style name="LightGreenTheme" parent="Theme.AppCompat.Light.NoActionBar">
+    <style name="LightGreenTheme" parent="DefaultTheme">
+        <item name="colorAccent">@color/AccentLightGreen</item>
+        <item name="alertDialogTheme">@style/AlertDialogLightGreen</item>
+    </style>
+
+    <style name="AlertDialogLightGreen" parent="Theme.AppCompat.Light.Dialog.Alert">
         <item name="colorAccent">@color/AccentLightGreen</item>
     </style>
 
-    <style name="LimeTheme" parent="Theme.AppCompat.Light.NoActionBar">
+    <style name="LimeTheme" parent="DefaultTheme">
+        <item name="colorAccent">@color/AccentLime</item>
+        <item name="alertDialogTheme">@style/AlertDialogLime</item>
+    </style>
+
+    <style name="AlertDialogLime" parent="Theme.AppCompat.Light.Dialog.Alert">
         <item name="colorAccent">@color/AccentLime</item>
     </style>
 
-    <style name="YellowTheme" parent="Theme.AppCompat.Light.NoActionBar">
+    <style name="YellowTheme" parent="DefaultTheme">
+        <item name="colorAccent">@color/AccentYellow</item>
+        <item name="alertDialogTheme">@style/AlertDialogYellow</item>
+    </style>
+
+    <style name="AlertDialogYellow" parent="Theme.AppCompat.Light.Dialog.Alert">
         <item name="colorAccent">@color/AccentYellow</item>
     </style>
 
-    <style name="AmberTheme" parent="Theme.AppCompat.Light.NoActionBar">
+    <style name="AmberTheme" parent="DefaultTheme">
+        <item name="colorAccent">@color/AccentAmber</item>
+        <item name="alertDialogTheme">@style/AlertDialogAmber</item>
+    </style>
+
+    <style name="AlertDialogAmber" parent="Theme.AppCompat.Light.Dialog.Alert">
         <item name="colorAccent">@color/AccentAmber</item>
     </style>
 
-    <style name="OrangeTheme" parent="Theme.AppCompat.Light.NoActionBar">
+    <style name="OrangeTheme" parent="DefaultTheme">
+        <item name="colorAccent">@color/AccentOrange</item>
+        <item name="alertDialogTheme">@style/AlertDialogOrange</item>
+    </style>
+
+    <style name="AlertDialogOrange" parent="Theme.AppCompat.Light.Dialog.Alert">
         <item name="colorAccent">@color/AccentOrange</item>
     </style>
 
-    <style name="DeepOrangeTheme" parent="Theme.AppCompat.Light.NoActionBar">
+    <style name="DeepOrangeTheme" parent="DefaultTheme">
+        <item name="colorAccent">@color/AccentDeepOrange</item>
+        <item name="alertDialogTheme">@style/AlertDialogDeepOrange</item>
+    </style>
+
+    <style name="AlertDialogDeepOrange" parent="Theme.AppCompat.Light.Dialog.Alert">
         <item name="colorAccent">@color/AccentDeepOrange</item>
     </style>
 
     <!-- Night themes -->
 
-    <style name="RedNightTheme" parent="Theme.AppCompat.NoActionBar">
+    <style name="DefaultNightTheme" parent="Theme.AppCompat.NoActionBar">
+        <item name="android:windowDrawsSystemBarBackgrounds">true</item>
+        <item name="android:statusBarColor">@android:color/transparent</item>
+        <item name="android:windowContentTransitions">true</item>
+    </style>
+
+    <style name="RedNightTheme" parent="DefaultNightTheme">
+        <item name="colorAccent">@color/AccentRed</item>
+        <item name="alertDialogTheme">@style/AlertDialogNightRed</item>
+    </style>
+
+    <style name="AlertDialogNightRed" parent="Theme.AppCompat.Dialog.Alert">
         <item name="colorAccent">@color/AccentRed</item>
     </style>
 
-    <style name="PurpleNightTheme" parent="Theme.AppCompat.NoActionBar">
+    <style name="PurpleNightTheme" parent="DefaultNightTheme">
+        <item name="colorAccent">@color/AccentPurple</item>
+        <item name="alertDialogTheme">@style/AlertDialogNightPurple</item>
+    </style>
+
+    <style name="AlertDialogNightPurple" parent="Theme.AppCompat.Dialog.Alert">
         <item name="colorAccent">@color/AccentPurple</item>
     </style>
 
-    <style name="DeepPurpleNightTheme" parent="Theme.AppCompat.NoActionBar">
+    <style name="DeepPurpleNightTheme" parent="DefaultNightTheme">
+        <item name="colorAccent">@color/AccentDeepPurple</item>
+        <item name="alertDialogTheme">@style/AlertDialogNightDeepPurple</item>
+    </style>
+
+    <style name="AlertDialogNightDeepPurple" parent="Theme.AppCompat.Dialog.Alert">
         <item name="colorAccent">@color/AccentDeepPurple</item>
     </style>
 
-    <style name="IndigoNightTheme" parent="Theme.AppCompat.NoActionBar">
+    <style name="IndigoNightTheme" parent="DefaultNightTheme">
+        <item name="colorAccent">@color/AccentIndigo</item>
+        <item name="alertDialogTheme">@style/AlertDialogNightIndigo</item>
+    </style>
+
+    <style name="AlertDialogNightIndigo" parent="Theme.AppCompat.Dialog.Alert">
         <item name="colorAccent">@color/AccentIndigo</item>
     </style>
 
-    <style name="BlueNightTheme" parent="Theme.AppCompat.NoActionBar">
+    <style name="BlueNightTheme" parent="DefaultNightTheme">
+        <item name="colorAccent">@color/AccentBlue</item>
+        <item name="alertDialogTheme">@style/AlertDialogNightBlue</item>
+    </style>
+
+    <style name="AlertDialogNightBlue" parent="Theme.AppCompat.Dialog.Alert">
         <item name="colorAccent">@color/AccentBlue</item>
     </style>
 
-    <style name="LightBlueNightTheme" parent="Theme.AppCompat.NoActionBar">
+    <style name="LightBlueNightTheme" parent="DefaultNightTheme">
         <item name="colorAccent">@color/AccentLightBlue</item>
+        <item name="alertDialogTheme">@style/AlertDialogNightLightBlue</item>
     </style>
 
-    <style name="CyanNightTheme" parent="Theme.AppCompat.NoActionBar">
+    <style name="AlertDialogNightLightBlue" parent="Theme.AppCompat.Dialog.Alert">
+        <item name="colorAccent">@color/AccentBlue</item>
+    </style>
+
+    <style name="CyanNightTheme" parent="DefaultNightTheme">
+        <item name="colorAccent">@color/AccentCyan</item>
+        <item name="alertDialogTheme">@style/AlertDialogNightCyan</item>
+    </style>
+
+    <style name="AlertDialogNightCyan" parent="Theme.AppCompat.Dialog.Alert">
         <item name="colorAccent">@color/AccentCyan</item>
     </style>
 
-    <style name="TealNightTheme" parent="Theme.AppCompat.NoActionBar">
+    <style name="TealNightTheme" parent="DefaultNightTheme">
+        <item name="colorAccent">@color/AccentTeal</item>
+        <item name="alertDialogTheme">@style/AlertDialogNightTeal</item>
+    </style>
+
+    <style name="AlertDialogNightTeal" parent="Theme.AppCompat.Dialog.Alert">
         <item name="colorAccent">@color/AccentTeal</item>
     </style>
 
-    <style name="GreenNightTheme" parent="Theme.AppCompat.NoActionBar">
+    <style name="GreenNightTheme" parent="DefaultNightTheme">
+        <item name="colorAccent">@color/AccentGreen</item>
+        <item name="alertDialogTheme">@style/AlertDialogNightGreen</item>
+    </style>
+
+    <style name="AlertDialogNightGreen" parent="Theme.AppCompat.Dialog.Alert">
         <item name="colorAccent">@color/AccentGreen</item>
     </style>
 
-    <style name="LightGreenNightTheme" parent="Theme.AppCompat.NoActionBar">
+    <style name="LightGreenNightTheme" parent="DefaultNightTheme">
+        <item name="colorAccent">@color/AccentLightGreen</item>
+        <item name="alertDialogTheme">@style/AlertDialogNightLightGreen</item>
+    </style>
+
+    <style name="AlertDialogNightLightGreen" parent="Theme.AppCompat.Dialog.Alert">
         <item name="colorAccent">@color/AccentLightGreen</item>
     </style>
 
-    <style name="LimeNightTheme" parent="Theme.AppCompat.NoActionBar">
+    <style name="LimeNightTheme" parent="DefaultNightTheme">
+        <item name="colorAccent">@color/AccentLime</item>
+        <item name="alertDialogTheme">@style/AlertDialogNightLime</item>
+    </style>
+
+    <style name="AlertDialogNightLime" parent="Theme.AppCompat.Dialog.Alert">
         <item name="colorAccent">@color/AccentLime</item>
     </style>
 
-    <style name="YellowNightTheme" parent="Theme.AppCompat.NoActionBar">
+    <style name="YellowNightTheme" parent="DefaultNightTheme">
+        <item name="colorAccent">@color/AccentYellow</item>
+        <item name="alertDialogTheme">@style/AlertDialogNightYellow</item>
+    </style>
+
+    <style name="AlertDialogNightYellow" parent="Theme.AppCompat.Dialog.Alert">
         <item name="colorAccent">@color/AccentYellow</item>
     </style>
 
-    <style name="AmberNightTheme" parent="Theme.AppCompat.NoActionBar">
+    <style name="AmberNightTheme" parent="DefaultNightTheme">
+        <item name="colorAccent">@color/AccentAmber</item>
+        <item name="alertDialogTheme">@style/AlertDialogNightAmber</item>
+    </style>
+
+    <style name="AlertDialogNightAmber" parent="Theme.AppCompat.Dialog.Alert">
         <item name="colorAccent">@color/AccentAmber</item>
     </style>
 
-    <style name="OrangeNightTheme" parent="Theme.AppCompat.NoActionBar">
+    <style name="OrangeNightTheme" parent="DefaultNightTheme">
+        <item name="colorAccent">@color/AccentOrange</item>
+        <item name="alertDialogTheme">@style/AlertDialogNightOrange</item>
+    </style>
+
+    <style name="AlertDialogNightOrange" parent="Theme.AppCompat.Dialog.Alert">
         <item name="colorAccent">@color/AccentOrange</item>
     </style>
 
-    <style name="DeepOrangeNightTheme" parent="Theme.AppCompat.NoActionBar">
+    <style name="DeepOrangeNightTheme" parent="DefaultNightTheme">
+        <item name="colorAccent">@color/AccentDeepOrange</item>
+        <item name="alertDialogTheme">@style/AlertDialogNightDeepOrange</item>
+    </style>
+
+    <style name="AlertDialogNightDeepOrange" parent="Theme.AppCompat.Dialog.Alert">
         <item name="colorAccent">@color/AccentDeepOrange</item>
     </style>
 
