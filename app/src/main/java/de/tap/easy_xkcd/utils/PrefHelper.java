@@ -233,11 +233,11 @@ public class PrefHelper {
         return sharedPrefs.getBoolean(RANDOM_TIP, true);
     }
 
-    public void setAltTip(boolean value) {
+    public void setShowAltTip(boolean value) {
         sharedPrefs.edit().putBoolean(ALT_TIP, value).apply();
     }
 
-    public void setWhatIfTip(boolean value) {
+    public void setShowWhatIfTip(boolean value) {
         sharedPrefs.edit().putBoolean(WHAT_IF_TIP, value).apply();
     }
 
