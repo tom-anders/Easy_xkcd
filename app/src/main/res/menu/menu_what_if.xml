@@ -5,13 +5,13 @@
     <group android:id="@+id/groupWhatifCurrent">
         <item android:id="@+id/action_share"
             android:title="@string/action_share_article"
-            android:icon="@drawable/ic_action_share"
+            android:icon="@drawable/ic_outline_share_24dp"
             app:showAsAction="ifRoom" />
 
         <item android:id="@+id/action_favorite"
             android:title="@string/action_favorite"
             app:showAsAction="ifRoom"
-            android:icon="@drawable/ic_favorite_outline"/>
+            android:icon="@drawable/ic_favorite_off_24dp"/>
 
         <item android:id="@+id/action_browser"
             android:title="@string/action_browser"
@@ -24,13 +24,13 @@
     <group android:id="@+id/groupWhatifNavigation">
         <item android:id="@+id/action_back"
             android:title="@string/action_share_article"
-            android:icon="@drawable/ic_whatif_back"
+            android:icon="@drawable/ic_outline_navigate_before_24dp"
             app:showAsAction="always" />
 
         <item android:id="@+id/action_next"
             android:title="@string/action_favorite"
             app:showAsAction="always"
-            android:icon="@drawable/ic_whatif_next"/>
+            android:icon="@drawable/ic_outline_navigate_next_24dp"/>
 
         <item android:id="@+id/action_swipe"
             android:title="@string/action_swipe"

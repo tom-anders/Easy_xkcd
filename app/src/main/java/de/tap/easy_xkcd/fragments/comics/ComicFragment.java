@@ -808,10 +808,10 @@ public abstract class ComicFragment extends Fragment {
         //Update the favorites icon
         MenuItem fav = menu.findItem(R.id.action_favorite);
         if (databaseManager.isFavorite(lastComicNumber)) {
-            fav.setIcon(R.drawable.ic_action_favorite);
+            fav.setIcon(R.drawable.ic_favorite_on_24dp);
             fav.setTitle(R.string.action_favorite_remove);
         } else {
-            fav.setIcon(R.drawable.ic_favorite_outline);
+            fav.setIcon(R.drawable.ic_favorite_off_24dp);
             fav.setTitle(R.string.action_favorite);
         }
         //If the FAB is visible, hide the random comic menu item

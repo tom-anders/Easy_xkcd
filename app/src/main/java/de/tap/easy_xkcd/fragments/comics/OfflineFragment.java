@@ -20,51 +20,29 @@ package de.tap.easy_xkcd.fragments.comics;
 
 import android.app.AlertDialog;
 import android.content.Context;
-import android.content.DialogInterface;
 import android.graphics.Bitmap;
-import android.graphics.drawable.Drawable;
 import android.os.AsyncTask;
 import android.os.Bundle;
 
-import com.bumptech.glide.load.DataSource;
-import com.bumptech.glide.load.engine.GlideException;
-import com.bumptech.glide.request.RequestListener;
-import com.bumptech.glide.request.target.Target;
 import com.github.chrisbanes.photoview.PhotoView;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.snackbar.Snackbar;
 
-import androidx.annotation.Nullable;
 import androidx.viewpager.widget.ViewPager;
-import android.text.Html;
+
 import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.animation.Animation;
-import android.view.animation.AnimationUtils;
-import android.widget.TextView;
 import android.widget.Toast;
 
-import com.bumptech.glide.Glide;
 import com.tap.xkcd_reader.R;
 
-import java.io.File;
-import java.io.FileOutputStream;
 import java.io.IOException;
-import java.util.Arrays;
 
-import de.tap.easy_xkcd.Activities.MainActivity;
 import de.tap.easy_xkcd.database.DatabaseManager;
 import de.tap.easy_xkcd.database.RealmComic;
-import io.realm.Realm;
-import okhttp3.Call;
-import okhttp3.Callback;
-import okhttp3.OkHttpClient;
 import okhttp3.Request;
-import okhttp3.Response;
-import okio.BufferedSink;
-import okio.Okio;
 import timber.log.Timber;
 
 import static de.tap.easy_xkcd.utils.JsonParser.getNewHttpClient;
@@ -255,12 +233,12 @@ public class OfflineFragment extends ComicFragment {
         if (databaseManager.isFavorite(lastComicNumber)) {
             //new DeleteComicImageTask(lastComicNumber).execute(false);
             removeFavorite(lastComicNumber, false);
-            item.setIcon(R.drawable.ic_favorite_outline);
+            item.setIcon(R.drawable.ic_favorite_off_24dp);
         } else {
             //save image to internal storage
             //new SaveComicImageTask(lastComicNumber).execute(false);
             addFavorite(lastComicNumber, false);
-            item.setIcon(R.drawable.ic_action_favorite);
+            item.setIcon(R.drawable.ic_favorite_on_24dp);
         }
         return true;
     }

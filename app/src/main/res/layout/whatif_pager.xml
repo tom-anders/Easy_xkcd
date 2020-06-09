@@ -34,7 +34,7 @@
         android:layout_gravity="bottom|right"
         android:elevation="4dp"
         app:layout_anchorGravity="bottom|right|end"
-        android:src="@mipmap/ic_shuffle"
+        android:src="@drawable/ic_outline_shuffle_24dp"
         app:layout_behavior="de.tap.easy_xkcd.misc.ScrollAwareFABBehavior"
         app:fabSize="normal"
         android:layout_margin="16dp" />
