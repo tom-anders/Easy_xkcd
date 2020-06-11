@@ -330,9 +330,8 @@
     <string name="pref_alt_style">Estilo</string>
     <string name="snackbar_survey">Tem uns minutos e deseja ajudar a melhorar esse aplicativo?</string>
     <string name="snackbar_survey_oc">Responda à pesquisa</string>
-    <string name="pref_navbar">Barra de navegação colorida</string>
     <string name="pref_update_mobile">Atualizar em dados móveis</string>
-    <string name="pref_update_mobile_sum">Quando desabilitado, quadrinhos offline e artigos do What If são atualizados apenas no WiFi</string>
+    <string name="pref_update_mobile_sum">Quando desabilitado, quadrinhos offline e artigos do What If são atualizados apenas no Wi-Fi</string>
     <string name="pref_alt_sharing">Texto alt &#38; compartilhamento</string>
     <string name="pref_alt_sharing_sum">Configure o comportamento do texto alternativo e compartilhamento</string>
     <string name="pref_night_options">Opções noturnas</string>
