@@ -100,7 +100,6 @@ public class PrefHelper {
     private static final String ALT_ACTIVATION = "pref_alt_activation";
     private static final String SURVEY_SNACKBAR = "survey_snackbar";
     private static final String CUSTOM_THEMES_SNACKBAR = "custom_themes_snackbar";
-    private static final String COLORED_NAVBAR = "pref_navbar";
     private static final String MOBILE_ENABLED = "pref_update_mobile";
     private static final String OFFLINE_PATH = "pref_offline_path";
     private static final String DOUBLE_TAP_FAV = "pref_doubletap";
@@ -686,10 +685,6 @@ public class PrefHelper {
             return result;
         }
         return i;
-    }
-
-    public boolean colorNavbar() {
-        return prefs.getBoolean(COLORED_NAVBAR, true);
     }
 
     public boolean mobileEnabled() {

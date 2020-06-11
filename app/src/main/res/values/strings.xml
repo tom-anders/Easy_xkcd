@@ -349,7 +349,6 @@
     <string name="pref_alt_style">Style</string>
     <string name="snackbar_survey">Got a few minutes and want to help improve this app?</string>
     <string name="snackbar_survey_oc">Take survey</string>
-    <string name="pref_navbar">Colored Navigation Bar</string>
     <string name="pref_update_mobile">Update on mobile data</string>
     <string name="pref_update_mobile_sum">When disabled, offline comics and what-if articles are only updated on Wi-Fi</string>
     <string name="pref_alt_sharing">Alt text &#38; sharing</string>
