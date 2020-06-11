@@ -20,8 +20,10 @@ package de.tap.easy_xkcd.fragments.overview;
 
 import android.content.Context;
 import android.content.DialogInterface;
+import android.graphics.Color;
 import android.os.Bundle;
-import androidx.core.app.SharedElementCallback;
+
+import androidx.annotation.ColorInt;
 import androidx.core.content.ContextCompat;
 import androidx.appcompat.app.AlertDialog;
 import android.transition.Slide;
@@ -40,6 +42,8 @@ import android.widget.ListView;
 import android.widget.TextView;
 
 import com.tap.xkcd_reader.R;
+
+import java.util.Locale;
 
 import de.tap.easy_xkcd.database.RealmComic;
 import timber.log.Timber;
@@ -103,37 +107,38 @@ public class OverviewListFragment extends OverviewBaseFragment {
         @Override
         public View getView(int position, View view, ViewGroup parent) {
             ViewHolder holder;
+            @ColorInt int accentColor = themePrefs.nightThemeEnabled() ? themePrefs.getAccentColorNight() : themePrefs.getAccentColor();
             if (view == null) {
                 holder = new ViewHolder();
                 view = inflater.inflate(R.layout.overview_item, parent, false);
-                holder.textView = (TextView) view.findViewById(R.id.tv);
+                holder.title = view.findViewById(R.id.tv);
+                holder.unreadMark = view.findViewById(R.id.unread);
+                holder.background = view.findViewById(R.id.background);
+                holder.unreadMark.setBackgroundColor(accentColor);
                 view.setTag(holder);
             } else {
                 holder = (ViewHolder) view.getTag();
             }
             RealmComic comic = comics.get(position);
-            String label = comic.getComicNumber() + " " + comic.getTitle();
+            String label = String.format(Locale.ROOT, "%d: %s", comic.getComicNumber(), comic.getTitle());
             if (comic.isRead() && !prefHelper.overviewFav()) {
-                if (themePrefs.nightThemeEnabled())
-                    holder.textView.setTextColor(ContextCompat.getColor(getActivity(), android.R.color.tertiary_text_light));
-                else
-                    holder.textView.setTextColor(ContextCompat.getColor(getActivity(), R.color.Read));
+                holder.unreadMark.setVisibility(View.INVISIBLE);
+                holder.background.setBackgroundColor(0);
             } else {
-                if (themePrefs.nightThemeEnabled())
-                    holder.textView.setTextColor(ContextCompat.getColor(getActivity(), R.color.Read));
-                else
-                    holder.textView.setTextColor(ContextCompat.getColor(getActivity(), android.R.color.tertiary_text_light));
+                holder.unreadMark.setVisibility(View.VISIBLE);
+                @ColorInt int accentWithAlpha = accentColor & (0x1EFFFFFF);
+                holder.background.setBackgroundColor(accentWithAlpha);
             }
             if (comic.getComicNumber() == bookmark) {
                 TypedValue typedValue = new TypedValue();
                 getActivity().getTheme().resolveAttribute(R.attr.colorAccent, typedValue, true);
-                holder.textView.setTextColor(typedValue.data);
+                holder.title.setTextColor(typedValue.data);
             }
-            holder.textView.setText(label);
-            holder.textView.setTransitionName(String.valueOf(comic.getComicNumber()));
+            holder.title.setText(label);
+            holder.title.setTransitionName(String.valueOf(comic.getComicNumber()));
 
             if (comic.getComicNumber() == lastComicNumber) {
-                lastTitle = holder.textView;
+                lastTitle = holder.title;
                 startPostponedEnterTransition();
             }
             Timber.d("loaded %d", comic.getComicNumber());
@@ -142,7 +147,9 @@ public class OverviewListFragment extends OverviewBaseFragment {
     }
 
     public static class ViewHolder {
-        public TextView textView;
+        public TextView title;
+        public View unreadMark;
+        public View background;
     }
 
     @Override
