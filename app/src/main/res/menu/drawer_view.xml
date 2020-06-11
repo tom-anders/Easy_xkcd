@@ -20,11 +20,11 @@
             android:id="@+id/nav_browser"
             android:checked="true"
             android:title="@string/nv_comicbrowser"
-            android:icon="@mipmap/ic_nav_browser"/>
+            android:icon="@drawable/ic_outline_view_carousel_24dp"/>
         <item
             android:id="@+id/nav_favorites"
             android:title="@string/nv_favorites"
-            android:icon="@drawable/ic_action_favorite"
+            android:icon="@drawable/ic_favorite_off_24dp"
             />
         <item
             android:id="@+id/nav_whatif"
@@ -38,7 +38,7 @@
         <item
             android:id="@+id/nav_settings"
             android:title="@string/action_settings"
-            android:icon="@mipmap/ic_nav_settings"
+            android:icon="@drawable/ic_outline_settings_24dp"
             />
         <item
         android:id="@+id/nav_feedback"

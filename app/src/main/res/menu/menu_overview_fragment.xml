@@ -4,12 +4,12 @@
     <item android:id="@+id/action_overview_style"
         android:title="@string/nv_style"
         app:showAsAction="always"
-        android:icon="@drawable/ic_action_sort" />
+        android:icon="@drawable/ic_outline_view_quilt_24dp" />
 
     <item android:id="@+id/action_favorite"
         android:title="@string/nv_favorites"
         app:showAsAction="always"
-        android:icon="@drawable/ic_favorite_outline"/>
+        android:icon="@drawable/ic_favorite_off_24dp"/>
 
     <item android:id="@+id/action_boomark"
         app:showAsAction="never"

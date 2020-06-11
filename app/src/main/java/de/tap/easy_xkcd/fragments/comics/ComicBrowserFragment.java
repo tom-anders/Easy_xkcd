@@ -21,16 +21,12 @@ package de.tap.easy_xkcd.fragments.comics;
 import android.Manifest;
 import android.app.AlertDialog;
 import android.content.Context;
-import android.content.DialogInterface;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
-import android.graphics.drawable.Drawable;
 import android.net.Uri;
-import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Environment;
 
-import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
 import com.bumptech.glide.request.RequestOptions;
@@ -41,37 +37,29 @@ import com.google.android.material.snackbar.Snackbar;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 import androidx.core.content.FileProvider;
-import androidx.swiperefreshlayout.widget.CircularProgressDrawable;
 import androidx.viewpager.widget.ViewPager;
 
-import android.text.Html;
 import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.RelativeLayout;
-import android.widget.TextView;
 import android.widget.Toast;
 
-import com.bumptech.glide.Glide;
 import com.bumptech.glide.load.DataSource;
 import com.bumptech.glide.load.engine.GlideException;
 import com.bumptech.glide.request.RequestListener;
-import com.bumptech.glide.request.target.SimpleTarget;
 import com.bumptech.glide.request.target.Target;
-import com.bumptech.glide.request.transition.Transition;
 import com.tap.xkcd_reader.R;
 
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.util.Arrays;
 
 import de.tap.easy_xkcd.Activities.MainActivity;
 import de.tap.easy_xkcd.GlideApp;
 import de.tap.easy_xkcd.database.DatabaseManager;
 import de.tap.easy_xkcd.database.RealmComic;
-import io.realm.Realm;
 import io.realm.RealmResults;
 import timber.log.Timber;
 
@@ -242,7 +230,7 @@ public class ComicBrowserFragment extends ComicFragment {
         if (databaseManager.isFavorite(lastComicNumber)) {
             //new DeleteComicImageTask(lastComicNumber).execute(true);
             removeFavorite(lastComicNumber, true);
-            item.setIcon(R.drawable.ic_favorite_outline);
+            item.setIcon(R.drawable.ic_favorite_off_24dp);
         } else {
             if (!(ContextCompat.checkSelfPermission(getActivity(), Manifest.permission.WRITE_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED)) {
                 ActivityCompat.requestPermissions(getActivity(), new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE}, 2);
@@ -250,7 +238,7 @@ public class ComicBrowserFragment extends ComicFragment {
             }
             //new SaveComicImageTask(lastComicNumber).execute(true);
             addFavorite(lastComicNumber, true);
-            item.setIcon(R.drawable.ic_action_favorite);
+            item.setIcon(R.drawable.ic_favorite_on_24dp);
         }
         return true;
     }

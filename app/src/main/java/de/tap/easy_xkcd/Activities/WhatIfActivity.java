@@ -23,7 +23,6 @@ import android.webkit.WebView;
 import android.webkit.WebViewClient;
 import android.widget.ImageView;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.google.android.material.snackbar.BaseTransientBottomBar;
 import com.google.android.material.snackbar.Snackbar;
@@ -347,7 +346,7 @@ public class WhatIfActivity extends BaseActivity {
             menu.findItem(R.id.action_next).setVisible(false);
         }
         if (prefHelper.checkWhatIfFav(WhatIfIndex))
-            menu.findItem(R.id.action_favorite).setIcon(ContextCompat.getDrawable(this, R.drawable.ic_action_favorite)).setTitle(R.string.action_favorite_remove);
+            menu.findItem(R.id.action_favorite).setIcon(ContextCompat.getDrawable(this, R.drawable.ic_favorite_on_24dp)).setTitle(R.string.action_favorite_remove);
 
         return super.onPrepareOptionsMenu(menu);
     }

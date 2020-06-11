@@ -21,7 +21,6 @@ package de.tap.easy_xkcd.fragments.overview;
 import android.content.DialogInterface;
 import android.os.Bundle;
 import androidx.annotation.Nullable;
-import androidx.transition.TransitionInflater;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentTransaction;
 import androidx.appcompat.widget.Toolbar;
@@ -34,8 +33,6 @@ import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.bumptech.glide.Glide;
-import com.bumptech.glide.RequestManager;
 import com.bumptech.glide.request.RequestOptions;
 import com.tap.xkcd_reader.R;
 
@@ -43,7 +40,6 @@ import java.util.Random;
 
 import de.tap.easy_xkcd.Activities.MainActivity;
 import de.tap.easy_xkcd.GlideApp;
-import de.tap.easy_xkcd.GlideRequests;
 import de.tap.easy_xkcd.database.DatabaseManager;
 import de.tap.easy_xkcd.database.RealmComic;
 import de.tap.easy_xkcd.fragments.comics.ComicBrowserFragment;
@@ -226,10 +222,10 @@ public abstract class OverviewBaseFragment extends Fragment {
 
         MenuItem fav = menu.findItem(R.id.action_favorite);
         if (!prefHelper.overviewFav()) {
-            fav.setIcon(R.drawable.ic_favorite_outline);
+            fav.setIcon(R.drawable.ic_favorite_off_24dp);
             fav.setTitle(R.string.nv_favorites);
         } else {
-            fav.setIcon(R.drawable.ic_action_favorite);
+            fav.setIcon(R.drawable.ic_favorite_on_24dp);
             fav.setTitle(R.string.action_overview);
         }
 

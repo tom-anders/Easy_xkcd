@@ -249,10 +249,10 @@ public abstract class OverviewRecyclerBaseFragment extends OverviewBaseFragment 
         switch (item.getItemId()) {
             case R.id.action_favorite:
                 if (prefHelper.overviewFav()) {
-                    item.setIcon(R.drawable.ic_favorite_outline);
+                    item.setIcon(R.drawable.ic_favorite_off_24dp);
                     item.setTitle(R.string.nv_favorites);
                 } else {
-                    item.setIcon(R.drawable.ic_action_favorite);
+                    item.setIcon(R.drawable.ic_favorite_on_24dp);
                     item.setTitle(R.string.action_overview);
                 }
                 prefHelper.setOverviewFav(!prefHelper.overviewFav());
