@@ -286,6 +286,7 @@
 
     <!-- preference strings -->
     <string name="pref_night">Night Theme</string>
+    <string name="pref_night_system">Use system setting</string>
     <string name="pref_invert">Invert black/white images</string>
     <string name="pref_detect_color">Invert images containing color</string>
     <string name="pref_amoled">AMOLED night mode</string>

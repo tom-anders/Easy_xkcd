@@ -30,6 +30,7 @@ import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.preference.Preference;
+import android.preference.PreferenceCategory;
 import android.preference.PreferenceFragment;
 import androidx.core.app.ActivityCompat;
 import androidx.fragment.app.DialogFragment;
@@ -38,8 +39,10 @@ import androidx.core.content.ContextCompat;
 import androidx.appcompat.app.AlertDialog;
 import androidx.cardview.widget.CardView;
 
+import android.preference.SwitchPreference;
 import android.view.LayoutInflater;
 import android.view.View;
+import android.widget.Switch;
 import android.widget.TextView;
 import android.widget.TimePicker;
 import android.widget.Toast;
@@ -78,6 +81,7 @@ public class NestedPreferenceFragment extends PreferenceFragment {
     private static final String NIGHT_THEME = "pref_night";
     private static final String AMOLED_NIGHT = "pref_amoled";
     private static final String AUTO_NIGHT = "pref_auto_night";
+    private static final String NIGHT_SYSTEM = "pref_night_system";
     private static final String AUTO_NIGHT_START = "pref_auto_night_start";
     private static final String AUTO_NIGHT_END = "pref_auto_night_end";
     private static final String INVERT_COLORS = "pref_invert";
@@ -361,6 +365,32 @@ public class NestedPreferenceFragment extends PreferenceFragment {
                 start.setSummary(themePrefs.getStartSummary());
                 end.setSummary(themePrefs.getEndSummary());
 
+                if (Build.VERSION.SDK_INT < 29) {
+                    getPreferenceScreen().removePreference(findPreference(NIGHT_SYSTEM));
+                } else {
+                    findPreference(NIGHT_THEME).setEnabled(!((SwitchPreference) findPreference(NIGHT_SYSTEM)).isChecked());
+                    findPreference(AUTO_NIGHT).setEnabled(!((SwitchPreference) findPreference(NIGHT_SYSTEM)).isChecked());
+
+                    if (((SwitchPreference) findPreference(NIGHT_SYSTEM)).isChecked()) {
+                        ((SwitchPreference) findPreference(NIGHT_THEME)).setEnabled(false);
+                    }
+                }
+
+                findPreference(NIGHT_SYSTEM).setOnPreferenceChangeListener(new Preference.OnPreferenceChangeListener() {
+                    @Override
+                    public boolean onPreferenceChange(Preference preference, Object newValue) {
+                        getActivity().setResult(Activity.RESULT_OK);
+                        Intent intent = getActivity().getIntent();
+                        intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK
+                                | Intent.FLAG_ACTIVITY_NO_ANIMATION);
+                        getActivity().overridePendingTransition(0, 0);
+                        getActivity().finish();
+
+                        getActivity().overridePendingTransition(0, 0);
+                        startActivity(intent);
+                        return true;
+                    }
+                });
 
                 findPreference(NIGHT_THEME).setOnPreferenceChangeListener(new Preference.OnPreferenceChangeListener() {
                     @Override

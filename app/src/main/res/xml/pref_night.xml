@@ -5,10 +5,14 @@
         android:title="@string/pref_night"
         android:defaultValue="false" />
 
+    <SwitchPreference
+        android:key="pref_night_system"
+        android:title="@string/pref_night_system"
+        android:defaultValue="true" />
+
     <Preference
         android:key="pref_color_accent"
         android:title="@string/theme_accent_color"
-        android:dependency="pref_night"
         android:persistent="false"
         />
 
@@ -16,14 +20,12 @@
         android:key="pref_amoled"
         android:title="@string/pref_amoled"
         android:summary="@string/pref_amoled_sum"
-        android:defaultValue="false"
-        android:dependency="pref_night" />
+        android:defaultValue="false" />
 
     <SwitchPreference
         android:key="pref_invert"
         android:title="@string/pref_invert"
-        android:defaultValue="true"
-        android:dependency="pref_night" />
+        android:defaultValue="true" />
 
     <SwitchPreference
         android:key="pref_detect_color"
@@ -33,8 +35,7 @@
 
     <SwitchPreference
         android:title="@string/pref_auto_night"
-        android:key="pref_auto_night"
-        android:dependency="pref_night"/>
+        android:key="pref_auto_night" />
 
     <Preference
         android:title="@string/pref_auto_night_start"

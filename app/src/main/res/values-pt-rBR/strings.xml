@@ -478,5 +478,6 @@
     Obrigado por usar esse aplicativo!
     </string>
     <string name="chooser_title">Abrir com…</string>
+    <string name="pref_night_system">Use system setting</string>
 
 </resources>

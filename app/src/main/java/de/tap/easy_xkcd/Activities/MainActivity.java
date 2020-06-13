@@ -826,7 +826,7 @@ public class MainActivity extends BaseActivity {
 
         menu.findItem(R.id.action_donate).setVisible(!prefHelper.hideDonate());
         menu.findItem(R.id.action_night_mode).setChecked(themePrefs.nightEnabledThemeIgnoreAutoNight());
-        menu.findItem(R.id.action_night_mode).setVisible(!themePrefs.autoNightEnabled());
+        menu.findItem(R.id.action_night_mode).setVisible(!themePrefs.autoNightEnabled() && !themePrefs.useSystemNightTheme());
         return true;
     }
 

@@ -344,4 +344,5 @@
     Thanks for using the app!
     </string>
     <string name="chooser_title">Open with…</string>
+    <string name="pref_night_system">Use system setting</string>
 </resources>

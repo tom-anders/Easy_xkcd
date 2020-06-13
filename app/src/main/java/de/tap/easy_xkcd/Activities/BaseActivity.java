@@ -2,6 +2,7 @@ package de.tap.easy_xkcd.Activities;
 
 import android.app.ActivityManager;
 import android.content.pm.ActivityInfo;
+import android.content.res.Configuration;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Color;
@@ -21,6 +22,7 @@ import com.tap.xkcd_reader.R;
 import androidx.core.content.ContextCompat;
 import de.tap.easy_xkcd.utils.PrefHelper;
 import de.tap.easy_xkcd.utils.ThemePrefs;
+import timber.log.Timber;
 
 public abstract class BaseActivity extends AppCompatActivity {
     protected PrefHelper prefHelper;
@@ -66,7 +68,9 @@ public abstract class BaseActivity extends AppCompatActivity {
             if (themePrefs.nightThemeEnabled()) {
                 uiOptions = uiOptions & Integer.reverse(flagForLightNavBar);
 
-                if (backgroundColor.type >= TypedValue.TYPE_FIRST_COLOR_INT && backgroundColor.type <= TypedValue.TYPE_LAST_COLOR_INT) {
+                if (themePrefs.amoledThemeEnabled()) {
+                    navBarColor = Color.BLACK;
+                } else if (backgroundColor.type >= TypedValue.TYPE_FIRST_COLOR_INT && backgroundColor.type <= TypedValue.TYPE_LAST_COLOR_INT) {
                     navBarColor = backgroundColor.data;
                 } else {
                     navBarColor = Color.BLACK;
