@@ -56,7 +56,7 @@ dependencies {
     annotationProcessor 'com.github.bumptech.glide:compiler:4.9.0'
 
     implementation 'com.github.chrisbanes:PhotoView:2.2.0'
-    implementation 'org.jsoup:jsoup:1.12.1'
+    implementation 'org.jsoup:jsoup:1.13.1'
     implementation 'jp.wasabeef:recyclerview-animators:3.0.0'
     implementation 'com.anjlab.android.iab.v3:library:1.0.39'
     implementation 'com.jakewharton:butterknife:7.0.1'
