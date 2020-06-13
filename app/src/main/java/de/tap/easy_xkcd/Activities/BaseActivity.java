@@ -68,7 +68,9 @@ public abstract class BaseActivity extends AppCompatActivity {
             if (themePrefs.nightThemeEnabled()) {
                 uiOptions = uiOptions & Integer.reverse(flagForLightNavBar);
 
-                if (backgroundColor.type >= TypedValue.TYPE_FIRST_COLOR_INT && backgroundColor.type <= TypedValue.TYPE_LAST_COLOR_INT) {
+                if (themePrefs.amoledThemeEnabled()) {
+                    navBarColor = Color.BLACK;
+                } else if (backgroundColor.type >= TypedValue.TYPE_FIRST_COLOR_INT && backgroundColor.type <= TypedValue.TYPE_LAST_COLOR_INT) {
                     navBarColor = backgroundColor.data;
                 } else {
                     navBarColor = Color.BLACK;
