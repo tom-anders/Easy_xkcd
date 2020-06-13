@@ -29,7 +29,7 @@
         <item
             android:id="@+id/nav_whatif"
             android:title="@string/nv_whatif"
-            android:icon="@mipmap/ic_nav_whatif"
+            android:icon="@drawable/ic_outline_format_align_left_24dp"
             android:visible="true"
             />
     </group>
@@ -43,12 +43,12 @@
         <item
         android:id="@+id/nav_feedback"
         android:title="@string/nv_feedback"
-        android:icon="@mipmap/ic_nav_feedback"
+        android:icon="@drawable/ic_outline_feedback_24dp"
         />
         <item
             android:id="@+id/nav_about"
             android:title="@string/nv_about"
-            android:icon="@mipmap/ic_nav_about"
+            android:icon="@drawable/ic_outline_info_24dp"
             />
     </group>
 
