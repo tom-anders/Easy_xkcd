@@ -24,10 +24,12 @@ import android.app.Activity;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.content.res.ColorStateList;
+import android.content.res.Configuration;
 import android.graphics.Bitmap;
 import android.graphics.Color;
 import android.graphics.ColorFilter;
 import android.graphics.ColorMatrixColorFilter;
+import android.os.Build;
 import android.preference.PreferenceManager;
 import com.google.android.material.navigation.NavigationView;
 import androidx.core.content.ContextCompat;
@@ -38,6 +40,8 @@ import com.tap.xkcd_reader.R;
 
 import java.util.Calendar;
 
+import timber.log.Timber;
+
 public class ThemePrefs {
     private Context context;
 
@@ -47,6 +51,7 @@ public class ThemePrefs {
     private static final String COLOR_ACCENT = "pref_color_accent";
     private static final String COLOR_ACCENT_NIGHT = "pref_color_accent_night";
     private static final String NIGHT_THEME = "pref_night";
+    private static final String NIGHT_SYSTEM = "pref_night_system";
     private static final String AMOLED_NIGHT = "pref_amoled";
     private static final String DETECT_COLOR = "pref_detect_color";
     private static final String AUTO_NIGHT = "pref_auto_night";
@@ -124,9 +129,18 @@ public class ThemePrefs {
         return getPrefs().getBoolean(NIGHT_THEME, false);
     }
 
+    public boolean useSystemNightTheme() {
+        return Build.VERSION.SDK_INT >= 29 && getPrefs().getBoolean(NIGHT_SYSTEM, true);
+    }
+
     public boolean nightThemeEnabled() {
         try {
-            if (getPrefs().getBoolean(NIGHT_THEME, false) && autoNightEnabled()) {
+            if (useSystemNightTheme()) {
+                // Use system setting in Android 10 and above
+                final int systemNightMode = context.getResources().getConfiguration().uiMode & Configuration.UI_MODE_NIGHT_MASK;
+                final boolean nightThemeEnabled = (systemNightMode == Configuration.UI_MODE_NIGHT_YES);
+                return nightThemeEnabled;
+            } else if (getPrefs().getBoolean(NIGHT_THEME, false) && autoNightEnabled()) {
                 int hour = Calendar.getInstance().get(Calendar.HOUR_OF_DAY);
                 int minute = Calendar.getInstance().get(Calendar.MINUTE);
                 int[] start = getAutoNightStart();

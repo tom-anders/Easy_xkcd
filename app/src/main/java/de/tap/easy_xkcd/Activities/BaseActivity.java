@@ -2,6 +2,7 @@ package de.tap.easy_xkcd.Activities;
 
 import android.app.ActivityManager;
 import android.content.pm.ActivityInfo;
+import android.content.res.Configuration;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Color;
@@ -21,6 +22,7 @@ import com.tap.xkcd_reader.R;
 import androidx.core.content.ContextCompat;
 import de.tap.easy_xkcd.utils.PrefHelper;
 import de.tap.easy_xkcd.utils.ThemePrefs;
+import timber.log.Timber;
 
 public abstract class BaseActivity extends AppCompatActivity {
     protected PrefHelper prefHelper;
