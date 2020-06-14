@@ -21,6 +21,8 @@ package de.tap.easy_xkcd.fragments.overview;
 import android.content.DialogInterface;
 import android.graphics.Bitmap;
 import android.graphics.Color;
+
+import androidx.annotation.NonNull;
 import androidx.core.content.ContextCompat;
 import androidx.appcompat.app.AlertDialog;
 import androidx.cardview.widget.CardView;
@@ -57,7 +59,7 @@ public abstract class OverviewRecyclerBaseFragment extends OverviewBaseFragment 
     protected RVAdapter rvAdapter;
     protected FastScrollRecyclerView rv;
 
-    public abstract class RVAdapter extends RecyclerView.Adapter<RVAdapter.ComicViewHolder> {
+    public abstract class RVAdapter extends RecyclerView.Adapter<RVAdapter.ComicViewHolder> implements FastScrollRecyclerView.SectionedAdapter {
 
         @Override
         public int getItemCount() {
@@ -150,6 +152,12 @@ public abstract class OverviewRecyclerBaseFragment extends OverviewBaseFragment 
         @Override
         public void onAttachedToRecyclerView(RecyclerView recyclerView) {
             super.onAttachedToRecyclerView(recyclerView);
+        }
+
+        @NonNull
+        @Override
+        public String getSectionName(int position) {
+            return String.valueOf((comics.size() - position) / 10 * 10);
         }
 
         public class ComicViewHolder extends RecyclerView.ViewHolder {
