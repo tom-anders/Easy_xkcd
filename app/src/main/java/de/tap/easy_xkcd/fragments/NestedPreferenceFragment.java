@@ -374,23 +374,23 @@ public class NestedPreferenceFragment extends PreferenceFragment {
                     if (((SwitchPreference) findPreference(NIGHT_SYSTEM)).isChecked()) {
                         ((SwitchPreference) findPreference(NIGHT_THEME)).setEnabled(false);
                     }
+                
+                    findPreference(NIGHT_SYSTEM).setOnPreferenceChangeListener(new Preference.OnPreferenceChangeListener() {
+                        @Override
+                        public boolean onPreferenceChange(Preference preference, Object newValue) {
+                            getActivity().setResult(Activity.RESULT_OK);
+                            Intent intent = getActivity().getIntent();
+                            intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK
+                                    | Intent.FLAG_ACTIVITY_NO_ANIMATION);
+                            getActivity().overridePendingTransition(0, 0);
+                            getActivity().finish();
+
+                            getActivity().overridePendingTransition(0, 0);
+                            startActivity(intent);
+                            return true;
+                        }
+                    });
                 }
-
-                findPreference(NIGHT_SYSTEM).setOnPreferenceChangeListener(new Preference.OnPreferenceChangeListener() {
-                    @Override
-                    public boolean onPreferenceChange(Preference preference, Object newValue) {
-                        getActivity().setResult(Activity.RESULT_OK);
-                        Intent intent = getActivity().getIntent();
-                        intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK
-                                | Intent.FLAG_ACTIVITY_NO_ANIMATION);
-                        getActivity().overridePendingTransition(0, 0);
-                        getActivity().finish();
-
-                        getActivity().overridePendingTransition(0, 0);
-                        startActivity(intent);
-                        return true;
-                    }
-                });
 
                 findPreference(NIGHT_THEME).setOnPreferenceChangeListener(new Preference.OnPreferenceChangeListener() {
                     @Override
