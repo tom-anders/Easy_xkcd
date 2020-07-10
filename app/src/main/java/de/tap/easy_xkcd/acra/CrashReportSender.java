@@ -7,6 +7,7 @@ import android.net.Uri;
 import org.acra.ReportField;
 import org.acra.collections.ImmutableSet;
 import org.acra.collector.CrashReportData;
+import org.acra.model.Element;
 import org.acra.sender.ReportSender;
 import org.acra.config.ACRAConfiguration;
 
@@ -31,7 +32,7 @@ public class CrashReportSender implements ReportSender {
     }
 
     private String[] buildSubjectBody(Context context, CrashReportData errorContent) {
-        ImmutableSet<ReportField> fields = this.config.getReportFields();
+        ImmutableSet<ReportField> fields = this.config.reportContent();
         if (fields.isEmpty()) {
             return new String[]{"No ACRA Report Fields found."};
         }
@@ -43,10 +44,11 @@ public class CrashReportSender implements ReportSender {
             builder.append(errorContent.get(field));
             builder.append('\n');
             if ("STACK_TRACE".equals(field.toString())) {
-                String stackTrace = errorContent.get(field);
+                Element stackTrace = errorContent.get(field);
                 if (stackTrace != null) {
+                    String stackTraceString = stackTrace.toString();
                     subject = context.getPackageName() + ": "
-                            + stackTrace.substring(0, stackTrace.indexOf('\n'));
+                            + stackTraceString.substring(0, stackTraceString.indexOf('\n'));
                     if (subject.length() > 72) {
                         subject = subject.substring(0, 72);
                     }
