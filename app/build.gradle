@@ -70,7 +70,7 @@ dependencies {
     implementation 'com.squareup.okhttp3:okhttp:4.7.2'
     implementation 'uz.shift:colorpicker:0.5@aar'
     implementation 'io.realm:realm-android:0.87.5'
-    annotationProcessor 'io.realm:realm-android:0.87.4'
+    annotationProcessor 'io.realm:realm-android:0.87.5'
 
     implementation 'com.simplecityapps:recyclerview-fastscroll:2.0.1'
 
