@@ -68,7 +68,7 @@ dependencies {
         transitive = true
     }
     implementation 'com.nbsp:library:1.09'
-    implementation 'com.squareup.okhttp3:okhttp:4.7.2'
+    implementation 'com.squareup.okhttp3:okhttp:4.8.0'
     implementation 'uz.shift:colorpicker:0.5@aar'
     implementation 'io.realm:realm-android:0.87.5'
     annotationProcessor 'io.realm:realm-android:0.87.5'
