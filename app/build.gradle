@@ -67,7 +67,7 @@ dependencies {
     implementation('com.turhanoz.android:reactivedirectorychooser:0.0.12@aar') {
         transitive = true
     }
-    implementation 'com.nbsp:library:1.03'
+    implementation 'com.nbsp:library:1.09'
     implementation 'com.squareup.okhttp3:okhttp:4.7.2'
     implementation 'uz.shift:colorpicker:0.5@aar'
     implementation 'io.realm:realm-android:0.87.5'
