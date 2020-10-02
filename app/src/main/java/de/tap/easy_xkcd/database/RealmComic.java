@@ -245,8 +245,16 @@ public class RealmComic extends RealmObject {
             if (!dir.exists()) {
                 dir.mkdirs();
             }
-            try (FileOutputStream fos = new FileOutputStream(sdCard.getAbsolutePath() + RealmComic.OFFLINE_PATH + "/" + comicFileName)) {
-                fos.write(response.body().bytes());
+
+            String comicFilePath = sdCard.getAbsolutePath() + RealmComic.OFFLINE_PATH + "/" + comicFileName;
+            File comicFile = new File(comicFilePath);
+
+            if (!comicFile.exists() || prefHelper.replaceOffline()) {
+                try (FileOutputStream fos = new FileOutputStream(sdCard.getAbsolutePath() + RealmComic.OFFLINE_PATH + "/" + comicFileName)) {
+                    fos.write(response.body().bytes());
+                }
+            } else {
+                Timber.d("Skipping saving existing comic.");
             }
         } catch (Exception e) {
             Timber.e("Error at comic %d: Saving to external storage failed: %s", comicNumber, e.getMessage());

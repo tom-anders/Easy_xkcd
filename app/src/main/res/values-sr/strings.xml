@@ -208,6 +208,8 @@
     <string name="pref_large_sum">Учитавање великих слика ако их има (нпр. #657). Може да утиче на перформансе на старијим уређајима</string>
     <string name="pref_offline">Режим ван везе</string>
     <string name="pref_offline_sum">Преузимање свих стрипова на унутрашње складиште. Нови стрипови ће бити додавани аутоматски</string>
+    <string name="pref_replace_offline">Замените преузимања</string>
+    <string name="pref_replace_offline_sum">Када омогућавате офлајн режим, преузмите и замените постојеће стрип датотеке.</string>
     <string name="pref_offline_whatif">Режим ван везе за "What if?"</string>
     <string name="pref_mobile">Дели мобилне везе</string>
     <string name="pref_mobile_sum">Дељење m.xkcd.com уместо xkcd.com</string>

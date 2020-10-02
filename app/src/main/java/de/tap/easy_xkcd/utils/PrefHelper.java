@@ -52,6 +52,7 @@ public class PrefHelper {
     private int randIndex = 0;
 
     private static final String FULL_OFFLINE = "pref_offline";
+    private static final String REPLACE_OFFLINE = "pref_replace_offline";
     private static final String COMIC_TITLES = "comic_titles";
     private static final String COMIC_TRANS = "comic_trans";
     private static final String COMIC_URLS = "comic_urls";
@@ -134,6 +135,12 @@ public class PrefHelper {
 
     public void setFullOffline(boolean value) {
         prefs.edit().putBoolean(FULL_OFFLINE, value).apply();
+    }
+
+    public boolean replaceOffline() { return prefs.getBoolean(REPLACE_OFFLINE, true); }
+
+    public void setReplaceOffline(boolean value) {
+        prefs.edit().putBoolean(REPLACE_OFFLINE, value).apply();
     }
 
     public boolean transcriptsFixed() {

@@ -209,6 +209,8 @@
     <string name="pref_large_sum">Cargar las imágenes grandes (como la #657). Es posible que el rendimiento disminuya en dispositivos más viejos </string>
     <string name="pref_offline">Modo sin conexión</string>
     <string name="pref_offline_sum">Descargar todos los cómics en la memoria externa. Nuevos cómics serán añadidos automáticamente. Toma alrededor de ~150MB.</string>
+    <string name="pref_replace_offline">Reemplazar descargas</string>
+    <string name="pref_replace_offline_sum">Al habilitar el modo sin conexión, descargue y reemplace los archivos de cómics existentes.</string>
     <string name="pref_offline_whatif">Modo sin conexión de "What if?"</string>
     <string name="pref_mobile">Compartir enlaces de móvil</string>
     <string name="pref_mobile_sum">Compartir enlaces m.xkcd.com en vez de xkcd.com</string>

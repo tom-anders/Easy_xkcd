@@ -133,6 +133,7 @@
 <string name="pref_random_title" modified="true">在……隐藏 FAB</string>
 <string name="no_connection" modified="true">无连接……</string>
 <string name="pref_offline" modified="true">离线模式</string>
+<string name="pref_replace_offline" modified="true">替换下载</string>
 <string name="loading_offline" modified="true">正在下载漫画……</string>
 <string name="action_browser" modified="true">在浏览器中打开</string>
 <string name="whatif_overview" modified="true">概览</string>
@@ -160,6 +161,7 @@
 <string name="add_bookmark" modified="true">添加书签</string>
 <string name="pref_repair_sum" modified="true">If you see some blank comics or encounter crashes, this might be the solution</string>
 <string name="pref_offline_sum" modified="true">将所有漫画下载至外部存储。新漫画将会自动添加。占用约 150MB。</string>
+<string name="pref_replace_offline_sum" modified="true">启用脱机模式时，下载并替换现有的漫画文件。</string>
 <string name="pref_alt_activation_sum" modified="true">长按或单击</string>
 <string name="favorites_cleared" modified="true">已清除收藏</string>
 <string name="snackbar_survey_oc" modified="true">做一个问卷调查</string>

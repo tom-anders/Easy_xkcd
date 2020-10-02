@@ -304,6 +304,8 @@
     <string name="pref_large_sum">Carrega imagens grandes, se disponível (p.ex., #657). Pode reduzir o desempenho em dispositivos antigos </string>
     <string name="pref_offline">Modo offline</string>
     <string name="pref_offline_sum">Baixa todos os quadrinhos para um armazenamento externo. Novos quadrinhos serão adicionados automaticamente. Ocupa cerca de ~150MB.</string>
+    <string name="pref_replace_offline">Substituir quadrinhos baixados</string>
+    <string name="pref_replace_offline_sum">Ao habilitar o modo offline, baixe e substitua os arquivos de quadrinhos existentes.</string>
     <string name="pref_offline_whatif">Modo offline do "What if?"</string>
     <string name="pref_offline_whatif_sum" translatable="false">~20 MB</string>
     <string name="pref_mobile">Compartilhar links móveis</string>

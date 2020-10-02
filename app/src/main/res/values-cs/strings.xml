@@ -209,6 +209,8 @@
     <string name="pref_large_sum">Načítat velké obrázky pokud jsou dostupné (např. #657). Může snížit výkon na starších přístrojích</string>
     <string name="pref_offline">Offline mód</string>
     <string name="pref_offline_sum">Stáhnout všechny komixy do externího úložiště Nové komixy budou přidány automaticky. Zabere až ~150MB.</string>
+    <string name="pref_replace_offline">Nahradit stahování</string>
+    <string name="pref_replace_offline_sum">Při povolení režimu offline stáhněte a nahraďte stávající komiksové soubory.</string>
     <string name="pref_offline_whatif">&quot;What if?&quot; offline mód</string>
     <string name="pref_mobile">Sdílet mobilní odkazy</string>
     <string name="pref_mobile_sum">Sdílet m.xkcd.com odkazy místo xkcd.com</string>

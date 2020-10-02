@@ -192,6 +192,8 @@
     <string name="pref_large_sum">Lade große Bilder wenn verfügbar (z.B. #657). Kann die Performance auf älteren Geräten beeinträchtigen </string>
     <string name="pref_offline">Offline Modus </string>
     <string name="pref_offline_sum">Sichert alle Comics im externen Speicher. Neue Comics werden automatisch hinzugefügt. Belegt ~150MB Speicher</string>
+    <string name="pref_replace_offline">Ersetzen Sie Downloads </string>
+    <string name="pref_replace_offline_sum">Wenn Sie den Offline-Modus aktivieren, laden Sie vorhandene Comic-Dateien herunter und ersetzen Sie sie.</string>
     <string name="loading_offline_97">Du hättest dein Gesicht sehen sollen!</string>
     <string name="delete_offline">Löscht Comics&#8230;</string>
     <string name="delete_offline_dialog">Willst du wirklich den Offline Modus deaktivieren? Alle Bilder (außer Favoriten) werden gelöscht.</string>

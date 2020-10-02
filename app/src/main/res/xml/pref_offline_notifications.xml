@@ -14,6 +14,11 @@
         android:title="@string/pref_offline" />
     <SwitchPreference
         android:defaultValue="false"
+        android:key="pref_replace_offline"
+        android:summary="@string/pref_replace_offline_sum"
+        android:title="@string/pref_replace_offline" />
+    <SwitchPreference
+        android:defaultValue="false"
         android:key="pref_offline_whatif"
         android:summary="@string/pref_offline_whatif_sum"
         android:title="@string/pref_offline_whatif" />
