@@ -46,6 +46,8 @@ import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers;
 import io.reactivex.rxjava3.annotations.NonNull;
 import io.reactivex.rxjava3.core.Observable;
 import io.reactivex.rxjava3.core.Observer;
+import io.reactivex.rxjava3.core.Single;
+import io.reactivex.rxjava3.core.SingleObserver;
 import io.reactivex.rxjava3.disposables.Disposable;
 import io.reactivex.rxjava3.schedulers.Schedulers;
 import timber.log.Timber;
@@ -96,15 +98,15 @@ public class WhatIfActivity extends BaseActivity {
         prefHelper.setLastWhatIf(articleNumber);
         prefHelper.setWhatifRead(String.valueOf(articleNumber));
 
-        Observable.fromCallable(() -> loadedArticle.getWhatIf())
+        Single.fromCallable(() -> loadedArticle.getWhatIf())
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
-                .subscribe(new Observer<Document>() {
+                .subscribe(new SingleObserver<Document>() {
                     @Override
                     public void onSubscribe(@NonNull Disposable d) { }
 
                     @Override
-                    public void onNext(@NonNull Document doc) {
+                    public void onSuccess(@NonNull Document doc) {
                         web.loadDataWithBaseURL("file:///android_asset/.", doc.html(), "text/html", "UTF-8", null);
                         web.setWebViewClient(new WebViewClient() {
                             @Override
@@ -157,6 +159,10 @@ public class WhatIfActivity extends BaseActivity {
                                 }
                             }
                         });
+
+                        assert getSupportActionBar() != null;
+                        getSupportActionBar().setSubtitle(loadedArticle.getTitle());
+                        unlockRotation();
                     }
 
                     @Override
@@ -165,13 +171,6 @@ public class WhatIfActivity extends BaseActivity {
 
                         if (mProgress != null)
                             mProgress.dismiss();
-                    }
-
-                    @Override
-                    public void onComplete() {
-                        assert getSupportActionBar() != null;
-                        getSupportActionBar().setSubtitle(loadedArticle.getTitle());
-                        unlockRotation();
                     }
                 });
     }
