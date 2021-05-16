@@ -59,6 +59,7 @@ public class WhatIfActivity extends BaseActivity {
     private ProgressDialog mProgress;
     private Article loadedArticle;
 
+    @SuppressLint("ClickableViewAccessibility")
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -76,6 +77,23 @@ public class WhatIfActivity extends BaseActivity {
         web.getSettings().setDisplayZoomControls(false);
         web.getSettings().setLoadWithOverviewMode(true);
         web.getSettings().setTextZoom(prefHelper.getZoom(web.getSettings().getTextZoom()));
+
+        web.setOnTouchListener(new OnSwipeTouchListener(WhatIfActivity.this) {
+            @Override
+            public void onSwipeRight() {
+                if (prefHelper.swipeEnabled() && loadedArticle.getNumber() != 1) {
+                    nextWhatIf(true);
+                }
+            }
+
+            @Override
+            public void onSwipeLeft() {
+                if (prefHelper.swipeEnabled() && loadedArticle.getNumber() != WhatIfFragment.mTitles.size()) {
+                    nextWhatIf(false);
+                }
+
+            }
+        });
 
         if (!getIntent().hasExtra("number")) {
             Timber.w("WhatIfActivity started without valid number given in intent.");
@@ -137,25 +155,6 @@ public class WhatIfActivity extends BaseActivity {
                                 if (animationOnLoaded != null) {
                                     web.startAnimation(animationOnLoaded);
                                     web.setVisibility(View.VISIBLE);
-                                }
-
-                                if (prefHelper.swipeEnabled()) {
-                                    web.setOnTouchListener(new OnSwipeTouchListener(WhatIfActivity.this) {
-                                        @Override
-                                        public void onSwipeRight() {
-                                            if (loadedArticle.getNumber() != 1) {
-                                                nextWhatIf(true);
-                                            }
-                                        }
-
-                                        @Override
-                                        public void onSwipeLeft() {
-                                            if (loadedArticle.getNumber() != WhatIfFragment.mTitles.size()) {
-                                                nextWhatIf(false);
-                                            }
-
-                                        }
-                                    });
                                 }
                             }
                         });
@@ -248,8 +247,9 @@ public class WhatIfActivity extends BaseActivity {
 
             case R.id.action_swipe:
                 item.setChecked(!item.isChecked());
-                //TODO adjust webview member here for the settings to apply immediately!
-                prefHelper.setSwipeEnabled(item.isChecked());
+                prefHelper.setSwipeEnabled(!prefHelper.swipeEnabled());
+
+                // Next/Prev buttons are only visible if swipe is disabled, so reload the menu
                 invalidateOptionsMenu();
                 return true;
 
