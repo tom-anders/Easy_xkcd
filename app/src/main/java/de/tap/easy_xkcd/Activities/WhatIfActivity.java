@@ -55,8 +55,6 @@ public class WhatIfActivity extends BaseActivity {
     @Bind(R.id.wv)
     WebView web;
     private ProgressDialog mProgress;
-    private boolean leftSwipe = false;
-    private boolean rightSwipe = false;
     private Article loadedArticle;
 
     @Override
@@ -81,10 +79,10 @@ public class WhatIfActivity extends BaseActivity {
             Timber.w("WhatIfActivity started without valid number given in intent.");
         }
 
-        loadWhatIf(getIntent().getIntExtra("number", 1));
+        loadWhatIf(getIntent().getIntExtra("number", 1), null);
     }
 
-    private void loadWhatIf(int articleNumber) {
+    private void loadWhatIf(int articleNumber, Animation animationOnLoaded) {
         lockRotation();
         if (!prefHelper.fullOfflineWhatIf()) {
             mProgress = new ProgressDialog(WhatIfActivity.this);
@@ -134,15 +132,8 @@ public class WhatIfActivity extends BaseActivity {
                                 if (mProgress != null)
                                     mProgress.dismiss();
 
-                                if (leftSwipe) {
-                                    leftSwipe = false;
-                                    Animation animation = AnimationUtils.loadAnimation(WhatIfActivity.this, R.anim.slide_in_left);
-                                    web.startAnimation(animation);
-                                    web.setVisibility(View.VISIBLE);
-                                } else if (rightSwipe) {
-                                    rightSwipe = false;
-                                    Animation animation = AnimationUtils.loadAnimation(WhatIfActivity.this, R.anim.slide_in_right);
-                                    web.startAnimation(animation);
+                                if (animationOnLoaded != null) {
+                                    web.startAnimation(animationOnLoaded);
                                     web.setVisibility(View.VISIBLE);
                                 }
 
@@ -258,6 +249,7 @@ public class WhatIfActivity extends BaseActivity {
 
             case R.id.action_swipe:
                 item.setChecked(!item.isChecked());
+                //TODO adjust webview member here for the settings to apply immediately!
                 prefHelper.setSwipeEnabled(item.isChecked());
                 invalidateOptionsMenu();
                 return true;
@@ -281,7 +273,7 @@ public class WhatIfActivity extends BaseActivity {
                 final int randomArticle = mRand.nextInt(prefHelper.getNewestWhatIf());
                 WhatIfFragment.getInstance().getRv().scrollToPosition(WhatIfFragment.mTitles.size() - randomArticle);
 
-                loadWhatIf(randomArticle);
+                loadWhatIf(randomArticle, null);
                 return true;
             case R.id.action_favorite:
                 if (!prefHelper.checkWhatIfFav(loadedArticle.getNumber())) {
@@ -306,27 +298,17 @@ public class WhatIfActivity extends BaseActivity {
      * @param left true if the user chose the previous what-if
      */
     private boolean nextWhatIf(boolean left) {
-        Animation animation;
-        int nextNumber;
-        if (left) {
-            nextNumber = loadedArticle.getNumber() - 1;
-            leftSwipe = true;
-            animation = AnimationUtils.loadAnimation(this, R.anim.slide_out_right);
-        } else {
-            nextNumber = loadedArticle.getNumber() + 1;
-            rightSwipe = true;
-            animation = AnimationUtils.loadAnimation(this, R.anim.slide_out_left);
-        }
-        web.startAnimation(animation);
+        web.startAnimation(AnimationUtils.loadAnimation(this, left ? R.anim.slide_out_right : R.anim.slide_out_left));
         web.setVisibility(View.INVISIBLE);
 
-        prefHelper.setLastWhatIf(nextNumber);
-        prefHelper.setWhatifRead(String.valueOf(nextNumber));
-        loadWhatIf(nextNumber);
+        int nextNumber = left ? loadedArticle.getNumber() - 1 : loadedArticle.getNumber() + 1;
+        loadWhatIf(nextNumber,
+                AnimationUtils.loadAnimation(this, left ? R.anim.slide_in_left : R.anim.slide_in_right));
 
         invalidateOptionsMenu();
 
         try {
+            //TODO this is kinda ugly... can we have some sort of callback?
             WhatIfFragment.getInstance().getRv().scrollToPosition(WhatIfFragment.mTitles.size() - nextNumber);
         } catch (NullPointerException e) {
             Timber.e(e);
