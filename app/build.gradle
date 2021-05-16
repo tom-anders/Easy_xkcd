@@ -24,10 +24,10 @@ android {
             url "https://s3.amazonaws.com/repo.commonsware.com"
         }
         maven {
-            url "http://dl.bintray.com/lukaville/maven"
+            url "https://dl.bintray.com/lukaville/maven"
         }
         maven {
-            url "http://dl.bintray.com/dasar/maven"
+            url "https://dl.bintray.com/dasar/maven"
         }
     }
     lintOptions {
@@ -67,9 +67,16 @@ dependencies {
     implementation('com.turhanoz.android:reactivedirectorychooser:0.0.12@aar') {
         transitive = true
     }
-    implementation 'com.nbsp:library:1.09'
+//    implementation 'com.nbsp:library:1.09'
+    implementation 'com.nbsp:materialfilepicker:1.9.1'
+
     implementation 'com.squareup.okhttp3:okhttp:4.8.0'
-    implementation 'uz.shift:colorpicker:0.5@aar'
+
+    //TODO this lib seems broken (https://github.com/DASAR-zz/ShiftColorPicker/issues/13)
+    // had to manually copy it to app/libs for now
+//    implementation 'uz.shift:colorpicker:0.5@aar'
+    implementation fileTree(dir: 'libs', include: ['*.aar'])
+
     implementation 'io.realm:realm-android:0.87.5'
     annotationProcessor 'io.realm:realm-android:0.87.5'
 
