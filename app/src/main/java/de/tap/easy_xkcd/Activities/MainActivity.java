@@ -320,6 +320,9 @@ public class MainActivity extends BaseActivity {
             if (!fromOnRestart && savedInstanceState == null && prefHelper.launchToOverview()) {
                 currentFragment = CurrentFragment.Overview;
                 showOverview(false);
+            }
+            else if (whatIfIntent) {
+                showWhatifFragment(false);
             } else if (getSupportFragmentManager().findFragmentByTag(FRAGMENT_TAG) == null || newComicFound) {
                 Timber.d("Creating a new Fragment...");
                 switch (currentFragment) {
