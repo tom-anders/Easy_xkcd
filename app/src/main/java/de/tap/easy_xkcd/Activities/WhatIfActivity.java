@@ -41,7 +41,6 @@ import de.tap.easy_xkcd.database.DatabaseManager;
 import de.tap.easy_xkcd.misc.OnSwipeTouchListener;
 import de.tap.easy_xkcd.utils.Article;
 import de.tap.easy_xkcd.fragments.whatIf.WhatIfFavoritesFragment;
-import de.tap.easy_xkcd.fragments.whatIf.WhatIfFragment;
 import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers;
 import io.reactivex.rxjava3.annotations.NonNull;
 import io.reactivex.rxjava3.core.Observable;
@@ -53,11 +52,14 @@ import io.reactivex.rxjava3.schedulers.Schedulers;
 import timber.log.Timber;
 
 public class WhatIfActivity extends BaseActivity {
+    public static final String INTENT_NUMBER = "number";
+    public static final String INTENT_NUM_ARTICLES = "numArticles";
 
     @Bind(R.id.wv)
     WebView web;
     private ProgressDialog mProgress;
     private Article loadedArticle;
+    private int numArticles;
 
     @SuppressLint("ClickableViewAccessibility")
     @Override
@@ -88,16 +90,19 @@ public class WhatIfActivity extends BaseActivity {
 
             @Override
             public void onSwipeLeft() {
-                //TODO Using WhatIfFragment's mTitles here is a bit weird, we should instead know
-                // ourselves how many articles there are.
-                if (prefHelper.swipeEnabled() && loadedArticle.getNumber() != WhatIfFragment.mTitles.size()) {
+                if (prefHelper.swipeEnabled() && loadedArticle.getNumber() != numArticles) {
                     nextWhatIf(false);
                 }
 
             }
         });
 
-        if (!getIntent().hasExtra("number")) {
+        if (!getIntent().hasExtra(INTENT_NUM_ARTICLES)) {
+            Timber.w("WhatIfActivity started without valid number of articles given in intent.");
+        }
+        numArticles = getIntent().getIntExtra(INTENT_NUM_ARTICLES, 1);
+
+        if (!getIntent().hasExtra(INTENT_NUMBER)) {
             Timber.w("WhatIfActivity started without valid number given in intent.");
         }
 
@@ -307,7 +312,7 @@ public class WhatIfActivity extends BaseActivity {
     @Override
     public boolean onPrepareOptionsMenu(Menu menu) {
         menu.findItem(R.id.action_back).setVisible(loadedArticle.getNumber() != 1);
-        menu.findItem(R.id.action_next).setVisible(loadedArticle.getNumber() != WhatIfFragment.mTitles.size());
+        menu.findItem(R.id.action_next).setVisible(loadedArticle.getNumber() != numArticles);
 
         if (menu.findItem(R.id.action_swipe).isChecked()) {
             menu.findItem(R.id.action_back).setVisible(false);

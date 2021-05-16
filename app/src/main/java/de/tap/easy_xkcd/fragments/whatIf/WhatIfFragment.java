@@ -79,7 +79,7 @@ public class WhatIfFragment extends Fragment {
 
     // Used for starting the WhatIfActivity. When the activity finishes,
     // we use this to update our recycler view accordingly
-    private static final int WHATIF_REQUEST_CODE = 1;
+    private static final int WHATIF_REQUEST_CODE = 100;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
@@ -367,7 +367,8 @@ public class WhatIfFragment extends Fragment {
 
     private void displayWhatIf(int number) {
         Intent intent = new Intent(getActivity(), WhatIfActivity.class);
-        intent.putExtra("number", number);
+        intent.putExtra(WhatIfActivity.INTENT_NUMBER, number);
+        intent.putExtra(WhatIfActivity.INTENT_NUM_ARTICLES, mTitles.size());
         startActivityForResult(intent, WHATIF_REQUEST_CODE);
     }
 
