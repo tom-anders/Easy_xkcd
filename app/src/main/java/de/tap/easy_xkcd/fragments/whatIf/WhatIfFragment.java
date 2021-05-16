@@ -9,6 +9,7 @@ import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.core.content.ContextCompat;
 import androidx.core.view.MenuItemCompat;
 import androidx.fragment.app.Fragment;
@@ -75,6 +76,10 @@ public class WhatIfFragment extends Fragment {
     private static final String WHATIF_INTENT = "de.tap.easy_xkcd.ACTION_WHAT_IF";
     private PrefHelper prefHelper;
     private ThemePrefs themePrefs;
+
+    // Used for starting the WhatIfActivity. When the activity finishes,
+    // we use this to update our recycler view accordingly
+    private static final int WHATIF_REQUEST_CODE = 1;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
@@ -301,13 +306,9 @@ public class WhatIfFragment extends Fragment {
             Intent mainIntent = getActivity().getIntent();
             if (mainIntent != null) {
                 if (Objects.equals(mainIntent.getAction(), Intent.ACTION_VIEW)) {
-                    final Intent displayWhatIf = new Intent(getActivity(), WhatIfActivity.class);
-                    displayWhatIf.putExtra("number", MainActivity.getNumberFromUrl(mainIntent.getDataString(), 1));
-                    startActivity(displayWhatIf);
+                    displayWhatIf(MainActivity.getNumberFromUrl(mainIntent.getDataString(), 1));
                 } else if (Objects.equals(mainIntent.getAction(), WHATIF_INTENT)) {
-                    final Intent displayWhatIf = new Intent(getActivity(), WhatIfActivity.class);
-                    displayWhatIf.putExtra("number", mainIntent.getIntExtra("number", 1));
-                    startActivity(displayWhatIf);
+                    displayWhatIf(mainIntent.getIntExtra("number", 1));
                 }
             }
         }
@@ -352,12 +353,10 @@ public class WhatIfFragment extends Fragment {
                 return;
             }
             int pos = rv.getChildAdapterPosition(v);
-            Intent intent = new Intent(getActivity(), WhatIfActivity.class);
             String title = adapter.titles.get(pos);
             int n = mTitles.size() - mTitles.indexOf(title);
 
-            intent.putExtra("number", n);
-            getActivity().startActivity(intent);
+            displayWhatIf(n);
 
             if (searchMenuItem.isActionViewExpanded()) {
                 searchMenuItem.collapseActionView();
@@ -366,17 +365,21 @@ public class WhatIfFragment extends Fragment {
         }
     }
 
+    private void displayWhatIf(int number) {
+        Intent intent = new Intent(getActivity(), WhatIfActivity.class);
+        intent.putExtra("number", number);
+        startActivityForResult(intent, WHATIF_REQUEST_CODE);
+    }
+
     public void getRandom() {
         if (prefHelper.isOnline(getActivity()) | offlineMode) {
             //TODO a lot of this code here overlaps with the
             // click handler for an entry. Can we factor this out into a method?
             Random mRand = new Random();
             int number = mRand.nextInt(adapter.titles.size());
-            Intent intent = new Intent(getActivity(), WhatIfActivity.class);
             String title = adapter.titles.get(number);
             int n = mTitles.size() - mTitles.indexOf(title);
-            intent.putExtra("number", n);
-            startActivity(intent);
+            displayWhatIf(n);
         } else {
             Toast.makeText(getActivity(), R.string.no_connection, Toast.LENGTH_SHORT).show();
         }
@@ -565,4 +568,12 @@ public class WhatIfFragment extends Fragment {
         ButterKnife.unbind(this);
     }
 
+    @Override
+    public void onActivityResult(int requestCode, int resultCode, @Nullable @org.jetbrains.annotations.Nullable Intent data) {
+        if (requestCode == WHATIF_REQUEST_CODE) {
+            updateRv();
+        }
+
+        super.onActivityResult(requestCode, resultCode, data);
+    }
 }

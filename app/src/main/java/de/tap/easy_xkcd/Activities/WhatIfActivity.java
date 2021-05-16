@@ -88,6 +88,8 @@ public class WhatIfActivity extends BaseActivity {
 
             @Override
             public void onSwipeLeft() {
+                //TODO Using WhatIfFragment's mTitles here is a bit weird, we should instead know
+                // ourselves how many articles there are.
                 if (prefHelper.swipeEnabled() && loadedArticle.getNumber() != WhatIfFragment.mTitles.size()) {
                     nextWhatIf(false);
                 }
@@ -143,7 +145,6 @@ public class WhatIfActivity extends BaseActivity {
                             }
 
                             public void onPageFinished(WebView view, String url) {
-                                WhatIfFragment.getInstance().updateRv();
                                 if (prefHelper.showWhatIfTip()) {
                                     Snackbar snackbar = Snackbar.make(findViewById(android.R.id.content), R.string.what_if_tip, BaseTransientBottomBar.LENGTH_LONG);
                                     snackbar.setAction(R.string.got_it, snackbarView -> prefHelper.setShowWhatIfTip(false));
@@ -267,12 +268,7 @@ public class WhatIfActivity extends BaseActivity {
                 return true;
 
             case R.id.action_random:
-                Random mRand = new Random();
-
-                final int randomArticle = mRand.nextInt(prefHelper.getNewestWhatIf());
-                WhatIfFragment.getInstance().getRv().scrollToPosition(WhatIfFragment.mTitles.size() - randomArticle);
-
-                loadWhatIf(randomArticle, null);
+                loadWhatIf(new Random().nextInt(prefHelper.getNewestWhatIf()), null);
                 return true;
             case R.id.action_favorite:
                 if (!prefHelper.checkWhatIfFav(loadedArticle.getNumber())) {
@@ -303,15 +299,6 @@ public class WhatIfActivity extends BaseActivity {
         int nextNumber = left ? loadedArticle.getNumber() - 1 : loadedArticle.getNumber() + 1;
         loadWhatIf(nextNumber,
                 AnimationUtils.loadAnimation(this, left ? R.anim.slide_in_left : R.anim.slide_in_right));
-
-        invalidateOptionsMenu();
-
-        try {
-            //TODO this is kinda ugly... can we have some sort of callback?
-            WhatIfFragment.getInstance().getRv().scrollToPosition(WhatIfFragment.mTitles.size() - nextNumber);
-        } catch (NullPointerException e) {
-            Timber.e(e);
-        }
 
         invalidateOptionsMenu();
         return true;

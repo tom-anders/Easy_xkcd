@@ -974,6 +974,7 @@ public class MainActivity extends BaseActivity {
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
         Timber.d( "received result" +  resultCode + "from request" + requestCode);
         if (requestCode == 1) {
             switch (resultCode) {
