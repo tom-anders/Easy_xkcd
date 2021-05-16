@@ -1,5 +1,6 @@
 package de.tap.easy_xkcd.Activities;
 
+import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.ProgressDialog;
 import android.content.Intent;
@@ -53,7 +54,6 @@ public class WhatIfActivity extends BaseActivity {
 
     @Bind(R.id.wv)
     WebView web;
-    public static int WhatIfIndex;
     private ProgressDialog mProgress;
     private boolean leftSwipe = false;
     private boolean rightSwipe = false;
@@ -77,12 +77,14 @@ public class WhatIfActivity extends BaseActivity {
         web.getSettings().setLoadWithOverviewMode(true);
         web.getSettings().setTextZoom(prefHelper.getZoom(web.getSettings().getTextZoom()));
 
-        loadNextWhatIf();
+        if (!getIntent().hasExtra("number")) {
+            Timber.w("WhatIfActivity started without valid number given in intent.");
+        }
+
+        loadWhatIf(getIntent().getIntExtra("number", 1));
     }
 
-    // TODO get rid of WhatIfIndex and use it as a parameter to this method instead
-    // Get the whatif to be displayed from the intent in onCreate!
-    private void loadNextWhatIf() {
+    private void loadWhatIf(int articleNumber) {
         lockRotation();
         if (!prefHelper.fullOfflineWhatIf()) {
             mProgress = new ProgressDialog(WhatIfActivity.this);
@@ -92,10 +94,12 @@ public class WhatIfActivity extends BaseActivity {
             mProgress.show();
         }
 
-        Observable.fromCallable(() -> {
-            loadedArticle = new Article(WhatIfIndex, prefHelper.fullOfflineWhatIf(), WhatIfActivity.this);
-            return loadedArticle.getWhatIf();
-        }).subscribeOn(Schedulers.io())
+        loadedArticle = new Article(articleNumber, prefHelper.fullOfflineWhatIf(), WhatIfActivity.this);
+        prefHelper.setLastWhatIf(articleNumber);
+        prefHelper.setWhatifRead(String.valueOf(articleNumber));
+
+        Observable.fromCallable(() -> loadedArticle.getWhatIf())
+                .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(new Observer<Document>() {
                     @Override
@@ -142,22 +146,24 @@ public class WhatIfActivity extends BaseActivity {
                                     web.setVisibility(View.VISIBLE);
                                 }
 
-                                web.setOnTouchListener(new OnSwipeTouchListener(WhatIfActivity.this) {
-                                    @Override
-                                    public void onSwipeRight() {
-                                        if (WhatIfIndex != 1 && prefHelper.swipeEnabled()) {
-                                            nextWhatIf(true);
-                                        }
-                                    }
-
-                                    @Override
-                                    public void onSwipeLeft() {
-                                        if (WhatIfIndex != WhatIfFragment.mTitles.size() && prefHelper.swipeEnabled()) {
-                                            nextWhatIf(false);
+                                if (prefHelper.swipeEnabled()) {
+                                    web.setOnTouchListener(new OnSwipeTouchListener(WhatIfActivity.this) {
+                                        @Override
+                                        public void onSwipeRight() {
+                                            if (loadedArticle.getNumber() != 1) {
+                                                nextWhatIf(true);
+                                            }
                                         }
 
-                                    }
-                                });
+                                        @Override
+                                        public void onSwipeLeft() {
+                                            if (loadedArticle.getNumber() != WhatIfFragment.mTitles.size()) {
+                                                nextWhatIf(false);
+                                            }
+
+                                        }
+                                    });
+                                }
                             }
                         });
                     }
@@ -197,7 +203,7 @@ public class WhatIfActivity extends BaseActivity {
     private class refObject {
         @JavascriptInterface
         public void performClick(String n) {
-            if (WhatIfIndex == 141 && n.equals("2")) { //This footnote contains an image
+            if (loadedArticle.getNumber() == 141 && n.equals("2")) { //This footnote contains an image
                 ImageView image = new ImageView(WhatIfActivity.this);
                 image.setImageResource(R.mipmap.brda);
                 image.setScaleType(ImageView.ScaleType.CENTER_INSIDE);
@@ -257,7 +263,7 @@ public class WhatIfActivity extends BaseActivity {
                 return true;
 
             case R.id.action_browser:
-                Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse("https://what-if.xkcd.com/" + String.valueOf(WhatIfIndex)));
+                Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse("https://what-if.xkcd.com/" + loadedArticle.getNumber()));
                 startActivity(intent);
                 return true;
 
@@ -265,24 +271,23 @@ public class WhatIfActivity extends BaseActivity {
                 Intent share = new Intent(Intent.ACTION_SEND);
                 share.setType("text/plain");
                 share.putExtra(Intent.EXTRA_SUBJECT, "What if: " + loadedArticle.getTitle());
-                share.putExtra(Intent.EXTRA_TEXT, "https://what-if.xkcd.com/" + String.valueOf(WhatIfIndex));
+                share.putExtra(Intent.EXTRA_TEXT, "https://what-if.xkcd.com/" + loadedArticle.getNumber());
                 startActivity(share);
                 return true;
 
             case R.id.action_random:
                 Random mRand = new Random();
-                WhatIfIndex = mRand.nextInt(prefHelper.getNewestWhatIf());
-                prefHelper.setLastWhatIf(WhatIfIndex);
-                WhatIfFragment.getInstance().getRv().scrollToPosition(WhatIfFragment.mTitles.size() - WhatIfIndex);
 
-                prefHelper.setWhatifRead(String.valueOf(WhatIfIndex));
-                loadNextWhatIf();
+                final int randomArticle = mRand.nextInt(prefHelper.getNewestWhatIf());
+                WhatIfFragment.getInstance().getRv().scrollToPosition(WhatIfFragment.mTitles.size() - randomArticle);
+
+                loadWhatIf(randomArticle);
                 return true;
             case R.id.action_favorite:
-                if (!prefHelper.checkWhatIfFav(WhatIfIndex)) {
-                    prefHelper.setWhatIfFavorite(String.valueOf(WhatIfIndex));
+                if (!prefHelper.checkWhatIfFav(loadedArticle.getNumber())) {
+                    prefHelper.setWhatIfFavorite(String.valueOf(loadedArticle.getNumber()));
                 } else {
-                    prefHelper.removeWhatifFav(WhatIfIndex);
+                    prefHelper.removeWhatifFav(loadedArticle.getNumber());
                 }
                 WhatIfFavoritesFragment.getInstance().updateFavorites();
                 invalidateOptionsMenu();
@@ -302,51 +307,46 @@ public class WhatIfActivity extends BaseActivity {
      */
     private boolean nextWhatIf(boolean left) {
         Animation animation;
+        int nextNumber;
         if (left) {
-            WhatIfIndex--;
+            nextNumber = loadedArticle.getNumber() - 1;
             leftSwipe = true;
             animation = AnimationUtils.loadAnimation(this, R.anim.slide_out_right);
-            web.startAnimation(animation);
-            web.setVisibility(View.INVISIBLE);
         } else {
-            WhatIfIndex++;
+            nextNumber = loadedArticle.getNumber() + 1;
             rightSwipe = true;
             animation = AnimationUtils.loadAnimation(this, R.anim.slide_out_left);
-            web.startAnimation(animation);
-            web.setVisibility(View.INVISIBLE);
         }
-        prefHelper.setLastWhatIf(WhatIfIndex);
-        loadNextWhatIf();
+        web.startAnimation(animation);
+        web.setVisibility(View.INVISIBLE);
+
+        prefHelper.setLastWhatIf(nextNumber);
+        prefHelper.setWhatifRead(String.valueOf(nextNumber));
+        loadWhatIf(nextNumber);
+
         invalidateOptionsMenu();
 
         try {
-            WhatIfFragment.getInstance().getRv().scrollToPosition(WhatIfFragment.mTitles.size() - WhatIfIndex);
+            WhatIfFragment.getInstance().getRv().scrollToPosition(WhatIfFragment.mTitles.size() - nextNumber);
         } catch (NullPointerException e) {
-            e.printStackTrace();
+            Timber.e(e);
         }
 
-        prefHelper.setWhatifRead(String.valueOf(WhatIfIndex));
         invalidateOptionsMenu();
         return true;
     }
 
     @Override
     public boolean onPrepareOptionsMenu(Menu menu) {
-        if (WhatIfIndex == 1)
-            menu.findItem(R.id.action_back).setVisible(false);
-        else
-            menu.findItem(R.id.action_back).setVisible(true);
-
-        if (WhatIfIndex == WhatIfFragment.mTitles.size())
-            menu.findItem(R.id.action_next).setVisible(false);
-        else
-            menu.findItem(R.id.action_next).setVisible(true);
+        menu.findItem(R.id.action_back).setVisible(loadedArticle.getNumber() != 1);
+        menu.findItem(R.id.action_next).setVisible(loadedArticle.getNumber() != WhatIfFragment.mTitles.size());
 
         if (menu.findItem(R.id.action_swipe).isChecked()) {
             menu.findItem(R.id.action_back).setVisible(false);
             menu.findItem(R.id.action_next).setVisible(false);
         }
-        if (prefHelper.checkWhatIfFav(WhatIfIndex))
+
+        if (prefHelper.checkWhatIfFav(loadedArticle.getNumber()))
             menu.findItem(R.id.action_favorite).setIcon(ContextCompat.getDrawable(this, R.drawable.ic_favorite_on_24dp)).setTitle(R.string.action_favorite_remove);
 
         return super.onPrepareOptionsMenu(menu);

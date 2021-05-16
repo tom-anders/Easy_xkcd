@@ -169,9 +169,8 @@ public class WhatIfFavoritesFragment extends Fragment {
             Intent intent = new Intent(getActivity(), WhatIfActivity.class);
             String title = adapter.titles.get(pos);
             int n = mTitles.size() - mTitles.indexOf(title);
-            WhatIfActivity.WhatIfIndex = n;
+            intent.putExtra("number", n);
             startActivity(intent);
-            prefHelper.setLastWhatIf(n);
         }
     }
 

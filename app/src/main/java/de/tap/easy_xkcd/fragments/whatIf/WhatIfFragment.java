@@ -41,6 +41,7 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Objects;
 import java.util.Random;
 
 import butterknife.Bind;
@@ -67,10 +68,11 @@ public class WhatIfFragment extends Fragment {
     private MenuItem searchMenuItem;
     public static WhatIfRVAdapter adapter;
     private static WhatIfFragment instance;
-    public static boolean newIntent;
+
     private boolean offlineMode;
     private static final String OFFLINE_WHATIF_OVERVIEW_PATH = "/easy xkcd/what if/overview";
     private static final String OFFLINE_WHATIF_PATH = "/easy xkcd/what if/";
+    private static final String WHATIF_INTENT = "de.tap.easy_xkcd.ACTION_WHAT_IF";
     private PrefHelper prefHelper;
     private ThemePrefs themePrefs;
 
@@ -295,10 +297,18 @@ public class WhatIfFragment extends Fragment {
                     view.animate().setStartDelay(50 * (i + 1)).setDuration(70 * (i + 1)).translationY(0);
                 }
             }
-            if (newIntent) {
-                Intent intent = new Intent(getActivity(), WhatIfActivity.class);
-                startActivity(intent);
-                newIntent = false;
+
+            Intent mainIntent = getActivity().getIntent();
+            if (mainIntent != null) {
+                if (Objects.equals(mainIntent.getAction(), Intent.ACTION_VIEW)) {
+                    final Intent displayWhatIf = new Intent(getActivity(), WhatIfActivity.class);
+                    displayWhatIf.putExtra("number", MainActivity.getNumberFromUrl(mainIntent.getDataString(), 1));
+                    startActivity(displayWhatIf);
+                } else if (Objects.equals(mainIntent.getAction(), WHATIF_INTENT)) {
+                    final Intent displayWhatIf = new Intent(getActivity(), WhatIfActivity.class);
+                    displayWhatIf.putExtra("number", mainIntent.getIntExtra("number", 1));
+                    startActivity(displayWhatIf);
+                }
             }
         }
 
@@ -345,11 +355,10 @@ public class WhatIfFragment extends Fragment {
             Intent intent = new Intent(getActivity(), WhatIfActivity.class);
             String title = adapter.titles.get(pos);
             int n = mTitles.size() - mTitles.indexOf(title);
-            WhatIfActivity.WhatIfIndex = n;
-            getActivity().startActivityForResult(intent, 1);
 
-            prefHelper.setLastWhatIf(n);
-            prefHelper.setWhatifRead(String.valueOf(n));
+            intent.putExtra("number", n);
+            getActivity().startActivity(intent);
+
             if (searchMenuItem.isActionViewExpanded()) {
                 searchMenuItem.collapseActionView();
                 rv.scrollToPosition(mTitles.size() - n);
@@ -359,15 +368,15 @@ public class WhatIfFragment extends Fragment {
 
     public void getRandom() {
         if (prefHelper.isOnline(getActivity()) | offlineMode) {
+            //TODO a lot of this code here overlaps with the
+            // click handler for an entry. Can we factor this out into a method?
             Random mRand = new Random();
             int number = mRand.nextInt(adapter.titles.size());
             Intent intent = new Intent(getActivity(), WhatIfActivity.class);
             String title = adapter.titles.get(number);
             int n = mTitles.size() - mTitles.indexOf(title);
-            WhatIfActivity.WhatIfIndex = n;
+            intent.putExtra("number", n);
             startActivity(intent);
-            prefHelper.setLastWhatIf(n);
-            prefHelper.setWhatifRead(String.valueOf(n));
         } else {
             Toast.makeText(getActivity(), R.string.no_connection, Toast.LENGTH_SHORT).show();
         }

@@ -49,6 +49,8 @@ public class Article {
         offline = offlineArticle;
     }
 
+    public int getNumber() { return mNumber; }
+
     public String getTitle() {
         return title;
     }

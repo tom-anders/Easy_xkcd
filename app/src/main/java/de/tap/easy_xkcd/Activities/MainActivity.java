@@ -120,6 +120,7 @@ public class MainActivity extends BaseActivity {
 
     private static final String COMIC_NOTIFICATION_INTENT = "de.tap.easy_xkcd.ACTION_COMIC_NOTIFICATION";
     private static final String COMIC_INTENT = "de.tap.easy_xkcd.ACTION_COMIC";
+    //TODO moved to WhatIfFragment, think this can be deleted
     private static final String WHATIF_INTENT = "de.tap.easy_xkcd.ACTION_WHAT_IF";
     private static final String SAVED_INSTANCE_CURRENT_FRAGMENT = "CurrentFragment";
 
@@ -170,10 +171,9 @@ public class MainActivity extends BaseActivity {
             switch (Objects.requireNonNull(getIntent().getAction())) {
                 case Intent.ACTION_VIEW:
                     if (Objects.requireNonNull(getIntent().getDataString()).contains("what")) {
-                        WhatIfActivity.WhatIfIndex = (getNumberFromUrl(getIntent().getDataString(), 1));
-                        prefHelper.setLastWhatIf(WhatIfActivity.WhatIfIndex);
+                        // Nothing more to do here, the WhatIfFragment will handle the intent
+                        // TODO I'm pretty sure this variable is even redundant, gotta take a closer look
                         whatIfIntent = true;
-                        WhatIfFragment.newIntent = true;
                     } else
                         prefHelper.setLastComic(getNumberFromUrl(getIntent().getDataString(), prefHelper.getLastComic()));
                     break;
@@ -186,10 +186,7 @@ public class MainActivity extends BaseActivity {
                     Timber.d("started from Comic Notification Intent");
                     break;
                 case WHATIF_INTENT:
-                    WhatIfActivity.WhatIfIndex = getIntent().getIntExtra("number", 0);
-                    prefHelper.setLastWhatIf(WhatIfActivity.WhatIfIndex);
                     whatIfIntent = true;
-                    WhatIfFragment.newIntent = true;
                     break;
             }
         } catch (NullPointerException e) {
@@ -712,9 +709,9 @@ public class MainActivity extends BaseActivity {
                 if (intent.getDataString().contains("what")) {
                     MenuItem item = mNavView.getMenu().findItem(R.id.nav_whatif);
                     selectDrawerItem(item, false, false, false, false);
-                    WhatIfActivity.WhatIfIndex = getNumberFromUrl(intent.getDataString(), 1);
+
                     Intent whatIf = new Intent(MainActivity.this, WhatIfActivity.class);
-                    prefHelper.setLastWhatIf(WhatIfActivity.WhatIfIndex);
+                    whatIf.putExtra("number", getNumberFromUrl(intent.getDataString(), 1));
                     startActivity(whatIf);
                 } else {
                     MenuItem item = mNavView.getMenu().findItem(R.id.nav_browser);
@@ -746,9 +743,9 @@ public class MainActivity extends BaseActivity {
             case WHATIF_INTENT:
                 item = mNavView.getMenu().findItem(R.id.nav_whatif);
                 selectDrawerItem(item, false, false, false, false);
-                WhatIfActivity.WhatIfIndex = intent.getIntExtra("number", 1);
+
                 Intent whatIf = new Intent(MainActivity.this, WhatIfActivity.class);
-                prefHelper.setLastWhatIf(WhatIfActivity.WhatIfIndex);
+                whatIf.putExtra("number", intent.getIntExtra("number", 1));
                 startActivity(whatIf);
                 break;
         }
@@ -761,7 +758,8 @@ public class MainActivity extends BaseActivity {
      * @param defaultNumber the number to be returned when something went wrong (usually lastComicNumber)
      * @return the number of the comic that the url links to
      */
-    private int getNumberFromUrl(String url, int defaultNumber) {
+    //TODO Move this method somewhere else, probably DatabaseManager
+    public static int getNumberFromUrl(String url, int defaultNumber) {
         StringBuilder sb = new StringBuilder();
         for (int i = 0; i < url.length(); i++) {
             char c = url.charAt(i);
