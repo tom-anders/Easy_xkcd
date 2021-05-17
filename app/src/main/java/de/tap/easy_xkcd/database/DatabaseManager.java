@@ -33,12 +33,14 @@ import de.tap.easy_xkcd.CustomTabHelpers.CustomTabActivityHelper;
 import de.tap.easy_xkcd.utils.JsonParser;
 import de.tap.easy_xkcd.utils.ThemePrefs;
 import io.realm.DynamicRealm;
+import io.realm.FieldAttribute;
 import io.realm.Realm;
 import io.realm.RealmConfiguration;
 import io.realm.RealmMigration;
 import io.realm.RealmObjectSchema;
 import io.realm.RealmResults;
 import io.realm.RealmSchema;
+import io.realm.internal.RealmObjectProxy;
 import timber.log.Timber;
 
 import static de.tap.easy_xkcd.utils.JsonParser.getJSONFromUrl;
@@ -62,6 +64,17 @@ public class DatabaseManager {
             if (!objectSchema.hasField("altText")) { //Add the altText field which wasn't there in the old version!
                 objectSchema.addField("altText", String.class);
             }
+
+            if (!schema.contains("Article")) {
+                RealmObjectSchema articleSchema = schema.create("Article")
+                        .addField("number", int.class, FieldAttribute.PRIMARY_KEY)
+                        .addField("title", String.class)
+                        .addField("thumbnail", String.class)
+                        .addField("favorite", boolean.class)
+                        .addField("read", boolean.class)
+                        .addField("offline", boolean.class);
+            }
+
         }
 
         @Override
@@ -78,7 +91,7 @@ public class DatabaseManager {
     public DatabaseManager(Context context) {
         if (config == null) {
             config = new RealmConfiguration.Builder(context)
-                    .schemaVersion(2) // Must be bumped when the schema changes
+                    .schemaVersion(3) // Must be bumped when the schema changes
                     .migration(new Migration()) // Migration to run
                     .build();
             Realm.setDefaultConfiguration(config);
@@ -277,6 +290,8 @@ public class DatabaseManager {
         switch (title) {
             case "Earth-Moon Fire Pole":
                 return R.mipmap.slide;
+            case "New Horizons":
+                return R.mipmap.new_horizons;
             default:
                 return 0;
         }

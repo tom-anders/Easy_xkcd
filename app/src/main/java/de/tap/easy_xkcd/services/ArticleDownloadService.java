@@ -116,6 +116,7 @@ public class ArticleDownloadService extends IntentService {
                         File file = new File(dir, String.valueOf(count) + ".png");
                         BufferedSink sink = Okio.buffer(Okio.sink(file));
                         sink.writeAll(response.body().source());
+
                         sink.close();
                         response.body().close();
                     } catch (Exception e) {

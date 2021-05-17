@@ -32,6 +32,7 @@ import com.tap.xkcd_reader.R;
 import org.jsoup.nodes.Document;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Random;
 
 import androidx.core.view.MenuCompat;
@@ -49,6 +50,7 @@ import io.reactivex.rxjava3.core.Single;
 import io.reactivex.rxjava3.core.SingleObserver;
 import io.reactivex.rxjava3.disposables.Disposable;
 import io.reactivex.rxjava3.schedulers.Schedulers;
+import io.realm.Realm;
 import timber.log.Timber;
 
 public class WhatIfActivity extends BaseActivity {
@@ -71,8 +73,15 @@ public class WhatIfActivity extends BaseActivity {
         androidx.appcompat.widget.Toolbar toolbar = (androidx.appcompat.widget.Toolbar) findViewById(R.id.toolbar);
         setupToolbar(toolbar);
 
-        web.addJavascriptInterface(new altObject(), "img");
-        web.addJavascriptInterface(new refObject(), "ref");
+        web.addJavascriptInterface(new Object() {
+            @JavascriptInterface
+            public void performClick(String alt) {
+                androidx.appcompat.app.AlertDialog.Builder mDialog = new androidx.appcompat.app.AlertDialog.Builder(WhatIfActivity.this);
+                mDialog.setMessage(alt);
+                mDialog.show();
+            }
+        }, "img");
+
         web.getSettings().setBuiltInZoomControls(true);
         web.getSettings().setUseWideViewPort(true);
         web.getSettings().setJavaScriptEnabled(true);
@@ -119,102 +128,87 @@ public class WhatIfActivity extends BaseActivity {
             mProgress.show();
         }
 
-        loadedArticle = new Article(articleNumber, prefHelper.fullOfflineWhatIf(), WhatIfActivity.this);
         prefHelper.setLastWhatIf(articleNumber);
         prefHelper.setWhatifRead(String.valueOf(articleNumber));
 
-        Single.fromCallable(() -> loadedArticle.getWhatIf())
+        Realm realm = Realm.getDefaultInstance();
+        loadedArticle = realm.copyFromRealm(realm.where(Article.class).equalTo("number", articleNumber).findFirst());
+        realm.close();
+
+        if (loadedArticle == null) {
+            Timber.wtf("Could not find article %d in database", articleNumber);
+            finish();
+        }
+
+        Single.fromCallable(() -> Article.generateDocument(loadedArticle.getNumber(), prefHelper, themePrefs))
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
-                .subscribe(new SingleObserver<Document>() {
-                    @Override
-                    public void onSubscribe(@NonNull Disposable d) { }
+                .doOnError(e -> {
+                    Timber.e(e);
+                    finish();
+                })
+                .doOnSuccess(doc -> {
+                    final ArrayList<String> refs = Article.generateRefs(doc);
+                    web.addJavascriptInterface(new Object() {
+                        @JavascriptInterface
+                        public void performClick(String n) {
+                            if (loadedArticle.getNumber() == 141 && n.equals("2")) { //This footnote contains an image
+                                ImageView image = new ImageView(WhatIfActivity.this);
+                                image.setImageResource(R.mipmap.brda);
+                                image.setScaleType(ImageView.ScaleType.CENTER_INSIDE);
+                                AlertDialog.Builder builder =
+                                        new AlertDialog.Builder(WhatIfActivity.this).
+                                                setMessage("Here's an image which is great for annoying a few specific groups of people:")
+                                                .setView(image);
+                                builder.create().show();
+                                return;
+                            }
+                            ((TextView) new androidx.appcompat.app.AlertDialog.Builder(WhatIfActivity.this)
+                                    .setMessage(Html.fromHtml(refs.get(Integer.parseInt(n))))
+                                    .show()
+                                    .findViewById(android.R.id.message))
+                                    .setMovementMethod(LinkMovementMethod.getInstance()); //enable hyperlinks
+                        }
+                    }, "ref");
 
-                    @Override
-                    public void onSuccess(@NonNull Document doc) {
-                        web.loadDataWithBaseURL("file:///android_asset/.", doc.html(), "text/html", "UTF-8", null);
-                        web.setWebViewClient(new WebViewClient() {
-                            @Override
-                            public boolean shouldOverrideUrlLoading(WebView view, String url) {
-                                Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(url));
-                                if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.N) {
-                                    try {
-                                        startActivity(intent);
-                                    } catch (FileUriExposedException e) {
-                                        Timber.e(e);
-                                    }
-                                } else {
+                    web.loadDataWithBaseURL("file:///android_asset/.", doc.html(), "text/html", "UTF-8", null);
+                    web.setWebViewClient(new WebViewClient() {
+                        @Override
+                        public boolean shouldOverrideUrlLoading(WebView view, String url) {
+                            Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(url));
+                            if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.N) {
+                                try {
                                     startActivity(intent);
+                                } catch (FileUriExposedException e) {
+                                    Timber.e(e);
                                 }
-                                return true;
+                            } else {
+                                startActivity(intent);
                             }
+                            return true;
+                        }
 
-                            public void onPageFinished(WebView view, String url) {
-                                if (prefHelper.showWhatIfTip()) {
-                                    Snackbar snackbar = Snackbar.make(findViewById(android.R.id.content), R.string.what_if_tip, BaseTransientBottomBar.LENGTH_LONG);
-                                    snackbar.setAction(R.string.got_it, snackbarView -> prefHelper.setShowWhatIfTip(false));
-                                    snackbar.show();
-                                }
-                                if (mProgress != null)
-                                    mProgress.dismiss();
-
-                                if (animationOnLoaded != null) {
-                                    web.startAnimation(animationOnLoaded);
-                                    web.setVisibility(View.VISIBLE);
-                                }
+                        public void onPageFinished(WebView view, String url) {
+                            if (prefHelper.showWhatIfTip()) {
+                                Snackbar snackbar = Snackbar.make(findViewById(android.R.id.content), R.string.what_if_tip, BaseTransientBottomBar.LENGTH_LONG);
+                                snackbar.setAction(R.string.got_it, snackbarView -> prefHelper.setShowWhatIfTip(false));
+                                snackbar.show();
                             }
-                        });
+                            if (mProgress != null)
+                                mProgress.dismiss();
 
-                        assert getSupportActionBar() != null;
-                        getSupportActionBar().setSubtitle(loadedArticle.getTitle());
-                        unlockRotation();
-                    }
+                            if (animationOnLoaded != null) {
+                                web.startAnimation(animationOnLoaded);
+                                web.setVisibility(View.VISIBLE);
+                            }
+                        }
+                    });
 
-                    @Override
-                    public void onError(@NonNull Throwable e) {
-                        Timber.e(e);
-
-                        if (mProgress != null)
-                            mProgress.dismiss();
-                    }
-                });
-    }
-
-    /**
-     * JavaScript Object to display an image's alt text
-     */
-    private class altObject {
-        @JavascriptInterface
-        public void performClick(String alt) {
-            androidx.appcompat.app.AlertDialog.Builder mDialog = new androidx.appcompat.app.AlertDialog.Builder(WhatIfActivity.this);
-            mDialog.setMessage(alt);
-            mDialog.show();
-        }
-    }
-
-    /**
-     * JavaScript Object to display the footnotes
-     */
-    private class refObject {
-        @JavascriptInterface
-        public void performClick(String n) {
-            if (loadedArticle.getNumber() == 141 && n.equals("2")) { //This footnote contains an image
-                ImageView image = new ImageView(WhatIfActivity.this);
-                image.setImageResource(R.mipmap.brda);
-                image.setScaleType(ImageView.ScaleType.CENTER_INSIDE);
-                AlertDialog.Builder builder =
-                        new AlertDialog.Builder(WhatIfActivity.this).
-                                setMessage("Here's an image which is great for annoying a few specific groups of people:")
-                                .setView(image);
-                builder.create().show();
-                return;
-            }
-            ((TextView) new androidx.appcompat.app.AlertDialog.Builder(WhatIfActivity.this)
-                    .setMessage(Html.fromHtml(loadedArticle.getRefs().get(Integer.parseInt(n))))
-                    .show()
-                    .findViewById(android.R.id.message))
-                    .setMovementMethod(LinkMovementMethod.getInstance()); //enable hyperlinks
-        }
+                    assert getSupportActionBar() != null;
+                    getSupportActionBar().setSubtitle(loadedArticle.getTitle());
+                    unlockRotation();
+                    })
+                .subscribe();
     }
 
     @Override
@@ -273,7 +267,7 @@ public class WhatIfActivity extends BaseActivity {
                 return true;
 
             case R.id.action_random:
-                loadWhatIf(new Random().nextInt(prefHelper.getNewestWhatIf()), null);
+                loadWhatIf(new Random().nextInt(Realm.getDefaultInstance().where(Article.class).findAll().size()), null);
                 return true;
             case R.id.action_favorite:
                 if (!prefHelper.checkWhatIfFav(loadedArticle.getNumber())) {

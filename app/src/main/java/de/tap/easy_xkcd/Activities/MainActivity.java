@@ -521,7 +521,11 @@ public class MainActivity extends BaseActivity {
             getSupportActionBar().setSubtitle("");
         }
 
-        WhatIfOverviewFragment whatIfFragment = new WhatIfOverviewFragment();
+//        WhatIfOverviewFragment whatIfFragment = new WhatIfOverviewFragment();
+
+        //TODO probably fix transition animation
+        WhatIfFragment whatIfFragment = new WhatIfFragment();
+
         final FragmentTransaction transaction = fragmentManager.beginTransaction();
         Fragment oldFragment = fragmentManager.findFragmentByTag(FRAGMENT_TAG);
         if (oldFragment != null) {

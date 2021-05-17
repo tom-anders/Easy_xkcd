@@ -5,17 +5,22 @@ import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.graphics.Color;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
+
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.cardview.widget.CardView;
 import androidx.core.content.ContextCompat;
 import androidx.core.view.MenuItemCompat;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.appcompat.widget.Toolbar;
+import androidx.swiperefreshlayout.widget.CircularProgressDrawable;
+
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -25,12 +30,16 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.animation.DecelerateInterpolator;
 import android.view.inputmethod.InputMethodManager;
+import android.widget.ImageView;
 import android.widget.SearchView;
+import android.widget.TextView;
 import android.widget.Toast;
 
+import com.bumptech.glide.request.RequestOptions;
 import com.simplecityapps.recyclerview_fastscroll.views.FastScrollRecyclerView;
 import com.tap.xkcd_reader.R;
 
+import org.jetbrains.annotations.NotNull;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
@@ -49,9 +58,24 @@ import butterknife.Bind;
 import butterknife.ButterKnife;
 import de.tap.easy_xkcd.Activities.MainActivity;
 import de.tap.easy_xkcd.Activities.WhatIfActivity;
+import de.tap.easy_xkcd.GlideApp;
+import de.tap.easy_xkcd.database.DatabaseManager;
+import de.tap.easy_xkcd.database.RealmComic;
+import de.tap.easy_xkcd.utils.Article;
 import de.tap.easy_xkcd.utils.JsonParser;
 import de.tap.easy_xkcd.utils.PrefHelper;
 import de.tap.easy_xkcd.utils.ThemePrefs;
+import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers;
+import io.reactivex.rxjava3.core.Observable;
+import io.reactivex.rxjava3.core.Single;
+import io.reactivex.rxjava3.core.SingleObserver;
+import io.reactivex.rxjava3.disposables.Disposable;
+import io.reactivex.rxjava3.functions.Action;
+import io.reactivex.rxjava3.functions.Consumer;
+import io.reactivex.rxjava3.schedulers.Schedulers;
+import io.realm.Realm;
+import io.realm.RealmResults;
+import io.realm.Sort;
 import jp.wasabeef.recyclerview.adapters.SlideInBottomAnimationAdapter;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
@@ -67,7 +91,7 @@ public class WhatIfFragment extends Fragment {
     @Bind(R.id.rv)
     FastScrollRecyclerView rv;
     private MenuItem searchMenuItem;
-    public static WhatIfRVAdapter adapter;
+    public static RVAdapter adapter;
     private static WhatIfFragment instance;
 
     private boolean offlineMode;
@@ -99,13 +123,106 @@ public class WhatIfFragment extends Fragment {
         instance = this;
         ((MainActivity) getActivity()).getFab().setVisibility(View.GONE);
 
-        if (prefHelper.isOnline(getActivity()) && (prefHelper.isWifi(getActivity()) | prefHelper.mobileEnabled()) && offlineMode) {
-            new UpdateArticles().execute();
-            Log.d("info", "update started");
+//        if (prefHelper.isOnline(getActivity()) && (prefHelper.isWifi(getActivity()) | prefHelper.mobileEnabled()) && offlineMode) {
+//            new UpdateArticles().execute();
+//            Log.d("info", "update started");
+//        } else {
+//            new DisplayOverview().execute();
+//        }
+
+        if (prefHelper.isOnline(getActivity())) {
+            if (!prefHelper.fullOfflineWhatIf() || prefHelper.mayDownloadDataForOfflineMode(getActivity())) {
+                Single.fromCallable(() -> Jsoup.parse(JsonParser.getNewHttpClient().newCall(new Request.Builder()
+                        .url("https://what-if.xkcd.com/archive/")
+                        .build()).execute().body().string()))
+                        .subscribeOn(Schedulers.io())
+                        .observeOn(AndroidSchedulers.mainThread())
+                        .doOnError(e -> { Timber.e(e); displayOverview();})
+                        .doOnSuccess(this::updateDatabase)
+                        .subscribe();
+            }
         } else {
-            new DisplayOverview().execute();
+            displayOverview();;
         }
         return v;
+    }
+
+    private void updateDatabase(Document document) {
+        Realm realm = Realm.getDefaultInstance();
+        realm.beginTransaction();
+
+        Elements titles = document.select("h1");
+        Elements thumbnails = document.select("img.archive-image");
+
+        for (int number = 1; number <= titles.size(); number++) {
+            Article article = realm.where(Article.class).equalTo("number", number).findFirst();
+            if (article == null) {
+                article = new Article();
+                article.setNumber(number);
+                article.setTitle(titles.get(number - 1).text());
+                article.setThumbnail("https://what-if.xkcd.com/" + thumbnails.get(number - 1).attr("src")); // -1 cause articles a 1-based indexed
+
+                //TODO add a check here to if we already have offline files, if so, set this to true
+                article.setOffline(false);
+
+                // TODO These two need to be imported from the legacy database
+                article.setRead(false);
+                article.setFavorite(false);
+
+                realm.copyToRealm(article);
+
+                Timber.d("Stored new article: %d %s %s", article.getNumber(), article.getTitle(), article.getThumbnail());
+            }
+        }
+        realm.commitTransaction();
+        realm.close();
+
+        Single.fromCallable(() -> {
+            Realm realmInCallable = Realm.getDefaultInstance();
+            realmInCallable.beginTransaction();
+            if (prefHelper.fullOfflineWhatIf()) {
+                RealmResults<Article> articlesToDownload = realmInCallable.where(Article.class).equalTo("offline", false).findAll();
+                Article.downloadThumbnails(articlesToDownload, prefHelper);
+                for (Article article : articlesToDownload) {
+                    boolean success = Article.downloadArticle(article.getNumber(), prefHelper);
+                    article.setOffline(success);
+                    realmInCallable.copyToRealmOrUpdate(article);
+                }
+            }
+            realmInCallable.commitTransaction();
+            realmInCallable.close();
+            return true;
+        })
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .doOnError(Timber::e)
+                .doAfterTerminate(this::displayOverview)
+                .subscribe();
+    }
+
+    void displayOverview() {
+        setupAdapter(prefHelper.hideReadWhatIf());
+
+        Toolbar toolbar = ((MainActivity) getActivity()).getToolbar();
+        if (toolbar.getAlpha() == 0) {
+            toolbar.setTranslationY(-300);
+            toolbar.animate().setDuration(300).translationY(0).alpha(1);
+            View view;
+            for (int i = 0; i < toolbar.getChildCount(); i++) {
+                view = toolbar.getChildAt(i);
+                view.setTranslationY(-300);
+                view.animate().setStartDelay(50 * (i + 1)).setDuration(70 * (i + 1)).translationY(0);
+            }
+        }
+
+        Intent mainIntent = getActivity().getIntent();
+        if (mainIntent != null) {
+            if (Objects.equals(mainIntent.getAction(), Intent.ACTION_VIEW)) {
+                displayWhatIf(MainActivity.getNumberFromUrl(mainIntent.getDataString(), 1));
+            } else if (Objects.equals(mainIntent.getAction(), WHATIF_INTENT)) {
+                displayWhatIf(mainIntent.getIntExtra("number", 1));
+            }
+        }
     }
 
     private class UpdateArticles extends AsyncTask<Void, Void, Void> {
@@ -315,22 +432,126 @@ public class WhatIfFragment extends Fragment {
 
     }
 
-    public class WhatIfRVAdapter extends WhatIfOverviewFragment.RVAdapter {
-        public WhatIfRVAdapter(ArrayList<String> t, ArrayList<String> i, MainActivity activity) {
-            super(t, i, activity);
+    private class RVAdapter extends RecyclerView.Adapter<RVAdapter.ComicViewHolder>
+            implements FastScrollRecyclerView.SectionedAdapter, View.OnClickListener, View.OnLongClickListener { //TODO color of fast scroller in night mode?
+        final private RealmResults<Article> articles;
+
+        final private DatabaseManager databaseManager;
+
+        @NonNull
+        @Override
+        public String getSectionName(int position) {
+            return "B";
+        }
+
+        public RVAdapter(RealmResults<Article> articles, MainActivity activity) {
+            this.articles = articles;
+
+            databaseManager = activity.getDatabaseManager();
+        }
+
+        private CircularProgressDrawable getCircularProgress() {
+            CircularProgressDrawable circularProgressDrawable = new CircularProgressDrawable(getActivity());
+            circularProgressDrawable.setCenterRadius(60.0f);
+            circularProgressDrawable.setStrokeWidth(5.0f);
+            circularProgressDrawable.setColorSchemeColors(themePrefs.getAccentColor());
+            circularProgressDrawable.start();
+            return circularProgressDrawable;
         }
 
         @Override
         public ComicViewHolder onCreateViewHolder(ViewGroup viewGroup, int i) {
             View v = LayoutInflater.from(viewGroup.getContext()).inflate(R.layout.whatif_overview, viewGroup, false);
-            v.setOnClickListener(new CustomOnClickListener());
-            v.setOnLongClickListener(new CustomOnLongClickListener());
+            v.setOnClickListener(this);
+            v.setOnLongClickListener(this);
             return new ComicViewHolder(v);
         }
 
         @Override
-        public void onBindViewHolder(final ComicViewHolder comicViewHolder, int i) {
-            if (prefHelper.checkRead(titles.size() - titles.indexOf(titles.get(i)))) {
+        public void onClick(View view) {
+            if (!prefHelper.isOnline(getActivity()) && !offlineMode) {
+                Toast.makeText(getActivity(), R.string.no_connection, Toast.LENGTH_SHORT).show();
+                return;
+            }
+            displayWhatIf(articles.get(rv.getChildAdapterPosition(view)).getNumber());
+
+            //TODO add back once search is sorted out
+//            if (searchMenuItem.isActionViewExpanded()) {
+//                searchMenuItem.collapseActionView();
+//            }
+        }
+
+        @Override
+        public boolean onLongClick(View view) {
+            Article article = articles.get(rv.getChildAdapterPosition(view));
+
+            AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
+
+//            int pos = rv.getChildAdapterPosition(v);
+//            final String title = adapter.titles.get(pos);
+//            final int n = mTitles.size() - mTitles.indexOf(title);
+
+            int array = article.isFavorite() ? R.array.whatif_card_long_click_remove : R.array.whatif_card_long_click;
+
+            new AlertDialog.Builder(getActivity()).setItems(array, (dialog, which) -> {
+//                int pos;
+//                int n;
+
+                String title;
+                switch (which) {
+                    case 0:
+                        Intent share = new Intent(Intent.ACTION_SEND);
+                        share.setType("text/plain");
+                        share.putExtra(Intent.EXTRA_SUBJECT, "What if: " + article.getTitle());
+                        share.putExtra(Intent.EXTRA_TEXT, "https://what-if.xkcd.com/" + article.getNumber());
+                        startActivity(share);
+                        break;
+                    case 1:
+                        startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse("https://what-if.xkcd.com/" + article.getNumber())));
+                        break;
+                    case 2:
+                        Realm realm = Realm.getDefaultInstance();
+                        realm.beginTransaction();
+                        article.setFavorite(!article.isFavorite());
+                        realm.copyToRealmOrUpdate(article);
+                        realm.commitTransaction();
+                        realm.close();
+
+                        //TODO Probably need to do an update here once this fragment also shows favorites
+                        break;
+                }
+            }).create().show();
+            return true;
+        }
+
+        @Override
+        public void onBindViewHolder(final RVAdapter.ComicViewHolder comicViewHolder, int i) {
+            Article article = articles.get(i);
+            comicViewHolder.articleTitle.setText(article.getTitle());
+            comicViewHolder.articleNumber.setText(String.valueOf(article.getNumber()));
+
+            int id = databaseManager.getWhatIfMissingThumbnailId(article.getTitle());
+            if (id != 0) {
+                comicViewHolder.thumbnail.setImageDrawable(ContextCompat.getDrawable(getActivity(), id));
+                return;
+            }
+            if (prefHelper.fullOfflineWhatIf()) {
+                File offlinePath = prefHelper.getOfflinePath();
+                File dir = new File(offlinePath.getAbsolutePath() + OFFLINE_WHATIF_OVERVIEW_PATH);
+                File file = new File(dir, article.getNumber() + ".png");
+
+                GlideApp.with(getActivity())
+                        .load(file)
+                        .apply(new RequestOptions().placeholder(getCircularProgress()))
+                        .into(comicViewHolder.thumbnail);
+            } else {
+                GlideApp.with(getActivity())
+                        .load(article.getThumbnail())
+                        .apply(new RequestOptions().placeholder(getCircularProgress()))
+                        .into(comicViewHolder.thumbnail);
+            }
+
+            if (article.isRead()) {
                 if (themePrefs.nightThemeEnabled())
                     comicViewHolder.articleTitle.setTextColor(ContextCompat.getColor(getActivity(), android.R.color.tertiary_text_light));
                 else
@@ -341,29 +562,43 @@ public class WhatIfFragment extends Fragment {
                 else
                     comicViewHolder.articleTitle.setTextColor(ContextCompat.getColor(getActivity(), android.R.color.tertiary_text_light));
             }
-            super.onBindViewHolder(comicViewHolder, i);
         }
-    }
 
-    private class CustomOnClickListener implements View.OnClickListener {
         @Override
-        public void onClick(View v) {
-            if (!prefHelper.isOnline(getActivity()) && !offlineMode) {
-                Toast.makeText(getActivity(), R.string.no_connection, Toast.LENGTH_SHORT).show();
-                return;
-            }
-            int pos = rv.getChildAdapterPosition(v);
-            String title = adapter.titles.get(pos);
-            int n = mTitles.size() - mTitles.indexOf(title);
+        public int getItemCount() {
+            return articles.size();
+        }
 
-            displayWhatIf(n);
+        public class ComicViewHolder extends RecyclerView.ViewHolder {
+            CardView cv;
+            TextView articleTitle;
+            TextView articleNumber;
+            ImageView thumbnail;
 
-            if (searchMenuItem.isActionViewExpanded()) {
-                searchMenuItem.collapseActionView();
-                rv.scrollToPosition(mTitles.size() - n);
+            ComicViewHolder(View itemView) {
+                super(itemView);
+                cv = itemView.findViewById(R.id.cv);
+                if (themePrefs.amoledThemeEnabled()) {
+                    cv.setCardBackgroundColor(Color.BLACK);
+                } else if (themePrefs.nightThemeEnabled()) {
+                    cv.setCardBackgroundColor(ContextCompat.getColor(getActivity(), R.color.background_material_dark));
+                }
+                articleTitle = itemView.findViewById(R.id.article_title);
+                articleNumber = itemView.findViewById(R.id.article_info);
+                thumbnail = itemView.findViewById(R.id.thumbnail);
+                if (themePrefs.invertColors(false) || themePrefs.amoledThemeEnabled())
+                    thumbnail.setColorFilter(themePrefs.getNegativeColorFilter());
             }
         }
     }
+
+//    public class WhatIfRVAdapter extends WhatIfOverviewFragment.RVAdapter {
+//
+//
+//        @Override
+//        public void onBindViewHolder(final ComicViewHolder comicViewHolder, int i) {
+//        }
+//    }
 
     private void displayWhatIf(int number) {
         Intent intent = new Intent(getActivity(), WhatIfActivity.class);
@@ -374,67 +609,9 @@ public class WhatIfFragment extends Fragment {
 
     public void getRandom() {
         if (prefHelper.isOnline(getActivity()) | offlineMode) {
-            //TODO a lot of this code here overlaps with the
-            // click handler for an entry. Can we factor this out into a method?
-            Random mRand = new Random();
-            int number = mRand.nextInt(adapter.titles.size());
-            String title = adapter.titles.get(number);
-            int n = mTitles.size() - mTitles.indexOf(title);
-            displayWhatIf(n);
+            displayWhatIf(new Random().nextInt(adapter.getItemCount()));
         } else {
             Toast.makeText(getActivity(), R.string.no_connection, Toast.LENGTH_SHORT).show();
-        }
-    }
-
-    class CustomOnLongClickListener implements View.OnLongClickListener {
-        @Override
-        public boolean onLongClick(final View v) {
-            AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
-            int pos = rv.getChildAdapterPosition(v);
-            final String title = adapter.titles.get(pos);
-            final int n = mTitles.size() - mTitles.indexOf(title);
-            int array = prefHelper.checkWhatIfFav(n) ? R.array.whatif_card_long_click_remove : R.array.whatif_card_long_click;
-            builder.setItems(array, new DialogInterface.OnClickListener() {
-                @Override
-                public void onClick(DialogInterface dialog, int which) {
-                    int pos;
-                    int n;
-                    String title;
-                    switch (which) {
-                        case 0:
-                            pos = rv.getChildAdapterPosition(v);
-                            title = adapter.titles.get(pos);
-                            n = mTitles.size() - mTitles.indexOf(title);
-                            Intent share = new Intent(Intent.ACTION_SEND);
-                            share.setType("text/plain");
-                            share.putExtra(Intent.EXTRA_SUBJECT, "What if: " + title);
-                            share.putExtra(Intent.EXTRA_TEXT, "https://what-if.xkcd.com/" + String.valueOf(n));
-                            startActivity(share);
-                            break;
-                        case 1:
-                            pos = rv.getChildAdapterPosition(v);
-                            title = adapter.titles.get(pos);
-                            n = mTitles.size() - mTitles.indexOf(title);
-                            Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse("https://what-if.xkcd.com/" + String.valueOf(n)));
-                            startActivity(intent);
-                            break;
-                        case 2:
-                            pos = rv.getChildAdapterPosition(v);
-                            title = adapter.titles.get(pos);
-                            n = mTitles.size() - mTitles.indexOf(title);
-                            if (!prefHelper.checkWhatIfFav(n)) {
-                                prefHelper.setWhatIfFavorite(String.valueOf(n));
-                            } else {
-                                prefHelper.removeWhatifFav(n);
-                            }
-                            WhatIfFavoritesFragment.getInstance().updateFavorites();
-                            break;
-                    }
-                }
-            });
-            AlertDialog alert = builder.create();
-            alert.show();
-            return true;
         }
     }
 
@@ -458,29 +635,42 @@ public class WhatIfFragment extends Fragment {
     }
 
     private void setupAdapter(boolean hideRead) {
-        if (hideRead) {
-            ArrayList<String> titleUnread = new ArrayList<>();
-            ArrayList<String> imgUnread = new ArrayList<>();
-            for (int i = 0; i < mTitles.size(); i++) {
-                if (!prefHelper.checkRead(mTitles.size() - i)) {
-                    titleUnread.add(mTitles.get(i));
-                    if (!offlineMode)
-                        imgUnread.add(mImgs.get(i));
-                }
-            }
-            adapter = new WhatIfRVAdapter(titleUnread, imgUnread, (MainActivity) getActivity());
-
-            SlideInBottomAnimationAdapter slideAdapter = new SlideInBottomAnimationAdapter(adapter);
-            slideAdapter.setInterpolator(new DecelerateInterpolator());
-            rv.setAdapter(slideAdapter);
-            rv.scrollToPosition(titleUnread.size() - prefHelper.getLastWhatIf());
+        RealmResults<Article> articles;
+        if (prefHelper.hideRead()) {
+            articles = Realm.getDefaultInstance().where(Article.class).equalTo("read", false).findAll();
         } else {
-            adapter = new WhatIfRVAdapter(mTitles, mImgs, (MainActivity) getActivity());
-            SlideInBottomAnimationAdapter slideAdapter = new SlideInBottomAnimationAdapter(adapter);
-            slideAdapter.setInterpolator(new DecelerateInterpolator());
-            rv.setAdapter(slideAdapter);
-            rv.scrollToPosition(mTitles.size() - prefHelper.getLastWhatIf());
+            articles = Realm.getDefaultInstance().where(Article.class).findAll();
         }
+        articles.sort("number", Sort.DESCENDING);
+        adapter = new RVAdapter(articles, (MainActivity) getActivity());
+
+        SlideInBottomAnimationAdapter slideAdapter = new SlideInBottomAnimationAdapter(adapter);
+        slideAdapter.setInterpolator(new DecelerateInterpolator());
+        rv.setAdapter(slideAdapter);
+
+        if (!prefHelper.hideRead()) {
+            rv.getLayoutManager().scrollToPosition(articles.size() - prefHelper.getLastWhatIf());
+        }
+
+//        if (hideRead) {
+//            ArrayList<String> titleUnread = new ArrayList<>();
+//            ArrayList<String> imgUnread = new ArrayList<>();
+//            for (int i = 0; i < mTitles.size(); i++) {
+//                if (!prefHelper.checkRead(mTitles.size() - i)) {
+//                    titleUnread.add(mTitles.get(i));
+//                    if (!offlineMode)
+//                        imgUnread.add(mImgs.get(i));
+//                }
+//            }
+//            adapter = new WhatIfRVAdapter(titleUnread, imgUnread, (MainActivity) getActivity());
+//
+//        } else {
+//            adapter = new WhatIfRVAdapter(mTitles, mImgs, (MainActivity) getActivity());
+//            SlideInBottomAnimationAdapter slideAdapter = new SlideInBottomAnimationAdapter(adapter);
+//            slideAdapter.setInterpolator(new DecelerateInterpolator());
+//            rv.setAdapter(slideAdapter);
+//            rv.scrollToPosition(mTitles.size() - prefHelper.getLastWhatIf());
+//        }
     }
 
     public void updateRv() {
@@ -489,7 +679,10 @@ public class WhatIfFragment extends Fragment {
 
     @Override
     public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
+        if (true) return; //TODO remove this when layout has been moved back
+
         menu.findItem(R.id.action_hide_read).setChecked(prefHelper.hideReadWhatIf());
+
         final SearchView searchView = (SearchView) menu.findItem(R.id.action_search).getActionView();
         searchView.setIconifiedByDefault(false);
         searchView.setQueryHint(getResources().getString(R.string.search_hint_whatif));
@@ -504,19 +697,20 @@ public class WhatIfFragment extends Fragment {
 
             @Override
             public boolean onQueryTextChange(String newText) {
-                ArrayList<String> titleResults = new ArrayList<>();
-                ArrayList<String> imgResults = new ArrayList<>();
-                for (int i = 0; i < mTitles.size(); i++) {
-                    if (mTitles.get(i).toLowerCase().contains(newText.toLowerCase().trim())) {
-                        titleResults.add(mTitles.get(i));
-                        if (!offlineMode)
-                            imgResults.add(mImgs.get(i));
-                    }
-                }
-                adapter = new WhatIfRVAdapter(titleResults, imgResults, (MainActivity) getActivity());
-                SlideInBottomAnimationAdapter slideAdapter = new SlideInBottomAnimationAdapter(adapter);
-                slideAdapter.setInterpolator(new DecelerateInterpolator());
-                rv.setAdapter(slideAdapter);
+                //TODO refactor to use realm. Probably setupAdapter should take a parameter RealmResult<Article>?
+//                ArrayList<String> titleResults = new ArrayList<>();
+//                ArrayList<String> imgResults = new ArrayList<>();
+//                for (int i = 0; i < mTitles.size(); i++) {
+//                    if (mTitles.get(i).toLowerCase().contains(newText.toLowerCase().trim())) {
+//                        titleResults.add(mTitles.get(i));
+//                        if (!offlineMode)
+//                            imgResults.add(mImgs.get(i));
+//                    }
+//                }
+//                adapter = new WhatIfRVAdapter(titleResults, imgResults, (MainActivity) getActivity());
+//                SlideInBottomAnimationAdapter slideAdapter = new SlideInBottomAnimationAdapter(adapter);
+//                slideAdapter.setInterpolator(new DecelerateInterpolator());
+//                rv.setAdapter(slideAdapter);
                 return false;
             }
         });
@@ -524,29 +718,29 @@ public class WhatIfFragment extends Fragment {
         MenuItemCompat.setOnActionExpandListener(searchMenuItem, new MenuItemCompat.OnActionExpandListener() {
             @Override
             public boolean onMenuItemActionExpand(MenuItem item) {
-                View view = getActivity().getCurrentFocus();
-                if (view != null) {
-                    InputMethodManager imm = (InputMethodManager) getActivity().getSystemService(Context.INPUT_METHOD_SERVICE);
-                    imm.showSoftInput(view, 0);
-                }
-                searchView.requestFocus();
-                ((WhatIfOverviewFragment) getParentFragment()).fab.hide();
+//                View view = getActivity().getCurrentFocus();
+//                if (view != null) {
+//                    InputMethodManager imm = (InputMethodManager) getActivity().getSystemService(Context.INPUT_METHOD_SERVICE);
+//                    imm.showSoftInput(view, 0);
+//                }
+//                searchView.requestFocus();
+//                ((WhatIfOverviewFragment) getParentFragment()).fab.hide();
                 return true;
             }
 
             @Override
             public boolean onMenuItemActionCollapse(MenuItem item) {
-                View view = getActivity().getCurrentFocus();
-                if (view != null) {
-                    InputMethodManager imm = (InputMethodManager) getActivity().getSystemService(Context.INPUT_METHOD_SERVICE);
-                    imm.hideSoftInputFromWindow(view.getWindowToken(), 0);
-                }
-                adapter = new WhatIfRVAdapter(mTitles, mImgs, (MainActivity) getActivity());
-                SlideInBottomAnimationAdapter slideAdapter = new SlideInBottomAnimationAdapter(adapter);
-                slideAdapter.setInterpolator(new DecelerateInterpolator());
-                rv.setAdapter(slideAdapter);
-                searchView.setQuery("", false);
-                ((WhatIfOverviewFragment) getParentFragment()).fab.show();
+//                View view = getActivity().getCurrentFocus();
+//                if (view != null) {
+//                    InputMethodManager imm = (InputMethodManager) getActivity().getSystemService(Context.INPUT_METHOD_SERVICE);
+//                    imm.hideSoftInputFromWindow(view.getWindowToken(), 0);
+//                }
+//                adapter = new WhatIfRVAdapter(mTitles, mImgs, (MainActivity) getActivity());
+//                SlideInBottomAnimationAdapter slideAdapter = new SlideInBottomAnimationAdapter(adapter);
+//                slideAdapter.setInterpolator(new DecelerateInterpolator());
+//                rv.setAdapter(slideAdapter);
+//                searchView.setQuery("", false);
+//                ((WhatIfOverviewFragment) getParentFragment()).fab.show();
                 return true;
             }
         });
