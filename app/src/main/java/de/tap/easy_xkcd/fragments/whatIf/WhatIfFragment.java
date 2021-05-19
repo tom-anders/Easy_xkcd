@@ -177,7 +177,6 @@ public class WhatIfFragment extends Fragment {
                 article.setTitle(titles.get(number - 1).text());
                 article.setThumbnail("https://what-if.xkcd.com/" + thumbnails.get(number - 1).attr("src")); // -1 cause articles a 1-based indexed
 
-                //TODO add a check here to if we already have offline files, if so, set this to true
                 article.setOffline(false);
 
                 // TODO These two need to be imported from the legacy database

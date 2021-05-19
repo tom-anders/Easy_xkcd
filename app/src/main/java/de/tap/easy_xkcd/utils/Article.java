@@ -64,26 +64,24 @@ public class Article extends RealmObject {
     private static final String OFFLINE_WHATIF_PATH = "/easy xkcd/what if/";
     private static final String OFFLINE_WHATIF_OVERVIEW_PATH = "/easy xkcd/what if/overview/";
 
+    public static boolean hasOfflineFilesForArticle(int number, PrefHelper prefHelper) {
+        File sdCard = prefHelper.getOfflinePath();
+
+        File thumbnail = new File(sdCard.getAbsolutePath() + OFFLINE_WHATIF_OVERVIEW_PATH + number + ".png");
+        File doc = new File(sdCard.getAbsolutePath() + OFFLINE_WHATIF_PATH + number + "/" + number + ".html");
+
+        return thumbnail.exists() && doc.exists();
+    }
+
     public static boolean downloadThumbnails(RealmResults<Article> articles, PrefHelper prefHelper) {
         File sdCard = prefHelper.getOfflinePath();
         File dir = new File(sdCard.getAbsolutePath() + OFFLINE_WHATIF_OVERVIEW_PATH);
         if (!dir.exists()) dir.mkdirs();
 
-        OkHttpClient client = JsonParser.getNewHttpClient();
         try {
-            Document doc = Jsoup.parse(
-                    client.newCall(
-                            new Request.Builder()
-                                    .url("https://what-if.xkcd.com/archive/")
-                                    .build())
-                            .execute().body().string());
-
-            Elements thumbnails = doc.select("img.archive-image");
-
             for (Article article : articles) {
-                // Articles are 1-based indexed, hence the "-1"
-                String url = thumbnails.get(article.getNumber() - 1).absUrl("src");
-                Response response = client.newCall(new Request.Builder().url(url).build()).execute();
+                Response response = JsonParser.getNewHttpClient().newCall(
+                        new Request.Builder().url(article.getThumbnail()).build()).execute();
 
                 File file = new File(dir, article.getNumber() + ".png");
                 BufferedSink sink = Okio.buffer(Okio.sink(file));
@@ -102,6 +100,8 @@ public class Article extends RealmObject {
     }
 
     public static boolean downloadArticle(int number, PrefHelper prefHelper) {
+        if (hasOfflineFilesForArticle(number, prefHelper)) return true;
+
         Timber.d("downloading %d...", number);
         
         try {
