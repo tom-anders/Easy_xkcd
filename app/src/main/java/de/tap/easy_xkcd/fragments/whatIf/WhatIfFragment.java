@@ -135,6 +135,11 @@ public class WhatIfFragment extends Fragment {
 
         if (prefHelper.isOnline(getActivity())) {
             if (!prefHelper.fullOfflineWhatIf() || prefHelper.mayDownloadDataForOfflineMode(getActivity())) {
+                ProgressDialog progress = new ProgressDialog(getActivity());
+                progress.setMessage(getResources().getString(R.string.loading_articles));
+                progress.setIndeterminate(true);
+                progress.setCancelable(false);
+                progress.show();
                 Single.fromCallable(() -> Jsoup.parse(JsonParser.getNewHttpClient().newCall(new Request.Builder()
                         .url("https://what-if.xkcd.com/archive/")
                         .build()).execute().body().string()))
@@ -142,10 +147,11 @@ public class WhatIfFragment extends Fragment {
                         .observeOn(AndroidSchedulers.mainThread())
                         .doOnError(e -> { Timber.e(e); displayOverview();})
                         .doOnSuccess(this::updateDatabase)
+                        .doFinally(progress::dismiss)
                         .subscribe();
             }
         } else {
-            displayOverview();;
+            displayOverview();
         }
         return v;
     }
