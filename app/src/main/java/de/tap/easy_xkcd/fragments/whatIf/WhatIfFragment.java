@@ -14,6 +14,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.cardview.widget.CardView;
 import androidx.core.content.ContextCompat;
+import androidx.core.view.MenuCompat;
 import androidx.core.view.MenuItemCompat;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
@@ -73,6 +74,7 @@ import io.reactivex.rxjava3.disposables.Disposable;
 import io.reactivex.rxjava3.functions.Action;
 import io.reactivex.rxjava3.functions.Consumer;
 import io.reactivex.rxjava3.schedulers.Schedulers;
+import io.realm.Case;
 import io.realm.Realm;
 import io.realm.RealmResults;
 import io.realm.Sort;
@@ -86,8 +88,6 @@ import timber.log.Timber;
 
 public class WhatIfFragment extends Fragment {
 
-    public static ArrayList<String> mTitles = new ArrayList<>();
-    private static ArrayList<String> mImgs = new ArrayList<>();
     @Bind(R.id.rv)
     FastScrollRecyclerView rv;
     private MenuItem searchMenuItem;
@@ -99,6 +99,7 @@ public class WhatIfFragment extends Fragment {
     private static final String OFFLINE_WHATIF_PATH = "/easy xkcd/what if/";
     private static final String WHATIF_INTENT = "de.tap.easy_xkcd.ACTION_WHAT_IF";
     private PrefHelper prefHelper;
+    private DatabaseManager databaseManager;
     private ThemePrefs themePrefs;
 
     // Used for starting the WhatIfActivity. When the activity finishes,
@@ -112,6 +113,7 @@ public class WhatIfFragment extends Fragment {
         setHasOptionsMenu(true);
         prefHelper = ((MainActivity) getActivity()).getPrefHelper();
         themePrefs = ((MainActivity) getActivity()).getThemePrefs();
+        databaseManager = ((MainActivity) getActivity()).getDatabaseManager();
 
         LinearLayoutManager llm = new LinearLayoutManager(getActivity());
         rv.setLayoutManager(llm);
@@ -201,7 +203,7 @@ public class WhatIfFragment extends Fragment {
     }
 
     void displayOverview() {
-        setupAdapter(prefHelper.hideReadWhatIf());
+        setupAdapter();
 
         Toolbar toolbar = ((MainActivity) getActivity()).getToolbar();
         if (toolbar.getAlpha() == 0) {
@@ -225,216 +227,9 @@ public class WhatIfFragment extends Fragment {
         }
     }
 
-    private class UpdateArticles extends AsyncTask<Void, Void, Void> {
-        private ProgressDialog progress;
-        private boolean showProgress;
-        private OkHttpClient client;
-
-        @Override
-        protected void onPreExecute() {
-            showProgress = ((MainActivity) getActivity()).getCurrentFragment() == MainActivity.CurrentFragment.WhatIf;
-            if (showProgress) {
-                progress = new ProgressDialog(getActivity());
-                progress.setMessage(getResources().getString(R.string.loading_articles));
-                progress.setIndeterminate(true);
-                progress.setCancelable(false);
-                progress.show();
-            }
-            client = new OkHttpClient();
-        }
-
-        @SuppressWarnings("ResultOfMethodCallIgnored")
-        @Override
-        protected Void doInBackground(Void... dummy) {
-            int highestOffline = prefHelper.getNewestWhatIf();
-            try {
-                OkHttpClient client = JsonParser.getNewHttpClient();
-                Request r = new Request.Builder()
-                        .url("https://what-if.xkcd.com/archive/")
-                        .build();
-                Response re = client.newCall(r).execute();
-                String body = re.body().string();
-                Document doc = Jsoup.parse(body);
-                Elements titles = doc.select("h1");
-                Elements img = doc.select("img.archive-image");
-                if (titles.size() > prefHelper.getNewestWhatIf()) {
-                    Log.d("what if", "updating overview");
-                    prefHelper.setNewestWhatif(titles.size());
-
-                    StringBuilder sb = new StringBuilder();
-                    sb.append(titles.first().text());
-                    titles.remove(0);
-                    for (Element title : titles) {
-                        sb.append("&&");
-                        sb.append(title.text());
-                    }
-                    prefHelper.setWhatIfTitles(sb.toString());
-
-                    File sdCard = prefHelper.getOfflinePath();
-                    File dir = new File(sdCard.getAbsolutePath() + OFFLINE_WHATIF_OVERVIEW_PATH);
-                    if (!dir.exists()) dir.mkdirs();
-                    for (int i = prefHelper.getNewestWhatIf(); i < titles.size() + 1; i++) {
-                        String url = img.get(i).absUrl("src");
-                        try {
-                            File file = new File(dir, String.valueOf(i + 1) + ".png");
-                            Request request = new Request.Builder()
-                                    .url(url)
-                                    .build();
-                            Response response = client.newCall(request).execute();
-                            BufferedSink sink = Okio.buffer(Okio.sink(file));
-                            sink.writeAll(response.body().source());
-                            sink.close();
-                            response.body().close();
-                        } catch (Exception e) {
-                            e.printStackTrace();
-                        }
-                    }
-                }
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-            for (int i = highestOffline + 1; i <= prefHelper.getNewestWhatIf(); i++) {
-                downloadArticle(i);
-            }
-
-            //this What If failed downloading when it first came out
-            if (!prefHelper.sunBeamDownloaded())
-                downloadArticle(141);
-
-            if (!prefHelper.nomediaCreated()) {
-                File sdCard = prefHelper.getOfflinePath();
-                File dir = new File(sdCard.getAbsolutePath() + "/easy xkcd");
-                File nomedia = new File(dir, ".nomedia");
-                try {
-                    boolean created = nomedia.createNewFile();
-                    Log.d("created", String.valueOf(created));
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-            }
-            return null;
-        }
-
-        private void downloadArticle(int i) {
-            Log.d("what if", "downloading " + i);
-            if (i == 141) prefHelper.setSunbeamLoaded();
-            Document doc;
-            File sdCard = prefHelper.getOfflinePath();
-            File dir;
-            try {
-                OkHttpClient client = JsonParser.getNewHttpClient();
-                Request r = new Request.Builder()
-                        .url("https://what-if.xkcd.com/" + String.valueOf(i))
-                        .build();
-                Response re = client.newCall(r).execute();
-                String body = re.body().string();
-                doc = Jsoup.parse(body);
-                dir = new File(sdCard.getAbsolutePath() + OFFLINE_WHATIF_PATH + String.valueOf(i));
-                if (!dir.exists()) dir.mkdirs();
-                File file = new File(dir, String.valueOf(i) + ".html");
-                BufferedWriter writer = new BufferedWriter(new FileWriter(file));
-                writer.write(doc.outerHtml());
-                writer.close();
-                //download images
-                int count = 1;
-                for (Element e : doc.select(".illustration")) {
-                    try {
-                        String url = "https://what-if.xkcd.com" + e.attr("src");
-                        Request request = new Request.Builder()
-                                .url(url)
-                                .build();
-                        Response response = client.newCall(request).execute();
-                        file = new File(dir, String.valueOf(count) + ".png");
-                        BufferedSink sink = Okio.buffer(Okio.sink(file));
-                        sink.writeAll(response.body().source());
-                        sink.close();
-                        response.body().close();
-                        count++;
-                    } catch (Exception e2) {
-                        Log.e("article" + i, e2.getMessage());
-                    }
-                }
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-        }
-
-        @Override
-        protected void onPostExecute(Void dummy) {
-            if (showProgress)
-                progress.dismiss();
-            new DisplayOverview().execute();
-        }
-
-    }
-
-    private class DisplayOverview extends AsyncTask<Void, Void, Void> {
-
-        @Override
-        protected Void doInBackground(Void... dummy) {
-            mTitles.clear();
-            mImgs.clear();
-
-            if (offlineMode) {
-                mTitles = prefHelper.getWhatIfTitles();
-                Collections.reverse(mTitles);
-            } else {
-                Document doc = WhatIfOverviewFragment.doc;
-                Elements titles = doc.select("h1");
-                Elements imagelinks = doc.select("img.archive-image");
-
-                for (Element title : titles)
-                    mTitles.add(title.text());
-
-                for (int i = 0; i < mTitles.size(); i++) {
-                    mImgs.add("https://what-if.xkcd.com/imgs/a/" + (i + 1) + "/archive_crop.png");
-                }
-
-                Collections.reverse(mTitles);
-                Collections.reverse(mImgs);
-            }
-
-            for (int i = 0; i < mTitles.size(); i++) {
-                if (mTitles.get(i).equals("Bowling Ball"))  {
-                    mTitles.set(i, "Bowling Ball "); //This title appears twice, so add " " to one of the titles to make everything work later
-                    break;
-                }
-            }
-            return null;
-        }
-
-        @Override
-        protected void onPostExecute(Void dummy) {
-            prefHelper.setNewestWhatif(mTitles.size());
-            setupAdapter(prefHelper.hideReadWhatIf());
-
-            Toolbar toolbar = ((MainActivity) getActivity()).getToolbar();
-            if (toolbar.getAlpha() == 0) {
-                toolbar.setTranslationY(-300);
-                toolbar.animate().setDuration(300).translationY(0).alpha(1);
-                View view;
-                for (int i = 0; i < toolbar.getChildCount(); i++) {
-                    view = toolbar.getChildAt(i);
-                    view.setTranslationY(-300);
-                    view.animate().setStartDelay(50 * (i + 1)).setDuration(70 * (i + 1)).translationY(0);
-                }
-            }
-
-            Intent mainIntent = getActivity().getIntent();
-            if (mainIntent != null) {
-                if (Objects.equals(mainIntent.getAction(), Intent.ACTION_VIEW)) {
-                    displayWhatIf(MainActivity.getNumberFromUrl(mainIntent.getDataString(), 1));
-                } else if (Objects.equals(mainIntent.getAction(), WHATIF_INTENT)) {
-                    displayWhatIf(mainIntent.getIntExtra("number", 1));
-                }
-            }
-        }
-
-    }
-
     private class RVAdapter extends RecyclerView.Adapter<RVAdapter.ComicViewHolder>
             implements FastScrollRecyclerView.SectionedAdapter, View.OnClickListener, View.OnLongClickListener { //TODO color of fast scroller in night mode?
-        final private RealmResults<Article> articles;
+        private RealmResults<Article> articles;
 
         final private DatabaseManager databaseManager;
 
@@ -448,6 +243,11 @@ public class WhatIfFragment extends Fragment {
             this.articles = articles;
 
             databaseManager = activity.getDatabaseManager();
+        }
+
+        public void setArticles(RealmResults<Article> articles) {
+            this.articles = articles;
+            notifyDataSetChanged();
         }
 
         private CircularProgressDrawable getCircularProgress() {
@@ -474,30 +274,15 @@ public class WhatIfFragment extends Fragment {
                 return;
             }
             displayWhatIf(articles.get(rv.getChildAdapterPosition(view)).getNumber());
-
-            //TODO add back once search is sorted out
-//            if (searchMenuItem.isActionViewExpanded()) {
-//                searchMenuItem.collapseActionView();
-//            }
         }
 
         @Override
         public boolean onLongClick(View view) {
             Article article = articles.get(rv.getChildAdapterPosition(view));
 
-            AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
-
-//            int pos = rv.getChildAdapterPosition(v);
-//            final String title = adapter.titles.get(pos);
-//            final int n = mTitles.size() - mTitles.indexOf(title);
-
             int array = article.isFavorite() ? R.array.whatif_card_long_click_remove : R.array.whatif_card_long_click;
 
             new AlertDialog.Builder(getActivity()).setItems(array, (dialog, which) -> {
-//                int pos;
-//                int n;
-
-                String title;
                 switch (which) {
                     case 0:
                         Intent share = new Intent(Intent.ACTION_SEND);
@@ -533,9 +318,7 @@ public class WhatIfFragment extends Fragment {
             int id = databaseManager.getWhatIfMissingThumbnailId(article.getTitle());
             if (id != 0) {
                 comicViewHolder.thumbnail.setImageDrawable(ContextCompat.getDrawable(getActivity(), id));
-                return;
-            }
-            if (prefHelper.fullOfflineWhatIf()) {
+            } else if (prefHelper.fullOfflineWhatIf()) {
                 File offlinePath = prefHelper.getOfflinePath();
                 File dir = new File(offlinePath.getAbsolutePath() + OFFLINE_WHATIF_OVERVIEW_PATH);
                 File file = new File(dir, article.getNumber() + ".png");
@@ -603,7 +386,6 @@ public class WhatIfFragment extends Fragment {
     private void displayWhatIf(int number) {
         Intent intent = new Intent(getActivity(), WhatIfActivity.class);
         intent.putExtra(WhatIfActivity.INTENT_NUMBER, number);
-        intent.putExtra(WhatIfActivity.INTENT_NUM_ARTICLES, mTitles.size());
         startActivityForResult(intent, WHATIF_REQUEST_CODE);
     }
 
@@ -619,27 +401,29 @@ public class WhatIfFragment extends Fragment {
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
             case R.id.action_unread:
-                prefHelper.setAllUnread();
-                setupAdapter(prefHelper.hideReadWhatIf());
+                databaseManager.setAllArticlesReadStatus(false);
+                setupAdapter();
                 return true;
             case R.id.action_all_read:
-                prefHelper.setAllWhatIfRead();
-                setupAdapter(prefHelper.hideReadWhatIf());
+                databaseManager.setAllArticlesReadStatus(true);
+                setupAdapter();
+                return true;
             case R.id.action_hide_read:
                 item.setChecked(!item.isChecked());
                 prefHelper.setHideReadWhatIf(item.isChecked());
-                setupAdapter(item.isChecked());
+                setupAdapter();
                 return true;
         }
         return super.onOptionsItemSelected(item);
     }
 
-    private void setupAdapter(boolean hideRead) {
+    private void setupAdapter() {
+        Realm realm = Realm.getDefaultInstance();
         RealmResults<Article> articles;
-        if (prefHelper.hideRead()) {
-            articles = Realm.getDefaultInstance().where(Article.class).equalTo("read", false).findAll();
+        if (prefHelper.hideReadWhatIf()) {
+            articles = realm.where(Article.class).equalTo("read", false).findAll();
         } else {
-            articles = Realm.getDefaultInstance().where(Article.class).findAll();
+            articles = realm.where(Article.class).findAll();
         }
         articles.sort("number", Sort.DESCENDING);
         adapter = new RVAdapter(articles, (MainActivity) getActivity());
@@ -673,13 +457,10 @@ public class WhatIfFragment extends Fragment {
 //        }
     }
 
-    public void updateRv() {
-        setupAdapter(prefHelper.hideReadWhatIf());
-    }
-
     @Override
     public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
-        if (true) return; //TODO remove this when layout has been moved back
+        inflater.inflate(R.menu.menu_what_if_fragment, menu);
+        MenuCompat.setGroupDividerEnabled(menu, true);
 
         menu.findItem(R.id.action_hide_read).setChecked(prefHelper.hideReadWhatIf());
 
@@ -698,6 +479,13 @@ public class WhatIfFragment extends Fragment {
             @Override
             public boolean onQueryTextChange(String newText) {
                 //TODO refactor to use realm. Probably setupAdapter should take a parameter RealmResult<Article>?
+
+                Realm realm = Realm.getDefaultInstance();
+                RealmResults<Article> articles = realm.where(Article.class).contains("title", newText, Case.INSENSITIVE).findAll();
+                articles.sort("number", Sort.DESCENDING);
+                adapter.setArticles(articles);
+                realm.close();
+
 //                ArrayList<String> titleResults = new ArrayList<>();
 //                ArrayList<String> imgResults = new ArrayList<>();
 //                for (int i = 0; i < mTitles.size(); i++) {
@@ -718,23 +506,27 @@ public class WhatIfFragment extends Fragment {
         MenuItemCompat.setOnActionExpandListener(searchMenuItem, new MenuItemCompat.OnActionExpandListener() {
             @Override
             public boolean onMenuItemActionExpand(MenuItem item) {
-//                View view = getActivity().getCurrentFocus();
-//                if (view != null) {
-//                    InputMethodManager imm = (InputMethodManager) getActivity().getSystemService(Context.INPUT_METHOD_SERVICE);
-//                    imm.showSoftInput(view, 0);
-//                }
-//                searchView.requestFocus();
+                View view = getActivity().getCurrentFocus();
+                if (view != null) {
+                    InputMethodManager imm = (InputMethodManager) getActivity().getSystemService(Context.INPUT_METHOD_SERVICE);
+                    imm.showSoftInput(view, 0);
+                }
+                searchView.requestFocus();
+
+                //TODO Hack this back in?!
 //                ((WhatIfOverviewFragment) getParentFragment()).fab.hide();
                 return true;
             }
 
             @Override
             public boolean onMenuItemActionCollapse(MenuItem item) {
-//                View view = getActivity().getCurrentFocus();
-//                if (view != null) {
-//                    InputMethodManager imm = (InputMethodManager) getActivity().getSystemService(Context.INPUT_METHOD_SERVICE);
-//                    imm.hideSoftInputFromWindow(view.getWindowToken(), 0);
-//                }
+                View view = getActivity().getCurrentFocus();
+                if (view != null) {
+                    InputMethodManager imm = (InputMethodManager) getActivity().getSystemService(Context.INPUT_METHOD_SERVICE);
+                    imm.hideSoftInputFromWindow(view.getWindowToken(), 0);
+                }
+                searchView.setQuery("", false);
+
 //                adapter = new WhatIfRVAdapter(mTitles, mImgs, (MainActivity) getActivity());
 //                SlideInBottomAnimationAdapter slideAdapter = new SlideInBottomAnimationAdapter(adapter);
 //                slideAdapter.setInterpolator(new DecelerateInterpolator());
@@ -766,7 +558,11 @@ public class WhatIfFragment extends Fragment {
     @Override
     public void onActivityResult(int requestCode, int resultCode, @Nullable @org.jetbrains.annotations.Nullable Intent data) {
         if (requestCode == WHATIF_REQUEST_CODE) {
-            updateRv();
+            if (searchMenuItem.isActionViewExpanded()) {
+                searchMenuItem.collapseActionView();
+            }
+
+            setupAdapter();
         }
 
         super.onActivityResult(requestCode, resultCode, data);

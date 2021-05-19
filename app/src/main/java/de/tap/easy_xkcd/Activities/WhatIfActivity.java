@@ -55,7 +55,6 @@ import timber.log.Timber;
 
 public class WhatIfActivity extends BaseActivity {
     public static final String INTENT_NUMBER = "number";
-    public static final String INTENT_NUM_ARTICLES = "numArticles";
 
     @Bind(R.id.wv)
     WebView web;
@@ -106,16 +105,15 @@ public class WhatIfActivity extends BaseActivity {
             }
         });
 
-        if (!getIntent().hasExtra(INTENT_NUM_ARTICLES)) {
-            Timber.w("WhatIfActivity started without valid number of articles given in intent.");
-        }
-        numArticles = getIntent().getIntExtra(INTENT_NUM_ARTICLES, 1);
+        Realm realm = Realm.getDefaultInstance();
+        numArticles = realm.where(Article.class).findAll().size();
+        realm.close();
 
         if (!getIntent().hasExtra(INTENT_NUMBER)) {
             Timber.w("WhatIfActivity started without valid number given in intent.");
         }
 
-        loadWhatIf(getIntent().getIntExtra("number", 1), null);
+        loadWhatIf(getIntent().getIntExtra(INTENT_NUMBER, 1), null);
     }
 
     private void loadWhatIf(int articleNumber, Animation animationOnLoaded) {
@@ -129,10 +127,13 @@ public class WhatIfActivity extends BaseActivity {
         }
 
         prefHelper.setLastWhatIf(articleNumber);
-        prefHelper.setWhatifRead(String.valueOf(articleNumber));
 
         Realm realm = Realm.getDefaultInstance();
         loadedArticle = realm.copyFromRealm(realm.where(Article.class).equalTo("number", articleNumber).findFirst());
+        realm.beginTransaction();
+        loadedArticle.setRead(true);
+        realm.copyToRealmOrUpdate(loadedArticle);
+        realm.commitTransaction();
         realm.close();
 
         if (loadedArticle == null) {
@@ -194,20 +195,20 @@ public class WhatIfActivity extends BaseActivity {
                                 snackbar.setAction(R.string.got_it, snackbarView -> prefHelper.setShowWhatIfTip(false));
                                 snackbar.show();
                             }
-                            if (mProgress != null)
-                                mProgress.dismiss();
-
-                            if (animationOnLoaded != null) {
-                                web.startAnimation(animationOnLoaded);
-                                web.setVisibility(View.VISIBLE);
-                            }
                         }
                     });
+                    if (mProgress != null)
+                        mProgress.dismiss();
+
+                    if (animationOnLoaded != null) {
+                        web.startAnimation(animationOnLoaded);
+                        web.setVisibility(View.VISIBLE);
+                    }
 
                     assert getSupportActionBar() != null;
                     getSupportActionBar().setSubtitle(loadedArticle.getTitle());
                     unlockRotation();
-                    })
+                })
                 .subscribe();
     }
 

@@ -250,8 +250,8 @@ public class WhatIfOverviewFragment extends Fragment {
         public void onBindViewHolder(final ComicViewHolder comicViewHolder, int i) {
             comicViewHolder.articleTitle.setText(titles.get(i));
             String title = titles.get(i);
-            int n = WhatIfFragment.mTitles.size() - WhatIfFragment.mTitles.indexOf(title);
 
+            int n = -1;
             comicViewHolder.articleNumber.setText(String.valueOf(n));
 
             int id = databaseManager.getWhatIfMissingThumbnailId(title);

@@ -30,6 +30,7 @@ import java.util.Stack;
 
 import de.tap.easy_xkcd.CustomTabHelpers.BrowserFallback;
 import de.tap.easy_xkcd.CustomTabHelpers.CustomTabActivityHelper;
+import de.tap.easy_xkcd.utils.Article;
 import de.tap.easy_xkcd.utils.JsonParser;
 import de.tap.easy_xkcd.utils.ThemePrefs;
 import io.realm.DynamicRealm;
@@ -295,6 +296,15 @@ public class DatabaseManager {
             default:
                 return 0;
         }
+    }
+
+    public void setAllArticlesReadStatus(boolean read) {
+        realm.beginTransaction();
+        RealmResults<Article> articles = realm.where(Article.class).findAll();
+        for (int i = 0; i < articles.size(); i++)
+            articles.get(i).setRead(read);
+        realm.copyToRealmOrUpdate(articles);
+        realm.commitTransaction();
     }
 
     /**

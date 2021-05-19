@@ -381,15 +381,18 @@ public class PrefHelper {
         sharedPrefs.edit().putString(WHATIF_READ, read).apply();
     }
 
+    @Deprecated
     public void setAllUnread() {
         sharedPrefs.edit().putString(WHATIF_READ, "").apply();
     }
 
+    @Deprecated
     public void setAllWhatIfRead() {
         for (int i = 1; i <= getNewestWhatIf(); i++)
             setWhatifRead(String.valueOf(i));
     }
 
+    @Deprecated
     public boolean checkRead(int number) {
         String read = sharedPrefs.getString(WHATIF_READ, "");
         if (read.equals("")) {
