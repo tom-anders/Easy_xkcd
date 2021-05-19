@@ -80,10 +80,13 @@ public class Article extends RealmObject {
 
         try {
             for (Article article : articles) {
+                File file = new File(dir, article.getNumber() + ".png");
+
+                if (file.exists()) break;
+
                 Response response = JsonParser.getNewHttpClient().newCall(
                         new Request.Builder().url(article.getThumbnail()).build()).execute();
 
-                File file = new File(dir, article.getNumber() + ".png");
                 BufferedSink sink = Okio.buffer(Okio.sink(file));
                 sink.writeAll(response.body().source());
 

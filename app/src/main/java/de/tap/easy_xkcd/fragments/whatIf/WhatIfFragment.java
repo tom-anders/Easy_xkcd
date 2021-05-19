@@ -197,11 +197,11 @@ public class WhatIfFragment extends Fragment {
             if (prefHelper.fullOfflineWhatIf()) {
                 RealmResults<Article> articlesToDownload = realmInCallable.where(Article.class).equalTo("offline", false).findAll();
                 Article.downloadThumbnails(articlesToDownload, prefHelper);
-                for (Article article : articlesToDownload) {
-                    boolean success = Article.downloadArticle(article.getNumber(), prefHelper);
-                    article.setOffline(success);
-                    realmInCallable.copyToRealmOrUpdate(article);
+                for (int i = 0; i < articlesToDownload.size(); i++) {
+                    boolean success = Article.downloadArticle(articlesToDownload.get(i).getNumber(), prefHelper);
+                    articlesToDownload.get(i).setOffline(success);
                 }
+                realmInCallable.copyToRealmOrUpdate(articlesToDownload);
             }
             realmInCallable.commitTransaction();
             realmInCallable.close();

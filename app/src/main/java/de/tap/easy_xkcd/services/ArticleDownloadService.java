@@ -43,12 +43,16 @@ import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 
+import de.tap.easy_xkcd.utils.Article;
 import de.tap.easy_xkcd.utils.PrefHelper;
+import io.realm.Realm;
+import io.realm.RealmResults;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.Response;
 import okio.BufferedSink;
 import okio.Okio;
+import timber.log.Timber;
 
 public class ArticleDownloadService extends IntentService {
 
@@ -63,7 +67,7 @@ public class ArticleDownloadService extends IntentService {
         return new NotificationCompat.Builder(this, channel)
                 .setSmallIcon(R.drawable.ic_notification)
                 .setProgress(100, 0, false)
-                .setContentTitle(getResources().getString(R.string.loading_offline))
+                .setContentTitle(getResources().getString(R.string.loading_articles))
                 .setOngoing(true)
                 .setAutoCancel(true);
     }
@@ -81,102 +85,28 @@ public class ArticleDownloadService extends IntentService {
         notificationManager.notify(1, getNotificationBuilder("comic").build());
 
         PrefHelper prefHelper = new PrefHelper(getApplicationContext());
-        File sdCard = prefHelper.getOfflinePath();
-        File dir = new File(sdCard.getAbsolutePath() + OFFLINE_WHATIF_OVERVIEW_PATH);
-        OkHttpClient client = new OkHttpClient();
-        Document doc;
-        if (!dir.exists()) dir.mkdirs();
-        //download overview
-        if (!BuildConfig.DEBUG) {
-            try {
-                doc = Jsoup.connect("https://what-if.xkcd.com/archive/")
-                        .userAgent("Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/32.0.1700.19 Safari/537.36")
-                        .get();
-                StringBuilder sb = new StringBuilder();
-                Elements titles = doc.select("h1");
-                prefHelper.setNewestWhatif(titles.size());
 
-                sb.append(titles.first().text());
-                titles.remove(0);
-                for (Element title : titles) {
-                    sb.append("&&");
-                    sb.append(title.text());
-                }
-                prefHelper.setWhatIfTitles(sb.toString());
+        Realm realm = Realm.getDefaultInstance();
+        realm.beginTransaction();
 
-                Elements img = doc.select("img.archive-image");
-                int count = 1;
-                for (Element image : img) {
-                    String url = image.absUrl("src");
-                    try {
-                        Request request = new Request.Builder()
-                                .url(url)
-                                .build();
-                        Response response = client.newCall(request).execute();
-                        File file = new File(dir, String.valueOf(count) + ".png");
-                        BufferedSink sink = Okio.buffer(Okio.sink(file));
-                        sink.writeAll(response.body().source());
+        RealmResults<Article> articles = realm.where(Article.class).findAll();
 
-                        sink.close();
-                        response.body().close();
-                    } catch (Exception e) {
-                        e.printStackTrace();
-                    }
-                    int p = (int) (count / ((float) img.size()) * 100);
-                    NotificationCompat.Builder builder = getNotificationBuilder("download");
-                    builder.setProgress(100, p, false);
-                    notificationManager.notify(1, builder.build());
-                    count++;
-                }
-                if (prefHelper.getNewestWhatIf() == 0)
-                    prefHelper.setNewestWhatif(count - 1);
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
+        Article.downloadThumbnails(articles, prefHelper);
+        for (int i = 0; i < articles.size(); i++) {
+            Timber.d("Downloading %d...", i + 1);
+            Article.downloadArticle(articles.get(i).getNumber(), prefHelper);
+            articles.get(i).setOffline(true);
 
-            //download html
-            int size = prefHelper.getNewestWhatIf();
-            for (int i = 1; i <= size; i++) {
-                try {
-                    doc = Jsoup.connect("https://what-if.xkcd.com/" + String.valueOf(i)).get();
-                    dir = new File(sdCard.getAbsolutePath() + OFFLINE_WHATIF_PATH + String.valueOf(i));
-                    dir.mkdirs();
-                    File file = new File(dir, String.valueOf(i) + ".html");
-                    BufferedWriter writer = new BufferedWriter(new FileWriter(file));
-                    writer.write(doc.outerHtml());
-                    writer.close();
-                    //download images
-                    int count = 1;
-                    for (Element e : doc.select(".illustration")) {
-                        try {
-                            String url = "https://what-if.xkcd.com" + e.attr("src");
-                            Request request = new Request.Builder()
-                                    .url(url)
-                                    .build();
-                            Response response = client.newCall(request).execute();
-                            dir = new File(sdCard.getAbsolutePath() + OFFLINE_WHATIF_PATH + String.valueOf(i));
-                            if (!dir.exists()) dir.mkdirs();
-                            file = new File(dir, String.valueOf(count) + ".png");
-                            BufferedSink sink = Okio.buffer(Okio.sink(file));
-                            sink.writeAll(response.body().source());
-                            sink.close();
-                            response.body().close();
-                            count++;
-                        } catch (Exception e2) {
-                            Log.e("article" + i, e2.getMessage());
-                        }
-                    }
-                    int p = (int) (i / ((float) size) * 100);
-                    NotificationCompat.Builder builder = getNotificationBuilder("download");
-                    builder.setProgress(100, p, false);
-                    builder.setContentText(i + "/" + size);
-                    notificationManager.notify(1, builder.build());
-                } catch (Exception e) {
-                    Log.e("article" + i, e.getMessage());
-                }
-            }
+            int p = (int) (i / ((float) articles.size()) * 100);
+            NotificationCompat.Builder builder = getNotificationBuilder("download");
+            builder.setProgress(100, p, false);
+            builder.setContentText(i + "/" + articles.size());
+            notificationManager.notify(1, builder.build());
         }
-        prefHelper.setSunbeamLoaded();
+        Timber.d("Done! ...");
+        realm.copyToRealmOrUpdate(articles);
+        realm.commitTransaction();
+        realm.close();
 
         Intent restart = new Intent("de.tap.easy_xkcd.ACTION_COMIC");
         restart.putExtra("number", prefHelper.getLastComic());
