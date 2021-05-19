@@ -132,13 +132,6 @@ public class WhatIfFragment extends Fragment {
         instance = this;
         ((MainActivity) getActivity()).getFab().setVisibility(View.GONE);
 
-//        if (prefHelper.isOnline(getActivity()) && (prefHelper.isWifi(getActivity()) | prefHelper.mobileEnabled()) && offlineMode) {
-//            new UpdateArticles().execute();
-//            Log.d("info", "update started");
-//        } else {
-//            new DisplayOverview().execute();
-//        }
-
         if (!overviewUpdated && prefHelper.isOnline(getActivity())) {
             if (!prefHelper.fullOfflineWhatIf() || prefHelper.mayDownloadDataForOfflineMode(getActivity())) {
                 ProgressDialog progress = new ProgressDialog(getActivity());
@@ -146,14 +139,14 @@ public class WhatIfFragment extends Fragment {
                 progress.setIndeterminate(true);
                 progress.setCancelable(false);
                 progress.show();
-                Single.fromCallable(() -> Jsoup.parse(JsonParser.getNewHttpClient().newCall(new Request.Builder()
-                        .url("https://what-if.xkcd.com/archive/")
-                        .build()).execute().body().string()))
+                databaseManager.updateWhatifDatabase(prefHelper)
                         .subscribeOn(Schedulers.io())
                         .observeOn(AndroidSchedulers.mainThread())
-                        .doOnError(e -> { Timber.e(e); displayOverview();})
-                        .doOnSuccess(this::updateDatabase)
-                        .doFinally(progress::dismiss)
+                        .doOnError(Timber::e)
+                        .doFinally(() -> {
+                            progress.dismiss();
+                            displayOverview();
+                        })
                         .subscribe();
             }
         } else {
@@ -162,58 +155,6 @@ public class WhatIfFragment extends Fragment {
         return v;
     }
 
-    private void updateDatabase(Document document) {
-        Realm realm = Realm.getDefaultInstance();
-        realm.beginTransaction();
-
-        Elements titles = document.select("h1");
-        Elements thumbnails = document.select("img.archive-image");
-
-        for (int number = 1; number <= titles.size(); number++) {
-            Article article = realm.where(Article.class).equalTo("number", number).findFirst();
-            if (article == null) {
-                article = new Article();
-                article.setNumber(number);
-                article.setTitle(titles.get(number - 1).text());
-                article.setThumbnail("https://what-if.xkcd.com/" + thumbnails.get(number - 1).attr("src")); // -1 cause articles a 1-based indexed
-
-                article.setOffline(false);
-
-                // Import from the legacy database
-                article.setRead(prefHelper.checkRead(number));
-                article.setFavorite(prefHelper.checkWhatIfFav(number));
-
-                realm.copyToRealm(article);
-
-                Timber.d("Stored new article: %d %s %s", article.getNumber(), article.getTitle(), article.getThumbnail());
-            }
-        }
-        realm.commitTransaction();
-        realm.close();
-
-        Single.fromCallable(() -> {
-            Realm realmInCallable = Realm.getDefaultInstance();
-            realmInCallable.beginTransaction();
-            if (prefHelper.fullOfflineWhatIf()) {
-                RealmResults<Article> articlesToDownload = realmInCallable.where(Article.class).equalTo("offline", false).findAll();
-                Article.downloadThumbnails(articlesToDownload, prefHelper);
-                for (int i = 0; i < articlesToDownload.size(); i++) {
-                    boolean success = Article.downloadArticle(articlesToDownload.get(i).getNumber(), prefHelper);
-                    articlesToDownload.get(i).setOffline(success);
-                }
-                realmInCallable.copyToRealmOrUpdate(articlesToDownload);
-            }
-            realmInCallable.commitTransaction();
-            realmInCallable.close();
-            overviewUpdated = true;
-            return true;
-        })
-                .subscribeOn(Schedulers.io())
-                .observeOn(AndroidSchedulers.mainThread())
-                .doOnError(Timber::e)
-                .doAfterTerminate(this::displayOverview)
-                .subscribe();
-    }
 
     void displayOverview() {
         setupAdapter();

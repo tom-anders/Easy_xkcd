@@ -18,6 +18,8 @@ import com.tap.xkcd_reader.R;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.jsoup.Jsoup;
+import org.jsoup.nodes.Document;
+import org.jsoup.select.Elements;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -32,8 +34,9 @@ import de.tap.easy_xkcd.CustomTabHelpers.BrowserFallback;
 import de.tap.easy_xkcd.CustomTabHelpers.CustomTabActivityHelper;
 import de.tap.easy_xkcd.utils.Article;
 import de.tap.easy_xkcd.utils.JsonParser;
+import de.tap.easy_xkcd.utils.PrefHelper;
 import de.tap.easy_xkcd.utils.ThemePrefs;
-import io.reactivex.rxjava3.core.Single;
+import io.reactivex.rxjava3.core.Observable;
 import io.realm.DynamicRealm;
 import io.realm.FieldAttribute;
 import io.realm.Realm;
@@ -43,6 +46,7 @@ import io.realm.RealmObjectSchema;
 import io.realm.RealmResults;
 import io.realm.RealmSchema;
 import io.realm.internal.RealmObjectProxy;
+import okhttp3.Request;
 import timber.log.Timber;
 
 import static de.tap.easy_xkcd.utils.JsonParser.getJSONFromUrl;
@@ -426,6 +430,62 @@ public class DatabaseManager {
             }
 
         }
+    }
+
+    public Observable<Integer> updateWhatifDatabase(PrefHelper prefHelper) {
+        return Observable.create(subscriber -> {
+            try {
+                Document document =
+                        Jsoup.parse(JsonParser.getNewHttpClient().newCall(new Request.Builder()
+                                .url("https://what-if.xkcd.com/archive/")
+                                .build()).execute().body().string());
+
+                Realm realm = Realm.getDefaultInstance();
+                realm.beginTransaction();
+
+                Elements titles = document.select("h1");
+                Elements thumbnails = document.select("img.archive-image");
+
+                for (int number = 1; number <= titles.size(); number++) {
+                    Article article = realm.where(Article.class).equalTo("number", number).findFirst();
+                    if (article == null) {
+                        article = new Article();
+                        article.setNumber(number);
+                        article.setTitle(titles.get(number - 1).text());
+                        article.setThumbnail("https://what-if.xkcd.com/" + thumbnails.get(number - 1).attr("src")); // -1 cause articles a 1-based indexed
+
+                        article.setOffline(false);
+
+                        // Import from the legacy database
+                        article.setRead(prefHelper.checkRead(number));
+                        article.setFavorite(prefHelper.checkWhatIfFav(number));
+
+                        realm.copyToRealm(article);
+
+                        Timber.d("Stored new article: %d %s %s", article.getNumber(), article.getTitle(), article.getThumbnail());
+                    }
+                    subscriber.onNext(number);
+                }
+
+                if (prefHelper.fullOfflineWhatIf()) {
+                    RealmResults<Article> articlesToDownload = realm.where(Article.class).equalTo("offline", false).findAll();
+                    Article.downloadThumbnails(articlesToDownload, prefHelper);
+                    for (int i = 0; i < articlesToDownload.size(); i++) {
+                        boolean success = Article.downloadArticle(articlesToDownload.get(i).getNumber(), prefHelper);
+                        articlesToDownload.get(i).setOffline(success);
+                        subscriber.onNext(i + 1);
+                    }
+                    realm.copyToRealmOrUpdate(articlesToDownload);
+                }
+
+                realm.commitTransaction();
+                realm.close();
+            } catch (IOException e) {
+                Timber.e(e);
+            }
+
+            subscriber.onComplete();
+        });
     }
 
     // Implement some fixes for comic data that may have already been cached
