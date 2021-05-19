@@ -532,33 +532,6 @@ public class MainActivity extends BaseActivity {
 
         Slide slideIn = new Slide(Gravity.BOTTOM);
         slideIn.setInterpolator(new OvershootInterpolator(1.5f));
-        //For some reason we have to add an empty listener here, so that the listener in WhatIfOverviewFragment works ¯\_(ツ)_/¯
-        slideIn.addListener(new Transition.TransitionListener() {
-            @Override
-            public void onTransitionStart(@NonNull Transition transition) {
-
-            }
-
-            @Override
-            public void onTransitionEnd(@NonNull Transition transition) {
-
-            }
-
-            @Override
-            public void onTransitionCancel(@NonNull Transition transition) {
-
-            }
-
-            @Override
-            public void onTransitionPause(@NonNull Transition transition) {
-
-            }
-
-            @Override
-            public void onTransitionResume(@NonNull Transition transition) {
-
-            }
-        });
         whatIfFragment.setEnterTransition(slideIn);
         whatIfFragment.setAllowEnterTransitionOverlap(false);
         transaction.replace(R.id.flContent, whatIfFragment, FRAGMENT_TAG);
