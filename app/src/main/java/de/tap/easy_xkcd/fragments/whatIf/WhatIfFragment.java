@@ -22,6 +22,8 @@ import androidx.recyclerview.widget.RecyclerView;
 import androidx.appcompat.widget.Toolbar;
 import androidx.swiperefreshlayout.widget.CircularProgressDrawable;
 
+import android.os.Handler;
+import android.os.Looper;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -107,6 +109,10 @@ public class WhatIfFragment extends Fragment {
     // we use this to update our recycler view accordingly
     private static final int WHATIF_REQUEST_CODE = 100;
 
+    // Static because we want to save this across instances of the fragment
+    // This is used so that we only ever reload the WhatIf overview once at startup
+    private static boolean overviewUpdated = false;
+
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View v = inflater.inflate(R.layout.recycler_layout, container, false);
@@ -133,7 +139,7 @@ public class WhatIfFragment extends Fragment {
 //            new DisplayOverview().execute();
 //        }
 
-        if (prefHelper.isOnline(getActivity())) {
+        if (!overviewUpdated && prefHelper.isOnline(getActivity())) {
             if (!prefHelper.fullOfflineWhatIf() || prefHelper.mayDownloadDataForOfflineMode(getActivity())) {
                 ProgressDialog progress = new ProgressDialog(getActivity());
                 progress.setMessage(getResources().getString(R.string.loading_articles));
@@ -200,6 +206,7 @@ public class WhatIfFragment extends Fragment {
             }
             realmInCallable.commitTransaction();
             realmInCallable.close();
+            overviewUpdated = true;
             return true;
         })
                 .subscribeOn(Schedulers.io())
@@ -432,7 +439,7 @@ public class WhatIfFragment extends Fragment {
     private void setupAdapter() {
         Realm realm = Realm.getDefaultInstance();
         RealmResults<Article> articles;
-        if (favoritesItem.isChecked()) {
+        if (favoritesItem != null && favoritesItem.isChecked()) {
             articles = realm.where(Article.class).equalTo("favorite", true).findAll();
         } else if (prefHelper.hideReadWhatIf()) {
             articles = realm.where(Article.class).equalTo("read", false).findAll();
