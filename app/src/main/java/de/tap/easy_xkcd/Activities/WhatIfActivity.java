@@ -41,7 +41,6 @@ import butterknife.ButterKnife;
 import de.tap.easy_xkcd.database.DatabaseManager;
 import de.tap.easy_xkcd.misc.OnSwipeTouchListener;
 import de.tap.easy_xkcd.utils.Article;
-import de.tap.easy_xkcd.fragments.whatIf.WhatIfFavoritesFragment;
 import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers;
 import io.reactivex.rxjava3.annotations.NonNull;
 import io.reactivex.rxjava3.core.Observable;
@@ -271,12 +270,12 @@ public class WhatIfActivity extends BaseActivity {
                 loadWhatIf(new Random().nextInt(Realm.getDefaultInstance().where(Article.class).findAll().size()), null);
                 return true;
             case R.id.action_favorite:
-                if (!prefHelper.checkWhatIfFav(loadedArticle.getNumber())) {
-                    prefHelper.setWhatIfFavorite(String.valueOf(loadedArticle.getNumber()));
-                } else {
-                    prefHelper.removeWhatifFav(loadedArticle.getNumber());
-                }
-                WhatIfFavoritesFragment.getInstance().updateFavorites();
+                Realm realm = Realm.getDefaultInstance();
+                realm.beginTransaction();
+                loadedArticle.setFavorite(!loadedArticle.isFavorite());
+                realm.copyToRealmOrUpdate(loadedArticle);
+                realm.commitTransaction();
+
                 invalidateOptionsMenu();
                 return true;
 
@@ -314,7 +313,7 @@ public class WhatIfActivity extends BaseActivity {
             menu.findItem(R.id.action_next).setVisible(false);
         }
 
-        if (prefHelper.checkWhatIfFav(loadedArticle.getNumber()))
+        if (loadedArticle.isFavorite())
             menu.findItem(R.id.action_favorite).setIcon(ContextCompat.getDrawable(this, R.drawable.ic_favorite_on_24dp)).setTitle(R.string.action_favorite_remove);
 
         return super.onPrepareOptionsMenu(menu);

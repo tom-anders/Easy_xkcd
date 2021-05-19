@@ -86,7 +86,6 @@ import de.tap.easy_xkcd.fragments.comics.FavoritesFragment;
 import de.tap.easy_xkcd.fragments.comics.OfflineFragment;
 import de.tap.easy_xkcd.fragments.overview.OverviewBaseFragment;
 import de.tap.easy_xkcd.fragments.whatIf.WhatIfFragment;
-import de.tap.easy_xkcd.fragments.whatIf.WhatIfOverviewFragment;
 import de.tap.easy_xkcd.notifications.ComicNotifierJob;
 import de.tap.easy_xkcd.utils.PrefHelper;
 import de.tap.easy_xkcd.utils.ThemePrefs;

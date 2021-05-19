@@ -91,6 +91,7 @@ public class WhatIfFragment extends Fragment {
     @Bind(R.id.rv)
     FastScrollRecyclerView rv;
     private MenuItem searchMenuItem;
+    private MenuItem favoritesItem;
     public static RVAdapter adapter;
     private static WhatIfFragment instance;
 
@@ -302,7 +303,7 @@ public class WhatIfFragment extends Fragment {
                         realm.commitTransaction();
                         realm.close();
 
-                        //TODO Probably need to do an update here once this fragment also shows favorites
+                        setupAdapter();
                         break;
                 }
             }).create().show();
@@ -400,6 +401,11 @@ public class WhatIfFragment extends Fragment {
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
+            case R.id.action_favorite:
+                item.setChecked(!item.isChecked());
+                item.setIcon(item.isChecked() ? R.drawable.ic_favorite_on_24dp : R.drawable.ic_favorite_off_24dp);
+                setupAdapter();
+                return true;
             case R.id.action_unread:
                 databaseManager.setAllArticlesReadStatus(false);
                 setupAdapter();
@@ -420,7 +426,9 @@ public class WhatIfFragment extends Fragment {
     private void setupAdapter() {
         Realm realm = Realm.getDefaultInstance();
         RealmResults<Article> articles;
-        if (prefHelper.hideReadWhatIf()) {
+        if (favoritesItem.isChecked()) {
+            articles = realm.where(Article.class).equalTo("favorite", true).findAll();
+        } else if (prefHelper.hideReadWhatIf()) {
             articles = realm.where(Article.class).equalTo("read", false).findAll();
         } else {
             articles = realm.where(Article.class).findAll();
@@ -469,6 +477,8 @@ public class WhatIfFragment extends Fragment {
         searchView.setQueryHint(getResources().getString(R.string.search_hint_whatif));
         searchMenuItem = menu.findItem(R.id.action_search);
         searchMenuItem.setVisible(true);
+
+        favoritesItem = menu.findItem(R.id.action_favorite);
 
         searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
             @Override
