@@ -179,9 +179,9 @@ public class WhatIfFragment extends Fragment {
 
                 article.setOffline(false);
 
-                // TODO These two need to be imported from the legacy database
-                article.setRead(false);
-                article.setFavorite(false);
+                // Import from the legacy database
+                article.setRead(prefHelper.checkRead(number));
+                article.setFavorite(prefHelper.checkWhatIfFav(number));
 
                 realm.copyToRealm(article);
 
