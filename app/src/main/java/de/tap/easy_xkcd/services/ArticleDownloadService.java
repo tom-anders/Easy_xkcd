@@ -74,7 +74,7 @@ public class ArticleDownloadService extends IntentService {
 
     @Override
     protected void onHandleIntent(Intent intent) {
-
+/*
         NotificationManager notificationManager = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             notificationManager.deleteNotificationChannel("comic");
@@ -114,7 +114,7 @@ public class ArticleDownloadService extends IntentService {
         NotificationCompat.Builder builder = getNotificationBuilder("comic");
         builder.setContentIntent(pendingIntent)
                 .setContentText(getResources().getString(R.string.not_restart));
-        notificationManager.notify(1, builder.build());
+        notificationManager.notify(1, builder.build());*/
     }
 
 }

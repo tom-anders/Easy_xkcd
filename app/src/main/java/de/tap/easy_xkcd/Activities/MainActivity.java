@@ -62,7 +62,6 @@ import com.tap.xkcd_reader.R;
 
 import java.util.Objects;
 
-import androidx.annotation.NonNull;
 import androidx.appcompat.app.ActionBarDrawerToggle;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.widget.Toolbar;
@@ -123,7 +122,8 @@ public class MainActivity extends BaseActivity {
     private static final String WHATIF_INTENT = "de.tap.easy_xkcd.ACTION_WHAT_IF";
     private static final String SAVED_INSTANCE_CURRENT_FRAGMENT = "CurrentFragment";
 
-    public static final int UPDATE_ALARM = 2;
+    public static final int RESULT_UPDATE_ALARM = 2;
+    public static final int RESULT_SHOW_WHATIF = 3;
 
     public static final String FRAGMENT_TAG = "MainActivityFragments";
 
@@ -956,7 +956,7 @@ public class MainActivity extends BaseActivity {
                     finish();
                     startActivity(getIntent());
                     break;
-                case UPDATE_ALARM:
+                case RESULT_UPDATE_ALARM:
                     JobScheduler jobScheduler = (JobScheduler) getSystemService(Context.JOB_SCHEDULER_SERVICE);
                     if (prefHelper.getNotificationInterval() != 0) {
                         jobScheduler.cancel(UPDATE_JOB_ID);
@@ -971,6 +971,9 @@ public class MainActivity extends BaseActivity {
                         jobScheduler.cancel(UPDATE_JOB_ID);
                         Timber.d("Job canceled!");
                     }
+                    break;
+                case RESULT_SHOW_WHATIF:
+                    showWhatifFragment(false);
                     break;
             }
         } else if (requestCode == 2 && resultCode == FilePickerActivity.RESULT_OK) {

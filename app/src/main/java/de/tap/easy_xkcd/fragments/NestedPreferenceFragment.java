@@ -30,7 +30,6 @@ import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.preference.Preference;
-import android.preference.PreferenceCategory;
 import android.preference.PreferenceFragment;
 import androidx.core.app.ActivityCompat;
 import androidx.fragment.app.DialogFragment;
@@ -42,7 +41,6 @@ import androidx.cardview.widget.CardView;
 import android.preference.SwitchPreference;
 import android.view.LayoutInflater;
 import android.view.View;
-import android.widget.Switch;
 import android.widget.TextView;
 import android.widget.TimePicker;
 import android.widget.Toast;
@@ -52,13 +50,16 @@ import com.tap.xkcd_reader.R;
 import com.turhanoz.android.reactivedirectorychooser.ui.DirectoryChooserFragment;
 
 import java.io.File;
+import java.util.List;
 
 import de.tap.easy_xkcd.Activities.MainActivity;
 import de.tap.easy_xkcd.Activities.NestedSettingsActivity;
 import de.tap.easy_xkcd.database.DatabaseManager;
-import de.tap.easy_xkcd.services.ArticleDownloadService;
+import de.tap.easy_xkcd.utils.Article;
 import de.tap.easy_xkcd.utils.PrefHelper;
 import de.tap.easy_xkcd.utils.ThemePrefs;
+import io.realm.Realm;
+import io.realm.RealmResults;
 import timber.log.Timber;
 import uz.shift.colorpicker.LineColorPicker;
 
@@ -248,7 +249,7 @@ public class NestedPreferenceFragment extends PreferenceFragment {
                 findPreference(NOTIFICATIONS_INTERVAL).setOnPreferenceChangeListener(new Preference.OnPreferenceChangeListener() {
                     @Override
                     public boolean onPreferenceChange(final Preference preference, Object o) {
-                        getActivity().setResult(MainActivity.UPDATE_ALARM);
+                        getActivity().setResult(MainActivity.RESULT_UPDATE_ALARM);
                         return true;
                     }
                 });
@@ -302,9 +303,10 @@ public class NestedPreferenceFragment extends PreferenceFragment {
                         if (checked) {
                             if (prefHelper.isOnline(getActivity())) {
                                 if (ContextCompat.checkSelfPermission(getActivity(), Manifest.permission.WRITE_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED) {
-                                    //new downloadArticlesTask().execute();
-                                    Toast.makeText(getActivity(), getResources().getString(R.string.loading_articles), Toast.LENGTH_SHORT).show();
-                                    getActivity().startService(new Intent(getActivity(), ArticleDownloadService.class));
+                                    //TODO restart here and go to whatif immediately
+                                    prefHelper.setFullOfflineWhatIf(true);
+                                    getActivity().setResult(MainActivity.RESULT_SHOW_WHATIF);
+                                    getActivity().finish();
                                     return true;
                                 } else {
                                     ActivityCompat.requestPermissions(getActivity(), new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE}, 3);
@@ -614,6 +616,18 @@ public class NestedPreferenceFragment extends PreferenceFragment {
                 File dir = new File(sdCard.getAbsolutePath() + OFFLINE_WHATIF_PATH);
                 deleteFolder(dir);
             }
+
+            //TODO do this in database manager instead
+            Realm realm = Realm.getDefaultInstance();
+            List<Article> articles = realm.copyFromRealm(realm.where(Article.class).findAll());
+            realm.executeTransaction(__ -> {
+                for (Article article : articles) {
+                    article.setOffline(false);
+                }
+                realm.copyToRealmOrUpdate(articles);
+            });
+            realm.close();
+
             return null;
         }
 

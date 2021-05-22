@@ -56,6 +56,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Objects;
 import java.util.Random;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import butterknife.Bind;
 import butterknife.ButterKnife;
@@ -69,12 +70,6 @@ import de.tap.easy_xkcd.utils.JsonParser;
 import de.tap.easy_xkcd.utils.PrefHelper;
 import de.tap.easy_xkcd.utils.ThemePrefs;
 import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers;
-import io.reactivex.rxjava3.core.Observable;
-import io.reactivex.rxjava3.core.Single;
-import io.reactivex.rxjava3.core.SingleObserver;
-import io.reactivex.rxjava3.disposables.Disposable;
-import io.reactivex.rxjava3.functions.Action;
-import io.reactivex.rxjava3.functions.Consumer;
 import io.reactivex.rxjava3.schedulers.Schedulers;
 import io.realm.Case;
 import io.realm.Realm;
@@ -109,10 +104,6 @@ public class WhatIfFragment extends Fragment {
     // we use this to update our recycler view accordingly
     private static final int WHATIF_REQUEST_CODE = 100;
 
-    // Static because we want to save this across instances of the fragment
-    // This is used so that we only ever reload the WhatIf overview once at startup
-    private static boolean overviewUpdated = false;
-
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View v = inflater.inflate(R.layout.recycler_layout, container, false);
@@ -132,22 +123,37 @@ public class WhatIfFragment extends Fragment {
         instance = this;
         ((MainActivity) getActivity()).getFab().setVisibility(View.GONE);
 
-        if (!overviewUpdated && prefHelper.isOnline(getActivity())) {
+        if (prefHelper.isOnline(getActivity())) {
             if (!prefHelper.fullOfflineWhatIf() || prefHelper.mayDownloadDataForOfflineMode(getActivity())) {
                 ProgressDialog progress = new ProgressDialog(getActivity());
                 progress.setMessage(getResources().getString(R.string.loading_articles));
                 progress.setIndeterminate(true);
+//                progress.setProgressStyle(ProgressDialog.STYLE_HORIZONTAL);
                 progress.setCancelable(false);
                 progress.show();
                 databaseManager.updateWhatifDatabase(prefHelper)
                         .subscribeOn(Schedulers.io())
                         .observeOn(AndroidSchedulers.mainThread())
-                        .doOnError(Timber::e)
                         .doFinally(() -> {
                             progress.dismiss();
-                            displayOverview();
+                            if (prefHelper.fullOfflineWhatIf()) {
+                                updateWhatifOfflineDatabase();
+                            } else {
+                                displayOverview();
+                            }
                         })
                         .subscribe();
+
+//                databaseManager.updateWhatifDatabase(prefHelper)
+//                        .subscribeOn(Schedulers.io())
+//                        .observeOn(AndroidSchedulers.mainThread())
+//                        .doOnNext(progress::setProgress)
+//                        .doOnError(Timber::e)
+//                        .doFinally(() -> {
+//                            progress.dismiss();
+//                            displayOverview();
+//                        })
+//                        .subscribe();
             }
         } else {
             displayOverview();
@@ -155,6 +161,27 @@ public class WhatIfFragment extends Fragment {
         return v;
     }
 
+    void updateWhatifOfflineDatabase() {
+        ProgressDialog progress = new ProgressDialog(getActivity());
+        progress.setMessage(getResources().getString(R.string.loading_articles));
+        progress.setProgressStyle(ProgressDialog.STYLE_HORIZONTAL);
+        progress.setCancelable(false);
+        progress.setMax(databaseManager.getNumberOfNonOfflineArticles());
+        progress.show();
+
+        AtomicInteger count = new AtomicInteger();
+
+        databaseManager.updateWhatIfOfflineDatabase(prefHelper)
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .doOnNext(__ -> progress.setProgress(count.incrementAndGet()))
+                .doOnError(Timber::e)
+                .doFinally(() -> {
+                    progress.dismiss();
+                    displayOverview();
+                })
+                .subscribe();
+    }
 
     void displayOverview() {
         setupAdapter();

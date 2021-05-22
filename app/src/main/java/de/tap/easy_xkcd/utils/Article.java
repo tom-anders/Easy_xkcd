@@ -23,6 +23,9 @@ import android.content.res.Resources;
 import android.util.JsonReader;
 import android.util.Log;
 
+import com.bumptech.glide.Glide;
+
+import org.jetbrains.annotations.NotNull;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
@@ -33,13 +36,21 @@ import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Objects;
+import java.util.concurrent.CountDownLatch;
 
+import de.tap.easy_xkcd.database.DatabaseManager;
+import io.reactivex.rxjava3.core.Observable;
+import io.reactivex.rxjava3.core.Single;
+import io.reactivex.rxjava3.core.SingleEmitter;
 import io.realm.Realm;
 import io.realm.RealmObject;
 import io.realm.RealmResults;
 import io.realm.annotations.Ignore;
 import io.realm.annotations.PrimaryKey;
+import okhttp3.Call;
+import okhttp3.Callback;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.Response;
@@ -65,93 +76,95 @@ public class Article extends RealmObject {
     private static final String OFFLINE_WHATIF_OVERVIEW_PATH = "/easy xkcd/what if/overview/";
 
     public static boolean hasOfflineFilesForArticle(int number, PrefHelper prefHelper) {
-        File sdCard = prefHelper.getOfflinePath();
-
-        File thumbnail = new File(sdCard.getAbsolutePath() + OFFLINE_WHATIF_OVERVIEW_PATH + number + ".png");
-        File doc = new File(sdCard.getAbsolutePath() + OFFLINE_WHATIF_PATH + number + "/" + number + ".html");
-
-        return thumbnail.exists() && doc.exists();
+        return new File(prefHelper.getOfflinePath() + OFFLINE_WHATIF_PATH + number + "/" + number + ".html").exists();
     }
 
-    public static boolean downloadThumbnails(RealmResults<Article> articles, PrefHelper prefHelper) {
+    private static void downloadThumbnail(Article article, OkHttpClient client, PrefHelper prefHelper) {
         File sdCard = prefHelper.getOfflinePath();
         File dir = new File(sdCard.getAbsolutePath() + OFFLINE_WHATIF_OVERVIEW_PATH);
         if (!dir.exists()) dir.mkdirs();
 
+        File file = new File(dir, article.getNumber() + ".png");
+
         try {
-            for (Article article : articles) {
-                File file = new File(dir, article.getNumber() + ".png");
+            Response response = client.newCall(
+                    new Request.Builder().url(article.getThumbnail()).build()).execute();
 
-                if (file.exists()) break;
+            BufferedSink sink = Okio.buffer(Okio.sink(file));
+            sink.writeAll(response.body().source());
 
-                Response response = JsonParser.getNewHttpClient().newCall(
-                        new Request.Builder().url(article.getThumbnail()).build()).execute();
-
-                BufferedSink sink = Okio.buffer(Okio.sink(file));
-                sink.writeAll(response.body().source());
-
-                sink.close();
-                response.body().close();
-            }
-
-        } catch (IOException e) {
-            Timber.e(e);
-            return false;
-        }
-
-        return true;
-    }
-
-    public static boolean downloadArticle(int number, PrefHelper prefHelper) {
-        if (hasOfflineFilesForArticle(number, prefHelper)) return true;
-
-        Timber.d("downloading %d...", number);
-        
-        try {
-            OkHttpClient client = JsonParser.getNewHttpClient();
-
-            Document doc = Jsoup.parse(
-                    Objects.requireNonNull(client.newCall(
-                            new Request.Builder()
-                                    .url("https://what-if.xkcd.com/" + number)
-                                    .build())
-                            .execute().body()).string());
-
-            
-            File dir = new File(prefHelper.getOfflinePath().getAbsolutePath() + OFFLINE_WHATIF_PATH + number);
-            if (!dir.exists()) dir.mkdirs();
-            
-            File file = new File(dir, number + ".html");
-            BufferedWriter writer = new BufferedWriter(new FileWriter(file));
-            writer.write(doc.outerHtml());
-            writer.close();
-            
-            //download images
-            int count = 1;
-            for (Element e : doc.select(".illustration")) {
-                try {
-                    String url = "https://what-if.xkcd.com" + e.attr("src");
-                    Request request = new Request.Builder()
-                            .url(url)
-                            .build();
-                    Response response = client.newCall(request).execute();
-                    file = new File(dir, String.valueOf(count) + ".png");
-                    BufferedSink sink = Okio.buffer(Okio.sink(file));
-                    sink.writeAll(response.body().source());
-                    sink.close();
-                    response.body().close();
-                    count++;
-                } catch (Exception e2) {
-                    Timber.e(e2, "article %d", number);
-                    return false;
-                }
-            }
+            sink.close();
+            response.body().close();
         } catch (Exception e) {
             Timber.e(e);
-            return false;
+        }
+    }
+
+    public static Single<Integer> downloadArticle(Article article, OkHttpClient client, PrefHelper prefHelper) {
+        if (hasOfflineFilesForArticle(article.getNumber(), prefHelper)) {
+            Timber.d("Already has files for article %d", article.getNumber());
+            return Single.create(subscriber -> subscriber.onSuccess(article.getNumber()));
         }
 
-        return true;
+        return Single.create(subscriber -> {
+            client.newCall(
+                    new Request.Builder()
+                            .url("https://what-if.xkcd.com/" + article.getNumber())
+                            .build())
+                    .enqueue(new Callback() {
+                        @Override
+                        public void onFailure(@NotNull Call call, @NotNull IOException e) {
+                            subscriber.onError(e);
+                        }
+
+                        @Override
+                        public void onResponse(@NotNull Call call, @NotNull Response response) throws IOException {
+                            Document doc = Jsoup.parse(response.body().string());
+
+                            File dir = new File(prefHelper.getOfflinePath().getAbsolutePath() + OFFLINE_WHATIF_PATH + article.getNumber());
+                            if (!dir.exists()) dir.mkdirs();
+
+                            File file = new File(dir, article.getNumber() + ".html");
+                            BufferedWriter writer = new BufferedWriter(new FileWriter(file));
+                            writer.write(doc.outerHtml());
+                            writer.close();
+
+                            // Download images
+                            int count = 1;
+                            for (Element e : doc.select(".illustration")) {
+                                try {
+                                    String url = "https://what-if.xkcd.com" + e.attr("src");
+                                    Request request = new Request.Builder()
+                                            .url(url)
+                                            .build();
+                                    response = client.newCall(request).execute();
+                                    file = new File(dir, count + ".png");
+                                    BufferedSink sink = Okio.buffer(Okio.sink(file));
+                                    sink.writeAll(response.body().source());
+                                    sink.close();
+                                    response.body().close();
+                                    count++;
+                                } catch (Exception e2) {
+                                    Timber.e(e2, "article %d", article.getNumber());
+                                }
+                            }
+
+                            // Download thumbnail
+                            downloadThumbnail(article, client, prefHelper);
+
+                            Realm realm = Realm.getDefaultInstance();
+                            realm.executeTransaction(__ -> {
+                                article.setOffline(true);
+                                realm.copyToRealmOrUpdate(article);
+                            });
+                            realm.close();
+
+                            Timber.d("Successfully downloaded article %d", article.getNumber());
+
+                            subscriber.onSuccess(article.getNumber());
+                        }
+                    });
+        });
     }
 
     public static ArrayList<String> generateRefs(Document doc) {
