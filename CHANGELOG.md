@@ -1,3 +1,14 @@
+## 7.3.10
+
+- Add option to respect system night theme (enabled by default)
+- Increase size of Floating Action Button (@mueller-ma)
+- Use switches instead of checkboxes in preferences (@mueller-ma)
+- Move "Update on mobile data" from "advanced" to "offline" settings (@mueller-ma)
+- Color navigation bar based on day/night theme (@mueller-ma)
+- Update Brazilian Portuguese translation (@rffontenelle)
+- Fix some HTML issues in alt text (@radiohazard-dev)
+- Add this year's April Fools comic to interactive comics (@coolreader18)
+
 ## 7.3.9
 
 - Add support for comic 2293 (Thanks, @obfusk!)
