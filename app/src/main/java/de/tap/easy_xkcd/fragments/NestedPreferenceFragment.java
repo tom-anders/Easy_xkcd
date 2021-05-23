@@ -303,7 +303,6 @@ public class NestedPreferenceFragment extends PreferenceFragment {
                         if (checked) {
                             if (prefHelper.isOnline(getActivity())) {
                                 if (ContextCompat.checkSelfPermission(getActivity(), Manifest.permission.WRITE_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED) {
-                                    //TODO restart here and go to whatif immediately
                                     prefHelper.setFullOfflineWhatIf(true);
                                     getActivity().setResult(MainActivity.RESULT_SHOW_WHATIF);
                                     getActivity().finish();
