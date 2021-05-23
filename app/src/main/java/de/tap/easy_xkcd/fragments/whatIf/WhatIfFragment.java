@@ -102,7 +102,6 @@ public class WhatIfFragment extends Fragment {
                 ProgressDialog progress = new ProgressDialog(getActivity());
                 progress.setMessage(getResources().getString(R.string.loading_articles));
                 progress.setIndeterminate(true);
-//                progress.setProgressStyle(ProgressDialog.STYLE_HORIZONTAL);
                 progress.setCancelable(false);
                 progress.show();
                 databaseManager.updateWhatifDatabase(prefHelper)
@@ -203,6 +202,7 @@ public class WhatIfFragment extends Fragment {
             return circularProgressDrawable;
         }
 
+        @NonNull
         @Override
         public ComicViewHolder onCreateViewHolder(ViewGroup viewGroup, int i) {
             View v = LayoutInflater.from(viewGroup.getContext()).inflate(R.layout.whatif_overview, viewGroup, false);
@@ -267,12 +267,12 @@ public class WhatIfFragment extends Fragment {
                 File dir = new File(offlinePath.getAbsolutePath() + OFFLINE_WHATIF_OVERVIEW_PATH);
                 File file = new File(dir, article.getNumber() + ".png");
 
-                GlideApp.with(getActivity())
+                GlideApp.with(WhatIfFragment.this)
                         .load(file)
                         .apply(new RequestOptions().placeholder(getCircularProgress()))
                         .into(comicViewHolder.thumbnail);
             } else {
-                GlideApp.with(getActivity())
+                GlideApp.with(WhatIfFragment.this)
                         .load(article.getThumbnail())
                         .apply(new RequestOptions().placeholder(getCircularProgress()))
                         .into(comicViewHolder.thumbnail);
@@ -318,14 +318,6 @@ public class WhatIfFragment extends Fragment {
             }
         }
     }
-
-//    public class WhatIfRVAdapter extends WhatIfOverviewFragment.RVAdapter {
-//
-//
-//        @Override
-//        public void onBindViewHolder(final ComicViewHolder comicViewHolder, int i) {
-//        }
-//    }
 
     private void displayWhatIf(int number) {
         Intent intent = new Intent(getActivity(), WhatIfActivity.class);
@@ -386,26 +378,6 @@ public class WhatIfFragment extends Fragment {
         if (!prefHelper.hideRead()) {
             rv.getLayoutManager().scrollToPosition(articles.size() - prefHelper.getLastWhatIf());
         }
-
-//        if (hideRead) {
-//            ArrayList<String> titleUnread = new ArrayList<>();
-//            ArrayList<String> imgUnread = new ArrayList<>();
-//            for (int i = 0; i < mTitles.size(); i++) {
-//                if (!prefHelper.checkRead(mTitles.size() - i)) {
-//                    titleUnread.add(mTitles.get(i));
-//                    if (!offlineMode)
-//                        imgUnread.add(mImgs.get(i));
-//                }
-//            }
-//            adapter = new WhatIfRVAdapter(titleUnread, imgUnread, (MainActivity) getActivity());
-//
-//        } else {
-//            adapter = new WhatIfRVAdapter(mTitles, mImgs, (MainActivity) getActivity());
-//            SlideInBottomAnimationAdapter slideAdapter = new SlideInBottomAnimationAdapter(adapter);
-//            slideAdapter.setInterpolator(new DecelerateInterpolator());
-//            rv.setAdapter(slideAdapter);
-//            rv.scrollToPosition(mTitles.size() - prefHelper.getLastWhatIf());
-//        }
     }
 
     @Override
@@ -438,20 +410,6 @@ public class WhatIfFragment extends Fragment {
                 articles.sort("number", Sort.DESCENDING);
                 adapter.setArticles(articles);
                 realm.close();
-
-//                ArrayList<String> titleResults = new ArrayList<>();
-//                ArrayList<String> imgResults = new ArrayList<>();
-//                for (int i = 0; i < mTitles.size(); i++) {
-//                    if (mTitles.get(i).toLowerCase().contains(newText.toLowerCase().trim())) {
-//                        titleResults.add(mTitles.get(i));
-//                        if (!offlineMode)
-//                            imgResults.add(mImgs.get(i));
-//                    }
-//                }
-//                adapter = new WhatIfRVAdapter(titleResults, imgResults, (MainActivity) getActivity());
-//                SlideInBottomAnimationAdapter slideAdapter = new SlideInBottomAnimationAdapter(adapter);
-//                slideAdapter.setInterpolator(new DecelerateInterpolator());
-//                rv.setAdapter(slideAdapter);
                 return false;
             }
         });
@@ -465,9 +423,6 @@ public class WhatIfFragment extends Fragment {
                     imm.showSoftInput(view, 0);
                 }
                 searchView.requestFocus();
-
-                //TODO Hack this back in?!
-//                ((WhatIfOverviewFragment) getParentFragment()).fab.hide();
                 return true;
             }
 
@@ -479,13 +434,6 @@ public class WhatIfFragment extends Fragment {
                     imm.hideSoftInputFromWindow(view.getWindowToken(), 0);
                 }
                 searchView.setQuery("", false);
-
-//                adapter = new WhatIfRVAdapter(mTitles, mImgs, (MainActivity) getActivity());
-//                SlideInBottomAnimationAdapter slideAdapter = new SlideInBottomAnimationAdapter(adapter);
-//                slideAdapter.setInterpolator(new DecelerateInterpolator());
-//                rv.setAdapter(slideAdapter);
-//                searchView.setQuery("", false);
-//                ((WhatIfOverviewFragment) getParentFragment()).fab.show();
                 return true;
             }
         });
