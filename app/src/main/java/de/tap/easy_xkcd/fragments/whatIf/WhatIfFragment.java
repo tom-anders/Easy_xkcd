@@ -90,7 +90,6 @@ public class WhatIfFragment extends Fragment {
     private MenuItem searchMenuItem;
     private MenuItem favoritesItem;
     public static RVAdapter adapter;
-    private static WhatIfFragment instance;
 
     private boolean offlineMode;
     private static final String OFFLINE_WHATIF_OVERVIEW_PATH = "/easy xkcd/what if/overview";
@@ -120,7 +119,6 @@ public class WhatIfFragment extends Fragment {
         rv.setVerticalScrollBarEnabled(false);
 
         offlineMode = prefHelper.fullOfflineWhatIf();
-        instance = this;
 
         if (prefHelper.isOnline(getActivity())) {
             if (!prefHelper.fullOfflineWhatIf() || prefHelper.mayDownloadDataForOfflineMode(getActivity())) {
@@ -520,10 +518,6 @@ public class WhatIfFragment extends Fragment {
 
     public RecyclerView getRv() {
         return rv;
-    }
-
-    public static WhatIfFragment getInstance() {
-        return instance;
     }
 
     @Override
