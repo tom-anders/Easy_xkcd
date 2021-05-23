@@ -20,7 +20,6 @@ package de.tap.easy_xkcd.Activities;
 
 import android.app.Activity;
 import android.app.ProgressDialog;
-import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -46,7 +45,6 @@ import java.util.TimerTask;
 
 import de.tap.easy_xkcd.database.DatabaseManager;
 import de.tap.easy_xkcd.fragments.NestedPreferenceFragment;
-import de.tap.easy_xkcd.services.ArticleDownloadService;
 import timber.log.Timber;
 
 public class NestedSettingsActivity extends BaseActivity implements OnDirectoryChooserFragmentInteraction  {
