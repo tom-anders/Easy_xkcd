@@ -392,6 +392,8 @@ public class MainActivity extends BaseActivity {
                 snackbar.show();
             }
             ((ComicFragment) fragment).getRandomComic();
+        } else if (fragment instanceof WhatIfFragment) {
+            ((WhatIfFragment) fragment).getRandom();
         }
     }
 
@@ -513,8 +515,6 @@ public class MainActivity extends BaseActivity {
 
     void showWhatifFragment(boolean animate) {
         FragmentManager fragmentManager = getSupportFragmentManager();
-        //mFab.setVisibility(View.GONE);
-        mFab.hide(); //WhatIf Fragment has its own FAB
 
         if (getSupportActionBar() != null) {
             getSupportActionBar().setSubtitle("");
