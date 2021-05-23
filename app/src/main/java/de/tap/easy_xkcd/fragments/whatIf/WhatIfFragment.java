@@ -89,7 +89,8 @@ public class WhatIfFragment extends Fragment {
     FastScrollRecyclerView rv;
     private MenuItem searchMenuItem;
     private MenuItem favoritesItem;
-    public static RVAdapter adapter;
+
+    private RVAdapter adapter;
 
     private boolean offlineMode;
     private static final String OFFLINE_WHATIF_OVERVIEW_PATH = "/easy xkcd/what if/overview";
