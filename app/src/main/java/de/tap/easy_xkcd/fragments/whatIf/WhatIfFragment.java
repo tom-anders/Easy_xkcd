@@ -121,7 +121,6 @@ public class WhatIfFragment extends Fragment {
 
         offlineMode = prefHelper.fullOfflineWhatIf();
         instance = this;
-        ((MainActivity) getActivity()).getFab().setVisibility(View.GONE);
 
         if (prefHelper.isOnline(getActivity())) {
             if (!prefHelper.fullOfflineWhatIf() || prefHelper.mayDownloadDataForOfflineMode(getActivity())) {
@@ -143,17 +142,6 @@ public class WhatIfFragment extends Fragment {
                             }
                         })
                         .subscribe();
-
-//                databaseManager.updateWhatifDatabase(prefHelper)
-//                        .subscribeOn(Schedulers.io())
-//                        .observeOn(AndroidSchedulers.mainThread())
-//                        .doOnNext(progress::setProgress)
-//                        .doOnError(Timber::e)
-//                        .doFinally(() -> {
-//                            progress.dismiss();
-//                            displayOverview();
-//                        })
-//                        .subscribe();
             }
         } else {
             displayOverview();
