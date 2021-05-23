@@ -4,12 +4,17 @@
     xmlns:tools="http://schemas.android.com/tools"
     tools:context=".MainActivity">
 
-    <group android:id="@+id/grouptWhatIf">
-        <item android:id="@+id/action_unread"
+   <group android:id="@+id/grouptWhatIf">
+       <item android:id="@+id/action_unread"
             android:title="@string/action_unread"
             app:showAsAction="never" />
 
-        <item android:id="@+id/action_all_read"
+       <item android:id="@+id/action_favorite"
+           android:title="@string/nv_favorites"
+           app:showAsAction="always"
+           android:icon="@drawable/ic_favorite_off_24dp"/>
+
+       <item android:id="@+id/action_all_read"
             android:title="@string/action_all_read"
             app:showAsAction="never" />
 

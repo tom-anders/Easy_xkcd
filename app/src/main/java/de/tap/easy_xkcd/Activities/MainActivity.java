@@ -62,7 +62,6 @@ import com.tap.xkcd_reader.R;
 
 import java.util.Objects;
 
-import androidx.annotation.NonNull;
 import androidx.appcompat.app.ActionBarDrawerToggle;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.widget.Toolbar;
@@ -86,7 +85,6 @@ import de.tap.easy_xkcd.fragments.comics.FavoritesFragment;
 import de.tap.easy_xkcd.fragments.comics.OfflineFragment;
 import de.tap.easy_xkcd.fragments.overview.OverviewBaseFragment;
 import de.tap.easy_xkcd.fragments.whatIf.WhatIfFragment;
-import de.tap.easy_xkcd.fragments.whatIf.WhatIfOverviewFragment;
 import de.tap.easy_xkcd.notifications.ComicNotifierJob;
 import de.tap.easy_xkcd.utils.PrefHelper;
 import de.tap.easy_xkcd.utils.ThemePrefs;
@@ -120,10 +118,12 @@ public class MainActivity extends BaseActivity {
 
     private static final String COMIC_NOTIFICATION_INTENT = "de.tap.easy_xkcd.ACTION_COMIC_NOTIFICATION";
     private static final String COMIC_INTENT = "de.tap.easy_xkcd.ACTION_COMIC";
+    //TODO moved to WhatIfFragment, think this can be deleted
     private static final String WHATIF_INTENT = "de.tap.easy_xkcd.ACTION_WHAT_IF";
     private static final String SAVED_INSTANCE_CURRENT_FRAGMENT = "CurrentFragment";
 
-    public static final int UPDATE_ALARM = 2;
+    public static final int RESULT_UPDATE_ALARM = 2;
+    public static final int RESULT_SHOW_WHATIF = 3;
 
     public static final String FRAGMENT_TAG = "MainActivityFragments";
 
@@ -170,10 +170,9 @@ public class MainActivity extends BaseActivity {
             switch (Objects.requireNonNull(getIntent().getAction())) {
                 case Intent.ACTION_VIEW:
                     if (Objects.requireNonNull(getIntent().getDataString()).contains("what")) {
-                        WhatIfActivity.WhatIfIndex = (getNumberFromUrl(getIntent().getDataString(), 1));
-                        prefHelper.setLastWhatIf(WhatIfActivity.WhatIfIndex);
+                        // Nothing more to do here, the WhatIfFragment will handle the intent
+                        // TODO I'm pretty sure this variable is even redundant, gotta take a closer look
                         whatIfIntent = true;
-                        WhatIfFragment.newIntent = true;
                     } else
                         prefHelper.setLastComic(getNumberFromUrl(getIntent().getDataString(), prefHelper.getLastComic()));
                     break;
@@ -186,10 +185,7 @@ public class MainActivity extends BaseActivity {
                     Timber.d("started from Comic Notification Intent");
                     break;
                 case WHATIF_INTENT:
-                    WhatIfActivity.WhatIfIndex = getIntent().getIntExtra("number", 0);
-                    prefHelper.setLastWhatIf(WhatIfActivity.WhatIfIndex);
                     whatIfIntent = true;
-                    WhatIfFragment.newIntent = true;
                     break;
             }
         } catch (NullPointerException e) {
@@ -323,6 +319,9 @@ public class MainActivity extends BaseActivity {
             if (!fromOnRestart && savedInstanceState == null && prefHelper.launchToOverview()) {
                 currentFragment = CurrentFragment.Overview;
                 showOverview(false);
+            }
+            else if (whatIfIntent) {
+                showWhatifFragment(false);
             } else if (getSupportFragmentManager().findFragmentByTag(FRAGMENT_TAG) == null || newComicFound) {
                 Timber.d("Creating a new Fragment...");
                 switch (currentFragment) {
@@ -521,7 +520,8 @@ public class MainActivity extends BaseActivity {
             getSupportActionBar().setSubtitle("");
         }
 
-        WhatIfOverviewFragment whatIfFragment = new WhatIfOverviewFragment();
+        WhatIfFragment whatIfFragment = new WhatIfFragment();
+
         final FragmentTransaction transaction = fragmentManager.beginTransaction();
         Fragment oldFragment = fragmentManager.findFragmentByTag(FRAGMENT_TAG);
         if (oldFragment != null) {
@@ -532,33 +532,6 @@ public class MainActivity extends BaseActivity {
 
         Slide slideIn = new Slide(Gravity.BOTTOM);
         slideIn.setInterpolator(new OvershootInterpolator(1.5f));
-        //For some reason we have to add an empty listener here, so that the listener in WhatIfOverviewFragment works ¯\_(ツ)_/¯
-        slideIn.addListener(new Transition.TransitionListener() {
-            @Override
-            public void onTransitionStart(@NonNull Transition transition) {
-
-            }
-
-            @Override
-            public void onTransitionEnd(@NonNull Transition transition) {
-
-            }
-
-            @Override
-            public void onTransitionCancel(@NonNull Transition transition) {
-
-            }
-
-            @Override
-            public void onTransitionPause(@NonNull Transition transition) {
-
-            }
-
-            @Override
-            public void onTransitionResume(@NonNull Transition transition) {
-
-            }
-        });
         whatIfFragment.setEnterTransition(slideIn);
         whatIfFragment.setAllowEnterTransitionOverlap(false);
         transaction.replace(R.id.flContent, whatIfFragment, FRAGMENT_TAG);
@@ -712,9 +685,9 @@ public class MainActivity extends BaseActivity {
                 if (intent.getDataString().contains("what")) {
                     MenuItem item = mNavView.getMenu().findItem(R.id.nav_whatif);
                     selectDrawerItem(item, false, false, false, false);
-                    WhatIfActivity.WhatIfIndex = getNumberFromUrl(intent.getDataString(), 1);
+
                     Intent whatIf = new Intent(MainActivity.this, WhatIfActivity.class);
-                    prefHelper.setLastWhatIf(WhatIfActivity.WhatIfIndex);
+                    whatIf.putExtra("number", getNumberFromUrl(intent.getDataString(), 1));
                     startActivity(whatIf);
                 } else {
                     MenuItem item = mNavView.getMenu().findItem(R.id.nav_browser);
@@ -746,9 +719,9 @@ public class MainActivity extends BaseActivity {
             case WHATIF_INTENT:
                 item = mNavView.getMenu().findItem(R.id.nav_whatif);
                 selectDrawerItem(item, false, false, false, false);
-                WhatIfActivity.WhatIfIndex = intent.getIntExtra("number", 1);
+
                 Intent whatIf = new Intent(MainActivity.this, WhatIfActivity.class);
-                prefHelper.setLastWhatIf(WhatIfActivity.WhatIfIndex);
+                whatIf.putExtra("number", intent.getIntExtra("number", 1));
                 startActivity(whatIf);
                 break;
         }
@@ -761,7 +734,8 @@ public class MainActivity extends BaseActivity {
      * @param defaultNumber the number to be returned when something went wrong (usually lastComicNumber)
      * @return the number of the comic that the url links to
      */
-    private int getNumberFromUrl(String url, int defaultNumber) {
+    //TODO Move this method somewhere else, probably DatabaseManager
+    public static int getNumberFromUrl(String url, int defaultNumber) {
         StringBuilder sb = new StringBuilder();
         for (int i = 0; i < url.length(); i++) {
             char c = url.charAt(i);
@@ -973,6 +947,7 @@ public class MainActivity extends BaseActivity {
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
         Timber.d( "received result" +  resultCode + "from request" + requestCode);
         if (requestCode == 1) {
             switch (resultCode) {
@@ -981,7 +956,7 @@ public class MainActivity extends BaseActivity {
                     finish();
                     startActivity(getIntent());
                     break;
-                case UPDATE_ALARM:
+                case RESULT_UPDATE_ALARM:
                     JobScheduler jobScheduler = (JobScheduler) getSystemService(Context.JOB_SCHEDULER_SERVICE);
                     if (prefHelper.getNotificationInterval() != 0) {
                         jobScheduler.cancel(UPDATE_JOB_ID);
@@ -996,6 +971,9 @@ public class MainActivity extends BaseActivity {
                         jobScheduler.cancel(UPDATE_JOB_ID);
                         Timber.d("Job canceled!");
                     }
+                    break;
+                case RESULT_SHOW_WHATIF:
+                    showWhatifFragment(false);
                     break;
             }
         } else if (requestCode == 2 && resultCode == FilePickerActivity.RESULT_OK) {

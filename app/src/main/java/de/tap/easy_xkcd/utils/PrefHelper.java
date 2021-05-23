@@ -132,6 +132,10 @@ public class PrefHelper {
         return prefs.getBoolean(FULL_OFFLINE, false);
     }
 
+    public boolean mayDownloadDataForOfflineMode(Context context) {
+        return (isWifi(context) || mobileEnabled());
+    }
+
     public void setFullOffline(boolean value) {
         prefs.edit().putBoolean(FULL_OFFLINE, value).apply();
     }
@@ -366,6 +370,7 @@ public class PrefHelper {
         sharedPrefs.edit().putBoolean(WHATIF_NIGHT_MODE, value).apply();
     }*/
 
+    @Deprecated
     public void setWhatifRead(String added) {
         String read = sharedPrefs.getString(WHATIF_READ, "");
         if (!read.equals("")) {
@@ -376,15 +381,18 @@ public class PrefHelper {
         sharedPrefs.edit().putString(WHATIF_READ, read).apply();
     }
 
+    @Deprecated
     public void setAllUnread() {
         sharedPrefs.edit().putString(WHATIF_READ, "").apply();
     }
 
+    @Deprecated
     public void setAllWhatIfRead() {
         for (int i = 1; i <= getNewestWhatIf(); i++)
             setWhatifRead(String.valueOf(i));
     }
 
+    @Deprecated
     public boolean checkRead(int number) {
         String read = sharedPrefs.getString(WHATIF_READ, "");
         if (read.equals("")) {
@@ -425,6 +433,7 @@ public class PrefHelper {
         return null;
     } */
 
+    @Deprecated
     public void setWhatIfFavorite(String added) {
         String fav = sharedPrefs.getString(WHATIF_FAV, "");
         if (!fav.equals("")) {
@@ -435,6 +444,7 @@ public class PrefHelper {
         sharedPrefs.edit().putString(WHATIF_FAV, fav).apply();
     }
 
+    @Deprecated
     public boolean checkWhatIfFav(int number) {
         String fav = sharedPrefs.getString(WHATIF_FAV, "");
         if (fav.equals("")) {
@@ -450,6 +460,7 @@ public class PrefHelper {
         return (a >= 0);
     }
 
+    @Deprecated
     public void removeWhatifFav(int number) {
         String[] old = sharedPrefs.getString(WHATIF_FAV, "").split(",");
         int[] oldInt = new int[old.length];
@@ -549,10 +560,12 @@ public class PrefHelper {
         }
     }
 
+    @Deprecated
     public int getNewestWhatIf() {
         return sharedPrefs.getInt(NEWEST_WHATIF, 1);
     }
 
+    @Deprecated
     public void setNewestWhatif(int number) {
         sharedPrefs.edit().putInt(NEWEST_WHATIF, number).apply();
     }

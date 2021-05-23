@@ -53,11 +53,12 @@ public class SettingsActivity extends BaseActivity {
         if (requestCode == 1)
             switch (resultCode) {
                 case RESULT_OK:
-                    setResult(RESULT_OK);
+                case MainActivity.RESULT_SHOW_WHATIF:
+                    setResult(resultCode);
                     finish();
                     break;
-                case MainActivity.UPDATE_ALARM:
-                    setResult(MainActivity.UPDATE_ALARM);
+                case MainActivity.RESULT_UPDATE_ALARM:
+                    setResult(MainActivity.RESULT_UPDATE_ALARM);
                     break;
             }
     }

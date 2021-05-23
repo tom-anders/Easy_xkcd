@@ -18,6 +18,8 @@ import com.tap.xkcd_reader.R;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.jsoup.Jsoup;
+import org.jsoup.nodes.Document;
+import org.jsoup.select.Elements;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -27,18 +29,32 @@ import java.util.List;
 import java.util.Map;
 import java.util.Random;
 import java.util.Stack;
+import java.util.concurrent.TimeUnit;
 
 import de.tap.easy_xkcd.CustomTabHelpers.BrowserFallback;
 import de.tap.easy_xkcd.CustomTabHelpers.CustomTabActivityHelper;
+import de.tap.easy_xkcd.utils.Article;
 import de.tap.easy_xkcd.utils.JsonParser;
+import de.tap.easy_xkcd.utils.PrefHelper;
 import de.tap.easy_xkcd.utils.ThemePrefs;
+import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers;
+import io.reactivex.rxjava3.core.Emitter;
+import io.reactivex.rxjava3.core.Observable;
+import io.reactivex.rxjava3.core.Observer;
+import io.reactivex.rxjava3.core.Single;
+import io.reactivex.rxjava3.internal.operators.observable.ObservableError;
+import io.reactivex.rxjava3.schedulers.Schedulers;
 import io.realm.DynamicRealm;
+import io.realm.FieldAttribute;
 import io.realm.Realm;
 import io.realm.RealmConfiguration;
 import io.realm.RealmMigration;
 import io.realm.RealmObjectSchema;
 import io.realm.RealmResults;
 import io.realm.RealmSchema;
+import io.realm.internal.RealmObjectProxy;
+import okhttp3.OkHttpClient;
+import okhttp3.Request;
 import timber.log.Timber;
 
 import static de.tap.easy_xkcd.utils.JsonParser.getJSONFromUrl;
@@ -62,6 +78,17 @@ public class DatabaseManager {
             if (!objectSchema.hasField("altText")) { //Add the altText field which wasn't there in the old version!
                 objectSchema.addField("altText", String.class);
             }
+
+            if (!schema.contains("Article")) {
+                RealmObjectSchema articleSchema = schema.create("Article")
+                        .addField("number", int.class, FieldAttribute.PRIMARY_KEY)
+                        .addField("title", String.class)
+                        .addField("thumbnail", String.class)
+                        .addField("favorite", boolean.class)
+                        .addField("read", boolean.class)
+                        .addField("offline", boolean.class);
+            }
+
         }
 
         @Override
@@ -78,7 +105,7 @@ public class DatabaseManager {
     public DatabaseManager(Context context) {
         if (config == null) {
             config = new RealmConfiguration.Builder(context)
-                    .schemaVersion(2) // Must be bumped when the schema changes
+                    .schemaVersion(3) // Must be bumped when the schema changes
                     .migration(new Migration()) // Migration to run
                     .build();
             Realm.setDefaultConfiguration(config);
@@ -277,9 +304,20 @@ public class DatabaseManager {
         switch (title) {
             case "Earth-Moon Fire Pole":
                 return R.mipmap.slide;
+            case "New Horizons":
+                return R.mipmap.new_horizons;
             default:
                 return 0;
         }
+    }
+
+    public void setAllArticlesReadStatus(boolean read) {
+        realm.beginTransaction();
+        RealmResults<Article> articles = realm.where(Article.class).findAll();
+        for (int i = 0; i < articles.size(); i++)
+            articles.get(i).setRead(read);
+        realm.copyToRealmOrUpdate(articles);
+        realm.commitTransaction();
     }
 
     /**
@@ -400,6 +438,91 @@ public class DatabaseManager {
             }
 
         }
+    }
+
+    public int getNumberOfNonOfflineArticles() {
+        return realm.where(Article.class).equalTo("offline", false).findAll().size();
+    }
+
+    public Single updateWhatifDatabase(PrefHelper prefHelper) {
+        return Single.fromCallable(() -> {
+            Realm realm = Realm.getDefaultInstance();
+            try {
+                Document document =
+                        Jsoup.parse(JsonParser.getNewHttpClient().newCall(new Request.Builder()
+                                .url("https://what-if.xkcd.com/archive/")
+                                .build()).execute().body().string());
+
+                realm.beginTransaction();
+
+                Elements titles = document.select("h1");
+                Elements thumbnails = document.select("img.archive-image");
+
+                for (int number = 1; number <= titles.size(); number++) {
+                    Article article = realm.where(Article.class).equalTo("number", number).findFirst();
+                    if (article == null) {
+                        article = new Article();
+                        article.setNumber(number);
+                        article.setTitle(titles.get(number - 1).text());
+                        article.setThumbnail("https://what-if.xkcd.com/" + thumbnails.get(number - 1).attr("src")); // -1 cause articles a 1-based indexed
+
+                        article.setOffline(false);
+
+                        // Import from the legacy database
+                        article.setRead(prefHelper.checkRead(number));
+                        article.setFavorite(prefHelper.checkWhatIfFav(number));
+
+                        realm.copyToRealm(article);
+
+                        Timber.d("Stored new article: %d %s %s", article.getNumber(), article.getTitle(), article.getThumbnail());
+                    }
+                }
+            } catch (IOException e) {
+                Timber.e(e);
+                return false;
+            } finally {
+                realm.commitTransaction();
+            }
+
+            return true;
+        });
+    }
+
+    public Observable<Integer> updateWhatIfOfflineDatabase(PrefHelper prefHelper) {
+        List<Article> articlesToDownload = realm.copyFromRealm(realm.where(Article.class).equalTo("offline", false).findAll());
+        Timber.d("Articles to download: %d", articlesToDownload.size());
+        if (articlesToDownload.isEmpty()) {
+            return Observable.create(Emitter::onComplete);
+        }
+        final OkHttpClient client = new OkHttpClient();
+
+        return Observable.fromIterable(articlesToDownload).flatMapSingle(article -> {
+            return Article.downloadArticle(article, client, prefHelper);
+//            return Article.downloadThumbnail(article, client, prefHelper);
+        });
+
+//        return Observable.fromIterable(articlesToDownload)
+//                .flatMap(article -> {
+//                    return Article.downloadArticle(article, client, prefHelper);
+//                })
+
+
+//        return Observable.create(subscriber -> {
+//            Realm realm = Realm.getDefaultInstance();
+//            realm.beginTransaction();
+//            List<Article> articlesToDownload = realm.copyFromRealm(realm.where(Article.class).equalTo("offline", false).findAll());
+//            for (Article article : articlesToDownload) {
+//                boolean success = Article.downloadArticle(article, JsonParser.getNewHttpClient(), prefHelper);
+//                article.setOffline(success);
+//                subscriber.onNext(article.getNumber());
+//            }
+//            realm.copyToRealmOrUpdate(articlesToDownload);
+//
+//            realm.commitTransaction();
+//            realm.close();
+//
+//            subscriber.onComplete();
+//        });
     }
 
     // Implement some fixes for comic data that may have already been cached
