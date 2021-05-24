@@ -429,7 +429,7 @@ public class ThemePrefs {
     }
 
     public boolean bitmapContainsColor(Bitmap bitmap, int comicNumber) {
-        if(comicNumber == 1913) //https://github.com/T-Rex96/Easy_xkcd/issues/116
+        if(comicNumber == 1913) //https://github.com/tom-anders/Easy_xkcd/issues/116
             return true;
         if (comicNumber == 2018) //This one doesn't work w/o the yellow color
             return true;
