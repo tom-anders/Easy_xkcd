@@ -11,6 +11,7 @@ import org.acra.ReportField;
 import org.acra.ReportingInteractionMode;
 import org.acra.annotation.ReportsCrashes;
 
+import dagger.hilt.android.HiltAndroidApp;
 import timber.log.Timber;
 
 @ReportsCrashes(mailTo = "easyxkcd@gmail.com",
@@ -30,6 +31,7 @@ import timber.log.Timber;
         }
 )
 
+@HiltAndroidApp
 public class EasyXkcdApp extends Application {
     @Override
     protected void attachBaseContext(Context base) {

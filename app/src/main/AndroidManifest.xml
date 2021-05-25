@@ -156,7 +156,7 @@
             android:permission="android.permission.BIND_JOB_SERVICE" />
 
         <activity
-            android:name="de.tap.easy_xkcd.Activities.WhatIfActivity"
+            android:name="de.tap.easy_xkcd.whatIfArticleViewer.WhatIfActivity"
             android:label="@string/title_activity_what_if"
             android:launchMode="singleTop"
             android:parentActivityName="de.tap.easy_xkcd.Activities.MainActivity">

@@ -1,3 +1,10 @@
+## 8.0-beta1
+
+- Near complete rewrite of WhatIf database and article viewer logic to be more stable
+- WhatIf Overview now allows direct toggling between showing all articles or only favorites
+- Scroll position in WhatIf articles is not persisted on rotation
+- Remove "Open Forum Thread" option until the xkcd forum is back online (if ever)
+
 ## 7.3.9
 
 - Add support for comic 2293 (Thanks, @obfusk!)

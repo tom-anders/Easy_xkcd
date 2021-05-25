@@ -444,6 +444,10 @@ public class DatabaseManager {
         return realm.where(Article.class).equalTo("offline", false).findAll().size();
     }
 
+    public int getNumberOfArticles() {
+        return realm.where(Article.class).findAll().size();
+    }
+
     public Single updateWhatifDatabase(PrefHelper prefHelper) {
         return Single.fromCallable(() -> {
             Realm realm = Realm.getDefaultInstance();

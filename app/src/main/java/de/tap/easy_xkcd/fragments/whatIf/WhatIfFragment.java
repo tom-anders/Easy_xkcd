@@ -44,8 +44,8 @@ import java.util.concurrent.atomic.AtomicInteger;
 import butterknife.Bind;
 import butterknife.ButterKnife;
 import de.tap.easy_xkcd.Activities.MainActivity;
-import de.tap.easy_xkcd.Activities.WhatIfActivity;
 import de.tap.easy_xkcd.GlideApp;
+import de.tap.easy_xkcd.whatIfArticleViewer.WhatIfActivity;
 import de.tap.easy_xkcd.database.DatabaseManager;
 import de.tap.easy_xkcd.utils.Article;
 import de.tap.easy_xkcd.utils.PrefHelper;
@@ -361,6 +361,7 @@ public class WhatIfFragment extends Fragment {
     private void setupAdapter() {
         Realm realm = Realm.getDefaultInstance();
         RealmResults<Article> articles;
+        //TODO would probably cool to show a nice xkcd-style picture if there are no favorites yet
         if (favoritesItem != null && favoritesItem.isChecked()) {
             articles = realm.where(Article.class).equalTo("favorite", true).findAll();
         } else if (prefHelper.hideReadWhatIf()) {

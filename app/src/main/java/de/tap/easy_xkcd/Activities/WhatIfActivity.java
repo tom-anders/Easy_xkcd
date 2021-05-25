@@ -55,7 +55,7 @@ import timber.log.Timber;
 public class WhatIfActivity extends BaseActivity {
     public static final String INTENT_NUMBER = "number";
 
-    @Bind(R.id.wv)
+    @Bind(R.id.web)
     WebView web;
     private ProgressDialog mProgress;
     private Article loadedArticle;
