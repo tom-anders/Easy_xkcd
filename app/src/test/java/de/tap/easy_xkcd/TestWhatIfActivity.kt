@@ -7,6 +7,7 @@ import android.widget.TextView
 import androidx.appcompat.widget.Toolbar
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
+import androidx.lifecycle.SavedStateHandle
 import com.google.common.truth.Truth.assertThat
 import com.tap.xkcd_reader.R
 import dagger.Binds
@@ -36,16 +37,6 @@ import org.robolectric.android.controller.ActivityController
 import org.robolectric.annotation.Config
 import javax.inject.Inject
 
-//@Module
-//@TestInstallIn(
-//    components = [ViewModelComponent::class],
-//    replaces = [ArticleModelModule::class]
-//)
-//abstract class FakeArticleModel {
-//    @Binds
-//    abstract fun bindArticleModel(articleModelImpl: ArticleModelImpl): ArticleModel
-//}
-
 @HiltAndroidTest
 @RunWith(RobolectricTestRunner::class)
 @Config(application = HiltTestApplication::class)
@@ -61,7 +52,7 @@ class TestWhatIfActivity {
     // Need to use a spy() instead of mock() here,
     // otherwise we run into https://stackoverflow.com/questions/54012481/crash-after-updating-to-fragment-testing-library-v1-1-0-alpha03
     @BindValue
-    val myViewModel = spy(WhatIfArticleViewModel(articleModel))
+    val myViewModel = spy(WhatIfArticleViewModel(articleModel, SavedStateHandle()))
 //    val myViewModel: WhatIfArticleViewModel = WhatIfArticleViewModel(articleModel)
 
     private lateinit var activityController: ActivityController<WhatIfActivity>

@@ -12,6 +12,7 @@ import io.reactivex.rxjava3.core.Single
 import io.reactivex.rxjava3.schedulers.Schedulers
 import org.jsoup.Jsoup
 import timber.log.Timber
+import java.lang.ClassCastException
 import java.util.*
 import javax.inject.Inject
 
@@ -47,28 +48,30 @@ class WhatIfArticleViewModel @Inject constructor(
     fun progressTextId(): LiveData<Int> = progressTextId
 
     init {
-        val number = savedStateHandle.get<Int>(WhatIfActivity.INTENT_NUMBER)
-        Timber.d("Loading article %d", number)
-
-        number?.let { loadArticle(it) }
+        try {
+            savedStateHandle.get<Int>(WhatIfActivity.INTENT_NUMBER)?.let {
+                Timber.d("Loading article %d", it)
+                loadArticle(it)
+            }
+        } catch (e: ClassCastException) {
+            Timber.e(e)
+        }
     }
 
     private fun loadArticle(number: Int) {
-        Single.fromCallable { model.loadArticle(number) }
-            .subscribeOn(Schedulers.io())
-            .observeOn(AndroidSchedulers.mainThread())
+        model.loadArticle(number)
             .doOnSubscribe { progressTextId.value = R.string.loading_article }
-            .doOnError {} //TODO SingleLiveEvent to close the activity?
-            .doOnSuccess {
+            .doFinally { progressTextId.value = null }
+            .subscribe({
                 articleHtml.value = it
                 title.value = model.getTitle()
 
                 hasPreviousArticle.value = model.hasPreviousArticle()
                 hasNextArticle.value = model.hasNextArticle()
                 isFavorite.value = model.isArticleFavorite()
-            }
-            .doFinally { progressTextId.value = null }
-            .subscribe()
+            }, {
+                Timber.e(it)
+            })
     }
 
     fun showNextArticle() {
@@ -99,16 +102,7 @@ class WhatIfArticleViewModel @Inject constructor(
 
     val openRedditThreadEvent = SingleLiveEvent<String>()
     fun openRedditThread() {
-        Single.fromCallable {
-            "https://www.reddit.com" + JsonParser.getJSONFromUrl(
-                "https://www.reddit.com/r/xkcd/search.json?q=${model.getTitle()}&restrict_sr=on"
-            )
-                .getJSONObject("data")
-                .getJSONArray("children").getJSONObject(0).getJSONObject("data")
-                .getString("permalink")
-        }
-            .subscribeOn(Schedulers.io())
-            .observeOn(AndroidSchedulers.mainThread())
+        model.getRedditThread()
             .doOnSubscribe { progressTextId.value = R.string.loading_thread }
             .doFinally { progressTextId.value = null }
             .subscribe({

@@ -9,23 +9,28 @@ import dagger.hilt.android.qualifiers.ApplicationContext
 import dagger.hilt.android.scopes.ViewModelScoped
 import de.tap.easy_xkcd.database.DatabaseManager
 import de.tap.easy_xkcd.utils.Article
+import de.tap.easy_xkcd.utils.JsonParser
 import de.tap.easy_xkcd.utils.PrefHelper
 import de.tap.easy_xkcd.utils.ThemePrefs
+import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers
 import io.reactivex.rxjava3.core.Single
+import io.reactivex.rxjava3.schedulers.Schedulers
 import io.realm.Realm
 import org.jsoup.nodes.Document
 import javax.inject.Inject
 import kotlin.random.Random
 
 interface ArticleModel {
-//    fun getLoadedArticle(): Article
+    //    fun getLoadedArticle(): Article
     fun getTitle(): String
 
     fun isArticleFavorite(): Boolean
 
     fun toggleArticleFavorite()
 
-    fun loadArticle(number: Int): String
+    fun loadArticle(number: Int): Single<String>
+
+    fun getRedditThread(): Single<String>
 
     fun getRef(index: String): String
 
@@ -48,7 +53,7 @@ abstract class ArticleModelModule {
 
 //TODO Inject PrefHelper and ThemePrefs as Singleton via Hilt?!
 class ArticleModelImpl @Inject constructor(@ApplicationContext context: Context) : ArticleModel {
-//class ArticleModelImpl @Inject constructor() : ArticleModel {
+    //class ArticleModelImpl @Inject constructor() : ArticleModel {
     private lateinit var loadedArticle: Article
     private lateinit var refs: ArrayList<String?>
 
@@ -56,22 +61,41 @@ class ArticleModelImpl @Inject constructor(@ApplicationContext context: Context)
     private var themePrefs: ThemePrefs = ThemePrefs(context)
     private var databaseManager = DatabaseManager(context)
 
-    override fun loadArticle(number: Int): String {
+    override fun loadArticle(number: Int): Single<String> {
         val realm = Realm.getDefaultInstance()
-        loadedArticle = realm.copyFromRealm(realm.where(Article::class.java).equalTo("number", number).findFirst())
+        loadedArticle = realm.copyFromRealm(
+            realm.where(Article::class.java).equalTo("number", number).findFirst()
+        )
         realm.beginTransaction()
         loadedArticle.isRead = true
         realm.copyToRealmOrUpdate(loadedArticle)
         realm.commitTransaction()
         realm.close()
 
-        val doc = Article.generateDocument(number, prefHelper, themePrefs)
+        return Single.fromCallable {
+            val doc = Article.generateDocument(number, prefHelper, themePrefs)
 
-        refs = Article.generateRefs(doc)
+            refs = Article.generateRefs(doc)
 
-        prefHelper.lastWhatIf = loadedArticle.number
+            prefHelper.lastWhatIf = loadedArticle.number
 
-        return doc.html()
+            doc.html()
+        }
+            .subscribeOn(Schedulers.io())
+            .observeOn(AndroidSchedulers.mainThread())
+    }
+
+    override fun getRedditThread(): Single<String> {
+        return Single.fromCallable {
+            "https://www.reddit.com" + JsonParser.getJSONFromUrl(
+                "https://www.reddit.com/r/xkcd/search.json?q=${loadedArticle.title}&restrict_sr=on"
+            )
+                .getJSONObject("data")
+                .getJSONArray("children").getJSONObject(0).getJSONObject("data")
+                .getString("permalink")
+        }
+            .subscribeOn(Schedulers.io())
+            .observeOn(AndroidSchedulers.mainThread())
     }
 
     override fun getTitle(): String {
@@ -111,4 +135,5 @@ class ArticleModelImpl @Inject constructor(@ApplicationContext context: Context)
         //TODO Convert Article.java to Kotlin, then we can get rid of this assert
         return refs[index.toInt()]!!
     }
+
 }
