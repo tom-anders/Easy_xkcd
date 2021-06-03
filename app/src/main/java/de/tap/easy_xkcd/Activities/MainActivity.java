@@ -76,6 +76,7 @@ import butterknife.Bind;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
 import butterknife.OnLongClick;
+import dagger.hilt.android.AndroidEntryPoint;
 import de.tap.easy_xkcd.CustomTabHelpers.CustomTabActivityHelper;
 import de.tap.easy_xkcd.database.DatabaseManager;
 import de.tap.easy_xkcd.database.updateComicDatabase;
@@ -88,9 +89,11 @@ import de.tap.easy_xkcd.fragments.whatIf.WhatIfFragment;
 import de.tap.easy_xkcd.notifications.ComicNotifierJob;
 import de.tap.easy_xkcd.utils.PrefHelper;
 import de.tap.easy_xkcd.utils.ThemePrefs;
+import de.tap.easy_xkcd.whatIfOverview.WhatIfOverviewFragment;
 import timber.log.Timber;
 
 
+@AndroidEntryPoint
 public class MainActivity extends BaseActivity {
     @Bind(R.id.fab)
     FloatingActionButton mFab;
@@ -520,7 +523,8 @@ public class MainActivity extends BaseActivity {
             getSupportActionBar().setSubtitle("");
         }
 
-        WhatIfFragment whatIfFragment = new WhatIfFragment();
+//        WhatIfFragment whatIfFragment = new WhatIfFragment();
+        WhatIfOverviewFragment whatIfFragment = new WhatIfOverviewFragment();
 
         final FragmentTransaction transaction = fragmentManager.beginTransaction();
         Fragment oldFragment = fragmentManager.findFragmentByTag(FRAGMENT_TAG);

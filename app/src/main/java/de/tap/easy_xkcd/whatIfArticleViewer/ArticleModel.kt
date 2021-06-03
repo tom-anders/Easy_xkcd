@@ -44,7 +44,6 @@ interface ArticleModel {
 }
 
 @Module
-//@InstallIn(ViewModelComponent::class)
 @InstallIn(ViewModelComponent::class)
 abstract class ArticleModelModule {
     @Binds
