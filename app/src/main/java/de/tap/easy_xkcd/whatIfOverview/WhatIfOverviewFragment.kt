@@ -15,6 +15,7 @@ import androidx.core.view.MenuCompat
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.recyclerview.widget.LinearLayoutManager
+import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.tap.xkcd_reader.R
 import com.tap.xkcd_reader.databinding.RecyclerLayoutBinding
 import dagger.hilt.android.AndroidEntryPoint
@@ -26,6 +27,7 @@ import io.realm.Case
 import io.realm.Realm
 import io.realm.Sort
 import jp.wasabeef.recyclerview.adapters.SlideInBottomAnimationAdapter
+import java.util.*
 
 @AndroidEntryPoint
 class WhatIfOverviewFragment : Fragment() {
@@ -97,6 +99,10 @@ class WhatIfOverviewFragment : Fragment() {
                 setArticles(it)
                 notifyDataSetChanged()
             }
+        }
+
+        activity?.findViewById<FloatingActionButton>(R.id.fab)?.setOnClickListener {
+            displayWhatIf(Random().nextInt(adapter.itemCount))
         }
 
         activityResultLauncher =
