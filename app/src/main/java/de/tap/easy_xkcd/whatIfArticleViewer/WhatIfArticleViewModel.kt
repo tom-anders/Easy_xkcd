@@ -97,16 +97,6 @@ class WhatIfArticleViewModel @Inject constructor(
 
     suspend fun getRedditThread() = model.getRedditThread()
 
-//        model.getRedditThread()
-//            .doOnSubscribe { progressTextId.value = R.string.loading_thread }
-//            .doFinally { progressTextId.value = null }
-//            .subscribe({
-//                openRedditThreadEvent.value = it.replace("www", "m")
-//            }, {
-//                openRedditThreadEvent.value = ""
-//                Timber.e(it)
-//            })
-
     fun toggleArticleFavorite() {
         model.toggleArticleFavorite()
         isFavorite.value = model.isArticleFavorite()

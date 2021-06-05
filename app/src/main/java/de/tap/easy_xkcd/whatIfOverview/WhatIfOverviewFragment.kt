@@ -28,6 +28,7 @@ import io.realm.Case
 import io.realm.Realm
 import io.realm.Sort
 import jp.wasabeef.recyclerview.adapters.SlideInBottomAnimationAdapter
+import kotlinx.coroutines.processNextEventInCurrentThread
 import timber.log.Timber
 import java.util.*
 
@@ -60,18 +61,19 @@ class WhatIfOverviewFragment : Fragment() {
         prefHelper = PrefHelper(activity)
 
         progress = ProgressDialog(activity)
-        progress.setTitle(resources.getString(R.string.loading_article))
         progress.setCancelable(false)
-        model.progressMax.observe(viewLifecycleOwner) { it?.let { progress.max = it } }
-        model.progress.observe(viewLifecycleOwner) {
-            progress.setProgressStyle(
-                if (it != null) ProgressDialog.STYLE_HORIZONTAL else ProgressDialog.STYLE_SPINNER
-            )
-            // If the progress is already displayed, we need this so that the style is changed
-            if (progress.isShowing)
-                progress.show()
 
-            it?.let { progress.progress = it }
+        model.progress.observe(viewLifecycleOwner) {
+            if (it == 0) {
+                progress.dismiss()
+                progress = ProgressDialog(activity)
+                model.progressTextId.value ?. let { progress.setTitle(activity?.resources?.getString(it)) }
+                progress.max = model.progressMax
+                progress.setProgressStyle(ProgressDialog.STYLE_HORIZONTAL)
+                progress.show()
+            } else {
+                progress.progress = it ?: 0
+            }
         }
         model.progressTextId.observe(viewLifecycleOwner) {
             if (it != null) {

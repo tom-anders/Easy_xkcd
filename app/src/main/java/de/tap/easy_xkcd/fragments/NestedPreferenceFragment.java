@@ -610,11 +610,11 @@ public class NestedPreferenceFragment extends PreferenceFragment {
 
         @Override
         protected Void doInBackground(Void... params) {
-            if (!BuildConfig.DEBUG) {
+//            if (!BuildConfig.DEBUG) {
                 File sdCard = prefHelper.getOfflinePath();
                 File dir = new File(sdCard.getAbsolutePath() + OFFLINE_WHATIF_PATH);
                 deleteFolder(dir);
-            }
+//            }
 
             //TODO do this in database manager instead
             Realm realm = Realm.getDefaultInstance();

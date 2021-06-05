@@ -10,26 +10,34 @@ import de.tap.easy_xkcd.database.DatabaseManager
 import de.tap.easy_xkcd.utils.Article
 import de.tap.easy_xkcd.utils.JsonParser
 import de.tap.easy_xkcd.utils.PrefHelper
-import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers
 import io.reactivex.rxjava3.core.*
-import io.reactivex.rxjava3.schedulers.Schedulers
 import io.realm.Case
 import io.realm.Realm
-import okhttp3.OkHttpClient
-import okhttp3.Request
+import kotlinx.coroutines.*
+import okhttp3.*
+import okio.buffer
+import okio.sink
 import org.jsoup.Jsoup
+import ru.gildor.coroutines.okhttp.await
 import timber.log.Timber
+import java.io.BufferedWriter
+import java.io.File
+import java.io.FileWriter
 import java.io.IOException
 import javax.inject.Inject
 
 interface OverviewModel {
-    fun updateWhatIfDatabase(): Single<Boolean>
+    suspend fun updateWhatIfDatabase()
 
-    fun updateWhatIfOfflineDatabase(): Observable<Int>
+    suspend fun updateWhatIfOfflineDatabase(articleDownloadedCallback: () -> Unit)
 
     fun numberOfOfflineArticlesNotDownloaded(): Int
 
-    fun getArticles(hideRead: Boolean = false, onlyFavorites: Boolean = false, searchQuery: String? = null): List<Article>
+    fun getArticles(
+        hideRead: Boolean = false,
+        onlyFavorites: Boolean = false,
+        searchQuery: String? = null
+    ): List<Article>
 
     fun toggleArticleFavorite(article: Article)
 
@@ -49,7 +57,14 @@ class OverviewModelImpl @Inject constructor(@ApplicationContext context: Context
     val prefHelper = PrefHelper(context)
     val databaseManager = DatabaseManager(context)
 
-    override fun getArticles(hideRead: Boolean, onlyFavorites: Boolean, searchQuery: String?): List<Article> {
+    private val OFFLINE_WHATIF_PATH = "/easy xkcd/what if/"
+    private val OFFLINE_WHATIF_OVERVIEW_PATH = "/easy xkcd/what if/overview/"
+
+    override fun getArticles(
+        hideRead: Boolean,
+        onlyFavorites: Boolean,
+        searchQuery: String?
+    ): List<Article> {
         val realm = Realm.getDefaultInstance()
         var query = realm.where(Article::class.java)
 
@@ -65,55 +80,50 @@ class OverviewModelImpl @Inject constructor(@ApplicationContext context: Context
         return realm.copyFromRealm(query.findAll())
     }
 
-    override fun updateWhatIfDatabase(): Single<Boolean> {
-        return Single.fromCallable {
-            val realm = Realm.getDefaultInstance()
-            realm.beginTransaction()
+    override suspend fun updateWhatIfDatabase() {
+        val realm = Realm.getDefaultInstance()
+        realm.beginTransaction()
 
-            try {
-                val document = Jsoup.parse(
+        try {
+            val document = withContext(Dispatchers.IO) {
+                Jsoup.parse(
                     JsonParser.getNewHttpClient().newCall(
                         Request.Builder()
                             .url("https://what-if.xkcd.com/archive/")
                             .build()
-                    ).execute().body!!.string()
+                    ).await().body!!.string()
                 )
-
-                val titles = document.select("h1")
-                val thumbnails = document.select("img.archive-image")
-                for (number in 1..titles.size) {
-                    var article =
-                        realm.where(Article::class.java).equalTo("number", number).findFirst()
-                    if (article == null) {
-                        article = Article()
-                        article.number = number
-                        article.title = titles[number - 1].text()
-                        article.thumbnail =
-                            "https://what-if.xkcd.com/" + thumbnails[number - 1].attr("src") // -1 cause articles a 1-based indexed
-                        article.isOffline = false
-
-                        // Import from the legacy database
-                        article.isRead = prefHelper.checkRead(number)
-                        article.isFavorite = prefHelper.checkWhatIfFav(number)
-                        realm.copyToRealm(article)
-                        Timber.d("Stored new article: ${article.number} ${article.title} ${article.thumbnail}")
-                    }
-                }
-            } catch (e: IOException) {
-                Timber.e(e)
-                return@fromCallable false
-            } finally {
-                realm.commitTransaction()
-                realm.close()
             }
 
-            return@fromCallable true
+            val titles = document.select("h1")
+            val thumbnails = document.select("img.archive-image")
+            for (number in 1..titles.size) {
+                var article =
+                    realm.where(Article::class.java).equalTo("number", number).findFirst()
+                if (article == null) {
+                    article = Article()
+                    article.number = number
+                    article.title = titles[number - 1].text()
+                    article.thumbnail =
+                        "https://what-if.xkcd.com/" + thumbnails[number - 1].attr("src") // -1 cause articles a 1-based indexed
+                    article.isOffline = false
+
+                    // Import from the legacy database
+                    article.isRead = prefHelper.checkRead(number)
+                    article.isFavorite = prefHelper.checkWhatIfFav(number)
+                    realm.copyToRealm(article)
+                    Timber.d("Stored new article: ${article.number} ${article.title} ${article.thumbnail}")
+                }
+            }
+        } catch (e: IOException) {
+            Timber.e(e)
+        } finally {
+            realm.commitTransaction()
+            realm.close()
         }
-            .subscribeOn(Schedulers.io())
-            .observeOn(AndroidSchedulers.mainThread())
     }
 
-    override fun updateWhatIfOfflineDatabase(): Observable<Int> {
+    override suspend fun updateWhatIfOfflineDatabase(articleDownloadedCallback: () -> Unit) {
         val realm = Realm.getDefaultInstance()
         val articlesToDownload = realm.copyFromRealm(
             realm.where(Article::class.java).equalTo("offline", false).findAll()
@@ -121,16 +131,98 @@ class OverviewModelImpl @Inject constructor(@ApplicationContext context: Context
         realm.close()
 
         if (articlesToDownload.isEmpty()) {
-            return Observable.create { obj: ObservableEmitter<Int> -> obj.onComplete() }
+            return
         }
 
         val client = OkHttpClient()
-        return Observable.fromIterable(articlesToDownload).flatMapSingle { article: Article? ->
-            Article.downloadArticle(
-                article,
-                client,
-                prefHelper
-            )
+
+        withContext(Dispatchers.IO) {
+            articlesToDownload.map {
+                async {
+                    downloadArticle(it, client, prefHelper, articleDownloadedCallback)
+                }
+            }.awaitAll()
+        }
+    }
+
+    fun downloadArticle(
+        article: Article,
+        client: OkHttpClient,
+        prefHelper: PrefHelper,
+        articleDownloadedCallback: () -> Unit,
+    ) {
+        if (Article.hasOfflineFilesForArticle(article.number, prefHelper)) {
+            Timber.d("Already has files for article %d", article.number)
+            return
+        }
+
+        val response = client.newCall(
+            Request.Builder()
+                .url("https://what-if.xkcd.com/" + article.number)
+                .build()
+        ).execute()
+
+        val doc = Jsoup.parse(response.body!!.string())
+        val dir = File(
+            prefHelper.offlinePath
+                .absolutePath + OFFLINE_WHATIF_PATH + article.number
+        )
+        if (!dir.exists()) dir.mkdirs()
+        var file =
+            File(dir, article.number.toString() + ".html")
+        val writer =
+            BufferedWriter(FileWriter(file))
+        writer.write(doc.outerHtml())
+        writer.close()
+
+        // Download images
+        var count = 1
+        for (e in doc.select(".illustration")) {
+            try {
+                val url = "https://what-if.xkcd.com" + e.attr("src")
+                val request: Request = Request.Builder()
+                    .url(url)
+                    .build()
+                val imgResponse = client.newCall(request).execute()
+                file = File(dir, "$count.png")
+                val sink = file.sink().buffer()
+                sink.writeAll(imgResponse.body!!.source())
+                sink.close()
+                response.body!!.close()
+                count++
+            } catch (e2: Exception) {
+                Timber.e(e2, "article %d", article.number)
+            }
+        }
+
+        // Download thumbnail
+        downloadThumbnail(article, client, prefHelper)
+        val realm = Realm.getDefaultInstance()
+        realm.executeTransaction {
+            article.isOffline = true
+            realm.copyToRealmOrUpdate(article)
+        }
+        realm.close()
+        Timber.d("Successfully downloaded article %d", article.number)
+
+        articleDownloadedCallback()
+    }
+
+    private fun downloadThumbnail(article: Article, client: OkHttpClient, prefHelper: PrefHelper) {
+        val sdCard = prefHelper.offlinePath
+        val dir = File(sdCard.absolutePath + OFFLINE_WHATIF_OVERVIEW_PATH)
+        if (!dir.exists()) dir.mkdirs()
+        val file = File(dir, article.number.toString() + ".png")
+        try {
+            val response = client.newCall(
+                Request.Builder().url(article.thumbnail).build()
+            ).execute()
+            val sink = file.sink().buffer()
+            sink.writeAll(response.body!!.source())
+            sink.close()
+            response.body!!.close()
+        } catch (e: java.lang.Exception) {
+            Timber.e(e)
         }
     }
 
@@ -144,7 +236,8 @@ class OverviewModelImpl @Inject constructor(@ApplicationContext context: Context
     }
 
     override fun numberOfOfflineArticlesNotDownloaded(): Int {
-        return Realm.getDefaultInstance().where(Article::class.java).equalTo("offline", false).findAll().size
+        return Realm.getDefaultInstance().where(Article::class.java).equalTo("offline", false)
+            .findAll().size
     }
 
     override fun setAllRead() {

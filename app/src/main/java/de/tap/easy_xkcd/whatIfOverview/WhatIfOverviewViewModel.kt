@@ -1,16 +1,16 @@
 package de.tap.easy_xkcd.whatIfOverview
 
 import android.content.Context
-import androidx.lifecycle.LiveData
-import androidx.lifecycle.MutableLiveData
-import androidx.lifecycle.SavedStateHandle
-import androidx.lifecycle.ViewModel
+import androidx.lifecycle.*
 import com.tap.xkcd_reader.R
 import dagger.hilt.android.lifecycle.HiltViewModel
 import dagger.hilt.android.qualifiers.ApplicationContext
 import de.tap.easy_xkcd.utils.Article
 import de.tap.easy_xkcd.utils.PrefHelper
 import io.realm.RealmResults
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.runBlocking
+import okhttp3.internal.wait
 import timber.log.Timber
 import javax.inject.Inject
 
@@ -31,10 +31,10 @@ class WhatIfOverviewViewModel @Inject constructor(
     val progressTextId: LiveData<Int> = _progressTextId
 
     private val _progress: MutableLiveData<Int> = MutableLiveData()
-    val progress: MutableLiveData<Int> = _progress
+    val progress: LiveData<Int> = _progress
 
-    private val _progressMax: MutableLiveData<Int> = MutableLiveData()
-    val progressMax: MutableLiveData<Int> = _progressMax
+    var progressMax: Int = 0
+        private set
 
     init {
         Timber.d("Created!")
@@ -42,42 +42,35 @@ class WhatIfOverviewViewModel @Inject constructor(
         // Maybe display an What-if stickfigure character and a retry button below it?
         // Also, have a text that says one should try out offline mode next time
 
-        if (prefHelper.isOnline(context)
-            && (!prefHelper.fullOfflineWhatIf() || prefHelper.mayDownloadDataForOfflineMode(context))
-        ) {
-            model.updateWhatIfDatabase()
-                .doOnSubscribe { _progressTextId.value = R.string.loading_articles }
-                .subscribe({
-                    if (prefHelper.fullOfflineWhatIf()) {
-                        _progressMax.value = model.numberOfOfflineArticlesNotDownloaded()
-                        _progress.value = 0
-                        model.updateWhatIfOfflineDatabase()
-                            .doOnNext {
-                                _progress.value = _progress.value?.inc()
-                                Timber.d("value is now ${_progress.value}")
-                            }
-                            .doFinally {
-                                updateArticleData()
-                            }
-                            .subscribe({}, {
-                                Timber.e(it)
-                            })
-                    } else {
-                        updateArticleData()
-                    }
-                }, {
-                    Timber.e(it)
+        viewModelScope.launch {
+            if (prefHelper.isOnline(context)
+                && (!prefHelper.fullOfflineWhatIf() || prefHelper.mayDownloadDataForOfflineMode(
+                    context
+                ))
+            ) {
+                _progressTextId.value = R.string.loading_articles
 
-                    updateArticleData()
-                })
-        } else {
+                model.updateWhatIfDatabase()
+
+                if (prefHelper.fullOfflineWhatIf()) {
+                    progressMax = model.numberOfOfflineArticlesNotDownloaded()
+                    _progressTextId.value = R.string.loading_articles
+                    _progress.value = 0
+                    model.updateWhatIfOfflineDatabase {
+                        _progress.value?.let {
+                            _progress.postValue(it + 1)
+                        }
+                    }
+                }
+            }
+
             updateArticleData()
         }
     }
 
     fun updateArticleData(searchQuery: String? = null) {
         _progressTextId.value = null
-        _progressMax.value = null
+        progressMax = 0
         _progress.value = null
 
         // Reverse because we want to display newest articles at the top
