@@ -14,6 +14,7 @@ import androidx.activity.result.contract.ActivityResultContracts
 import androidx.core.view.MenuCompat
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
+import androidx.fragment.app.viewModels
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.tap.xkcd_reader.R
@@ -27,6 +28,7 @@ import io.realm.Case
 import io.realm.Realm
 import io.realm.Sort
 import jp.wasabeef.recyclerview.adapters.SlideInBottomAnimationAdapter
+import timber.log.Timber
 import java.util.*
 
 @AndroidEntryPoint
@@ -44,10 +46,7 @@ class WhatIfOverviewFragment : Fragment() {
 
     private lateinit var activityResultLauncher: ActivityResultLauncher<Intent>
 
-    // Using activityViewModels instead of just viewModels here to bind the viewmodel
-    // to lifecycle of the activity instead of the fragment. This way, the initial database update
-    // will only be done when the fragment is shown the first time
-    val model: WhatIfOverviewViewModel by activityViewModels()
+    val model: WhatIfOverviewViewModel by viewModels()
 
     override fun onCreateView(
         inflater: LayoutInflater,

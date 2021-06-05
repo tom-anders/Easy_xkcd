@@ -37,13 +37,11 @@ class WhatIfOverviewViewModel @Inject constructor(
     val progressMax: MutableLiveData<Int> = _progressMax
 
     init {
+        Timber.d("Created!")
         // TODO Decide what happens when we're not online.
         // Maybe display an What-if stickfigure character and a retry button below it?
         // Also, have a text that says one should try out offline mode next time
 
-        //TODO We currently have the problem that when activating offline mode in the settigs, we
-        // never get here again - so we need some way of notifying the view model that offline mode
-        // was activated
         if (prefHelper.isOnline(context)
             && (!prefHelper.fullOfflineWhatIf() || prefHelper.mayDownloadDataForOfflineMode(context))
         ) {
@@ -55,7 +53,8 @@ class WhatIfOverviewViewModel @Inject constructor(
                         _progress.value = 0
                         model.updateWhatIfOfflineDatabase()
                             .doOnNext {
-                                _progress.value?.inc()
+                                _progress.value = _progress.value?.inc()
+                                Timber.d("value is now ${_progress.value}")
                             }
                             .doFinally {
                                 updateArticleData()
