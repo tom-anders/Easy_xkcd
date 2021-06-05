@@ -21,19 +21,19 @@ import android.widget.TextView
 import android.widget.Toast
 import androidx.activity.viewModels
 import androidx.appcompat.app.AlertDialog
-import androidx.browser.customtabs.CustomTabsIntent
 import androidx.core.content.ContextCompat
 import androidx.core.view.MenuCompat
+import androidx.lifecycle.lifecycleScope
 import com.google.android.material.snackbar.BaseTransientBottomBar
 import com.google.android.material.snackbar.Snackbar
 import com.tap.xkcd_reader.R
 import com.tap.xkcd_reader.databinding.ActivityWhatIfBinding
 import dagger.hilt.android.AndroidEntryPoint
 import de.tap.easy_xkcd.Activities.BaseActivity
-import de.tap.easy_xkcd.CustomTabHelpers.BrowserFallback
-import de.tap.easy_xkcd.CustomTabHelpers.CustomTabActivityHelper
 import de.tap.easy_xkcd.misc.OnSwipeTouchListener
-import de.tap.easy_xkcd.utils.ThemePrefs
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import timber.log.Timber
 
 @AndroidEntryPoint
@@ -150,18 +150,6 @@ class WhatIfActivity : BaseActivity() {
                 }
             }
         })
-
-        model.openRedditThreadEvent.observe(this, {
-            if (it == "") {
-                Toast.makeText(
-                    this,
-                    resources.getString(R.string.thread_not_found),
-                    Toast.LENGTH_SHORT
-                ).show()
-            } else {
-                startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(it)))
-            }
-        })
     }
 
     override fun onCreateOptionsMenu(menu: Menu): Boolean {
@@ -259,7 +247,26 @@ class WhatIfActivity : BaseActivity() {
             }
 
             R.id.action_thread -> {
-                model.openRedditThread()
+                lifecycleScope.launch {
+                    progress.setTitle(resources.getString(R.string.loading_thread))
+                    progress.isIndeterminate = true
+                    progress.show()
+
+                    val url = model.getRedditThread()
+
+                    withContext(Dispatchers.Main) {
+                        progress.dismiss()
+                        if (url == "") {
+                            Toast.makeText(
+                                this@WhatIfActivity,
+                                resources.getString(R.string.thread_not_found),
+                                Toast.LENGTH_SHORT
+                            ).show()
+                        } else {
+                            startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(url)))
+                        }
+                    }
+                }
                 return true
             }
         }

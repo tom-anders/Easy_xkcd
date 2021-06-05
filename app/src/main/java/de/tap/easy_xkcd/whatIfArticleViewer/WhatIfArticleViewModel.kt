@@ -5,21 +5,15 @@ import android.net.Uri
 import androidx.lifecycle.*
 import com.tap.xkcd_reader.R
 import dagger.hilt.android.lifecycle.HiltViewModel
-import de.tap.easy_xkcd.utils.JsonParser
 import de.tap.easy_xkcd.utils.SingleLiveEvent
-import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers
-import io.reactivex.rxjava3.core.Single
-import io.reactivex.rxjava3.schedulers.Schedulers
-import org.jsoup.Jsoup
+import kotlinx.coroutines.*
 import timber.log.Timber
-import java.lang.ClassCastException
-import java.util.*
 import javax.inject.Inject
 
 @HiltViewModel
 class WhatIfArticleViewModel @Inject constructor(
     private val model: ArticleModel,
-    private val savedStateHandle: SavedStateHandle
+    savedStateHandle: SavedStateHandle
 ) : ViewModel() {
 
     private val title: MutableLiveData<String> = MutableLiveData()
@@ -59,19 +53,20 @@ class WhatIfArticleViewModel @Inject constructor(
     }
 
     private fun loadArticle(number: Int) {
-        model.loadArticle(number)
-            .doOnSubscribe { progressTextId.value = R.string.loading_article }
-            .doFinally { progressTextId.value = null }
-            .subscribe({
-                articleHtml.value = it
-                title.value = model.getTitle()
+        viewModelScope.launch {
+            progressTextId.value = R.string.loading_article
 
-                hasPreviousArticle.value = model.hasPreviousArticle()
-                hasNextArticle.value = model.hasNextArticle()
-                isFavorite.value = model.isArticleFavorite()
-            }, {
-                Timber.e(it)
-            })
+            val article = model.loadArticle(number)
+
+            articleHtml.value = article
+            title.value = model.getTitle()
+
+            hasPreviousArticle.value = model.hasPreviousArticle()
+            hasNextArticle.value = model.hasNextArticle()
+            isFavorite.value = model.isArticleFavorite()
+
+            progressTextId.value = null
+        }
     }
 
     fun showNextArticle() {
@@ -100,18 +95,17 @@ class WhatIfArticleViewModel @Inject constructor(
     fun openArticleInBrowser(): Intent
             = Intent(Intent.ACTION_VIEW, Uri.parse("https://what-if.xkcd.com/" + model.getNumber()))
 
-    val openRedditThreadEvent = SingleLiveEvent<String>()
-    fun openRedditThread() {
-        model.getRedditThread()
-            .doOnSubscribe { progressTextId.value = R.string.loading_thread }
-            .doFinally { progressTextId.value = null }
-            .subscribe({
-                openRedditThreadEvent.value = it.replace("www", "m")
-            }, {
-                openRedditThreadEvent.value = ""
-                Timber.e(it)
-            })
-    }
+    suspend fun getRedditThread() = model.getRedditThread()
+
+//        model.getRedditThread()
+//            .doOnSubscribe { progressTextId.value = R.string.loading_thread }
+//            .doFinally { progressTextId.value = null }
+//            .subscribe({
+//                openRedditThreadEvent.value = it.replace("www", "m")
+//            }, {
+//                openRedditThreadEvent.value = ""
+//                Timber.e(it)
+//            })
 
     fun toggleArticleFavorite() {
         model.toggleArticleFavorite()

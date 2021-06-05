@@ -275,7 +275,7 @@
     <string name="pref_theme_ok">OK</string>
 
     <string name="action_earliest_unread">No leídos más recientes</string>
-    <string name="action_thread">Abrir hilo de Reddit/Forum</string>
+    <string name="action_thread">Abrir hilo de Reddit</string>
     <string name="thread_not_found">¡Hilo no encontrado!</string>
     <string name="loading_thread">Cargando hilo&#8230;</string>
 

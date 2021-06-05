@@ -8,27 +8,21 @@ import com.google.common.truth.Truth.assertThat
 import de.tap.easy_xkcd.whatIfArticleViewer.ArticleModel
 import de.tap.easy_xkcd.whatIfArticleViewer.WhatIfActivity
 import de.tap.easy_xkcd.whatIfArticleViewer.WhatIfArticleViewModel
-import io.reactivex.rxjava3.android.plugins.RxAndroidPlugins
-import io.reactivex.rxjava3.core.Observable
-import io.reactivex.rxjava3.core.Scheduler
 import io.reactivex.rxjava3.core.Single
-import io.reactivex.rxjava3.schedulers.Schedulers
+import kotlinx.coroutines.runBlocking
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
 import org.junit.rules.TestRule
 import org.junit.runner.RunWith
-import org.mockito.BDDMockito.given
 import org.mockito.Mock
 import org.mockito.Mockito.*
 import org.mockito.junit.MockitoJUnit
-import org.mockito.junit.MockitoJUnitRunner
 import org.mockito.junit.MockitoRule
+import org.mockito.kotlin.doReturn
+import org.mockito.kotlin.stub
 import org.mockito.kotlin.whenever
 import org.robolectric.RobolectricTestRunner
-import java.io.IOException
-import java.lang.Exception
-import java.util.concurrent.Callable
 
 
 @RunWith(RobolectricTestRunner::class)
@@ -59,8 +53,10 @@ class TestWhatIfArticleViewModel {
     }
 
     private fun initViewModelWithEmptyArticle(number: Int = 123) {
-        whenever(mockModel.loadArticle(anyInt())).thenReturn(Single.fromCallable { "" })
-        initViewModel(makeValidSavedStateHandle(number))
+        runBlocking {
+            whenever(mockModel.loadArticle(anyInt())).thenReturn("")
+            initViewModel(makeValidSavedStateHandle(number))
+        }
     }
 
     @Test
@@ -96,13 +92,17 @@ class TestWhatIfArticleViewModel {
         invalidSavedStateHandle.set(WhatIfActivity.INTENT_NUMBER, "Not a number")
         initViewModel(invalidSavedStateHandle)
 
-        verify(mockModel, never()).loadArticle(anyInt())
+        runBlocking {
+            verify(mockModel, never()).loadArticle(anyInt())
+        }
     }
 
     @Test
     fun loadValidArticle() {
         val testHtml = "Here, have some html"
-        whenever(mockModel.loadArticle(anyInt())).thenReturn(Single.fromCallable { testHtml })
+        runBlocking {
+            whenever(mockModel.loadArticle(anyInt())).thenReturn(testHtml)
+        }
 
         val testTitle = "Test Title"
         whenever(mockModel.getTitle()).thenReturn(testTitle)
@@ -119,11 +119,13 @@ class TestWhatIfArticleViewModel {
         initViewModelWithEmptyArticle(testNumber)
         whenever(mockModel.getNumber()).thenReturn(testNumber)
 
-        viewModelUnderTest.showNextArticle()
-        verify(mockModel, times(1)).loadArticle(testNumber + 1)
+        runBlocking {
+            viewModelUnderTest.showNextArticle()
+            verify(mockModel, times(1)).loadArticle(testNumber + 1)
 
-        viewModelUnderTest.showPreviousArticle()
-        verify(mockModel, times(1)).loadArticle(testNumber - 1)
+            viewModelUnderTest.showPreviousArticle()
+            verify(mockModel, times(1)).loadArticle(testNumber - 1)
+        }
     }
 
     @Test
@@ -135,7 +137,9 @@ class TestWhatIfArticleViewModel {
 
         viewModelUnderTest.showRandomArticle()
 
-        verify(mockModel, times(1)).loadArticle(randomNumber)
+        runBlocking {
+            verify(mockModel, times(1)).loadArticle(randomNumber)
+        }
     }
 
     @Test
@@ -183,12 +187,12 @@ class TestWhatIfArticleViewModel {
     //TODO Test the bad case where this throws somewhere
     @Test
     fun openRedditThread() {
-        whenever(mockModel.getRedditThread()).thenReturn(Single.fromCallable { "nase.de" })
+        mockModel.stub { onBlocking { getRedditThread() }.doReturn("nase.de") }
 
         initViewModelWithEmptyArticle()
 
-        assertThat(viewModelUnderTest.openRedditThreadEvent.value).isNull()
-        viewModelUnderTest.openRedditThread()
-        assertThat(viewModelUnderTest.openRedditThreadEvent.value).isEqualTo("nase.de")
+        runBlocking {
+            assertThat(viewModelUnderTest.getRedditThread()).isEqualTo("nase.de")
+        }
     }
 }

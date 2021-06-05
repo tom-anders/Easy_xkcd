@@ -376,7 +376,7 @@
     <string name="pref_theme_ok">OK</string>
 
     <string name="action_earliest_unread">Primeiro não lida</string>
-    <string name="action_thread">Abrir tópico de fórum/reddit</string>
+    <string name="action_thread">Abrir tópico de fórum</string>
     <string name="thread_not_found">Tópico não encontrado!</string>
     <string name="loading_thread">Carregando tópico&#8230;</string>
 

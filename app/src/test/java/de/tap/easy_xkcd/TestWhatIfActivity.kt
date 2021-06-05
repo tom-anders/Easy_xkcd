@@ -2,7 +2,6 @@ package de.tap.easy_xkcd
 
 import android.content.Intent
 import android.net.Uri
-import android.webkit.WebView
 import androidx.appcompat.widget.Toolbar
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.SavedStateHandle
@@ -15,12 +14,11 @@ import dagger.hilt.android.testing.HiltTestApplication
 import de.tap.easy_xkcd.whatIfArticleViewer.ArticleModelImpl
 import de.tap.easy_xkcd.whatIfArticleViewer.WhatIfActivity
 import de.tap.easy_xkcd.whatIfArticleViewer.WhatIfArticleViewModel
-import io.reactivex.rxjava3.core.Single
+import kotlinx.coroutines.runBlocking
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
-import org.mockito.Mockito.anyInt
 import org.mockito.Mockito.spy
 import org.mockito.kotlin.mock
 import org.mockito.kotlin.times
@@ -138,6 +136,6 @@ class TestWhatIfActivity {
         verify(viewModelSpy, times(1)).toggleArticleFavorite()
 
         shadowOf(activityController.get()).clickMenuItem(R.id.action_thread)
-        verify(viewModelSpy, times(1)).openRedditThread()
+        runBlocking { verify(viewModelSpy, times(1)).getRedditThread() }
     }
 }

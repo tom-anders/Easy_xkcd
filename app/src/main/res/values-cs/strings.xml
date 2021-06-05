@@ -270,7 +270,7 @@
     <string name="pref_theme_ok">OK</string>
 
     <string name="action_earliest_unread">Nejnovější nepřečtené</string>
-    <string name="action_thread">Otevřít Reddit/vlákno fóra</string>
+    <string name="action_thread">Otevřít Reddit fóra</string>
     <string name="thread_not_found">Vlákno nenalezeno!</string>
     <string name="loading_thread">Načítání vlákna…</string>
 

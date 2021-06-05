@@ -397,7 +397,7 @@
     <string name="pref_theme_ok">OK</string>
 
     <string name="action_earliest_unread">Earliest unread</string>
-    <string name="action_thread">Open Reddit/Forum Thread</string>
+    <string name="action_thread">Open Reddit Thread</string>
     <string name="thread_not_found">Thread not found!</string>
     <string name="loading_thread">Loading thread&#8230;</string>
 

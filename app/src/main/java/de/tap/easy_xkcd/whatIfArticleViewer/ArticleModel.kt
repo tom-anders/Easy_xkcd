@@ -1,12 +1,12 @@
 package de.tap.easy_xkcd.whatIfArticleViewer
 
 import android.content.Context
+import android.util.Log
 import dagger.Binds
 import dagger.Module
 import dagger.hilt.InstallIn
 import dagger.hilt.android.components.ViewModelComponent
 import dagger.hilt.android.qualifiers.ApplicationContext
-import dagger.hilt.android.scopes.ViewModelScoped
 import de.tap.easy_xkcd.database.DatabaseManager
 import de.tap.easy_xkcd.utils.Article
 import de.tap.easy_xkcd.utils.JsonParser
@@ -16,7 +16,13 @@ import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers
 import io.reactivex.rxjava3.core.Single
 import io.reactivex.rxjava3.schedulers.Schedulers
 import io.realm.Realm
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
+import okhttp3.Request
+import org.jsoup.Jsoup
 import org.jsoup.nodes.Document
+import ru.gildor.coroutines.okhttp.await
+import java.io.File
 import javax.inject.Inject
 import kotlin.random.Random
 
@@ -28,9 +34,9 @@ interface ArticleModel {
 
     fun toggleArticleFavorite()
 
-    fun loadArticle(number: Int): Single<String>
+    suspend fun loadArticle(number: Int): String
 
-    fun getRedditThread(): Single<String>
+    suspend fun getRedditThread(): String
 
     fun getRef(index: String): String
 
@@ -52,15 +58,16 @@ abstract class ArticleModelModule {
 
 //TODO Inject PrefHelper and ThemePrefs as Singleton via Hilt?!
 class ArticleModelImpl @Inject constructor(@ApplicationContext context: Context) : ArticleModel {
-    //class ArticleModelImpl @Inject constructor() : ArticleModel {
     private lateinit var loadedArticle: Article
     private lateinit var refs: ArrayList<String?>
+
+    private val OFFLINE_WHATIF_PATH = "/easy xkcd/what if/"
 
     private var prefHelper: PrefHelper = PrefHelper(context)
     private var themePrefs: ThemePrefs = ThemePrefs(context)
     private var databaseManager = DatabaseManager(context)
 
-    override fun loadArticle(number: Int): Single<String> {
+    override suspend fun loadArticle(number: Int): String {
         val realm = Realm.getDefaultInstance()
         loadedArticle = realm.copyFromRealm(
             realm.where(Article::class.java).equalTo("number", number).findFirst()
@@ -71,21 +78,92 @@ class ArticleModelImpl @Inject constructor(@ApplicationContext context: Context)
         realm.commitTransaction()
         realm.close()
 
-        return Single.fromCallable {
-            val doc = Article.generateDocument(number, prefHelper, themePrefs)
+        val doc = generateDocument(number, prefHelper, themePrefs)
 
-            refs = Article.generateRefs(doc)
+        refs = Article.generateRefs(doc)
 
-            prefHelper.lastWhatIf = loadedArticle.number
+        prefHelper.lastWhatIf = loadedArticle.number
 
-            doc.html()
-        }
-            .subscribeOn(Schedulers.io())
-            .observeOn(AndroidSchedulers.mainThread())
+        return doc.html()
     }
 
-    override fun getRedditThread(): Single<String> {
-        return Single.fromCallable {
+    private suspend fun generateDocument(number: Int, prefHelper: PrefHelper, themePrefs: ThemePrefs): Document {
+        val doc = withContext(Dispatchers.IO) {
+            if (!prefHelper.fullOfflineWhatIf()) {
+                val okHttpClient = JsonParser.getNewHttpClient()
+                val request = Request.Builder()
+                    .url("https://what-if.xkcd.com/$number")
+                    .build()
+                val response = okHttpClient.newCall(request).await()
+                val body = response.body!!.string()
+                Jsoup.parse(body)
+                //doc = Jsoup.connect("http://what-if.xkcd.com/" + String.valueOf(mNumber)).get();
+            } else {
+                val sdCard = prefHelper.offlinePath
+                val dir = File(sdCard.absolutePath + OFFLINE_WHATIF_PATH + number)
+                val file = File(dir, "$number.html")
+                Jsoup.parse(file, "UTF-8")
+            }
+        }
+
+        //append custom css
+        doc.head().getElementsByTag("link").remove()
+        if (themePrefs.amoledThemeEnabled()) {
+            if (themePrefs.invertColors(false)) {
+                doc.head().appendElement("link").attr("rel", "stylesheet").attr("type", "text/css")
+                    .attr("href", "amoled_invert.css")
+            } else {
+                doc.head().appendElement("link").attr("rel", "stylesheet").attr("type", "text/css")
+                    .attr("href", "amoled.css")
+            }
+        } else if (themePrefs.nightThemeEnabled()) {
+            if (themePrefs.invertColors(false)) {
+                doc.head().appendElement("link").attr("rel", "stylesheet").attr("type", "text/css")
+                    .attr("href", "night_invert.css")
+            } else {
+                doc.head().appendElement("link").attr("rel", "stylesheet").attr("type", "text/css")
+                    .attr("href", "night.css")
+            }
+        } else {
+            doc.head().appendElement("link").attr("rel", "stylesheet").attr("type", "text/css")
+                .attr("href", "style.css")
+        }
+
+        //fix the image links
+        var count = 1
+        val base = prefHelper.offlinePath.absolutePath
+        for (e in doc.select(".illustration")) {
+            if (!prefHelper.fullOfflineWhatIf()) {
+                val src = e.attr("src")
+                e.attr("src", "https://what-if.xkcd.com$src")
+            } else {
+                val path = "file://$base/easy xkcd/what if/$number/$count.png"
+                e.attr("src", path)
+            }
+            e.attr("onclick", "img.performClick(title);")
+            count++
+        }
+
+        //fix footnotes and math scripts
+        if (!prefHelper.fullOfflineWhatIf()) {
+            doc.select("script[src]").first()
+                .attr("src", "https://cdn.mathjax.org/mathjax/latest/MathJax.js")
+        } else {
+            doc.select("script[src]").first().attr("src", "MathJax.js")
+        }
+
+        //remove header, footer, nav buttons
+        doc.getElementById("header-wrapper").remove()
+        doc.select("nav").remove()
+        doc.getElementById("footer-wrapper").remove()
+
+        //remove title
+        doc.select("h1").remove()
+        return doc
+    }
+
+    override suspend fun getRedditThread(): String {
+        return withContext(Dispatchers.IO) {
             "https://www.reddit.com" + JsonParser.getJSONFromUrl(
                 "https://www.reddit.com/r/xkcd/search.json?q=${loadedArticle.title}&restrict_sr=on"
             )
@@ -93,8 +171,6 @@ class ArticleModelImpl @Inject constructor(@ApplicationContext context: Context)
                 .getJSONArray("children").getJSONObject(0).getJSONObject("data")
                 .getString("permalink")
         }
-            .subscribeOn(Schedulers.io())
-            .observeOn(AndroidSchedulers.mainThread())
     }
 
     override fun getTitle(): String {
