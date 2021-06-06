@@ -1,5 +1,9 @@
 ## 7.3.10
 
+- In preparation for Android 11's scoped storage, at first startup after the update the app will
+  move all offline data (comics, articles) to an app-specific folder that's compatible with 
+  scoped storage. In a future update, the READ_EXTERNAL_STORAGE and WRITE_EXTERNAL_STORAGE permissions
+  will then be removed.
 - Add option to respect system night theme (enabled by default)
 - Increase size of Floating Action Button (@mueller-ma)
 - Use switches instead of checkboxes in preferences (@mueller-ma)
