@@ -8,7 +8,7 @@ import android.content.Intent;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
-import androidx.annotation.NonNull;
+
 import androidx.core.content.ContextCompat;
 import androidx.core.view.MenuItemCompat;
 import androidx.fragment.app.Fragment;
@@ -69,8 +69,8 @@ public class WhatIfFragment extends Fragment {
     private static WhatIfFragment instance;
     public static boolean newIntent;
     private boolean offlineMode;
-    private static final String OFFLINE_WHATIF_OVERVIEW_PATH = "/easy xkcd/what if/overview";
-    private static final String OFFLINE_WHATIF_PATH = "/easy xkcd/what if/";
+    private static final String OFFLINE_WHATIF_OVERVIEW_PATH = "/what if/overview";
+    private static final String OFFLINE_WHATIF_PATH = "/what if/";
     private PrefHelper prefHelper;
     private ThemePrefs themePrefs;
 
@@ -146,8 +146,7 @@ public class WhatIfFragment extends Fragment {
                     }
                     prefHelper.setWhatIfTitles(sb.toString());
 
-                    File sdCard = prefHelper.getOfflinePath();
-                    File dir = new File(sdCard.getAbsolutePath() + OFFLINE_WHATIF_OVERVIEW_PATH);
+                    File dir = new File(prefHelper.getOfflinePath(getActivity()).getAbsolutePath() + OFFLINE_WHATIF_OVERVIEW_PATH);
                     if (!dir.exists()) dir.mkdirs();
                     for (int i = prefHelper.getNewestWhatIf(); i < titles.size() + 1; i++) {
                         String url = img.get(i).absUrl("src");
@@ -177,17 +176,6 @@ public class WhatIfFragment extends Fragment {
             if (!prefHelper.sunBeamDownloaded())
                 downloadArticle(141);
 
-            if (!prefHelper.nomediaCreated()) {
-                File sdCard = prefHelper.getOfflinePath();
-                File dir = new File(sdCard.getAbsolutePath() + "/easy xkcd");
-                File nomedia = new File(dir, ".nomedia");
-                try {
-                    boolean created = nomedia.createNewFile();
-                    Log.d("created", String.valueOf(created));
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-            }
             return null;
         }
 
@@ -195,7 +183,6 @@ public class WhatIfFragment extends Fragment {
             Log.d("what if", "downloading " + i);
             if (i == 141) prefHelper.setSunbeamLoaded();
             Document doc;
-            File sdCard = prefHelper.getOfflinePath();
             File dir;
             try {
                 OkHttpClient client = JsonParser.getNewHttpClient();
@@ -205,7 +192,7 @@ public class WhatIfFragment extends Fragment {
                 Response re = client.newCall(r).execute();
                 String body = re.body().string();
                 doc = Jsoup.parse(body);
-                dir = new File(sdCard.getAbsolutePath() + OFFLINE_WHATIF_PATH + String.valueOf(i));
+                dir = new File(prefHelper.getOfflinePath(getActivity()) + OFFLINE_WHATIF_PATH + String.valueOf(i));
                 if (!dir.exists()) dir.mkdirs();
                 File file = new File(dir, String.valueOf(i) + ".html");
                 BufferedWriter writer = new BufferedWriter(new FileWriter(file));

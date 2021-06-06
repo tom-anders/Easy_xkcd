@@ -131,7 +131,7 @@ public class WhatIfActivity extends BaseActivity {
         protected Void doInBackground(Void... dummy) {
             try {
                 loadedArticle = new Article(WhatIfIndex, prefHelper.fullOfflineWhatIf(), WhatIfActivity.this);
-                doc = loadedArticle.getWhatIf();
+                doc = loadedArticle.getWhatIf(WhatIfActivity.this);
             } catch (IOException e) {
                 e.printStackTrace();
             }

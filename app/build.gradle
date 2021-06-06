@@ -64,9 +64,6 @@ dependencies {
     implementation 'androidx.appcompat:appcompat:1.1.0'
     implementation 'androidx.constraintlayout:constraintlayout:1.1.3'
     annotationProcessor 'com.jakewharton:butterknife:7.0.1'
-    implementation('com.turhanoz.android:reactivedirectorychooser:0.0.12@aar') {
-        transitive = true
-    }
 //    implementation 'com.nbsp:library:1.09'
     implementation 'com.nbsp:materialfilepicker:1.9.1'
 

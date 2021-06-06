@@ -497,4 +497,33 @@
     Thanks for using the app!
     </string>
 
+    <string name="scoped_storage_message">
+    Hey there!\n\n
+    Up to now, Easy Xkcd used a custom folder to store offline data (both comics and What-if articles).
+    Starting from Android 11, apps are required to keep their data only in predefined app-specific directories.
+    While this is not a strict requirement for Android 9 or lower (Android 10 is sort of a special case),
+    for the sake of consistency I have decided to keep the handling of offline data consistent across Android versions.
+    This also has the benefit that the permissions READ_EXTERNAL_STORAGE and WRITE_EXTERNAL_STORAGE won\'t
+    be necessary anymore and will be removed in a future update. \n\n
+    In preparation for this transition, the app will need to move your existing
+    offline data to a directory that is compatible with Android 11\'s scoped storage concept. Currently, the
+    data is stored in \"%1$s\", it will be moved to \"%2$s\" (this corresponds to external storage).
+    If you prefer internal storage (%3$s), you can change this in the app\'s settings afterwards.\n\n
+
+    If you have any problems, please send me a mail (easyxkcd@gmail.com) or submit an issue on Github.
+    As always, thanks for using the app!
+    </string>
+
+    <string name="pref_offline_internal_external">Offline data location</string>
+    <string name="pref_offline_internal_external_sum">External or internal storage</string>
+
+    <string-array name="pref_offline_internal_external_entries">
+        <item>External storage </item>
+        <item>Internal storage </item>
+    </string-array>
+
+    <string-array name="pref_offline_internal_external_values" translatable="false">
+        <item>external</item>
+        <item>internal</item>
+    </string-array>
 </resources>

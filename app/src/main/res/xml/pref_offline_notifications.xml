@@ -22,4 +22,11 @@
         android:key="pref_update_mobile"
         android:title="@string/pref_update_mobile"
         android:summary="@string/pref_update_mobile_sum" />
+    <ListPreference
+        android:key="pref_offline_internal_external"
+        android:title="@string/pref_offline_internal_external"
+        android:entries="@array/pref_offline_internal_external_entries"
+        android:entryValues="@array/pref_offline_internal_external_values"
+        android:defaultValue="external"
+        android:summary="@string/pref_offline_internal_external_sum" />
 </PreferenceScreen>

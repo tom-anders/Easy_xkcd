@@ -511,8 +511,7 @@ public abstract class ComicFragment extends Fragment {
         if (deleteImage) {
             if (!getActivity().deleteFile(number + ".png")) {
                 Timber.d("trying to delete from external storage");
-                File sdCard = prefHelper.getOfflinePath();
-                File file = new File(sdCard.getAbsolutePath() + "/easy xkcd/" + number + ".png");
+                File file = new File(prefHelper.getOfflinePath(getActivity()), number + ".png");
                 boolean deleted = file.delete();
                 Timber.d("deleted: %s", deleted);
             }
@@ -662,9 +661,7 @@ public abstract class ComicFragment extends Fragment {
 
     protected Uri getURI(int number) {
         try {
-            File sdCard = prefHelper.getOfflinePath();
-            File dir = new File(sdCard.getAbsolutePath() + "/easy xkcd");
-            File path = new File(dir, String.valueOf(number) + ".png");
+            File path = new File(prefHelper.getOfflinePath(getActivity()), String.valueOf(number) + ".png");
             return FileProvider.getUriForFile(getActivity(), "de.tap.easy_xkcd.fileProvider", path);
         } catch (IllegalArgumentException e) {
             Timber.e( "Image not found, looking in internal storage");

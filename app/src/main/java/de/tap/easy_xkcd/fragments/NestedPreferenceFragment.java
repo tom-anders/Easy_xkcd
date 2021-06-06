@@ -30,7 +30,6 @@ import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.preference.Preference;
-import android.preference.PreferenceCategory;
 import android.preference.PreferenceFragment;
 import androidx.core.app.ActivityCompat;
 import androidx.fragment.app.DialogFragment;
@@ -42,16 +41,19 @@ import androidx.cardview.widget.CardView;
 import android.preference.SwitchPreference;
 import android.view.LayoutInflater;
 import android.view.View;
-import android.widget.Switch;
 import android.widget.TextView;
 import android.widget.TimePicker;
 import android.widget.Toast;
 
 import com.tap.xkcd_reader.BuildConfig;
 import com.tap.xkcd_reader.R;
-import com.turhanoz.android.reactivedirectorychooser.ui.DirectoryChooserFragment;
 
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 
 import de.tap.easy_xkcd.Activities.MainActivity;
 import de.tap.easy_xkcd.Activities.NestedSettingsActivity;
@@ -77,6 +79,7 @@ public class NestedPreferenceFragment extends PreferenceFragment {
     private static final String COLOR_ACCENT = "pref_color_accent";
     private static final String NOTIFICATIONS_INTERVAL = "pref_notifications";
     private static final String FULL_OFFLINE = "pref_offline";
+    private static final String OFFLINE_INTERNAL_EXTERNAL = "pref_offline_internal_external";
     private static final String WHATIF_OFFLINE = "pref_offline_whatif";
     private static final String NIGHT_THEME = "pref_night";
     private static final String AMOLED_NIGHT = "pref_amoled";
@@ -89,14 +92,12 @@ public class NestedPreferenceFragment extends PreferenceFragment {
     private static final String MOBILE_ENABLED = "pref_update_mobile";
     private static final String FAB_OPTIONS = "pref_random";
     private static final String FAB_LEFT = "pref_fab_left";
-    private static final String OFFLINE_PATH_PREF = "pref_offline_path";
     private static final String DONATE = "pref_hide_donate";
     private static final String WIDGET_ALT = "widget_alt";
     private static final String WIDGET_COMIC_NUMBER = "widget_comicNumber";
     private static final String NAV_DRAWER_SWIPE = "pref_nav_swipe";
 
-    private static final String OFFLINE_PATH = "/easy xkcd";
-    private static final String OFFLINE_WHATIF_PATH = "/easy xkcd/what if/";
+    private static final String OFFLINE_WHATIF_PATH = "/what if/";
 
     private PrefHelper prefHelper;
     private ThemePrefs themePrefs;
@@ -340,6 +341,17 @@ public class NestedPreferenceFragment extends PreferenceFragment {
                     }
                 });
                 findPreference(MOBILE_ENABLED).setEnabled(MainActivity.fullOffline | MainActivity.fullOfflineWhatIf);
+
+                findPreference(OFFLINE_INTERNAL_EXTERNAL).setOnPreferenceChangeListener((preference, o) -> {
+                    File oldPath = prefHelper.getOfflinePath(getActivity());
+                    File newPath = prefHelper.getOfflinePathForValue(getActivity(), o.toString());
+                    if (newPath != oldPath) {
+                        Timber.d("Moving from %s to %s", oldPath.getAbsolutePath(), newPath.getAbsolutePath());
+                        new moveData().execute(new String[]{oldPath.getAbsolutePath(), newPath.getAbsolutePath()});
+                    }
+                    return true;
+                });
+
                 break;
 
 
@@ -525,21 +537,6 @@ public class NestedPreferenceFragment extends PreferenceFragment {
 
             case ADVANCED:
                 addPreferencesFromResource(R.xml.pref_advanced);
-                findPreference(OFFLINE_PATH_PREF).setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
-                    @Override
-                    public boolean onPreferenceClick(Preference preference) {
-                        if (ContextCompat.checkSelfPermission(getActivity(), Manifest.permission.WRITE_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED) {
-                            //DialogFragment directoryChooserFragment = DirectoryChooserFragment.newInstance(Environment.getExternalStorageDirectory());
-                            DialogFragment directoryChooserFragment = DirectoryChooserFragment.newInstance(new File("/"));
-
-                            FragmentTransaction transaction = ((NestedSettingsActivity) getActivity()).getManger().beginTransaction();
-                            directoryChooserFragment.show(transaction, "RDC");
-                        } else {
-                            ActivityCompat.requestPermissions(getActivity(), new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE}, 12);
-                        }
-                        return true;
-                    }
-                });
                 break;
         }
     }
@@ -568,9 +565,7 @@ public class NestedPreferenceFragment extends PreferenceFragment {
                         //delete from internal storage
                         getActivity().deleteFile(String.valueOf(i));
                         //delete from external storage
-                        File sdCard = prefHelper.getOfflinePath();
-                        File dir = new File(sdCard.getAbsolutePath() + OFFLINE_PATH);
-                        File file = new File(dir, String.valueOf(i) + ".png");
+                        File file = new File(prefHelper.getOfflinePath(getActivity()), String.valueOf(i) + ".png");
                         file.delete();
 
                         int p = (int) (i / ((float) newest) * 100);
@@ -610,7 +605,7 @@ public class NestedPreferenceFragment extends PreferenceFragment {
         @Override
         protected Void doInBackground(Void... params) {
             if (!BuildConfig.DEBUG) {
-                File sdCard = prefHelper.getOfflinePath();
+                File sdCard = prefHelper.getOfflinePath(getActivity());
                 File dir = new File(sdCard.getAbsolutePath() + OFFLINE_WHATIF_PATH);
                 deleteFolder(dir);
             }
@@ -631,6 +626,85 @@ public class NestedPreferenceFragment extends PreferenceFragment {
             for (File child : file.listFiles())
                 deleteFolder(child);
         file.delete();
+    }
+
+    /**
+     * moves the folder for offline data to a new directory
+     */
+    public class moveData extends AsyncTask<String[], Void, Void> {
+        private ProgressDialog progress;
+
+        @Override
+        protected void onPreExecute() {
+            progress = new ProgressDialog(getActivity());
+            progress.setTitle(getResources().getString(R.string.copy_folder));
+            progress.setMessage(getResources().getString(R.string.loading_offline_message));
+            progress.setIndeterminate(true);
+            progress.setCancelable(false);
+            progress.show();
+        }
+
+        @Override
+        protected Void doInBackground(String[]... params) {
+            File oldPath = new File(params[0][0]);
+            File newPath = new File(params[0][1]);
+
+            try {
+                copyDirectory(oldPath, newPath);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+            deleteFolder(oldPath);
+            return null;
+        }
+
+        private void copyDirectory(File sourceLocation , File targetLocation)
+                throws IOException {
+
+            if (sourceLocation.isDirectory()) {
+                if (!targetLocation.exists() && !targetLocation.mkdirs()) {
+                    throw new IOException("Cannot create dir " + targetLocation.getAbsolutePath());
+                }
+
+                String[] children = sourceLocation.list();
+                for (int i=0; i<children.length; i++) {
+                    copyDirectory(new File(sourceLocation, children[i]),
+                            new File(targetLocation, children[i]));
+                }
+            } else {
+
+                // make sure the directory we plan to store the recording in exists
+                File directory = targetLocation.getParentFile();
+                if (directory != null && !directory.exists() && !directory.mkdirs()) {
+                    throw new IOException("Cannot create dir " + directory.getAbsolutePath());
+                }
+
+                InputStream in = new FileInputStream(sourceLocation);
+                OutputStream out = new FileOutputStream(targetLocation);
+
+                // Copy the bits from instream to outstream
+                byte[] buf = new byte[1024];
+                int len;
+                while ((len = in.read(buf)) > 0) {
+                    out.write(buf, 0, len);
+                }
+                in.close();
+                out.close();
+            }
+        }
+
+        private void deleteFolder(File file) {
+            if (file.isDirectory())
+                for (File child : file.listFiles())
+                    deleteFolder(child);
+            file.delete();
+        }
+
+        @Override
+        protected void onPostExecute(Void dummy) {
+            progress.dismiss();
+            getActivity().setResult(Activity.RESULT_OK);
+        }
     }
 
 }

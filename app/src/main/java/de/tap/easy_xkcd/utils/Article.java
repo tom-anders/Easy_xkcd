@@ -38,7 +38,7 @@ public class Article {
     private boolean offline;
     private ArrayList<String> ref = new ArrayList<>();
     private String title;
-    private static final String OFFLINE_WHATIF_PATH = "/easy xkcd/what if/";
+    private static final String OFFLINE_WHATIF_PATH = "/what if/";
     private PrefHelper prefHelper;
     private ThemePrefs themePrefs;
 
@@ -57,7 +57,7 @@ public class Article {
         return ref;
     }
 
-    public Document getWhatIf() throws IOException{
+    public Document getWhatIf(Context context) throws IOException{
         Document doc;
         if (!offline) {
             OkHttpClient okHttpClient = JsonParser.getNewHttpClient();
@@ -69,7 +69,7 @@ public class Article {
             doc = Jsoup.parse(body);
             //doc = Jsoup.connect("http://what-if.xkcd.com/" + String.valueOf(mNumber)).get();
         } else {
-            File sdCard = prefHelper.getOfflinePath();
+            File sdCard = prefHelper.getOfflinePath(context);
             File dir = new File(sdCard.getAbsolutePath() + OFFLINE_WHATIF_PATH +String.valueOf(mNumber));
             File file = new File(dir, String.valueOf(mNumber) + ".html");
             doc = Jsoup.parse(file, "UTF-8");
@@ -95,13 +95,13 @@ public class Article {
 
         //fix the image links
         int count = 1;
-        String base = prefHelper.getOfflinePath().getAbsolutePath();
+        String base = prefHelper.getOfflinePath(context).getAbsolutePath();
         for (org.jsoup.nodes.Element e : doc.select(".illustration")) {
             if (!offline) {
                 String src = e.attr("src");
                 e.attr("src", "https://what-if.xkcd.com" + src);
             } else {
-                String path = "file://"+base+"/easy xkcd/what if/"+String.valueOf(mNumber)+"/"+String.valueOf(count)+".png";
+                String path = "file://"+base+"/what if/"+String.valueOf(mNumber)+"/"+String.valueOf(count)+".png";
                 e.attr("src", path);
             }
             e.attr("onclick", "img.performClick(title);");

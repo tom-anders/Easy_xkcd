@@ -18,6 +18,7 @@
 
 package de.tap.easy_xkcd.Activities;
 
+import android.Manifest;
 import android.app.Activity;
 import android.app.ProgressDialog;
 import android.app.SearchManager;
@@ -31,6 +32,7 @@ import android.content.res.Configuration;
 import android.content.res.Resources;
 import android.graphics.Color;
 import android.net.Uri;
+import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
@@ -48,6 +50,7 @@ import android.view.View;
 import android.view.animation.AccelerateInterpolator;
 import android.view.animation.OvershootInterpolator;
 import android.view.inputmethod.InputMethodManager;
+import android.widget.ProgressBar;
 import android.widget.SearchView;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -60,6 +63,12 @@ import com.google.android.material.snackbar.Snackbar;
 import com.nbsp.materialfilepicker.ui.FilePickerActivity;
 import com.tap.xkcd_reader.R;
 
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.util.Objects;
 
 import androidx.annotation.NonNull;
@@ -90,8 +99,9 @@ import de.tap.easy_xkcd.fragments.whatIf.WhatIfOverviewFragment;
 import de.tap.easy_xkcd.notifications.ComicNotifierJob;
 import de.tap.easy_xkcd.utils.PrefHelper;
 import de.tap.easy_xkcd.utils.ThemePrefs;
+import io.realm.Realm;
+import kotlin.io.FilesKt;
 import timber.log.Timber;
-
 
 public class MainActivity extends BaseActivity {
     @Bind(R.id.fab)
@@ -352,7 +362,151 @@ public class MainActivity extends BaseActivity {
                 Timber.d("job scheduled...");
             }
             updateTaskRunning = false;
+
+            if (!prefHelper.hasMigratedToScopedStorage()) {
+                if (prefHelper.fullOfflineEnabled()
+                        || prefHelper.fullOfflineWhatIf()
+                        || !new DatabaseManager(context).getFavComics().isEmpty()) {
+                    new AlertDialog.Builder(context).setMessage(
+                            getString(R.string.scoped_storage_message,
+                                    prefHelper.getLegacyOfflinePath() + "/easy xkcd/",
+                                    getExternalFilesDir(null).getAbsolutePath(),
+                                    getFilesDir().getAbsolutePath()))
+                            .setCancelable(false)
+                            .setPositiveButton(R.string.got_it, (dialogInterface, i)
+                                    -> new ScopedStorageMigration(context).execute()
+                            ).show();
+                } else {
+                    // If there's no offline data, we have nothing to do.
+                    prefHelper.setHasMigratedToScopedStorage();
+                }
+            }
         }
+    }
+
+    private class ScopedStorageMigration extends AsyncTask<Void, Integer, Void> {
+        final private Context context;
+        ScopedStorageMigration(Context context) {
+            this.context = context ;
+        }
+
+        @Override
+        protected void onPreExecute() {
+            lockRotation();
+
+            progress = new ProgressDialog(context);
+            progress.setTitle(context.getResources().getString(R.string.copy_folder));
+            progress.setIndeterminate(true);
+            progress.setProgressStyle(ProgressDialog.STYLE_SPINNER);
+            progress.setCancelable(false);
+            progress.show();
+        }
+
+        @Override
+        protected void onProgressUpdate(Integer... max) {
+            if (max.length > 0) {
+                progress = new ProgressDialog(context);
+                progress.setTitle(context.getResources().getString(R.string.copy_folder));
+                progress.setProgressStyle(ProgressDialog.STYLE_HORIZONTAL);
+                progress.setIndeterminate(false);
+                progress.setCancelable(false);
+                progress.setMax(max[0]);
+                progress.show();
+            }
+            progress.setProgress(progress.getProgress() + 1);
+        }
+
+        @Override
+        protected Void doInBackground(Void... voids) {
+            File oldOfflinePath = new File(prefHelper.getLegacyOfflinePath().getAbsolutePath() + "/easy xkcd/");
+            File newOfflinePath = prefHelper.getOfflinePathForValue(context, "external");
+
+            Timber.d("Migrating from %s to %s", oldOfflinePath.getAbsolutePath(), newOfflinePath.getAbsolutePath());
+
+            if (ContextCompat.checkSelfPermission(context, Manifest.permission.WRITE_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED
+                && ContextCompat.checkSelfPermission(context, Manifest.permission.READ_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED) {
+                try {
+                    publishProgress(countFiles(oldOfflinePath));
+                    moveDirectory(oldOfflinePath, newOfflinePath);
+                    Timber.d("Finished copying, deleting old folder...");
+                    oldOfflinePath.delete();
+                } catch (Exception e) {
+                    Timber.e(e);
+                }
+            } else {
+                Timber.i("Permission for reading/writing not granted yet, so assuming there's nothing to do here.");
+            }
+
+            return null;
+        }
+
+        private int countFiles(File file) {
+            int count = 0;
+            if (file.isDirectory()) {
+                File[] children = file.listFiles();
+                if (children != null) {
+                    for (File child : children) {
+                        count += countFiles(child);
+                    }
+                }
+            } else {
+                count = 1;
+            }
+            return count;
+        }
+
+        private void moveDirectory(File sourceLocation , File targetLocation)
+                throws IOException, NullPointerException {
+
+            if (sourceLocation.isDirectory()) {
+                if (!targetLocation.exists() && !targetLocation.mkdirs()) {
+                    throw new IOException("Cannot create dir " + targetLocation.getAbsolutePath());
+                }
+
+                String[] children = sourceLocation.list();
+                for (int i=0; i<children.length; i++) {
+                    moveDirectory(new File(sourceLocation, children[i]),
+                            new File(targetLocation, children[i]));
+                }
+                sourceLocation.delete();
+            } else {
+
+                // make sure the directory we plan to store the recording in exists
+                File directory = targetLocation.getParentFile();
+                if (directory != null && !directory.exists() && !directory.mkdirs()) {
+                    throw new IOException("Cannot create dir " + directory.getAbsolutePath());
+                }
+
+                InputStream in = new FileInputStream(sourceLocation);
+                OutputStream out = new FileOutputStream(targetLocation);
+
+                // Copy the bits from instream to outstream
+                byte[] buf = new byte[1024];
+                int len;
+                while ((len = in.read(buf)) > 0) {
+                    out.write(buf, 0, len);
+                }
+                in.close();
+                out.close();
+
+                sourceLocation.delete();
+
+                publishProgress();
+            }
+        }
+
+        @Override
+        public void onPostExecute(Void dummy) {
+            unlockRotation();
+
+            prefHelper.setHasMigratedToScopedStorage();
+
+            progress.dismiss();
+
+            finish();
+            startActivity(getIntent());
+        }
+
     }
 
     public void updateToolbarTitle() {

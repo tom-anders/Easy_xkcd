@@ -32,6 +32,8 @@ import com.google.android.material.snackbar.Snackbar;
 import android.util.Log;
 import android.view.View;
 
+import androidx.core.content.ContextCompat;
+
 import com.tap.xkcd_reader.R;
 
 import java.io.File;
@@ -101,7 +103,8 @@ public class PrefHelper {
     private static final String SURVEY_SNACKBAR = "survey_snackbar";
     private static final String CUSTOM_THEMES_SNACKBAR = "custom_themes_snackbar";
     private static final String MOBILE_ENABLED = "pref_update_mobile";
-    private static final String OFFLINE_PATH = "pref_offline_path";
+    private static final String LEGACY_OFFLINE_PATH = "pref_offline_path";
+    private static final String OFFLINE_INTERNAL_EXTERNAL = "pref_offline_internal_external";
     private static final String DOUBLE_TAP_FAV = "pref_doubletap";
     private static final String ZOOM_SCROLL = "pref_zoom_scroll";
     private static final String OVERVIEW_FAV = "overview_fav";
@@ -115,6 +118,7 @@ public class PrefHelper {
     private static final String WIDGET_COMIC_NUMBER = "widget_comicNumber";
     private static final String NAV_DRAWER_SWIPE = "disable_nav_drawer_swipe";
     private static final String SHOW_UPDATE_MESSAGE = "show_update_message_5_2019";
+    private static final String MIGRATED_TO_SCOPED_STORAGE = "pref_migrated_to_scoped_storage";
 
     private static final String FAB_DISABLED_COMICBROWSER = "pref_random_comics";
     private static final String FAB_DISABLED_FAVORITES = "pref_random_favorites";
@@ -126,6 +130,14 @@ public class PrefHelper {
     public PrefHelper(Context context) {
         sharedPrefs = context.getSharedPreferences("MainActivity", Activity.MODE_PRIVATE);
         prefs = PreferenceManager.getDefaultSharedPreferences(context);
+    }
+
+    public boolean hasMigratedToScopedStorage() {
+        return sharedPrefs.getBoolean(MIGRATED_TO_SCOPED_STORAGE, false);
+    }
+
+    public void setHasMigratedToScopedStorage() {
+        sharedPrefs.edit().putBoolean(MIGRATED_TO_SCOPED_STORAGE, true).apply();
     }
 
     public boolean fullOfflineEnabled() {
@@ -574,12 +586,9 @@ public class PrefHelper {
         return new ArrayList<>(Arrays.asList(titles.split("&&")));
     }
 
+    @Deprecated
     public boolean nomediaCreated() {
         return sharedPrefs.getBoolean(NOMEDIA_CREATED, false);
-    }
-
-    public void setNomediaCreated() {
-        sharedPrefs.edit().putBoolean(NOMEDIA_CREATED, true).apply();
     }
 
     public boolean shareAlt() {
@@ -778,15 +787,30 @@ public class PrefHelper {
         return end[0] + ":" + minute + suffix;
     } */
 
-    public File getOfflinePath() {
-        String path = prefs.getString(OFFLINE_PATH, "default");
+    @Deprecated
+    public File getLegacyOfflinePath() {
+        String path = prefs.getString(LEGACY_OFFLINE_PATH, "default");
         if (path.equals("default"))
             return Environment.getExternalStorageDirectory();
         return new File(path);
     }
 
-    public void setOfflinePath(String path) {
-        prefs.edit().putString(OFFLINE_PATH, path).apply();
+    @Deprecated
+    public void setLegacyOfflinePath(String path) {
+        prefs.edit().putString(LEGACY_OFFLINE_PATH, path).apply();
+    }
+
+    public File getOfflinePathForValue(Context context, String settingsValue) {
+        File baseDir = settingsValue.equals("external") ? context.getExternalFilesDir(null) : context.getFilesDir();
+        File offlineDir = new File(baseDir, "offlineData");
+        if (!offlineDir.exists()) {
+            offlineDir.mkdir();
+        }
+        return offlineDir;
+    }
+
+    public File getOfflinePath(Context context) {
+        return getOfflinePathForValue(context, prefs.getString(OFFLINE_INTERNAL_EXTERNAL, "external"));
     }
 
     public boolean isWifi(Context context) {

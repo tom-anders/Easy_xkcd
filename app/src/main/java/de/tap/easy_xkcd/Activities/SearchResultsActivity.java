@@ -17,7 +17,6 @@
  */
 package de.tap.easy_xkcd.Activities;
 
-import android.Manifest;
 import android.app.ProgressDialog;
 import android.app.SearchManager;
 import android.content.Context;
@@ -25,7 +24,6 @@ import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Color;
-import android.graphics.drawable.BitmapDrawable;
 import android.os.AsyncTask;
 import android.os.Bundle;
 
@@ -51,7 +49,6 @@ import android.widget.SearchView;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.bumptech.glide.Glide;
 import com.tap.xkcd_reader.R;
 
 import java.io.File;
@@ -66,14 +63,10 @@ import butterknife.OnClick;
 import de.tap.easy_xkcd.GlideApp;
 import de.tap.easy_xkcd.database.DatabaseManager;
 import de.tap.easy_xkcd.database.RealmComic;
-import de.tap.easy_xkcd.fragments.comics.ComicBrowserFragment;
-import de.tap.easy_xkcd.fragments.comics.ComicFragment;
-import de.tap.easy_xkcd.fragments.comics.OfflineFragment;
 import io.realm.Case;
 import io.realm.Realm;
 import io.realm.RealmResults;
 import jp.wasabeef.recyclerview.adapters.SlideInBottomAnimationAdapter;
-import timber.log.Timber;
 
 
 public class SearchResultsActivity extends BaseActivity {
@@ -245,9 +238,7 @@ public class SearchResultsActivity extends BaseActivity {
                 } catch (Exception e) {
                     Log.e("Error", "loading from internal storage failed");
                     try {
-                        File sdCard = prefHelper.getOfflinePath();
-                        File dir = new File(sdCard.getAbsolutePath() + "/easy xkcd");
-                        File file = new File(dir, String.valueOf(number) + ".png");
+                        File file = new File(prefHelper.getOfflinePath(SearchResultsActivity.this), String.valueOf(number) + ".png");
                         GlideApp.with(SearchResultsActivity.this)
                                 .load(file)
                                 .into(comicViewHolder.thumbnail);

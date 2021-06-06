@@ -104,9 +104,7 @@ public abstract class OverviewRecyclerBaseFragment extends OverviewBaseFragment 
             if (!MainActivity.fullOffline) {
                 request.load(comic.getUrl()).into(comicViewHolder.thumbnail);
             } else {
-                File sdCard = prefHelper.getOfflinePath();
-                File dir = new File(sdCard.getAbsolutePath() + "/easy xkcd");
-                File file = new File(dir, String.valueOf(comic.getComicNumber()) + ".png");
+                File file = new File(prefHelper.getOfflinePath(getActivity()), String.valueOf(comic.getComicNumber()) + ".png");
                 if (file.exists()) {
                     request.load(file).into(comicViewHolder.thumbnail);
                 } else {

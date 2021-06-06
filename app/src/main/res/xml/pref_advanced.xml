@@ -13,10 +13,4 @@
         android:key="pref_large"
         android:summary="@string/pref_large_sum"
         android:title="@string/pref_large" />
-
-    <Preference
-        android:key="pref_offline_path"
-        android:persistent="false"
-        android:title="@string/pref_offline_path"
-        android:summary="@string/pref_offline_path_sum" />
 </PreferenceScreen>

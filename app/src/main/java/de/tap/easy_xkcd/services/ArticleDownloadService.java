@@ -19,7 +19,6 @@
 package de.tap.easy_xkcd.services;
 
 import android.app.IntentService;
-import android.app.Notification;
 import android.app.NotificationChannel;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
@@ -30,7 +29,6 @@ import androidx.core.app.NotificationCompat;
 import android.os.Build;
 import android.util.Log;
 
-import com.tap.xkcd_reader.BuildConfig;
 import com.tap.xkcd_reader.R;
 
 import org.jsoup.Jsoup;
@@ -52,8 +50,8 @@ import okio.Okio;
 
 public class ArticleDownloadService extends IntentService {
 
-    private static final String OFFLINE_WHATIF_PATH = "/easy xkcd/what if/";
-    private static final String OFFLINE_WHATIF_OVERVIEW_PATH = "/easy xkcd/what if/overview";
+    private static final String OFFLINE_WHATIF_PATH = "/what if/";
+    private static final String OFFLINE_WHATIF_OVERVIEW_PATH = "/what if/overview";
 
     public ArticleDownloadService() {
         super("ArticleDownloadService");
@@ -81,13 +79,13 @@ public class ArticleDownloadService extends IntentService {
         notificationManager.notify(1, getNotificationBuilder("comic").build());
 
         PrefHelper prefHelper = new PrefHelper(getApplicationContext());
-        File sdCard = prefHelper.getOfflinePath();
+        File sdCard = prefHelper.getOfflinePath(getApplicationContext());
         File dir = new File(sdCard.getAbsolutePath() + OFFLINE_WHATIF_OVERVIEW_PATH);
         OkHttpClient client = new OkHttpClient();
         Document doc;
         if (!dir.exists()) dir.mkdirs();
         //download overview
-        if (!BuildConfig.DEBUG) {
+//        if (!BuildConfig.DEBUG) {
             try {
                 doc = Jsoup.connect("https://what-if.xkcd.com/archive/")
                         .userAgent("Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/32.0.1700.19 Safari/537.36")
@@ -174,7 +172,7 @@ public class ArticleDownloadService extends IntentService {
                     Log.e("article" + i, e.getMessage());
                 }
             }
-        }
+//        }
         prefHelper.setSunbeamLoaded();
 
         Intent restart = new Intent("de.tap.easy_xkcd.ACTION_COMIC");

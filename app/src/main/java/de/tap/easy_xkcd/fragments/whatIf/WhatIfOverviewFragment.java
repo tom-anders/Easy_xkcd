@@ -34,7 +34,6 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
 
-import com.bumptech.glide.Glide;
 import com.simplecityapps.recyclerview_fastscroll.views.FastScrollRecyclerView;
 import com.tap.xkcd_reader.R;
 
@@ -66,7 +65,7 @@ public class WhatIfOverviewFragment extends Fragment {
     @Bind(R.id.fab) FloatingActionButton fab;
     private FragmentAdapter adapter;
     public static Document doc;
-    private static final String OFFLINE_WHATIF_OVERVIEW_PATH = "/easy xkcd/what if/overview";
+    private static final String OFFLINE_WHATIF_OVERVIEW_PATH = "/what if/overview";
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
@@ -260,7 +259,7 @@ public class WhatIfOverviewFragment extends Fragment {
                 return;
             }
             if (prefHelper.fullOfflineWhatIf()) {
-                File offlinePath = prefHelper.getOfflinePath();
+                File offlinePath = prefHelper.getOfflinePath(context);
                 File dir = new File(offlinePath.getAbsolutePath() + OFFLINE_WHATIF_OVERVIEW_PATH);
                 File file = new File(dir, String.valueOf(n) + ".png");
 
