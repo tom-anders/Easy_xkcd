@@ -1,11 +1,11 @@
 apply plugin: 'com.android.application'
 android {
 
-    compileSdkVersion 28
+    compileSdkVersion 29
     defaultConfig {
         applicationId "de.tap.easy_xkcd"
         minSdkVersion 21
-        targetSdkVersion 28
+        targetSdkVersion 29
         versionCode 166
         versionName "7.3.9"
     }
