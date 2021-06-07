@@ -308,7 +308,7 @@ public class ComicBrowserFragment extends ComicFragment {
                     @Override
                     public boolean onResourceReady(Bitmap resource, Object model, Target<Bitmap> target, DataSource dataSource, boolean isFirstResource) {
                         try {
-                            String cachePath = Environment.getExternalStorageDirectory() + "/easy xkcd";
+                            String cachePath = prefHelper.getOfflinePath(getActivity()).getAbsolutePath();
                             File dir = new File(cachePath);
                             dir.mkdirs();
                             File file = new File(dir, lastComicNumber + ".png");

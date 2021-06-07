@@ -72,15 +72,15 @@ public class Article extends RealmObject {
 
     private boolean offline;
 
-    private static final String OFFLINE_WHATIF_PATH = "/easy xkcd/what if/";
-    private static final String OFFLINE_WHATIF_OVERVIEW_PATH = "/easy xkcd/what if/overview/";
+    private static final String OFFLINE_WHATIF_PATH = "/what if/";
+    private static final String OFFLINE_WHATIF_OVERVIEW_PATH = "/what if/overview/";
 
-    public static boolean hasOfflineFilesForArticle(int number, PrefHelper prefHelper) {
-        return new File(prefHelper.getOfflinePath() + OFFLINE_WHATIF_PATH + number + "/" + number + ".html").exists();
+    public static boolean hasOfflineFilesForArticle(int number, PrefHelper prefHelper, Context context) {
+        return new File(prefHelper.getOfflinePath(context) + OFFLINE_WHATIF_PATH + number + "/" + number + ".html").exists();
     }
 
-    private static void downloadThumbnail(Article article, OkHttpClient client, PrefHelper prefHelper) {
-        File sdCard = prefHelper.getOfflinePath();
+    private static void downloadThumbnail(Article article, OkHttpClient client, PrefHelper prefHelper, Context context) {
+        File sdCard = prefHelper.getOfflinePath(context);
         File dir = new File(sdCard.getAbsolutePath() + OFFLINE_WHATIF_OVERVIEW_PATH);
         if (!dir.exists()) dir.mkdirs();
 
@@ -100,8 +100,8 @@ public class Article extends RealmObject {
         }
     }
 
-    public static Single<Integer> downloadArticle(Article article, OkHttpClient client, PrefHelper prefHelper) {
-        if (hasOfflineFilesForArticle(article.getNumber(), prefHelper)) {
+    public static Single<Integer> downloadArticle(Article article, OkHttpClient client, PrefHelper prefHelper, Context context) {
+        if (hasOfflineFilesForArticle(article.getNumber(), prefHelper, context)) {
             Timber.d("Already has files for article %d", article.getNumber());
             return Single.create(subscriber -> subscriber.onSuccess(article.getNumber()));
         }
@@ -121,7 +121,7 @@ public class Article extends RealmObject {
                         public void onResponse(@NotNull Call call, @NotNull Response response) throws IOException {
                             Document doc = Jsoup.parse(response.body().string());
 
-                            File dir = new File(prefHelper.getOfflinePath().getAbsolutePath() + OFFLINE_WHATIF_PATH + article.getNumber());
+                            File dir = new File(prefHelper.getOfflinePath(context).getAbsolutePath() + OFFLINE_WHATIF_PATH + article.getNumber());
                             if (!dir.exists()) dir.mkdirs();
 
                             File file = new File(dir, article.getNumber() + ".html");
@@ -150,7 +150,7 @@ public class Article extends RealmObject {
                             }
 
                             // Download thumbnail
-                            downloadThumbnail(article, client, prefHelper);
+                            downloadThumbnail(article, client, prefHelper, context);
 
                             Realm realm = Realm.getDefaultInstance();
                             realm.executeTransaction(__ -> {
@@ -181,7 +181,7 @@ public class Article extends RealmObject {
     }
 
     // Can't be "getDocument", since then Realm would complain
-    public static Document generateDocument(int number, PrefHelper prefHelper, ThemePrefs themePrefs) throws IOException {
+    public static Document generateDocument(int number, PrefHelper prefHelper, ThemePrefs themePrefs, Context context) throws IOException {
         Document doc;
         if (!prefHelper.fullOfflineWhatIf()) {
             OkHttpClient okHttpClient = JsonParser.getNewHttpClient();
@@ -193,7 +193,7 @@ public class Article extends RealmObject {
             doc = Jsoup.parse(body);
             //doc = Jsoup.connect("http://what-if.xkcd.com/" + String.valueOf(mNumber)).get();
         } else {
-            File sdCard = prefHelper.getOfflinePath();
+            File sdCard = prefHelper.getOfflinePath(context);
             File dir = new File(sdCard.getAbsolutePath() + OFFLINE_WHATIF_PATH + number);
             File file = new File(dir, number + ".html");
             doc = Jsoup.parse(file, "UTF-8");
@@ -219,13 +219,13 @@ public class Article extends RealmObject {
 
         //fix the image links
         int count = 1;
-        String base = prefHelper.getOfflinePath().getAbsolutePath();
+        String base = prefHelper.getOfflinePath(context).getAbsolutePath();
         for (org.jsoup.nodes.Element e : doc.select(".illustration")) {
             if (!prefHelper.fullOfflineWhatIf()) {
                 String src = e.attr("src");
                 e.attr("src", "https://what-if.xkcd.com" + src);
             } else {
-                String path = "file://" + base + "/easy xkcd/what if/" + number + "/" + count + ".png";
+                String path = "file://" + base + "/what if/" + number + "/" + count + ".png";
                 e.attr("src", path);
             }
             e.attr("onclick", "img.performClick(title);");

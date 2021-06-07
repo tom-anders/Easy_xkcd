@@ -53,12 +53,12 @@ abstract class OverviewModelModule {
     abstract fun bindOverViewModel(overviewModelImpl: OverviewModelImpl): OverviewModel
 }
 
-class OverviewModelImpl @Inject constructor(@ApplicationContext context: Context) : OverviewModel {
+class OverviewModelImpl @Inject constructor(@ApplicationContext private val context: Context) : OverviewModel {
     val prefHelper = PrefHelper(context)
     val databaseManager = DatabaseManager(context)
 
-    private val OFFLINE_WHATIF_PATH = "/easy xkcd/what if/"
-    private val OFFLINE_WHATIF_OVERVIEW_PATH = "/easy xkcd/what if/overview/"
+    private val OFFLINE_WHATIF_PATH = "/what if/"
+    private val OFFLINE_WHATIF_OVERVIEW_PATH = "/what if/overview/"
 
     override fun getArticles(
         hideRead: Boolean,
@@ -151,7 +151,7 @@ class OverviewModelImpl @Inject constructor(@ApplicationContext context: Context
         prefHelper: PrefHelper,
         articleDownloadedCallback: () -> Unit,
     ) {
-        if (Article.hasOfflineFilesForArticle(article.number, prefHelper)) {
+        if (Article.hasOfflineFilesForArticle(article.number, prefHelper, context)) {
             Timber.d("Already has files for article %d", article.number)
             return
         }
@@ -164,8 +164,7 @@ class OverviewModelImpl @Inject constructor(@ApplicationContext context: Context
 
         val doc = Jsoup.parse(response.body!!.string())
         val dir = File(
-            prefHelper.offlinePath
-                .absolutePath + OFFLINE_WHATIF_PATH + article.number
+            prefHelper.getOfflinePath(context).absolutePath + OFFLINE_WHATIF_PATH + article.number
         )
         if (!dir.exists()) dir.mkdirs()
         var file =
@@ -209,7 +208,7 @@ class OverviewModelImpl @Inject constructor(@ApplicationContext context: Context
     }
 
     private fun downloadThumbnail(article: Article, client: OkHttpClient, prefHelper: PrefHelper) {
-        val sdCard = prefHelper.offlinePath
+        val sdCard = prefHelper.getOfflinePath(context)
         val dir = File(sdCard.absolutePath + OFFLINE_WHATIF_OVERVIEW_PATH)
         if (!dir.exists()) dir.mkdirs()
         val file = File(dir, article.number.toString() + ".png")

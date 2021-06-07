@@ -24,32 +24,24 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Bitmap;
-import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
-import androidx.annotation.Nullable;
 
-import com.bumptech.glide.load.DataSource;
-import com.bumptech.glide.load.engine.GlideException;
-import com.bumptech.glide.request.RequestListener;
 import com.bumptech.glide.request.target.Target;
 import com.github.chrisbanes.photoview.PhotoView;
 import com.google.android.material.snackbar.Snackbar;
-import androidx.fragment.app.FragmentManager;
+
 import androidx.core.content.FileProvider;
 import androidx.viewpager.widget.ViewPager;
 import androidx.appcompat.widget.Toolbar;
 
-import android.provider.ContactsContract;
-import android.text.Html;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -63,7 +55,6 @@ import java.io.FileInputStream;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.util.Arrays;
 import java.util.Random;
 import java.util.Stack;
 
@@ -71,7 +62,6 @@ import de.tap.easy_xkcd.Activities.CustomFilePickerActivity;
 import de.tap.easy_xkcd.Activities.MainActivity;
 import de.tap.easy_xkcd.database.DatabaseManager;
 import de.tap.easy_xkcd.database.RealmComic;
-import io.realm.Realm;
 import io.realm.RealmResults;
 import timber.log.Timber;
 
@@ -340,9 +330,7 @@ public class FavoritesFragment extends ComicFragment {
             sb.append(newline);
         }
         try {
-            File sdCard = prefHelper.getOfflinePath();
-            File dir = new File(sdCard.getAbsolutePath() + "/easy xkcd");
-            File file = new File(dir, "favorites.txt");
+            File file = new File(prefHelper.getOfflinePath(getActivity()), "favorites.txt");
             FileWriter writer = new FileWriter(file);
             writer.append(sb.toString());
             writer.flush();

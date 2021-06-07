@@ -501,7 +501,7 @@ public class DatabaseManager {
         final OkHttpClient client = new OkHttpClient();
 
         return Observable.fromIterable(articlesToDownload).flatMapSingle(article -> {
-            return Article.downloadArticle(article, client, prefHelper);
+            return Article.downloadArticle(article, client, prefHelper, context);
 //            return Article.downloadThumbnail(article, client, prefHelper);
         });
 

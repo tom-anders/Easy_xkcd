@@ -33,7 +33,7 @@ class OverviewAdapter constructor(
 ) : RecyclerView.Adapter<OverviewAdapter.ViewHolder>(),
     FastScrollRecyclerView.SectionedAdapter {
 
-    private val OFFLINE_WHATIF_OVERVIEW_PATH = "/easy xkcd/what if/overview"
+    private val OFFLINE_WHATIF_OVERVIEW_PATH = "/what if/overview"
 
     override fun getSectionName(pos: Int) = ""
 
@@ -75,7 +75,7 @@ class OverviewAdapter constructor(
             holder.thumbnail.setImageDrawable(ContextCompat.getDrawable(context, it))
         } ?: run {
             if (prefHelper.fullOfflineWhatIf()) {
-                val offlinePath: File = prefHelper.offlinePath
+                val offlinePath: File = prefHelper.getOfflinePath(context)
                 val dir =
                     File(offlinePath.absolutePath + OFFLINE_WHATIF_OVERVIEW_PATH)
                 val file = File(dir, article.number.toString() + ".png")

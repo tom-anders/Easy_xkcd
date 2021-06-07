@@ -3,7 +3,6 @@ package de.tap.easy_xkcd.database;
 import android.app.ProgressDialog;
 import android.content.Context;
 import android.os.AsyncTask;
-import android.provider.ContactsContract;
 
 import com.tap.xkcd_reader.R;
 
@@ -66,24 +65,6 @@ public class updateComicDatabase extends AsyncTask<Void, String, Void> {
         } catch (JSONException e) {
             Timber.wtf("Latest JSON at https://xkcd.com/info.0.json doesnt have a number?!");
             return prefHelper.getNewest();
-        }
-    }
-
-    void createNoMediaFile() {
-        if (!prefHelper.nomediaCreated()) {
-            File sdCard = prefHelper.getOfflinePath();
-            File dir = new File(sdCard.getAbsolutePath() + "/easy xkcd/");
-            if (!dir.exists()) {
-                dir.mkdirs();
-            }
-            File nomedia = new File(dir, ".nomedia");
-            try {
-                boolean created = nomedia.createNewFile();
-                Timber.d("created .nomedia in external storage: %s", created);
-                prefHelper.setNomediaCreated();
-            } catch (IOException e) {
-                Timber.e(e);
-            }
         }
     }
 
@@ -186,8 +167,6 @@ public class updateComicDatabase extends AsyncTask<Void, String, Void> {
 
     @Override
     protected Void doInBackground(Void... params) {
-        createNoMediaFile();
-
         if (prefHelper.isOnline(context)) {
             databaseManager = new DatabaseManager(context);
 

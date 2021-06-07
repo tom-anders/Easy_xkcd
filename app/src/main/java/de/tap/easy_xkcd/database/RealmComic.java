@@ -18,12 +18,9 @@
 
 package de.tap.easy_xkcd.database;
 
-import android.app.Activity;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
-import android.os.Build;
-import android.util.Log;
 
 import com.tap.xkcd_reader.R;
 
@@ -34,17 +31,13 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.UnsupportedEncodingException;
 import java.util.Arrays;
-import java.util.concurrent.ConcurrentHashMap;
 
 import de.tap.easy_xkcd.utils.PrefHelper;
 import io.realm.Realm;
 import io.realm.RealmObject;
 import io.realm.annotations.PrimaryKey;
 import okhttp3.Response;
-import okio.BufferedSink;
-import okio.Okio;
 import timber.log.Timber;
 
 import static de.tap.easy_xkcd.utils.JsonParser.getJSONFromUrl;
@@ -63,8 +56,6 @@ public class RealmComic extends RealmObject {
     private String url;
     private String altText;
     private String preview;
-
-    public static final String OFFLINE_PATH = "/easy xkcd";
 
     public int getComicNumber() {
         return comicNumber;
@@ -214,13 +205,7 @@ public class RealmComic extends RealmObject {
 
     public static void saveOfflineBitmap(Bitmap bitmap, PrefHelper prefHelper, int number, Context context) {
         try {
-            File sdCard = prefHelper.getOfflinePath();
-            File dir = new File(sdCard.getAbsolutePath() + "/easy xkcd");
-            //noinspection ResultOfMethodCallIgnored
-            if (!dir.exists()) {
-                dir.mkdirs();
-            }
-            File file = new File(dir, String.valueOf(number) + ".png");
+            File file = new File(prefHelper.getOfflinePath(context), String.valueOf(number) + ".png");
             FileOutputStream fos = new FileOutputStream(file);
             bitmap.compress(Bitmap.CompressFormat.PNG, 100, fos);
             fos.flush();
@@ -240,12 +225,7 @@ public class RealmComic extends RealmObject {
     public static void saveOfflineBitmap(Response response, PrefHelper prefHelper, int comicNumber, Context context) {
         String comicFileName = comicNumber + ".png"; // TODO: Some early comics are .jpg
         try {
-            File sdCard = prefHelper.getOfflinePath();
-            File dir = new File(sdCard.getAbsolutePath() + RealmComic.OFFLINE_PATH);
-            if (!dir.exists()) {
-                dir.mkdirs();
-            }
-            try (FileOutputStream fos = new FileOutputStream(sdCard.getAbsolutePath() + RealmComic.OFFLINE_PATH + "/" + comicFileName)) {
+            try (FileOutputStream fos = new FileOutputStream(prefHelper.getOfflinePath(context).getAbsolutePath() + "/" + comicFileName)) {
                 fos.write(response.body().bytes());
             }
         } catch (Exception e) {
@@ -275,9 +255,7 @@ public class RealmComic extends RealmObject {
         Bitmap mBitmap = null;
         String comicFileName = comicNumber + ".png";
         try {
-            File sdCard = prefHelper.getOfflinePath();
-            File dir = new File(sdCard.getAbsolutePath() + OFFLINE_PATH);
-            File file = new File(dir, comicFileName);
+            File file = new File(prefHelper.getOfflinePath(context), comicFileName);
             FileInputStream fis = new FileInputStream(file);
             mBitmap = BitmapFactory.decodeStream(fis);
             fis.close();

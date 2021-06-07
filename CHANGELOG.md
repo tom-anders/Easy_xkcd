@@ -5,6 +5,25 @@
 - Scroll position in WhatIf articles is not persisted on rotation
 - Remove "Open Forum Thread" option until the xkcd forum is back online (if ever)
 
+## 7.3.11
+
+- Fix crashes when a new comics comes out caused by Randall accidentally uploading a huge image
+
+## 7.3.10
+
+- In preparation for Android 11's scoped storage, at first startup after the update the app will
+  move all offline data (comics, articles) to an app-specific folder that's compatible with 
+  scoped storage. In a future update, the READ_EXTERNAL_STORAGE and WRITE_EXTERNAL_STORAGE permissions
+  will then be removed.
+- Add option to respect system night theme (enabled by default)
+- Increase size of Floating Action Button (@mueller-ma)
+- Use switches instead of checkboxes in preferences (@mueller-ma)
+- Move "Update on mobile data" from "advanced" to "offline" settings (@mueller-ma)
+- Color navigation bar based on day/night theme (@mueller-ma)
+- Update Brazilian Portuguese translation (@rffontenelle)
+- Fix some HTML issues in alt text (@radiohazard-dev)
+- Add this year's April Fools comic to interactive comics (@coolreader18)
+
 ## 7.3.9
 
 - Add support for comic 2293 (Thanks, @obfusk!)

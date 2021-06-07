@@ -40,7 +40,7 @@
         android:layout_alignParentBottom="true"
         android:padding="10dp"
         android:textSize="@dimen/text_body1"
-        android:textColor="@color/fab_material_white"
+        android:textColor="@android:color/white"
         android:background="@drawable/element_background_box_rounded"
         android:maxLines="8" />
 

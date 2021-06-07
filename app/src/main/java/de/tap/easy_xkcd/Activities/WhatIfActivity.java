@@ -140,7 +140,7 @@ public class WhatIfActivity extends BaseActivity {
             finish();
         }
 
-        Single.fromCallable(() -> Article.generateDocument(loadedArticle.getNumber(), prefHelper, themePrefs))
+        Single.fromCallable(() -> Article.generateDocument(loadedArticle.getNumber(), prefHelper, themePrefs, this))
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
                 .doOnError(e -> {

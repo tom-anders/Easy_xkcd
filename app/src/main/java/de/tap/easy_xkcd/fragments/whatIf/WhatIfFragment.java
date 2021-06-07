@@ -7,6 +7,14 @@ import android.content.Intent;
 import android.graphics.Color;
 import android.net.Uri;
 import android.os.Bundle;
+import androidx.annotation.NonNull;
+import androidx.core.content.ContextCompat;
+import androidx.core.view.MenuItemCompat;
+import androidx.fragment.app.Fragment;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
+import androidx.appcompat.widget.Toolbar;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -69,8 +77,8 @@ public class WhatIfFragment extends Fragment {
     private RVAdapter adapter;
 
     private boolean offlineMode;
-    private static final String OFFLINE_WHATIF_OVERVIEW_PATH = "/easy xkcd/what if/overview";
-    private static final String OFFLINE_WHATIF_PATH = "/easy xkcd/what if/";
+    private static final String OFFLINE_WHATIF_OVERVIEW_PATH = "/what if/overview";
+    private static final String OFFLINE_WHATIF_PATH = "/what if/";
     private static final String WHATIF_INTENT = "de.tap.easy_xkcd.ACTION_WHAT_IF";
     private PrefHelper prefHelper;
     private DatabaseManager databaseManager;
@@ -263,7 +271,7 @@ public class WhatIfFragment extends Fragment {
             if (id != 0) {
                 comicViewHolder.thumbnail.setImageDrawable(ContextCompat.getDrawable(getActivity(), id));
             } else if (prefHelper.fullOfflineWhatIf()) {
-                File offlinePath = prefHelper.getOfflinePath();
+                File offlinePath = prefHelper.getOfflinePath(getActivity());
                 File dir = new File(offlinePath.getAbsolutePath() + OFFLINE_WHATIF_OVERVIEW_PATH);
                 File file = new File(dir, article.getNumber() + ".png");
 

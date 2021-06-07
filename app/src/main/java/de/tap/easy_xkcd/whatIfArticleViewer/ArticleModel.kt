@@ -57,11 +57,11 @@ abstract class ArticleModelModule {
 }
 
 //TODO Inject PrefHelper and ThemePrefs as Singleton via Hilt?!
-class ArticleModelImpl @Inject constructor(@ApplicationContext context: Context) : ArticleModel {
+class ArticleModelImpl @Inject constructor(@ApplicationContext private val context: Context) : ArticleModel {
     private lateinit var loadedArticle: Article
     private lateinit var refs: ArrayList<String?>
 
-    private val OFFLINE_WHATIF_PATH = "/easy xkcd/what if/"
+    private val OFFLINE_WHATIF_PATH = "/what if/"
 
     private var prefHelper: PrefHelper = PrefHelper(context)
     private var themePrefs: ThemePrefs = ThemePrefs(context)
@@ -99,7 +99,7 @@ class ArticleModelImpl @Inject constructor(@ApplicationContext context: Context)
                 Jsoup.parse(body)
                 //doc = Jsoup.connect("http://what-if.xkcd.com/" + String.valueOf(mNumber)).get();
             } else {
-                val sdCard = prefHelper.offlinePath
+                val sdCard = prefHelper.getOfflinePath(context)
                 val dir = File(sdCard.absolutePath + OFFLINE_WHATIF_PATH + number)
                 val file = File(dir, "$number.html")
                 Jsoup.parse(file, "UTF-8")
@@ -131,13 +131,13 @@ class ArticleModelImpl @Inject constructor(@ApplicationContext context: Context)
 
         //fix the image links
         var count = 1
-        val base = prefHelper.offlinePath.absolutePath
+        val base = prefHelper.getOfflinePath(context).absolutePath
         for (e in doc.select(".illustration")) {
             if (!prefHelper.fullOfflineWhatIf()) {
                 val src = e.attr("src")
                 e.attr("src", "https://what-if.xkcd.com$src")
             } else {
-                val path = "file://$base/easy xkcd/what if/$number/$count.png"
+                val path = "file://$base/what if/$number/$count.png"
                 e.attr("src", path)
             }
             e.attr("onclick", "img.performClick(title);")
