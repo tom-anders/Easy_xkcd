@@ -1,3 +1,7 @@
+## 7.3.11
+
+- Fix crashes when a new comics comes out caused by Randall accidentally uploading a huge image
+
 ## 7.3.10
 
 - In preparation for Android 11's scoped storage, at first startup after the update the app will
