@@ -88,6 +88,7 @@ public abstract class BaseActivity extends AppCompatActivity {
             getWindow().setNavigationBarColor(navBarColor);
             getWindow().getDecorView().setSystemUiVisibility(uiOptions);
         }
+        getWindow().setStatusBarColor(themePrefs.getPrimaryDarkColor());
         setSupportActionBar(toolbar);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         toolbar.setBackgroundColor(themePrefs.getPrimaryColor(false));

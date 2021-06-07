@@ -256,7 +256,7 @@
     <string name="title_interactive">(interativo)</string>
 
     <!-- navigation drawer -->
-    <string name="nv_comicbrowser">Navegador de quadrinhos</string>
+    <string name="nv_comicbrowser">Navegador</string>
     <string name="comicbrowser_title">Quadrinhos</string>
     <string name="nv_favorites">Favoritos</string>
     <string name="nv_style">Estilo</string>

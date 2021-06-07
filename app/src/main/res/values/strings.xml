@@ -276,7 +276,8 @@
     <string name="title_interactive">(interactive)</string>
 
     <!-- navigation drawer -->
-    <string name="nv_comicbrowser">Comic Browser</string>
+    <string name="nv_comicbrowser">Browser</string>
+    <string name="nv_overview">Overview</string>
     <string name="comicbrowser_title">Comics</string>
     <string name="nv_favorites">Favorites</string>
     <string name="nv_style">Style</string>

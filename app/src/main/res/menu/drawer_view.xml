@@ -14,25 +14,25 @@
   ~ limitations under the License.
   -->
 <menu xmlns:android="http://schemas.android.com/apk/res/android">
-    <group android:checkableBehavior="single"
-        android:id="@+id/nav_items_main">
-        <item
-            android:id="@+id/nav_browser"
-            android:checked="true"
-            android:title="@string/nv_comicbrowser"
-            android:icon="@drawable/ic_outline_view_carousel_24dp"/>
-        <item
-            android:id="@+id/nav_favorites"
-            android:title="@string/nv_favorites"
-            android:icon="@drawable/ic_favorite_off_24dp"
-            />
-        <item
-            android:id="@+id/nav_whatif"
-            android:title="@string/nv_whatif"
-            android:icon="@drawable/ic_outline_format_align_left_24dp"
-            android:visible="true"
-            />
-    </group>
+<!--    <group android:checkableBehavior="single"-->
+<!--        android:id="@+id/nav_items_main">-->
+<!--        <item-->
+<!--            android:id="@+id/nav_browser"-->
+<!--            android:checked="true"-->
+<!--            android:title="@string/nv_comicbrowser"-->
+<!--            android:icon="@drawable/ic_outline_view_carousel_24dp"/>-->
+<!--        <item-->
+<!--            android:id="@+id/nav_favorites"-->
+<!--            android:title="@string/nv_favorites"-->
+<!--            android:icon="@drawable/ic_favorite_off_24dp"-->
+<!--            />-->
+<!--        <item-->
+<!--            android:id="@+id/nav_whatif"-->
+<!--            android:title="@string/nv_whatif"-->
+<!--            android:icon="@drawable/ic_outline_format_align_left_24dp"-->
+<!--            android:visible="true"-->
+<!--            />-->
+<!--    </group>-->
     <group android:checkableBehavior="single"
         android:id="@+id/nav_items_extra">
         <item
