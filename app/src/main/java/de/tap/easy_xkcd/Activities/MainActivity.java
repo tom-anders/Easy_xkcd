@@ -197,6 +197,47 @@ public class MainActivity extends BaseActivity {
         // Nothing to be done yet in that case
         bottomNavigationView.setOnNavigationItemReselectedListener(item -> {});
 
+        bottomNavigationView.setOnNavigationItemSelectedListener(item -> {
+            switch (item.getItemId()) {
+                case R.id.nav_whatif:
+                    showWhatifFragment(true);
+                    return true;
+                case R.id.nav_browser:
+                    showBrowserFragment(true);
+                    return true;
+                case R.id.nav_favorites:
+                    showFavoritesFragment(true);
+                    return true;
+                case R.id.nav_overview:
+                    showOverview(true);
+                    return true;
+            }
+            return false;
+        });
+        // Nothing to be done yet in that case
+        bottomNavigationView.setOnNavigationItemReselectedListener(item -> {});
+
+        bottomNavigationView.setOnNavigationItemSelectedListener(item -> {
+            Timber.d("id: %d", item.getItemId());
+            switch (item.getItemId()) {
+                case R.id.nav_whatif:
+                    showWhatifFragment(true);
+                    return true;
+                case R.id.nav_browser:
+                    showBrowserFragment(true);
+                    return true;
+                case R.id.nav_favorites:
+                    showFavoritesFragment(true);
+                    return true;
+                case R.id.nav_overview:
+                    showOverview(true);
+                    return true;
+            }
+            return false;
+        });
+        // Nothing to be done yet in that case
+        bottomNavigationView.setOnNavigationItemReselectedListener(item -> {});
+
         customTabActivityHelper = new CustomTabActivityHelper();
         databaseManager = new DatabaseManager(this);
 
