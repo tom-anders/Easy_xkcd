@@ -54,11 +54,8 @@ public abstract class BaseActivity extends AppCompatActivity {
             ActivityManager.TaskDescription description = new ActivityManager.TaskDescription("Easy xkcd", ic, color);
             setTaskDescription(description);
 
-            if (!(this instanceof MainActivity))
-                getWindow().setStatusBarColor(themePrefs.getPrimaryDarkColor());
-
             if (prefHelper.colorNavbar())
-                getWindow().setNavigationBarColor(themePrefs.getPrimaryColor(false));
+                getWindow().setNavigationBarColor(themePrefs.getPrimaryDarkColor());
 
         }
         getWindow().setStatusBarColor(themePrefs.getPrimaryDarkColor());
