@@ -218,7 +218,6 @@ public class MainActivity extends BaseActivity {
         bottomNavigationView.setOnNavigationItemReselectedListener(item -> {});
 
         bottomNavigationView.setOnNavigationItemSelectedListener(item -> {
-            Timber.d("id: %d", item.getItemId());
             switch (item.getItemId()) {
                 case R.id.nav_whatif:
                     showWhatifFragment(true);
