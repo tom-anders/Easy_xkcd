@@ -3,12 +3,19 @@
     <Preference
         android:key="pref_color_primary"
         android:title="@string/theme_primary_color"
-        android:persistent="false" />
+        android:persistent="false"
+        />
 
     <Preference
         android:key="pref_color_accent"
         android:title="@string/theme_accent_color"
-        android:persistent="false" />
+        android:persistent="false"
+        />
+
+    <SwitchPreference
+        android:key="pref_navbar"
+        android:title="@string/pref_navbar"
+        android:defaultValue="true" />
 
     <SwitchPreference
         android:defaultValue="true"

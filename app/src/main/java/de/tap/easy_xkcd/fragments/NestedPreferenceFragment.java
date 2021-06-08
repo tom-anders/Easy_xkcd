@@ -78,6 +78,7 @@ public class NestedPreferenceFragment extends PreferenceFragment {
     private static final String TAG_KEY = "NESTED_KEY";
     private static final String SUBTITLE_ENABLED = "pref_subtitle";
 
+    private static final String COLORED_NAVBAR = "pref_navbar";
     private static final String COLOR_PRIMARY = "pref_color_primary";
     private static final String COLOR_ACCENT = "pref_color_accent";
     private static final String NOTIFICATIONS_INTERVAL = "pref_notifications";
@@ -130,6 +131,22 @@ public class NestedPreferenceFragment extends PreferenceFragment {
         switch (key) {
             case APPEARANCE:
                 addPreferencesFromResource(R.xml.pref_appearance);
+                findPreference(COLORED_NAVBAR).setEnabled(Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP);
+                findPreference(COLORED_NAVBAR).setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
+                    @Override
+                    public boolean onPreferenceClick(Preference preference) {
+                        getActivity().setResult(Activity.RESULT_OK);
+                        Intent intent = getActivity().getIntent();
+                        intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK
+                                | Intent.FLAG_ACTIVITY_NO_ANIMATION);
+                        getActivity().overridePendingTransition(0, 0);
+                        getActivity().finish();
+
+                        getActivity().overridePendingTransition(0, 0);
+                        startActivity(intent);
+                        return true;
+                    }
+                });
 
                 findPreference(SUBTITLE_ENABLED).setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
                     @Override
