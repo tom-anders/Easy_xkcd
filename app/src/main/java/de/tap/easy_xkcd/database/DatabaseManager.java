@@ -78,6 +78,9 @@ public class DatabaseManager {
             if (!objectSchema.hasField("altText")) { //Add the altText field which wasn't there in the old version!
                 objectSchema.addField("altText", String.class);
             }
+            if (!objectSchema.hasField("isOffline")) {
+                objectSchema.addField("isOffline", boolean.class);
+            }
 
             if (!schema.contains("Article")) {
                 RealmObjectSchema articleSchema = schema.create("Article")
@@ -529,63 +532,6 @@ public class DatabaseManager {
 //        });
     }
 
-    // Implement some fixes for comic data that may have already been cached
-    public void fixCache() {
-        int[] comicsToFix = {76, 80, 104, 1037, 1054, 1137, 1193, 1608, 1663, 1350, 2175, 2185, 2202}; //When adding new comic fixes, don't forget to add the number here!
-        ArrayList<RealmComic> comicFixes = new ArrayList<>();
-        for (int i : comicsToFix) {
-            comicFixes.add(getRealmComic(i));
-        }
-
-        realm.beginTransaction();
-
-        for (RealmComic comic : comicFixes) {
-            if (comic == null) { continue; }
-            switch (comic.getComicNumber()) {
-                case 76: comic.setUrl("https://i.imgur.com/h3fi2RV.jpg");
-                    break;
-                case 80: comic.setUrl("https://i.imgur.com/lWmI1lB.jpg");
-                    break;
-                case 104: comic.setUrl("https://i.imgur.com/dnCNfPo.jpg");
-                    break;
-                case 1037: comic.setUrl("https://www.explainxkcd.com/wiki/images/f/ff/umwelt_the_void.jpg");
-                    break;
-                case 1054: comic.setTitle("The Bacon");
-                    break;
-                case 1137: comic.setTitle("RTL");
-                    break;
-                case 1193: comic.setUrl("https://www.explainxkcd.com/wiki/images/0/0b/externalities.png");
-                    break;
-                case 1350: comic.setUrl("https://www.explainxkcd.com/wiki/images/3/3d/lorenz.png");
-                    break;
-                case 1608: comic.setUrl("https://www.explainxkcd.com/wiki/images/4/41/hoverboard.png");
-                    break;
-                case 1663: comic.setUrl("https://explainxkcd.com/wiki/images/c/ce/garden.png");
-                    break;
-                case 2175: comic.setAltText(new String("When Salvador Dalí died, it took months to get all the flagpoles sufficiently melted.".getBytes(UTF_8)));
-                    break;
-                case 2185:
-                    comic.setTitle("Cumulonimbus");
-                    comic.setAltText("The rarest of all clouds is the altocumulenticulostratonimbulocirruslenticulomammanoctilucent cloud, caused by an interaction between warm moist air, cool dry air, cold slippery air, cursed air, and a cloud of nanobots.");
-                    comic.setUrl("https://imgs.xkcd.com/comics/cumulonimbus_2x.png");
-                    break;
-                case 2202: comic.setUrl("https://imgs.xkcd.com/comics/earth_like_exoplanet.png");
-                    break;
-            }
-        }
-
-        realm.copyToRealmOrUpdate(comicFixes);
-
-        RealmResults<RealmComic> httpComics = realm.where(RealmComic.class).contains("url", "http://").findAll();
-        for (int i = 0; i < httpComics.size(); i++) {
-            httpComics.get(i).setUrl(httpComics.get(i).getUrl().replace("http", "https"));
-        }
-
-        realm.copyToRealmOrUpdate(httpComics);
-
-        realm.commitTransaction();
-    }
-
     public void fixTranscripts() {
         realm.beginTransaction();
         for (int number = 1609; number < 1664; number++) {
@@ -603,7 +549,7 @@ public class DatabaseManager {
 
     public RealmComic findNewestComic(Context context) throws IOException, JSONException {
         JSONObject json = getJSONFromUrl(RealmComic.getJsonUrl(0));
-        return RealmComic.buildFromJson(realm, json.getInt("num"), json, context);
+        return RealmComic.buildFromJson(json.getInt("num"), json, context);
     }
 
 }
