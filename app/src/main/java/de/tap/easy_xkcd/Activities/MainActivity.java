@@ -1057,9 +1057,9 @@ public class MainActivity extends BaseActivity {
                 startActivity(new Intent(MainActivity.this, DonateActivity.class));
                 return true;
 
-            case R.id.action_overview:
-                showOverview(true);
-                return true;
+//            case R.id.action_overview:
+//                showOverview(true);
+//                return true;
 
             case R.id.action_night_mode:
                 return toggleNightMode(item);

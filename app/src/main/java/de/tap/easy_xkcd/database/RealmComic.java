@@ -140,7 +140,7 @@ public class RealmComic extends RealmObject {
     }
 
     public static boolean isInteractiveComic(int number, Context context) {
-        return Arrays.binarySearch(context.getResources().getIntArray(R.array.interactive_comics), number) >= 0;
+        return context != null && Arrays.binarySearch(context.getResources().getIntArray(R.array.interactive_comics), number) >= 0;
     }
 
     public static boolean isLargeComic(int number, Context context) {

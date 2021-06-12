@@ -10,7 +10,7 @@ import de.tap.easy_xkcd.database.DatabaseManager
 import de.tap.easy_xkcd.database.RealmComic
 import de.tap.easy_xkcd.utils.PrefHelper
 import io.realm.Realm
-import io.realm.RealmResults
+import io.realm.Sort
 import kotlinx.coroutines.*
 import okhttp3.OkHttpClient
 import okhttp3.Request
@@ -19,23 +19,58 @@ import org.json.JSONObject
 import timber.log.Timber
 import java.lang.Exception
 import javax.inject.Inject
-import kotlin.system.measureTimeMillis
+import javax.inject.Singleton
 
-interface ComicsModel {
+interface ComicDatabaseModel {
     suspend fun findNewestComic(): Int
     suspend fun updateDatabase(
         newestComic: Int,
         comicSavedCallback: () -> Unit
     )
+
+    fun getAllComics(): List<RealmComic>
+
+    fun isFavorite(number: Int): Boolean
+
+    fun toggleFavorite(number: Int)
 }
 
-class ComicsModelImpl @Inject constructor(
+@Singleton
+class ComicDatabaseModelImpl @Inject constructor(
     @ApplicationContext private val context: Context
-) : ComicsModel {
+) : ComicDatabaseModel {
     private val prefHelper = PrefHelper(context)
     private val databaseManager = DatabaseManager(context)
 
     private val client = OkHttpClient()
+
+    init {
+        Timber.d("hello there")
+    }
+
+    override fun getAllComics(): List<RealmComic> {
+        val realm = Realm.getDefaultInstance()
+        return realm.copyFromRealm(
+            realm.where(RealmComic::class.java).findAllSorted("comicNumber", Sort.ASCENDING)
+        )
+    }
+
+    override fun isFavorite(number: Int): Boolean {
+        return Realm.getDefaultInstance().where(RealmComic::class.java)
+            .equalTo("comicNumber", number).findFirst().isFavorite
+    }
+
+    override fun toggleFavorite(number: Int) {
+        val realm = Realm.getDefaultInstance()
+        realm.where(RealmComic::class.java).equalTo("comicNumber", number).findFirst()
+            .let { comic ->
+                realm.executeTransaction {
+                    comic.isFavorite = !comic.isFavorite
+                    realm.copyToRealmOrUpdate(comic)
+                }
+            }
+        realm.close()
+    }
 
     override suspend fun findNewestComic(): Int = withContext(Dispatchers.IO) {
         RealmComic.findNewestComicNumber()
@@ -137,7 +172,7 @@ class ComicsModelImpl @Inject constructor(
 @InstallIn(ViewModelComponent::class)
 abstract class ComicsModelModule {
     @Binds
-    abstract fun bindComicsModel(comicsModelImpl: ComicsModelImpl): ComicsModel
+    abstract fun bindComicsModel(comicsModelImpl: ComicDatabaseModelImpl): ComicDatabaseModel
 }
 
 

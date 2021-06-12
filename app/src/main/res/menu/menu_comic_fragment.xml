@@ -3,18 +3,9 @@
     xmlns:app="http://schemas.android.com/apk/res-auto">
 
     <group android:id="@+id/groupNavigation">
-        <item android:id="@+id/action_overview"
-            android:title="@string/action_overview"
-            app:showAsAction="never" />
-
         <item android:id="@+id/action_latest"
             android:title="@string/action_latest"
             app:showAsAction="never" />
-
-        <item android:id="@+id/action_random"
-            android:title="@string/action_random"
-            app:showAsAction="ifRoom"
-            android:icon="@drawable/ic_outline_shuffle_24dp"/>
     </group>
 
     <group android:id="@+id/groupCurrentComic">

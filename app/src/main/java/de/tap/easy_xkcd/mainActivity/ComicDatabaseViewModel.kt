@@ -1,35 +1,22 @@
-package de.tap.easy_xkcd.comicBrowsing
+package de.tap.easy_xkcd.mainActivity
 
-import android.content.Context
-import androidx.lifecycle.LiveData
-import androidx.lifecycle.MutableLiveData
-import androidx.lifecycle.ViewModel
-import androidx.lifecycle.viewModelScope
-import com.tap.xkcd_reader.R
+import android.app.Application
+import androidx.lifecycle.*
 import dagger.hilt.android.lifecycle.HiltViewModel
-import dagger.hilt.android.qualifiers.ActivityContext
-import dagger.hilt.android.qualifiers.ApplicationContext
+import de.tap.easy_xkcd.comicBrowsing.ComicDatabaseModel
 import de.tap.easy_xkcd.database.RealmComic
 import de.tap.easy_xkcd.utils.PrefHelper
 import de.tap.easy_xkcd.utils.SingleLiveEvent
 import kotlinx.coroutines.launch
 import javax.inject.Inject
+import kotlin.properties.Delegates
 
 @HiltViewModel
-class ComicsViewModel @Inject constructor(
-    private val model: ComicsModel,
-    @ApplicationContext private val context: Context
-) : ViewModel() {
-    private val prefHelper = PrefHelper(context)
-
-    private val _comics = MutableLiveData<List<RealmComic>>()
-    val comics: LiveData<List<RealmComic>> = _comics
-
-    private val _favorites = MutableLiveData<List<RealmComic>>()
-    val favorites: LiveData<List<RealmComic>> = _favorites
-
-    private val _readComics = MutableLiveData<List<RealmComic>>()
-    val readComics: LiveData<List<RealmComic>> = _readComics
+class ComicDatabaseViewModel @Inject constructor(
+    app: Application,
+    private val model: ComicDatabaseModel,
+) : AndroidViewModel(app) {
+    private val prefHelper = PrefHelper(app.applicationContext)
 
     private val _progress: MutableLiveData<Int> = MutableLiveData()
     val progress: LiveData<Int> = _progress
@@ -39,9 +26,12 @@ class ComicsViewModel @Inject constructor(
 
     val foundNewComic = SingleLiveEvent<Boolean>()
 
+    private val _databaseLoaded = MutableLiveData(false)
+    val databaseLoaded: LiveData<Boolean> = _databaseLoaded
+
     init {
         viewModelScope.launch {
-            if (prefHelper.isOnline(context)) {
+            if (prefHelper.isOnline(app.applicationContext)) {
                 val newestComic = model.findNewestComic()
                 progressMax = newestComic
                 _progress.value = 0
@@ -55,10 +45,11 @@ class ComicsViewModel @Inject constructor(
                     prefHelper.setNewestComic(newestComic)
                     foundNewComic.value = true
                 }
-
             }
 
             _progress.value = null
+
+            _databaseLoaded.value = true
         }
     }
 }

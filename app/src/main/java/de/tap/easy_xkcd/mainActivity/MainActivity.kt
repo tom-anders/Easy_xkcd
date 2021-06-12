@@ -1,14 +1,17 @@
 package de.tap.easy_xkcd.mainActivity
 
+import android.app.ProgressDialog
 import android.content.res.ColorStateList
 import android.graphics.Color
 import android.os.Bundle
 import android.view.Menu
 import android.view.MenuItem
+import androidx.activity.viewModels
 import androidx.appcompat.widget.Toolbar
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentTransaction
+import androidx.fragment.app.activityViewModels
 import com.google.android.material.bottomappbar.BottomAppBar
 import com.google.android.material.bottomnavigation.BottomNavigationView
 import com.tap.xkcd_reader.R
@@ -17,6 +20,7 @@ import dagger.hilt.android.AndroidEntryPoint
 import de.tap.easy_xkcd.Activities.BaseActivity
 import de.tap.easy_xkcd.comicBrowsing.ComicBrowserFragment
 import de.tap.easy_xkcd.whatIfOverview.WhatIfOverviewFragment
+import timber.log.Timber
 
 @AndroidEntryPoint
 class MainActivity : BaseActivity() {
@@ -28,18 +32,62 @@ class MainActivity : BaseActivity() {
     private lateinit var bottomNavigationView: BottomNavigationView
     private lateinit var toolbar: Toolbar
 
+    private lateinit var progress: ProgressDialog
+
+    val model: ComicDatabaseViewModel by viewModels()
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
+        progress = ProgressDialog(this)
+        progress.setTitle(resources?.getString(R.string.update_database))
+        progress.setProgressStyle(ProgressDialog.STYLE_HORIZONTAL)
+        progress.isIndeterminate = false
+        model.progress.observe(this) {
+            if (it != null) {
+                progress.progress = it
+                progress.max = model.progressMax
+                progress.show()
+            } else {
+                progress.dismiss()
+            }
+        }
+
+        model.foundNewComic.observe(this) {
+            //TODO show snackbar here or maybe observe this in the fragments instead
+        }
+
 
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
-        bottomAppBar = binding.bottomAppBar
-        bottomNavigationView = binding.bottomNavigationView
         toolbar = binding.toolbar.root
         setupToolbar(toolbar)
         supportActionBar?.setDisplayHomeAsUpEnabled(false)
 
+        setupBottomAppBar()
+
+        bottomNavigationView = binding.bottomNavigationView
+        bottomNavigationView.setOnNavigationItemSelectedListener {
+            showFragmentForSelectedNavigationItem(it.itemId)
+        }
+        // Nothing to be done yet in that case
+        bottomNavigationView.setOnNavigationItemReselectedListener {}
+
+        model.databaseLoaded.observe(this) {
+            if (savedInstanceState == null) {
+                bottomNavigationView.selectedItemId =
+                    if (prefHelper.launchToOverview()) R.id.nav_overview else R.id.nav_browser
+            } else {
+                showFragmentForSelectedNavigationItem(bottomNavigationView.selectedItemId)
+            }
+        }
+
+
+    }
+
+    fun setupBottomAppBar() {
+        bottomAppBar = binding.bottomAppBar
         when {
             themePrefs.amoledThemeEnabled() -> {
                 bottomAppBar.backgroundTint = ColorStateList.valueOf(Color.BLACK)
@@ -56,17 +104,6 @@ class MainActivity : BaseActivity() {
             }
         }
 
-        bottomNavigationView.setOnNavigationItemSelectedListener {
-            showFragmentForSelectedNavigationItem(it.itemId)
-        }
-        if (savedInstanceState == null) {
-            bottomNavigationView.selectedItemId = if (prefHelper.launchToOverview()) R.id.nav_overview else R.id.nav_browser
-        } else {
-            showFragmentForSelectedNavigationItem(bottomNavigationView.selectedItemId)
-        }
-
-        // Nothing to be done yet in that case
-        bottomNavigationView.setOnNavigationItemReselectedListener {}
     }
 
     fun showFragmentForSelectedNavigationItem(itemId: Int): Boolean =
