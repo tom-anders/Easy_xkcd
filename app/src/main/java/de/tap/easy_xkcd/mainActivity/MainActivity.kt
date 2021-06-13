@@ -74,16 +74,16 @@ class MainActivity : BaseActivity() {
         // Nothing to be done yet in that case
         bottomNavigationView.setOnNavigationItemReselectedListener {}
 
-        model.databaseLoaded.observe(this) {
-            if (savedInstanceState == null) {
-                bottomNavigationView.selectedItemId =
-                    if (prefHelper.launchToOverview()) R.id.nav_overview else R.id.nav_browser
-            } else {
-                showFragmentForSelectedNavigationItem(bottomNavigationView.selectedItemId)
+        model.databaseLoaded.observe(this) { databaseLoaded ->
+            if (databaseLoaded) {
+                if (savedInstanceState == null) {
+                    bottomNavigationView.selectedItemId =
+                        if (prefHelper.launchToOverview()) R.id.nav_overview else R.id.nav_browser
+                } else {
+                    showFragmentForSelectedNavigationItem(bottomNavigationView.selectedItemId)
+                }
             }
         }
-
-
     }
 
     fun setupBottomAppBar() {
