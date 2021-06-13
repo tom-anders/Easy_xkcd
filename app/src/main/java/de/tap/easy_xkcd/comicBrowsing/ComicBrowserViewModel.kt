@@ -43,5 +43,6 @@ class ComicBrowserViewModel @Inject constructor(
         selectedComic = number
         prefHelper.lastComic = number
         _isFavorite.value = model.isFavorite(number)
+        model.setRead(number, true)
     }
 }
