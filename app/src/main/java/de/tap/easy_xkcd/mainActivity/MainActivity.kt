@@ -1,6 +1,7 @@
 package de.tap.easy_xkcd.mainActivity
 
 import android.app.ProgressDialog
+import android.content.Intent
 import android.content.res.ColorStateList
 import android.graphics.Color
 import android.os.Bundle
@@ -18,6 +19,7 @@ import com.tap.xkcd_reader.R
 import com.tap.xkcd_reader.databinding.ActivityMainBinding
 import dagger.hilt.android.AndroidEntryPoint
 import de.tap.easy_xkcd.Activities.BaseActivity
+import de.tap.easy_xkcd.Activities.SettingsActivity
 import de.tap.easy_xkcd.comicBrowsing.ComicBrowserFragment
 import de.tap.easy_xkcd.whatIfOverview.WhatIfOverviewFragment
 import timber.log.Timber
@@ -161,8 +163,12 @@ class MainActivity : BaseActivity() {
         return true
     }
 
-    override fun onOptionsItemSelected(item: MenuItem): Boolean {
-        //TODO
-        return super.onOptionsItemSelected(item)
+    override fun onOptionsItemSelected(item: MenuItem) = when (item.itemId) {
+        R.id.action_settings -> {
+            //TODO should be startActivityForResult
+            startActivity(Intent(this, SettingsActivity::class.java))
+            true
+        }
+        else -> super.onOptionsItemSelected(item)
     }
 }
