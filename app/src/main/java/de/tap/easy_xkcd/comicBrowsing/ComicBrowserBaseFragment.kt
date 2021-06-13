@@ -14,10 +14,17 @@ import androidx.fragment.app.Fragment
 import androidx.swiperefreshlayout.widget.CircularProgressDrawable
 import androidx.viewpager.widget.PagerAdapter
 import androidx.viewpager.widget.ViewPager
+import com.bumptech.glide.load.DataSource
+import com.bumptech.glide.load.engine.GlideException
+import com.bumptech.glide.request.RequestListener
+import com.bumptech.glide.request.RequestOptions
+import com.bumptech.glide.request.target.Target
 import com.github.chrisbanes.photoview.PhotoView
 import com.tap.xkcd_reader.R
 import com.tap.xkcd_reader.databinding.PagerLayoutBinding
 import dagger.hilt.android.AndroidEntryPoint
+import de.tap.easy_xkcd.GlideApp
+import de.tap.easy_xkcd.GlideRequest
 import de.tap.easy_xkcd.database.RealmComic
 import de.tap.easy_xkcd.misc.HackyViewPager
 import de.tap.easy_xkcd.utils.PrefHelper
@@ -25,7 +32,7 @@ import de.tap.easy_xkcd.utils.ThemePrefs
 import java.util.*
 
 @AndroidEntryPoint
-abstract class ComicBrowserBaseFragment: Fragment() {
+abstract class ComicBrowserBaseFragment : Fragment() {
     private var _binding: PagerLayoutBinding? = null
     protected val binding get() = _binding!!
 
@@ -44,7 +51,12 @@ abstract class ComicBrowserBaseFragment: Fragment() {
         pager = binding.pager
         pager.offscreenPageLimit = 2
         pager.addOnPageChangeListener(object : ViewPager.OnPageChangeListener {
-            override fun onPageScrolled(position: Int, positionOffset: Float, positionOffsetPixels: Int) {}
+            override fun onPageScrolled(
+                position: Int,
+                positionOffset: Float,
+                positionOffsetPixels: Int
+            ) {
+            }
 
             override fun onPageSelected(position: Int) {
                 pageSelected(position)
@@ -79,7 +91,10 @@ abstract class ComicBrowserBaseFragment: Fragment() {
             container.removeView(obj as RelativeLayout)
         }
 
-        abstract fun loadComicImage(comic: RealmComic, photoView: PhotoView)
+        abstract fun addLoadToRequest(
+            request: GlideRequest<Bitmap>,
+            comic: RealmComic
+        ): GlideRequest<Bitmap>
 
         @SuppressLint("SetTextI18n")
         override fun instantiateItem(container: ViewGroup, position: Int): Any {
@@ -92,9 +107,11 @@ abstract class ComicBrowserBaseFragment: Fragment() {
             val tvTitle: TextView = view.findViewById(R.id.tvTitle)
             val pvComic: PhotoView = view.findViewById(R.id.ivComic)
 
-            tvAlt.text = Html.fromHtml(Html.escapeHtml(comic.altText)) //TODO Get rid of the legacy alt text display
+            tvAlt.text =
+                Html.fromHtml(Html.escapeHtml(comic.altText)) //TODO Get rid of the legacy alt text display
             tvTitle.text = (if (prefHelper.subtitleEnabled()) "" else comic.comicNumber
-                .toString() + ": ") + Html.fromHtml(RealmComic.getInteractiveTitle(comic, activity)
+                .toString() + ": ") + Html.fromHtml(
+                RealmComic.getInteractiveTitle(comic, activity)
             )
 
             // Transition names used for shared element transitions to the Overview Fragment
@@ -102,7 +119,11 @@ abstract class ComicBrowserBaseFragment: Fragment() {
             pvComic.transitionName = "im" + comic.comicNumber
 
             activity?.let {
-                if (Arrays.binarySearch(it.resources.getIntArray(R.array.large_comics), position + 1) >= 0) {
+                if (Arrays.binarySearch(
+                        it.resources.getIntArray(R.array.large_comics),
+                        position + 1
+                    ) >= 0
+                ) {
                     pvComic.maximumScale = 15.0f
                 }
             }
@@ -119,13 +140,42 @@ abstract class ComicBrowserBaseFragment: Fragment() {
 
             //TODO setup tap/long tap/double tap listeners
 
-            loadComicImage(comic, pvComic)
+            addLoadToRequest(
+                GlideApp.with(this@ComicBrowserBaseFragment)
+                    .asBitmap()
+                    .apply(RequestOptions().placeholder(makeProgressDrawable())),
+                comic
+            ).listener(object : RequestListener<Bitmap?> {
+                override fun onLoadFailed(
+                    e: GlideException?,
+                    model: Any,
+                    target: Target<Bitmap?>,
+                    isFirstResource: Boolean
+                ): Boolean {
+                    postImageLoaded(comic.comicNumber)
+                    return false
+                }
+
+                override fun onResourceReady(
+                    resource: Bitmap?,
+                    model: Any,
+                    target: Target<Bitmap?>,
+                    dataSource: DataSource,
+                    isFirstResource: Boolean
+                ): Boolean {
+                    resource?.let {
+                        setupPhotoViewWhenImageLoaded(pvComic, resource, comic)
+                        postImageLoaded(comic.comicNumber)
+                    }
+                    return false
+                }
+            }).into(pvComic)
 
             container.addView(view)
             return view
         }
 
-        fun makeProgressDrawable() = CircularProgressDrawable(requireActivity()).apply {
+        private fun makeProgressDrawable() = CircularProgressDrawable(requireActivity()).apply {
             strokeWidth = 5.0f
             centerRadius = 100.0f
             setColorSchemeColors(if (themePrefs.nightThemeEnabled()) themePrefs.accentColorNight else themePrefs.accentColor)
@@ -144,10 +194,10 @@ abstract class ComicBrowserBaseFragment: Fragment() {
             ) photoView.clearColorFilter()
 
 //            if (!transitionPending) {
-                photoView.setAlpha(0f)
-                photoView.animate()
-                    .alpha(1f)
-                    .setDuration(300)
+            photoView.setAlpha(0f)
+            photoView.animate()
+                .alpha(1f)
+                .setDuration(300)
 //            }
         }
     }

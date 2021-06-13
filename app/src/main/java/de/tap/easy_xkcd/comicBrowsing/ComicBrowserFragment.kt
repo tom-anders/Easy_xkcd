@@ -16,6 +16,7 @@ import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.tap.xkcd_reader.R
 import dagger.hilt.android.AndroidEntryPoint
 import de.tap.easy_xkcd.GlideApp
+import de.tap.easy_xkcd.GlideRequest
 import de.tap.easy_xkcd.database.RealmComic
 import timber.log.Timber
 
@@ -54,38 +55,16 @@ class ComicBrowserFragment : ComicBrowserBaseFragment() {
     }
 
     inner class ComicBrowserAdapter(comics: List<RealmComic>) : ComicBaseAdapter(comics) {
-        override fun loadComicImage(comic: RealmComic, photoView: PhotoView) {
-            GlideApp.with(this@ComicBrowserFragment)
-                .asBitmap()
-                .apply(RequestOptions().placeholder(makeProgressDrawable()))
-                .load(comic.url)
-                .listener(object : RequestListener<Bitmap?> {
-                    override fun onLoadFailed(
-                        e: GlideException?,
-                        model: Any,
-                        target: Target<Bitmap?>,
-                        isFirstResource: Boolean
-                    ): Boolean {
-                        postImageLoaded(comic.comicNumber)
-                        return false
-                    }
-
-                    override fun onResourceReady(
-                        resource: Bitmap?,
-                        model: Any,
-                        target: Target<Bitmap?>,
-                        dataSource: DataSource,
-                        isFirstResource: Boolean
-                    ): Boolean {
-                        resource?.let {
-                            setupPhotoViewWhenImageLoaded(photoView, resource, comic)
-                            postImageLoaded(comic.comicNumber)
-                        }
-                        return false
-                    }
-                })
-                .into(photoView)
-        }
+        override fun addLoadToRequest(
+            request: GlideRequest<Bitmap>,
+            comic: RealmComic
+        ) = if (comic.isOffline) request.load(
+            RealmComic.getOfflineBitmap(
+                comic.comicNumber,
+                context,
+                prefHelper
+            )
+        ) else request.load(comic.url)
     }
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean =
