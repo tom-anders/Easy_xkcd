@@ -8,7 +8,7 @@ import dagger.hilt.android.components.ViewModelComponent
 import dagger.hilt.android.qualifiers.ApplicationContext
 import de.tap.easy_xkcd.database.DatabaseManager
 import de.tap.easy_xkcd.database.RealmComic
-import de.tap.easy_xkcd.utils.PrefHelper
+import de.tap.easy_xkcd.utils.*
 import io.realm.Realm
 import io.realm.Sort
 import kotlinx.coroutines.*
@@ -35,6 +35,10 @@ interface ComicDatabaseModel {
 
     fun toggleFavorite(number: Int)
 
+    fun isRead(number: Int): Boolean
+
+    fun setRead(number: Int, isRead: Boolean)
+
     fun getRandomComic(): Int
 }
 
@@ -48,31 +52,44 @@ class ComicDatabaseModelImpl @Inject constructor(
     private val client = OkHttpClient()
 
     override fun getRandomComic(): Int {
-        return Random.nextInt(Realm.getDefaultInstance().where(RealmComic::class.java).findAll().size)
+        return Random.nextInt(returnWithRealm { it.where(RealmComic::class.java).findAll().size })
     }
 
-    override fun getAllComics(): List<RealmComic> {
-        val realm = Realm.getDefaultInstance()
-        return realm.copyFromRealm(
-            realm.where(RealmComic::class.java).findAllSorted("comicNumber", Sort.ASCENDING)
-        )
+    override fun getAllComics(): List<RealmComic> = copyResultsFromRealm {
+        it.where(RealmComic::class.java).findAllSorted("comicNumber", Sort.ASCENDING)
     }
 
-    override fun isFavorite(number: Int): Boolean {
-        return Realm.getDefaultInstance().where(RealmComic::class.java)
-            .equalTo("comicNumber", number).findFirst().isFavorite
+    private fun getComic(comicNumber: Int, realm: Realm): RealmComic? =
+        realm.where(RealmComic::class.java).equalTo("comicNumber", comicNumber).findFirst()
+
+    override fun isFavorite(number: Int) = returnWithRealm {
+        getComic(number, it)?.isFavorite == true
     }
 
     override fun toggleFavorite(number: Int) {
-        val realm = Realm.getDefaultInstance()
-        realm.where(RealmComic::class.java).equalTo("comicNumber", number).findFirst()
-            .let { comic ->
+        doWithRealm { realm ->
+            getComic(number, realm)?.let { comic ->
                 realm.executeTransaction {
                     comic.isFavorite = !comic.isFavorite
                     realm.copyToRealmOrUpdate(comic)
                 }
             }
-        realm.close()
+        }
+    }
+
+    override fun isRead(number: Int) = returnWithRealm {
+        getComic(number, it)?.isRead == true
+    }
+
+    override fun setRead(number: Int, isRead: Boolean) {
+        doWithRealm { realm ->
+            getComic(number, realm)?.let { comic ->
+                realm.executeTransaction {
+                    comic.isRead = isRead
+                    realm.copyToRealmOrUpdate(comic)
+                }
+            }
+        }
     }
 
     override suspend fun findNewestComic(): Int = withContext(Dispatchers.IO) {
@@ -83,10 +100,10 @@ class ComicDatabaseModelImpl @Inject constructor(
         newestComic: Int,
         comicSavedCallback: () -> Unit
     ) {
-        val comicsToDownload = (1..newestComic).map {
-            val realm = Realm.getDefaultInstance()
-            val comic = realm.where(RealmComic::class.java).equalTo("comicNumber", it).findFirst()
-            Pair(it, if (comic != null) realm.copyFromRealm(comic) else null)
+        val comicsToDownload = (1..newestComic).map { number ->
+            Pair(number, copyFromRealm { realm ->
+                getComic(number, realm)
+            })
         }.filter {
             // If a comic does not exists in the database at all (i.e. if the realm query returned null)
             // we have to download it in any case.
@@ -104,11 +121,10 @@ class ComicDatabaseModelImpl @Inject constructor(
                     } else {
                         it.value
                     }
-                    comic?.let { downloadOfflineData(it) }
-
-                    val realm = Realm.getDefaultInstance()
-                    realm.executeTransaction { realm.copyToRealmOrUpdate(comic) }
-                    realm.close()
+                    comic?.let {
+                        downloadOfflineData(it)
+                        copyToRealmOrUpdate(it)
+                    }
 
                     comicSavedCallback()
                 }
