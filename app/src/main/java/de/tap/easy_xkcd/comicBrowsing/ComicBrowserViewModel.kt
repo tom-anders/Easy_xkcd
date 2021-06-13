@@ -1,15 +1,12 @@
 package de.tap.easy_xkcd.comicBrowsing
 
-import android.app.Application
 import android.content.Context
-import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import dagger.hilt.android.lifecycle.HiltViewModel
 import dagger.hilt.android.qualifiers.ApplicationContext
 import de.tap.easy_xkcd.utils.PrefHelper
-import timber.log.Timber
 import javax.inject.Inject
 
 @HiltViewModel
@@ -26,6 +23,16 @@ class ComicBrowserViewModel @Inject constructor(
 
     var selectedComic: Int = prefHelper.lastComic
         private set
+
+    private var comicBeforeLastRandom: Int? = null
+    fun getNextRandomComic(): Int {
+        comicBeforeLastRandom = selectedComic
+        return model.getRandomComic()
+    }
+
+    fun getPreviousRandomComic(): Int? {
+        return comicBeforeLastRandom
+    }
 
     fun toggleFavorite() {
         model.toggleFavorite(selectedComic)

@@ -20,6 +20,7 @@ import timber.log.Timber
 import java.lang.Exception
 import javax.inject.Inject
 import javax.inject.Singleton
+import kotlin.random.Random
 
 interface ComicDatabaseModel {
     suspend fun findNewestComic(): Int
@@ -33,6 +34,8 @@ interface ComicDatabaseModel {
     fun isFavorite(number: Int): Boolean
 
     fun toggleFavorite(number: Int)
+
+    fun getRandomComic(): Int
 }
 
 @Singleton
@@ -44,8 +47,8 @@ class ComicDatabaseModelImpl @Inject constructor(
 
     private val client = OkHttpClient()
 
-    init {
-        Timber.d("hello there")
+    override fun getRandomComic(): Int {
+        return Random.nextInt(Realm.getDefaultInstance().where(RealmComic::class.java).findAll().size)
     }
 
     override fun getAllComics(): List<RealmComic> {

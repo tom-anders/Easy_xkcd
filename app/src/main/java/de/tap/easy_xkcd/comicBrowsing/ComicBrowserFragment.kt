@@ -12,6 +12,7 @@ import com.bumptech.glide.request.RequestListener
 import com.bumptech.glide.request.RequestOptions
 import com.bumptech.glide.request.target.Target
 import com.github.chrisbanes.photoview.PhotoView
+import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.tap.xkcd_reader.R
 import dagger.hilt.android.AndroidEntryPoint
 import de.tap.easy_xkcd.GlideApp
@@ -32,6 +33,18 @@ class ComicBrowserFragment : ComicBrowserBaseFragment() {
 
         pager.adapter = ComicBrowserAdapter(model.comics)
         pager.currentItem = model.selectedComic - 1
+
+        activity?.findViewById<FloatingActionButton>(R.id.fab)?.apply {
+            //TODO add back tooltip about the longpress when the button is pressed the first time
+            setOnClickListener { pager.setCurrentItem(model.getNextRandomComic() - 1, false) }
+
+            setOnLongClickListener {
+                model.getPreviousRandomComic()?.let {
+                    pager.setCurrentItem(it - 1, false)
+                }
+                true
+            }
+        }
 
         return view
     }
