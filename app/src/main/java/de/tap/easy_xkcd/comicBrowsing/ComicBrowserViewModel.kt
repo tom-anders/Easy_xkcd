@@ -24,6 +24,8 @@ class ComicBrowserViewModel @Inject constructor(
     var selectedComic: Int = prefHelper.lastComic
         private set
 
+    fun getDisplayedComic() = comics.getOrNull(selectedComic - 1)
+
     private var comicBeforeLastRandom: Int? = null
     fun getNextRandomComic(): Int {
         comicBeforeLastRandom = selectedComic

@@ -1,6 +1,8 @@
 package de.tap.easy_xkcd.comicBrowsing
 
 import android.content.Context
+import android.net.Uri
+import androidx.core.content.FileProvider
 import dagger.Binds
 import dagger.Module
 import dagger.hilt.InstallIn
@@ -17,6 +19,7 @@ import okhttp3.Request
 import org.json.JSONException
 import org.json.JSONObject
 import timber.log.Timber
+import java.io.File
 import java.lang.Exception
 import javax.inject.Inject
 import javax.inject.Singleton
@@ -28,6 +31,7 @@ interface ComicDatabaseModel {
         newestComic: Int,
         comicSavedCallback: () -> Unit
     )
+    suspend fun getUriForSharing(comic: RealmComic): Uri
 
     fun getAllComics(): List<RealmComic>
 
@@ -184,6 +188,16 @@ class ComicDatabaseModelImpl @Inject constructor(
 
             comic.isOffline = true
         }
+    }
+
+    override suspend fun getUriForSharing(comic: RealmComic): Uri = withContext(Dispatchers.IO) {
+        if (!RealmComic.isOfflineComicAlreadyDownloaded(comic.comicNumber, prefHelper, context)) {
+            RealmComic.saveOfflineBitmap(
+                OkHttpClient().newCall(Request.Builder().url(comic.url).build()).execute(),
+                prefHelper, comic.comicNumber, context
+            )
+        }
+        FileProvider.getUriForFile(context, "de.tap.easy_xkcd.fileProvider", File(prefHelper.getOfflinePath(context), "${comic.comicNumber}.png"))
     }
 }
 

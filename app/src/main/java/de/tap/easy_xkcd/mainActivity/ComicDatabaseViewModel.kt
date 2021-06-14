@@ -1,13 +1,17 @@
 package de.tap.easy_xkcd.mainActivity
 
 import android.app.Application
+import android.content.Context
+import android.net.Uri
 import androidx.lifecycle.*
 import dagger.hilt.android.lifecycle.HiltViewModel
 import de.tap.easy_xkcd.comicBrowsing.ComicDatabaseModel
 import de.tap.easy_xkcd.database.RealmComic
 import de.tap.easy_xkcd.utils.PrefHelper
 import de.tap.easy_xkcd.utils.SingleLiveEvent
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import timber.log.Timber
 import javax.inject.Inject
 import kotlin.properties.Delegates
@@ -50,8 +54,9 @@ class ComicDatabaseViewModel @Inject constructor(
 
             _progress.value = null
 
-            Timber.d("comics: Loaded!")
             _databaseLoaded.value = true
         }
     }
+
+    suspend fun getUriForSharing(comic: RealmComic) = model.getUriForSharing(comic)
 }

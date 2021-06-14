@@ -54,6 +54,8 @@ class ComicBrowserFragment : ComicBrowserBaseFragment() {
         model.comicSelected(position + 1)
     }
 
+    override fun getDisplayedComic(): RealmComic? = model.getDisplayedComic()
+
     inner class ComicBrowserAdapter(comics: List<RealmComic>) : ComicBaseAdapter(comics) {
         override fun addLoadToRequest(
             request: GlideRequest<Bitmap>,

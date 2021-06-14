@@ -1,6 +1,8 @@
 package de.tap.easy_xkcd.comicBrowsing
 
 import android.annotation.SuppressLint
+import android.app.AlertDialog
+import android.content.Intent
 import android.graphics.Bitmap
 import android.graphics.Color
 import android.os.Bundle
@@ -11,6 +13,8 @@ import android.widget.RelativeLayout
 import android.widget.TextView
 import androidx.core.view.MenuCompat
 import androidx.fragment.app.Fragment
+import androidx.fragment.app.activityViewModels
+import androidx.lifecycle.lifecycleScope
 import androidx.swiperefreshlayout.widget.CircularProgressDrawable
 import androidx.viewpager.widget.PagerAdapter
 import androidx.viewpager.widget.ViewPager
@@ -26,9 +30,11 @@ import dagger.hilt.android.AndroidEntryPoint
 import de.tap.easy_xkcd.GlideApp
 import de.tap.easy_xkcd.GlideRequest
 import de.tap.easy_xkcd.database.RealmComic
+import de.tap.easy_xkcd.mainActivity.ComicDatabaseViewModel
 import de.tap.easy_xkcd.misc.HackyViewPager
 import de.tap.easy_xkcd.utils.PrefHelper
 import de.tap.easy_xkcd.utils.ThemePrefs
+import kotlinx.coroutines.launch
 import java.util.*
 
 @AndroidEntryPoint
@@ -40,6 +46,8 @@ abstract class ComicBrowserBaseFragment : Fragment() {
 
     protected lateinit var prefHelper: PrefHelper
     protected lateinit var themePrefs: ThemePrefs
+
+    protected val databaseModel: ComicDatabaseViewModel by activityViewModels()
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -71,11 +79,6 @@ abstract class ComicBrowserBaseFragment : Fragment() {
         themePrefs = ThemePrefs(activity)
 
         return binding.root
-    }
-
-    override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
-        MenuCompat.setGroupDividerEnabled(menu, true)
-        super.onCreateOptionsMenu(menu, inflater)
     }
 
     abstract fun pageSelected(position: Int)
@@ -202,5 +205,59 @@ abstract class ComicBrowserBaseFragment : Fragment() {
         }
     }
 
+    abstract fun getDisplayedComic(): RealmComic?
+
+    override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
+        MenuCompat.setGroupDividerEnabled(menu, true)
+        super.onCreateOptionsMenu(menu, inflater)
+    }
+
+    override fun onOptionsItemSelected(item: MenuItem) =
+        when (item.itemId) {
+            R.id.action_share -> {
+                AlertDialog.Builder(activity).setItems(R.array.share_dialog) { _, which ->
+                    getDisplayedComic()?.let {
+                        when (which) {
+                            0 -> lifecycleScope.launch { shareComicImage(it) }
+                            1 -> shareComicUrl(it)
+                        }
+                    }
+                }.create().show()
+                true
+            }
+            else -> super.onOptionsItemSelected(item)
+        }
+
+    private fun shareComicImage(comic: RealmComic) {
+        lifecycleScope.launch {
+            val share = Intent(Intent.ACTION_SEND).apply {
+                type = "image/*"
+                putExtra(Intent.EXTRA_STREAM, databaseModel.getUriForSharing(comic))
+                putExtra(Intent.EXTRA_SUBJECT, comic.title)
+            }
+
+            var extraText = comic.title
+            if (prefHelper.shareAlt()) {
+                extraText += "\n" + comic.altText
+            }
+            if (prefHelper.includeLink()) {
+                extraText += "https://${if (prefHelper.shareMobile()) "m." else ""}xkcd.com/${comic.comicNumber}/"
+            }
+            share.putExtra(Intent.EXTRA_TEXT, extraText)
+
+            startActivity(Intent.createChooser(share, resources.getString(R.string.share_image)))
+        }
+    }
+
+    private fun shareComicUrl(comic: RealmComic) {
+        startActivity(Intent.createChooser(Intent(Intent.ACTION_SEND).apply {
+            type = "text/plain"
+            putExtra(Intent.EXTRA_SUBJECT, comic.title)
+            putExtra(
+                Intent.EXTRA_TEXT,
+                " https://" + (if (prefHelper.shareMobile()) "m." else "") + "xkcd.com/" + comic.comicNumber + "/"
+            )
+        }, resources.getString(R.string.share_url)))
+    }
 
 }
