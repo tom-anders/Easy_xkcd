@@ -12,7 +12,6 @@ import android.widget.ImageView
 import android.widget.RelativeLayout
 import android.widget.TextView
 import androidx.core.view.MenuCompat
-import androidx.core.view.size
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.lifecycleScope
@@ -226,6 +225,10 @@ abstract class ComicBrowserBaseFragment : Fragment() {
                 }.create().show()
                 true
             }
+            R.id.action_trans -> {
+                getDisplayedComic()?.let { showTranscript(it) }
+                true
+            }
             else -> super.onOptionsItemSelected(item)
         }
 
@@ -261,4 +264,11 @@ abstract class ComicBrowserBaseFragment : Fragment() {
         }, resources.getString(R.string.share_url)))
     }
 
+    protected fun showTranscript(comic: RealmComic) {
+        activity?.let {
+            androidx.appcompat.app.AlertDialog.Builder(it)
+                .setMessage(if (comic.comicNumber >= 1675) resources.getString(R.string.no_transcript) else comic.transcript)
+                .show()
+        }
+    }
 }
