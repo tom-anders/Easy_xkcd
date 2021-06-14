@@ -7,6 +7,7 @@ import android.graphics.Bitmap
 import android.graphics.Color
 import android.net.Uri
 import android.os.Bundle
+import android.os.Parcelable
 import android.text.Html
 import android.view.*
 import android.widget.ImageView
@@ -39,6 +40,7 @@ import de.tap.easy_xkcd.misc.HackyViewPager
 import de.tap.easy_xkcd.utils.PrefHelper
 import de.tap.easy_xkcd.utils.ThemePrefs
 import kotlinx.coroutines.launch
+import timber.log.Timber
 import java.util.*
 
 @AndroidEntryPoint
@@ -237,8 +239,69 @@ abstract class ComicBrowserBaseFragment : Fragment() {
                 getDisplayedComic()?.let { explainComic(it) }
                 true
             }
+            R.id.action_browser -> {
+                getDisplayedComic()?.let { openInBrowser(it) }
+                true
+            }
             else -> super.onOptionsItemSelected(item)
         }
+
+    private fun openInBrowser(comic: RealmComic) {
+        // We open the mobile site (m.xkcd.com) by default
+        // For interactive comics we use the desktop since it has better support for some interactive comics
+
+        activity?.let { activity ->
+            val intent = Intent(
+                Intent.ACTION_VIEW, Uri.parse(
+                    "https://"
+                            + (if (RealmComic.isInteractiveComic(
+                            comic.comicNumber,
+                            activity
+                        )
+                    ) "" else "m.")
+                            + "xkcd.com/" + comic.comicNumber
+                )
+            )
+
+            // Since the app also handles xkcd intents, we need to exxlude it from the intent chooser
+            // Code adapted from https://codedogg.wordpress.com/2018/11/09/how-to-exclude-your-own-activity-from-activity-startactivityintent-chooser/
+            val packageManager = activity.packageManager
+            val possibleIntents: MutableList<Intent> = ArrayList()
+
+            val possiblePackageNames: MutableSet<String> = HashSet()
+            for (resolveInfo in packageManager.queryIntentActivities(intent, 0)) {
+                val packageName = resolveInfo.activityInfo.packageName
+                if (packageName != activity.packageName) {
+                    val possibleIntent = Intent(intent)
+                    possibleIntent.setPackage(resolveInfo.activityInfo.packageName)
+                    possiblePackageNames.add(resolveInfo.activityInfo.packageName)
+                    possibleIntents.add(possibleIntent)
+                }
+            }
+
+            val defaultResolveInfo = packageManager.resolveActivity(intent, 0)
+
+            if (defaultResolveInfo == null || possiblePackageNames.isEmpty()) {
+                Timber.e("No browser found!")
+                return
+            }
+
+            // If there is a default app to handle the intent (which is not this app), use it.
+            if (possiblePackageNames.contains(defaultResolveInfo.activityInfo.packageName)) {
+                activity.startActivity(intent)
+            } else { // Otherwise, let the user choose.
+                val intentChooser = Intent.createChooser(
+                    possibleIntents.removeAt(0),
+                    activity.resources.getString(R.string.chooser_title)
+                )
+                intentChooser.putExtra(
+                    Intent.EXTRA_INITIAL_INTENTS,
+                    possibleIntents.toTypedArray()
+                )
+                activity.startActivity(intentChooser)
+            }
+        }
+    }
 
     private fun explainComic(comic: RealmComic) {
         val url = "https://explainxkcd.com/${comic.comicNumber}"
