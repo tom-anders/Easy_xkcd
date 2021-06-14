@@ -31,6 +31,7 @@ interface ComicDatabaseModel {
         newestComic: Int,
         comicSavedCallback: () -> Unit
     )
+
     suspend fun getUriForSharing(comic: RealmComic): Uri
 
     fun getAllComics(): List<RealmComic>
@@ -44,6 +45,9 @@ interface ComicDatabaseModel {
     fun setRead(number: Int, isRead: Boolean)
 
     fun getRandomComic(): Int
+
+    suspend fun getRedditThread(comic: RealmComic): String
+
 }
 
 @Singleton
@@ -94,6 +98,12 @@ class ComicDatabaseModelImpl @Inject constructor(
                 }
             }
         }
+    }
+
+    override suspend fun getRedditThread(comic: RealmComic) = withContext(Dispatchers.IO) {
+        "https://www.reddit.com" + JsonParser.getJSONFromUrl("https://www.reddit.com/r/xkcd/search.json?q=" + comic.title + "&restrict_sr=on")
+            .getJSONObject("data")
+            .getJSONArray("children").getJSONObject(0).getJSONObject("data").getString("permalink")
     }
 
     override suspend fun findNewestComic(): Int = withContext(Dispatchers.IO) {
@@ -197,7 +207,11 @@ class ComicDatabaseModelImpl @Inject constructor(
                 prefHelper, comic.comicNumber, context
             )
         }
-        FileProvider.getUriForFile(context, "de.tap.easy_xkcd.fileProvider", File(prefHelper.getOfflinePath(context), "${comic.comicNumber}.png"))
+        FileProvider.getUriForFile(
+            context,
+            "de.tap.easy_xkcd.fileProvider",
+            File(prefHelper.getOfflinePath(context), "${comic.comicNumber}.png")
+        )
     }
 }
 

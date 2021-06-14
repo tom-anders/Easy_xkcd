@@ -13,6 +13,7 @@ import android.view.*
 import android.widget.ImageView
 import android.widget.RelativeLayout
 import android.widget.TextView
+import android.widget.Toast
 import androidx.browser.customtabs.CustomTabsIntent
 import androidx.core.view.MenuCompat
 import androidx.fragment.app.Fragment
@@ -39,7 +40,9 @@ import de.tap.easy_xkcd.mainActivity.ComicDatabaseViewModel
 import de.tap.easy_xkcd.misc.HackyViewPager
 import de.tap.easy_xkcd.utils.PrefHelper
 import de.tap.easy_xkcd.utils.ThemePrefs
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import timber.log.Timber
 import java.util.*
 
@@ -243,8 +246,31 @@ abstract class ComicBrowserBaseFragment : Fragment() {
                 getDisplayedComic()?.let { openInBrowser(it) }
                 true
             }
+            R.id.action_thread -> {
+                getDisplayedComic()?.let { openRedditThread(it) }
+                true
+            }
             else -> super.onOptionsItemSelected(item)
         }
+
+    private fun openRedditThread(comic: RealmComic) {
+        lifecycleScope.launch {
+            //TODO model should show the progress here
+            val url = databaseModel.getRedditThread(comic)
+
+            withContext(Dispatchers.Main) {
+                if (url == "" && activity != null) {
+                    Toast.makeText(
+                        activity,
+                        resources.getString(R.string.thread_not_found),
+                        Toast.LENGTH_SHORT
+                    ).show()
+                } else {
+                    startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(url)))
+                }
+            }
+        }
+    }
 
     private fun openInBrowser(comic: RealmComic) {
         // We open the mobile site (m.xkcd.com) by default

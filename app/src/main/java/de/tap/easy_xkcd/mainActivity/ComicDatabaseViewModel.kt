@@ -1,20 +1,17 @@
 package de.tap.easy_xkcd.mainActivity
 
 import android.app.Application
-import android.content.Context
-import android.net.Uri
-import androidx.lifecycle.*
+import androidx.lifecycle.AndroidViewModel
+import androidx.lifecycle.LiveData
+import androidx.lifecycle.MutableLiveData
+import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
 import de.tap.easy_xkcd.comicBrowsing.ComicDatabaseModel
 import de.tap.easy_xkcd.database.RealmComic
 import de.tap.easy_xkcd.utils.PrefHelper
 import de.tap.easy_xkcd.utils.SingleLiveEvent
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
-import timber.log.Timber
 import javax.inject.Inject
-import kotlin.properties.Delegates
 
 @HiltViewModel
 class ComicDatabaseViewModel @Inject constructor(
@@ -59,4 +56,6 @@ class ComicDatabaseViewModel @Inject constructor(
     }
 
     suspend fun getUriForSharing(comic: RealmComic) = model.getUriForSharing(comic)
+
+    suspend fun getRedditThread(comic: RealmComic) = model.getRedditThread(comic)
 }
