@@ -75,6 +75,10 @@ class ComicBrowserFragment : ComicBrowserBaseFragment() {
                 model.toggleFavorite()
                 true
             }
+            R.id.action_latest -> {
+                pager.setCurrentItem(model.comics.size - 1, false)
+                true
+            }
             else -> {
                 super.onOptionsItemSelected(item)
             }
