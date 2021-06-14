@@ -5,12 +5,14 @@ import android.app.AlertDialog
 import android.content.Intent
 import android.graphics.Bitmap
 import android.graphics.Color
+import android.net.Uri
 import android.os.Bundle
 import android.text.Html
 import android.view.*
 import android.widget.ImageView
 import android.widget.RelativeLayout
 import android.widget.TextView
+import androidx.browser.customtabs.CustomTabsIntent
 import androidx.core.view.MenuCompat
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
@@ -27,6 +29,8 @@ import com.github.chrisbanes.photoview.PhotoView
 import com.tap.xkcd_reader.R
 import com.tap.xkcd_reader.databinding.PagerLayoutBinding
 import dagger.hilt.android.AndroidEntryPoint
+import de.tap.easy_xkcd.CustomTabHelpers.BrowserFallback
+import de.tap.easy_xkcd.CustomTabHelpers.CustomTabActivityHelper
 import de.tap.easy_xkcd.GlideApp
 import de.tap.easy_xkcd.GlideRequest
 import de.tap.easy_xkcd.database.RealmComic
@@ -229,8 +233,28 @@ abstract class ComicBrowserBaseFragment : Fragment() {
                 getDisplayedComic()?.let { showTranscript(it) }
                 true
             }
+            R.id.action_explain -> {
+                getDisplayedComic()?.let { explainComic(it) }
+                true
+            }
             else -> super.onOptionsItemSelected(item)
         }
+
+    private fun explainComic(comic: RealmComic) {
+        val url = "https://explainxkcd.com/${comic.comicNumber}"
+        if (prefHelper.useCustomTabs()) {
+            CustomTabActivityHelper.openCustomTab(
+                activity,
+                CustomTabsIntent.Builder()
+                    .setToolbarColor(themePrefs.getPrimaryColor(false))
+                    .build(),
+                Uri.parse(url),
+                BrowserFallback()
+            )
+        } else {
+            startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(url)))
+        }
+    }
 
     private fun shareComicImage(comic: RealmComic) {
         lifecycleScope.launch {

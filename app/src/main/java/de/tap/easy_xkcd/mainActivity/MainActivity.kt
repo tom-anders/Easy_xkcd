@@ -12,7 +12,6 @@ import androidx.appcompat.widget.Toolbar
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentTransaction
-import androidx.fragment.app.activityViewModels
 import com.google.android.material.bottomappbar.BottomAppBar
 import com.google.android.material.bottomnavigation.BottomNavigationView
 import com.tap.xkcd_reader.R
@@ -20,9 +19,9 @@ import com.tap.xkcd_reader.databinding.ActivityMainBinding
 import dagger.hilt.android.AndroidEntryPoint
 import de.tap.easy_xkcd.Activities.BaseActivity
 import de.tap.easy_xkcd.Activities.SettingsActivity
+import de.tap.easy_xkcd.CustomTabHelpers.CustomTabActivityHelper
 import de.tap.easy_xkcd.comicBrowsing.ComicBrowserFragment
 import de.tap.easy_xkcd.whatIfOverview.WhatIfOverviewFragment
-import timber.log.Timber
 
 @AndroidEntryPoint
 class MainActivity : BaseActivity() {
@@ -35,6 +34,8 @@ class MainActivity : BaseActivity() {
     private lateinit var toolbar: Toolbar
 
     private lateinit var progress: ProgressDialog
+
+    private var customTabActivityHelper = CustomTabActivityHelper()
 
     val model: ComicDatabaseViewModel by viewModels()
 
@@ -58,7 +59,6 @@ class MainActivity : BaseActivity() {
         model.foundNewComic.observe(this) {
             //TODO show snackbar here or maybe observe this in the fragments instead
         }
-
 
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
@@ -171,4 +171,15 @@ class MainActivity : BaseActivity() {
         }
         else -> super.onOptionsItemSelected(item)
     }
+
+    override fun onStart() {
+        super.onStart()
+        customTabActivityHelper.bindCustomTabsService(this)
+    }
+
+    override fun onStop() {
+        super.onStop()
+        customTabActivityHelper.unbindCustomTabsService(this)
+    }
+
 }
