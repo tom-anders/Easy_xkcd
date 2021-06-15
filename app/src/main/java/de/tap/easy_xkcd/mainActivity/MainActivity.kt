@@ -25,6 +25,7 @@ import de.tap.easy_xkcd.Activities.SettingsActivity
 import de.tap.easy_xkcd.CustomTabHelpers.CustomTabActivityHelper
 import de.tap.easy_xkcd.comicBrowsing.ComicBrowserFragment
 import de.tap.easy_xkcd.whatIfOverview.WhatIfOverviewFragment
+import timber.log.Timber
 
 @AndroidEntryPoint
 class MainActivity : BaseActivity() {
@@ -102,7 +103,15 @@ class MainActivity : BaseActivity() {
     }
 
     override fun onResume() {
-        toolbar.title = bottomNavigationView.menu.findItem(bottomNavigationView.selectedItemId)?.title
+        toolbar.title = if (model.databaseLoaded.value == false) {
+            bottomNavigationView.menu.findItem(if (prefHelper.launchToOverview()) {
+                R.id.nav_overview
+            } else {
+                R.id.nav_browser
+            })?.title
+        } else {
+            bottomNavigationView.menu.findItem(bottomNavigationView.selectedItemId)?.title
+        }
         super.onResume()
     }
 
