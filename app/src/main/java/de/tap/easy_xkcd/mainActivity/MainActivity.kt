@@ -179,6 +179,10 @@ class MainActivity : BaseActivity() {
     override fun onCreateOptionsMenu(menu: Menu?): Boolean {
         menuInflater.inflate(R.menu.menu_main, menu)
 
+        menu?.findItem(R.id.action_donate)?.isVisible = !prefHelper.hideDonate()
+        menu?.findItem(R.id.action_night_mode)?.isChecked = themePrefs.nightEnabledThemeIgnoreAutoNight()
+        menu?.findItem(R.id.action_night_mode)?.isVisible = !themePrefs.autoNightEnabled() && !themePrefs.useSystemNightTheme()
+
         return true
     }
 
@@ -187,7 +191,28 @@ class MainActivity : BaseActivity() {
             activityResultLauncher.launch(Intent(this, SettingsActivity::class.java))
             true
         }
+        R.id.action_night_mode -> {
+            toggleNightMode(item)
+        }
         else -> super.onOptionsItemSelected(item)
+    }
+
+    private fun toggleNightMode(item: MenuItem): Boolean {
+        item.isChecked = !item.isChecked
+        themePrefs.setNightThemeEnabled(item.isChecked)
+
+        val intent = intent
+        intent.addFlags(
+            Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_NEW_TASK
+                    or Intent.FLAG_ACTIVITY_NO_ANIMATION
+        )
+
+        overridePendingTransition(0, 0)
+        finish()
+        overridePendingTransition(0, 0)
+        startActivity(intent)
+
+        return true
     }
 
     override fun onStart() {
