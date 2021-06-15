@@ -49,6 +49,19 @@ class MainActivity : BaseActivity() {
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
+        toolbar = binding.toolbar.root
+        setupToolbar(toolbar)
+        supportActionBar?.setDisplayHomeAsUpEnabled(false)
+
+        setupBottomAppBar()
+
+        bottomNavigationView = binding.bottomNavigationView
+        bottomNavigationView.setOnNavigationItemSelectedListener {
+            showFragmentForSelectedNavigationItem(it)
+        }
+        // Nothing to be done yet in that case
+        bottomNavigationView.setOnNavigationItemReselectedListener {}
+
         progress = ProgressDialog(this)
         progress.setTitle(resources?.getString(R.string.update_database))
         progress.setProgressStyle(ProgressDialog.STYLE_HORIZONTAL)
@@ -66,19 +79,6 @@ class MainActivity : BaseActivity() {
         model.foundNewComic.observe(this) {
             //TODO show snackbar here or maybe observe this in the fragments instead
         }
-
-        toolbar = binding.toolbar.root
-        setupToolbar(toolbar)
-        supportActionBar?.setDisplayHomeAsUpEnabled(false)
-
-        setupBottomAppBar()
-
-        bottomNavigationView = binding.bottomNavigationView
-        bottomNavigationView.setOnNavigationItemSelectedListener {
-            showFragmentForSelectedNavigationItem(it)
-        }
-        // Nothing to be done yet in that case
-        bottomNavigationView.setOnNavigationItemReselectedListener {}
 
         model.databaseLoaded.observe(this) { databaseLoaded ->
             if (databaseLoaded) {
