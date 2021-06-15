@@ -22,6 +22,7 @@ import de.tap.easy_xkcd.Activities.SettingsActivity
 import de.tap.easy_xkcd.CustomTabHelpers.CustomTabActivityHelper
 import de.tap.easy_xkcd.comicBrowsing.ComicBrowserFragment
 import de.tap.easy_xkcd.whatIfOverview.WhatIfOverviewFragment
+import timber.log.Timber
 
 @AndroidEntryPoint
 class MainActivity : BaseActivity() {
@@ -71,7 +72,7 @@ class MainActivity : BaseActivity() {
 
         bottomNavigationView = binding.bottomNavigationView
         bottomNavigationView.setOnNavigationItemSelectedListener {
-            showFragmentForSelectedNavigationItem(it.itemId)
+            showFragmentForSelectedNavigationItem(it)
         }
         // Nothing to be done yet in that case
         bottomNavigationView.setOnNavigationItemReselectedListener {}
@@ -81,10 +82,32 @@ class MainActivity : BaseActivity() {
                 if (savedInstanceState == null) {
                     bottomNavigationView.selectedItemId =
                         if (prefHelper.launchToOverview()) R.id.nav_overview else R.id.nav_browser
-                } else {
-                    showFragmentForSelectedNavigationItem(bottomNavigationView.selectedItemId)
                 }
             }
+        }
+    }
+
+    override fun onResume() {
+        toolbar.title = bottomNavigationView.menu.findItem(bottomNavigationView.selectedItemId)?.title
+        super.onResume()
+    }
+
+    fun showFragmentForSelectedNavigationItem(item: MenuItem): Boolean {
+        toolbar.title = item.title
+        return when (item.itemId) {
+            R.id.nav_whatif -> {
+                showWhatIfFragment()
+            }
+            R.id.nav_browser -> {
+                showComicBrowserFragment()
+            }
+            R.id.nav_favorites -> {
+                showFavoritesFragment()
+            }
+            R.id.nav_overview -> {
+                showComicOverviewFragment()
+            }
+            else -> false
         }
     }
 
@@ -107,24 +130,6 @@ class MainActivity : BaseActivity() {
         }
 
     }
-
-    fun showFragmentForSelectedNavigationItem(itemId: Int): Boolean =
-        when (itemId) {
-            R.id.nav_whatif -> {
-                showWhatIfFragment()
-            }
-            R.id.nav_browser -> {
-                showComicBrowserFragment()
-            }
-            R.id.nav_favorites -> {
-                showFavoritesFragment()
-            }
-            R.id.nav_overview -> {
-                showComicOverviewFragment()
-            }
-
-            else -> false
-        }
 
     fun makeFragmentTransaction(fragment: Fragment): FragmentTransaction =
         supportFragmentManager.beginTransaction()
