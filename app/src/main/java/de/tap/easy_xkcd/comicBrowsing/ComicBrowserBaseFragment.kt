@@ -2,6 +2,7 @@ package de.tap.easy_xkcd.comicBrowsing
 
 import android.annotation.SuppressLint
 import android.app.AlertDialog
+import android.content.Context
 import android.content.Intent
 import android.graphics.Bitmap
 import android.graphics.Color
@@ -19,6 +20,9 @@ import androidx.browser.customtabs.CustomTabsIntent
 import androidx.core.view.MenuCompat
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
+import androidx.lifecycle.LiveData
+import androidx.lifecycle.MutableLiveData
+import androidx.lifecycle.ViewModel
 import androidx.lifecycle.lifecycleScope
 import androidx.swiperefreshlayout.widget.CircularProgressDrawable
 import androidx.viewpager.widget.PagerAdapter
@@ -32,6 +36,8 @@ import com.github.chrisbanes.photoview.PhotoView
 import com.tap.xkcd_reader.R
 import com.tap.xkcd_reader.databinding.PagerLayoutBinding
 import dagger.hilt.android.AndroidEntryPoint
+import dagger.hilt.android.lifecycle.HiltViewModel
+import dagger.hilt.android.qualifiers.ApplicationContext
 import de.tap.easy_xkcd.CustomTabHelpers.BrowserFallback
 import de.tap.easy_xkcd.CustomTabHelpers.CustomTabActivityHelper
 import de.tap.easy_xkcd.GlideApp
@@ -46,6 +52,7 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import timber.log.Timber
 import java.util.*
+import javax.inject.Inject
 
 @AndroidEntryPoint
 abstract class ComicBrowserBaseFragment : Fragment() {
@@ -58,6 +65,8 @@ abstract class ComicBrowserBaseFragment : Fragment() {
     protected lateinit var themePrefs: ThemePrefs
 
     protected val databaseModel: ComicDatabaseViewModel by activityViewModels()
+
+    protected abstract val model: ComicBrowserBaseViewModel
 
     override fun onCreateView(
         inflater: LayoutInflater,

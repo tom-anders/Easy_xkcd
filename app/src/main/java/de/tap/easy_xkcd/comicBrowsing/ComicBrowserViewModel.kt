@@ -10,20 +10,26 @@ import de.tap.easy_xkcd.database.RealmComic
 import de.tap.easy_xkcd.utils.PrefHelper
 import javax.inject.Inject
 
-@HiltViewModel
-class ComicBrowserViewModel @Inject constructor(
-    private val model: ComicDatabaseModel,
+abstract class ComicBrowserBaseViewModel constructor(
+    protected val model: ComicDatabaseModel,
     @ApplicationContext context: Context
 ) : ViewModel() {
-    private val prefHelper = PrefHelper(context)
+    protected val prefHelper = PrefHelper(context)
+
+    protected val _selectedComic = MutableLiveData<RealmComic>()
+    val selectedComic: LiveData<RealmComic> = _selectedComic
+}
+
+@HiltViewModel
+class ComicBrowserViewModel @Inject constructor(
+    model: ComicDatabaseModel,
+    @ApplicationContext context: Context
+) : ComicBrowserBaseViewModel(model, context) {
 
     val comics = model.getAllComics()
 
     private val _isFavorite = MutableLiveData<Boolean>()
     val isFavorite: LiveData<Boolean> = _isFavorite
-
-    private val _selectedComic = MutableLiveData<RealmComic>()
-    val selectedComic: LiveData<RealmComic> = _selectedComic
 
     init {
         _selectedComic.value = comics.getOrNull(prefHelper.lastComic - 1)

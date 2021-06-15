@@ -24,7 +24,7 @@ import timber.log.Timber
 @AndroidEntryPoint
 class ComicBrowserFragment : ComicBrowserBaseFragment() {
     // Scoping this to the activity makes sure that the current comic is saved when the app is killed
-    private val model: ComicBrowserViewModel by activityViewModels()
+    override val model: ComicBrowserViewModel by activityViewModels()
 
     override fun onCreateView(
         inflater: LayoutInflater,
