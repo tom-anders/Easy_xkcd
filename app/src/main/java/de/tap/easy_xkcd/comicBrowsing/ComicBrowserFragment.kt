@@ -3,6 +3,7 @@ package de.tap.easy_xkcd.comicBrowsing
 import android.graphics.Bitmap
 import android.os.Bundle
 import android.view.*
+import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.MenuCompat
 import androidx.fragment.app.activityViewModels
 import androidx.fragment.app.viewModels
@@ -33,7 +34,9 @@ class ComicBrowserFragment : ComicBrowserBaseFragment() {
         val view = super.onCreateView(inflater, container, savedInstanceState)
 
         pager.adapter = ComicBrowserAdapter(model.comics)
-        pager.currentItem = model.selectedComic - 1
+        model.selectedComic.value?.let {
+            pager.currentItem = it.comicNumber - 1
+        }
 
         activity?.findViewById<FloatingActionButton>(R.id.fab)?.apply {
             //TODO add back tooltip about the longpress when the button is pressed the first time
@@ -47,6 +50,10 @@ class ComicBrowserFragment : ComicBrowserBaseFragment() {
             }
         }
 
+        model.selectedComic.observe(viewLifecycleOwner) {
+            (activity as AppCompatActivity).supportActionBar?.subtitle = it?.comicNumber?.toString()
+        }
+
         return view
     }
 
@@ -54,7 +61,7 @@ class ComicBrowserFragment : ComicBrowserBaseFragment() {
         model.comicSelected(position + 1)
     }
 
-    override fun getDisplayedComic(): RealmComic? = model.getDisplayedComic()
+    override fun getDisplayedComic(): RealmComic? = model.selectedComic.value
 
     inner class ComicBrowserAdapter(comics: List<RealmComic>) : ComicBaseAdapter(comics) {
         override fun addLoadToRequest(

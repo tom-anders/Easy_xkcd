@@ -6,6 +6,7 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import dagger.hilt.android.lifecycle.HiltViewModel
 import dagger.hilt.android.qualifiers.ApplicationContext
+import de.tap.easy_xkcd.database.RealmComic
 import de.tap.easy_xkcd.utils.PrefHelper
 import javax.inject.Inject
 
@@ -21,14 +22,18 @@ class ComicBrowserViewModel @Inject constructor(
     private val _isFavorite = MutableLiveData<Boolean>()
     val isFavorite: LiveData<Boolean> = _isFavorite
 
-    var selectedComic: Int = prefHelper.lastComic
-        private set
+    private val _selectedComic = MutableLiveData<RealmComic>()
+    val selectedComic: LiveData<RealmComic> = _selectedComic
 
-    fun getDisplayedComic() = comics.getOrNull(selectedComic - 1)
+    init {
+        _selectedComic.value = comics.getOrNull(prefHelper.lastComic - 1)
+    }
+
+    private fun getComic(number: Int) = comics.getOrNull(number - 1)
 
     private var comicBeforeLastRandom: Int? = null
     fun getNextRandomComic(): Int {
-        comicBeforeLastRandom = selectedComic
+        comicBeforeLastRandom = selectedComic.value?.comicNumber
         return model.getRandomComic()
     }
 
@@ -37,12 +42,14 @@ class ComicBrowserViewModel @Inject constructor(
     }
 
     fun toggleFavorite() {
-        model.toggleFavorite(selectedComic)
-        _isFavorite.value = model.isFavorite(selectedComic)
+        _selectedComic.value?.let { comic ->
+            model.toggleFavorite(comic.comicNumber)
+            _isFavorite.value = model.isFavorite(comic.comicNumber)
+        }
     }
 
     fun comicSelected(number: Int) {
-        selectedComic = number
+        _selectedComic.value = getComic(number)
         prefHelper.lastComic = number
         _isFavorite.value = model.isFavorite(number)
         model.setRead(number, true)
