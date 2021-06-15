@@ -7,6 +7,8 @@ import android.graphics.Color
 import android.os.Bundle
 import android.view.Menu
 import android.view.MenuItem
+import androidx.activity.result.ActivityResultLauncher
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.viewModels
 import androidx.appcompat.widget.Toolbar
 import androidx.core.content.ContextCompat
@@ -18,11 +20,11 @@ import com.tap.xkcd_reader.R
 import com.tap.xkcd_reader.databinding.ActivityMainBinding
 import dagger.hilt.android.AndroidEntryPoint
 import de.tap.easy_xkcd.Activities.BaseActivity
+import de.tap.easy_xkcd.Activities.NestedSettingsActivity
 import de.tap.easy_xkcd.Activities.SettingsActivity
 import de.tap.easy_xkcd.CustomTabHelpers.CustomTabActivityHelper
 import de.tap.easy_xkcd.comicBrowsing.ComicBrowserFragment
 import de.tap.easy_xkcd.whatIfOverview.WhatIfOverviewFragment
-import timber.log.Timber
 
 @AndroidEntryPoint
 class MainActivity : BaseActivity() {
@@ -37,11 +39,15 @@ class MainActivity : BaseActivity() {
     private lateinit var progress: ProgressDialog
 
     private var customTabActivityHelper = CustomTabActivityHelper()
+    private lateinit var activityResultLauncher: ActivityResultLauncher<Intent>
 
     val model: ComicDatabaseViewModel by viewModels()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
+        binding = ActivityMainBinding.inflate(layoutInflater)
+        setContentView(binding.root)
 
         progress = ProgressDialog(this)
         progress.setTitle(resources?.getString(R.string.update_database))
@@ -60,9 +66,6 @@ class MainActivity : BaseActivity() {
         model.foundNewComic.observe(this) {
             //TODO show snackbar here or maybe observe this in the fragments instead
         }
-
-        binding = ActivityMainBinding.inflate(layoutInflater)
-        setContentView(binding.root)
 
         toolbar = binding.toolbar.root
         setupToolbar(toolbar)
@@ -83,6 +86,17 @@ class MainActivity : BaseActivity() {
                     bottomNavigationView.selectedItemId =
                         if (prefHelper.launchToOverview()) R.id.nav_overview else R.id.nav_browser
                 }
+            }
+        }
+
+        activityResultLauncher = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) {
+            when (it.resultCode) {
+               NestedSettingsActivity.RESULT_RESTART_MAIN -> {
+                   overridePendingTransition(0, 0)
+                   finish()
+                   overridePendingTransition(0, 0)
+                   startActivity(intent)
+               }
             }
         }
     }
@@ -170,8 +184,7 @@ class MainActivity : BaseActivity() {
 
     override fun onOptionsItemSelected(item: MenuItem) = when (item.itemId) {
         R.id.action_settings -> {
-            //TODO should be startActivityForResult
-            startActivity(Intent(this, SettingsActivity::class.java))
+            activityResultLauncher.launch(Intent(this, SettingsActivity::class.java))
             true
         }
         else -> super.onOptionsItemSelected(item)
