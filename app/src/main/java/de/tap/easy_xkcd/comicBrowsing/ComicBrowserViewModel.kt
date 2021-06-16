@@ -4,10 +4,14 @@ import android.content.Context
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
 import dagger.hilt.android.qualifiers.ApplicationContext
 import de.tap.easy_xkcd.database.RealmComic
 import de.tap.easy_xkcd.utils.PrefHelper
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import javax.inject.Inject
 
 abstract class ComicBrowserBaseViewModel constructor(
@@ -49,8 +53,10 @@ class ComicBrowserViewModel @Inject constructor(
 
     fun toggleFavorite() {
         _selectedComic.value?.let { comic ->
-            model.toggleFavorite(comic.comicNumber)
-            _isFavorite.value = model.isFavorite(comic.comicNumber)
+            viewModelScope.launch {
+                model.toggleFavorite(comic.comicNumber)
+                _isFavorite.value = model.isFavorite(comic.comicNumber)
+            }
         }
     }
 

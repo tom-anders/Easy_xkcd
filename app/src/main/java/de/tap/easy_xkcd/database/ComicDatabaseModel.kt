@@ -8,6 +8,7 @@ import dagger.Module
 import dagger.hilt.InstallIn
 import dagger.hilt.android.components.ViewModelComponent
 import dagger.hilt.android.qualifiers.ApplicationContext
+import de.tap.easy_xkcd.GlideApp
 import de.tap.easy_xkcd.database.DatabaseManager
 import de.tap.easy_xkcd.database.RealmComic
 import de.tap.easy_xkcd.utils.*
@@ -38,7 +39,7 @@ interface ComicDatabaseModel {
 
     fun isFavorite(number: Int): Boolean
 
-    fun toggleFavorite(number: Int)
+    suspend fun toggleFavorite(number: Int)
 
     fun isRead(number: Int): Boolean
 
@@ -74,12 +75,22 @@ class ComicDatabaseModelImpl @Inject constructor(
         getComic(number, it)?.isFavorite == true
     }
 
-    override fun toggleFavorite(number: Int) {
+    override suspend fun toggleFavorite(number: Int) = withContext(Dispatchers.IO) {
         doWithRealm { realm ->
             getComic(number, realm)?.let { comic ->
                 realm.executeTransaction {
                     comic.isFavorite = !comic.isFavorite
                     realm.copyToRealmOrUpdate(comic)
+                }
+                if (comic.isFavorite) {
+                    if (!RealmComic.isOfflineComicAlreadyDownloaded(comic.comicNumber, prefHelper, context)) {
+                        RealmComic.saveOfflineBitmap(
+                            OkHttpClient().newCall(Request.Builder().url(comic.url).build()).execute(),
+                            prefHelper, comic.comicNumber, context
+                        )
+                    }
+                } else {
+                    File(prefHelper.getOfflinePath(context), "${comic.comicNumber}.png").delete()
                 }
             }
         }
@@ -188,9 +199,12 @@ class ComicDatabaseModelImpl @Inject constructor(
                 Timber.i("Already has offline files for comic ${comic.comicNumber}, skipping download...")
             } else {
                 try {
-                    val response =
-                        client.newCall(Request.Builder().url(comic.url).build()).execute()
-                    RealmComic.saveOfflineBitmap(response, prefHelper, comic.comicNumber, context)
+                    RealmComic.saveOfflineBitmap(
+                        GlideApp.with(context)
+                            .asBitmap()
+                            .load(comic.url)
+                            .submit()
+                            .get(), prefHelper, comic.comicNumber, context)
                 } catch (e: Exception) {
                     Timber.e(e, "Download failed at ${comic.comicNumber} (${comic.url})")
                 }
