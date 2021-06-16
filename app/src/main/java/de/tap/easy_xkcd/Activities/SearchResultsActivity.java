@@ -81,6 +81,8 @@ public class SearchResultsActivity extends BaseActivity {
     private String query;
     public static boolean isOpen;
 
+    public static String FROM_SEARCH = "from_search";
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -132,6 +134,9 @@ public class SearchResultsActivity extends BaseActivity {
             intent.putExtra("number", prefHelper.getNewest());
         else
             intent.putExtra("number", number);
+
+        intent.putExtra(FROM_SEARCH, "");
+
         mProgress.dismiss();
         finish();
         startActivity(intent);
@@ -285,6 +290,8 @@ public class SearchResultsActivity extends BaseActivity {
                     number = resultsTranscript.get(pos - resultsTitle.size());
                 }
                 intent.putExtra("number", number);
+
+                intent.putExtra(FROM_SEARCH, "");
 
                 MainActivity.fromSearch = true;
                 Pair<View, String> imagePair = Pair.create(view.findViewById(R.id.thumbnail), "im" + number);

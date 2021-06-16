@@ -1,16 +1,21 @@
 package de.tap.easy_xkcd.mainActivity
 
 import android.app.ProgressDialog
+import android.app.SearchManager
+import android.content.Context
 import android.content.Intent
 import android.content.res.ColorStateList
 import android.graphics.Color
 import android.os.Bundle
 import android.view.Menu
 import android.view.MenuItem
+import android.view.inputmethod.InputMethodManager
+import android.widget.SearchView
 import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.viewModels
 import androidx.appcompat.widget.Toolbar
+import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentTransaction
@@ -21,6 +26,7 @@ import com.tap.xkcd_reader.databinding.ActivityMainBinding
 import dagger.hilt.android.AndroidEntryPoint
 import de.tap.easy_xkcd.Activities.BaseActivity
 import de.tap.easy_xkcd.Activities.NestedSettingsActivity
+import de.tap.easy_xkcd.Activities.SearchResultsActivity
 import de.tap.easy_xkcd.Activities.SettingsActivity
 import de.tap.easy_xkcd.CustomTabHelpers.CustomTabActivityHelper
 import de.tap.easy_xkcd.comicBrowsing.ComicBrowserFragment
@@ -99,6 +105,10 @@ class MainActivity : BaseActivity() {
                    startActivity(intent)
                }
             }
+        }
+
+        if (intent?.hasExtra(SearchResultsActivity.FROM_SEARCH) == true) {
+            postponeEnterTransition()
         }
     }
 
@@ -192,7 +202,52 @@ class MainActivity : BaseActivity() {
         menu?.findItem(R.id.action_night_mode)?.isChecked = themePrefs.nightEnabledThemeIgnoreAutoNight()
         menu?.findItem(R.id.action_night_mode)?.isVisible = !themePrefs.autoNightEnabled() && !themePrefs.useSystemNightTheme()
 
+        val searchMenuItem = menu?.findItem(R.id.action_search)
+        val searchView = searchMenuItem?.actionView as SearchView?
+
+        searchMenuItem?.setOnActionExpandListener(object : MenuItem.OnActionExpandListener {
+            override fun onMenuItemActionExpand(menuItem: MenuItem): Boolean {
+                //Hide the other menu items to the right
+                for (i in 0 until menu.size()) {
+                    menu.getItem(i).isVisible = menu.getItem(i) === searchMenuItem
+                }
+
+                // Show keyboard
+                (getSystemService(INPUT_METHOD_SERVICE) as InputMethodManager?)?.toggleSoftInput(InputMethodManager.SHOW_IMPLICIT, 0)
+                searchView?.requestFocus()
+                return true
+            }
+
+            override fun onMenuItemActionCollapse(menuItem: MenuItem): Boolean {
+                invalidateOptionsMenu() // Brings back the hidden menu items in onMenuItemActionExpand()
+                hideKeyboard()
+                return true
+            }
+        })
+
+        (searchMenuItem?.actionView as SearchView?)?.apply {
+            setSearchableInfo((getSystemService(Context.SEARCH_SERVICE) as SearchManager?)?.getSearchableInfo(componentName))
+            isIconifiedByDefault = false
+            setOnQueryTextListener(object: SearchView.OnQueryTextListener {
+                override fun onQueryTextSubmit(p0: String?): Boolean {
+                    searchMenuItem?.collapseActionView()
+                    setQuery("", false)
+
+                    hideKeyboard()
+
+                    return false
+                }
+
+                override fun onQueryTextChange(query: String?) = false
+
+            })
+        }
+
         return true
+    }
+
+    private fun hideKeyboard() {
+        (getSystemService(INPUT_METHOD_SERVICE) as InputMethodManager?)?.toggleSoftInput(InputMethodManager.HIDE_IMPLICIT_ONLY, 0)
     }
 
     override fun onOptionsItemSelected(item: MenuItem) = when (item.itemId) {
