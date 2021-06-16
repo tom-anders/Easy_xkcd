@@ -2,27 +2,22 @@ package de.tap.easy_xkcd.comicBrowsing
 
 import android.annotation.SuppressLint
 import android.app.AlertDialog
-import android.content.Context
 import android.content.Intent
 import android.graphics.Bitmap
 import android.graphics.Color
 import android.net.Uri
 import android.os.Bundle
-import android.os.Parcelable
 import android.text.Html
+import android.transition.TransitionInflater
 import android.view.*
 import android.widget.ImageView
 import android.widget.RelativeLayout
 import android.widget.TextView
 import android.widget.Toast
-import androidx.appcompat.app.AppCompatActivity
 import androidx.browser.customtabs.CustomTabsIntent
 import androidx.core.view.MenuCompat
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
-import androidx.lifecycle.LiveData
-import androidx.lifecycle.MutableLiveData
-import androidx.lifecycle.ViewModel
 import androidx.lifecycle.lifecycleScope
 import androidx.swiperefreshlayout.widget.CircularProgressDrawable
 import androidx.viewpager.widget.PagerAdapter
@@ -36,14 +31,13 @@ import com.github.chrisbanes.photoview.PhotoView
 import com.tap.xkcd_reader.R
 import com.tap.xkcd_reader.databinding.PagerLayoutBinding
 import dagger.hilt.android.AndroidEntryPoint
-import dagger.hilt.android.lifecycle.HiltViewModel
-import dagger.hilt.android.qualifiers.ApplicationContext
 import de.tap.easy_xkcd.CustomTabHelpers.BrowserFallback
 import de.tap.easy_xkcd.CustomTabHelpers.CustomTabActivityHelper
 import de.tap.easy_xkcd.GlideApp
 import de.tap.easy_xkcd.GlideRequest
 import de.tap.easy_xkcd.database.RealmComic
 import de.tap.easy_xkcd.mainActivity.ComicDatabaseViewModel
+import de.tap.easy_xkcd.mainActivity.MainActivity
 import de.tap.easy_xkcd.misc.HackyViewPager
 import de.tap.easy_xkcd.utils.PrefHelper
 import de.tap.easy_xkcd.utils.ThemePrefs
@@ -52,7 +46,6 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import timber.log.Timber
 import java.util.*
-import javax.inject.Inject
 
 @AndroidEntryPoint
 abstract class ComicBrowserBaseFragment : Fragment() {
@@ -68,12 +61,19 @@ abstract class ComicBrowserBaseFragment : Fragment() {
 
     protected abstract val model: ComicBrowserBaseViewModel
 
+    private var transitionPending = false
+
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
         _binding = PagerLayoutBinding.inflate(inflater, container, false)
+
+        setHasOptionsMenu(true)
+
+        prefHelper = PrefHelper(activity)
+        themePrefs = ThemePrefs(activity)
 
         pager = binding.pager
         pager.offscreenPageLimit = 2
@@ -92,10 +92,17 @@ abstract class ComicBrowserBaseFragment : Fragment() {
             override fun onPageScrollStateChanged(state: Int) {}
         })
 
-        setHasOptionsMenu(true)
+        arguments?.let { args ->
+            // Prepare for shared element transition
+            if (savedInstanceState == null && args.getBoolean(MainActivity.ARG_TRANSITION_PENDING, false)) {
+//            postponeEnterTransition() //TODO We possibly need this for transition from overview
+                transitionPending = true
+            }
 
-        prefHelper = PrefHelper(activity)
-        themePrefs = ThemePrefs(activity)
+            if (args.containsKey(MainActivity.ARG_COMIC_TO_SHOW)) {
+                model.comicSelected(args.getInt(MainActivity.ARG_COMIC_TO_SHOW, prefHelper.lastComic))
+            }
+        }
 
         return binding.root
     }
@@ -205,7 +212,11 @@ abstract class ComicBrowserBaseFragment : Fragment() {
         }
 
         fun postImageLoaded(comicNumber: Int) {
-            //TODO
+            if (transitionPending && comicNumber == model.selectedComic.value?.comicNumber) {
+//                startPostponedEnterTransition() //TODO We maybe need this for transition from overview
+                activity?.startPostponedEnterTransition()
+                transitionPending = false
+            }
         }
 
         fun setupPhotoViewWhenImageLoaded(photoView: PhotoView, bitmap: Bitmap, comic: RealmComic) {
@@ -215,12 +226,10 @@ abstract class ComicBrowserBaseFragment : Fragment() {
                 )
             ) photoView.clearColorFilter()
 
-//            if (!transitionPending) {
-            photoView.setAlpha(0f)
-            photoView.animate()
-                .alpha(1f)
-                .setDuration(300)
-//            }
+            if (!transitionPending) {
+                photoView.alpha = 0f
+                photoView.animate().alpha(1f).duration = 300
+            }
         }
     }
 

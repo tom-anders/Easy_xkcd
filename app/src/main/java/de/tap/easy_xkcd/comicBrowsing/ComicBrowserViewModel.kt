@@ -20,6 +20,8 @@ abstract class ComicBrowserBaseViewModel constructor(
 ) : ViewModel() {
     protected val prefHelper = PrefHelper(context)
 
+    abstract fun comicSelected(number: Int)
+
     protected val _selectedComic = MutableLiveData<RealmComic>()
     val selectedComic: LiveData<RealmComic> = _selectedComic
 }
@@ -60,7 +62,7 @@ class ComicBrowserViewModel @Inject constructor(
         }
     }
 
-    fun comicSelected(number: Int) {
+    override fun comicSelected(number: Int) {
         _selectedComic.value = getComic(number)
         prefHelper.lastComic = number
         _isFavorite.value = model.isFavorite(number)

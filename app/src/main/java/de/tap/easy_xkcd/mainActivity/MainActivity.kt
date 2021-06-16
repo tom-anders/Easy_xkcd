@@ -15,7 +15,6 @@ import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.viewModels
 import androidx.appcompat.widget.Toolbar
-import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentTransaction
@@ -30,6 +29,7 @@ import de.tap.easy_xkcd.Activities.SearchResultsActivity
 import de.tap.easy_xkcd.Activities.SettingsActivity
 import de.tap.easy_xkcd.CustomTabHelpers.CustomTabActivityHelper
 import de.tap.easy_xkcd.comicBrowsing.ComicBrowserFragment
+import de.tap.easy_xkcd.comicBrowsing.ComicBrowserViewModel
 import de.tap.easy_xkcd.whatIfOverview.WhatIfOverviewFragment
 import timber.log.Timber
 
@@ -48,7 +48,19 @@ class MainActivity : BaseActivity() {
     private var customTabActivityHelper = CustomTabActivityHelper()
     private lateinit var activityResultLauncher: ActivityResultLauncher<Intent>
 
-    val model: ComicDatabaseViewModel by viewModels()
+    private val COMIC_NOTIFICATION_INTENT = "de.tap.easy_xkcd.ACTION_COMIC_NOTIFICATION"
+    private val COMIC_INTENT = "de.tap.easy_xkcd.ACTION_COMIC"
+
+    companion object {
+        const val ARG_TRANSITION_PENDING = "transition_pending"
+        const val ARG_COMIC_TO_SHOW = "comic_to_show"
+    }
+
+    val comicBrowserViewModel: ComicBrowserViewModel by viewModels()
+
+    val dataBaseViewModel: ComicDatabaseViewModel by viewModels()
+
+    private lateinit var bottomNavigationListener: BottomNavigationListener
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -63,9 +75,10 @@ class MainActivity : BaseActivity() {
         setupBottomAppBar()
 
         bottomNavigationView = binding.bottomNavigationView
-        bottomNavigationView.setOnNavigationItemSelectedListener {
-            showFragmentForSelectedNavigationItem(it)
-        }
+
+        bottomNavigationListener = BottomNavigationListener(savedInstanceState)
+        bottomNavigationView.setOnNavigationItemSelectedListener(bottomNavigationListener)
+
         // Nothing to be done yet in that case
         bottomNavigationView.setOnNavigationItemReselectedListener {}
 
@@ -73,21 +86,21 @@ class MainActivity : BaseActivity() {
         progress.setTitle(resources?.getString(R.string.update_database))
         progress.setProgressStyle(ProgressDialog.STYLE_HORIZONTAL)
         progress.isIndeterminate = false
-        model.progress.observe(this) {
+        dataBaseViewModel.progress.observe(this) {
             if (it != null) {
                 progress.progress = it
-                progress.max = model.progressMax
+                progress.max = dataBaseViewModel.progressMax
                 progress.show()
             } else {
                 progress.dismiss()
             }
         }
 
-        model.foundNewComic.observe(this) {
+        dataBaseViewModel.foundNewComic.observe(this) {
             //TODO show snackbar here or maybe observe this in the fragments instead
         }
 
-        model.databaseLoaded.observe(this) { databaseLoaded ->
+        dataBaseViewModel.databaseLoaded.observe(this) { databaseLoaded ->
             if (databaseLoaded) {
                 if (savedInstanceState == null) {
                     bottomNavigationView.selectedItemId =
@@ -106,14 +119,101 @@ class MainActivity : BaseActivity() {
                }
             }
         }
+    }
 
-        if (intent?.hasExtra(SearchResultsActivity.FROM_SEARCH) == true) {
-            postponeEnterTransition()
+    inner class BottomNavigationListener(
+        val savedInstanceState: Bundle?,
+    ) : BottomNavigationView.OnNavigationItemSelectedListener {
+
+        private var transitionPending: Boolean = false
+        private var comicToShow: Int? = null
+
+        init {
+            if (savedInstanceState == null && intent != null) {
+                when (intent.action) {
+                    COMIC_INTENT -> {
+                        if (intent.hasExtra(SearchResultsActivity.FROM_SEARCH)) {
+                            // Needed for the shared element transition, will be resumed once the fragment
+                            // has finished loading the comic image
+                            postponeEnterTransition()
+
+                            transitionPending = true
+                        }
+                        comicToShow = intent.getIntExtra("number", -1).let {
+                            if (it == -1) null else it
+                        }
+                    }
+                }
+            }
         }
+
+        override fun onNavigationItemSelected(item: MenuItem): Boolean {
+            toolbar.title = item.title
+
+            return when (item.itemId) {
+                R.id.nav_whatif -> {
+                    showWhatIfFragment()
+                }
+                R.id.nav_browser -> {
+                    showComicBrowserFragment()
+                }
+                R.id.nav_favorites -> {
+                    showFavoritesFragment()
+                }
+                R.id.nav_overview -> {
+                    showComicOverviewFragment()
+                }
+                else -> false
+            }
+        }
+
+        fun makeFragmentTransaction(fragment: Fragment): FragmentTransaction {
+            fragment.arguments = Bundle().apply {
+                if (transitionPending) {
+                    transitionPending = false
+                    putBoolean(ARG_TRANSITION_PENDING, true)
+                }
+                comicToShow?.let {
+                    putInt(ARG_COMIC_TO_SHOW, it)
+                    comicToShow = null
+                }
+            }
+
+            return supportFragmentManager.beginTransaction()
+                .replace(R.id.flContent, fragment, FRAGMENT_TAG)
+        }
+
+        fun showWhatIfFragment(): Boolean {
+            supportActionBar?.title = resources.getString(R.string.nv_whatif)
+            makeFragmentTransaction(WhatIfOverviewFragment()).commitAllowingStateLoss()
+            return true
+        }
+
+        fun showComicOverviewFragment(): Boolean {
+//        makeFragmentTransaction(
+//            OverviewBaseFragment.getOverviewFragment(
+//                prefHelper,
+//                prefHelper.lastComic
+//            )
+//        ).commitAllowingStateLoss()
+            return true
+        }
+
+        fun showFavoritesFragment(): Boolean {
+//        makeFragmentTransaction(FavoritesFragment()).commitAllowingStateLoss()
+            return true
+        }
+
+        fun showComicBrowserFragment(): Boolean {
+            makeFragmentTransaction(ComicBrowserFragment())
+                .commitAllowingStateLoss()
+            return true
+        }
+
     }
 
     override fun onResume() {
-        toolbar.title = if (model.databaseLoaded.value == false) {
+        toolbar.title = if (dataBaseViewModel.databaseLoaded.value == false) {
             bottomNavigationView.menu.findItem(if (prefHelper.launchToOverview()) {
                 R.id.nav_overview
             } else {
@@ -123,25 +223,6 @@ class MainActivity : BaseActivity() {
             bottomNavigationView.menu.findItem(bottomNavigationView.selectedItemId)?.title
         }
         super.onResume()
-    }
-
-    fun showFragmentForSelectedNavigationItem(item: MenuItem): Boolean {
-        toolbar.title = item.title
-        return when (item.itemId) {
-            R.id.nav_whatif -> {
-                showWhatIfFragment()
-            }
-            R.id.nav_browser -> {
-                showComicBrowserFragment()
-            }
-            R.id.nav_favorites -> {
-                showFavoritesFragment()
-            }
-            R.id.nav_overview -> {
-                showComicOverviewFragment()
-            }
-            else -> false
-        }
     }
 
     fun setupBottomAppBar() {
@@ -162,37 +243,6 @@ class MainActivity : BaseActivity() {
             }
         }
 
-    }
-
-    fun makeFragmentTransaction(fragment: Fragment): FragmentTransaction =
-        supportFragmentManager.beginTransaction()
-            .replace(R.id.flContent, fragment, FRAGMENT_TAG)
-
-    fun showWhatIfFragment(): Boolean {
-        supportActionBar?.title = resources.getString(R.string.nv_whatif)
-        makeFragmentTransaction(WhatIfOverviewFragment()).commitAllowingStateLoss()
-        return true
-    }
-
-    fun showComicOverviewFragment(): Boolean {
-//        makeFragmentTransaction(
-//            OverviewBaseFragment.getOverviewFragment(
-//                prefHelper,
-//                prefHelper.lastComic
-//            )
-//        ).commitAllowingStateLoss()
-        return true
-    }
-
-    fun showFavoritesFragment(): Boolean {
-//        makeFragmentTransaction(FavoritesFragment()).commitAllowingStateLoss()
-        return true
-    }
-
-    fun showComicBrowserFragment(): Boolean {
-        makeFragmentTransaction(ComicBrowserFragment())
-            .commitAllowingStateLoss()
-        return true
     }
 
     override fun onCreateOptionsMenu(menu: Menu?): Boolean {
