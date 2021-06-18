@@ -39,6 +39,8 @@ interface ComicDatabaseModel {
 
     fun isFavorite(number: Int): Boolean
 
+    fun setBookmark(number: Int)
+
     suspend fun toggleFavorite(number: Int)
 
     fun isRead(number: Int): Boolean
@@ -73,6 +75,10 @@ class ComicDatabaseModelImpl @Inject constructor(
 
     override fun isFavorite(number: Int) = returnWithRealm {
         getComic(number, it)?.isFavorite == true
+    }
+
+    override fun setBookmark(number: Int) {
+        prefHelper.bookmark = number
     }
 
     override suspend fun toggleFavorite(number: Int) = withContext(Dispatchers.IO) {

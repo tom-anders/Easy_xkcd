@@ -22,6 +22,8 @@ abstract class ComicBrowserBaseViewModel constructor(
 
     abstract fun comicSelected(number: Int)
 
+    abstract fun setBookmark()
+
     protected val _selectedComic = MutableLiveData<RealmComic>()
     val selectedComic: LiveData<RealmComic> = _selectedComic
 }
@@ -38,7 +40,11 @@ class ComicBrowserViewModel @Inject constructor(
     val isFavorite: LiveData<Boolean> = _isFavorite
 
     init {
-        _selectedComic.value = comics.getOrNull(prefHelper.lastComic - 1)
+        _selectedComic.value = comics.getOrNull(if (prefHelper.lastComic != 0) {
+            prefHelper.lastComic
+        } else {
+            prefHelper.newest
+        } - 1)
     }
 
     private fun getComic(number: Int) = comics.getOrNull(number - 1)
@@ -59,6 +65,12 @@ class ComicBrowserViewModel @Inject constructor(
                 model.toggleFavorite(comic.comicNumber)
                 _isFavorite.value = model.isFavorite(comic.comicNumber)
             }
+        }
+    }
+
+    override fun setBookmark() {
+        selectedComic.value?.let {
+            model.setBookmark(it.comicNumber)
         }
     }
 

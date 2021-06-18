@@ -8,7 +8,6 @@ import android.graphics.Color
 import android.net.Uri
 import android.os.Bundle
 import android.text.Html
-import android.transition.TransitionInflater
 import android.view.*
 import android.widget.ImageView
 import android.widget.RelativeLayout
@@ -267,6 +266,13 @@ abstract class ComicBrowserBaseFragment : Fragment() {
             }
             R.id.action_thread -> {
                 getDisplayedComic()?.let { openRedditThread(it) }
+                true
+            }
+            R.id.action_boomark -> {
+                Toast.makeText(
+                    activity, if (prefHelper.bookmark == 0) R.string.bookmark_toast else R.string.bookmark_toast_2, Toast.LENGTH_LONG
+                ).show()
+                model.setBookmark()
                 true
             }
             else -> super.onOptionsItemSelected(item)
