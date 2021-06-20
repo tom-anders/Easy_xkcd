@@ -9,10 +9,13 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import dagger.hilt.android.qualifiers.ApplicationContext
 import de.tap.easy_xkcd.database.RealmComic
 import de.tap.easy_xkcd.utils.PrefHelper
+import de.tap.easy_xkcd.utils.SingleLiveEvent
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import timber.log.Timber
 import javax.inject.Inject
+import kotlin.math.min
 import kotlin.random.Random
 
 abstract class ComicBrowserBaseViewModel constructor(
@@ -44,14 +47,21 @@ class FavoriteComicsViewModel @Inject constructor(
     private val _favorites = MutableLiveData<List<RealmComic>>()
     val favorites: LiveData<List<RealmComic>> = _favorites
 
+    val scrollToPage = SingleLiveEvent<Int>()
+
+    private var currentIndex: Int = 0
+        set(value) {
+            _selectedComic.value = _favorites.value?.getOrNull(value)
+            field = value
+        }
+
     init {
         _favorites.value = model.getFavoriteComics()
-
-        _selectedComic.value = _favorites.value?.getOrNull(0)
+        currentIndex = 0
     }
 
-    override fun comicSelected(number: Int) {
-        _selectedComic.value = _favorites.value?.getOrNull(0)
+    override fun comicSelected(index: Int) {
+        currentIndex = index
     }
 
     override fun toggleFavorite() {
@@ -59,6 +69,10 @@ class FavoriteComicsViewModel @Inject constructor(
             viewModelScope.launch {
                 model.toggleFavorite(comic.comicNumber)
                 _favorites.value = model.getFavoriteComics()
+
+                currentIndex = min(currentIndex, _favorites.value!!.size - 1)
+                comicSelected(currentIndex)
+                scrollToPage.value = currentIndex
             }
         }
     }
@@ -69,6 +83,8 @@ class FavoriteComicsViewModel @Inject constructor(
         }
         return 0
     }
+
+    fun removeAllFavorites() = model.removeAllFavorites()
 }
 
 @HiltViewModel

@@ -13,6 +13,7 @@ import de.tap.easy_xkcd.database.DatabaseManager
 import de.tap.easy_xkcd.database.RealmComic
 import de.tap.easy_xkcd.utils.*
 import io.realm.Realm
+import io.realm.RealmResults
 import io.realm.Sort
 import kotlinx.coroutines.*
 import okhttp3.OkHttpClient
@@ -21,7 +22,6 @@ import org.json.JSONException
 import org.json.JSONObject
 import timber.log.Timber
 import java.io.File
-import java.lang.Exception
 import javax.inject.Inject
 import javax.inject.Singleton
 import kotlin.random.Random
@@ -38,6 +38,8 @@ interface ComicDatabaseModel {
     fun getAllComics(): List<RealmComic>
 
     fun getFavoriteComics(): List<RealmComic>
+
+    fun removeAllFavorites()
 
     fun getUnreadComics(): List<RealmComic>
 
@@ -80,6 +82,13 @@ class ComicDatabaseModelImpl @Inject constructor(
         it.where(RealmComic::class.java)
             .equalTo("isFavorite", true)
             .findAllSorted("comicNumber", Sort.ASCENDING)
+    }
+
+    override fun removeAllFavorites() {
+        for (comic in getFavoriteComics()) {
+            comic.isFavorite = false
+            copyToRealmOrUpdate(comic)
+        }
     }
 
     override fun getUnreadComics() = copyResultsFromRealm {

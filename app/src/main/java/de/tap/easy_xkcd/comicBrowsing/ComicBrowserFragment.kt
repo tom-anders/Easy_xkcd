@@ -51,10 +51,6 @@ class ComicBrowserFragment : ComicBrowserBaseFragment() {
             }
         }
 
-        model.selectedComic.observe(viewLifecycleOwner) {
-            (activity as AppCompatActivity).supportActionBar?.subtitle = it?.comicNumber?.toString()
-        }
-
         return view
     }
 
@@ -77,14 +73,13 @@ class ComicBrowserFragment : ComicBrowserBaseFragment() {
 
     override fun onPrepareOptionsMenu(menu: Menu) {
         model.isFavorite.observe(viewLifecycleOwner) {
-            menu.findItem(R.id.action_favorite).apply {
+            menu.findItem(R.id.action_favorite)?.apply {
                 setIcon(if (it) R.drawable.ic_favorite_on_24dp else R.drawable.ic_favorite_off_24dp)
                 setTitle(if (it) R.string.action_favorite_remove else R.string.action_favorite)
             }
         }
 
-        menu.findItem(R.id.action_alt).isVisible = prefHelper.showAltTip()
-        menu.findItem(R.id.action_browser).isVisible = true
+        menu.findItem(R.id.action_alt)?.isVisible = prefHelper.showAltTip()
 
         super.onPrepareOptionsMenu(menu)
     }

@@ -13,6 +13,7 @@ import android.widget.ImageView
 import android.widget.RelativeLayout
 import android.widget.TextView
 import android.widget.Toast
+import androidx.appcompat.app.AppCompatActivity
 import androidx.browser.customtabs.CustomTabsIntent
 import androidx.core.view.MenuCompat
 import androidx.fragment.app.Fragment
@@ -40,6 +41,7 @@ import de.tap.easy_xkcd.mainActivity.MainActivity
 import de.tap.easy_xkcd.misc.HackyViewPager
 import de.tap.easy_xkcd.utils.PrefHelper
 import de.tap.easy_xkcd.utils.ThemePrefs
+import io.realm.Realm
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -90,6 +92,10 @@ abstract class ComicBrowserBaseFragment : Fragment() {
 
             override fun onPageScrollStateChanged(state: Int) {}
         })
+
+        model.selectedComic.observe(viewLifecycleOwner) {
+            (activity as AppCompatActivity).supportActionBar?.subtitle = it?.comicNumber?.toString()
+        }
 
         arguments?.let { args ->
             // Prepare for shared element transition
