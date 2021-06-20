@@ -190,8 +190,8 @@ abstract class ComicBrowserBaseFragment : Fragment() {
                 .listener(object : RequestListener<Bitmap?> {
                     override fun onLoadFailed(
                         e: GlideException?,
-                        model: Any,
-                        target: Target<Bitmap?>,
+                        model: Any?,
+                        target: Target<Bitmap?>?,
                         isFirstResource: Boolean
                     ): Boolean {
                         postImageLoaded(comic.comicNumber)
@@ -267,7 +267,11 @@ abstract class ComicBrowserBaseFragment : Fragment() {
                 true
             }
             R.id.action_favorite -> {
-                model.toggleFavorite()
+                if (prefHelper.isOnline(activity) || prefHelper.fullOfflineEnabled()) {
+                    model.toggleFavorite()
+                } else {
+                    Toast.makeText(activity, R.string.no_connection, Toast.LENGTH_SHORT).show()
+                }
                 true
             }
             R.id.action_trans -> {
