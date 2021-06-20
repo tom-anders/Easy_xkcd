@@ -37,6 +37,12 @@ interface ComicDatabaseModel {
 
     fun getAllComics(): List<RealmComic>
 
+    fun getFavoriteComics(): List<RealmComic>
+
+    fun getUnreadComics(): List<RealmComic>
+
+    fun getUnreadFavoriteComics(): List<RealmComic>
+
     fun isFavorite(number: Int): Boolean
 
     fun setBookmark(number: Int)
@@ -68,6 +74,25 @@ class ComicDatabaseModelImpl @Inject constructor(
 
     override fun getAllComics(): List<RealmComic> = copyResultsFromRealm {
         it.where(RealmComic::class.java).findAllSorted("comicNumber", Sort.ASCENDING)
+    }
+
+    override fun getFavoriteComics() = copyResultsFromRealm {
+        it.where(RealmComic::class.java)
+            .equalTo("isFavorite", true)
+            .findAllSorted("comicNumber", Sort.ASCENDING)
+    }
+
+    override fun getUnreadComics() = copyResultsFromRealm {
+        it.where(RealmComic::class.java)
+            .equalTo("isRead", false)
+            .findAllSorted("comicNumber", Sort.ASCENDING)
+    }
+
+    override fun getUnreadFavoriteComics() = copyResultsFromRealm {
+        it.where(RealmComic::class.java)
+            .equalTo("isRead", false)
+            .equalTo("isFavorite", true)
+            .findAllSorted("comicNumber", Sort.ASCENDING)
     }
 
     private fun getComic(comicNumber: Int, realm: Realm): RealmComic? =

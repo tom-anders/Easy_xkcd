@@ -33,7 +33,8 @@ class ComicBrowserFragment : ComicBrowserBaseFragment() {
     ): View? {
         val view = super.onCreateView(inflater, container, savedInstanceState)
 
-        pager.adapter = ComicBrowserAdapter(model.comics)
+        pager.adapter = ComicPagerAdapter(model.comics)
+
         model.selectedComic.value?.let {
             pager.currentItem = it.comicNumber - 1
         }
@@ -57,31 +58,8 @@ class ComicBrowserFragment : ComicBrowserBaseFragment() {
         return view
     }
 
-    override fun pageSelected(position: Int) {
-        model.comicSelected(position + 1)
-    }
-
-    override fun getDisplayedComic(): RealmComic? = model.selectedComic.value
-
-    inner class ComicBrowserAdapter(comics: List<RealmComic>) : ComicBaseAdapter(comics) {
-        override fun addLoadToRequest(
-            request: GlideRequest<Bitmap>,
-            comic: RealmComic
-        ) = if (comic.isOffline) request.load(
-            RealmComic.getOfflineBitmap(
-                comic.comicNumber,
-                context,
-                prefHelper
-            )
-        ) else request.load(comic.url)
-    }
-
     override fun onOptionsItemSelected(item: MenuItem): Boolean =
         when (item.itemId) {
-            R.id.action_favorite -> {
-                model.toggleFavorite()
-                true
-            }
             R.id.action_latest -> {
                 pager.setCurrentItem(model.comics.size - 1, false)
                 true

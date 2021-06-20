@@ -30,6 +30,7 @@ import de.tap.easy_xkcd.Activities.SettingsActivity
 import de.tap.easy_xkcd.CustomTabHelpers.CustomTabActivityHelper
 import de.tap.easy_xkcd.comicBrowsing.ComicBrowserFragment
 import de.tap.easy_xkcd.comicBrowsing.ComicBrowserViewModel
+import de.tap.easy_xkcd.comicBrowsing.FavoritesFragment
 import de.tap.easy_xkcd.whatIfOverview.WhatIfOverviewFragment
 import timber.log.Timber
 
@@ -200,7 +201,7 @@ class MainActivity : BaseActivity() {
         }
 
         fun showFavoritesFragment(): Boolean {
-//        makeFragmentTransaction(FavoritesFragment()).commitAllowingStateLoss()
+            makeFragmentTransaction(FavoritesFragment()).commitAllowingStateLoss()
             return true
         }
 

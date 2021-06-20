@@ -85,7 +85,7 @@ abstract class ComicBrowserBaseFragment : Fragment() {
             }
 
             override fun onPageSelected(position: Int) {
-                pageSelected(position)
+                model.comicSelected(position)
             }
 
             override fun onPageScrollStateChanged(state: Int) {}
@@ -93,22 +93,29 @@ abstract class ComicBrowserBaseFragment : Fragment() {
 
         arguments?.let { args ->
             // Prepare for shared element transition
-            if (savedInstanceState == null && args.getBoolean(MainActivity.ARG_TRANSITION_PENDING, false)) {
+            if (savedInstanceState == null && args.getBoolean(
+                    MainActivity.ARG_TRANSITION_PENDING,
+                    false
+                )
+            ) {
 //            postponeEnterTransition() //TODO We possibly need this for transition from overview
                 transitionPending = true
             }
 
             if (args.containsKey(MainActivity.ARG_COMIC_TO_SHOW)) {
-                model.comicSelected(args.getInt(MainActivity.ARG_COMIC_TO_SHOW, prefHelper.lastComic))
+                model.comicSelected(
+                    args.getInt(
+                        MainActivity.ARG_COMIC_TO_SHOW,
+                        prefHelper.lastComic
+                    ) - 1
+                )
             }
         }
 
         return binding.root
     }
 
-    abstract fun pageSelected(position: Int)
-
-    abstract inner class ComicBaseAdapter constructor(
+    inner class ComicPagerAdapter constructor(
         private val comics: List<RealmComic>,
     ) : PagerAdapter() {
 
@@ -118,11 +125,6 @@ abstract class ComicBrowserBaseFragment : Fragment() {
         override fun destroyItem(container: ViewGroup, position: Int, obj: Any) {
             container.removeView(obj as RelativeLayout)
         }
-
-        abstract fun addLoadToRequest(
-            request: GlideRequest<Bitmap>,
-            comic: RealmComic
-        ): GlideRequest<Bitmap>
 
         @SuppressLint("SetTextI18n")
         override fun instantiateItem(container: ViewGroup, position: Int): Any {
@@ -167,37 +169,43 @@ abstract class ComicBrowserBaseFragment : Fragment() {
             }
 
             //TODO setup tap/long tap/double tap listeners
-
-            addLoadToRequest(
-                GlideApp.with(this@ComicBrowserBaseFragment)
-                    .asBitmap()
-                    .apply(RequestOptions().placeholder(makeProgressDrawable())),
-                comic
-            ).listener(object : RequestListener<Bitmap?> {
-                override fun onLoadFailed(
-                    e: GlideException?,
-                    model: Any,
-                    target: Target<Bitmap?>,
-                    isFirstResource: Boolean
-                ): Boolean {
-                    postImageLoaded(comic.comicNumber)
-                    return false
+            GlideApp.with(this@ComicBrowserBaseFragment)
+                .asBitmap()
+                .apply(RequestOptions().placeholder(makeProgressDrawable()))
+                .apply {
+                    if (comic.isOffline || comic.isFavorite) load(
+                        RealmComic.getOfflineBitmap(
+                            comic.comicNumber,
+                            context,
+                            prefHelper
+                        )
+                    ) else load(comic.url)
                 }
-
-                override fun onResourceReady(
-                    resource: Bitmap?,
-                    model: Any,
-                    target: Target<Bitmap?>,
-                    dataSource: DataSource,
-                    isFirstResource: Boolean
-                ): Boolean {
-                    resource?.let {
-                        setupPhotoViewWhenImageLoaded(pvComic, resource, comic)
+                .listener(object : RequestListener<Bitmap?> {
+                    override fun onLoadFailed(
+                        e: GlideException?,
+                        model: Any,
+                        target: Target<Bitmap?>,
+                        isFirstResource: Boolean
+                    ): Boolean {
                         postImageLoaded(comic.comicNumber)
+                        return false
                     }
-                    return false
-                }
-            }).into(pvComic)
+
+                    override fun onResourceReady(
+                        resource: Bitmap?,
+                        model: Any,
+                        target: Target<Bitmap?>,
+                        dataSource: DataSource,
+                        isFirstResource: Boolean
+                    ): Boolean {
+                        resource?.let {
+                            setupPhotoViewWhenImageLoaded(pvComic, resource, comic)
+                            postImageLoaded(comic.comicNumber)
+                        }
+                        return false
+                    }
+                }).into(pvComic)
 
             container.addView(view)
             return view
@@ -232,7 +240,7 @@ abstract class ComicBrowserBaseFragment : Fragment() {
         }
     }
 
-    abstract fun getDisplayedComic(): RealmComic?
+    fun getDisplayedComic(): RealmComic? = model.selectedComic.value
 
     override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
         MenuCompat.setGroupDividerEnabled(menu, true)
@@ -250,6 +258,10 @@ abstract class ComicBrowserBaseFragment : Fragment() {
                         }
                     }
                 }.create().show()
+                true
+            }
+            R.id.action_favorite -> {
+                model.toggleFavorite()
                 true
             }
             R.id.action_trans -> {
@@ -270,7 +282,9 @@ abstract class ComicBrowserBaseFragment : Fragment() {
             }
             R.id.action_boomark -> {
                 Toast.makeText(
-                    activity, if (prefHelper.bookmark == 0) R.string.bookmark_toast else R.string.bookmark_toast_2, Toast.LENGTH_LONG
+                    activity,
+                    if (prefHelper.bookmark == 0) R.string.bookmark_toast else R.string.bookmark_toast_2,
+                    Toast.LENGTH_LONG
                 ).show()
                 model.setBookmark()
                 true

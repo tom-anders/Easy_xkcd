@@ -13,6 +13,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import javax.inject.Inject
+import kotlin.random.Random
 
 abstract class ComicBrowserBaseViewModel constructor(
     protected val model: ComicDatabaseModel,
@@ -20,12 +21,54 @@ abstract class ComicBrowserBaseViewModel constructor(
 ) : ViewModel() {
     protected val prefHelper = PrefHelper(context)
 
-    abstract fun comicSelected(number: Int)
+    abstract fun comicSelected(index: Int)
 
-    abstract fun setBookmark()
+    fun setBookmark() {
+        selectedComic.value?.let {
+            model.setBookmark(it.comicNumber)
+        }
+    }
+
+    abstract fun toggleFavorite()
 
     protected val _selectedComic = MutableLiveData<RealmComic>()
     val selectedComic: LiveData<RealmComic> = _selectedComic
+}
+
+@HiltViewModel
+class FavoriteComicsViewModel @Inject constructor(
+    model: ComicDatabaseModel,
+    @ApplicationContext context: Context
+) : ComicBrowserBaseViewModel(model, context) {
+
+    private val _favorites = MutableLiveData<List<RealmComic>>()
+    val favorites: LiveData<List<RealmComic>> = _favorites
+
+    init {
+        _favorites.value = model.getFavoriteComics()
+
+        _selectedComic.value = _favorites.value?.getOrNull(0)
+    }
+
+    override fun comicSelected(number: Int) {
+        _selectedComic.value = _favorites.value?.getOrNull(0)
+    }
+
+    override fun toggleFavorite() {
+        _selectedComic.value?.let { comic ->
+            viewModelScope.launch {
+                model.toggleFavorite(comic.comicNumber)
+                _favorites.value = model.getFavoriteComics()
+            }
+        }
+    }
+
+    fun getRandomFavoriteIndex(): Int {
+        _favorites.value?.let {
+            return Random.nextInt(it.size)
+        }
+        return 0
+    }
 }
 
 @HiltViewModel
@@ -59,7 +102,7 @@ class ComicBrowserViewModel @Inject constructor(
         return comicBeforeLastRandom
     }
 
-    fun toggleFavorite() {
+    override fun toggleFavorite() {
         _selectedComic.value?.let { comic ->
             viewModelScope.launch {
                 model.toggleFavorite(comic.comicNumber)
@@ -68,13 +111,9 @@ class ComicBrowserViewModel @Inject constructor(
         }
     }
 
-    override fun setBookmark() {
-        selectedComic.value?.let {
-            model.setBookmark(it.comicNumber)
-        }
-    }
+    override fun comicSelected(index: Int) {
+        val number = index + 1
 
-    override fun comicSelected(number: Int) {
         _selectedComic.value = getComic(number)
         prefHelper.lastComic = number
         _isFavorite.value = model.isFavorite(number)
