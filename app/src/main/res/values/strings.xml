@@ -344,7 +344,9 @@
     <string name="pref_repair_sum">If you see some blank comics or encounter crashes, this might be the solution</string>
     <string name="pref_export_import">Export/Import Favorites</string>
     <string name="pref_export">Export your Favorites</string>
+    <string name="pref_export_success">Favorites exported!</string>
     <string name="pref_import_success">Favorites imported!</string>
+    <string name="pref_import_progress">Importing favorites…</string>
     <string name="pref_hide_donate">Hide donation button</string>
     <string name="title_activity_what_if" translatable="false">What if?</string>
     <string name="title_activity_donate">Donate</string>
