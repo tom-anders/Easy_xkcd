@@ -9,10 +9,11 @@ import dagger.hilt.android.qualifiers.ApplicationContext
 import de.tap.easy_xkcd.comicBrowsing.ComicDatabaseModel
 import de.tap.easy_xkcd.database.RealmComic
 import de.tap.easy_xkcd.utils.PrefHelper
+import javax.inject.Inject
 
 @HiltViewModel
-abstract class ComicBrowserBaseViewModel constructor(
-    protected val model: ComicDatabaseModel,
+class ComicOverviewViewModel @Inject constructor(
+    private val model: ComicDatabaseModel,
     @ApplicationContext context: Context
 ) : ViewModel() {
     private val _comics = MutableLiveData<List<RealmComic>>()
@@ -22,6 +23,9 @@ abstract class ComicBrowserBaseViewModel constructor(
 
     private val _bookmark = MutableLiveData<Int>()
     val bookmark: LiveData<Int> = _bookmark
+
+    private val _overviewStyle = MutableLiveData<Int>()
+    val overviewStyle: LiveData<Int> = _overviewStyle
 
     private fun updateComicsToShow() {
         _comics.value = when {
@@ -34,6 +38,13 @@ abstract class ComicBrowserBaseViewModel constructor(
     init {
         updateComicsToShow()
         _bookmark.value = prefHelper.bookmark
+
+        _overviewStyle.value = prefHelper.overviewStyle
+    }
+
+    fun overviewStyleSelected(style: Int) {
+        prefHelper.overviewStyle = style
+        _overviewStyle.value = style
     }
 
     fun setBookmark(number: Int) {

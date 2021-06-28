@@ -31,6 +31,7 @@ import de.tap.easy_xkcd.CustomTabHelpers.CustomTabActivityHelper
 import de.tap.easy_xkcd.comicBrowsing.ComicBrowserFragment
 import de.tap.easy_xkcd.comicBrowsing.ComicBrowserViewModel
 import de.tap.easy_xkcd.comicBrowsing.FavoritesFragment
+import de.tap.easy_xkcd.comicOverview.ComicOverviewFragment
 import de.tap.easy_xkcd.whatIfOverview.WhatIfOverviewFragment
 import timber.log.Timber
 
@@ -191,12 +192,9 @@ class MainActivity : BaseActivity() {
         }
 
         fun showComicOverviewFragment(): Boolean {
-//        makeFragmentTransaction(
-//            OverviewBaseFragment.getOverviewFragment(
-//                prefHelper,
-//                prefHelper.lastComic
-//            )
-//        ).commitAllowingStateLoss()
+            makeFragmentTransaction(
+                ComicOverviewFragment()
+            ).commitAllowingStateLoss()
             return true
         }
 
