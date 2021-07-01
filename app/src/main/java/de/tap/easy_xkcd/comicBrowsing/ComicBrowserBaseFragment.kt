@@ -17,6 +17,7 @@ import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.browser.customtabs.CustomTabsIntent
 import androidx.core.view.MenuCompat
+import androidx.core.view.get
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.lifecycleScope
@@ -115,6 +116,14 @@ abstract class ComicBrowserBaseFragment : Fragment() {
         }
 
         return binding.root
+    }
+
+    fun getSharedElementsForTransitionToOverview() : List<View?> {
+        val view: View? = pager.findViewWithTag(pager.currentItem)
+        return listOf(
+            view?.findViewById(R.id.tvTitle),
+            view?.findViewById(R.id.ivComic)
+        )
     }
 
     inner class ComicPagerAdapter constructor(

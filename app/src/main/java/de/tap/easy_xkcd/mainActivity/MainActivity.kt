@@ -29,6 +29,7 @@ import de.tap.easy_xkcd.Activities.NestedSettingsActivity
 import de.tap.easy_xkcd.Activities.SearchResultsActivity
 import de.tap.easy_xkcd.Activities.SettingsActivity
 import de.tap.easy_xkcd.CustomTabHelpers.CustomTabActivityHelper
+import de.tap.easy_xkcd.comicBrowsing.ComicBrowserBaseFragment
 import de.tap.easy_xkcd.comicBrowsing.ComicBrowserFragment
 import de.tap.easy_xkcd.comicBrowsing.ComicBrowserViewModel
 import de.tap.easy_xkcd.comicBrowsing.FavoritesFragment
@@ -213,7 +214,15 @@ class MainActivity : BaseActivity() {
         fun showComicOverviewFragment(): Boolean {
             makeFragmentTransaction(
                 ComicOverviewFragment()
-            ).commitAllowingStateLoss()
+            ).apply {
+                (supportFragmentManager.findFragmentByTag(FRAGMENT_TAG)
+                        as? ComicBrowserBaseFragment)
+                    ?.getSharedElementsForTransitionToOverview()
+                    ?.filterNotNull()
+                    ?.map {
+                        addSharedElement(it, it.transitionName)
+                    }
+            }.commitAllowingStateLoss()
 
             return true
         }
