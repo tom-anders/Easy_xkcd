@@ -3,6 +3,7 @@ package de.tap.easy_xkcd.comicOverview
 import android.graphics.Bitmap
 import android.graphics.Color
 import android.os.Bundle
+import android.transition.TransitionInflater
 import android.util.TypedValue
 import android.view.*
 import android.widget.ImageView
@@ -12,6 +13,7 @@ import androidx.cardview.widget.CardView
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
+import androidx.fragment.app.viewModels
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import androidx.recyclerview.widget.StaggeredGridLayoutManager
@@ -30,10 +32,11 @@ import de.tap.easy_xkcd.database.RealmComic
 import de.tap.easy_xkcd.mainActivity.MainActivity
 import de.tap.easy_xkcd.utils.PrefHelper
 import de.tap.easy_xkcd.utils.ThemePrefs
+import java.util.concurrent.TimeUnit
 
 @AndroidEntryPoint
 class ComicOverviewFragment : Fragment() {
-    val model: ComicOverviewViewModel by activityViewModels()
+    val model: ComicOverviewViewModel by viewModels()
 
     private var _binding: RecyclerLayoutBinding? = null
     private val binding get() = _binding!!
@@ -44,6 +47,8 @@ class ComicOverviewFragment : Fragment() {
     private lateinit var adapter: OverviewAdapter
 
     private lateinit var recyclerView: RecyclerView
+
+    private var comicNumberOfSharedElementTransition : Int? = null
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -84,6 +89,26 @@ class ComicOverviewFragment : Fragment() {
         model.comics.observe(viewLifecycleOwner) {
             it?.let {
                 adapter.setComics(it)
+
+                if (model.hideRead.value == true) {
+                    recyclerView.layoutManager?.scrollToPosition(it.size - prefHelper.lastComic)
+                } else {
+                    recyclerView.layoutManager?.scrollToPosition(it.size - (model.getNextUnreadComic() ?: 0))
+                }
+            }
+        }
+
+        arguments?.let { args ->
+            if (savedInstanceState == null && (!prefHelper.hideRead() || prefHelper.overviewFav())
+            ) {
+                args.getInt(MainActivity.ARG_COMIC_TO_SHOW, -1).let { number ->
+                    if (number > 0 && number <= prefHelper.newest) {
+                        comicNumberOfSharedElementTransition = number
+                        postponeEnterTransition(400, TimeUnit.MILLISECONDS)
+                        sharedElementEnterTransition = TransitionInflater.from(context)
+                            .inflateTransition(R.transition.image_shared_element_transition)
+                    }
+                }
             }
         }
 
@@ -229,7 +254,7 @@ class ComicOverviewFragment : Fragment() {
                             target: Target<Bitmap?>?,
                             isFirstResource: Boolean
                         ): Boolean {
-                            //TODO start postponed
+                            postImageLoaded(comic.comicNumber)
                             return false
                         }
 
@@ -240,6 +265,7 @@ class ComicOverviewFragment : Fragment() {
                             dataSource: DataSource,
                             isFirstResource: Boolean
                         ): Boolean {
+                            postImageLoaded(comic.comicNumber)
                             resource?.let {
                                 if (themePrefs.invertColors(false)
                                     && themePrefs.bitmapContainsColor(resource, comic.comicNumber)
@@ -250,6 +276,15 @@ class ComicOverviewFragment : Fragment() {
                             return false
                         }
                     }).into(thumbnail)
+            }
+        }
+
+        fun postImageLoaded(comicNumber: Int) {
+            comicNumberOfSharedElementTransition?.let {
+                if (comicNumber == it) {
+                    startPostponedEnterTransition()
+                    comicNumberOfSharedElementTransition = null
+                }
             }
         }
 

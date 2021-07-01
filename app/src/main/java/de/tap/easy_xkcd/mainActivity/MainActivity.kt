@@ -212,12 +212,14 @@ class MainActivity : BaseActivity() {
         }
 
         fun showComicOverviewFragment(): Boolean {
+            val fragment =
+                supportFragmentManager.findFragmentByTag(FRAGMENT_TAG) as? ComicBrowserBaseFragment
+            comicToShow = fragment?.getDisplayedComic()?.comicNumber
+
             makeFragmentTransaction(
                 ComicOverviewFragment()
             ).apply {
-                (supportFragmentManager.findFragmentByTag(FRAGMENT_TAG)
-                        as? ComicBrowserBaseFragment)
-                    ?.getSharedElementsForTransitionToOverview()
+                fragment?.getSharedElementsForTransitionToOverview()
                     ?.filterNotNull()
                     ?.map {
                         addSharedElement(it, it.transitionName)

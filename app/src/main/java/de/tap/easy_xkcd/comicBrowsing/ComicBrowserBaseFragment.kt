@@ -118,6 +118,7 @@ abstract class ComicBrowserBaseFragment : Fragment() {
         return binding.root
     }
 
+    // Used by the MainActivity for passing the view to the OverviewFragment
     fun getSharedElementsForTransitionToOverview() : List<View?> {
         val view: View? = pager.findViewWithTag(pager.currentItem)
         return listOf(

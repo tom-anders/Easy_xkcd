@@ -60,6 +60,14 @@ class ComicOverviewViewModel @Inject constructor(
         _hideRead.value = prefHelper.hideRead()
     }
 
+    fun getNextUnreadComic(): Int? {
+        val unreadComics = model.getUnreadComics()
+        if (unreadComics.isNotEmpty()) {
+            return unreadComics.find { it.comicNumber > prefHelper.lastComic }?.comicNumber
+        }
+        return 0
+    }
+
     private val _onlyFavorites = MutableLiveData(prefHelper.overviewFav())
     val onlyFavorites: LiveData<Boolean> = _onlyFavorites
     fun toggleOnlyFavorites() {
