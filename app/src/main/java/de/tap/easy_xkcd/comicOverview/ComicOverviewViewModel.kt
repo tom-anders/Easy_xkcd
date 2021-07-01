@@ -52,13 +52,19 @@ class ComicOverviewViewModel @Inject constructor(
         _bookmark.value = number
     }
 
+    private val _hideRead = MutableLiveData(prefHelper.hideRead())
+    val hideRead: LiveData<Boolean> = _hideRead
     fun toggleHideRead() {
         prefHelper.setHideRead(!prefHelper.hideRead())
         updateComicsToShow()
+        _hideRead.value = prefHelper.hideRead()
     }
 
+    private val _onlyFavorites = MutableLiveData(prefHelper.overviewFav())
+    val onlyFavorites: LiveData<Boolean> = _onlyFavorites
     fun toggleOnlyFavorites() {
         prefHelper.setOverviewFav(!prefHelper.overviewFav())
         updateComicsToShow()
+        _onlyFavorites.value = prefHelper.overviewFav()
     }
 }

@@ -102,6 +102,15 @@ class ComicOverviewFragment : Fragment() {
             adapter.notifyDataSetChanged()
         }
 
+        model.onlyFavorites.observe(viewLifecycleOwner) {
+            menu.findItem(R.id.action_favorite)
+                .setIcon(if (it) R.drawable.ic_favorite_on_24dp else R.drawable.ic_favorite_off_24dp)
+        }
+
+        model.hideRead.observe(viewLifecycleOwner) {
+            menu.findItem(R.id.action_hide_read).isChecked = it
+        }
+
         menu.findItem(R.id.action_hide_read)?.apply { isChecked = prefHelper.hideRead() }
     }
 
@@ -114,6 +123,14 @@ class ComicOverviewFragment : Fragment() {
                     model.overviewStyleSelected(i)
                     dialogInterface.dismiss()
                 }.show()
+            true
+        }
+        R.id.action_favorite -> {
+            model.toggleOnlyFavorites()
+            true
+        }
+        R.id.action_hide_read -> {
+            model.toggleHideRead()
             true
         }
         else -> super.onOptionsItemSelected(item)
