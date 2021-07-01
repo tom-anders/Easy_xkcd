@@ -110,12 +110,7 @@ abstract class ComicBrowserBaseFragment : Fragment() {
             }
 
             if (args.containsKey(MainActivity.ARG_COMIC_TO_SHOW)) {
-                model.comicSelected(
-                    args.getInt(
-                        MainActivity.ARG_COMIC_TO_SHOW,
-                        prefHelper.lastComic
-                    ) - 1
-                )
+                model.jumpToComic(args.getInt(MainActivity.ARG_COMIC_TO_SHOW, prefHelper.lastComic))
             }
         }
 

@@ -11,8 +11,10 @@ import com.nbsp.materialfilepicker.ui.FilePickerActivity
 import dagger.hilt.android.lifecycle.HiltViewModel
 import dagger.hilt.android.qualifiers.ApplicationContext
 import de.tap.easy_xkcd.database.RealmComic
+import de.tap.easy_xkcd.notifications.ComicNotifierJob
 import de.tap.easy_xkcd.utils.PrefHelper
 import de.tap.easy_xkcd.utils.SingleLiveEvent
+import hilt_aggregated_deps._de_tap_easy_xkcd_comicBrowsing_ComicBrowserBaseFragment_GeneratedInjector
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -30,6 +32,8 @@ abstract class ComicBrowserBaseViewModel constructor(
     protected val prefHelper = PrefHelper(context)
 
     abstract fun comicSelected(index: Int)
+
+    abstract fun jumpToComic(comicNumber: Int)
 
     fun setBookmark() {
         selectedComic.value?.let {
@@ -54,18 +58,27 @@ class FavoriteComicsViewModel @Inject constructor(
 
     val scrollToPage = SingleLiveEvent<Int>()
 
-    private val _importingFavorites = MutableLiveData<Boolean>(false)
+    private val _importingFavorites = MutableLiveData(false)
     val importingFavorites: LiveData<Boolean> = _importingFavorites
 
     private var currentIndex: Int = 0
         set(value) {
-            _selectedComic.value = _favorites.value?.getOrNull(value)
-            field = value
+            // Negative value might happen in theory when jumpToComic is called for a
+            // comic number that is not actually a favorite
+            if (value >= 0) {
+                _selectedComic.value = _favorites.value?.getOrNull(value)
+                field = value
+            }
         }
 
     init {
         _favorites.value = model.getFavoriteComics()
         currentIndex = 0
+    }
+
+    override fun jumpToComic(comicNumber: Int) {
+        favorites.value?.indexOfFirst { it.comicNumber == comicNumber }?.let { currentIndex = it }
+        scrollToPage.value = currentIndex
     }
 
     override fun comicSelected(index: Int) {
@@ -193,6 +206,8 @@ class ComicBrowserViewModel @Inject constructor(
             }
         }
     }
+
+    override fun jumpToComic(comicNumber: Int) = comicSelected(comicNumber - 1)
 
     override fun comicSelected(index: Int) {
         val number = index + 1
