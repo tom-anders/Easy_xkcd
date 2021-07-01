@@ -9,6 +9,7 @@ import android.graphics.Color
 import android.os.Bundle
 import android.view.Menu
 import android.view.MenuItem
+import android.view.View
 import android.view.inputmethod.InputMethodManager
 import android.widget.SearchView
 import androidx.activity.result.ActivityResultLauncher
@@ -123,12 +124,25 @@ class MainActivity : BaseActivity() {
         }
     }
 
+    fun showComicFromOverview(toFavorites: Boolean, sharedElements: List<View?>, comicNumber: Int) {
+        bottomNavigationListener.setTransitionPendingWithSharedElements(sharedElements)
+        bottomNavigationListener.comicToShow = comicNumber
+        bottomNavigationView.selectedItemId = if (toFavorites) R.id.nav_favorites else R.id.nav_browser
+    }
+
     inner class BottomNavigationListener(
         val savedInstanceState: Bundle?,
     ) : BottomNavigationView.OnNavigationItemSelectedListener {
 
         private var transitionPending: Boolean = false
-        private var comicToShow: Int? = null
+        var comicToShow: Int? = null
+
+        private var pendingSharedElements: List<View?> = emptyList()
+
+        fun setTransitionPendingWithSharedElements(sharedElements: List<View?>) {
+            pendingSharedElements = sharedElements
+            transitionPending = true
+        }
 
         init {
             if (savedInstanceState == null && intent != null) {
@@ -181,8 +195,13 @@ class MainActivity : BaseActivity() {
                 }
             }
 
-            return supportFragmentManager.beginTransaction()
-                .replace(R.id.flContent, fragment, FRAGMENT_TAG)
+            return supportFragmentManager.beginTransaction().apply {
+                setReorderingAllowed(true)
+                pendingSharedElements.filterNotNull().map {
+                    addSharedElement(it, it.transitionName)
+                }
+                pendingSharedElements = emptyList()
+            }.replace(R.id.flContent, fragment, FRAGMENT_TAG)
         }
 
         fun showWhatIfFragment(): Boolean {
@@ -195,6 +214,7 @@ class MainActivity : BaseActivity() {
             makeFragmentTransaction(
                 ComicOverviewFragment()
             ).commitAllowingStateLoss()
+
             return true
         }
 
@@ -204,8 +224,7 @@ class MainActivity : BaseActivity() {
         }
 
         fun showComicBrowserFragment(): Boolean {
-            makeFragmentTransaction(ComicBrowserFragment())
-                .commitAllowingStateLoss()
+            makeFragmentTransaction(ComicBrowserFragment()).commitAllowingStateLoss()
             return true
         }
 

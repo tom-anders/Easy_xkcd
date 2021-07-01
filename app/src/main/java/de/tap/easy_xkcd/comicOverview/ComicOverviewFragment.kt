@@ -3,6 +3,7 @@ package de.tap.easy_xkcd.comicOverview
 import android.graphics.Bitmap
 import android.graphics.Color
 import android.os.Bundle
+import android.util.TypedValue
 import android.view.*
 import android.widget.ImageView
 import android.widget.TextView
@@ -24,15 +25,14 @@ import com.simplecityapps.recyclerview_fastscroll.views.FastScrollRecyclerView
 import com.tap.xkcd_reader.R
 import com.tap.xkcd_reader.databinding.RecyclerLayoutBinding
 import dagger.hilt.android.AndroidEntryPoint
-import de.tap.easy_xkcd.Activities.MainActivity
 import de.tap.easy_xkcd.GlideApp
 import de.tap.easy_xkcd.database.RealmComic
+import de.tap.easy_xkcd.mainActivity.MainActivity
 import de.tap.easy_xkcd.utils.PrefHelper
 import de.tap.easy_xkcd.utils.ThemePrefs
-import timber.log.Timber
 
 @AndroidEntryPoint
-class ComicOverviewFragment: Fragment() {
+class ComicOverviewFragment : Fragment() {
     val model: ComicOverviewViewModel by activityViewModels()
 
     private var _binding: RecyclerLayoutBinding? = null
@@ -42,6 +42,8 @@ class ComicOverviewFragment: Fragment() {
     private lateinit var prefHelper: PrefHelper
 
     private lateinit var adapter: OverviewAdapter
+
+    private lateinit var recyclerView: RecyclerView
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -55,6 +57,9 @@ class ComicOverviewFragment: Fragment() {
         themePrefs = ThemePrefs(activity)
         prefHelper = PrefHelper(activity)
 
+        recyclerView = binding.rv
+        recyclerView.setHasFixedSize(true)
+
         model.overviewStyle.observe(viewLifecycleOwner) {
             it?.let {
                 binding.rv.layoutManager =
@@ -67,11 +72,12 @@ class ComicOverviewFragment: Fragment() {
                         else -> LinearLayoutManager(activity)
                     }
 
-                binding.rv.isVerticalScrollBarEnabled = binding.rv.layoutManager !is LinearLayoutManager
-                binding.rv.setFastScrollEnabled(!binding.rv.isVerticalScrollBarEnabled)
+                recyclerView.isVerticalScrollBarEnabled =
+                    recyclerView.layoutManager !is LinearLayoutManager
+                binding.rv.setFastScrollEnabled(!recyclerView.isVerticalScrollBarEnabled)
 
                 adapter = OverviewAdapter(model.comics.value ?: emptyList(), it)
-                binding.rv.adapter = adapter
+                recyclerView.adapter = adapter
             }
         }
 
@@ -80,8 +86,6 @@ class ComicOverviewFragment: Fragment() {
                 adapter.setComics(it)
             }
         }
-
-        binding.rv.setHasFixedSize(true)
 
         return binding.root
     }
@@ -94,12 +98,14 @@ class ComicOverviewFragment: Fragment() {
                 isVisible = (bookmark != 0)
                 setTitle(R.string.open_bookmark)
             }
+            // For updating which entry to highlight with the accent color
+            adapter.notifyDataSetChanged()
         }
 
         menu.findItem(R.id.action_hide_read)?.apply { isChecked = prefHelper.hideRead() }
     }
 
-    override fun onOptionsItemSelected(item: MenuItem) = when(item.itemId) {
+    override fun onOptionsItemSelected(item: MenuItem) = when (item.itemId) {
         R.id.action_overview_style -> {
             AlertDialog.Builder(requireContext()).setTitle(R.string.overview_style_title)
                 .setSingleChoiceItems(
@@ -136,16 +142,51 @@ class ComicOverviewFragment: Fragment() {
                 else -> LayoutInflater.from(parent.context)
                     .inflate(R.layout.search_result, parent, false)
             }
+
+            view.setOnClickListener {
+                (activity as MainActivity?)?.showComicFromOverview(
+                    prefHelper.overviewFav(), listOf(
+                        view.findViewById(R.id.comic_title),
+                        view.findViewById(R.id.thumbnail)
+                    ), comics[recyclerView.getChildAdapterPosition(it)].comicNumber)
+            }
+
             return ComicViewHolder(view)
         }
 
         override fun onBindViewHolder(holder: ComicViewHolder, position: Int) {
             val comic = comics[position]
 
-            holder.comicTitle?.text = comic.title
+            holder.comicTitle?.apply {
+                text = comic.title
+                transitionName = comic.comicNumber.toString()
+
+                val markAsRead = (comic.isRead && !prefHelper.overviewFav())
+                setTextColor(ContextCompat.getColor(context,
+                    when {
+                        comic.comicNumber == model.bookmark.value -> {
+                            val typedValue = TypedValue()
+                            activity?.theme?.resolveAttribute(R.attr.colorAccent, typedValue, true)
+                            typedValue.data
+                        }
+                        markAsRead xor themePrefs.nightThemeEnabled() -> {
+                            R.color.Read
+                        }
+                        else -> {
+                            android.R.color.tertiary_text_light
+                        }
+                    }
+                ))
+            }
+
             holder.comicInfo?.text = comic.comicNumber.toString()
 
             holder.thumbnail?.let { thumbnail ->
+                thumbnail.transitionName = "im" + comic.comicNumber.toString()
+
+                if (themePrefs.invertColors(false))
+                    thumbnail.colorFilter = themePrefs.negativeColorFilter
+
                 // TODO add listener to handle postponed enter transition
                 GlideApp.with(this@ComicOverviewFragment)
                     .asBitmap()
@@ -164,38 +205,38 @@ class ComicOverviewFragment: Fragment() {
                             )
                         ) else load(comic.url)
                     }
-                .listener(object : RequestListener<Bitmap?> {
-                    override fun onLoadFailed(
-                        e: GlideException?,
-                        model: Any?,
-                        target: Target<Bitmap?>?,
-                        isFirstResource: Boolean
-                    ): Boolean {
-                        //TODO start postponed
-                        return false
-                    }
-
-                    override fun onResourceReady(
-                        resource: Bitmap?,
-                        model: Any,
-                        target: Target<Bitmap?>,
-                        dataSource: DataSource,
-                        isFirstResource: Boolean
-                    ): Boolean {
-                        resource?.let {
-                            if (themePrefs.invertColors(false)
-                                && themePrefs.bitmapContainsColor(resource, comic.comicNumber)
-                            ) {
-                                thumbnail.clearColorFilter()
-                            }
+                    .listener(object : RequestListener<Bitmap?> {
+                        override fun onLoadFailed(
+                            e: GlideException?,
+                            model: Any?,
+                            target: Target<Bitmap?>?,
+                            isFirstResource: Boolean
+                        ): Boolean {
+                            //TODO start postponed
+                            return false
                         }
-                        return false
-                    }
-                }).into(thumbnail)
+
+                        override fun onResourceReady(
+                            resource: Bitmap?,
+                            model: Any,
+                            target: Target<Bitmap?>,
+                            dataSource: DataSource,
+                            isFirstResource: Boolean
+                        ): Boolean {
+                            resource?.let {
+                                if (themePrefs.invertColors(false)
+                                    && themePrefs.bitmapContainsColor(resource, comic.comicNumber)
+                                ) {
+                                    thumbnail.clearColorFilter()
+                                }
+                            }
+                            return false
+                        }
+                    }).into(thumbnail)
             }
         }
 
-        inner class ComicViewHolder constructor(view: View): RecyclerView.ViewHolder(view) {
+        inner class ComicViewHolder constructor(view: View) : RecyclerView.ViewHolder(view) {
             var cv: CardView? = null
             var comicTitle: TextView? = null
             var comicInfo: TextView? = null

@@ -8,6 +8,7 @@ import android.graphics.Color
 import android.net.Uri
 import android.os.Bundle
 import android.text.Html
+import android.transition.TransitionInflater
 import android.view.*
 import android.widget.ImageView
 import android.widget.RelativeLayout
@@ -34,14 +35,12 @@ import dagger.hilt.android.AndroidEntryPoint
 import de.tap.easy_xkcd.CustomTabHelpers.BrowserFallback
 import de.tap.easy_xkcd.CustomTabHelpers.CustomTabActivityHelper
 import de.tap.easy_xkcd.GlideApp
-import de.tap.easy_xkcd.GlideRequest
 import de.tap.easy_xkcd.database.RealmComic
 import de.tap.easy_xkcd.mainActivity.ComicDatabaseViewModel
 import de.tap.easy_xkcd.mainActivity.MainActivity
 import de.tap.easy_xkcd.misc.HackyViewPager
 import de.tap.easy_xkcd.utils.PrefHelper
 import de.tap.easy_xkcd.utils.ThemePrefs
-import io.realm.Realm
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -104,8 +103,10 @@ abstract class ComicBrowserBaseFragment : Fragment() {
                     false
                 )
             ) {
-//            postponeEnterTransition() //TODO We possibly need this for transition from overview
                 transitionPending = true
+                postponeEnterTransition()
+                sharedElementEnterTransition = TransitionInflater.from(context)
+                    .inflateTransition(R.transition.image_shared_element_transition)
             }
 
             if (args.containsKey(MainActivity.ARG_COMIC_TO_SHOW)) {
@@ -226,7 +227,7 @@ abstract class ComicBrowserBaseFragment : Fragment() {
 
         fun postImageLoaded(comicNumber: Int) {
             if (transitionPending && comicNumber == model.selectedComic.value?.comicNumber) {
-//                startPostponedEnterTransition() //TODO We maybe need this for transition from overview
+                startPostponedEnterTransition()
                 activity?.startPostponedEnterTransition()
                 transitionPending = false
             }
