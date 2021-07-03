@@ -79,7 +79,7 @@ class ComicBrowserFragment : ComicBrowserBaseFragment() {
             }
         }
 
-        menu.findItem(R.id.action_alt)?.isVisible = prefHelper.showAltTip()
+//        menu.findItem(R.id.action_alt)?.isVisible = prefHelper.showAltTip()
 
         super.onPrepareOptionsMenu(menu)
     }

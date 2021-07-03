@@ -2,11 +2,13 @@ package de.tap.easy_xkcd.comicBrowsing
 
 import android.annotation.SuppressLint
 import android.app.AlertDialog
+import android.content.Context
 import android.content.Intent
 import android.graphics.Bitmap
 import android.graphics.Color
 import android.net.Uri
 import android.os.Bundle
+import android.os.Vibrator
 import android.text.Html
 import android.transition.TransitionInflater
 import android.view.*
@@ -17,7 +19,7 @@ import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.browser.customtabs.CustomTabsIntent
 import androidx.core.view.MenuCompat
-import androidx.core.view.get
+import androidx.fragment.app.DialogFragment
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.lifecycleScope
@@ -30,6 +32,8 @@ import com.bumptech.glide.request.RequestListener
 import com.bumptech.glide.request.RequestOptions
 import com.bumptech.glide.request.target.Target
 import com.github.chrisbanes.photoview.PhotoView
+import com.google.android.material.snackbar.BaseTransientBottomBar
+import com.google.android.material.snackbar.Snackbar
 import com.tap.xkcd_reader.R
 import com.tap.xkcd_reader.databinding.PagerLayoutBinding
 import dagger.hilt.android.AndroidEntryPoint
@@ -37,6 +41,8 @@ import de.tap.easy_xkcd.CustomTabHelpers.BrowserFallback
 import de.tap.easy_xkcd.CustomTabHelpers.CustomTabActivityHelper
 import de.tap.easy_xkcd.GlideApp
 import de.tap.easy_xkcd.database.RealmComic
+import de.tap.easy_xkcd.fragments.ImmersiveDialogFragment
+import de.tap.easy_xkcd.fragments.comics.FavoritesFragment
 import de.tap.easy_xkcd.mainActivity.ComicDatabaseViewModel
 import de.tap.easy_xkcd.mainActivity.MainActivity
 import de.tap.easy_xkcd.misc.HackyViewPager
@@ -138,6 +144,59 @@ abstract class ComicBrowserBaseFragment : Fragment() {
             container.removeView(obj as RelativeLayout)
         }
 
+        inner class LongAndDoubleTapListener(
+            private val pvComic: PhotoView,
+            private val comic: RealmComic
+        ) : GestureDetector.OnDoubleTapListener, View.OnLongClickListener {
+            private var fingerLifted = true
+
+            override fun onDoubleTapEvent(e: MotionEvent?): Boolean {
+                if (e?.action == MotionEvent.ACTION_UP) fingerLifted = true
+                if (e?.action == MotionEvent.ACTION_DOWN) fingerLifted = false
+                return false
+            }
+
+            override fun onDoubleTap(e: MotionEvent?): Boolean {
+                if (prefHelper.doubleTapToFavorite()) {
+                    toggleFavorite()
+                    (activity?.getSystemService(Context.VIBRATOR_SERVICE) as? Vibrator?)?.vibrate(100)
+                } else {
+                    when {
+                        pvComic.scale < 0.5f * pvComic.maximumScale -> {
+                            pvComic.setScale(0.5f * pvComic.maximumScale, true)
+                        }
+                        pvComic.scale < pvComic.maximumScale -> {
+                            pvComic.setScale(pvComic.maximumScale, true)
+                        }
+                        else -> {
+                            pvComic.setScale(1.0f, true)
+                        }
+                    }
+                }
+                return true
+            }
+
+            override fun onSingleTapConfirmed(e: MotionEvent?): Boolean {
+                if (RealmComic.isInteractiveComic(comic.comicNumber, activity)) {
+                    openInBrowser(comic)
+                } else if (prefHelper.fullscreenModeEnabled()) {
+                    //TODO let MainActivity toggle fullscreen
+                }
+                return false
+            }
+
+            override fun onLongClick(p0: View?): Boolean {
+                if (fingerLifted) {
+                    if (prefHelper.altVibration()) {
+                        (activity?.getSystemService(Context.VIBRATOR_SERVICE) as? Vibrator?)?.vibrate(10)
+                    }
+
+                    showAltText()
+                }
+                return true
+            }
+        }
+
         @SuppressLint("SetTextI18n")
         override fun instantiateItem(container: ViewGroup, position: Int): Any {
             val view = LayoutInflater.from(activity).inflate(R.layout.pager_item, container, false)
@@ -145,12 +204,9 @@ abstract class ComicBrowserBaseFragment : Fragment() {
 
             val comic = comics[position]
 
-            val tvAlt: TextView = view.findViewById(R.id.tvAlt)
             val tvTitle: TextView = view.findViewById(R.id.tvTitle)
             val pvComic: PhotoView = view.findViewById(R.id.ivComic)
 
-            tvAlt.text =
-                Html.fromHtml(Html.escapeHtml(comic.altText)) //TODO Get rid of the legacy alt text display
             tvTitle.text = (if (prefHelper.subtitleEnabled()) "" else comic.comicNumber
                 .toString() + ": ") + Html.fromHtml(
                 RealmComic.getInteractiveTitle(comic, activity)
@@ -171,7 +227,6 @@ abstract class ComicBrowserBaseFragment : Fragment() {
             }
 
             if (themePrefs.nightThemeEnabled()) {
-                tvAlt.setTextColor(Color.WHITE)
                 tvTitle.setTextColor(Color.WHITE)
             }
 
@@ -180,7 +235,21 @@ abstract class ComicBrowserBaseFragment : Fragment() {
                 pvComic.maximumScale = 10f
             }
 
-            //TODO setup tap/long tap/double tap listeners
+            if (themePrefs.invertColors(false)) {
+                pvComic.colorFilter = themePrefs.negativeColorFilter
+            }
+
+            if (prefHelper.scrollDisabledWhileZoom() && prefHelper.defaultZoom()) {
+                pvComic.setOnMatrixChangeListener {
+                    pager.setLocked(pvComic.scale > 1.4)
+                }
+            }
+
+            LongAndDoubleTapListener(pvComic, comic).let {
+                pvComic.setOnDoubleTapListener(it)
+                pvComic.setOnLongClickListener(it)
+            }
+
             GlideApp.with(this@ComicBrowserBaseFragment)
                 .asBitmap()
                 .apply(RequestOptions().placeholder(makeProgressDrawable()))
@@ -259,6 +328,36 @@ abstract class ComicBrowserBaseFragment : Fragment() {
         super.onCreateOptionsMenu(menu, inflater)
     }
 
+    fun toggleFavorite() {
+        if (prefHelper.isOnline(activity) || prefHelper.fullOfflineEnabled()) {
+            model.toggleFavorite()
+        } else {
+            Toast.makeText(activity, R.string.no_connection, Toast.LENGTH_SHORT).show()
+        }
+    }
+
+    private fun showAltText(fromMenu: Boolean = false): Boolean {
+        //Show alt text
+        getDisplayedComic()?.let { comic ->
+            ImmersiveDialogFragment.getInstance(Html.fromHtml(Html.escapeHtml(comic.altText)).toString()).apply {
+                if (fromMenu) {
+                    dismissListener = ImmersiveDialogFragment.DismissListener {
+                        //If the user selected the menu item for the first time, show the toast
+                        if (prefHelper.showAltTip()) {
+                            Snackbar.make(
+                                requireActivity().findViewById(android.R.id.content),
+                                R.string.action_alt_tip,
+                                Snackbar.LENGTH_LONG
+                            ).setAction(R.string.got_it) { prefHelper.setShowAltTip(false) }
+                                .show()
+                        }
+                    }
+                }
+            }.showImmersive(requireActivity() as AppCompatActivity)
+        }
+        return true
+    }
+
     override fun onOptionsItemSelected(item: MenuItem) =
         when (item.itemId) {
             R.id.action_share -> {
@@ -272,12 +371,12 @@ abstract class ComicBrowserBaseFragment : Fragment() {
                 }.create().show()
                 true
             }
+            R.id.action_alt -> {
+                showAltText(fromMenu = true)
+                true
+            }
             R.id.action_favorite -> {
-                if (prefHelper.isOnline(activity) || prefHelper.fullOfflineEnabled()) {
-                    model.toggleFavorite()
-                } else {
-                    Toast.makeText(activity, R.string.no_connection, Toast.LENGTH_SHORT).show()
-                }
+                toggleFavorite()
                 true
             }
             R.id.action_trans -> {
