@@ -7,16 +7,21 @@ import android.content.Intent
 import android.content.res.ColorStateList
 import android.graphics.Color
 import android.os.Bundle
+import android.os.Handler
 import android.view.Menu
 import android.view.MenuItem
 import android.view.View
+import android.view.ViewGroup
 import android.view.inputmethod.InputMethodManager
+import android.widget.FrameLayout
+import android.widget.RelativeLayout
 import android.widget.SearchView
 import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.viewModels
 import androidx.appcompat.widget.Toolbar
 import androidx.core.content.ContextCompat
+import androidx.core.view.marginBottom
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentTransaction
 import com.google.android.material.bottomappbar.BottomAppBar
@@ -35,7 +40,6 @@ import de.tap.easy_xkcd.comicBrowsing.ComicBrowserViewModel
 import de.tap.easy_xkcd.comicBrowsing.FavoritesFragment
 import de.tap.easy_xkcd.comicOverview.ComicOverviewFragment
 import de.tap.easy_xkcd.whatIfOverview.WhatIfOverviewFragment
-import timber.log.Timber
 
 @AndroidEntryPoint
 class MainActivity : BaseActivity() {
@@ -48,6 +52,8 @@ class MainActivity : BaseActivity() {
     private lateinit var toolbar: Toolbar
 
     private lateinit var progress: ProgressDialog
+
+    private var fullscreenEnabled = false
 
     private var customTabActivityHelper = CustomTabActivityHelper()
     private lateinit var activityResultLauncher: ActivityResultLauncher<Intent>
@@ -358,7 +364,26 @@ class MainActivity : BaseActivity() {
         return true
     }
 
-    override fun onStart() {
+    fun toggleFullscreen() {
+        fullscreenEnabled = !fullscreenEnabled
+
+        animateViewForFullscreenToggle(toolbar, true)
+        animateViewForFullscreenToggle(bottomAppBar, false)
+
+        val newMargin = (if (fullscreenEnabled) 0 else bottomAppBar.height)
+        (binding.flContent.layoutParams as RelativeLayout.LayoutParams?)?.bottomMargin = newMargin
+
+    }
+
+    private fun animateViewForFullscreenToggle(view: View, up: Boolean) {
+        val sign = if (up) -1 else 1
+        view.translationY = if (fullscreenEnabled) 0f else (sign * view.height).toFloat()
+        view.animate().translationY(if (fullscreenEnabled) sign * view.height.toFloat() else 0f)
+        view.visibility = if (fullscreenEnabled) View.GONE else View.VISIBLE
+    }
+
+
+override fun onStart() {
         super.onStart()
         customTabActivityHelper.bindCustomTabsService(this)
     }

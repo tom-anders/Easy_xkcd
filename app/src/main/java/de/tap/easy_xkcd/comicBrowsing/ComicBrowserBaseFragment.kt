@@ -180,7 +180,7 @@ abstract class ComicBrowserBaseFragment : Fragment() {
                 if (RealmComic.isInteractiveComic(comic.comicNumber, activity)) {
                     openInBrowser(comic)
                 } else if (prefHelper.fullscreenModeEnabled()) {
-                    //TODO let MainActivity toggle fullscreen
+                    (activity as? MainActivity?)?.toggleFullscreen()
                 }
                 return false
             }
