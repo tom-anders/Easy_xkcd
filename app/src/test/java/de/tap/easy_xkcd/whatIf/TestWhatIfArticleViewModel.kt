@@ -1,4 +1,4 @@
-package de.tap.easy_xkcd
+package de.tap.easy_xkcd.whatIf
 
 import android.content.Intent
 import android.net.Uri
