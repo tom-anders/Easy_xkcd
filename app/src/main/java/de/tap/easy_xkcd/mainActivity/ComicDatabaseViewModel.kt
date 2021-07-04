@@ -11,14 +11,15 @@ import de.tap.easy_xkcd.database.RealmComic
 import de.tap.easy_xkcd.utils.PrefHelper
 import de.tap.easy_xkcd.utils.SingleLiveEvent
 import kotlinx.coroutines.launch
+import timber.log.Timber
 import javax.inject.Inject
 
 @HiltViewModel
 class ComicDatabaseViewModel @Inject constructor(
     app: Application,
     private val model: ComicDatabaseModel,
+    private val prefHelper: PrefHelper,
 ) : AndroidViewModel(app) {
-    private val prefHelper = PrefHelper(app.applicationContext)
 
     private val _progress: MutableLiveData<Int> = MutableLiveData()
     val progress: LiveData<Int> = _progress

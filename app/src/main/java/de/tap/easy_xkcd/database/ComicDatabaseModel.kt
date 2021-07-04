@@ -61,10 +61,10 @@ interface ComicDatabaseModel {
 
 @Singleton
 class ComicDatabaseModelImpl @Inject constructor(
-    @ApplicationContext private val context: Context
+    @ApplicationContext private val context: Context,
+    private val prefHelper: PrefHelper,
+    private val databaseManager: DatabaseManager,
 ) : ComicDatabaseModel {
-    private val prefHelper = PrefHelper(context)
-    private val databaseManager = DatabaseManager(context)
 
     private val client = OkHttpClient()
 
