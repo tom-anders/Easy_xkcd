@@ -46,6 +46,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.bumptech.glide.Glide;
+import com.google.android.material.transition.MaterialFadeThrough;
 import com.nbsp.materialfilepicker.ui.FilePickerActivity;
 import com.tap.xkcd_reader.R;
 
@@ -360,8 +361,8 @@ public class FavoritesFragment extends ComicFragment {
 
                         databaseManager.removeAllFavorites();
 
-                        MenuItem mBrowser = getMainActivity().getNavView().getMenu().findItem(R.id.nav_browser);
-                        getMainActivity().selectDrawerItem(mBrowser, false, false, false, true);
+//                        MenuItem mBrowser = getMainActivity().getNavView().getMenu().findItem(R.id.nav_browser);
+//                        getMainActivity().selectDrawerItem(mBrowser, false, false, false, true);
 
                         Toast toast = Toast.makeText(getActivity(), R.string.favorites_cleared, Toast.LENGTH_SHORT);
                         toast.show();
@@ -394,8 +395,8 @@ public class FavoritesFragment extends ComicFragment {
         protected void onPostExecute(Void v) {
             if (databaseManager.noFavorites()) {
                 //If there are no favorites left, show ComicBrowserFragment
-                MenuItem mBrowser = getMainActivity().getNavView().getMenu().findItem(R.id.nav_browser);
-                getMainActivity().selectDrawerItem(mBrowser, false, false, true, true);
+//                MenuItem mBrowser = getMainActivity().getNavView().getMenu().findItem(R.id.nav_browser);
+//                getMainActivity().selectDrawerItem(mBrowser, false, false, true, true);
                 return;
             }
             refresh();

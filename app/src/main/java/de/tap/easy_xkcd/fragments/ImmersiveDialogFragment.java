@@ -2,12 +2,17 @@ package de.tap.easy_xkcd.fragments;
 
 import android.app.Activity;
 import android.app.Dialog;
+import android.content.DialogInterface;
 import android.os.Bundle;
 import android.view.WindowManager;
 
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.DialogFragment;
+
+import org.jetbrains.annotations.NotNull;
+
 import timber.log.Timber;
 
 // Adapted from https://stackoverflow.com/a/28016335/5136129
@@ -37,7 +42,18 @@ public class ImmersiveDialogFragment extends DialogFragment {
 
     }
 
+    public interface DismissListener {
+        void onDismiss();
+    }
+    public DismissListener dismissListener = null;
 
+    @Override
+    public void onDismiss(@NonNull @NotNull DialogInterface dialog) {
+        if (dismissListener != null) {
+            dismissListener.onDismiss();
+        }
+        super.onDismiss(dialog);
+    }
 
     public void showImmersive(AppCompatActivity activity) {
 

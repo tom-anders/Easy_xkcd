@@ -170,7 +170,7 @@
     <string name="title_interactive">(interactivo)</string>
 
     <!-- navigation drawer -->
-    <string name="nv_comicbrowser">Buscador de cómics</string>
+    <string name="nv_comicbrowser">Buscador</string>
     <string name="nv_favorites">Favoritos</string>
     <string name="nv_about">Acerca de</string>
     <string name="nv_feedback">Retroalimentación</string>

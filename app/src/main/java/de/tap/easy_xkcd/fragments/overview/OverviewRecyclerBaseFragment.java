@@ -264,7 +264,7 @@ public abstract class OverviewRecyclerBaseFragment extends OverviewBaseFragment 
                 prefHelper.setOverviewFav(!prefHelper.overviewFav());
                 MainActivity mainActivity = (MainActivity) getActivity();
                 mainActivity.updateToolbarTitle();
-                mainActivity.getNavView().setCheckedItem(mainActivity.currentFragmentToNavId());
+//                mainActivity.getNavView().setCheckedItem(mainActivity.currentFragmentToNavId());
                 mainActivity.invalidateOptionsMenu();
                 setupAdapter();
                 break;

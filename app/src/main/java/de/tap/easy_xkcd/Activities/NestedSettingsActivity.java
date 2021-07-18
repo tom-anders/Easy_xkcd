@@ -52,6 +52,9 @@ public class NestedSettingsActivity extends BaseActivity {
     private static final String NIGHT = "night";
     private static final String WIDGET = "widget";
 
+    // Whenever something major (e.g. theme) was changed and the other activities need to be restarted
+    public static final int RESULT_RESTART_MAIN = 10;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -101,7 +104,7 @@ public class NestedSettingsActivity extends BaseActivity {
                     Toast.makeText(getApplicationContext(), getResources().getString(R.string.loading_comics), Toast.LENGTH_SHORT).show();
                     new DatabaseManager(NestedSettingsActivity.this).setHighestInDatabase(1);
                     prefHelper.setFullOffline(true);
-                    setResult(Activity.RESULT_OK);
+                    setResult(RESULT_RESTART_MAIN);
                     finish();
                 }
                 break;
@@ -114,7 +117,7 @@ public class NestedSettingsActivity extends BaseActivity {
             case 3:
                 if (grantResults[0] == PackageManager.PERMISSION_GRANTED) {
                     prefHelper.setFullOfflineWhatIf(true);
-                    setResult(MainActivity.RESULT_SHOW_WHATIF);
+                    setResult(RESULT_RESTART_MAIN);
                     finish();
                 }
                 break;

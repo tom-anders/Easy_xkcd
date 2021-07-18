@@ -113,7 +113,7 @@ public class updateComicDatabase extends AsyncTask<Void, String, Void> {
     void saveComicInDatabase(JSONObject json, Realm realm, int num, final CountDownLatch latch) {
         RealmComic oldRealmComic = realm.where(RealmComic.class).equalTo("comicNumber", num).findFirst();
 
-        final RealmComic comic = RealmComic.buildFromJson(realm, num, json, context);
+        final RealmComic comic = RealmComic.buildFromJson(num, json, context);
 
         //Import read and favorite comics from the old database
         if (oldRealmComic != null && oldRealmComic.isFavorite()) {
@@ -244,13 +244,6 @@ public class updateComicDatabase extends AsyncTask<Void, String, Void> {
 
     @Override
     protected void onPostExecute(Void dummy) {
-        if (!prefHelper.cacheFixed()) {
-            new DatabaseManager(context).fixCache();
-            prefHelper.setCacheFixed();
-            Timber.d("Fixed cache!");
-        }
-
-
         if (showProgress) {
             try {
                 progress.dismiss();

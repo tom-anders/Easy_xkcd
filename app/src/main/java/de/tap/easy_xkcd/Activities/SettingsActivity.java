@@ -52,7 +52,7 @@ public class SettingsActivity extends BaseActivity {
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         if (requestCode == 1)
             switch (resultCode) {
-                case RESULT_OK:
+                case NestedSettingsActivity.RESULT_RESTART_MAIN:
                 case MainActivity.RESULT_SHOW_WHATIF:
                     setResult(resultCode);
                     finish();

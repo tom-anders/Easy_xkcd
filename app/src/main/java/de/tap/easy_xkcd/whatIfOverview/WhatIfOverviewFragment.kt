@@ -106,7 +106,7 @@ class WhatIfOverviewFragment : Fragment() {
             displayWhatIf(Random().nextInt(adapter.itemCount))
         }
 
-        activityResultLauncher =
+       activityResultLauncher =
             registerForActivityResult(ActivityResultContracts.StartActivityForResult()) {
                 searchMenuItem.collapseActionView()
                 model.updateArticleData()

@@ -170,7 +170,7 @@
     <string name="title_interactive">(interaktivní)</string>
 
     <!-- navigation drawer -->
-    <string name="nv_comicbrowser">Prohlížeč komixu</string>
+    <string name="nv_comicbrowser">Prohlížet</string>
     <string name="nv_favorites">Oblíbené</string>
     <string name="nv_about">O aplikaci</string>
     <string name="nv_feedback">Zpětná vazba</string>

@@ -3,57 +3,65 @@
     xmlns:app="http://schemas.android.com/apk/res-auto">
 
     <group android:id="@+id/groupNavigation">
-        <item android:id="@+id/action_overview"
-            android:title="@string/action_overview"
-            app:showAsAction="never" />
-
-        <item android:id="@+id/action_latest"
+        <item
+            android:id="@+id/action_latest"
             android:title="@string/action_latest"
             app:showAsAction="never" />
-
-        <item android:id="@+id/action_random"
-            android:title="@string/action_random"
-            app:showAsAction="ifRoom"
-            android:icon="@drawable/ic_outline_shuffle_24dp"/>
     </group>
 
     <group android:id="@+id/groupCurrentComic">
-        <item android:id="@+id/action_favorite"
+        <item
+            android:id="@+id/action_favorite"
+            android:icon="@drawable/ic_favorite_off_24dp"
             android:title="@string/action_favorite"
-            app:showAsAction="ifRoom"
-            android:icon="@drawable/ic_favorite_off_24dp"/>
-
-
-        <item android:id="@+id/action_boomark"
-            app:showAsAction="never"
-            android:title="@string/add_bookmark" />
-
-        <item android:id="@+id/action_share"
-            android:title="@string/action_share"
-            android:icon="@drawable/ic_outline_share_24dp"
             app:showAsAction="ifRoom" />
 
-        <item android:id="@+id/action_trans"
+
+        <item
+            android:id="@+id/action_boomark"
+            android:title="@string/add_bookmark"
+            app:showAsAction="never" />
+
+        <item
+            android:id="@+id/action_share"
+            android:icon="@drawable/ic_outline_share_24dp"
+            android:title="@string/action_share"
+            app:showAsAction="ifRoom" />
+
+        <item
+            android:id="@+id/action_trans"
             android:title="@string/action_trans"
             app:showAsAction="never" />
 
-        <item android:id="@+id/action_alt"
+        <item
+            android:id="@+id/action_alt"
             android:title="@string/action_alt"
             app:showAsAction="never" />
 
-        <item android:id="@+id/action_explain"
+        <item
+            android:id="@+id/action_explain"
             android:title="@string/action_explain"
-            app:showAsAction="never" />
+            android:icon="@drawable/ic_help"
+            app:showAsAction="ifRoom" />
 
-        <item android:id="@+id/action_browser"
+        <item
+            android:id="@+id/action_browser"
             android:title="@string/action_browser"
-            android:visible="false"
+            android:visible="true"
             app:showAsAction="never" />
 
-        <item android:id="@+id/action_thread"
+        <item
+            android:id="@+id/action_thread"
             android:title="@string/action_thread"
             app:showAsAction="never" />
 
     </group>
 
+    <group>
+        <item
+            android:id="@+id/action_settings"
+            android:title="@string/action_settings"
+            android:icon="@drawable/ic_outline_article_24"
+            app:showAsAction="ifRoom" />
+    </group>
 </menu>

@@ -78,6 +78,7 @@ public class NestedPreferenceFragment extends PreferenceFragment {
     private static final String TAG_KEY = "NESTED_KEY";
     private static final String SUBTITLE_ENABLED = "pref_subtitle";
 
+    private static final String COLORED_NAVBAR = "pref_navbar";
     private static final String COLOR_PRIMARY = "pref_color_primary";
     private static final String COLOR_ACCENT = "pref_color_accent";
     private static final String NOTIFICATIONS_INTERVAL = "pref_notifications";
@@ -130,11 +131,27 @@ public class NestedPreferenceFragment extends PreferenceFragment {
         switch (key) {
             case APPEARANCE:
                 addPreferencesFromResource(R.xml.pref_appearance);
+                findPreference(COLORED_NAVBAR).setEnabled(Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP);
+                findPreference(COLORED_NAVBAR).setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
+                    @Override
+                    public boolean onPreferenceClick(Preference preference) {
+                        getActivity().setResult(NestedSettingsActivity.RESULT_RESTART_MAIN);
+                        Intent intent = getActivity().getIntent();
+                        intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK
+                                | Intent.FLAG_ACTIVITY_NO_ANIMATION);
+                        getActivity().overridePendingTransition(0, 0);
+                        getActivity().finish();
+
+                        getActivity().overridePendingTransition(0, 0);
+                        startActivity(intent);
+                        return true;
+                    }
+                });
 
                 findPreference(SUBTITLE_ENABLED).setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
                     @Override
                     public boolean onPreferenceClick(Preference preference) {
-                        getActivity().setResult(Activity.RESULT_OK);
+                        getActivity().setResult(NestedSettingsActivity.RESULT_RESTART_MAIN);
                         return true;
                     }
                 });
@@ -159,7 +176,7 @@ public class NestedPreferenceFragment extends PreferenceFragment {
                             @Override
                             public void onClick(View view) {
                                 themePrefs.setNewTheme(lineColorPicker.getColor());
-                                getActivity().setResult(Activity.RESULT_OK);
+                                getActivity().setResult(NestedSettingsActivity.RESULT_RESTART_MAIN);
                                 new Handler().post(new Runnable() {
                                     @Override
                                     public void run() {
@@ -201,7 +218,7 @@ public class NestedPreferenceFragment extends PreferenceFragment {
                             @Override
                             public void onClick(View view) {
                                 themePrefs.setPrimaryColor(lineColorPicker.getColor());
-                                getActivity().setResult(Activity.RESULT_OK);
+                                getActivity().setResult(NestedSettingsActivity.RESULT_RESTART_MAIN);
                                 new Handler().post(new Runnable() {
                                     @Override
                                     public void run() {
@@ -226,7 +243,7 @@ public class NestedPreferenceFragment extends PreferenceFragment {
                 findPreference(DONATE).setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
                     @Override
                     public boolean onPreferenceClick(Preference preference) {
-                        getActivity().setResult(Activity.RESULT_OK);
+                        getActivity().setResult(NestedSettingsActivity.RESULT_RESTART_MAIN);
                         return true;
                     }
                 });
@@ -234,14 +251,14 @@ public class NestedPreferenceFragment extends PreferenceFragment {
                 findPreference(FAB_OPTIONS).setOnPreferenceChangeListener(new Preference.OnPreferenceChangeListener() {
                     @Override
                     public boolean onPreferenceChange(Preference preference, Object o) {
-                        getActivity().setResult(Activity.RESULT_OK);
+                        getActivity().setResult(NestedSettingsActivity.RESULT_RESTART_MAIN);
                         return true;
                     }
                 });
                 findPreference(FAB_LEFT).setOnPreferenceChangeListener(new Preference.OnPreferenceChangeListener() {
                     @Override
                     public boolean onPreferenceChange(Preference preference, Object o) {
-                        getActivity().setResult(Activity.RESULT_OK);
+                        getActivity().setResult(NestedSettingsActivity.RESULT_RESTART_MAIN);
                         return true;
                     }
                 });
@@ -252,7 +269,7 @@ public class NestedPreferenceFragment extends PreferenceFragment {
                 findPreference(NOTIFICATIONS_INTERVAL).setOnPreferenceChangeListener(new Preference.OnPreferenceChangeListener() {
                     @Override
                     public boolean onPreferenceChange(final Preference preference, Object o) {
-                        getActivity().setResult(MainActivity.RESULT_UPDATE_ALARM);
+                        getActivity().setResult(NestedSettingsActivity.RESULT_RESTART_MAIN);
                         return true;
                     }
                 });
@@ -266,7 +283,7 @@ public class NestedPreferenceFragment extends PreferenceFragment {
                                     Toast.makeText(getActivity(), getResources().getString(R.string.loading_comics), Toast.LENGTH_SHORT).show();
                                     new DatabaseManager(getActivity()).setHighestInDatabase(1);
                                     prefHelper.setFullOffline(true);
-                                    getActivity().setResult(Activity.RESULT_OK);
+                                    getActivity().setResult(NestedSettingsActivity.RESULT_RESTART_MAIN);
                                     getActivity().finish();
                                 } else {
                                     ActivityCompat.requestPermissions(getActivity(), new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE}, 1);
@@ -364,7 +381,7 @@ public class NestedPreferenceFragment extends PreferenceFragment {
                     @Override
                     public boolean onPreferenceChange(Preference preference, Object newValue) {
                         prefHelper.setNavDrawerSwipe(Boolean.parseBoolean(newValue.toString()));
-                        getActivity().setResult(Activity.RESULT_OK);
+                        getActivity().setResult(NestedSettingsActivity.RESULT_RESTART_MAIN);
                         return true;
                     }
                 });
@@ -393,7 +410,7 @@ public class NestedPreferenceFragment extends PreferenceFragment {
                     findPreference(NIGHT_SYSTEM).setOnPreferenceChangeListener(new Preference.OnPreferenceChangeListener() {
                         @Override
                         public boolean onPreferenceChange(Preference preference, Object newValue) {
-                            getActivity().setResult(Activity.RESULT_OK);
+                            getActivity().setResult(NestedSettingsActivity.RESULT_RESTART_MAIN);
                             Intent intent = getActivity().getIntent();
                             intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK
                                     | Intent.FLAG_ACTIVITY_NO_ANIMATION);
@@ -410,7 +427,7 @@ public class NestedPreferenceFragment extends PreferenceFragment {
                 findPreference(NIGHT_THEME).setOnPreferenceChangeListener(new Preference.OnPreferenceChangeListener() {
                     @Override
                     public boolean onPreferenceChange(Preference preference, Object newValue) {
-                        getActivity().setResult(Activity.RESULT_OK);
+                        getActivity().setResult(NestedSettingsActivity.RESULT_RESTART_MAIN);
                         Intent intent = getActivity().getIntent();
                         intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK
                                 | Intent.FLAG_ACTIVITY_NO_ANIMATION);
@@ -425,21 +442,21 @@ public class NestedPreferenceFragment extends PreferenceFragment {
                 findPreference(AUTO_NIGHT).setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
                     @Override
                     public boolean onPreferenceClick(Preference preference) {
-                        getActivity().setResult(Activity.RESULT_OK);
+                        getActivity().setResult(NestedSettingsActivity.RESULT_RESTART_MAIN);
                         return true;
                     }
                 });
                 findPreference(DETECT_COLOR).setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
                     @Override
                     public boolean onPreferenceClick(Preference preference) {
-                        getActivity().setResult(Activity.RESULT_OK);
+                        getActivity().setResult(NestedSettingsActivity.RESULT_RESTART_MAIN);
                         return true;
                     }
                 });
                 findPreference(AMOLED_NIGHT).setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
                     @Override
                     public boolean onPreferenceClick(Preference preference) {
-                        getActivity().setResult(Activity.RESULT_OK);
+                        getActivity().setResult(NestedSettingsActivity.RESULT_RESTART_MAIN);
                         Intent intent = getActivity().getIntent();
                         intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK
                                 | Intent.FLAG_ACTIVITY_NO_ANIMATION);
@@ -454,7 +471,7 @@ public class NestedPreferenceFragment extends PreferenceFragment {
                 findPreference(INVERT_COLORS).setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
                     @Override
                     public boolean onPreferenceClick(Preference preference) {
-                        getActivity().setResult(Activity.RESULT_OK);
+                        getActivity().setResult(NestedSettingsActivity.RESULT_RESTART_MAIN);
                         return true;
                     }
                 });
@@ -465,7 +482,7 @@ public class NestedPreferenceFragment extends PreferenceFragment {
                             @Override
                             public void onTimeSet(TimePicker timePicker, int hourOfDay, int minute) {
                                 themePrefs.setAutoNightStart(new int[]{hourOfDay, minute});
-                                getActivity().setResult(Activity.RESULT_OK);
+                                getActivity().setResult(NestedSettingsActivity.RESULT_RESTART_MAIN);
                                 start.setSummary(themePrefs.getStartSummary());
                             }
                         }, startTime[0], startTime[1], android.text.format.DateFormat.is24HourFormat(getActivity()));
@@ -480,7 +497,7 @@ public class NestedPreferenceFragment extends PreferenceFragment {
                             @Override
                             public void onTimeSet(TimePicker timePicker, int hourOfDay, int minute) {
                                 themePrefs.setAutoNightEnd(new int[]{hourOfDay, minute});
-                                getActivity().setResult(Activity.RESULT_OK);
+                                getActivity().setResult(NestedSettingsActivity.RESULT_RESTART_MAIN);
                                 end.setSummary(themePrefs.getEndSummary());
                             }
                         }, endTime[0], endTime[1], android.text.format.DateFormat.is24HourFormat(getActivity()));
@@ -508,7 +525,7 @@ public class NestedPreferenceFragment extends PreferenceFragment {
                             @Override
                             public void onClick(View view) {
                                 themePrefs.setAccentColorNight(lineColorPicker.getColor());
-                                getActivity().setResult(Activity.RESULT_OK);
+                                getActivity().setResult(NestedSettingsActivity.RESULT_RESTART_MAIN);
                                 new Handler().post(new Runnable() {
                                     @Override
                                     public void run() {
@@ -587,7 +604,7 @@ public class NestedPreferenceFragment extends PreferenceFragment {
         @Override
         protected void onPostExecute(Void dummy) {
             progress.dismiss();
-            getActivity().setResult(Activity.RESULT_OK);
+            getActivity().setResult(NestedSettingsActivity.RESULT_RESTART_MAIN);
             getActivity().finish();
         }
     }
@@ -631,7 +648,7 @@ public class NestedPreferenceFragment extends PreferenceFragment {
         protected void onPostExecute(Void dummy) {
             progress.dismiss();
             prefHelper.setFullOfflineWhatIf(false);
-            getActivity().setResult(Activity.RESULT_OK);
+            getActivity().setResult(NestedSettingsActivity.RESULT_RESTART_MAIN);
             getActivity().finish();
         }
     }
@@ -718,7 +735,7 @@ public class NestedPreferenceFragment extends PreferenceFragment {
         @Override
         protected void onPostExecute(Void dummy) {
             progress.dismiss();
-            getActivity().setResult(Activity.RESULT_OK);
+            getActivity().setResult(NestedSettingsActivity.RESULT_RESTART_MAIN);
         }
     }
 
