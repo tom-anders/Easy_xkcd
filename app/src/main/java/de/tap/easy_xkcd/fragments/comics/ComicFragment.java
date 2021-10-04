@@ -209,12 +209,14 @@ public abstract class ComicFragment extends Fragment {
             final PhotoView pvComic = itemView.findViewById(R.id.ivComic);
             final TextView tvAlt = itemView.findViewById(R.id.tvAlt);
             final TextView tvTitle = itemView.findViewById(R.id.tvTitle);
+            final TextView tvDate = itemView.findViewById(R.id.tvDate);
 
             RealmComic comic = getRealmComic(position); //TODO check if comic is null
 
             try {
                 tvAlt.setText(Html.fromHtml(Html.escapeHtml(comic.getAltText())));
                 tvTitle.setText((prefHelper.subtitleEnabled() ? "" : comic.getComicNumber() + ": ") + Html.fromHtml(RealmComic.getInteractiveTitle(comic, getActivity())));
+                tvDate.setText(comic.getDate());
                 pvComic.setTransitionName("im" + comic.getComicNumber());
                 tvTitle.setTransitionName(String.valueOf(comic.getComicNumber()));
 

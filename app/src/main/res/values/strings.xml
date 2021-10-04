@@ -54,6 +54,7 @@
     <string name="loading_offline_97">You should have seen your face!</string>
     <string name="delete_offline">Deleting Comics&#8230;</string>
     <string name="delete_offline_articles">Deleting articles&#8230;</string>
+    <string name="date_error">Date Error</string>
 
     <string name="snackbar_remove">Comic removed from favorites</string>
     <string name="snackbar_add">Comic added to favorites</string>

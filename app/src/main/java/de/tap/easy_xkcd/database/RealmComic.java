@@ -56,6 +56,8 @@ public class RealmComic extends RealmObject {
     private String url;
     private String altText;
     private String preview;
+    /** Stores the ISO 8601 upload date of the comic **/
+    private String date;
 
     public int getComicNumber() {
         return comicNumber;
@@ -130,6 +132,18 @@ public class RealmComic extends RealmObject {
         this.altText = altText;
     }
 
+    public String getDate() {
+        return this.date;
+    }
+
+    public void setDate(String date) {
+        this.date = date;
+    }
+
+    public void setDate(int year, int month, int day) {
+        this.date = String.format("%04d-%02d-%02d", year, month, day);
+    }
+
     public static boolean isInteractiveComic(int number, Context context) {
         return Arrays.binarySearch(context.getResources().getIntArray(R.array.interactive_comics), number) >= 0;
     }
@@ -164,6 +178,8 @@ public class RealmComic extends RealmObject {
         RealmComic realmComic = new RealmComic();
 
         String title = "", altText = "", url = "", transcript = "";
+        // Unix epoch for null date
+        int year = 1970, month = 1, day = 1;
         if (comicNumber == 404) {
             title = "404";
             altText = "404";
@@ -183,6 +199,9 @@ public class RealmComic extends RealmObject {
 
                 altText = new String(json.getString("alt").getBytes(UTF_8));
                 transcript = json.getString("transcript");
+                year = json.getInt("year");
+                month = json.getInt("month");
+                day = json.getInt("day");
 
                 // some image and title fixes
                 switch (comicNumber) {
@@ -199,6 +218,7 @@ public class RealmComic extends RealmObject {
         realmComic.setAltText(altText);
         realmComic.setUrl(url);
         realmComic.setTranscript(transcript);
+        realmComic.setDate(year, month, day);
 
         return realmComic;
     }
