@@ -3,8 +3,14 @@ package de.tap.easy_xkcd.database
 import android.content.Context
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
+import android.graphics.drawable.Drawable
 import android.net.Uri
 import androidx.core.content.FileProvider
+import com.bumptech.glide.Glide
+import com.bumptech.glide.request.target.CustomTarget
+import com.bumptech.glide.request.target.SimpleTarget
+import com.bumptech.glide.request.target.Target
+import com.bumptech.glide.request.transition.Transition
 import com.tap.xkcd_reader.BuildConfig
 import com.tap.xkcd_reader.R
 import dagger.Binds
@@ -12,6 +18,7 @@ import dagger.Module
 import dagger.hilt.InstallIn
 import dagger.hilt.android.components.ViewModelComponent
 import dagger.hilt.android.qualifiers.ApplicationContext
+import de.tap.easy_xkcd.GlideApp
 import de.tap.easy_xkcd.utils.*
 import kotlinx.coroutines.*
 import kotlinx.coroutines.channels.Channel
@@ -31,6 +38,7 @@ import java.io.FileInputStream
 import java.io.FileOutputStream
 import java.io.IOException
 import java.lang.Exception
+import java.util.concurrent.ExecutionException
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -79,9 +87,10 @@ interface ComicRepository {
 
     suspend fun getRedditThread(comic: Comic): String?
 
-    suspend fun saveOfflineBitmap(number: Int)
-
     suspend fun isFavorite(number: Int): Boolean
+
+    @ExperimentalCoroutinesApi
+    suspend fun saveOfflineBitmaps(): Flow<ProgressStatus>
 
     suspend fun removeAllFavorites()
 
@@ -135,7 +144,7 @@ class ComicRepositoryImpl @Inject constructor(
     override suspend fun setRead(number: Int, read: Boolean) = comicDao.setRead(number, read)
 
     override suspend fun setFavorite(number: Int, favorite: Boolean) {
-        if (favorite) saveOfflineBitmap(number)
+        if (favorite) saveOfflineBitmap(number).collect {}
 
         comicDao.setFavorite(number, favorite)
     }
@@ -193,7 +202,7 @@ class ComicRepositoryImpl @Inject constructor(
     }
 
     override suspend fun getUriForSharing(number: Int): Uri? {
-        saveOfflineBitmap(number)
+        saveOfflineBitmap(number).collect {}
         return getOfflineUri(number)
     }
 
@@ -216,18 +225,50 @@ class ComicRepositoryImpl @Inject constructor(
 
     private fun hasDownloadedComicImage(number: Int) = getComicImageFile(number).exists()
 
-    override suspend fun saveOfflineBitmap(number: Int) = withContext(Dispatchers.IO) {
-        if (!hasDownloadedComicImage(number)) {
-            comicDao.getComic(number)?.let { comic ->
-                client.newCall(Request.Builder().url(comic.url).build()).execute().body?.let {
-                    try {
-                        FileOutputStream(getComicImageFile(number)).write(it.bytes())
-                    } catch (e: Exception) {
-                        Timber.e(e, "While downloading comic $number")
+    @ExperimentalCoroutinesApi
+    fun saveOfflineBitmap(number: Int): Flow<Unit> = callbackFlow {
+        val comic = comicDao.getComic(number)
+        if (!hasDownloadedComicImage(number) && comic != null) {
+            GlideApp.with(context)
+                .asBitmap()
+                .load(comic.url)
+                .into(object: CustomTarget<Bitmap>() {
+                    override fun onResourceReady(
+                        resource: Bitmap,
+                        transition: Transition<in Bitmap>?
+                    ) {
+                        try {
+                            val fos = FileOutputStream(getComicImageFile(number))
+                            resource.compress(Bitmap.CompressFormat.PNG, 100, fos)
+                            fos.flush()
+                            fos.close()
+                            channel.close()
+                        } catch (e: Exception) {
+                            Timber.e(e, "While downloading comic $number")
+                            channel.close(e)
+                        }
                     }
-                }
-            }
+
+                    override fun onLoadFailed(errorDrawable: Drawable?) { channel.close() }
+
+                    override fun onLoadCleared(placeholder: Drawable?) {}
+                })
+        } else {
+            channel.close()
         }
+        awaitClose()
+    }
+
+    @ExperimentalCoroutinesApi
+    override suspend fun saveOfflineBitmaps(): Flow<ProgressStatus> = channelFlow {
+        (1..prefHelper.newest).map {
+            saveOfflineBitmap(it).onCompletion {
+                send(ProgressStatus.IncrementProgress)
+            }
+        }.also { send(ProgressStatus.Max(it.size)) }
+            .merge()
+            .collect {}
+        send(ProgressStatus.Finished)
     }
 
     @ExperimentalCoroutinesApi
@@ -290,8 +331,8 @@ class ComicRepositoryImpl @Inject constructor(
     override suspend fun cacheComic(number: Int) {
         withContext(Dispatchers.IO) {
             if (comicDao.getComic(number) == null) {
+                //TODO In offline mode we'll also want to save the image here!
                 downloadComic(number).collect { comic ->
-                    Timber.d("cached $comic")
                     comicDao.insert(comic)
                     comicCached.send(comic)
                 }
