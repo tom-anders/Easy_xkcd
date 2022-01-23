@@ -121,24 +121,31 @@ class ComicRepositoryImpl @Inject constructor(
     @ExperimentalCoroutinesApi
     override val newestComicNumber = flow {
         downloadComic(0).collect { newestComic ->
-            comicDao.insert(newestComic)
+            if (newestComic.number != prefHelper.newest) {
+                comicDao.insert(newestComic)
 
-            // In offline mode, we need to cache all the new comics here
-            if (prefHelper.fullOfflineEnabled() && prefHelper.newest != newestComic.number) {
-                CoroutineScope(Dispatchers.IO).launch {
-                    (prefHelper.newest..newestComic.number).map { number ->
-                        downloadComic(number).collect { comic ->
-                            saveOfflineBitmap(number).onCompletion {
-                                comicDao.insert(comic)
-                                comicCached.send(comic)
-                            }.collect()
+                // In offline mode, we need to cache all the new comics here
+                if (prefHelper.fullOfflineEnabled()) {
+                    CoroutineScope(Dispatchers.IO).launch {
+                        (prefHelper.newest + 1 .. newestComic.number).map { number ->
+                            downloadComic(number).collect { comic ->
+                                saveOfflineBitmap(number).onCompletion {
+                                    comicDao.insert(comic)
+                                    comicCached.send(comic)
+                                }.collect()
+                            }
                         }
                     }
                 }
-            }
 
-            prefHelper.setNewestComic(newestComic.number)
-            emit(newestComic.number)
+                prefHelper.setNewestComic(newestComic.number)
+                emit(newestComic.number)
+
+                // The newest comic in inserted into Room asynchronously, so our comics flow
+                // might trigger before it has been inserted. Thus, make sure that the browser
+                // and overview will still notice that we've found a new one
+                comicCached.send(newestComic)
+            }
         }
     }.stateIn(CoroutineScope(Dispatchers.Main), SharingStarted.Lazily, prefHelper.newest)
 
