@@ -15,9 +15,14 @@ import dagger.hilt.android.qualifiers.ApplicationContext
 import de.tap.easy_xkcd.utils.*
 import kotlinx.coroutines.*
 import kotlinx.coroutines.channels.Channel
+import kotlinx.coroutines.channels.awaitClose
+import kotlinx.coroutines.channels.onFailure
+import kotlinx.coroutines.channels.trySendBlocking
 import kotlinx.coroutines.flow.*
+import okhttp3.Call
 import okhttp3.OkHttpClient
 import okhttp3.Request
+import okhttp3.Response
 import org.json.JSONException
 import org.json.JSONObject
 import timber.log.Timber
@@ -86,8 +91,6 @@ interface ComicRepository {
 
     suspend fun setBookmark(number: Int)
 
-    suspend fun findNewestComic(): Int
-
     suspend fun migrateRealmDatabase(): Flow<ProgressStatus>
 
     suspend fun oldestUnreadComic(): Comic?
@@ -108,10 +111,12 @@ class ComicRepositoryImpl @Inject constructor(
 
     override val comicCached = Channel<Comic>()
 
+    @ExperimentalCoroutinesApi
     override val newestComicNumber = flow {
-        findNewestComic().also {
-            prefHelper.setNewestComic(it)
-            emit(it)
+        downloadComic(0).collect {
+            comicDao.insert(it)
+            prefHelper.setNewestComic(it.number)
+            emit(it.number)
         }
     }.stateIn(CoroutineScope(Dispatchers.IO), SharingStarted.Eagerly, prefHelper.newest)
 
@@ -142,12 +147,6 @@ class ComicRepositoryImpl @Inject constructor(
     }
 
     override suspend fun oldestUnreadComic() = comicDao.oldestUnreadComic()
-
-    override suspend fun findNewestComic(): Int {
-        return downloadComic(0)?.also {
-            comicDao.insert(it)
-        }?.number ?: prefHelper.newest
-    }
 
     override suspend fun migrateRealmDatabase() = flow {
         if (!prefHelper.hasMigratedRealmDatabase() || BuildConfig.DEBUG ) {
@@ -231,81 +230,70 @@ class ComicRepositoryImpl @Inject constructor(
         }
     }
 
-    private fun downloadComic(number: Int): Comic? {
-        try {
-            val response =
-                client.newCall(Request.Builder().url(RealmComic.getJsonUrl(number)).build())
-                    .execute()
-
-            val body = response.body?.string()
-            if (body == null) {
-                Timber.e("Got empty body for comic $number")
-                return null
-            }
-
-            var json = JSONObject()
-            try {
-                json = JSONObject(body)
-            } catch (e: JSONException) {
-                if (number == 404) {
-                    Timber.i("Json not found, but that's expected for comic 404")
-                    json = JSONObject()
-                    json.put("num", 404)
-                } else {
-                    Timber.e(e, "Occurred at comic $number")
-                    return null
+    @ExperimentalCoroutinesApi
+    private fun downloadComic(number: Int): Flow<Comic> = callbackFlow {
+        client.newCall(Request.Builder().url(RealmComic.getJsonUrl(number)).build())
+            .enqueue(object: okhttp3.Callback {
+                override fun onFailure(call: Call, e: IOException) {
+                    channel.close(e)
                 }
-            }
-            return Comic.buildFromJson(json, context)
 
-        } catch (e: Exception) {
-            Timber.e(e, "While downloading comic $number")
-            return null
-        }
+                override fun onResponse(call: Call, response: Response) {
+                    val body = response.body?.string()
+                    if (body == null) {
+                        Timber.e("Got empty body for comic $number")
+                        channel.close()
+                        return
+                    }
+
+                    var json: JSONObject
+                    try {
+                        json = JSONObject(body)
+                    } catch (e: JSONException) {
+                        if (number == 404) {
+                            Timber.i("Json not found, but that's expected for comic 404")
+                            json = JSONObject()
+                            json.put("num", 404)
+                        } else {
+                            Timber.e(e, "Occurred at comic $number")
+                            channel.close(e)
+                            return
+                        }
+                    }
+                    trySend(Comic.buildFromJson(json, context)).onFailure(Timber::e)
+                    channel.close()
+                }
+            })
+        awaitClose()
     }
 
-    //TODO figure out how to do this in parallel with flow
-    override suspend fun cacheAllComics() = flow { emit(ProgressStatus.ResetProgress) }
-//        flow {
-//            withContext(Dispatchers.IO) {
-//                (1..prefHelper.newest).filter { number -> comicDao.getComic(number) == null }
-//                    .also { emit(ProgressStatus.Max(it.size)) }
-//                    .map {
-//                        Timber.d("Caching $it")
-//                        withContext(Dispatchers.IO) {
-//                            async {
-//                                Timber.d("Caching $it")
-//                                cacheComic(it)
-//
-//                                withContext(Dispatchers.Main) {
-//                                    emit(ProgressStatus.IncrementProgress)
-//                                }
-//                            }
-//                        }
-//                    }.awaitAll()
-//                emit(ProgressStatus.ResetProgress)
+    @ExperimentalCoroutinesApi
+    override suspend fun cacheAllComics() = flow {
+        emit(ProgressStatus.ResetProgress)
 
-//                (1..prefHelper.newest).filter { number ->
-//                    comicDao.getComic(number)?.transcript?.isEmpty() ?: false
-//                }
-//                    .also { emit(ProgressStatus.Max(it.size)) }
-//                    .map {
-//                        async(Dispatchers.IO) {
-//                            //TODO download missing transcripts from explainxkcd here
-//                            emit(ProgressStatus.IncrementProgress)
-//                        }
-//                    }.awaitAll()
-//                emit(ProgressStatus.Finished)
-//            }
-//        }
+        (1..prefHelper.newest)
+            .filter { number -> comicDao.getComic(number) == null }
+            .map {
+                downloadComic(it)
+            }
+            .also { emit(ProgressStatus.Max(it.size)) }
+            .merge()
+            .collect {
+                comicDao.insert(it)
+                emit(ProgressStatus.IncrementProgress)
+            }
 
-    //TODO Need to
+        emit(ProgressStatus.Finished)
+    }
+
+    @ExperimentalCoroutinesApi
     override suspend fun cacheComic(number: Int) {
         withContext(Dispatchers.IO) {
             if (comicDao.getComic(number) == null) {
-                downloadComic(number)?.let {
-                    comicDao.insert(it)
-                    comicCached.send(it)
+                downloadComic(number).collect { comic ->
+                    Timber.d("cached $comic")
+                    comicDao.insert(comic)
+                    comicCached.send(comic)
                 }
             }
         }

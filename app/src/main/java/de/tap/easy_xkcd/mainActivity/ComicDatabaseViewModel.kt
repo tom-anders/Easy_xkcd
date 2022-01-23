@@ -35,8 +35,7 @@ class ComicDatabaseViewModel @Inject constructor(
         viewModelScope.launch {
             if (prefHelper.isOnline(app.applicationContext)) {
                 withContext(Dispatchers.IO) {
-//                    repository.migrateRealmDatabase().collect {
-//                        Timber.d("Posting $it")
+//                    repository.cacheAllComics().collect {
 //                        _progress.postValue(it)
 //                    }
 
