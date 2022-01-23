@@ -9,11 +9,11 @@ import dagger.hilt.InstallIn
 import dagger.hilt.android.components.ViewModelComponent
 import dagger.hilt.android.qualifiers.ApplicationContext
 import de.tap.easy_xkcd.GlideApp
+import de.tap.easy_xkcd.database.Comic
 import de.tap.easy_xkcd.database.DatabaseManager
 import de.tap.easy_xkcd.database.RealmComic
 import de.tap.easy_xkcd.utils.*
 import io.realm.Realm
-import io.realm.RealmResults
 import io.realm.Sort
 import kotlinx.coroutines.*
 import okhttp3.OkHttpClient
@@ -33,7 +33,10 @@ interface ComicDatabaseModel {
         comicSavedCallback: () -> Unit
     )
 
-    suspend fun getUriForSharing(comic: RealmComic): Uri
+    // Loads comic from realm if exists, otherwise downloads it and stores it in Realm
+    suspend fun getComic(number: Int): RealmComic
+
+    suspend fun getUriForSharing(comic: Comic): Uri
 
     fun getAllComics(): List<RealmComic>
 
@@ -55,7 +58,7 @@ interface ComicDatabaseModel {
 
     fun getRandomComic(): Int
 
-    suspend fun getRedditThread(comic: RealmComic): String
+    suspend fun getRedditThread(comic: Comic): String
 
 }
 
@@ -95,11 +98,11 @@ class ComicDatabaseModelImpl @Inject constructor(
             .findAllSorted("comicNumber", Sort.ASCENDING)
     }
 
-    private fun getComic(comicNumber: Int, realm: Realm): RealmComic? =
+    private fun getComicFromRealm(comicNumber: Int, realm: Realm): RealmComic? =
         realm.where(RealmComic::class.java).equalTo("comicNumber", comicNumber).findFirst()
 
     override fun isFavorite(number: Int) = returnWithRealm {
-        getComic(number, it)?.isFavorite == true
+        getComicFromRealm(number, it)?.isFavorite == true
     }
 
     override fun setBookmark(number: Int) {
@@ -108,7 +111,7 @@ class ComicDatabaseModelImpl @Inject constructor(
 
     override suspend fun toggleFavorite(number: Int) = withContext(Dispatchers.IO) {
         doWithRealm { realm ->
-            getComic(number, realm)?.let { comic ->
+            getComicFromRealm(number, realm)?.let { comic ->
                 realm.executeTransaction {
                     comic.isFavorite = !comic.isFavorite
                     realm.copyToRealmOrUpdate(comic)
@@ -128,12 +131,12 @@ class ComicDatabaseModelImpl @Inject constructor(
     }
 
     override fun isRead(number: Int) = returnWithRealm {
-        getComic(number, it)?.isRead == true
+        getComicFromRealm(number, it)?.isRead == true
     }
 
     override fun setRead(number: Int, isRead: Boolean) {
         doWithRealm { realm ->
-            getComic(number, realm)?.let { comic ->
+            getComicFromRealm(number, realm)?.let { comic ->
                 realm.executeTransaction {
                     comic.isRead = isRead
                     realm.copyToRealmOrUpdate(comic)
@@ -142,7 +145,7 @@ class ComicDatabaseModelImpl @Inject constructor(
         }
     }
 
-    override suspend fun getRedditThread(comic: RealmComic) = withContext(Dispatchers.IO) {
+    override suspend fun getRedditThread(comic: Comic) = withContext(Dispatchers.IO) {
         "https://www.reddit.com" + JsonParser.getJSONFromUrl("https://www.reddit.com/r/xkcd/search.json?q=" + comic.title + "&restrict_sr=on")
             .getJSONObject("data")
             .getJSONArray("children").getJSONObject(0).getJSONObject("data").getString("permalink")
@@ -152,13 +155,21 @@ class ComicDatabaseModelImpl @Inject constructor(
         RealmComic.findNewestComicNumber()
     }
 
+    override suspend fun getComic(number: Int): RealmComic {
+        val comic = copyFromRealm { realm ->
+            getComicFromRealm(number, realm)
+        }
+
+        return comic!!
+    }
+
     override suspend fun updateDatabase(
         newestComic: Int,
         comicSavedCallback: () -> Unit
     ) {
         val comicsToDownload = (1..newestComic).map { number ->
             Pair(number, copyFromRealm { realm ->
-                getComic(number, realm)
+                getComicFromRealm(number, realm)
             })
         }.filter {
             // If a comic does not exists in the database at all (i.e. if the realm query returned null)
@@ -245,17 +256,17 @@ class ComicDatabaseModelImpl @Inject constructor(
         }
     }
 
-    override suspend fun getUriForSharing(comic: RealmComic): Uri = withContext(Dispatchers.IO) {
-        if (!RealmComic.isOfflineComicAlreadyDownloaded(comic.comicNumber, prefHelper, context)) {
+    override suspend fun getUriForSharing(comic: Comic): Uri = withContext(Dispatchers.IO) {
+        if (!RealmComic.isOfflineComicAlreadyDownloaded(comic.number, prefHelper, context)) {
             RealmComic.saveOfflineBitmap(
                 OkHttpClient().newCall(Request.Builder().url(comic.url).build()).execute(),
-                prefHelper, comic.comicNumber, context
+                prefHelper, comic.number, context
             )
         }
         FileProvider.getUriForFile(
             context,
             "de.tap.easy_xkcd.fileProvider",
-            File(prefHelper.getOfflinePath(context), "${comic.comicNumber}.png")
+            File(prefHelper.getOfflinePath(context), "${comic.number}.png")
         )
     }
 }

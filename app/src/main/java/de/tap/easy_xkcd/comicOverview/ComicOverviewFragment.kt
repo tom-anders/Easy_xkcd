@@ -14,6 +14,7 @@ import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.fragment.app.viewModels
+import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import androidx.recyclerview.widget.StaggeredGridLayoutManager
@@ -27,7 +28,10 @@ import com.simplecityapps.recyclerview_fastscroll.views.FastScrollRecyclerView
 import com.tap.xkcd_reader.R
 import com.tap.xkcd_reader.databinding.RecyclerLayoutBinding
 import dagger.hilt.android.AndroidEntryPoint
+import de.tap.easy_xkcd.ComicBaseAdapter
+import de.tap.easy_xkcd.ComicViewHolder
 import de.tap.easy_xkcd.GlideApp
+import de.tap.easy_xkcd.database.Comic
 import de.tap.easy_xkcd.database.RealmComic
 import de.tap.easy_xkcd.mainActivity.MainActivity
 import de.tap.easy_xkcd.utils.PrefHelper
@@ -81,20 +85,45 @@ class ComicOverviewFragment : Fragment() {
                     recyclerView.layoutManager !is LinearLayoutManager
                 binding.rv.setFastScrollEnabled(!recyclerView.isVerticalScrollBarEnabled)
 
-                adapter = OverviewAdapter(model.comics.value ?: emptyList(), it)
+                adapter = OverviewAdapter(it)
                 recyclerView.adapter = adapter
             }
         }
 
-        model.comics.observe(viewLifecycleOwner) {
-            it?.let {
-                adapter.setComics(it)
+//        model.comics.observe(viewLifecycleOwner) {
+//            it?.let {
+//                adapter.setComics(it)
+//
+//                if (model.hideRead.value == true) {
+//                    recyclerView.layoutManager?.scrollToPosition(it.size - prefHelper.lastComic)
+//                } else {
+//                    recyclerView.layoutManager?.scrollToPosition(it.size - (model.getNextUnreadComic() ?: 0))
+//                }
+//            }
+//        }
 
-                if (model.hideRead.value == true) {
-                    recyclerView.layoutManager?.scrollToPosition(it.size - prefHelper.lastComic)
-                } else {
-                    recyclerView.layoutManager?.scrollToPosition(it.size - (model.getNextUnreadComic() ?: 0))
-                }
+        model.comics.observe(viewLifecycleOwner) { newList ->
+            if (newList != null) {
+                val diffResult = DiffUtil.calculateDiff(object : DiffUtil.Callback() {
+                    override fun getOldListSize() = adapter.comics.size
+
+                    override fun getNewListSize() = newList.size
+
+                    // TODO this probably needs adjustments for when a null comic is replace by a non-null
+                    override fun areItemsTheSame(oldItemPosition: Int, newItemPosition: Int) =
+                        adapter.comics[oldItemPosition]?.number == newList[newItemPosition]?.number
+
+                    override fun areContentsTheSame(
+                        oldItemPosition: Int,
+                        newItemPosition: Int
+                    ): Boolean {
+                        return adapter.comics[oldItemPosition] == newList[newItemPosition]
+                    }
+                })
+
+                adapter.comics = newList
+
+                diffResult.dispatchUpdatesTo(adapter)
             }
         }
 
@@ -161,7 +190,50 @@ class ComicOverviewFragment : Fragment() {
         else -> super.onOptionsItemSelected(item)
     }
 
-    inner class OverviewAdapter constructor(
+    inner class OverviewAdapter(
+        private val style: Int
+    ) : ComicBaseAdapter<OverviewViewHolder>(
+        this,
+        requireActivity() as MainActivity,
+        comicNumberOfSharedElementTransition,
+    ) {
+        override fun onComicNull(number: Int) {
+            model.cacheComic(number)
+        }
+
+        override fun startPostponedTransitions() {
+            startPostponedTransitions()
+        }
+
+        override fun onImageLoaded(image: ImageView, bitmap: Bitmap, comic: Comic) {
+            if (comic.number == comicNumberOfSharedElementTransition) {
+                startPostponedEnterTransition()
+                comicNumberOfSharedElementTransition = null
+            }
+        }
+
+        override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): OverviewViewHolder {
+            val view = when (style) {
+                2 -> LayoutInflater.from(parent.context)
+                    .inflate(R.layout.grid_item, parent, false)
+
+                else -> LayoutInflater.from(parent.context)
+                    .inflate(R.layout.search_result, parent, false)
+            }
+
+            view.setOnClickListener {
+                (activity as MainActivity?)?.showComicFromOverview(
+                    prefHelper.overviewFav(), listOf(
+                        view.findViewById(R.id.comic_title),
+                        view.findViewById(R.id.thumbnail)
+                    ), comics[recyclerView.getChildAdapterPosition(it)]?.number ?: 0)
+            }
+
+            return OverviewViewHolder(view)
+        }
+    }
+
+    /*inner class OverviewAdapter constructor(
         private var comics: List<RealmComic>,
         private val style: Int
     ) : RecyclerView.Adapter<OverviewAdapter.ComicViewHolder>(),
@@ -288,28 +360,27 @@ class ComicOverviewFragment : Fragment() {
             }
         }
 
-        inner class ComicViewHolder constructor(view: View) : RecyclerView.ViewHolder(view) {
-            var cv: CardView? = null
-            var comicTitle: TextView? = null
-            var comicInfo: TextView? = null
+    }*/
 
-            var thumbnail: ImageView? = null
+    inner class OverviewViewHolder constructor(view: View) : ComicViewHolder(view) {
+        var cv: CardView = itemView as CardView
 
-            init {
-                cv = itemView as CardView
-                if (themePrefs.amoledThemeEnabled()) {
-                    cv?.setCardBackgroundColor(Color.BLACK)
-                } else if (themePrefs.nightThemeEnabled()) {
-                    cv?.setCardBackgroundColor(
-                        ContextCompat.getColor(
-                            view.context,
-                            R.color.background_material_dark
-                        )
+        override val title: TextView = cv.findViewById(R.id.comic_title)
+        override val number: TextView? = cv.findViewById(R.id.comic_info)
+        override val image: ImageView = cv.findViewById(R.id.thumbnail)
+        override val altText: TextView? = null
+
+
+        init {
+            if (themePrefs.amoledThemeEnabled()) {
+                cv.setCardBackgroundColor(Color.BLACK)
+            } else if (themePrefs.nightThemeEnabled()) {
+                cv.setCardBackgroundColor(
+                    ContextCompat.getColor(
+                        view.context,
+                        R.color.background_material_dark
                     )
-                }
-                comicTitle = itemView.findViewById(R.id.comic_title)
-                comicInfo = itemView.findViewById(R.id.comic_info)
-                thumbnail = itemView.findViewById(R.id.thumbnail)
+                )
             }
         }
     }

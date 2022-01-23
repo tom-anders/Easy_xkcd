@@ -11,6 +11,7 @@ import android.widget.Toast
 import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.fragment.app.viewModels
+import androidx.recyclerview.widget.DiffUtil
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.tap.xkcd_reader.R
 import dagger.hilt.android.AndroidEntryPoint
@@ -35,12 +36,32 @@ class FavoritesFragment : ComicBrowserBaseFragment() {
     ): View? {
         val view = super.onCreateView(inflater, container, savedInstanceState)
 
-        model.favorites.observe(viewLifecycleOwner) { favorites ->
-            favorites?.let {
-                pager.adapter = ComicPagerAdapter(favorites)
+        adapter = ComicBrowserBaseAdapter().also { pager.adapter = it }
 
-                //TODO if favorites is empty, show some cute image and text explaining how to add them
-            }
+        model.favorites.observe(viewLifecycleOwner) { newList ->
+            // TODO if new list is empty, show some cute image and text explaining how to add them
+
+            val diffResult = DiffUtil.calculateDiff(object: DiffUtil.Callback() {
+                override fun getOldListSize() = adapter.comics.size
+
+                override fun getNewListSize() = newList.size
+
+                // In the normal comic browser we could assume that the position of items in the list
+                // didn't change, but here when a favorite is removed, they actually will.
+                // So we need to compare the comic number here instead of the position
+                override fun areItemsTheSame(oldItemPosition: Int, newItemPosition: Int)
+                        = adapter.comics[oldItemPosition]?.number == newList[newItemPosition].number
+
+                override fun areContentsTheSame(
+                    oldItemPosition: Int,
+                    newItemPosition: Int
+                ): Boolean {
+                    return adapter.comics[oldItemPosition] == newList[newItemPosition]
+                }
+            })
+
+            adapter.comics = newList
+            diffResult.dispatchUpdatesTo(adapter)
         }
 
         model.scrollToPage.observe(viewLifecycleOwner) {

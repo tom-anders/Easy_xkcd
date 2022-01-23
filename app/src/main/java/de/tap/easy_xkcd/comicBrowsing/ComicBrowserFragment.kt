@@ -1,25 +1,34 @@
 package de.tap.easy_xkcd.comicBrowsing
 
+import android.annotation.SuppressLint
 import android.graphics.Bitmap
+import android.graphics.Color
 import android.os.Bundle
 import android.view.*
-import androidx.appcompat.app.AppCompatActivity
+import android.widget.ImageView
+import android.widget.RelativeLayout
+import android.widget.TextView
 import androidx.core.view.MenuCompat
 import androidx.fragment.app.activityViewModels
-import androidx.fragment.app.viewModels
-import com.bumptech.glide.load.DataSource
-import com.bumptech.glide.load.engine.GlideException
-import com.bumptech.glide.request.RequestListener
+import androidx.recyclerview.widget.DiffUtil
+import androidx.recyclerview.widget.ListUpdateCallback
+import androidx.swiperefreshlayout.widget.CircularProgressDrawable
+import androidx.viewpager.widget.PagerAdapter
+import androidx.viewpager2.widget.ViewPager2
+import androidx.viewpager2.widget.ViewPager2.SCROLL_STATE_IDLE
+import com.bumptech.glide.Glide
 import com.bumptech.glide.request.RequestOptions
-import com.bumptech.glide.request.target.Target
 import com.github.chrisbanes.photoview.PhotoView
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.tap.xkcd_reader.R
 import dagger.hilt.android.AndroidEntryPoint
+import de.tap.easy_xkcd.ComicBaseAdapter
+import de.tap.easy_xkcd.ComicViewHolder
 import de.tap.easy_xkcd.GlideApp
-import de.tap.easy_xkcd.GlideRequest
-import de.tap.easy_xkcd.database.RealmComic
+import de.tap.easy_xkcd.database.Comic
+import de.tap.easy_xkcd.mainActivity.MainActivity
 import timber.log.Timber
+import java.util.*
 
 @AndroidEntryPoint
 class ComicBrowserFragment : ComicBrowserBaseFragment() {
@@ -33,10 +42,44 @@ class ComicBrowserFragment : ComicBrowserBaseFragment() {
     ): View? {
         val view = super.onCreateView(inflater, container, savedInstanceState)
 
-        pager.adapter = ComicPagerAdapter(model.comics)
+        adapter = object : ComicBrowserBaseAdapter() {
+            override fun onComicNull(number: Int) {
+                Timber.d("qrc Caching!")
+                model.cacheComic(number)
+            }
+        }.also { pager.adapter = it }
 
-        model.selectedComic.value?.let {
-            pager.currentItem = it.comicNumber - 1
+        model.comics.observe(viewLifecycleOwner) { newList ->
+            val diffResult = DiffUtil.calculateDiff(object : DiffUtil.Callback() {
+                override fun getOldListSize() = adapter.comics.size
+
+                override fun getNewListSize() = newList.size
+
+                // We're only caching comics that were null previously, so the positions
+                // should never change...
+                override fun areItemsTheSame(oldItemPosition: Int, newItemPosition: Int)
+                        = oldItemPosition == newItemPosition
+
+                // ... and we can take the shortcut of just checking whether an item changed
+                // from null to not-null, instead of comparing the contents
+                override fun areContentsTheSame(
+                    oldItemPosition: Int,
+                    newItemPosition: Int
+                ): Boolean {
+                    return adapter.comics[oldItemPosition].hasComic() == newList[newItemPosition].hasComic()
+                }
+            })
+
+            adapter.comics = newList
+
+            diffResult.dispatchUpdatesTo(adapter)
+
+            // Restores position after rotation
+            model.selectedComicNumber.value?.let { selectedNumber ->
+                if (pager.currentItem != selectedNumber - 1) {
+                    pager.setCurrentItem(selectedNumber - 1, false)
+                }
+            }
         }
 
         activity?.findViewById<FloatingActionButton>(R.id.fab)?.apply {
@@ -57,7 +100,7 @@ class ComicBrowserFragment : ComicBrowserBaseFragment() {
     override fun onOptionsItemSelected(item: MenuItem): Boolean =
         when (item.itemId) {
             R.id.action_latest -> {
-                pager.setCurrentItem(model.comics.size - 1, false)
+                pager.setCurrentItem(prefHelper.newest - 1, false)
                 true
             }
             else -> {

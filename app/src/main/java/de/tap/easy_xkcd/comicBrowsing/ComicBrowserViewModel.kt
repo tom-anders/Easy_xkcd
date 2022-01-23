@@ -3,19 +3,20 @@ package de.tap.easy_xkcd.comicBrowsing
 import android.content.Context
 import android.net.Uri
 import android.widget.Toast
-import androidx.lifecycle.LiveData
-import androidx.lifecycle.MutableLiveData
-import androidx.lifecycle.ViewModel
-import androidx.lifecycle.viewModelScope
+import androidx.lifecycle.*
 import com.nbsp.materialfilepicker.ui.FilePickerActivity
 import dagger.hilt.android.lifecycle.HiltViewModel
 import dagger.hilt.android.qualifiers.ApplicationContext
+import de.tap.easy_xkcd.database.Comic
+import de.tap.easy_xkcd.database.ComicContainer
+import de.tap.easy_xkcd.database.ComicRepository
 import de.tap.easy_xkcd.database.RealmComic
 import de.tap.easy_xkcd.notifications.ComicNotifierJob
 import de.tap.easy_xkcd.utils.PrefHelper
 import de.tap.easy_xkcd.utils.SingleLiveEvent
 import hilt_aggregated_deps._de_tap_easy_xkcd_comicBrowsing_ComicBrowserBaseFragment_GeneratedInjector
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import timber.log.Timber
@@ -26,7 +27,7 @@ import kotlin.math.min
 import kotlin.random.Random
 
 abstract class ComicBrowserBaseViewModel constructor(
-    protected val model: ComicDatabaseModel,
+    private val repository: ComicRepository,
     @ApplicationContext context: Context
 ) : ViewModel() {
     protected val prefHelper = PrefHelper(context)
@@ -35,19 +36,186 @@ abstract class ComicBrowserBaseViewModel constructor(
 
     abstract fun jumpToComic(comicNumber: Int)
 
-    fun setBookmark() {
-        selectedComic.value?.let {
-            model.setBookmark(it.comicNumber)
+    suspend fun setBookmark() {
+        selectedComicNumber.value?.let {
+            withContext(Dispatchers.IO) {
+                repository.setBookmark(it)
+            }
         }
     }
 
-    abstract fun toggleFavorite()
+    fun toggleFavorite() {
+        viewModelScope.launch {
+            _selectedComicNumber.value?.let {
+                repository.setFavorite(it, !repository.isFavorite(it))
+            }
+        }
+    }
 
-    protected val _selectedComic = MutableLiveData<RealmComic>()
-    val selectedComic: LiveData<RealmComic> = _selectedComic
+
+    protected val _selectedComicNumber = MutableLiveData<Int>()
+    val selectedComicNumber: LiveData<Int> = _selectedComicNumber
+
+    protected val _selectedComic = MediatorLiveData<Comic?>()
+    val selectedComic: LiveData<Comic?> = _selectedComic
 }
 
 @HiltViewModel
+class ComicBrowserViewModel @Inject constructor(
+    private val repository: ComicRepository,
+    @ApplicationContext context: Context
+) : ComicBrowserBaseViewModel(repository, context) {
+
+    val comics: LiveData<List<ComicContainer>> = repository.comics.asLiveData()
+
+    private val _isFavorite = MediatorLiveData<Boolean>()
+    val isFavorite: LiveData<Boolean> = _isFavorite
+
+    private var nextRandom: Int
+
+    private fun genNextRandom() =
+        Random.nextInt(prefHelper.newest).also {
+            cacheComic(it)
+        }
+
+    init {
+        _selectedComicNumber.value = if (prefHelper.lastComic != 0) {
+            prefHelper.lastComic
+        } else {
+            prefHelper.newest
+        }
+
+        nextRandom = genNextRandom()
+
+        _selectedComic.addSource(_selectedComicNumber) { selectedNumber ->
+            _selectedComic.value = comics.value?.get(selectedNumber - 1)?.comic
+        }
+
+        _selectedComic.addSource(comics) { newList ->
+            _selectedComic.value = _selectedComicNumber.value?.let {
+                newList[it - 1].comic
+            }
+        }
+
+        _isFavorite.addSource(_selectedComic) { comic -> _isFavorite.value = comic?.favorite ?: false }
+    }
+
+    fun cacheComic(number: Int) {
+        viewModelScope.launch {
+            repository.cacheComic(number)
+        }
+    }
+
+    override fun comicSelected(index: Int) {
+        val number = index + 1
+        _selectedComicNumber.value = number
+        prefHelper.lastComic = number
+
+        viewModelScope.launch {
+            repository.setRead(number, true)
+        }
+    }
+
+    override fun jumpToComic(comicNumber: Int) {
+        comicSelected(comicNumber - 1)
+    }
+
+    private var comicBeforeLastRandom: Int? = null
+    fun getNextRandomComic(): Int {
+        comicBeforeLastRandom = _selectedComicNumber.value
+
+        val random = nextRandom
+
+        nextRandom = genNextRandom()
+
+        return random
+    }
+
+    fun getPreviousRandomComic(): Int? {
+        return comicBeforeLastRandom
+    }
+
+}
+
+@HiltViewModel
+class FavoriteComicsViewModel @Inject constructor(
+    private val repository: ComicRepository,
+    @ApplicationContext private val context: Context
+) : ComicBrowserBaseViewModel(repository, context) {
+
+    private val _importingFavorites = MutableLiveData(false)
+    val importingFavorites: LiveData<Boolean> = _importingFavorites
+
+    val favorites: LiveData<List<ComicContainer>> = repository.favorites.asLiveData()
+
+    val scrollToPage = SingleLiveEvent<Int>()
+
+    override fun comicSelected(index: Int) {
+        _selectedComicNumber.value = favorites.value?.getOrNull(index)?.number
+    }
+
+    override fun jumpToComic(comicNumber: Int) {
+        scrollToPage.value = favorites.value?.indexOfFirst { it.number == comicNumber }
+    }
+
+    fun removeAllFavorites() {
+        viewModelScope.launch {
+            repository.removeAllFavorites()
+        }
+    }
+
+    fun importFavorites(uri: Uri) {
+        viewModelScope.launch {
+            _importingFavorites.value = true
+            withContext(Dispatchers.IO) {
+                try {
+                    context.contentResolver.openInputStream(uri)?.use { inputStream ->
+                        BufferedReader(InputStreamReader(inputStream)).use { bufferedReader ->
+                            var line: String
+                            while (bufferedReader.readLine().also { line = it } != null) {
+                                val numberTitle = line.split(" - ".toRegex()).toTypedArray()
+                                val number = numberTitle[0].toInt()
+
+                                repository.setFavorite(number, true)
+                            }
+                        }
+                    }
+                } catch (e: Exception) {
+                    Timber.e(e)
+                }
+            }
+            _importingFavorites.value = false
+        }
+    }
+
+    fun exportFavorites(uri: Uri): Boolean {
+        if (favorites.value == null) return false
+
+        //Export the full favorites list as text
+        val sb = StringBuilder()
+        val newline = System.getProperty("line.separator")
+        for (fav in favorites.value!!) {
+            sb.append(fav.number).append(" - ")
+            sb.append(fav.comic?.title)
+            sb.append(newline)
+        }
+        try {
+            context.contentResolver.openFileDescriptor(uri, "w")?.use {
+                FileOutputStream(it.fileDescriptor).use { stream ->
+                    stream.write(sb.toString().toByteArray())
+                }
+            }
+        } catch (e: IOException) {
+            Timber.e(e)
+            return false
+        }
+        return true
+    }
+
+    fun getRandomFavoriteIndex() = favorites.value?.let { Random.nextInt(it.size) } ?: 0
+}
+
+/*@HiltViewModel
 class FavoriteComicsViewModel @Inject constructor(
     model: ComicDatabaseModel,
     @ApplicationContext private val context: Context
@@ -165,11 +333,10 @@ class FavoriteComicsViewModel @Inject constructor(
         }
         return true
     }
-}
+}*/
 
-@HiltViewModel
-class ComicBrowserViewModel @Inject constructor(
-    model: ComicDatabaseModel,
+/*@HiltViewModel
+class ComicBrowserViewModelOld @Inject constructor(
     @ApplicationContext context: Context
 ) : ComicBrowserBaseViewModel(model, context) {
 
@@ -185,6 +352,8 @@ class ComicBrowserViewModel @Inject constructor(
             prefHelper.newest
         } - 1)
     }
+
+    suspend fun getComicNew(number: Int) = model.getComic(number)
 
     private fun getComic(number: Int) = comics.getOrNull(number - 1)
 
@@ -217,4 +386,4 @@ class ComicBrowserViewModel @Inject constructor(
         _isFavorite.value = model.isFavorite(number)
         model.setRead(number, true)
     }
-}
+}*/

@@ -7,6 +7,7 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
 import de.tap.easy_xkcd.comicBrowsing.ComicDatabaseModel
+import de.tap.easy_xkcd.database.Comic
 import de.tap.easy_xkcd.database.RealmComic
 import de.tap.easy_xkcd.utils.PrefHelper
 import de.tap.easy_xkcd.utils.SingleLiveEvent
@@ -36,13 +37,14 @@ class ComicDatabaseViewModel @Inject constructor(
         viewModelScope.launch {
             if (prefHelper.isOnline(app.applicationContext)) {
                 val newestComic = model.findNewestComic()
-                progressMax = newestComic
+
+                /*progressMax = newestComic
                 _progress.value = 0
                 model.updateDatabase(newestComic) {
                     _progress.value?.let {
                         _progress.postValue(it + 1)
                     }
-                }
+                }*/
 
                 if (newestComic > prefHelper.newest) {
                     prefHelper.setNewestComic(newestComic)
@@ -56,7 +58,7 @@ class ComicDatabaseViewModel @Inject constructor(
         }
     }
 
-    suspend fun getUriForSharing(comic: RealmComic) = model.getUriForSharing(comic)
+    suspend fun getUriForSharing(comic: Comic) = model.getUriForSharing(comic)
 
-    suspend fun getRedditThread(comic: RealmComic) = model.getRedditThread(comic)
+    suspend fun getRedditThread(comic: Comic) = model.getRedditThread(comic)
 }

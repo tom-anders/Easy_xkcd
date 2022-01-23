@@ -5,6 +5,8 @@
 - Scroll position in WhatIf articles is not persisted on rotation
 - Remove "Open Forum Thread" option until the xkcd forum is back online (if ever)
 
+- Add animation when removing a favorite
+
 ## 7.3.11
 
 - Fix crashes when a new comics comes out caused by Randall accidentally uploading a huge image

@@ -40,6 +40,7 @@ import de.tap.easy_xkcd.comicBrowsing.ComicBrowserViewModel
 import de.tap.easy_xkcd.comicBrowsing.FavoritesFragment
 import de.tap.easy_xkcd.comicOverview.ComicOverviewFragment
 import de.tap.easy_xkcd.whatIfOverview.WhatIfOverviewFragment
+import java.lang.NullPointerException
 
 @AndroidEntryPoint
 class MainActivity : BaseActivity() {
@@ -220,7 +221,7 @@ class MainActivity : BaseActivity() {
         fun showComicOverviewFragment(): Boolean {
             val fragment =
                 supportFragmentManager.findFragmentByTag(FRAGMENT_TAG) as? ComicBrowserBaseFragment
-            comicToShow = fragment?.getDisplayedComic()?.comicNumber
+            comicToShow = fragment?.getDisplayedComic()?.number
 
             makeFragmentTransaction(
                 ComicOverviewFragment()
@@ -280,14 +281,14 @@ class MainActivity : BaseActivity() {
 
     }
 
-    override fun onCreateOptionsMenu(menu: Menu?): Boolean {
+    override fun onCreateOptionsMenu(menu: Menu): Boolean {
         menuInflater.inflate(R.menu.menu_main, menu)
 
-        menu?.findItem(R.id.action_donate)?.isVisible = !prefHelper.hideDonate()
-        menu?.findItem(R.id.action_night_mode)?.isChecked = themePrefs.nightEnabledThemeIgnoreAutoNight()
-        menu?.findItem(R.id.action_night_mode)?.isVisible = !themePrefs.autoNightEnabled() && !themePrefs.useSystemNightTheme()
+        menu.findItem(R.id.action_donate)?.isVisible = !prefHelper.hideDonate()
+        menu.findItem(R.id.action_night_mode)?.isChecked = themePrefs.nightEnabledThemeIgnoreAutoNight()
+        menu.findItem(R.id.action_night_mode)?.isVisible = !themePrefs.autoNightEnabled() && !themePrefs.useSystemNightTheme()
 
-        val searchMenuItem = menu?.findItem(R.id.action_search)
+        val searchMenuItem = menu.findItem(R.id.action_search)
         val searchView = searchMenuItem?.actionView as SearchView?
 
         searchMenuItem?.setOnActionExpandListener(object : MenuItem.OnActionExpandListener {
