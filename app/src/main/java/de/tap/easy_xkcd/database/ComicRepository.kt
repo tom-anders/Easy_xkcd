@@ -97,7 +97,6 @@ class ComicRepositoryImpl @Inject constructor(
     private val client = OkHttpClient()
 
     override val newestComicNumber = flow {
-        delay(2000)
         findNewestComic().also {
             prefHelper.setNewestComic(it)
             emit(it)

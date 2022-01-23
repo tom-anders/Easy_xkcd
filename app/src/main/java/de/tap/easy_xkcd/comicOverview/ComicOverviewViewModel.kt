@@ -41,13 +41,11 @@ class ComicOverviewViewModel @Inject constructor(
     private val _onlyFavorites = MutableStateFlow(prefHelper.overviewFav())
     val onlyFavorites: StateFlow<Boolean> = _onlyFavorites
 
-    val comics = combine(repository.favorites, repository.unreadComics, repository.comics,
-                         _hideRead, _onlyFavorites) { favComics, unreadComics, allComics, hideRead, onlyFavs ->
-        Timber.d("diff NEW!! ${allComics[0].comic?.read} ${unreadComics.size}")
+    val comics = combine(repository.comics, _hideRead, _onlyFavorites) { newComics, hideRead, onlyFavs ->
         when {
-            hideRead -> unreadComics
-            onlyFavs -> favComics
-            else -> allComics
+            hideRead -> newComics.filter { it.comic == null || !it.comic.read }
+            onlyFavs -> newComics.filter { it.comic?.favorite == true }
+            else -> newComics.toMutableList()
         }
     }.asEagerStateFlow(emptyList())
 
@@ -72,6 +70,7 @@ class ComicOverviewViewModel @Inject constructor(
         repository.oldestUnreadComic()
     }
 
+    // BUG: Entry won't be updated in overview because of some flow weirdness
     fun setRead(number: Int, read: Boolean) = viewModelScope.launch {
         withContext(Dispatchers.IO) {
             repository.setRead(number, read)
