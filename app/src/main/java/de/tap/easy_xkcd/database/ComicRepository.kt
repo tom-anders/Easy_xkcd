@@ -101,7 +101,7 @@ interface ComicRepository {
 
     suspend fun setBookmark(number: Int)
 
-    suspend fun migrateRealmDatabase(): Flow<ProgressStatus>
+    suspend fun migrateRealmDatabase()
 
     suspend fun oldestUnreadComic(): Comic?
 
@@ -184,27 +184,25 @@ class ComicRepositoryImpl @Inject constructor(
 
     override suspend fun oldestUnreadComic() = comicDao.oldestUnreadComic()
 
-    override suspend fun migrateRealmDatabase() = flow {
+    override suspend fun migrateRealmDatabase() {
         if (!prefHelper.hasMigratedRealmDatabase() || BuildConfig.DEBUG ) {
-            copyResultsFromRealm { realm ->
+            // Needed for fresh install, will initialize the (empty) realm database
+            val databaseManager = DatabaseManager(context)
+
+            val migratedComics = copyResultsFromRealm { realm ->
                 realm.where(RealmComic::class.java).findAll()
-            }.also {
-                emit(ProgressStatus.Max(it.size))
             }.map { realmComic ->
-                val comic = Comic(realmComic.comicNumber)
-                comic.favorite = realmComic.isFavorite
-                comic.read = realmComic.isRead
-                comic.title = realmComic.title
-                comic.transcript = realmComic.transcript
-                comic.url = realmComic.url
-                comic.altText = realmComic.altText
-
-                //TODO Inserting them all at once as a list would probably be faster
-                comicDao.insert(comic)
-
-                emit(ProgressStatus.IncrementProgress)
+                Comic(realmComic.comicNumber).apply {
+                    favorite = realmComic.isFavorite
+                    read = realmComic.isRead
+                    title = realmComic.title
+                    transcript = realmComic.transcript
+                    url = realmComic.url
+                    altText = realmComic.altText
+                }
             }
-            emit(ProgressStatus.Finished)
+            Timber.d("Migrating ${migratedComics.size} comics")
+            comicDao.insert(migratedComics)
             prefHelper.setHasMigratedRealmDatabase()
         }
     }

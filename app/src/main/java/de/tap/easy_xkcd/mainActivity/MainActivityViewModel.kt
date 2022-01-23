@@ -31,8 +31,9 @@ class MainActivityViewModel @Inject constructor(
 
     init {
         viewModelScope.launch {
-            if (prefHelper.isOnline(app.applicationContext)) {
-                withContext(Dispatchers.IO) {
+            repository.migrateRealmDatabase()
+//            if (prefHelper.isOnline(app.applicationContext)) {
+//                withContext(Dispatchers.IO) {
 //                    repository.saveOfflineBitmaps().collect {
 //                        _progress.postValue(it)
 //                    }
@@ -45,10 +46,10 @@ class MainActivityViewModel @Inject constructor(
 //                        //TODO this will also fire the very first time the app is started I think?
 //                        foundNewComic.postValue(true)
 //                    }
-                }
-            }
+//                }
+//            }
 
-            _initialized.value = true
         }
+        _initialized.value = true
     }
 }

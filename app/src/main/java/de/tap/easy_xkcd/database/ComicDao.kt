@@ -31,6 +31,9 @@ interface ComicDao {
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insert(comic: Comic)
 
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    suspend fun insert(comics: List<Comic>)
+
     @Query("SELECT * FROM COMIC WHERE NOT read LIMIT 1")
     suspend fun oldestUnreadComic() : Comic
 }
