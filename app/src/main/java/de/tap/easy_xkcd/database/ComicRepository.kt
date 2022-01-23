@@ -5,6 +5,7 @@ import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.graphics.drawable.Drawable
 import android.net.Uri
+import android.net.ipsec.ike.TunnelModeChildSessionParams
 import androidx.core.content.FileProvider
 import com.bumptech.glide.Glide
 import com.bumptech.glide.request.target.CustomTarget
@@ -112,9 +113,8 @@ class ComicRepositoryImpl @Inject constructor(
     @ApplicationContext private val context: Context,
     private val prefHelper: PrefHelper,
     private val comicDao: ComicDao,
+    private val client: OkHttpClient,
 ) : ComicRepository {
-
-    private val client = OkHttpClient()
 
     override val comicCached = Channel<Comic>()
 
@@ -290,7 +290,8 @@ class ComicRepositoryImpl @Inject constructor(
         client.newCall(Request.Builder().url(RealmComic.getJsonUrl(number)).build())
             .enqueue(object: okhttp3.Callback {
                 override fun onFailure(call: Call, e: IOException) {
-                    channel.close(e)
+                    Timber.e(e)
+                    channel.close()
                 }
 
                 override fun onResponse(call: Call, response: Response) {
@@ -311,7 +312,7 @@ class ComicRepositoryImpl @Inject constructor(
                             json.put("num", 404)
                         } else {
                             Timber.e(e, "Occurred at comic $number")
-                            channel.close(e)
+                            channel.close()
                             return
                         }
                     }
