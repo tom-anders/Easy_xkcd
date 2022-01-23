@@ -43,8 +43,8 @@ class ComicOverviewViewModel @Inject constructor(
 
     val comics = combine(repository.comics, _hideRead, _onlyFavorites) { newComics, hideRead, onlyFavs ->
         when {
-            hideRead -> newComics.filter { it.comic == null || !it.comic.read }
             onlyFavs -> newComics.filter { it.comic?.favorite == true }
+            hideRead -> newComics.filter { it.comic == null || !it.comic.read }
             else -> newComics.toMutableList()
         }
     }.asEagerStateFlow(emptyList())

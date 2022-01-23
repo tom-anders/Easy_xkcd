@@ -1,9 +1,11 @@
 package de.tap.easy_xkcd.comicOverview
 
+import android.animation.LayoutTransition
 import android.content.Context
 import android.graphics.Bitmap
 import android.graphics.Color
 import android.os.Bundle
+import android.transition.Transition
 import android.transition.TransitionInflater
 import android.util.TypedValue
 import android.view.*
@@ -31,6 +33,7 @@ import de.tap.easy_xkcd.mainActivity.MainActivity
 import de.tap.easy_xkcd.utils.PrefHelper
 import de.tap.easy_xkcd.utils.ThemePrefs
 import de.tap.easy_xkcd.utils.observe
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
 import timber.log.Timber
@@ -167,20 +170,42 @@ class ComicOverviewFragment : Fragment() {
         }
 
         arguments?.let { args ->
-            // If we're coming from the favorites browser and the overview
-            val fromFavsAndNotHideRead = args.getBoolean(MainActivity.ARG_FROM_FAVORITES, false)
-                    && (prefHelper.overviewFav() || !prefHelper.hideRead())
+            // If the overview is in "favorites only" mode and we're coming from the normal browser
+            // (not from the favorites browser), then we'll probably not have the comic in the list,
+            // so don't bother doing the enter transition in that case.
+            val onlyShowFavoritesAndNotComingFromFavorites
+                    = !args.getBoolean(MainActivity.ARG_FROM_FAVORITES, false)
+                        && model.onlyFavorites.value
 
-            val neitherHideReadNorOnlyFavorites =
-                !(prefHelper.hideRead() || prefHelper.overviewFav())
-
-            if (savedInstanceState == null && (neitherHideReadNorOnlyFavorites || fromFavsAndNotHideRead)) {
+            if (savedInstanceState == null && !onlyShowFavoritesAndNotComingFromFavorites) {
                 args.getInt(MainActivity.ARG_COMIC_TO_SHOW, -1).let { number ->
                     if (number > 0 && number <= prefHelper.newest) {
                         comicNumberOfSharedElementTransition = number
                         postponeEnterTransition(400, TimeUnit.MILLISECONDS)
-                        sharedElementEnterTransition = TransitionInflater.from(context)
+
+                        val transition = TransitionInflater.from(context)
                             .inflateTransition(R.transition.image_shared_element_transition)
+
+                        // If we're hiding read comics, we still want the transition, so first show
+                        // read comics again, and then when the enter transition is finished,
+                        // hide them again
+                        if (model.hideRead.value) {
+                            model.toggleHideRead()
+                            transition.addListener(
+                                object: Transition.TransitionListener {
+                                    override fun onTransitionEnd(transition: Transition)
+                                            = model.toggleHideRead()
+                                    override fun onTransitionCancel(transition: Transition)
+                                            = model.toggleHideRead()
+
+                                    override fun onTransitionStart(transition: Transition) {}
+                                    override fun onTransitionPause(transition: Transition) {}
+                                    override fun onTransitionResume(transition: Transition) {}
+                                }
+                            )
+                        }
+
+                        sharedElementEnterTransition = transition
                     }
                 }
             }
