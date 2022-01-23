@@ -4,10 +4,8 @@ import android.app.Application
 import androidx.lifecycle.*
 import dagger.hilt.android.lifecycle.HiltViewModel
 import de.tap.easy_xkcd.comicBrowsing.ComicDatabaseModel
-import de.tap.easy_xkcd.database.Comic
 import de.tap.easy_xkcd.database.ComicRepository
 import de.tap.easy_xkcd.database.ProgressStatus
-import de.tap.easy_xkcd.database.RealmComic
 import de.tap.easy_xkcd.utils.PrefHelper
 import de.tap.easy_xkcd.utils.SingleLiveEvent
 import kotlinx.coroutines.Dispatchers
@@ -28,40 +26,32 @@ class ComicDatabaseViewModel @Inject constructor(
     private val _progress: MutableLiveData<ProgressStatus> = MutableLiveData(ProgressStatus.Finished)
     var progress: LiveData<ProgressStatus> = _progress
 
-    var progressMax: Int = 0
-        private set
-
     val foundNewComic = SingleLiveEvent<Boolean>()
 
-    private val _databaseLoaded = MutableLiveData(false)
-    val databaseLoaded: LiveData<Boolean> = _databaseLoaded
+    private val _initialized = MutableLiveData(false)
+    val initialized: LiveData<Boolean> = _initialized
 
     init {
         viewModelScope.launch {
             if (prefHelper.isOnline(app.applicationContext)) {
                 withContext(Dispatchers.IO) {
-                    val newestComic = repository.findNewestComic()
-
-                    progressMax = newestComic
-
-//                    repository.migrateRealmDatabase().collect {
-//                        _progress.postValue(it)
-//                    }
-                    //TODO remove, only for debugging here  
-                    repository.cacheAllComics().collect {
+                    repository.migrateRealmDatabase().collect {
+                        Timber.d("Posting $it")
                         _progress.postValue(it)
                     }
 
+                    val newestComic = repository.findNewestComic()
+
                     if (newestComic > prefHelper.newest) {
                         prefHelper.setNewestComic(newestComic)
+
+                        //TODO this will also fire the very first time the app is started I think?
                         foundNewComic.postValue(true)
                     }
                 }
             }
 
-            _progress.value = null
-
-            _databaseLoaded.value = true
+            _initialized.value = true
         }
     }
 }

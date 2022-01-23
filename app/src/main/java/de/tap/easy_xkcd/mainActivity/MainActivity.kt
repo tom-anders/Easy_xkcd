@@ -7,13 +7,10 @@ import android.content.Intent
 import android.content.res.ColorStateList
 import android.graphics.Color
 import android.os.Bundle
-import android.os.Handler
 import android.view.Menu
 import android.view.MenuItem
 import android.view.View
-import android.view.ViewGroup
 import android.view.inputmethod.InputMethodManager
-import android.widget.FrameLayout
 import android.widget.RelativeLayout
 import android.widget.SearchView
 import androidx.activity.result.ActivityResultLauncher
@@ -21,7 +18,6 @@ import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.viewModels
 import androidx.appcompat.widget.Toolbar
 import androidx.core.content.ContextCompat
-import androidx.core.view.marginBottom
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentTransaction
 import com.google.android.material.bottomappbar.BottomAppBar
@@ -41,7 +37,7 @@ import de.tap.easy_xkcd.comicBrowsing.FavoritesFragment
 import de.tap.easy_xkcd.comicOverview.ComicOverviewFragment
 import de.tap.easy_xkcd.database.ProgressStatus
 import de.tap.easy_xkcd.whatIfOverview.WhatIfOverviewFragment
-import java.lang.NullPointerException
+import timber.log.Timber
 
 @AndroidEntryPoint
 class MainActivity : BaseActivity() {
@@ -108,6 +104,7 @@ class MainActivity : BaseActivity() {
                 is ProgressStatus.Max -> {
                     lockRotation()
                     progress.max = it.max
+                    Timber.d("Max: ${it.max}")
                     progress.show()
                 }
                 is ProgressStatus.IncrementProgress -> {
@@ -120,20 +117,13 @@ class MainActivity : BaseActivity() {
                     progress.progress = 0
                 }
             }
-//            if (it != null) {
-//                progress.progress = it
-//                progress.max = dataBaseViewModel.progressMax
-//                progress.show()
-//            } else {
-//                progress.dismiss()
-//            }
         }
 
         dataBaseViewModel.foundNewComic.observe(this) {
             //TODO show snackbar here or maybe observe this in the fragments instead
         }
 
-        dataBaseViewModel.databaseLoaded.observe(this) { databaseLoaded ->
+        dataBaseViewModel.initialized.observe(this) { databaseLoaded ->
             if (databaseLoaded) {
                 if (savedInstanceState == null) {
                     bottomNavigationView.selectedItemId =
@@ -273,7 +263,7 @@ class MainActivity : BaseActivity() {
     }
 
     override fun onResume() {
-        toolbar.title = if (dataBaseViewModel.databaseLoaded.value == false) {
+        toolbar.title = if (dataBaseViewModel.initialized.value == false) {
             bottomNavigationView.menu.findItem(if (prefHelper.launchToOverview()) {
                 R.id.nav_overview
             } else {

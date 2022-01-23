@@ -23,6 +23,8 @@ import java.io.File
 import java.io.FileOutputStream
 import java.lang.Exception
 import javax.inject.Inject
+import javax.inject.Singleton
+import kotlin.coroutines.CoroutineContext
 
 // If a comic has not been cached yet, the comic will be null here
 // The number can then be used to request caching it.
@@ -80,10 +82,10 @@ interface ComicRepository {
 
     suspend fun findNewestComic(): Int
 
-    //TODO should also use ProgressStatus
     suspend fun migrateRealmDatabase(): Flow<ProgressStatus>
 }
 
+@Singleton
 class ComicRepositoryImpl @Inject constructor(
     @ApplicationContext private val context: Context
 ) : ComicRepository {
@@ -219,29 +221,40 @@ class ComicRepositoryImpl @Inject constructor(
         return Comic.buildFromJson(json, context)
     }
 
-    override suspend fun cacheAllComics() = flow {
-        withContext(Dispatchers.IO) {
-            (1..prefHelper.newest).filter { number -> comicDao.getComic(number) == null }
-                .also { emit(ProgressStatus.Max(it.size)) }
-                .map {
-                    async(Dispatchers.IO) {
-                        cacheComic(it)
-                        emit(ProgressStatus.IncrementProgress)
-                    }
-                }.awaitAll()
-            emit(ProgressStatus.ResetProgress)
+    //TODO figure out how to do this in parallel with flow
+    override suspend fun cacheAllComics() = flow { emit(ProgressStatus.ResetProgress) }
+//        flow {
+//            withContext(Dispatchers.IO) {
+//                (1..prefHelper.newest).filter { number -> comicDao.getComic(number) == null }
+//                    .also { emit(ProgressStatus.Max(it.size)) }
+//                    .map {
+//                        Timber.d("Caching $it")
+//                        withContext(Dispatchers.IO) {
+//                            async {
+//                                Timber.d("Caching $it")
+//                                cacheComic(it)
+//
+//                                withContext(Dispatchers.Main) {
+//                                    emit(ProgressStatus.IncrementProgress)
+//                                }
+//                            }
+//                        }
+//                    }.awaitAll()
+//                emit(ProgressStatus.ResetProgress)
 
-            (1..prefHelper.newest).filter { number -> comicDao.getComic(number)?.transcript?.isEmpty() ?: false }
-                .also { emit(ProgressStatus.Max(it.size)) }
-                .map {
-                    async(Dispatchers.IO) {
-                        //TODO download missing transcripts from explainxkcd here
-                        emit(ProgressStatus.IncrementProgress)
-                    }
-                }.awaitAll()
-            emit(ProgressStatus.Finished)
-        }
-    }
+//                (1..prefHelper.newest).filter { number ->
+//                    comicDao.getComic(number)?.transcript?.isEmpty() ?: false
+//                }
+//                    .also { emit(ProgressStatus.Max(it.size)) }
+//                    .map {
+//                        async(Dispatchers.IO) {
+//                            //TODO download missing transcripts from explainxkcd here
+//                            emit(ProgressStatus.IncrementProgress)
+//                        }
+//                    }.awaitAll()
+//                emit(ProgressStatus.Finished)
+//            }
+//        }
 
     override suspend fun cacheComic(number: Int) {
         withContext(Dispatchers.IO) {

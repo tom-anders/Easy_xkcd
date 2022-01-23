@@ -7,18 +7,15 @@ import de.tap.easy_xkcd.comicBrowsing.ComicDatabaseModel
 import de.tap.easy_xkcd.mainActivity.ComicDatabaseViewModel
 import de.tap.easy_xkcd.utils.PrefHelper
 import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.test.runBlockingTest
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
-import org.junit.runners.Parameterized
 import org.mockito.Mock
 import org.mockito.junit.MockitoJUnit
 import org.mockito.junit.MockitoRule
 import org.mockito.kotlin.*
 import org.robolectric.ParameterizedRobolectricTestRunner
-import org.robolectric.RobolectricTestRunner
 
 @RunWith(ParameterizedRobolectricTestRunner::class)
 class TestComicDatabaseViewModel(
@@ -51,7 +48,7 @@ class TestComicDatabaseViewModel(
 
         verify(databaseModelMock, never()).updateDatabase(any(), any())
 
-        assertThat(viewModel.databaseLoaded.value).isEqualTo(true)
+        assertThat(viewModel.initialized.value).isEqualTo(true)
         assertThat(viewModel.progress.value).isEqualTo(null)
         assertThat(viewModel.foundNewComic.value).isEqualTo(null)
     }
@@ -90,7 +87,7 @@ class TestComicDatabaseViewModel(
 
         verify(databaseModelMock, times(1)).updateDatabase(eq(newestComicToBeFound), any())
 
-        assertThat(viewModel.databaseLoaded.value).isEqualTo(true)
+        assertThat(viewModel.initialized.value).isEqualTo(true)
         assertThat(viewModel.progress.value).isEqualTo(null)
     }
 }
