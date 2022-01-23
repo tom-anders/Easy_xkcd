@@ -52,6 +52,9 @@ abstract class ComicBrowserBaseViewModel constructor(
         }
     }
 
+    suspend fun getUriForSharing(number: Int) = repository.getUriForSharing(number)
+
+    suspend fun getRedditThread() = _selectedComic.value?.let { repository.getRedditThread(it) }
 
     protected val _selectedComicNumber = MutableLiveData<Int>()
     val selectedComicNumber: LiveData<Int> = _selectedComicNumber

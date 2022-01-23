@@ -44,11 +44,10 @@ class ComicDatabaseViewModel @Inject constructor(
                 withContext(Dispatchers.IO) {
                     val newestComic = repository.findNewestComic()
 
-                    Timber.d("Newest: $progressMax")
                     progressMax = newestComic
                     repository.migrateRealmDatabase().collect {
-                        Timber.d("qrc collected $it")
-                        //_progress.postValue(it)
+
+                        // TODO Adapt progress message to "migrating database"
                         withContext(Dispatchers.Main) {
                             _progress.value = it
                         }
@@ -75,9 +74,4 @@ class ComicDatabaseViewModel @Inject constructor(
             _databaseLoaded.value = true
         }
     }
-
-    //TODO These should be moved to ComicBrowserViewModel I think?
-    suspend fun getUriForSharing(comic: Comic) = model.getUriForSharing(comic)
-
-    suspend fun getRedditThread(comic: Comic) = model.getRedditThread(comic)
 }

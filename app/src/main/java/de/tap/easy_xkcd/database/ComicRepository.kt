@@ -1,7 +1,11 @@
 package de.tap.easy_xkcd.database
 
 import android.content.Context
+import android.graphics.Bitmap
+import android.net.Uri
 import androidx.annotation.WorkerThread
+import androidx.core.content.FileProvider
+import com.bumptech.glide.Glide
 import dagger.Binds
 import dagger.Module
 import dagger.hilt.InstallIn
@@ -20,6 +24,9 @@ import okhttp3.Request
 import org.json.JSONException
 import org.json.JSONObject
 import timber.log.Timber
+import java.io.File
+import java.io.FileOutputStream
+import java.lang.Exception
 import javax.inject.Inject
 
 // If a comic has not been cached yet, the comic will be null here
@@ -49,6 +56,12 @@ interface ComicRepository {
     val unreadComics: Flow<List<ComicContainer>>
 
     suspend fun cacheComic(number: Int)
+
+    suspend fun getUriForSharing(number: Int): Uri?
+
+    suspend fun getRedditThread(comic: Comic): String?
+
+    suspend fun saveOfflineBitmap(number: Int)
 
     suspend fun isFavorite(number: Int): Boolean
 
@@ -87,11 +100,14 @@ class ComicRepositoryImpl @Inject constructor(
 
     override suspend fun setRead(number: Int, read: Boolean) = comicDao.setRead(number, read)
 
-    override suspend fun setFavorite(number: Int, favorite: Boolean) = comicDao.setFavorite(number, favorite)
+    override suspend fun setFavorite(number: Int, favorite: Boolean) =
+        comicDao.setFavorite(number, favorite)
 
     override suspend fun removeAllFavorites() = comicDao.removeAllFavorites()
 
-    override suspend fun setBookmark(number: Int) { prefHelper.bookmark = number }
+    override suspend fun setBookmark(number: Int) {
+        prefHelper.bookmark = number
+    }
 
     override suspend fun findNewestComic(): Int {
         return downloadComic(0)?.also {
@@ -100,23 +116,72 @@ class ComicRepositoryImpl @Inject constructor(
     }
 
     override suspend fun migrateRealmDatabase() = flow {
-//        if (!prefHelper.hasMigratedRealmDatabase()) {
-        copyResultsFromRealm { realm -> realm.where(RealmComic::class.java).findAll()}.mapIndexed{ index, realmComic ->
-            val comic = Comic(realmComic.comicNumber)
-            comic.favorite = realmComic.isFavorite
-            comic.read = realmComic.isRead
-            comic.title = realmComic.title
-            comic.transcript = realmComic.transcript
-            comic.url = realmComic.url
-            comic.altText = realmComic.altText
+        if (!prefHelper.hasMigratedRealmDatabase()) {
+            copyResultsFromRealm { realm ->
+                realm.where(RealmComic::class.java).findAll()
+            }.mapIndexed { index, realmComic ->
+                val comic = Comic(realmComic.comicNumber)
+                comic.favorite = realmComic.isFavorite
+                comic.read = realmComic.isRead
+                comic.title = realmComic.title
+                comic.transcript = realmComic.transcript
+                comic.url = realmComic.url
+                comic.altText = realmComic.altText
 
-            //TODO Inserting them all at once as a list would probably be faster
-            comicDao.insert(comic)
+                //TODO Inserting them all at once as a list would probably be faster
+                comicDao.insert(comic)
 
-            emit(index)
+                emit(index)
+            }
+            prefHelper.setHasMigratedRealmDatabase()
         }
-        //prefHelper.setHasMigratedRealmDatabase()
-        //}
+    }
+
+    override suspend fun getRedditThread(comic: Comic) = withContext(Dispatchers.IO) {
+        try {
+            return@withContext "https://www.reddit.com" + client.newCall(
+                Request.Builder()
+                    .url("https://www.reddit.com/r/xkcd/search.json?q=${comic.title}&restrict_sr=on")
+                    .build()
+            )
+                .execute().body?.let {
+                    JSONObject(it.string())
+                        .getJSONObject("data")
+                        .getJSONArray("children").getJSONObject(0).getJSONObject("data")
+                        .getString("permalink")
+                }
+        } catch (e: Exception) {
+            Timber.e(e, "When getting reddit thread for $comic")
+            return@withContext null
+        }
+    }
+
+    override suspend fun getUriForSharing(number: Int): Uri? {
+        saveOfflineBitmap(number)
+        return FileProvider.getUriForFile(
+            context,
+            "de.tap.easy_xkcd.fileProvider",
+            getComicImageFile(number)
+        )
+    }
+
+    private fun getComicImageFile(number: Int) =
+        File(prefHelper.getOfflinePath(context), "${number}.png")
+
+    private fun hasDownloadedComicImage(number: Int) = getComicImageFile(number).exists()
+
+    override suspend fun saveOfflineBitmap(number: Int) = withContext(Dispatchers.IO) {
+        if (!hasDownloadedComicImage(number)) {
+            comicDao.getComic(number)?.let { comic ->
+                client.newCall(Request.Builder().url(comic.url).build()).execute().body?.let {
+                    try {
+                        FileOutputStream(getComicImageFile(number)).write(it.bytes())
+                    } catch (e: Exception) {
+                        Timber.e(e, "While downloading comic $number")
+                    }
+                }
+            }
+        }
     }
 
     private fun downloadComic(number: Int): Comic? {

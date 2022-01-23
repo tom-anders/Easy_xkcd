@@ -70,8 +70,6 @@ abstract class ComicBrowserBaseFragment : Fragment() {
     protected lateinit var prefHelper: PrefHelper
     protected lateinit var themePrefs: ThemePrefs
 
-    protected val databaseModel: ComicDatabaseViewModel by activityViewModels()
-
     protected abstract val model: ComicBrowserBaseViewModel
 
     protected var comicNumberOfSharedElementTransition : Int? = null
@@ -511,7 +509,7 @@ abstract class ComicBrowserBaseFragment : Fragment() {
                 true
             }
             R.id.action_thread -> {
-                getDisplayedComic()?.let { openRedditThread(it) }
+                openRedditThread()
                 true
             }
             R.id.action_boomark -> {
@@ -529,21 +527,20 @@ abstract class ComicBrowserBaseFragment : Fragment() {
             else -> super.onOptionsItemSelected(item)
         }
 
-    private fun openRedditThread(comic: Comic) {
+    private fun openRedditThread() {
         lifecycleScope.launch {
             //TODO model should show the progress here
-            val url = databaseModel.getRedditThread(comic)
 
-            withContext(Dispatchers.Main) {
-                if (url == "" && activity != null) {
-                    Toast.makeText(
-                        activity,
-                        resources.getString(R.string.thread_not_found),
-                        Toast.LENGTH_SHORT
-                    ).show()
-                } else {
+            model.getRedditThread()?.let { url ->
+                withContext(Dispatchers.Main) {
                     startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(url)))
                 }
+            } ?: run {
+                Toast.makeText(
+                    activity,
+                    resources.getString(R.string.thread_not_found),
+                    Toast.LENGTH_SHORT
+                ).show()
             }
         }
     }
@@ -625,7 +622,7 @@ abstract class ComicBrowserBaseFragment : Fragment() {
         lifecycleScope.launch {
             val share = Intent(Intent.ACTION_SEND).apply {
                 type = "image/*"
-                putExtra(Intent.EXTRA_STREAM, databaseModel.getUriForSharing(comic))
+                putExtra(Intent.EXTRA_STREAM, model.getUriForSharing(comic.number))
                 putExtra(Intent.EXTRA_SUBJECT, comic.title)
             }
 
