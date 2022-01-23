@@ -35,7 +35,7 @@ abstract class ComicBrowserBaseViewModel constructor(
 
     abstract fun comicSelected(index: Int)
 
-    abstract fun jumpToComic(comicNumber: Int)
+    abstract fun selectComic(comicNumber: Int)
 
     suspend fun setBookmark() {
         selectedComicNumber.value?.let {
@@ -74,6 +74,8 @@ class ComicBrowserViewModel @Inject constructor(
     val comics = repository.comics.asLazyStateFlow(emptyList())
 
     val comicCached = repository.comicCached
+
+    val foundNewComic = repository.foundNewComic.receiveAsFlow()
 
     private var nextRandom: Int? = null
 
@@ -129,7 +131,7 @@ class ComicBrowserViewModel @Inject constructor(
         }
     }
 
-    override fun jumpToComic(comicNumber: Int) {
+    override fun selectComic(comicNumber: Int) {
         comicSelected(comicNumber - 1)
     }
 
@@ -171,7 +173,7 @@ class FavoriteComicsViewModel @Inject constructor(
         _selectedComic.value = favorites.value.getOrNull(index)?.comic
     }
 
-    override fun jumpToComic(comicNumber: Int) {
+    override fun selectComic(comicNumber: Int) {
         _selectedComicNumber.value = comicNumber
         scrollToPage.value = favorites.value.indexOfFirst { it.number == comicNumber }
     }

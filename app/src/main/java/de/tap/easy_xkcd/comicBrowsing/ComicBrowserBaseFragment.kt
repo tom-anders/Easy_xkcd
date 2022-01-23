@@ -1,6 +1,5 @@
 package de.tap.easy_xkcd.comicBrowsing
 
-import android.annotation.SuppressLint
 import android.app.AlertDialog
 import android.content.Context
 import android.content.Intent
@@ -13,30 +12,16 @@ import android.text.Html
 import android.transition.TransitionInflater
 import android.view.*
 import android.widget.ImageView
-import android.widget.RelativeLayout
 import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.browser.customtabs.CustomTabsIntent
 import androidx.core.view.MenuCompat
-import androidx.fragment.app.DialogFragment
 import androidx.fragment.app.Fragment
-import androidx.fragment.app.activityViewModels
-import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
-import androidx.lifecycle.repeatOnLifecycle
 import androidx.recyclerview.widget.RecyclerView
-import androidx.swiperefreshlayout.widget.CircularProgressDrawable
-import androidx.viewpager.widget.PagerAdapter
-import androidx.viewpager.widget.ViewPager
 import androidx.viewpager2.widget.ViewPager2
-import com.bumptech.glide.load.DataSource
-import com.bumptech.glide.load.engine.GlideException
-import com.bumptech.glide.request.RequestListener
-import com.bumptech.glide.request.RequestOptions
-import com.bumptech.glide.request.target.Target
 import com.github.chrisbanes.photoview.PhotoView
-import com.google.android.material.snackbar.BaseTransientBottomBar
 import com.google.android.material.snackbar.Snackbar
 import com.tap.xkcd_reader.R
 import com.tap.xkcd_reader.databinding.PagerLayoutBinding
@@ -45,19 +30,14 @@ import de.tap.easy_xkcd.ComicBaseAdapter
 import de.tap.easy_xkcd.ComicViewHolder
 import de.tap.easy_xkcd.CustomTabHelpers.BrowserFallback
 import de.tap.easy_xkcd.CustomTabHelpers.CustomTabActivityHelper
-import de.tap.easy_xkcd.GlideApp
 import de.tap.easy_xkcd.database.Comic
 import de.tap.easy_xkcd.database.RealmComic
 import de.tap.easy_xkcd.fragments.ImmersiveDialogFragment
-import de.tap.easy_xkcd.fragments.comics.FavoritesFragment
-import de.tap.easy_xkcd.mainActivity.ComicDatabaseViewModel
 import de.tap.easy_xkcd.mainActivity.MainActivity
-import de.tap.easy_xkcd.misc.HackyViewPager
 import de.tap.easy_xkcd.utils.PrefHelper
 import de.tap.easy_xkcd.utils.ThemePrefs
 import de.tap.easy_xkcd.utils.observe
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import timber.log.Timber
@@ -105,7 +85,7 @@ abstract class ComicBrowserBaseFragment : Fragment() {
 
         arguments?.let { args ->
             if (args.containsKey(MainActivity.ARG_COMIC_TO_SHOW)) {
-                model.jumpToComic(args.getInt(MainActivity.ARG_COMIC_TO_SHOW))
+                model.selectComic(args.getInt(MainActivity.ARG_COMIC_TO_SHOW))
             }
 
             // Prepare for shared element transition

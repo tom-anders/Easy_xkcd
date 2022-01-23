@@ -78,6 +78,8 @@ interface ComicRepository {
 
     val comicCached: SharedFlow<Comic>
 
+    val foundNewComic: Channel<Unit>
+
     suspend fun cacheComic(number: Int)
 
     suspend fun cacheAllComics(): Flow<ProgressStatus>
@@ -119,6 +121,8 @@ class ComicRepositoryImpl @Inject constructor(
     val _comicCached = MutableSharedFlow<Comic>()
     override val comicCached = _comicCached
 
+    override val foundNewComic = Channel<Unit>()
+
     @ExperimentalCoroutinesApi
     override val newestComicNumber = flow {
         downloadComic(0).collect { newestComic ->
@@ -140,6 +144,8 @@ class ComicRepositoryImpl @Inject constructor(
 
                 prefHelper.setNewestComic(newestComic.number)
                 emit(newestComic.number)
+
+                foundNewComic.send(Unit)
             }
         }
     }.stateIn(coroutineScope, SharingStarted.Lazily, prefHelper.newest)

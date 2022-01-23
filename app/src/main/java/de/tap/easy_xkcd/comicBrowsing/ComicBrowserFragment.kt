@@ -23,6 +23,7 @@ import com.bumptech.glide.Glide
 import com.bumptech.glide.request.RequestOptions
 import com.github.chrisbanes.photoview.PhotoView
 import com.google.android.material.floatingactionbutton.FloatingActionButton
+import com.google.android.material.snackbar.Snackbar
 import com.tap.xkcd_reader.R
 import dagger.hilt.android.AndroidEntryPoint
 import de.tap.easy_xkcd.ComicBaseAdapter
@@ -78,6 +79,19 @@ class ComicBrowserFragment : ComicBrowserBaseFragment() {
             val position = comic.number - 1
             adapter.comics[position] = comic.toContainer()
             adapter.notifyItemChanged(position)
+        }
+
+        model.foundNewComic.observe(this) {
+            (activity as? MainActivity?)?.let {
+                Snackbar.make(
+                    it.findViewById(R.id.fab),
+                    resources.getString(R.string.new_comic),
+                    4000
+                )
+                    .setAction(resources.getString(R.string.new_comic_view)) {
+                        pager.setCurrentItem(prefHelper.newest - 1, false)
+                    }.show()
+            }
         }
 
         activity?.findViewById<FloatingActionButton>(R.id.fab)?.apply {

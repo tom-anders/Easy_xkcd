@@ -1,19 +1,6 @@
 package de.tap.easy_xkcd.database
 
-import android.app.Application
-import com.google.common.truth.Truth.assertThat
-import de.tap.easy_xkcd.comicBrowsing.ComicDatabaseModel
-import de.tap.easy_xkcd.mainActivity.ComicDatabaseViewModel
-import de.tap.easy_xkcd.utils.PrefHelper
-import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.test.runBlockingTest
-import org.junit.Rule
-import org.junit.Test
 import org.junit.runner.RunWith
-import org.mockito.Mock
-import org.mockito.junit.MockitoJUnit
-import org.mockito.junit.MockitoRule
-import org.mockito.kotlin.*
 import org.robolectric.ParameterizedRobolectricTestRunner
 
 @RunWith(ParameterizedRobolectricTestRunner::class)

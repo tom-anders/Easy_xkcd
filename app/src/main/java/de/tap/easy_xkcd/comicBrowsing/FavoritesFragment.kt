@@ -4,14 +4,12 @@ import android.app.Activity
 import android.app.AlertDialog
 import android.app.ProgressDialog
 import android.content.Intent
-import android.net.Uri
 import android.os.Bundle
 import android.view.*
 import android.widget.Toast
 import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.fragment.app.viewModels
-import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleCoroutineScope
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
@@ -70,7 +68,7 @@ class FavoritesFragment : ComicBrowserBaseFragment() {
             adapter.comics = newList.toMutableList()
             diffResult.dispatchUpdatesTo(adapter)
 
-            comicNumberOfSharedElementTransition?.let { model.jumpToComic(it) }
+            comicNumberOfSharedElementTransition?.let { model.selectComic(it) }
         }
 
         model.scrollToPage.observe(viewLifecycleOwner) {

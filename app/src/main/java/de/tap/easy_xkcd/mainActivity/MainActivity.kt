@@ -22,6 +22,7 @@ import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentTransaction
 import com.google.android.material.bottomappbar.BottomAppBar
 import com.google.android.material.bottomnavigation.BottomNavigationView
+import com.google.android.material.snackbar.Snackbar
 import com.tap.xkcd_reader.R
 import com.tap.xkcd_reader.databinding.ActivityMainBinding
 import dagger.hilt.android.AndroidEntryPoint
@@ -36,6 +37,7 @@ import de.tap.easy_xkcd.comicBrowsing.ComicBrowserViewModel
 import de.tap.easy_xkcd.comicBrowsing.FavoritesFragment
 import de.tap.easy_xkcd.comicOverview.ComicOverviewFragment
 import de.tap.easy_xkcd.database.ProgressStatus
+import de.tap.easy_xkcd.utils.observe
 import de.tap.easy_xkcd.whatIfOverview.WhatIfOverviewFragment
 import timber.log.Timber
 
@@ -67,7 +69,7 @@ class MainActivity : BaseActivity() {
 
     val comicBrowserViewModel: ComicBrowserViewModel by viewModels()
 
-    val dataBaseViewModel: ComicDatabaseViewModel by viewModels()
+    val dataBaseViewModel: MainActivityViewModel by viewModels()
 
     private lateinit var bottomNavigationListener: BottomNavigationListener
 
@@ -117,10 +119,6 @@ class MainActivity : BaseActivity() {
                     progress.progress = 0
                 }
             }
-        }
-
-        dataBaseViewModel.foundNewComic.observe(this) {
-            //TODO show snackbar here or maybe observe this in the fragments instead
         }
 
         dataBaseViewModel.initialized.observe(this) { databaseLoaded ->

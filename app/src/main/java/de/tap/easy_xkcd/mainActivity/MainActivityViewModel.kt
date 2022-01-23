@@ -10,23 +10,21 @@ import de.tap.easy_xkcd.utils.PrefHelper
 import de.tap.easy_xkcd.utils.SingleLiveEvent
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.collect
+import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import timber.log.Timber
 import javax.inject.Inject
 
 @HiltViewModel
-class ComicDatabaseViewModel @Inject constructor(
+class MainActivityViewModel @Inject constructor(
     app: Application,
-    private val model: ComicDatabaseModel,
     private val repository: ComicRepository,
     private val prefHelper: PrefHelper,
 ) : AndroidViewModel(app) {
 
     private val _progress: MutableLiveData<ProgressStatus> = MutableLiveData(ProgressStatus.Finished)
     var progress: LiveData<ProgressStatus> = _progress
-
-    val foundNewComic = SingleLiveEvent<Boolean>()
 
     private val _initialized = MutableLiveData(false)
     val initialized: LiveData<Boolean> = _initialized
