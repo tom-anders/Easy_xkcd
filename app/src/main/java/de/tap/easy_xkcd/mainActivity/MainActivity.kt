@@ -39,6 +39,7 @@ import de.tap.easy_xkcd.comicBrowsing.ComicBrowserFragment
 import de.tap.easy_xkcd.comicBrowsing.ComicBrowserViewModel
 import de.tap.easy_xkcd.comicBrowsing.FavoritesFragment
 import de.tap.easy_xkcd.comicOverview.ComicOverviewFragment
+import de.tap.easy_xkcd.database.ProgressStatus
 import de.tap.easy_xkcd.whatIfOverview.WhatIfOverviewFragment
 import java.lang.NullPointerException
 
@@ -99,13 +100,33 @@ class MainActivity : BaseActivity() {
         progress.setProgressStyle(ProgressDialog.STYLE_HORIZONTAL)
         progress.isIndeterminate = false
         dataBaseViewModel.progress.observe(this) {
-            if (it != null) {
-                progress.progress = it
-                progress.max = dataBaseViewModel.progressMax
-                progress.show()
-            } else {
-                progress.dismiss()
+            when (it) {
+                is ProgressStatus.Finished -> {
+                    progress.dismiss()
+                    unlockRotation()
+                }
+                is ProgressStatus.Max -> {
+                    lockRotation()
+                    progress.max = it.max
+                    progress.show()
+                }
+                is ProgressStatus.IncrementProgress -> {
+                    progress.progress++
+                }
+                is ProgressStatus.SetProgress -> {
+                    progress.progress = it.value
+                }
+                is ProgressStatus.ResetProgress -> {
+                    progress.progress = 0
+                }
             }
+//            if (it != null) {
+//                progress.progress = it
+//                progress.max = dataBaseViewModel.progressMax
+//                progress.show()
+//            } else {
+//                progress.dismiss()
+//            }
         }
 
         dataBaseViewModel.foundNewComic.observe(this) {

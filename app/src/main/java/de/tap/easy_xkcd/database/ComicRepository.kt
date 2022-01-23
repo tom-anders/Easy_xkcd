@@ -1,24 +1,19 @@
 package de.tap.easy_xkcd.database
 
 import android.content.Context
-import android.graphics.Bitmap
 import android.net.Uri
-import androidx.annotation.WorkerThread
 import androidx.core.content.FileProvider
-import com.bumptech.glide.Glide
+import com.tap.xkcd_reader.BuildConfig
 import dagger.Binds
 import dagger.Module
 import dagger.hilt.InstallIn
 import dagger.hilt.android.components.ViewModelComponent
 import dagger.hilt.android.qualifiers.ApplicationContext
 import de.tap.easy_xkcd.utils.*
-import io.realm.Realm
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.delay
+import kotlinx.coroutines.*
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.map
-import kotlinx.coroutines.withContext
 import okhttp3.OkHttpClient
 import okhttp3.Request
 import org.json.JSONException
@@ -48,6 +43,14 @@ fun Flow<Map<Int, Comic>>.mapToComicContainer(size: Int) = map { comicMap ->
     }
 }
 
+sealed class ProgressStatus {
+    data class Max(val max: Int) : ProgressStatus()
+    object IncrementProgress : ProgressStatus()
+    data class SetProgress(val value: Int) : ProgressStatus()
+    object ResetProgress : ProgressStatus()
+    object Finished : ProgressStatus()
+}
+
 interface ComicRepository {
     val comics: Flow<List<ComicContainer>>
 
@@ -56,6 +59,8 @@ interface ComicRepository {
     val unreadComics: Flow<List<ComicContainer>>
 
     suspend fun cacheComic(number: Int)
+
+    suspend fun cacheAllComics(): Flow<ProgressStatus>
 
     suspend fun getUriForSharing(number: Int): Uri?
 
@@ -75,7 +80,8 @@ interface ComicRepository {
 
     suspend fun findNewestComic(): Int
 
-    suspend fun migrateRealmDatabase(): Flow<Int>
+    //TODO should also use ProgressStatus
+    suspend fun migrateRealmDatabase(): Flow<ProgressStatus>
 }
 
 class ComicRepositoryImpl @Inject constructor(
@@ -116,10 +122,12 @@ class ComicRepositoryImpl @Inject constructor(
     }
 
     override suspend fun migrateRealmDatabase() = flow {
-        if (!prefHelper.hasMigratedRealmDatabase()) {
+        if (!prefHelper.hasMigratedRealmDatabase() || BuildConfig.DEBUG ) {
             copyResultsFromRealm { realm ->
                 realm.where(RealmComic::class.java).findAll()
-            }.mapIndexed { index, realmComic ->
+            }.also {
+                emit(ProgressStatus.Max(it.size))
+            }.map { realmComic ->
                 val comic = Comic(realmComic.comicNumber)
                 comic.favorite = realmComic.isFavorite
                 comic.read = realmComic.isRead
@@ -131,8 +139,9 @@ class ComicRepositoryImpl @Inject constructor(
                 //TODO Inserting them all at once as a list would probably be faster
                 comicDao.insert(comic)
 
-                emit(index)
+                emit(ProgressStatus.IncrementProgress)
             }
+            emit(ProgressStatus.Finished)
             prefHelper.setHasMigratedRealmDatabase()
         }
     }
@@ -208,6 +217,30 @@ class ComicRepositoryImpl @Inject constructor(
         }
 
         return Comic.buildFromJson(json, context)
+    }
+
+    override suspend fun cacheAllComics() = flow {
+        withContext(Dispatchers.IO) {
+            (1..prefHelper.newest).filter { number -> comicDao.getComic(number) == null }
+                .also { emit(ProgressStatus.Max(it.size)) }
+                .map {
+                    async(Dispatchers.IO) {
+                        cacheComic(it)
+                        emit(ProgressStatus.IncrementProgress)
+                    }
+                }.awaitAll()
+            emit(ProgressStatus.ResetProgress)
+
+            (1..prefHelper.newest).filter { number -> comicDao.getComic(number)?.transcript?.isEmpty() ?: false }
+                .also { emit(ProgressStatus.Max(it.size)) }
+                .map {
+                    async(Dispatchers.IO) {
+                        //TODO download missing transcripts from explainxkcd here
+                        emit(ProgressStatus.IncrementProgress)
+                    }
+                }.awaitAll()
+            emit(ProgressStatus.Finished)
+        }
     }
 
     override suspend fun cacheComic(number: Int) {

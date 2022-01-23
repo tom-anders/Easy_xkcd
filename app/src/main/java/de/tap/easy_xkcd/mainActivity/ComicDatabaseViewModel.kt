@@ -1,14 +1,12 @@
 package de.tap.easy_xkcd.mainActivity
 
 import android.app.Application
-import androidx.lifecycle.AndroidViewModel
-import androidx.lifecycle.LiveData
-import androidx.lifecycle.MutableLiveData
-import androidx.lifecycle.viewModelScope
+import androidx.lifecycle.*
 import dagger.hilt.android.lifecycle.HiltViewModel
 import de.tap.easy_xkcd.comicBrowsing.ComicDatabaseModel
 import de.tap.easy_xkcd.database.Comic
 import de.tap.easy_xkcd.database.ComicRepository
+import de.tap.easy_xkcd.database.ProgressStatus
 import de.tap.easy_xkcd.database.RealmComic
 import de.tap.easy_xkcd.utils.PrefHelper
 import de.tap.easy_xkcd.utils.SingleLiveEvent
@@ -27,8 +25,8 @@ class ComicDatabaseViewModel @Inject constructor(
     private val prefHelper: PrefHelper,
 ) : AndroidViewModel(app) {
 
-    private val _progress: MutableLiveData<Int> = MutableLiveData()
-    val progress: LiveData<Int> = _progress
+    private val _progress: MutableLiveData<ProgressStatus> = MutableLiveData(ProgressStatus.Finished)
+    var progress: LiveData<ProgressStatus> = _progress
 
     var progressMax: Int = 0
         private set
@@ -45,12 +43,13 @@ class ComicDatabaseViewModel @Inject constructor(
                     val newestComic = repository.findNewestComic()
 
                     progressMax = newestComic
-                    repository.migrateRealmDatabase().collect {
 
-                        // TODO Adapt progress message to "migrating database"
-                        withContext(Dispatchers.Main) {
-                            _progress.value = it
-                        }
+//                    repository.migrateRealmDatabase().collect {
+//                        _progress.postValue(it)
+//                    }
+                    //TODO remove, only for debugging here  
+                    repository.cacheAllComics().collect {
+                        _progress.postValue(it)
                     }
 
                     if (newestComic > prefHelper.newest) {
@@ -58,15 +57,6 @@ class ComicDatabaseViewModel @Inject constructor(
                         foundNewComic.postValue(true)
                     }
                 }
-
-                /*progressMax = newestComic
-                _progress.value = 0
-                model.updateDatabase(newestComic) {
-                    _progress.value?.let {
-                        _progress.postValue(it + 1)
-                    }
-                }*/
-
             }
 
             _progress.value = null
