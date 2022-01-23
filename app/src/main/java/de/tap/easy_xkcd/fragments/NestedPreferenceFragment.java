@@ -273,7 +273,7 @@ public class NestedPreferenceFragment extends PreferenceFragment {
                         return true;
                     }
                 });
-                findPreference(FULL_OFFLINE).setOnPreferenceChangeListener(new Preference.OnPreferenceChangeListener() {
+                /*findPreference(FULL_OFFLINE).setOnPreferenceChangeListener(new Preference.OnPreferenceChangeListener() {
                     @Override
                     public boolean onPreferenceChange(Preference preference, Object newValue) {
                         boolean checked = Boolean.valueOf(newValue.toString());
@@ -315,7 +315,7 @@ public class NestedPreferenceFragment extends PreferenceFragment {
                             return true;
                         }
                     }
-                });
+                });*/
                 findPreference(WHATIF_OFFLINE).setOnPreferenceChangeListener(new Preference.OnPreferenceChangeListener() {
                     @Override
                     public boolean onPreferenceChange(Preference preference, Object newValue) {
