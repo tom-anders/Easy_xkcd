@@ -4,7 +4,6 @@ import android.graphics.Bitmap
 import android.graphics.Color
 import android.os.Bundle
 import android.transition.TransitionInflater
-import android.util.TypedValue
 import android.view.*
 import android.widget.ImageView
 import android.widget.TextView
@@ -12,32 +11,20 @@ import androidx.appcompat.app.AlertDialog
 import androidx.cardview.widget.CardView
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
-import androidx.fragment.app.activityViewModels
 import androidx.fragment.app.viewModels
-import androidx.recyclerview.widget.DiffUtil
-import androidx.recyclerview.widget.LinearLayoutManager
-import androidx.recyclerview.widget.RecyclerView
-import androidx.recyclerview.widget.StaggeredGridLayoutManager
-import androidx.swiperefreshlayout.widget.CircularProgressDrawable
-import com.bumptech.glide.load.DataSource
-import com.bumptech.glide.load.engine.GlideException
-import com.bumptech.glide.request.RequestListener
-import com.bumptech.glide.request.RequestOptions
-import com.bumptech.glide.request.target.Target
-import com.simplecityapps.recyclerview_fastscroll.views.FastScrollRecyclerView
+import androidx.recyclerview.widget.*
+import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.tap.xkcd_reader.R
 import com.tap.xkcd_reader.databinding.RecyclerLayoutBinding
 import dagger.hilt.android.AndroidEntryPoint
 import de.tap.easy_xkcd.ComicBaseAdapter
 import de.tap.easy_xkcd.ComicViewHolder
-import de.tap.easy_xkcd.GlideApp
 import de.tap.easy_xkcd.database.Comic
-import de.tap.easy_xkcd.database.RealmComic
 import de.tap.easy_xkcd.mainActivity.MainActivity
 import de.tap.easy_xkcd.utils.PrefHelper
 import de.tap.easy_xkcd.utils.ThemePrefs
-import timber.log.Timber
 import java.util.concurrent.TimeUnit
+import kotlin.random.Random
 
 @AndroidEntryPoint
 class ComicOverviewFragment : Fragment() {
@@ -96,18 +83,6 @@ class ComicOverviewFragment : Fragment() {
             }
         }
 
-//        model.comics.observe(viewLifecycleOwner) {
-//            it?.let {
-//                adapter.setComics(it)
-//
-//                if (model.hideRead.value == true) {
-//                    recyclerView.layoutManager?.scrollToPosition(it.size - prefHelper.lastComic)
-//                } else {
-//                    recyclerView.layoutManager?.scrollToPosition(it.size - (model.getNextUnreadComic() ?: 0))
-//                }
-//            }
-//        }
-
         model.comics.observe(viewLifecycleOwner) { newList ->
             if (newList != null) {
                 val diffResult = DiffUtil.calculateDiff(object : DiffUtil.Callback() {
@@ -152,7 +127,13 @@ class ComicOverviewFragment : Fragment() {
         }
 
         arguments?.let { args ->
-            if (savedInstanceState == null && !prefHelper.hideRead()) {
+            // If we're coming from the favorites browser and the overview
+            val fromFavsAndNotHideRead = args.getBoolean(MainActivity.ARG_FROM_FAVORITES, false)
+                    && (prefHelper.overviewFav() || !prefHelper.hideRead())
+
+            val neitherHideReadNorOnlyFavorites = !(prefHelper.hideRead() || prefHelper.overviewFav())
+
+            if (savedInstanceState == null && (neitherHideReadNorOnlyFavorites || fromFavsAndNotHideRead)) {
                 args.getInt(MainActivity.ARG_COMIC_TO_SHOW, -1).let { number ->
                     if (number > 0 && number <= prefHelper.newest) {
                         comicNumberOfSharedElementTransition = number
@@ -162,6 +143,13 @@ class ComicOverviewFragment : Fragment() {
                     }
                 }
             }
+        }
+
+        activity?.findViewById<FloatingActionButton>(R.id.fab)?.setOnClickListener {
+            val randIndex = Random.nextInt(adapter.comics.size)
+
+            (activity as MainActivity?)?.showComicFromOverview(
+                prefHelper.overviewFav(), emptyList(), adapter.comics[randIndex].number)
         }
 
         return binding.root

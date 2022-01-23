@@ -65,6 +65,7 @@ class MainActivity : BaseActivity() {
     companion object {
         const val ARG_TRANSITION_PENDING = "transition_pending"
         const val ARG_COMIC_TO_SHOW = "comic_to_show"
+        const val ARG_FROM_FAVORITES = "from_favorites"
     }
 
     val comicBrowserViewModel: ComicBrowserViewModel by viewModels()
@@ -149,7 +150,7 @@ class MainActivity : BaseActivity() {
 
         fun setTransitionPendingWithSharedElements(sharedElements: List<View?>) {
             pendingSharedElements = sharedElements
-            transitionPending = true
+            transitionPending = sharedElements.isNotEmpty()
         }
 
         init {
@@ -201,6 +202,8 @@ class MainActivity : BaseActivity() {
                     putInt(ARG_COMIC_TO_SHOW, it)
                     comicToShow = null
                 }
+
+                putBoolean(ARG_FROM_FAVORITES, supportFragmentManager.findFragmentByTag(FRAGMENT_TAG) is FavoritesFragment)
             }
 
             return supportFragmentManager.beginTransaction().apply {
