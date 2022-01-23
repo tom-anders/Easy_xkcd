@@ -26,15 +26,15 @@ import android.os.Bundle;
 import android.view.Menu;
 import android.widget.Toast;
 
-import com.anjlab.android.iab.v3.BillingProcessor;
-import com.anjlab.android.iab.v3.TransactionDetails;
+//import com.anjlab.android.iab.v3.BillingProcessor;
+//import com.anjlab.android.iab.v3.TransactionDetails;
 import com.tap.xkcd_reader.R;
 
 import de.tap.easy_xkcd.utils.PrefHelper;
 
 public class DonateActivity extends AppCompatActivity {
 
-    private BillingProcessor mBillingProcessor;
+    /*private BillingProcessor mBillingProcessor;
     private PrefHelper prefHelper;
     private static final String publicKey = "MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEApIdLEFtE9/AaPdPDMdFN3DJKKc0MZFyGJdTssBgFKlIi0VgpeocVgi9LJ4ev1P1OJExRp+P+X/3zMt2Z28s7gyBW+vtBKRJqdw8ix+mAtxGW81QFcwKCUW2nfn3pq2G7IXj0l/acfLruAfLyKwdpwzX/jqCJCFeolTRQxTDkisrxV25ShMFSlWCE9uvRwezs9v6GJ+5ebu+y632N9I2UVa+QIGQo2Kdgg1Iv2jEGihokGxbBOENxAggD8y4Ut66KNPE8gOo7r5/cFnAruLInSXqp9odHvF0JGTgrEereE9cCLGZG9/e+F3NE3T0DVd25ICVDq2IvVVcCyJT6WDFLZwIDAQAB";
     private static final String iap1 = "de.tap.easy_xkcd.iap1";
@@ -121,5 +121,5 @@ public class DonateActivity extends AppCompatActivity {
         getMenuInflater().inflate(R.menu.menu_donate, menu);
         return true;
     }
-
+*/
 }
