@@ -150,6 +150,56 @@ abstract class ComicBrowserBaseFragment : Fragment() {
             }
         }
 
+        inner class LongAndDoubleTapListener(
+            private val image: PhotoView,
+            private val comic: Comic
+        ) : GestureDetector.OnDoubleTapListener, View.OnLongClickListener {
+            private var fingerLifted = true
+
+            override fun onDoubleTapEvent(e: MotionEvent?): Boolean {
+                if (e?.action == MotionEvent.ACTION_UP) fingerLifted = true
+                if (e?.action == MotionEvent.ACTION_DOWN) fingerLifted = false
+                return false
+            }
+
+            override fun onDoubleTap(e: MotionEvent?): Boolean {
+                if (prefHelper.doubleTapToFavorite()) {
+                    toggleFavorite()
+                    (activity?.getSystemService(Context.VIBRATOR_SERVICE) as? Vibrator?)?.vibrate(100)
+                } else {
+                    when {
+                        image.scale < 0.7f * image.maximumScale -> {
+                            image.setScale(0.7f * image.maximumScale, true)
+                        }
+                        else -> {
+                            image.setScale(1.0f, true)
+                        }
+                    }
+                }
+                return true
+            }
+
+            override fun onSingleTapConfirmed(e: MotionEvent?): Boolean {
+                if (RealmComic.isInteractiveComic(comic.number, activity)) {
+                    openInBrowser(comic)
+                } else if (prefHelper.fullscreenModeEnabled()) {
+                    (activity as? MainActivity?)?.toggleFullscreen()
+                }
+                return false
+            }
+
+            override fun onLongClick(p0: View?): Boolean {
+                if (fingerLifted) {
+                    if (prefHelper.altVibration()) {
+                        (activity?.getSystemService(Context.VIBRATOR_SERVICE) as? Vibrator?)?.vibrate(10)
+                    }
+
+                    showAltText()
+                }
+                return true
+            }
+        }
+
         override fun onBindViewHolder(holder: ComicBrowserViewHolder, position: Int) {
             if (Arrays.binarySearch(
                     requireActivity().resources.getIntArray(R.array.large_comics),
@@ -159,18 +209,18 @@ abstract class ComicBrowserBaseFragment : Fragment() {
                 holder.image.maximumScale = 15.0f
             }
 
-            // TODO figure out how to do this with viewpager2
-            /*if (prefHelper.scrollDisabledWhileZoom() && prefHelper.defaultZoom()) {
-                pvComic.setOnMatrixChangeListener {
-                    pager.setLocked(pvComic.scale > 1.4)
+            if (prefHelper.scrollDisabledWhileZoom() && prefHelper.defaultZoom()) {
+                holder.image.setOnMatrixChangeListener {
+                    pager.isUserInputEnabled = holder.image.scale <= 1.4
                 }
-            }*/
+            }
 
-            //TODO copy this over
-            /*LongAndDoubleTapListener(pvComic, comic).let {
-                pvComic.setOnDoubleTapListener(it)
-                pvComic.setOnLongClickListener(it)
-            }*/
+            comics[position].comic?.let { comic ->
+                LongAndDoubleTapListener(holder.image, comic).let {
+                    holder.image.setOnDoubleTapListener(it)
+                    holder.image.setOnLongClickListener(it)
+                }
+            }
 
             super.onBindViewHolder(holder, position)
         }
