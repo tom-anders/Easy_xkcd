@@ -120,6 +120,7 @@ public class PrefHelper {
     private static final String NAV_DRAWER_SWIPE = "disable_nav_drawer_swipe";
     private static final String SHOW_UPDATE_MESSAGE = "show_update_message_5_2019";
     private static final String MIGRATED_TO_SCOPED_STORAGE = "pref_migrated_to_scoped_storage";
+    private static final String MIGRATED_REALM_DATABASE = "pref_migrated_realm_database";
 
     private static final String FAB_DISABLED_COMICBROWSER = "pref_random_comics";
     private static final String FAB_DISABLED_FAVORITES = "pref_random_favorites";
@@ -140,6 +141,15 @@ public class PrefHelper {
     public void setHasMigratedToScopedStorage() {
         sharedPrefs.edit().putBoolean(MIGRATED_TO_SCOPED_STORAGE, true).apply();
     }
+
+    public boolean hasMigratedRealmDatabase() {
+        return sharedPrefs.getBoolean(MIGRATED_REALM_DATABASE, false);
+    }
+
+    public void setHasMigratedRealmDatabase() {
+        sharedPrefs.edit().putBoolean(MIGRATED_REALM_DATABASE, true).apply();
+    }
+
 
     public boolean fullOfflineEnabled() {
         return prefs.getBoolean(FULL_OFFLINE, false);

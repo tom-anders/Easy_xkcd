@@ -44,7 +44,8 @@ data class Comic(
         }
 
 
-        fun buildFromJson(comicNumber: Int, json: JSONObject, context: Context): Comic {
+        fun buildFromJson(json: JSONObject, context: Context): Comic {
+            val comicNumber = json.getInt("num")
             val comic = Comic(comicNumber)
             if (comicNumber == 404) {
                 comic.title = "404"

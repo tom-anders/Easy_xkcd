@@ -1,14 +1,18 @@
 package de.tap.easy_xkcd.database
 
 import android.content.Context
+import androidx.annotation.WorkerThread
 import dagger.Binds
 import dagger.Module
 import dagger.hilt.InstallIn
 import dagger.hilt.android.components.ViewModelComponent
 import dagger.hilt.android.qualifiers.ApplicationContext
-import de.tap.easy_xkcd.utils.PrefHelper
+import de.tap.easy_xkcd.utils.*
+import io.realm.Realm
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.withContext
 import okhttp3.OkHttpClient
@@ -55,6 +59,10 @@ interface ComicRepository {
     suspend fun setFavorite(number: Int, favorite: Boolean)
 
     suspend fun setBookmark(number: Int)
+
+    suspend fun findNewestComic(): Int
+
+    suspend fun migrateRealmDatabase(): Flow<Int>
 }
 
 class ComicRepositoryImpl @Inject constructor(
@@ -85,6 +93,32 @@ class ComicRepositoryImpl @Inject constructor(
 
     override suspend fun setBookmark(number: Int) { prefHelper.bookmark = number }
 
+    override suspend fun findNewestComic(): Int {
+        return downloadComic(0)?.also {
+            comicDao.insert(it)
+        }?.number ?: prefHelper.newest
+    }
+
+    override suspend fun migrateRealmDatabase() = flow {
+//        if (!prefHelper.hasMigratedRealmDatabase()) {
+        copyResultsFromRealm { realm -> realm.where(RealmComic::class.java).findAll()}.mapIndexed{ index, realmComic ->
+            val comic = Comic(realmComic.comicNumber)
+            comic.favorite = realmComic.isFavorite
+            comic.read = realmComic.isRead
+            comic.title = realmComic.title
+            comic.transcript = realmComic.transcript
+            comic.url = realmComic.url
+            comic.altText = realmComic.altText
+
+            //TODO Inserting them all at once as a list would probably be faster
+            comicDao.insert(comic)
+
+            emit(index)
+        }
+        //prefHelper.setHasMigratedRealmDatabase()
+        //}
+    }
+
     private fun downloadComic(number: Int): Comic? {
         val response =
             client.newCall(Request.Builder().url(RealmComic.getJsonUrl(number)).build())
@@ -108,13 +142,12 @@ class ComicRepositoryImpl @Inject constructor(
             }
         }
 
-        return Comic.buildFromJson(number, json, context)
+        return Comic.buildFromJson(json, context)
     }
 
     override suspend fun cacheComic(number: Int) {
         withContext(Dispatchers.IO) {
             if (comicDao.getComic(number) == null) {
-                Timber.d("Caching comic %d in database", number)
                 downloadComic(number)?.let {
                     comicDao.insert(it)
                 }
