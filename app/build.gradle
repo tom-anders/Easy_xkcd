@@ -13,7 +13,7 @@ android {
     defaultConfig {
         applicationId "de.tap.easy_xkcd"
         minSdkVersion 21
-        targetSdkVersion 29
+        targetSdkVersion 31
         versionCode 169
         versionName "8.0-alpha1"
 
