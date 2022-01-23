@@ -109,12 +109,10 @@ interface ComicRepository {
 
 @Singleton
 class ComicRepositoryImpl @Inject constructor(
-    @ApplicationContext private val context: Context
+    @ApplicationContext private val context: Context,
+    private val prefHelper: PrefHelper,
+    private val comicDao: ComicDao,
 ) : ComicRepository {
-
-    private val prefHelper = PrefHelper(context)
-
-    private val comicDao = ComicRoomDatabase.getDatabase(context).comicDao()
 
     private val client = OkHttpClient()
 
