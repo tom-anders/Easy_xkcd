@@ -16,6 +16,12 @@ android {
         targetSdkVersion 29
         versionCode 169
         versionName "8.0-alpha1"
+
+        javaCompileOptions {
+            annotationProcessorOptions {
+                arguments += ["room.schemaLocation": "$projectDir/schemas".toString()]
+            }
+        }
     }
     /*buildTypes {
         release {
