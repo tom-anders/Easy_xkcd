@@ -1,4 +1,4 @@
-## 8.0-beta1
+## 8.0-alpha1
 
 - Use BottomAppBar instead of NavigationDrawer
 - "Explain Comic" button is now displayed as an icon if there's enough room in the toolbar
@@ -12,6 +12,11 @@
 
 - Add animation when removing a favorite
 - Add animation in overview when toggling "hide read" or "favorites"
+
+- Known issues / missing features:
+    - Search is disabled (will be added back soon)
+    - Offline mode should work, but you currently can't enable/disable it from the settings
+    - Notifications for new comics don't work yet
 
 ## 7.3.11
 
