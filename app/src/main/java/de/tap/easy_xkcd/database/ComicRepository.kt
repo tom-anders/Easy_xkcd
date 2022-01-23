@@ -22,7 +22,6 @@ import java.io.FileOutputStream
 import java.lang.Exception
 import javax.inject.Inject
 import javax.inject.Singleton
-import kotlin.coroutines.CoroutineContext
 
 // If a comic has not been cached yet, the comic will be null here
 // The number can then be used to request caching it.
@@ -82,6 +81,8 @@ interface ComicRepository {
     suspend fun findNewestComic(): Int
 
     suspend fun migrateRealmDatabase(): Flow<ProgressStatus>
+
+    suspend fun oldestUnreadComic(): Comic?
 }
 
 @Singleton
@@ -125,6 +126,8 @@ class ComicRepositoryImpl @Inject constructor(
     override suspend fun setBookmark(number: Int) {
         prefHelper.bookmark = number
     }
+
+    override suspend fun oldestUnreadComic() = comicDao.oldestUnreadComic()
 
     override suspend fun findNewestComic(): Int {
         return downloadComic(0)?.also {

@@ -223,6 +223,14 @@ class ComicOverviewFragment : Fragment() {
             }
             true
         }
+        R.id.action_earliest_unread -> {
+            lifecycleScope.launch {
+                model.getOldestUnread()?.let {
+                    mainActivity?.showComicFromOverview(false, emptyList(), it.number)
+                }
+            }
+            true
+        }
 
         else -> super.onOptionsItemSelected(item)
     }

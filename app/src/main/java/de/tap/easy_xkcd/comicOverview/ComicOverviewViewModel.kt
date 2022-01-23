@@ -11,8 +11,10 @@ import de.tap.easy_xkcd.database.ComicRepository
 import de.tap.easy_xkcd.database.RealmComic
 import de.tap.easy_xkcd.utils.PrefHelper
 import de.tap.easy_xkcd.utils.ViewModelWithFlowHelper
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import timber.log.Timber
 import javax.inject.Inject
 
@@ -21,8 +23,6 @@ class ComicOverviewViewModel @Inject constructor(
     private val repository: ComicRepository,
     @ApplicationContext context: Context,
 ) : ViewModelWithFlowHelper() {
-
-//    val comics = MediatorLiveData<List<ComicContainer>>()
 
     val prefHelper = PrefHelper(context)
 
@@ -67,10 +67,10 @@ class ComicOverviewViewModel @Inject constructor(
         _hideRead.value = prefHelper.hideRead()
     }
 
-    fun getNextUnreadComic(): Int? {
-        return 0 //TODO add back
-//        return unreadComics.value?.first { it.number > prefHelper.lastComic }?.number
+    suspend fun getOldestUnread() = withContext(Dispatchers.IO) {
+        repository.oldestUnreadComic()
     }
+
 
     fun toggleOnlyFavorites() {
         prefHelper.setOverviewFav(!prefHelper.overviewFav())
