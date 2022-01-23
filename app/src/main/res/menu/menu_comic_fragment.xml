@@ -57,11 +57,4 @@
 
     </group>
 
-    <group>
-        <item
-            android:id="@+id/action_settings"
-            android:title="@string/action_settings"
-            android:icon="@drawable/ic_outline_article_24"
-            app:showAsAction="ifRoom" />
-    </group>
 </menu>

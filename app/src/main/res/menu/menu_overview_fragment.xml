@@ -11,24 +11,28 @@
         app:showAsAction="always"
         android:icon="@drawable/ic_favorite_off_24dp"/>
 
-    <item android:id="@+id/action_boomark"
-        app:showAsAction="never"
-        android:title="@string/open_bookmark" />
+    <group android:id="@+id/groupNavigation">
+        <item android:id="@+id/action_boomark"
+            app:showAsAction="never"
+            android:title="@string/open_bookmark" />
+    </group>
 
-    <item android:id="@+id/action_unread"
-        android:title="@string/action_unread"
-        app:showAsAction="never" />
+    <group android:id="@+id/groupOverviewActions">
+        <item android:id="@+id/action_unread"
+            android:title="@string/action_unread"
+            app:showAsAction="never" />
 
-    <item android:id="@+id/action_all_read"
-        android:title="@string/action_all_read"
-        app:showAsAction="never" />
+        <item android:id="@+id/action_all_read"
+            android:title="@string/action_all_read"
+            app:showAsAction="never" />
 
-    <item android:id="@+id/action_earliest_unread"
-        android:title="@string/action_earliest_unread"
-        app:showAsAction="never" />
+        <item android:id="@+id/action_earliest_unread"
+            android:title="@string/action_earliest_unread"
+            app:showAsAction="never" />
 
-    <item android:id="@+id/action_hide_read"
-        android:title="@string/action_hide_read_comics"
-        android:checkable="true"
-        app:showAsAction="never" />
+        <item android:id="@+id/action_hide_read"
+            android:title="@string/action_hide_read_comics"
+            android:checkable="true"
+            app:showAsAction="never" />
+    </group>
 </menu>
