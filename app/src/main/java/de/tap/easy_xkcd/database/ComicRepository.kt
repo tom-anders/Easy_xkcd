@@ -142,10 +142,12 @@ class ComicRepositoryImpl @Inject constructor(
                     }
                 }
 
+                if (prefHelper.newest != 0) {
+                    foundNewComic.send(Unit)
+                }
+
                 prefHelper.setNewestComic(newestComic.number)
                 emit(newestComic.number)
-
-                foundNewComic.send(Unit)
             }
         }
     }.stateIn(coroutineScope, SharingStarted.Lazily, prefHelper.newest)
