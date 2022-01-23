@@ -157,6 +157,7 @@ class FavoriteComicsViewModel @Inject constructor(
     }
 
     override fun jumpToComic(comicNumber: Int) {
+        _selectedComicNumber.value = comicNumber
         scrollToPage.value = favorites.value?.indexOfFirst { it.number == comicNumber }
     }
 

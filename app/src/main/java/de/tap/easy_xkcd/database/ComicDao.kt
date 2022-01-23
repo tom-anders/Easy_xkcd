@@ -28,10 +28,6 @@ interface ComicDao {
     @Query("SELECT * FROM Comic WHERE favorite")
     fun getFavorites() : Flow<List<Comic>>
 
-    @MapInfo(keyColumn = "number")
-    @Query("SELECT * FROM Comic WHERE NOT read")
-    fun getUnreadComics() : Flow<Map<Int, Comic>>
-
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insert(comic: Comic)
 }

@@ -71,7 +71,9 @@ class ComicRepositoryImpl @Inject constructor(
 
     override val favorites = comicDao.getFavorites().mapToComicContainer()
 
-    override val unreadComics = comicDao.getUnreadComics().mapToComicContainer(prefHelper.newest)
+    override val unreadComics = comics.map {
+        it.filter { container -> container.comic == null || !container.comic.read }
+    }
 
     override suspend fun isFavorite(number: Int): Boolean = comicDao.isFavorite(number)
 

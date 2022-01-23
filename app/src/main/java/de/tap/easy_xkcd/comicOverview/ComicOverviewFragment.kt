@@ -55,6 +55,10 @@ class ComicOverviewFragment : Fragment() {
 
     private var comicNumberOfSharedElementTransition : Int? = null
 
+    companion object {
+        const val SAVED_INSTANCE_ADAPTER_POSITION = "saved_instance_adapter_position"
+    }
+
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
@@ -122,13 +126,16 @@ class ComicOverviewFragment : Fragment() {
                     }
                 })
 
-                comicNumberOfSharedElementTransition?.let {
-                    // If we're showing all comics, the position is simply the comic number - 1
-                    // Otherwise, we have to search for the number in the list
-                    val position = if (model.onlyFavorites.value == false && model.hideRead.value == false) {
+                if (adapter.comics.isEmpty()) {
+                    val position = comicNumberOfSharedElementTransition?.let {
+                        // If we're showing all comics, the position is simply the comic number - 1
+                        // Otherwise, we have to search for the number in the list
                         it - 1
-                    } else {
-                        newList.indexOfFirst { comicContainer -> comicContainer.number == it }
+                    } ?: run {
+                        // This is the case when we have "hide read" enabled, or are showing only favorites,
+                        // so the comic we came from might not be in the list here. So scroll to the
+                        // nearest comic instead
+                        newList.indexOfFirst { comicContainer -> comicContainer.number >= prefHelper.lastComic }
                     }
 
                     // Calculate offset such that the item will be centered in the middle
@@ -145,8 +152,7 @@ class ComicOverviewFragment : Fragment() {
         }
 
         arguments?.let { args ->
-            if (savedInstanceState == null && (!prefHelper.hideRead() || prefHelper.overviewFav())
-            ) {
+            if (savedInstanceState == null && !prefHelper.hideRead()) {
                 args.getInt(MainActivity.ARG_COMIC_TO_SHOW, -1).let { number ->
                     if (number > 0 && number <= prefHelper.newest) {
                         comicNumberOfSharedElementTransition = number

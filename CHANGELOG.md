@@ -6,6 +6,7 @@
 - Remove "Open Forum Thread" option until the xkcd forum is back online (if ever)
 
 - Add animation when removing a favorite
+- Add animation in overview when toggling "hide read"
 
 ## 7.3.11
 

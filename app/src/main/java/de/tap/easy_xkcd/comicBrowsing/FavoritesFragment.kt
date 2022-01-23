@@ -62,6 +62,8 @@ class FavoritesFragment : ComicBrowserBaseFragment() {
 
             adapter.comics = newList
             diffResult.dispatchUpdatesTo(adapter)
+
+            comicNumberOfSharedElementTransition?.let { model.jumpToComic(it) }
         }
 
         model.scrollToPage.observe(viewLifecycleOwner) {

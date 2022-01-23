@@ -40,24 +40,26 @@ class ComicOverviewViewModel @Inject constructor(
     private val allComics = repository.comics.asLiveData()
 
     private fun updateComicsToShow() {
-        comics.value = when {
-            prefHelper.overviewFav() -> favorites.value
-            prefHelper.hideRead() -> unreadComics.value
-            else -> allComics.value
-        }
+        comics.removeSource(favorites)
+        comics.removeSource(unreadComics)
+        comics.removeSource(allComics)
+
+        comics.addSource(when {
+            prefHelper.overviewFav() -> favorites
+            prefHelper.hideRead() -> unreadComics
+            else -> allComics
+        }) { comics.value = it }
     }
 
     private val _onlyFavorites = MutableLiveData(prefHelper.overviewFav())
     val onlyFavorites: LiveData<Boolean> = _onlyFavorites
 
     init {
-        comics.addSource(_onlyFavorites) { updateComicsToShow() }
-        comics.addSource(_hideRead) { updateComicsToShow() }
-        comics.addSource(allComics) { updateComicsToShow() }
-
         _bookmark.value = prefHelper.bookmark
 
         _overviewStyle.value = prefHelper.overviewStyle
+
+        updateComicsToShow()
     }
 
     fun cacheComic(number: Int) = viewModelScope.launch { repository.cacheComic(number) }
@@ -75,6 +77,7 @@ class ComicOverviewViewModel @Inject constructor(
     fun toggleHideRead() {
         prefHelper.setHideRead(!prefHelper.hideRead())
         _hideRead.value = prefHelper.hideRead()
+        updateComicsToShow()
     }
 
     fun getNextUnreadComic(): Int? {
@@ -84,5 +87,6 @@ class ComicOverviewViewModel @Inject constructor(
     fun toggleOnlyFavorites() {
         prefHelper.setOverviewFav(!prefHelper.overviewFav())
         _onlyFavorites.value = prefHelper.overviewFav()
+        updateComicsToShow()
     }
 }
