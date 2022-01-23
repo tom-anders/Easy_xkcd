@@ -44,6 +44,8 @@ abstract class ComicBaseAdapter<ViewHolder: ComicViewHolder>(
 
     open fun onComicNull(number: Int) {}
 
+    open fun onDisplayingComic(comic: Comic, holder: ViewHolder) {}
+
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
         val comic = comics[position].comic
 
@@ -58,6 +60,10 @@ abstract class ComicBaseAdapter<ViewHolder: ComicViewHolder>(
         // Transition names used for shared element transitions to the Overview Fragment
         holder.title.transitionName = comic.number.toString()
         holder.image.transitionName = "im" + comic.number
+
+        if (themePrefs.invertColors(false)) {
+            holder.image.colorFilter = themePrefs.negativeColorFilter
+        }
 
         GlideApp.with(fragment)
             .asBitmap()
@@ -98,6 +104,8 @@ abstract class ComicBaseAdapter<ViewHolder: ComicViewHolder>(
                     return false
                 }
             }).into(holder.image)
+
+        onDisplayingComic(comic, holder)
     }
 
     fun startPostponedTransitions(comicNumber: Int) {

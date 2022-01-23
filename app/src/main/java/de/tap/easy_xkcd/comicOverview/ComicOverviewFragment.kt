@@ -1,9 +1,11 @@
 package de.tap.easy_xkcd.comicOverview
 
+import android.content.Context
 import android.graphics.Bitmap
 import android.graphics.Color
 import android.os.Bundle
 import android.transition.TransitionInflater
+import android.util.TypedValue
 import android.view.*
 import android.widget.ImageView
 import android.widget.TextView
@@ -262,6 +264,22 @@ class ComicOverviewFragment : Fragment() {
             }
 
             return OverviewViewHolder(view)
+        }
+
+        override fun onDisplayingComic(comic: Comic, holder: OverviewViewHolder) {
+            holder.title.apply {
+                val markAsRead = (comic.read && !prefHelper.overviewFav())
+                setTextColor(
+                    when {
+                        comic.number == model.bookmark.value -> themePrefs.accentColor
+                        markAsRead xor themePrefs.nightThemeEnabled() -> ContextCompat.getColor(
+                            context,
+                            R.color.Read
+                        )
+                        else -> ContextCompat.getColor(context, android.R.color.tertiary_text_light)
+                    }
+                )
+            }
         }
     }
 

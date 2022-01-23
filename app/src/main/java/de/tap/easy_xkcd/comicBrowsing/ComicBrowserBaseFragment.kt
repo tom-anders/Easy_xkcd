@@ -246,10 +246,6 @@ abstract class ComicBrowserBaseFragment : Fragment() {
                     image.scaleType = ImageView.ScaleType.CENTER_INSIDE
                     image.maximumScale = 10f
                 }
-
-                if (themePrefs.invertColors(false)) {
-                    image.colorFilter = themePrefs.negativeColorFilter
-                }
             }
         }
     }
