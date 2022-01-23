@@ -76,9 +76,7 @@ class ComicOverviewViewModel @Inject constructor(
 
     // BUG: Entry won't be updated in overview because of some flow weirdness
     fun setRead(number: Int, read: Boolean) = viewModelScope.launch {
-        withContext(Dispatchers.IO) {
-            repository.setRead(number, read)
-        }
+        repository.setRead(number, read)
     }
 
     fun toggleOnlyFavorites() {

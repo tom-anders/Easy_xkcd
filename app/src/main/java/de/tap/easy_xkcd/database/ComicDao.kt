@@ -20,7 +20,7 @@ interface ComicDao {
     @Query("DELETE FROM Comic WHERE favorite")
     suspend fun removeAllFavorites()
 
-    suspend fun isRead(number: Int, read: Boolean) = getComic(number)?.read ?: false
+    suspend fun isRead(number: Int) = getComic(number)?.read ?: false
 
     @Query("UPDATE Comic SET read=:read WHERE number=:number")
     suspend fun setRead(number: Int, read: Boolean)

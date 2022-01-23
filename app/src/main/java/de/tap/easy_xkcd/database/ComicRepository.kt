@@ -118,7 +118,6 @@ class ComicRepositoryImpl @Inject constructor(
 
     override val comicCached = Channel<Comic>()
 
-    // TODO Write tests for this!
     @ExperimentalCoroutinesApi
     override val newestComicNumber = flow {
         downloadComic(0).collect { newestComic ->
@@ -141,7 +140,7 @@ class ComicRepositoryImpl @Inject constructor(
             prefHelper.setNewestComic(newestComic.number)
             emit(newestComic.number)
         }
-    }.stateIn(CoroutineScope(Dispatchers.IO), SharingStarted.Eagerly, prefHelper.newest)
+    }.stateIn(CoroutineScope(Dispatchers.Main), SharingStarted.Lazily, prefHelper.newest)
 
     override val comics = combine(comicDao.getComics(), newestComicNumber) { comics, newest ->
         comics.mapToComicContainer(newest)
@@ -155,7 +154,11 @@ class ComicRepositoryImpl @Inject constructor(
 
     override suspend fun isFavorite(number: Int): Boolean = comicDao.isFavorite(number)
 
-    override suspend fun setRead(number: Int, read: Boolean) = comicDao.setRead(number, read)
+    override suspend fun setRead(number: Int, read: Boolean) {
+        if (comicDao.isRead(number) != read) {
+            comicDao.setRead(number, read)
+        }
+    }
 
     override suspend fun setFavorite(number: Int, favorite: Boolean) {
         if (favorite) saveOfflineBitmap(number).collect {}
