@@ -2,11 +2,11 @@
   "formatVersion": 1,
   "database": {
     "version": 1,
-    "identityHash": "dfede3ce510b41ff5e54aea8aff45768",
+    "identityHash": "e1c5f308309ea09259ae9ce3664d1562",
     "entities": [
       {
         "tableName": "Comic",
-        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`number` INTEGER NOT NULL, `read` INTEGER NOT NULL, `favorite` INTEGER NOT NULL, `title` TEXT NOT NULL, `transcript` TEXT NOT NULL, `url` TEXT NOT NULL, `altText` TEXT NOT NULL, PRIMARY KEY(`number`))",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`number` INTEGER NOT NULL, `read` INTEGER NOT NULL, `favorite` INTEGER NOT NULL, `title` TEXT NOT NULL, `transcript` TEXT NOT NULL, `url` TEXT NOT NULL, `altText` TEXT NOT NULL, `year` TEXT NOT NULL, `month` TEXT NOT NULL, `day` TEXT NOT NULL, PRIMARY KEY(`number`))",
         "fields": [
           {
             "fieldPath": "number",
@@ -49,6 +49,24 @@
             "columnName": "altText",
             "affinity": "TEXT",
             "notNull": true
+          },
+          {
+            "fieldPath": "year",
+            "columnName": "year",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "month",
+            "columnName": "month",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "day",
+            "columnName": "day",
+            "affinity": "TEXT",
+            "notNull": true
           }
         ],
         "primaryKey": {
@@ -64,7 +82,7 @@
     "views": [],
     "setupQueries": [
       "CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)",
-      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, 'dfede3ce510b41ff5e54aea8aff45768')"
+      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, 'e1c5f308309ea09259ae9ce3664d1562')"
     ]
   }
 }

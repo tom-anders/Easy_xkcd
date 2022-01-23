@@ -28,6 +28,10 @@ data class Comic(
     var url: String = ""
     var altText: String = ""
 
+    var year: String = ""
+    var month: String = ""
+    var day: String = ""
+
     // TODO should just keep the array here...
     companion object {
         fun isLargeComic(number: Int, context: Context): Boolean {
@@ -85,6 +89,11 @@ data class Comic(
                 comic.title = "404"
                 comic.altText = "404"
                 comic.url = "https://i.imgur.com/p0eKxKs.png"
+
+                comic.year = "2008"
+                comic.month = "3"
+                comic.day = "31"
+
             } else if (json.length() != 0) {
                 try {
                     comic.title =
@@ -106,6 +115,10 @@ data class Comic(
                     }
                     comic.altText = String(json.getString("alt").toByteArray(StandardCharsets.UTF_8))
                     comic.transcript = json.getString("transcript")
+
+                    comic.year = json.getString("year")
+                    comic.month = json.getString("month")
+                    comic.day = json.getString("day")
 
                     when (comicNumber) {
                         76 -> comic.url = "https://i.imgur.com/h3fi2RV.jpg"
