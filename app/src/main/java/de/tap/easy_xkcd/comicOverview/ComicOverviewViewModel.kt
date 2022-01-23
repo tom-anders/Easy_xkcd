@@ -49,7 +49,7 @@ class ComicOverviewViewModel @Inject constructor(
         }
     }.asEagerStateFlow(emptyList())
 
-    val comicCached = repository.comicCached.receiveAsFlow()
+    val comicCached = repository.comicCached
 
     fun getOfflineUri(number: Int) = repository.getOfflineUri(number)
 

@@ -2,14 +2,17 @@ package de.tap.easy_xkcd.database
 
 import android.content.Context
 import android.content.res.Resources
+import androidx.room.Room
+import androidx.test.core.app.ApplicationProvider
+import app.cash.turbine.test
 import com.google.common.truth.Truth.assertThat
 import de.tap.easy_xkcd.utils.PrefHelper
+import io.kotest.matchers.collections.shouldBeEmpty
+import io.kotest.matchers.nulls.shouldBeNull
+import io.kotest.matchers.shouldBe
 import kotlinx.coroutines.*
 import kotlinx.coroutines.flow.*
-import kotlinx.coroutines.test.TestCoroutineScheduler
-import kotlinx.coroutines.test.advanceUntilIdle
-import kotlinx.coroutines.test.runCurrent
-import kotlinx.coroutines.test.runTest
+import kotlinx.coroutines.test.*
 import okhttp3.*
 import okhttp3.ResponseBody.Companion.toResponseBody
 import okhttp3.internal.wait
@@ -29,6 +32,7 @@ import java.io.IOException
 import java.lang.Exception
 import java.lang.RuntimeException
 
+@RunWith(RobolectricTestRunner::class)
 @ExperimentalCoroutinesApi
 class TestComicRepository() {
     @get:Rule
@@ -86,28 +90,35 @@ class TestComicRepository() {
     }
 
     @Test
-    fun newComicSavedInDatabase() = runTest {
+    fun `Repository queries latest comic and emits its number`() = runTest {
         val initialNewest = 123
         whenever(prefHelperMock.newest).thenReturn(initialNewest)
 
         val newComic = Comic(456)
         returnComicFromNextResponse(newComic)
 
-        val repository = ComicRepositoryImpl(contextMock, prefHelperMock, comicDaoMock, httpClientMock)
+        val repository = ComicRepositoryImpl(contextMock, prefHelperMock, comicDaoMock, httpClientMock, this)
 
-        repository.newestComicNumber.take(2).collectIndexed { index, number ->
-            when (index) {
-                0 -> assertThat(number).isEqualTo(initialNewest)
-                1 -> assertThat(number).isEqualTo(newComic.number)
-            }
-        }
-
-        // When not in offline mode, we only want the newest comic to be cached.
-        argumentCaptor<Comic>().apply {
-            verify(comicDaoMock, times(1)).insert(capture())
-            assertThat(firstValue).isEqualTo(newComic)
+        repository.newestComicNumber.test {
+            awaitItem() shouldBe initialNewest
+            awaitItem() shouldBe newComic.number
         }
 
         verify(prefHelperMock).setNewestComic(newComic.number)
+    }
+
+    @Test
+    fun `Number of comics in the list is equal to the number of the latest comic`() = runTest {
+//        whenever(comicDaoMock.getComics()).thenReturn(flowOf(emptyMap()))
+//        val repository = ComicRepositoryImpl(contextMock, prefHelperMock,
+//            Room.databaseBuilder(ApplicationProvider.getApplicationContext(), ComicRoomDatabase::class.java, "comic_database").build().comicDao(),
+//            httpClientMock, this)
+
+
+//        repository.comics.test {
+//            assertThat(awaitItem().size).isEqualTo(0)
+//            awaitItem().shouldBeEmpty()
+//            awaitItem()
+//        }
     }
 }

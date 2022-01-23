@@ -16,16 +16,14 @@ import com.tap.xkcd_reader.BuildConfig
 import com.tap.xkcd_reader.R
 import dagger.Binds
 import dagger.Module
+import dagger.Provides
 import dagger.hilt.InstallIn
 import dagger.hilt.android.components.ViewModelComponent
 import dagger.hilt.android.qualifiers.ApplicationContext
 import de.tap.easy_xkcd.GlideApp
 import de.tap.easy_xkcd.utils.*
 import kotlinx.coroutines.*
-import kotlinx.coroutines.channels.Channel
-import kotlinx.coroutines.channels.awaitClose
-import kotlinx.coroutines.channels.onFailure
-import kotlinx.coroutines.channels.trySendBlocking
+import kotlinx.coroutines.channels.*
 import kotlinx.coroutines.flow.*
 import okhttp3.Call
 import okhttp3.OkHttpClient
@@ -78,7 +76,7 @@ interface ComicRepository {
 
     val newestComicNumber: Flow<Int>
 
-    val comicCached: Channel<Comic>
+    val comicCached: SharedFlow<Comic>
 
     suspend fun cacheComic(number: Int)
 
@@ -114,24 +112,26 @@ class ComicRepositoryImpl @Inject constructor(
     private val prefHelper: PrefHelper,
     private val comicDao: ComicDao,
     private val client: OkHttpClient,
+    val coroutineScope: CoroutineScope,
 ) : ComicRepository {
 
-    override val comicCached = Channel<Comic>()
+//    override val comicCached = Channel<Comic>()
+    val _comicCached = MutableSharedFlow<Comic>()
+    override val comicCached = _comicCached
 
     @ExperimentalCoroutinesApi
     override val newestComicNumber = flow {
         downloadComic(0).collect { newestComic ->
             if (newestComic.number != prefHelper.newest) {
-                comicDao.insert(newestComic)
-
                 // In offline mode, we need to cache all the new comics here
                 if (prefHelper.fullOfflineEnabled()) {
-                    CoroutineScope(Dispatchers.IO).launch {
-                        (prefHelper.newest + 1 .. newestComic.number).map { number ->
+                    val firstComicToCache = prefHelper.newest + 1
+                    coroutineScope.launch {
+                        (firstComicToCache .. newestComic.number).map { number ->
                             downloadComic(number).collect { comic ->
                                 saveOfflineBitmap(number).onCompletion {
                                     comicDao.insert(comic)
-                                    comicCached.send(comic)
+                                    _comicCached.emit(comic)
                                 }.collect()
                             }
                         }
@@ -140,14 +140,9 @@ class ComicRepositoryImpl @Inject constructor(
 
                 prefHelper.setNewestComic(newestComic.number)
                 emit(newestComic.number)
-
-                // The newest comic in inserted into Room asynchronously, so our comics flow
-                // might trigger before it has been inserted. Thus, make sure that the browser
-                // and overview will still notice that we've found a new one
-                comicCached.send(newestComic)
             }
         }
-    }.stateIn(CoroutineScope(Dispatchers.Main), SharingStarted.Lazily, prefHelper.newest)
+    }.stateIn(coroutineScope, SharingStarted.Lazily, prefHelper.newest)
 
     override val comics = combine(comicDao.getComics(), newestComicNumber) { comics, newest ->
         comics.mapToComicContainer(newest)
@@ -358,7 +353,7 @@ class ComicRepositoryImpl @Inject constructor(
             if (comicDao.getComic(number) == null) {
                 downloadComic(number).collect { comic ->
                     comicDao.insert(comic)
-                    comicCached.send(comic)
+                    _comicCached.emit(comic)
                 }
             }
         }
@@ -367,7 +362,12 @@ class ComicRepositoryImpl @Inject constructor(
 
 @Module
 @InstallIn(ViewModelComponent::class)
-abstract class ComicRepositoryModule {
-    @Binds
-    abstract fun bindComicRepository(comicRepositoryImpl: ComicRepositoryImpl): ComicRepository
+class ComicRepositoryModule {
+    @Provides
+    fun provideComicRepository(
+        @ApplicationContext context: Context,
+        prefHelper: PrefHelper,
+        comicDao: ComicDao,
+        client: OkHttpClient,
+    ): ComicRepository = ComicRepositoryImpl(context, prefHelper, comicDao, client, CoroutineScope(Dispatchers.Main))
 }

@@ -73,7 +73,7 @@ class ComicBrowserViewModel @Inject constructor(
 
     val comics = repository.comics.asLazyStateFlow(emptyList())
 
-    val comicCached = repository.comicCached.receiveAsFlow()
+    val comicCached = repository.comicCached
 
     private var nextRandom: Int? = null
 
