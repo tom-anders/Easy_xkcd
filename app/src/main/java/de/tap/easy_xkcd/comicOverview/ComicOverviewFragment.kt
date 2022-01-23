@@ -246,6 +246,9 @@ class ComicOverviewFragment : Fragment() {
         comicNumberOfSharedElementTransition,
     ) {
         override fun onComicNull(number: Int) {
+            //TODO When we're scrolling to fast through the list,
+            // we're updating the list too often, hurting performance
+            // Need to find a way to bunch the cache request together here
             model.cacheComic(number)
         }
 

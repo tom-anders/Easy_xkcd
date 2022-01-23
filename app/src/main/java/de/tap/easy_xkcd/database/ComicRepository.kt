@@ -227,6 +227,8 @@ class ComicRepositoryImpl @Inject constructor(
             } catch (e: JSONException) {
                 if (number == 404) {
                     Timber.i("Json not found, but that's expected for comic 404")
+                    json = JSONObject()
+                    json.put("num", 404)
                 } else {
                     Timber.e(e, "Occurred at comic $number")
                     return null
@@ -275,6 +277,7 @@ class ComicRepositoryImpl @Inject constructor(
 //            }
 //        }
 
+    //TODO Need to
     override suspend fun cacheComic(number: Int) {
         withContext(Dispatchers.IO) {
             if (comicDao.getComic(number) == null) {
