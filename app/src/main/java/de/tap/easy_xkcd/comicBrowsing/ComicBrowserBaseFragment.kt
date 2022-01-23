@@ -137,7 +137,7 @@ abstract class ComicBrowserBaseFragment : Fragment() {
 
     open inner class ComicBrowserBaseAdapter : ComicBaseAdapter<ComicBrowserBaseAdapter.ComicBrowserViewHolder>(
         this,
-        requireActivity() as MainActivity,
+        requireActivity(),
         comicNumberOfSharedElementTransition
     ) {
         override fun startPostponedTransitions() {

@@ -26,8 +26,10 @@ class ComicOverviewViewModel @Inject constructor(
 
     val prefHelper = PrefHelper(context)
 
-    private val _bookmark = MutableLiveData<Int>()
-    val bookmark: LiveData<Int> = _bookmark
+    private val _bookmark = MutableStateFlow(
+        if (prefHelper.bookmark != 0) prefHelper.bookmark else null
+    )
+    val bookmark: StateFlow<Int?> = _bookmark
 
     //TODO can we also get a flow from preferences? https://github.com/tfcporciuncula/flow-preferences
     private val _overviewStyle = MutableStateFlow(prefHelper.overviewStyle)
@@ -48,10 +50,6 @@ class ComicOverviewViewModel @Inject constructor(
         }
     }.asEagerStateFlow(emptyList())
 
-    init {
-        _bookmark.value = prefHelper.bookmark
-    }
-
     fun cacheComic(number: Int) = viewModelScope.launch { repository.cacheComic(number) }
 
     fun overviewStyleSelected(style: Int) {
@@ -67,7 +65,6 @@ class ComicOverviewViewModel @Inject constructor(
     fun toggleHideRead() {
         prefHelper.setHideRead(!prefHelper.hideRead())
         _hideRead.value = prefHelper.hideRead()
-//        updateComicsToShow()
     }
 
     fun getNextUnreadComic(): Int? {
@@ -78,6 +75,5 @@ class ComicOverviewViewModel @Inject constructor(
     fun toggleOnlyFavorites() {
         prefHelper.setOverviewFav(!prefHelper.overviewFav())
         _onlyFavorites.value = prefHelper.overviewFav()
-//        updateComicsToShow()
     }
 }

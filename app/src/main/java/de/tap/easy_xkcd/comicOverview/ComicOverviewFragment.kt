@@ -37,6 +37,8 @@ import kotlin.random.Random
 class ComicOverviewFragment : Fragment() {
     val model: ComicOverviewViewModel by viewModels()
 
+    private val mainActivity get() = activity as? MainActivity?
+
     private var _binding: RecyclerLayoutBinding? = null
     private val binding get() = _binding!!
 
@@ -162,7 +164,7 @@ class ComicOverviewFragment : Fragment() {
         activity?.findViewById<FloatingActionButton>(R.id.fab)?.setOnClickListener {
             val randIndex = Random.nextInt(adapter.comics.size)
 
-            (activity as MainActivity?)?.showComicFromOverview(
+            mainActivity?.showComicFromOverview(
                 prefHelper.overviewFav(), emptyList(), adapter.comics[randIndex].number
             )
         }
@@ -213,6 +215,13 @@ class ComicOverviewFragment : Fragment() {
             model.toggleHideRead()
             true
         }
+        R.id.action_boomark -> {
+            model.bookmark.value?.let {
+                mainActivity?.showComicFromOverview(false, emptyList(), it)
+            }
+            true
+        }
+
         else -> super.onOptionsItemSelected(item)
     }
 
@@ -220,7 +229,7 @@ class ComicOverviewFragment : Fragment() {
         private val style: Int
     ) : ComicBaseAdapter<OverviewViewHolder>(
         this,
-        requireActivity() as MainActivity,
+        requireActivity(),
         comicNumberOfSharedElementTransition,
     ) {
         override fun onComicNull(number: Int) {

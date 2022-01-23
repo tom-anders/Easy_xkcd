@@ -33,11 +33,11 @@ abstract class ComicViewHolder(view: View): RecyclerView.ViewHolder(view) {
 
 abstract class ComicBaseAdapter<ViewHolder: ComicViewHolder>(
     private val fragment: Fragment,
-    private val activity: MainActivity, //TODO can probably remove at some point?
+    private val context: Context,
     private var comicNumberOfSharedElementTransition : Int?
 ) : RecyclerView.Adapter<ViewHolder>() {
-    private val prefHelper = PrefHelper(activity)
-    private val themePrefs = ThemePrefs(activity)
+    private val prefHelper = PrefHelper(context)
+    private val themePrefs = ThemePrefs(context)
 
     var comics: List<ComicContainer> = emptyList()
     override fun getItemCount() = comics.size
@@ -53,7 +53,7 @@ abstract class ComicBaseAdapter<ViewHolder: ComicViewHolder>(
         }
 
         val prefix = if (prefHelper.subtitleEnabled()) "" else "$comic.number: "
-        holder.title.text = prefix + Html.fromHtml(Comic.getInteractiveTitle(comic, activity))
+        holder.title.text = prefix + Html.fromHtml(Comic.getInteractiveTitle(comic, context))
 
         // Transition names used for shared element transitions to the Overview Fragment
         holder.title.transitionName = comic.number.toString()
@@ -125,7 +125,7 @@ abstract class ComicBaseAdapter<ViewHolder: ComicViewHolder>(
     }
     abstract fun onImageLoaded(image: ImageView, bitmap: Bitmap, comic: Comic)
 
-    private fun makeProgressDrawable() = CircularProgressDrawable(activity).apply {
+    private fun makeProgressDrawable() = CircularProgressDrawable(context).apply {
         strokeWidth = 5.0f
         centerRadius = 100.0f
         setColorSchemeColors(if (themePrefs.nightThemeEnabled()) themePrefs.accentColorNight else themePrefs.accentColor)
