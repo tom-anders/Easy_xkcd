@@ -35,19 +35,19 @@ class ComicDatabaseViewModel @Inject constructor(
         viewModelScope.launch {
             if (prefHelper.isOnline(app.applicationContext)) {
                 withContext(Dispatchers.IO) {
-                    repository.migrateRealmDatabase().collect {
-                        Timber.d("Posting $it")
-                        _progress.postValue(it)
-                    }
+//                    repository.migrateRealmDatabase().collect {
+//                        Timber.d("Posting $it")
+//                        _progress.postValue(it)
+//                    }
 
-                    val newestComic = repository.findNewestComic()
-
-                    if (newestComic > prefHelper.newest) {
-                        prefHelper.setNewestComic(newestComic)
-
-                        //TODO this will also fire the very first time the app is started I think?
-                        foundNewComic.postValue(true)
-                    }
+//                    val newestComic = repository.findNewestComic()
+//
+//                    if (newestComic > prefHelper.newest) {
+//                        prefHelper.setNewestComic(newestComic)
+//
+//                        //TODO this will also fire the very first time the app is started I think?
+//                        foundNewComic.postValue(true)
+//                    }
                 }
             }
 

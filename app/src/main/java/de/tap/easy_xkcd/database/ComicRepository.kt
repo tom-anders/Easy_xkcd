@@ -11,9 +11,7 @@ import dagger.hilt.android.components.ViewModelComponent
 import dagger.hilt.android.qualifiers.ApplicationContext
 import de.tap.easy_xkcd.utils.*
 import kotlinx.coroutines.*
-import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.flow
-import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.*
 import okhttp3.OkHttpClient
 import okhttp3.Request
 import org.json.JSONException
@@ -39,11 +37,10 @@ fun Comic.toContainer() = ComicContainer(number, this)
 
 fun Flow<List<Comic>>.mapToComicContainer() = map { list -> list.map { it.toContainer() } }
 
-fun Flow<Map<Int, Comic>>.mapToComicContainer(size: Int) = map { comicMap ->
+fun Map<Int, Comic>.mapToComicContainer(size: Int) =
     MutableList(size) { index ->
-        ComicContainer(index + 1, comicMap[index + 1])
+        ComicContainer(index + 1, this[index + 1])
     }
-}
 
 sealed class ProgressStatus {
     data class Max(val max: Int) : ProgressStatus()
@@ -59,6 +56,8 @@ interface ComicRepository {
     val favorites: Flow<List<ComicContainer>>
 
     val unreadComics: Flow<List<ComicContainer>>
+
+    val newestComicNumber: Flow<Int>
 
     suspend fun cacheComic(number: Int)
 
@@ -96,7 +95,17 @@ class ComicRepositoryImpl @Inject constructor(
 
     private val client = OkHttpClient()
 
-    override val comics = comicDao.getComics().mapToComicContainer(prefHelper.newest)
+    override val newestComicNumber = flow {
+        delay(2000)
+        findNewestComic().also {
+            prefHelper.setNewestComic(it)
+            emit(it)
+        }
+    }.stateIn(CoroutineScope(Dispatchers.IO), SharingStarted.Eagerly, prefHelper.newest)
+
+    override val comics = combine(comicDao.getComics(), newestComicNumber) { comics, newest ->
+        comics.mapToComicContainer(newest)
+    }
 
     override val favorites = comicDao.getFavorites().mapToComicContainer()
 

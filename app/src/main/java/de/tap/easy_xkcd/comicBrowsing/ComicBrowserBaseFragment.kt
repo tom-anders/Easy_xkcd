@@ -22,7 +22,9 @@ import androidx.core.view.MenuCompat
 import androidx.fragment.app.DialogFragment
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
+import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
+import androidx.lifecycle.repeatOnLifecycle
 import androidx.recyclerview.widget.RecyclerView
 import androidx.swiperefreshlayout.widget.CircularProgressDrawable
 import androidx.viewpager.widget.PagerAdapter
@@ -54,6 +56,7 @@ import de.tap.easy_xkcd.misc.HackyViewPager
 import de.tap.easy_xkcd.utils.PrefHelper
 import de.tap.easy_xkcd.utils.ThemePrefs
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import timber.log.Timber
@@ -95,8 +98,12 @@ abstract class ComicBrowserBaseFragment : Fragment() {
             }
         })
 
-        model.selectedComicNumber.observe(viewLifecycleOwner) {
-            (activity as AppCompatActivity).supportActionBar?.subtitle = it?.toString()
+        viewLifecycleOwner.lifecycleScope.launch {
+            viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
+                model.selectedComicNumber.collect {
+                    (activity as AppCompatActivity).supportActionBar?.subtitle = it?.toString()
+                }
+            }
         }
 
         arguments?.let { args ->

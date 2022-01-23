@@ -11,11 +11,17 @@ import android.widget.Toast
 import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.fragment.app.viewModels
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.LifecycleCoroutineScope
+import androidx.lifecycle.lifecycleScope
+import androidx.lifecycle.repeatOnLifecycle
 import androidx.recyclerview.widget.DiffUtil
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.tap.xkcd_reader.R
 import dagger.hilt.android.AndroidEntryPoint
 import de.tap.easy_xkcd.Activities.CustomFilePickerActivity
+import kotlinx.coroutines.flow.collect
+import kotlinx.coroutines.launch
 import timber.log.Timber
 import java.io.File
 import java.net.URI
@@ -38,32 +44,36 @@ class FavoritesFragment : ComicBrowserBaseFragment() {
 
         adapter = ComicBrowserBaseAdapter().also { pager.adapter = it }
 
-        model.favorites.observe(viewLifecycleOwner) { newList ->
-            // TODO if new list is empty, show some cute image and text explaining how to add them
+        lifecycleScope.launch {
+            viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
+                model.favorites.collect { newList ->
+                    // TODO if new list is empty, show some cute image and text explaining how to add them
 
-            val diffResult = DiffUtil.calculateDiff(object: DiffUtil.Callback() {
-                override fun getOldListSize() = adapter.comics.size
+                    val diffResult = DiffUtil.calculateDiff(object: DiffUtil.Callback() {
+                        override fun getOldListSize() = adapter.comics.size
 
-                override fun getNewListSize() = newList.size
+                        override fun getNewListSize() = newList.size
 
-                // In the normal comic browser we could assume that the position of items in the list
-                // didn't change, but here when a favorite is removed, they actually will.
-                // So we need to compare the comic number here instead of the position
-                override fun areItemsTheSame(oldItemPosition: Int, newItemPosition: Int)
-                        = adapter.comics[oldItemPosition]?.number == newList[newItemPosition].number
+                        // In the normal comic browser we could assume that the position of items in the list
+                        // didn't change, but here when a favorite is removed, they actually will.
+                        // So we need to compare the comic number here instead of the position
+                        override fun areItemsTheSame(oldItemPosition: Int, newItemPosition: Int)
+                                = adapter.comics[oldItemPosition]?.number == newList[newItemPosition].number
 
-                override fun areContentsTheSame(
-                    oldItemPosition: Int,
-                    newItemPosition: Int
-                ): Boolean {
-                    return adapter.comics[oldItemPosition] == newList[newItemPosition]
+                        override fun areContentsTheSame(
+                            oldItemPosition: Int,
+                            newItemPosition: Int
+                        ): Boolean {
+                            return adapter.comics[oldItemPosition] == newList[newItemPosition]
+                        }
+                    })
+
+                    adapter.comics = newList
+                    diffResult.dispatchUpdatesTo(adapter)
+
+                    comicNumberOfSharedElementTransition?.let { model.jumpToComic(it) }
                 }
-            })
-
-            adapter.comics = newList
-            diffResult.dispatchUpdatesTo(adapter)
-
-            comicNumberOfSharedElementTransition?.let { model.jumpToComic(it) }
+            }
         }
 
         model.scrollToPage.observe(viewLifecycleOwner) {
