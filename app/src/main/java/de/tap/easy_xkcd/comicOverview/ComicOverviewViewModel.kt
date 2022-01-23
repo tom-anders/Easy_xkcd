@@ -10,8 +10,7 @@ import de.tap.easy_xkcd.database.ComicContainer
 import de.tap.easy_xkcd.database.ComicRepository
 import de.tap.easy_xkcd.database.RealmComic
 import de.tap.easy_xkcd.utils.PrefHelper
-import kotlinx.coroutines.flow.map
-import kotlinx.coroutines.flow.mapLatest
+import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 import timber.log.Timber
 import javax.inject.Inject
@@ -22,44 +21,35 @@ class ComicOverviewViewModel @Inject constructor(
     @ApplicationContext context: Context,
 ) : ViewModel() {
 
-    val comics = MediatorLiveData<List<ComicContainer>>()
+//    val comics = MediatorLiveData<List<ComicContainer>>()
 
     val prefHelper = PrefHelper(context)
 
     private val _bookmark = MutableLiveData<Int>()
     val bookmark: LiveData<Int> = _bookmark
 
-    private val _overviewStyle = MutableLiveData<Int>()
-    val overviewStyle: LiveData<Int> = _overviewStyle
+    //TODO can we also get a flow from preferences? https://github.com/tfcporciuncula/flow-preferences
+    private val _overviewStyle = MutableStateFlow(prefHelper.overviewStyle)
+    val overviewStyle: StateFlow<Int> = _overviewStyle
 
-    private val _hideRead = MutableLiveData(prefHelper.hideRead())
-    val hideRead: LiveData<Boolean> = _hideRead
+    private val _hideRead = MutableStateFlow(prefHelper.hideRead())
+    val hideRead: StateFlow<Boolean> = _hideRead
 
-    private val favorites = repository.favorites.asLiveData()
-    private val unreadComics = repository.unreadComics.asLiveData()
-    private val allComics = repository.comics.asLiveData()
+    private val _onlyFavorites = MutableStateFlow(prefHelper.overviewFav())
+    val onlyFavorites: StateFlow<Boolean> = _onlyFavorites
 
-    private fun updateComicsToShow() {
-        comics.removeSource(favorites)
-        comics.removeSource(unreadComics)
-        comics.removeSource(allComics)
-
-        comics.addSource(when {
-            prefHelper.overviewFav() -> favorites
-            prefHelper.hideRead() -> unreadComics
+    val comics = combine(repository.favorites, repository.unreadComics, repository.comics,
+                         _hideRead, _onlyFavorites) {
+            favComics, unreadComic, allComics, hideRead, onlyFavs ->
+        when {
+            hideRead -> unreadComic
+            onlyFavs -> favComics
             else -> allComics
-        }) { comics.value = it }
-    }
-
-    private val _onlyFavorites = MutableLiveData(prefHelper.overviewFav())
-    val onlyFavorites: LiveData<Boolean> = _onlyFavorites
+        }
+    }.stateIn(viewModelScope, SharingStarted.Eagerly, emptyList())
 
     init {
         _bookmark.value = prefHelper.bookmark
-
-        _overviewStyle.value = prefHelper.overviewStyle
-
-        updateComicsToShow()
     }
 
     fun cacheComic(number: Int) = viewModelScope.launch { repository.cacheComic(number) }
@@ -77,16 +67,17 @@ class ComicOverviewViewModel @Inject constructor(
     fun toggleHideRead() {
         prefHelper.setHideRead(!prefHelper.hideRead())
         _hideRead.value = prefHelper.hideRead()
-        updateComicsToShow()
+//        updateComicsToShow()
     }
 
     fun getNextUnreadComic(): Int? {
-        return unreadComics.value?.first { it.number > prefHelper.lastComic }?.number
+        return 0 //TODO add back
+//        return unreadComics.value?.first { it.number > prefHelper.lastComic }?.number
     }
 
     fun toggleOnlyFavorites() {
         prefHelper.setOverviewFav(!prefHelper.overviewFav())
         _onlyFavorites.value = prefHelper.overviewFav()
-        updateComicsToShow()
+//        updateComicsToShow()
     }
 }
