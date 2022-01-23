@@ -2,19 +2,13 @@ package de.tap.easy_xkcd.database
 
 import android.content.Context
 import android.graphics.Bitmap
-import android.graphics.BitmapFactory
 import android.graphics.drawable.Drawable
 import android.net.Uri
-import android.net.ipsec.ike.TunnelModeChildSessionParams
 import androidx.core.content.FileProvider
-import com.bumptech.glide.Glide
 import com.bumptech.glide.request.target.CustomTarget
-import com.bumptech.glide.request.target.SimpleTarget
-import com.bumptech.glide.request.target.Target
 import com.bumptech.glide.request.transition.Transition
 import com.tap.xkcd_reader.BuildConfig
 import com.tap.xkcd_reader.R
-import dagger.Binds
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -33,11 +27,9 @@ import org.json.JSONException
 import org.json.JSONObject
 import timber.log.Timber
 import java.io.File
-import java.io.FileInputStream
 import java.io.FileOutputStream
 import java.io.IOException
 import java.lang.Exception
-import java.util.concurrent.ExecutionException
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -355,13 +347,18 @@ class ComicRepositoryImpl @Inject constructor(
 
     @ExperimentalCoroutinesApi
     override suspend fun cacheComic(number: Int) {
-        withContext(Dispatchers.IO) {
-            if (comicDao.getComic(number) == null) {
-                downloadComic(number).collect { comic ->
-                    comicDao.insert(comic)
-                    _comicCached.emit(comic)
-                }
+        val comicInDatabase = comicDao.getComic(number)
+        if (comicInDatabase == null) {
+            downloadComic(number).collect { comic ->
+                comicDao.insert(comic)
+                _comicCached.emit(comic)
             }
+        } else {
+            // This should only happen when migrating the old realm database, where there might
+            // be a race condition between the cache request and the realm comics being
+            // inserted into the new database
+            _comicCached.emit(comicInDatabase)
+            Timber.d("Migrating already have comic $comicInDatabase")
         }
     }
 }
