@@ -19,6 +19,7 @@ import com.bumptech.glide.request.RequestOptions
 import com.bumptech.glide.request.target.Target
 import de.tap.easy_xkcd.database.Comic
 import de.tap.easy_xkcd.database.ComicContainer
+import de.tap.easy_xkcd.database.toContainer
 import de.tap.easy_xkcd.mainActivity.MainActivity
 import de.tap.easy_xkcd.utils.PrefHelper
 import de.tap.easy_xkcd.utils.ThemePrefs
@@ -48,6 +49,13 @@ abstract class ComicBaseAdapter<ViewHolder: ComicViewHolder>(
     open fun onDisplayingComic(comic: Comic, holder: ViewHolder) {}
 
     abstract fun getOfflineUri(number: Int): Uri?
+
+    fun updateComic(position: Int, comic: Comic) {
+        if (position < comics.size) {
+            comics[position] = comic.toContainer()
+            notifyItemChanged(position)
+        }
+    }
 
     override fun onViewRecycled(holder: ViewHolder) {
         holder.image.setImageBitmap(null)

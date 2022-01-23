@@ -76,9 +76,7 @@ class ComicBrowserFragment : ComicBrowserBaseFragment() {
         }
 
         model.comicCached.observe(viewLifecycleOwner) { comic ->
-            val position = comic.number - 1
-            adapter.comics[position] = comic.toContainer()
-            adapter.notifyItemChanged(position)
+            adapter.updateComic(comic.number - 1, comic)
         }
 
         model.foundNewComic.observe(this) {

@@ -358,7 +358,6 @@ class ComicRepositoryImpl @Inject constructor(
             // be a race condition between the cache request and the realm comics being
             // inserted into the new database
             _comicCached.emit(comicInDatabase)
-            Timber.d("Migrating already have comic $comicInDatabase")
         }
     }
 }

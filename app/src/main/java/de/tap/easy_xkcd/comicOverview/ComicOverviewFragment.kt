@@ -164,8 +164,7 @@ class ComicOverviewFragment : Fragment() {
             } else {
                 comic.number - 1
             }?.let { position ->
-                adapter.comics[position] = comic.toContainer()
-                adapter.notifyItemChanged(position)
+                adapter.updateComic(position, comic)
             }
         }
 
