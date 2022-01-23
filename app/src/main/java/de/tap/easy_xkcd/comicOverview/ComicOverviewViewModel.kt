@@ -42,9 +42,10 @@ class ComicOverviewViewModel @Inject constructor(
     val onlyFavorites: StateFlow<Boolean> = _onlyFavorites
 
     val comics = combine(repository.favorites, repository.unreadComics, repository.comics,
-                         _hideRead, _onlyFavorites) { favComics, unreadComic, allComics, hideRead, onlyFavs ->
+                         _hideRead, _onlyFavorites) { favComics, unreadComics, allComics, hideRead, onlyFavs ->
+        Timber.d("diff NEW!! ${allComics[0].comic?.read} ${unreadComics.size}")
         when {
-            hideRead -> unreadComic
+            hideRead -> unreadComics
             onlyFavs -> favComics
             else -> allComics
         }
@@ -71,6 +72,11 @@ class ComicOverviewViewModel @Inject constructor(
         repository.oldestUnreadComic()
     }
 
+    fun setRead(number: Int, read: Boolean) = viewModelScope.launch {
+        withContext(Dispatchers.IO) {
+            repository.setRead(number, read)
+        }
+    }
 
     fun toggleOnlyFavorites() {
         prefHelper.setOverviewFav(!prefHelper.overviewFav())

@@ -265,7 +265,6 @@ class ComicOverviewFragment : Fragment() {
                     .inflate(R.layout.search_result, parent, false)
             }
 
-            //TODO Add back long click listener
             view.setOnClickListener {
                 (activity as MainActivity?)?.showComicFromOverview(
                     prefHelper.overviewFav(), listOf(
@@ -273,6 +272,24 @@ class ComicOverviewFragment : Fragment() {
                         view.findViewById(R.id.thumbnail)
                     ), comics[recyclerView.getChildAdapterPosition(it)].number
                 )
+            }
+
+            view.setOnLongClickListener { view
+                comics[recyclerView.getChildAdapterPosition(view)].comic?.let { comic ->
+                    AlertDialog.Builder(requireActivity()).setItems(
+                        if (comic.read) R.array.card_long_click_remove else R.array.card_long_click) { dialog, i ->
+                        when (i) {
+                            0 -> {
+                                model.setBookmark(comic.number)
+                            }
+                            1 -> {
+                                model.setRead(comic.number, !comic.read)
+                            }
+                        }
+                    }.create().show()
+                }
+
+                true
             }
 
             return OverviewViewHolder(view)
