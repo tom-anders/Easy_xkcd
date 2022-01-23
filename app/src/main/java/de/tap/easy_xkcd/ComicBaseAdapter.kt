@@ -46,20 +46,31 @@ abstract class ComicBaseAdapter<ViewHolder: ComicViewHolder>(
 
     open fun onDisplayingComic(comic: Comic, holder: ViewHolder) {}
 
+    override fun onViewRecycled(holder: ViewHolder) {
+        holder.image.setImageBitmap(null)
+        holder.title.text = ""
+        super.onViewRecycled(holder)
+    }
+
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
         val comic = comics[position].comic
 
+        // Transition names used for shared element transitions to the Overview Fragment
+        holder.title.transitionName = comic?.number.toString()
+        holder.image.transitionName = "im" + comic?.number
+
+
         if (comic == null) {
             onComicNull(comics[position].number)
+
+            holder.image.setImageDrawable(makeProgressDrawable())
+            startPostponedTransitions(comics[position].number)
+
             return
         }
 
         val prefix = if (prefHelper.subtitleEnabled()) "" else "$comic.number: "
         holder.title.text = prefix + Html.fromHtml(Comic.getInteractiveTitle(comic, context))
-
-        // Transition names used for shared element transitions to the Overview Fragment
-        holder.title.transitionName = comic.number.toString()
-        holder.image.transitionName = "im" + comic.number
 
         if (themePrefs.invertColors(false)) {
             holder.image.colorFilter = themePrefs.negativeColorFilter
@@ -110,7 +121,6 @@ abstract class ComicBaseAdapter<ViewHolder: ComicViewHolder>(
 
     fun startPostponedTransitions(comicNumber: Int) {
         if (comicNumber == comicNumberOfSharedElementTransition) {
-            Timber.d("qrc Start postponed for ${comicNumber}")
             startPostponedTransitions()
             comicNumberOfSharedElementTransition = null
         }

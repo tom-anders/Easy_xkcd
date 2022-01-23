@@ -295,6 +295,11 @@ class ComicOverviewFragment : Fragment() {
             return OverviewViewHolder(view)
         }
 
+        override fun onBindViewHolder(holder: OverviewViewHolder, position: Int) {
+            holder.number?.text = comics[position].number.toString()
+            super.onBindViewHolder(holder, position)
+        }
+
         override fun onDisplayingComic(comic: Comic, holder: OverviewViewHolder) {
             holder.title.apply {
                 val markAsRead = (comic.read && !prefHelper.overviewFav())

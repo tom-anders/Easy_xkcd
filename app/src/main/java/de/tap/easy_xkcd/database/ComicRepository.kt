@@ -119,7 +119,7 @@ class ComicRepositoryImpl @Inject constructor(
 
     override suspend fun setFavorite(number: Int, favorite: Boolean) {
         if (favorite) saveOfflineBitmap(number)
-        
+
         comicDao.setFavorite(number, favorite)
     }
 
@@ -210,29 +210,34 @@ class ComicRepositoryImpl @Inject constructor(
     }
 
     private fun downloadComic(number: Int): Comic? {
-        val response =
-            client.newCall(Request.Builder().url(RealmComic.getJsonUrl(number)).build())
-                .execute()
-
-        val body = response.body?.string()
-        if (body == null) {
-            Timber.e("Got empty body for comic $number")
-            return null
-        }
-
-        var json = JSONObject()
         try {
-            json = JSONObject(body)
-        } catch (e: JSONException) {
-            if (number == 404) {
-                Timber.i("Json not found, but that's expected for comic 404")
-            } else {
-                Timber.e(e, "Occurred at comic $number")
+            val response =
+                client.newCall(Request.Builder().url(RealmComic.getJsonUrl(number)).build())
+                    .execute()
+
+            val body = response.body?.string()
+            if (body == null) {
+                Timber.e("Got empty body for comic $number")
                 return null
             }
-        }
 
-        return Comic.buildFromJson(json, context)
+            var json = JSONObject()
+            try {
+                json = JSONObject(body)
+            } catch (e: JSONException) {
+                if (number == 404) {
+                    Timber.i("Json not found, but that's expected for comic 404")
+                } else {
+                    Timber.e(e, "Occurred at comic $number")
+                    return null
+                }
+            }
+            return Comic.buildFromJson(json, context)
+
+        } catch (e: Exception) {
+            Timber.e(e, "While downloading comic $number")
+            return null
+        }
     }
 
     //TODO figure out how to do this in parallel with flow
