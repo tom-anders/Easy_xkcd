@@ -117,8 +117,11 @@ class ComicRepositoryImpl @Inject constructor(
 
     override suspend fun setRead(number: Int, read: Boolean) = comicDao.setRead(number, read)
 
-    override suspend fun setFavorite(number: Int, favorite: Boolean) =
+    override suspend fun setFavorite(number: Int, favorite: Boolean) {
+        if (favorite) saveOfflineBitmap(number)
+        
         comicDao.setFavorite(number, favorite)
+    }
 
     override suspend fun removeAllFavorites() = comicDao.removeAllFavorites()
 
