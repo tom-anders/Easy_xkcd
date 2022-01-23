@@ -29,6 +29,7 @@ import de.tap.easy_xkcd.ComicBaseAdapter
 import de.tap.easy_xkcd.ComicViewHolder
 import de.tap.easy_xkcd.GlideApp
 import de.tap.easy_xkcd.database.Comic
+import de.tap.easy_xkcd.database.toContainer
 import de.tap.easy_xkcd.mainActivity.MainActivity
 import de.tap.easy_xkcd.utils.observe
 import kotlinx.coroutines.flow.collect
@@ -55,36 +56,28 @@ class ComicBrowserFragment : ComicBrowserBaseFragment() {
         }.also { pager.adapter = it }
 
         model.comics.observe(viewLifecycleOwner) { newList ->
-            val diffResult = DiffUtil.calculateDiff(object : DiffUtil.Callback() {
-                override fun getOldListSize() = adapter.comics.size
+            // For the comic browser, this should only happen once on start up when the initial list
+            // is received and then again if at least one new comic was found
+            // If the size stays the same, it means a comic has been cached in
+            // the database, which we'll notice via model.comicCached.
+            // This way we don't have to replace the whole list and save performance
+            if (newList.size != adapter.comics.size) {
+                adapter.comics = newList.toMutableList()
+                adapter.notifyDataSetChanged()
 
-                override fun getNewListSize() = newList.size
-
-                // We're only caching comics that were null previously, so the positions
-                // should never change...
-                override fun areItemsTheSame(oldItemPosition: Int, newItemPosition: Int)
-                        = oldItemPosition == newItemPosition
-
-                // ... and we can take the shortcut of just checking whether an item changed
-                // from null to not-null, instead of comparing the contents
-                override fun areContentsTheSame(
-                    oldItemPosition: Int,
-                    newItemPosition: Int
-                ): Boolean {
-                    return adapter.comics[oldItemPosition].hasComic() == newList[newItemPosition].hasComic()
-                }
-            })
-
-            adapter.comics = newList
-
-            diffResult.dispatchUpdatesTo(adapter)
-
-            // Restores position after rotation
-            model.selectedComicNumber.value?.let { selectedNumber ->
-                if (pager.currentItem != selectedNumber - 1) {
-                    pager.setCurrentItem(selectedNumber - 1, false)
+                // Restores position after rotation
+                model.selectedComicNumber.value?.let { selectedNumber ->
+                    if (pager.currentItem != selectedNumber - 1) {
+                        pager.setCurrentItem(selectedNumber - 1, false)
+                    }
                 }
             }
+        }
+
+        model.comicCached.observe(viewLifecycleOwner) { comic ->
+            val position = comic.number - 1
+            adapter.comics[position] = comic.toContainer()
+            adapter.notifyItemChanged(position)
         }
 
         activity?.findViewById<FloatingActionButton>(R.id.fab)?.apply {

@@ -67,7 +67,7 @@ class FavoritesFragment : ComicBrowserBaseFragment() {
                 }
             })
 
-            adapter.comics = newList
+            adapter.comics = newList.toMutableList()
             diffResult.dispatchUpdatesTo(adapter)
 
             comicNumberOfSharedElementTransition?.let { model.jumpToComic(it) }

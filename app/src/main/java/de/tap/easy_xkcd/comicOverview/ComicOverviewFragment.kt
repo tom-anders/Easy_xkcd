@@ -26,6 +26,7 @@ import dagger.hilt.android.AndroidEntryPoint
 import de.tap.easy_xkcd.ComicBaseAdapter
 import de.tap.easy_xkcd.ComicViewHolder
 import de.tap.easy_xkcd.database.Comic
+import de.tap.easy_xkcd.database.toContainer
 import de.tap.easy_xkcd.mainActivity.MainActivity
 import de.tap.easy_xkcd.utils.PrefHelper
 import de.tap.easy_xkcd.utils.ThemePrefs
@@ -89,62 +90,81 @@ class ComicOverviewFragment : Fragment() {
             binding.rv.setFastScrollEnabled(!recyclerView.isVerticalScrollBarEnabled)
 
             adapter = OverviewAdapter(style)
-            adapter.comics = model.comics.value
+            adapter.comics = model.comics.value.toMutableList()
             recyclerView.adapter = adapter
         }
 
         model.comics.observe(viewLifecycleOwner) { newList ->
-            val diffResult = DiffUtil.calculateDiff(object : DiffUtil.Callback() {
-                override fun getOldListSize() = adapter.comics.size
+            // This will be the case either when the overview is intialized the first time,
+            // or when "only favorites" or "hide read" is toggled.
+            // Otherwise, a comic will have been cached in which case it would hurt performance
+            // to calculate the diff of the whole list. We'll notice that via model.comicCached
+            // instead and update only the specific item there.
+            if (newList.size != adapter.comics.size) {
+                val diffResult = DiffUtil.calculateDiff(object : DiffUtil.Callback() {
+                    override fun getOldListSize() = adapter.comics.size
 
-                override fun getNewListSize() = newList.size
+                    override fun getNewListSize() = newList.size
 
-                override fun areItemsTheSame(oldItemPosition: Int, newItemPosition: Int) =
-                    adapter.comics[oldItemPosition].number == newList[newItemPosition].number
+                    override fun areItemsTheSame(oldItemPosition: Int, newItemPosition: Int) =
+                        adapter.comics[oldItemPosition].number == newList[newItemPosition].number
 
-                override fun areContentsTheSame(
-                    oldItemPosition: Int,
-                    newItemPosition: Int
-                ): Boolean {
-                    return adapter.comics[oldItemPosition] == newList[newItemPosition]
+                    override fun areContentsTheSame(
+                        oldItemPosition: Int,
+                        newItemPosition: Int
+                    ): Boolean {
+                        return adapter.comics[oldItemPosition] == newList[newItemPosition]
+                    }
+                })
+
+                if (adapter.comics.isEmpty()) {
+                    val position = comicNumberOfSharedElementTransition?.let {
+                        // If we're showing all comics, the position is simply the comic number - 1
+                        // Otherwise, we have to search for the number in the list
+                        it - 1
+                    } ?: run {
+                        // This is the case when we have "hide read" enabled, or are showing only favorites,
+                        // so the comic we came from might not be in the list here. So scroll to the
+                        // nearest comic instead
+                        newList.indexOfFirst { comicContainer -> comicContainer.number >= prefHelper.lastComic }
+                    }
+
+                    // Calculate offset such that the item will be centered in the middle
+                    val offset =
+                        (recyclerView.width - (recyclerView.findViewHolderForAdapterPosition(
+                            position
+                        )?.itemView?.width ?: 0)) / 2
+
+                    (recyclerView.layoutManager as? LinearLayoutManager)?.scrollToPositionWithOffset(
+                        position - 1,
+                        offset
+                    )
+                    (recyclerView.layoutManager as? StaggeredGridLayoutManager)?.scrollToPositionWithOffset(
+                        position - 1,
+                        offset
+                    )
                 }
-            })
 
-            if (adapter.comics.isEmpty()) {
-                val position = comicNumberOfSharedElementTransition?.let {
-                    // If we're showing all comics, the position is simply the comic number - 1
-                    // Otherwise, we have to search for the number in the list
-                    it - 1
-                } ?: run {
-                    // This is the case when we have "hide read" enabled, or are showing only favorites,
-                    // so the comic we came from might not be in the list here. So scroll to the
-                    // nearest comic instead
-                    newList.indexOfFirst { comicContainer -> comicContainer.number >= prefHelper.lastComic }
-                }
+                adapter.comics = newList.toMutableList()
 
-                // Calculate offset such that the item will be centered in the middle
-                val offset =
-                    (recyclerView.width - (recyclerView.findViewHolderForAdapterPosition(
-                        position
-                    )?.itemView?.width ?: 0)) / 2
+                diffResult.dispatchUpdatesTo(adapter)
 
-                (recyclerView.layoutManager as? LinearLayoutManager)?.scrollToPositionWithOffset(
-                    position - 1,
-                    offset
-                )
-                (recyclerView.layoutManager as? StaggeredGridLayoutManager)?.scrollToPositionWithOffset(
-                    position - 1,
-                    offset
-                )
+                (activity as AppCompatActivity).supportActionBar?.subtitle = ""
             }
-
-            adapter.comics = newList
-
-            diffResult.dispatchUpdatesTo(adapter)
-
-            (activity as AppCompatActivity).supportActionBar?.subtitle = ""
         }
 
+        model.comicCached.observe(viewLifecycleOwner) { comic ->
+            if (model.onlyFavorites.value || model.hideRead.value) {
+                adapter.comics.indexOfFirst { it.number == comic.number }.let {
+                    if (it != -1) it else null
+                }
+            } else {
+                comic.number - 1
+            }?.let { position ->
+                adapter.comics[position] = comic.toContainer()
+                adapter.notifyItemChanged(position)
+            }
+        }
 
         arguments?.let { args ->
             // If we're coming from the favorites browser and the overview

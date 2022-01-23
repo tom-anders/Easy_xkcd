@@ -40,7 +40,7 @@ abstract class ComicBaseAdapter<ViewHolder: ComicViewHolder>(
     private val prefHelper = PrefHelper(context)
     private val themePrefs = ThemePrefs(context)
 
-    var comics: List<ComicContainer> = emptyList()
+    var comics = mutableListOf<ComicContainer>()
     override fun getItemCount() = comics.size
 
     open fun onComicNull(number: Int) {}

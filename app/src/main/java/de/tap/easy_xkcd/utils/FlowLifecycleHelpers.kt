@@ -19,6 +19,16 @@ inline fun <T> StateFlow<T>.observe(viewLifecycleOwner: LifecycleOwner, crossinl
     }
 }
 
+inline fun <T> Flow<T>.observe(viewLifecycleOwner: LifecycleOwner, crossinline action: suspend (value: T) -> Unit) {
+    viewLifecycleOwner.lifecycleScope.launch {
+        viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
+            collect {
+                action(it)
+            }
+        }
+    }
+}
+
 abstract class ViewModelWithFlowHelper : ViewModel() {
     protected fun <T> Flow<T>.asLazyStateFlow(initialValue: T)
             = this.stateIn(viewModelScope, SharingStarted.Lazily, initialValue)

@@ -14,6 +14,7 @@ import dagger.hilt.android.components.ViewModelComponent
 import dagger.hilt.android.qualifiers.ApplicationContext
 import de.tap.easy_xkcd.utils.*
 import kotlinx.coroutines.*
+import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.*
 import okhttp3.OkHttpClient
 import okhttp3.Request
@@ -63,6 +64,8 @@ interface ComicRepository {
 
     val newestComicNumber: Flow<Int>
 
+    val comicCached: Channel<Comic>
+
     suspend fun cacheComic(number: Int)
 
     suspend fun cacheAllComics(): Flow<ProgressStatus>
@@ -102,6 +105,8 @@ class ComicRepositoryImpl @Inject constructor(
     private val comicDao = ComicRoomDatabase.getDatabase(context).comicDao()
 
     private val client = OkHttpClient()
+
+    override val comicCached = Channel<Comic>()
 
     override val newestComicNumber = flow {
         findNewestComic().also {
@@ -300,6 +305,7 @@ class ComicRepositoryImpl @Inject constructor(
             if (comicDao.getComic(number) == null) {
                 downloadComic(number)?.let {
                     comicDao.insert(it)
+                    comicCached.send(it)
                 }
             }
         }
