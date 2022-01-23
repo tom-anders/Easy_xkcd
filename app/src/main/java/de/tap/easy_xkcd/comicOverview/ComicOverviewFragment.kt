@@ -10,6 +10,7 @@ import android.view.*
 import android.widget.ImageView
 import android.widget.TextView
 import androidx.appcompat.app.AlertDialog
+import androidx.appcompat.app.AppCompatActivity
 import androidx.cardview.widget.CardView
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
@@ -140,6 +141,8 @@ class ComicOverviewFragment : Fragment() {
             adapter.comics = newList
 
             diffResult.dispatchUpdatesTo(adapter)
+
+            (activity as AppCompatActivity).supportActionBar?.subtitle = ""
         }
 
 
@@ -262,6 +265,7 @@ class ComicOverviewFragment : Fragment() {
                     .inflate(R.layout.search_result, parent, false)
             }
 
+            //TODO Add back long click listener
             view.setOnClickListener {
                 (activity as MainActivity?)?.showComicFromOverview(
                     prefHelper.overviewFav(), listOf(
