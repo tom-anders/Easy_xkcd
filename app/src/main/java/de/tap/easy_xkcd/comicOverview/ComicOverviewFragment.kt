@@ -26,6 +26,7 @@ import de.tap.easy_xkcd.database.Comic
 import de.tap.easy_xkcd.mainActivity.MainActivity
 import de.tap.easy_xkcd.utils.PrefHelper
 import de.tap.easy_xkcd.utils.ThemePrefs
+import de.tap.easy_xkcd.utils.observe
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
 import timber.log.Timber
@@ -67,85 +68,76 @@ class ComicOverviewFragment : Fragment() {
         recyclerView = binding.rv
         recyclerView.setHasFixedSize(true)
 
-        //TODO can we maybe make this boilerplate an extension function?
-        lifecycleScope.launch {
-            viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
-                model.overviewStyle.collect { style ->
-                    binding.rv.layoutManager =
-                        when (style) {
-                            2 ->
-                                StaggeredGridLayoutManager(
-                                    2,
-                                    StaggeredGridLayoutManager.VERTICAL
-                                ).apply { reverseLayout = true }
-                            else -> LinearLayoutManager(activity).apply { reverseLayout = true }
-                        }
-
-                    recyclerView.isVerticalScrollBarEnabled =
-                        recyclerView.layoutManager !is LinearLayoutManager
-                    binding.rv.setFastScrollEnabled(!recyclerView.isVerticalScrollBarEnabled)
-
-                    adapter = OverviewAdapter(style)
-                    adapter.comics = model.comics.value
-                    recyclerView.adapter = adapter
-                }
-            }
-        }
-
-        lifecycleScope.launch {
-            viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
-                model.comics.collect { newList ->
-                    val diffResult = DiffUtil.calculateDiff(object : DiffUtil.Callback() {
-                        override fun getOldListSize() = adapter.comics.size
-
-                        override fun getNewListSize() = newList.size
-
-                        override fun areItemsTheSame(oldItemPosition: Int, newItemPosition: Int) =
-                            adapter.comics[oldItemPosition].number == newList[newItemPosition].number
-
-                        override fun areContentsTheSame(
-                            oldItemPosition: Int,
-                            newItemPosition: Int
-                        ): Boolean {
-                            return adapter.comics[oldItemPosition] == newList[newItemPosition]
-                        }
-                    })
-
-                    if (adapter.comics.isEmpty()) {
-                        val position = comicNumberOfSharedElementTransition?.let {
-                            // If we're showing all comics, the position is simply the comic number - 1
-                            // Otherwise, we have to search for the number in the list
-                            it - 1
-                        } ?: run {
-                            // This is the case when we have "hide read" enabled, or are showing only favorites,
-                            // so the comic we came from might not be in the list here. So scroll to the
-                            // nearest comic instead
-                            newList.indexOfFirst { comicContainer -> comicContainer.number >= prefHelper.lastComic }
-                        }
-
-                        // Calculate offset such that the item will be centered in the middle
-                        val offset =
-                            (recyclerView.width - (recyclerView.findViewHolderForAdapterPosition(
-                                position
-                            )?.itemView?.width ?: 0)) / 2
-
-                        (recyclerView.layoutManager as? LinearLayoutManager)?.scrollToPositionWithOffset(
-                            position - 1,
-                            offset
-                        )
-                        (recyclerView.layoutManager as? StaggeredGridLayoutManager)?.scrollToPositionWithOffset(
-                            position - 1,
-                            offset
-                        )
-                    }
-
-                    adapter.comics = newList
-
-                    diffResult.dispatchUpdatesTo(adapter)
+        model.overviewStyle.observe(viewLifecycleOwner) { style ->
+            binding.rv.layoutManager =
+                when (style) {
+                    2 ->
+                        StaggeredGridLayoutManager(
+                            2,
+                            StaggeredGridLayoutManager.VERTICAL
+                        ).apply { reverseLayout = true }
+                    else -> LinearLayoutManager(activity).apply { reverseLayout = true }
                 }
 
-            }
+            recyclerView.isVerticalScrollBarEnabled =
+                recyclerView.layoutManager !is LinearLayoutManager
+            binding.rv.setFastScrollEnabled(!recyclerView.isVerticalScrollBarEnabled)
+
+            adapter = OverviewAdapter(style)
+            adapter.comics = model.comics.value
+            recyclerView.adapter = adapter
         }
+
+        model.comics.observe(viewLifecycleOwner) { newList ->
+            val diffResult = DiffUtil.calculateDiff(object : DiffUtil.Callback() {
+                override fun getOldListSize() = adapter.comics.size
+
+                override fun getNewListSize() = newList.size
+
+                override fun areItemsTheSame(oldItemPosition: Int, newItemPosition: Int) =
+                    adapter.comics[oldItemPosition].number == newList[newItemPosition].number
+
+                override fun areContentsTheSame(
+                    oldItemPosition: Int,
+                    newItemPosition: Int
+                ): Boolean {
+                    return adapter.comics[oldItemPosition] == newList[newItemPosition]
+                }
+            })
+
+            if (adapter.comics.isEmpty()) {
+                val position = comicNumberOfSharedElementTransition?.let {
+                    // If we're showing all comics, the position is simply the comic number - 1
+                    // Otherwise, we have to search for the number in the list
+                    it - 1
+                } ?: run {
+                    // This is the case when we have "hide read" enabled, or are showing only favorites,
+                    // so the comic we came from might not be in the list here. So scroll to the
+                    // nearest comic instead
+                    newList.indexOfFirst { comicContainer -> comicContainer.number >= prefHelper.lastComic }
+                }
+
+                // Calculate offset such that the item will be centered in the middle
+                val offset =
+                    (recyclerView.width - (recyclerView.findViewHolderForAdapterPosition(
+                        position
+                    )?.itemView?.width ?: 0)) / 2
+
+                (recyclerView.layoutManager as? LinearLayoutManager)?.scrollToPositionWithOffset(
+                    position - 1,
+                    offset
+                )
+                (recyclerView.layoutManager as? StaggeredGridLayoutManager)?.scrollToPositionWithOffset(
+                    position - 1,
+                    offset
+                )
+            }
+
+            adapter.comics = newList
+
+            diffResult.dispatchUpdatesTo(adapter)
+        }
+
 
         arguments?.let { args ->
             // If we're coming from the favorites browser and the overview
@@ -189,17 +181,14 @@ class ComicOverviewFragment : Fragment() {
             // For updating which entry to highlight with the accent color
             adapter.notifyDataSetChanged()
         }
-        viewLifecycleOwner.lifecycleScope.launch {
-            viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
-                model.onlyFavorites.collect {
-                    menu.findItem(R.id.action_favorite)
-                        .setIcon(if (it) R.drawable.ic_favorite_on_24dp else R.drawable.ic_favorite_off_24dp)
-                }
 
-                model.hideRead.collect {
-                    menu.findItem(R.id.action_hide_read).isChecked = it
-                }
-            }
+        model.onlyFavorites.observe(viewLifecycleOwner) {
+            menu.findItem(R.id.action_favorite)
+                .setIcon(if (it) R.drawable.ic_favorite_on_24dp else R.drawable.ic_favorite_off_24dp)
+        }
+
+        model.hideRead.observe(viewLifecycleOwner) {
+            menu.findItem(R.id.action_hide_read).isChecked = it
         }
 
         menu.findItem(R.id.action_hide_read)?.apply { isChecked = prefHelper.hideRead() }

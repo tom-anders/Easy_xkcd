@@ -14,6 +14,7 @@ import de.tap.easy_xkcd.database.RealmComic
 import de.tap.easy_xkcd.notifications.ComicNotifierJob
 import de.tap.easy_xkcd.utils.PrefHelper
 import de.tap.easy_xkcd.utils.SingleLiveEvent
+import de.tap.easy_xkcd.utils.ViewModelWithFlowHelper
 import hilt_aggregated_deps._de_tap_easy_xkcd_comicBrowsing_ComicBrowserBaseFragment_GeneratedInjector
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.*
@@ -29,7 +30,7 @@ import kotlin.random.Random
 abstract class ComicBrowserBaseViewModel constructor(
     private val repository: ComicRepository,
     @ApplicationContext context: Context
-) : ViewModel() {
+) : ViewModelWithFlowHelper() {
     protected val prefHelper = PrefHelper(context)
 
     abstract fun comicSelected(index: Int)
@@ -68,11 +69,7 @@ class ComicBrowserViewModel @Inject constructor(
     @ApplicationContext context: Context
 ) : ComicBrowserBaseViewModel(repository, context) {
 
-    val comics = repository.comics.stateIn(
-        viewModelScope,
-        SharingStarted.Lazily,
-        emptyList()
-    )
+    val comics = repository.comics.asLazyStateFlow(emptyList())
 
     private var nextRandom: Int? = null
 
@@ -86,12 +83,11 @@ class ComicBrowserViewModel @Inject constructor(
             comics.getOrNull(selectedNumber - 1)?.comic
         } ?: run { null }
     }
-    override val selectedComic = _selectedComic
-        .stateIn(viewModelScope, SharingStarted.Eagerly, null)
+    override val selectedComic = _selectedComic.asEagerStateFlow(null)
 
     val isFavorite = _selectedComic.map { comic ->
         comic?.favorite ?: false
-    }.stateIn(viewModelScope, SharingStarted.Eagerly, false)
+    }.asEagerStateFlow(false)
 
     init {
         // Jump to the comic we displayed the last time the app was opened
@@ -159,10 +155,7 @@ class FavoriteComicsViewModel @Inject constructor(
     private val _importingFavorites = MutableLiveData(false)
     val importingFavorites: LiveData<Boolean> = _importingFavorites
 
-//    val favorites: LiveData<List<ComicContainer>> = repository.favorites.asLiveData()
-    val favorites = repository.favorites.stateIn(
-        viewModelScope, SharingStarted.Lazily, emptyList()
-    )
+    val favorites = repository.favorites.asLazyStateFlow(emptyList())
 
     val scrollToPage = SingleLiveEvent<Int>()
 

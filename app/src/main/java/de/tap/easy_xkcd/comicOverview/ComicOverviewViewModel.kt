@@ -10,6 +10,7 @@ import de.tap.easy_xkcd.database.ComicContainer
 import de.tap.easy_xkcd.database.ComicRepository
 import de.tap.easy_xkcd.database.RealmComic
 import de.tap.easy_xkcd.utils.PrefHelper
+import de.tap.easy_xkcd.utils.ViewModelWithFlowHelper
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 import timber.log.Timber
@@ -19,7 +20,7 @@ import javax.inject.Inject
 class ComicOverviewViewModel @Inject constructor(
     private val repository: ComicRepository,
     @ApplicationContext context: Context,
-) : ViewModel() {
+) : ViewModelWithFlowHelper() {
 
 //    val comics = MediatorLiveData<List<ComicContainer>>()
 
@@ -39,14 +40,13 @@ class ComicOverviewViewModel @Inject constructor(
     val onlyFavorites: StateFlow<Boolean> = _onlyFavorites
 
     val comics = combine(repository.favorites, repository.unreadComics, repository.comics,
-                         _hideRead, _onlyFavorites) {
-            favComics, unreadComic, allComics, hideRead, onlyFavs ->
+                         _hideRead, _onlyFavorites) { favComics, unreadComic, allComics, hideRead, onlyFavs ->
         when {
             hideRead -> unreadComic
             onlyFavs -> favComics
             else -> allComics
         }
-    }.stateIn(viewModelScope, SharingStarted.Eagerly, emptyList())
+    }.asEagerStateFlow(emptyList())
 
     init {
         _bookmark.value = prefHelper.bookmark

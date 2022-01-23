@@ -55,6 +55,7 @@ import de.tap.easy_xkcd.mainActivity.MainActivity
 import de.tap.easy_xkcd.misc.HackyViewPager
 import de.tap.easy_xkcd.utils.PrefHelper
 import de.tap.easy_xkcd.utils.ThemePrefs
+import de.tap.easy_xkcd.utils.observe
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
@@ -98,12 +99,8 @@ abstract class ComicBrowserBaseFragment : Fragment() {
             }
         })
 
-        viewLifecycleOwner.lifecycleScope.launch {
-            viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
-                model.selectedComicNumber.collect {
-                    (activity as AppCompatActivity).supportActionBar?.subtitle = it?.toString()
-                }
-            }
+        model.selectedComicNumber.observe(viewLifecycleOwner) {
+            (activity as AppCompatActivity).supportActionBar?.subtitle = it?.toString()
         }
 
         arguments?.let { args ->
