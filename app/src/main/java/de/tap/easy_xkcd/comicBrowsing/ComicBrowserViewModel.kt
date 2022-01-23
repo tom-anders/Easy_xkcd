@@ -53,6 +53,8 @@ abstract class ComicBrowserBaseViewModel constructor(
         }
     }
 
+    fun getOfflineUri(number: Int) = repository.getOfflineUri(number)
+
     suspend fun getUriForSharing(number: Int) = repository.getUriForSharing(number)
 
     suspend fun getRedditThread() = selectedComic.value?.let { repository.getRedditThread(it) }

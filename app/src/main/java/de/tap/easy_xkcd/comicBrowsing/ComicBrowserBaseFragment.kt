@@ -145,6 +145,8 @@ abstract class ComicBrowserBaseFragment : Fragment() {
             activity?.startPostponedEnterTransition()
         }
 
+        override fun getOfflineUri(number: Int) = model.getOfflineUri(number)
+
         override fun onImageLoaded(image: ImageView, bitmap: Bitmap, comic: Comic) {
             if (comicNumberOfSharedElementTransition == null) {
                 image.alpha = 0f

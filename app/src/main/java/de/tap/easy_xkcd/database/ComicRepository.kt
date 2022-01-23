@@ -1,9 +1,12 @@
 package de.tap.easy_xkcd.database
 
 import android.content.Context
+import android.graphics.Bitmap
+import android.graphics.BitmapFactory
 import android.net.Uri
 import androidx.core.content.FileProvider
 import com.tap.xkcd_reader.BuildConfig
+import com.tap.xkcd_reader.R
 import dagger.Binds
 import dagger.Module
 import dagger.hilt.InstallIn
@@ -18,7 +21,9 @@ import org.json.JSONException
 import org.json.JSONObject
 import timber.log.Timber
 import java.io.File
+import java.io.FileInputStream
 import java.io.FileOutputStream
+import java.io.IOException
 import java.lang.Exception
 import javax.inject.Inject
 import javax.inject.Singleton
@@ -83,6 +88,8 @@ interface ComicRepository {
     suspend fun migrateRealmDatabase(): Flow<ProgressStatus>
 
     suspend fun oldestUnreadComic(): Comic?
+
+    fun getOfflineUri(number: Int): Uri?
 }
 
 @Singleton
@@ -183,11 +190,21 @@ class ComicRepositoryImpl @Inject constructor(
 
     override suspend fun getUriForSharing(number: Int): Uri? {
         saveOfflineBitmap(number)
-        return FileProvider.getUriForFile(
-            context,
-            "de.tap.easy_xkcd.fileProvider",
-            getComicImageFile(number)
-        )
+        return getOfflineUri(number)
+    }
+
+    override fun getOfflineUri(number: Int): Uri? {
+        return when (number) {
+            //Fix for offline users who downloaded the HUGE version of #1826 or #2185
+            1826 -> Uri.parse("android.resource://${context.packageName}/${R.mipmap.birdwatching}")
+            2185 -> Uri.parse("android.resource://${context.packageName}/${R.mipmap.cumulonimbus_2x}")
+
+            else -> FileProvider.getUriForFile(
+                    context,
+                    "de.tap.easy_xkcd.fileProvider",
+                    getComicImageFile(number)
+                )
+        }
     }
 
     private fun getComicImageFile(number: Int) =

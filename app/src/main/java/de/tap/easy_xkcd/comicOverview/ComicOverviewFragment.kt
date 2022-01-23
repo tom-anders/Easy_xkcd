@@ -245,6 +245,8 @@ class ComicOverviewFragment : Fragment() {
         requireActivity(),
         comicNumberOfSharedElementTransition,
     ) {
+        override fun getOfflineUri(number: Int) = model.getOfflineUri(number)
+
         override fun onComicNull(number: Int) {
             //TODO When we're scrolling to fast through the list,
             // we're updating the list too often, hurting performance

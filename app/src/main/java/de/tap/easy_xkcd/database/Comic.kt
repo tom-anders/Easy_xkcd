@@ -1,12 +1,18 @@
 package de.tap.easy_xkcd.database
 
 import android.content.Context
+import android.graphics.Bitmap
+import android.graphics.BitmapFactory
 import androidx.room.Entity
 import androidx.room.PrimaryKey
 import com.tap.xkcd_reader.R
+import de.tap.easy_xkcd.utils.PrefHelper
 import org.json.JSONException
 import org.json.JSONObject
 import timber.log.Timber
+import java.io.File
+import java.io.FileInputStream
+import java.io.IOException
 import java.nio.charset.StandardCharsets
 import java.util.*
 
@@ -29,6 +35,34 @@ data class Comic(
                 context.resources.getIntArray(R.array.large_comics),
                 number
             ) >= 0
+        }
+
+        fun getOfflineBitmap(comicNumber: Int, context: Context, prefHelper: PrefHelper): Bitmap? {
+            //Fix for offline users who downloaded the HUGE version of #1826 or #2185
+            if (comicNumber == 1826) {
+                return BitmapFactory.decodeResource(
+                    context.resources,
+                    R.mipmap.birdwatching,
+                    BitmapFactory.Options().apply { inScaled = false }
+                )
+            } else if (comicNumber == 2185) {
+                return BitmapFactory.decodeResource(
+                    context.resources,
+                    R.mipmap.cumulonimbus_2x,
+                    BitmapFactory.Options().apply { inScaled = false }
+                )
+            }
+            val comicFileName = "$comicNumber.png"
+            return try {
+                val file = File(prefHelper.getOfflinePath(context), "${comicNumber}.png")
+                val fis = FileInputStream(file)
+                val bitmap = BitmapFactory.decodeStream(fis)
+                fis.close()
+                bitmap
+            } catch (e: IOException) {
+                Timber.e(e, "While loading offline comic #$comicNumber")
+                null
+            }
         }
 
         fun getInteractiveTitle(comic: Comic, context: Context): String {

@@ -2,6 +2,7 @@ package de.tap.easy_xkcd
 
 import android.content.Context
 import android.graphics.Bitmap
+import android.net.Uri
 import android.text.Html
 import android.view.View
 import android.view.ViewGroup
@@ -46,6 +47,8 @@ abstract class ComicBaseAdapter<ViewHolder: ComicViewHolder>(
 
     open fun onDisplayingComic(comic: Comic, holder: ViewHolder) {}
 
+    abstract fun getOfflineUri(number: Int): Uri?
+
     override fun onViewRecycled(holder: ViewHolder) {
         holder.image.setImageBitmap(null)
         holder.title.text = ""
@@ -80,15 +83,11 @@ abstract class ComicBaseAdapter<ViewHolder: ComicViewHolder>(
             .asBitmap()
             .apply(RequestOptions().placeholder(makeProgressDrawable()))
             .apply {
-                //TODO enable offline support again
-                /*if (comic.isOffline || comic.isFavorite) load(
-                    RealmComic.getOfflineBitmap(
-                        comic.comicNumber,
-                        context,
-                        prefHelper
-                    )
-                ) else load(comic.url)*/
-                load(comic.url)
+                if (prefHelper.fullOfflineEnabled()) {
+                   load(getOfflineUri(comic.number))
+                } else {
+                    load(comic.url)
+                }
             }
             .listener(object : RequestListener<Bitmap?> {
                 override fun onLoadFailed(
