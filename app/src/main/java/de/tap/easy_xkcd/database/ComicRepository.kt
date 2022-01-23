@@ -120,12 +120,28 @@ class ComicRepositoryImpl @Inject constructor(
 
     override val comicCached = Channel<Comic>()
 
+    // TODO Write tests for this!
     @ExperimentalCoroutinesApi
     override val newestComicNumber = flow {
-        downloadComic(0).collect {
-            comicDao.insert(it)
-            prefHelper.setNewestComic(it.number)
-            emit(it.number)
+        downloadComic(0).collect { newestComic ->
+            comicDao.insert(newestComic)
+
+            // In offline mode, we need to cache all the new comics here
+            if (prefHelper.fullOfflineEnabled() && prefHelper.newest != newestComic.number) {
+                CoroutineScope(Dispatchers.IO).launch {
+                    (prefHelper.newest..newestComic.number).map { number ->
+                        downloadComic(number).collect { comic ->
+                            saveOfflineBitmap(number).onCompletion {
+                                comicDao.insert(comic)
+                                comicCached.send(comic)
+                            }.collect()
+                        }
+                    }
+                }
+            }
+
+            prefHelper.setNewestComic(newestComic.number)
+            emit(newestComic.number)
         }
     }.stateIn(CoroutineScope(Dispatchers.IO), SharingStarted.Eagerly, prefHelper.newest)
 
@@ -331,7 +347,6 @@ class ComicRepositoryImpl @Inject constructor(
     override suspend fun cacheComic(number: Int) {
         withContext(Dispatchers.IO) {
             if (comicDao.getComic(number) == null) {
-                //TODO In offline mode we'll also want to save the image here!
                 downloadComic(number).collect { comic ->
                     comicDao.insert(comic)
                     comicCached.send(comic)
