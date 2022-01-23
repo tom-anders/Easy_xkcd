@@ -13,6 +13,7 @@ import de.tap.easy_xkcd.utils.PrefHelper
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.mapLatest
 import kotlinx.coroutines.launch
+import timber.log.Timber
 import javax.inject.Inject
 
 @HiltViewModel

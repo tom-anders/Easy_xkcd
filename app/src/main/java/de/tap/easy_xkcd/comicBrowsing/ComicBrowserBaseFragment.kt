@@ -23,6 +23,7 @@ import androidx.fragment.app.DialogFragment
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.lifecycleScope
+import androidx.recyclerview.widget.RecyclerView
 import androidx.swiperefreshlayout.widget.CircularProgressDrawable
 import androidx.viewpager.widget.PagerAdapter
 import androidx.viewpager.widget.ViewPager
@@ -102,7 +103,7 @@ abstract class ComicBrowserBaseFragment : Fragment() {
 
         arguments?.let { args ->
             if (args.containsKey(MainActivity.ARG_COMIC_TO_SHOW)) {
-                model.jumpToComic(args.getInt(MainActivity.ARG_COMIC_TO_SHOW, prefHelper.lastComic))
+                model.jumpToComic(args.getInt(MainActivity.ARG_COMIC_TO_SHOW))
             }
 
             // Prepare for shared element transition
@@ -111,7 +112,7 @@ abstract class ComicBrowserBaseFragment : Fragment() {
                     false
                 )
             ) {
-                comicNumberOfSharedElementTransition = model.selectedComic.value?.number
+                comicNumberOfSharedElementTransition = model.selectedComicNumber.value
                 postponeEnterTransition()
                 sharedElementEnterTransition = TransitionInflater.from(context)
                     .inflateTransition(R.transition.image_shared_element_transition)
@@ -124,10 +125,11 @@ abstract class ComicBrowserBaseFragment : Fragment() {
 
     // Used by the MainActivity for passing the view to the OverviewFragment
     fun getSharedElementsForTransitionToOverview() : List<View?> {
-        val view: View? = pager.findViewWithTag(pager.currentItem)
+        val underlyingRecyclerView = pager.getChildAt(0) as? RecyclerView?
+        val holder = underlyingRecyclerView?.findViewHolderForAdapterPosition(pager.currentItem) as? ComicViewHolder?
         return listOf(
-            view?.findViewById(R.id.tvTitle),
-            view?.findViewById(R.id.ivComic)
+            holder?.title,
+            holder?.image
         )
     }
 

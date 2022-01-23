@@ -45,7 +45,6 @@ abstract class ComicBaseAdapter<ViewHolder: ComicViewHolder>(
     open fun onComicNull(number: Int) {}
 
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
-        Timber.d("qrc bind holder for comic ${position + 1}")
         val comic = comics[position].comic
 
         if (comic == null) {
@@ -53,8 +52,8 @@ abstract class ComicBaseAdapter<ViewHolder: ComicViewHolder>(
             return
         }
 
-        holder.title.text = (if (prefHelper.subtitleEnabled()) "" else "$comic.number: "
-            + Html.fromHtml(Comic.getInteractiveTitle(comic, activity)))
+        val prefix = if (prefHelper.subtitleEnabled()) "" else "$comic.number: "
+        holder.title.text = prefix + Html.fromHtml(Comic.getInteractiveTitle(comic, activity))
 
         // Transition names used for shared element transitions to the Overview Fragment
         holder.title.transitionName = comic.number.toString()
@@ -103,12 +102,17 @@ abstract class ComicBaseAdapter<ViewHolder: ComicViewHolder>(
 
     fun startPostponedTransitions(comicNumber: Int) {
         if (comicNumber == comicNumberOfSharedElementTransition) {
+            Timber.d("qrc Start postponed for ${comicNumber}")
             startPostponedTransitions()
             comicNumberOfSharedElementTransition = null
         }
     }
 
     abstract fun startPostponedTransitions()
+
+    override fun getItemId(position: Int): Long {
+        return comics[position].number.toLong()
+    }
 
     fun imageLoaded(image: ImageView, bitmap: Bitmap, comic: Comic) {
         if (themePrefs.invertColors(false) && themePrefs.bitmapContainsColor(

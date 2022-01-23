@@ -56,6 +56,7 @@ abstract class ComicBrowserBaseViewModel constructor(
     protected val _selectedComicNumber = MutableLiveData<Int>()
     val selectedComicNumber: LiveData<Int> = _selectedComicNumber
 
+    //TODO not updated in fav fragment
     protected val _selectedComic = MediatorLiveData<Comic?>()
     val selectedComic: LiveData<Comic?> = _selectedComic
 }
@@ -152,6 +153,7 @@ class FavoriteComicsViewModel @Inject constructor(
 
     override fun comicSelected(index: Int) {
         _selectedComicNumber.value = favorites.value?.getOrNull(index)?.number
+        _selectedComic.value = favorites.value?.getOrNull(index)?.comic
     }
 
     override fun jumpToComic(comicNumber: Int) {

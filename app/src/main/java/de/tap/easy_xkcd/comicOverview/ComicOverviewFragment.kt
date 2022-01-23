@@ -36,6 +36,7 @@ import de.tap.easy_xkcd.database.RealmComic
 import de.tap.easy_xkcd.mainActivity.MainActivity
 import de.tap.easy_xkcd.utils.PrefHelper
 import de.tap.easy_xkcd.utils.ThemePrefs
+import timber.log.Timber
 import java.util.concurrent.TimeUnit
 
 @AndroidEntryPoint
@@ -77,8 +78,8 @@ class ComicOverviewFragment : Fragment() {
                             StaggeredGridLayoutManager(
                                 2,
                                 StaggeredGridLayoutManager.VERTICAL
-                            )
-                        else -> LinearLayoutManager(activity)
+                            ).apply { reverseLayout = true }
+                        else -> LinearLayoutManager(activity).apply { reverseLayout = true }
                     }
 
                 recyclerView.isVerticalScrollBarEnabled =
@@ -86,6 +87,7 @@ class ComicOverviewFragment : Fragment() {
                 binding.rv.setFastScrollEnabled(!recyclerView.isVerticalScrollBarEnabled)
 
                 adapter = OverviewAdapter(it)
+                adapter.comics = model.comics.value ?: emptyList()
                 recyclerView.adapter = adapter
             }
         }
@@ -109,9 +111,8 @@ class ComicOverviewFragment : Fragment() {
 
                     override fun getNewListSize() = newList.size
 
-                    // TODO this probably needs adjustments for when a null comic is replace by a non-null
                     override fun areItemsTheSame(oldItemPosition: Int, newItemPosition: Int) =
-                        adapter.comics[oldItemPosition]?.number == newList[newItemPosition]?.number
+                        adapter.comics[oldItemPosition].number == newList[newItemPosition].number
 
                     override fun areContentsTheSame(
                         oldItemPosition: Int,
@@ -120,6 +121,22 @@ class ComicOverviewFragment : Fragment() {
                         return adapter.comics[oldItemPosition] == newList[newItemPosition]
                     }
                 })
+
+                comicNumberOfSharedElementTransition?.let {
+                    // If we're showing all comics, the position is simply the comic number - 1
+                    // Otherwise, we have to search for the number in the list
+                    val position = if (model.onlyFavorites.value == false && model.hideRead.value == false) {
+                        it - 1
+                    } else {
+                        newList.indexOfFirst { comicContainer -> comicContainer.number == it }
+                    }
+
+                    // Calculate offset such that the item will be centered in the middle
+                    val offset = (recyclerView.width - (recyclerView.findViewHolderForAdapterPosition(position)?.itemView?.width ?: 0)) / 2
+
+                    (recyclerView.layoutManager as? LinearLayoutManager)?.scrollToPositionWithOffset(position - 1, offset)
+                    (recyclerView.layoutManager as? StaggeredGridLayoutManager)?.scrollToPositionWithOffset(position - 1, offset)
+                }
 
                 adapter.comics = newList
 
@@ -202,15 +219,11 @@ class ComicOverviewFragment : Fragment() {
         }
 
         override fun startPostponedTransitions() {
-            startPostponedTransitions()
+            startPostponedEnterTransition()
+            comicNumberOfSharedElementTransition = null
         }
 
-        override fun onImageLoaded(image: ImageView, bitmap: Bitmap, comic: Comic) {
-            if (comic.number == comicNumberOfSharedElementTransition) {
-                startPostponedEnterTransition()
-                comicNumberOfSharedElementTransition = null
-            }
-        }
+        override fun onImageLoaded(image: ImageView, bitmap: Bitmap, comic: Comic) {}
 
         override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): OverviewViewHolder {
             val view = when (style) {
@@ -226,7 +239,7 @@ class ComicOverviewFragment : Fragment() {
                     prefHelper.overviewFav(), listOf(
                         view.findViewById(R.id.comic_title),
                         view.findViewById(R.id.thumbnail)
-                    ), comics[recyclerView.getChildAdapterPosition(it)]?.number ?: 0)
+                    ), comics[recyclerView.getChildAdapterPosition(it)].number)
             }
 
             return OverviewViewHolder(view)
