@@ -21,12 +21,10 @@ import de.tap.easy_xkcd.utils.*
 import kotlinx.coroutines.*
 import kotlinx.coroutines.channels.*
 import kotlinx.coroutines.flow.*
-import okhttp3.Call
-import okhttp3.OkHttpClient
-import okhttp3.Request
-import okhttp3.Response
+import okhttp3.*
 import org.json.JSONException
 import org.json.JSONObject
+import retrofit2.Retrofit
 import timber.log.Timber
 import java.io.File
 import java.io.FileOutputStream
@@ -116,6 +114,7 @@ class ComicRepositoryImpl @Inject constructor(
     private val client: OkHttpClient,
     val coroutineScope: CoroutineScope,
     private val explainXkcdApi: ExplainXkcdApi,
+    private val xkcdApi: XkcdApi,
 ) : ComicRepository {
 
 //    override val comicCached = Channel<Comic>()
@@ -126,7 +125,8 @@ class ComicRepositoryImpl @Inject constructor(
 
     @ExperimentalCoroutinesApi
     override val newestComicNumber = flow {
-        downloadComic(0).collect { newestComic ->
+        xkcdApi.getNewestComic().execute().body()?.let {
+            val newestComic = Comic(it, context)
             if (newestComic.number != prefHelper.newest) {
                 // In offline mode, we need to cache all the new comics here
                 if (prefHelper.fullOfflineEnabled()) {
@@ -151,7 +151,7 @@ class ComicRepositoryImpl @Inject constructor(
                 emit(newestComic.number)
             }
         }
-    }.stateIn(coroutineScope, SharingStarted.Lazily, prefHelper.newest)
+    }.flowOn(Dispatchers.IO).stateIn(coroutineScope, SharingStarted.Lazily, prefHelper.newest)
 
     override val comics = combine(comicDao.getComics(), newestComicNumber) { comics, newest ->
         comics.mapToComicContainer(newest)
@@ -299,39 +299,29 @@ class ComicRepositoryImpl @Inject constructor(
 
     @ExperimentalCoroutinesApi
     private fun downloadComic(number: Int): Flow<Comic> = callbackFlow {
-        client.newCall(Request.Builder().url(RealmComic.getJsonUrl(number)).build())
-            .enqueue(object: okhttp3.Callback {
-                override fun onFailure(call: Call, e: IOException) {
-                    Timber.e(e)
-                    channel.close()
-                }
+        if (number == 404) {
+            trySend(Comic.makeComic404())
+            channel.close()
+        } else {
+            xkcdApi.getComic(number)
+                .enqueue(object: retrofit2.Callback<XkcdApiComic> {
 
-                override fun onResponse(call: Call, response: Response) {
-                    val body = response.body?.string()
-                    if (body == null) {
-                        Timber.e("Got empty body for comic $number")
+                    override fun onFailure(call: retrofit2.Call<XkcdApiComic>, e: Throwable) {
+                        Timber.d("qrc autsch")
+                        Timber.e(e)
                         channel.close()
-                        return
                     }
 
-                    var json: JSONObject
-                    try {
-                        json = JSONObject(body)
-                    } catch (e: JSONException) {
-                        if (number == 404) {
-                            Timber.i("Json not found, but that's expected for comic 404")
-                            json = JSONObject()
-                            json.put("num", 404)
-                        } else {
-                            Timber.e(e, "Occurred at comic $number")
-                            channel.close()
-                            return
+                    override fun onResponse(call: retrofit2.Call<XkcdApiComic>, response: retrofit2.Response<XkcdApiComic>) {
+                        response.body()?.let {
+                            trySend(Comic(it, context))
+                        } ?: run {
+                            Timber.wtf("Got unexpected empty body for comic $number")
                         }
+                        channel.close()
                     }
-                    trySend(Comic.buildFromJson(json, context)).onFailure(Timber::e)
-                    channel.close()
-                }
-            })
+                })
+        }
         awaitClose()
     }
 
@@ -499,5 +489,6 @@ class ComicRepositoryModule {
         comicDao: ComicDao,
         client: OkHttpClient,
         explainXkcdApi: ExplainXkcdApi,
-    ): ComicRepository = ComicRepositoryImpl(context, prefHelper, comicDao, client, CoroutineScope(Dispatchers.Main), explainXkcdApi)
+        xkcdApi: XkcdApi
+    ): ComicRepository = ComicRepositoryImpl(context, prefHelper, comicDao, client, CoroutineScope(Dispatchers.Main), explainXkcdApi, xkcdApi)
 }

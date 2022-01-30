@@ -81,84 +81,73 @@ data class Comic(
             } else comic.title
         }
 
+        fun makeComic404() = Comic(404).apply {
+            title = "404"
+            altText = "404"
+            url = "https://i.imgur.com/p0eKxKs.png"
 
-        fun buildFromJson(json: JSONObject, context: Context): Comic {
-            val comicNumber = json.getInt("num")
-            val comic = Comic(comicNumber)
-            if (comicNumber == 404) {
-                comic.title = "404"
-                comic.altText = "404"
-                comic.url = "https://i.imgur.com/p0eKxKs.png"
-
-                comic.year = "2008"
-                comic.month = "3"
-                comic.day = "31"
-
-            } else if (json.length() != 0) {
-                try {
-                    comic.title =
-                        String(json.getString("title").toByteArray(StandardCharsets.UTF_8))
-                    comic.url = json.getString("img")
-                    if (!isLargeComic(
-                            comicNumber,
-                            context
-                        ) && !RealmComic.isInteractiveComic(comicNumber, context)
-                    ) {
-                        comic.url = RealmComic.getDoubleResolutionUrl(comic.url, comicNumber)
-                    }
-                    if (RealmComic.isLargeComic(comicNumber, context)) {
-                        comic.url =
-                            context.resources.getStringArray(R.array.large_comics_urls)[Arrays.binarySearch(
-                                context.resources.getIntArray(R.array.large_comics),
-                                comicNumber
-                            )]
-                    }
-                    comic.altText = String(json.getString("alt").toByteArray(StandardCharsets.UTF_8))
-                    comic.transcript = json.getString("transcript")
-
-                    comic.year = json.getString("year")
-                    comic.month = json.getString("month")
-                    comic.day = json.getString("day")
-
-                    when (comicNumber) {
-                        76 -> comic.url = "https://i.imgur.com/h3fi2RV.jpg"
-                        80 -> comic.url = "https://i.imgur.com/lWmI1lB.jpg"
-                        104 -> comic.url = "https://i.imgur.com/dnCNfPo.jpg"
-                        1037 -> comic.url =
-                            "https://www.explainxkcd.com/wiki/images/f/ff/umwelt_the_void.jpg"
-                        1054 -> comic.title = "The Bacon"
-                        1137 -> comic.title = "RTL"
-                        1190 -> {
-                        }
-                        1193 -> comic.url =
-                            "https://www.explainxkcd.com/wiki/images/0/0b/externalities.png"
-                        1335 -> {
-                        }
-                        1350 -> comic.url = "https://www.explainxkcd.com/wiki/images/3/3d/lorenz.png"
-                        1608 -> comic.url = "https://www.explainxkcd.com/wiki/images/4/41/hoverboard.png"
-                        1663 -> comic.url = "https://explainxkcd.com/wiki/images/c/ce/garden.png"
-                        2175 -> comic.altText = String(
-                            "When Salvador Dalí died, it took months to get all the flagpoles sufficiently melted.".toByteArray(
-                                StandardCharsets.UTF_8
-                            )
-                        )
-                        2185 -> {
-                            comic.title = "Cumulonimbus"
-                            comic.altText =
-                                "The rarest of all clouds is the altocumulenticulostratonimbulocirruslenticulomammanoctilucent cloud, caused by an interaction between warm moist air, cool dry air, cold slippery air, cursed air, and a cloud of nanobots."
-                            comic.url = "https://imgs.xkcd.com/comics/cumulonimbus_2x.png"
-                        }
-                        2202 -> comic.url = "https://imgs.xkcd.com/comics/earth_like_exoplanet.png"
-                    }
-                } catch (e: JSONException) {
-                    Timber.wtf(e)
-                }
-            } else {
-                Timber.wtf("json is empty but comic number is not 404!")
-            }
-            // The API sometimes gives http URLs, but these lead to an exception on Android
-            comic.url = comic.url.replace("http://", "https://")
-            return comic
+            year = "2008"
+            month = "3"
+            day = "31"
         }
+    }
+
+    constructor(xkcdApiComic: XkcdApiComic, context: Context) : this(xkcdApiComic.num) {
+        //TODO Check if we still need to convert to UTF-8 here?! Check old github issues for examples of weird char titles
+        title = xkcdApiComic.title
+        url = xkcdApiComic.url
+        if (!isLargeComic(
+                number,
+                context
+            ) && !RealmComic.isInteractiveComic(number, context)
+        ) {
+            url = RealmComic.getDoubleResolutionUrl(url, number)
+        }
+        if (RealmComic.isLargeComic(number, context)) {
+            url =
+                context.resources.getStringArray(R.array.large_comics_urls)[Arrays.binarySearch(
+                    context.resources.getIntArray(R.array.large_comics),
+                    number
+                )]
+        }
+        altText = xkcdApiComic.alt
+        transcript = xkcdApiComic.transcript
+
+        year = xkcdApiComic.year
+        month = xkcdApiComic.month
+        day = xkcdApiComic.day
+
+        when (number) {
+            76 -> url = "https://i.imgur.com/h3fi2RV.jpg"
+            80 -> url = "https://i.imgur.com/lWmI1lB.jpg"
+            104 -> url = "https://i.imgur.com/dnCNfPo.jpg"
+            1037 -> url =
+                "https://www.explainxkcd.com/wiki/images/f/ff/umwelt_the_void.jpg"
+            1054 -> title = "The Bacon"
+            1137 -> title = "RTL"
+            1190 -> {
+            }
+            1193 -> url =
+                "https://www.explainxkcd.com/wiki/images/0/0b/externalities.png"
+            1335 -> {
+            }
+            1350 -> url = "https://www.explainxkcd.com/wiki/images/3/3d/lorenz.png"
+            1608 -> url = "https://www.explainxkcd.com/wiki/images/4/41/hoverboard.png"
+            1663 -> url = "https://explainxkcd.com/wiki/images/c/ce/garden.png"
+            2175 -> altText = String(
+                "When Salvador Dalí died, it took months to get all the flagpoles sufficiently melted.".toByteArray(
+                    StandardCharsets.UTF_8
+                )
+            )
+            2185 -> {
+                title = "Cumulonimbus"
+                altText =
+                    "The rarest of all clouds is the altocumulenticulostratonimbulocirruslenticulomammanoctilucent cloud, caused by an interaction between warm moist air, cool dry air, cold slippery air, cursed air, and a cloud of nanobots."
+                url = "https://imgs.xkcd.com/comics/cumulonimbus_2x.png"
+            }
+            2202 -> url = "https://imgs.xkcd.com/comics/earth_like_exoplanet.png"
+        }
+        // The API sometimes gives http URLs, but these lead to an exception on Android
+        url = url.replace("http://", "https://")
     }
 }
