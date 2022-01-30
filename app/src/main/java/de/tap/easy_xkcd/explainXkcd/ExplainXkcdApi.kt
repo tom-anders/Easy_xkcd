@@ -52,7 +52,7 @@ data class SectionTextResponse(
 
 interface ExplainXkcdApi {
     @GET("api.php?action=parse&redirects&prop=sections&format=json")
-    suspend fun getSections(@Query("page") number: Int): SectionResponse
+    fun getSections(@Query("page") number: Int): Call<SectionResponse>
 
     @GET("api.php?action=parse&redirects&prop=text&format=json")
     suspend fun getSection(@Query("page") number: Int, @Query("section") sectionId: Int): SectionTextResponse

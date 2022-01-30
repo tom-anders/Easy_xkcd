@@ -32,16 +32,9 @@ class MainActivityViewModel @Inject constructor(
     private val prefHelper: PrefHelper,
 ) : AndroidViewModel(app) {
 
-    private val _progress: MutableLiveData<ProgressStatus> = MutableLiveData(ProgressStatus.Finished)
-    var progress: LiveData<ProgressStatus> = _progress
-
-    private val _initialized = MutableLiveData(false)
-    val initialized: LiveData<Boolean> = _initialized
-
     init {
         viewModelScope.launch {
             repository.migrateRealmDatabase()
         }
-        _initialized.value = true
     }
 }

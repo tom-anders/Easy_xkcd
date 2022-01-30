@@ -51,8 +51,6 @@ class MainActivity : BaseActivity() {
     private lateinit var bottomNavigationView: BottomNavigationView
     private lateinit var toolbar: Toolbar
 
-    private lateinit var progress: ProgressDialog
-
     private var fullscreenEnabled = false
 
     private var customTabActivityHelper = CustomTabActivityHelper()
@@ -93,40 +91,9 @@ class MainActivity : BaseActivity() {
         // Nothing to be done yet in that case
         bottomNavigationView.setOnNavigationItemReselectedListener {}
 
-        progress = ProgressDialog(this)
-        progress.setTitle(resources?.getString(R.string.update_database))
-        progress.setProgressStyle(ProgressDialog.STYLE_HORIZONTAL)
-        progress.isIndeterminate = false
-        dataBaseViewModel.progress.observe(this) {
-            when (it) {
-                is ProgressStatus.Finished -> {
-                    progress.dismiss()
-                    unlockRotation()
-                }
-                is ProgressStatus.Max -> {
-                    lockRotation()
-                    progress.max = it.max
-                    progress.show()
-                }
-                is ProgressStatus.IncrementProgress -> {
-                    progress.progress++
-                }
-                is ProgressStatus.SetProgress -> {
-                    progress.progress = it.value
-                }
-                is ProgressStatus.ResetProgress -> {
-                    progress.progress = 0
-                }
-            }
-        }
-
-        dataBaseViewModel.initialized.observe(this) { databaseLoaded ->
-            if (databaseLoaded) {
-                if (savedInstanceState == null) {
-                    bottomNavigationView.selectedItemId =
-                        if (prefHelper.launchToOverview()) R.id.nav_overview else R.id.nav_browser
-                }
-            }
+        if (savedInstanceState == null) {
+            bottomNavigationView.selectedItemId =
+                if (prefHelper.launchToOverview()) R.id.nav_overview else R.id.nav_browser
         }
 
         activityResultLauncher = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) {
@@ -260,15 +227,8 @@ class MainActivity : BaseActivity() {
     }
 
     override fun onResume() {
-        toolbar.title = if (dataBaseViewModel.initialized.value == false) {
-            bottomNavigationView.menu.findItem(if (prefHelper.launchToOverview()) {
-                R.id.nav_overview
-            } else {
-                R.id.nav_browser
-            })?.title
-        } else {
+        toolbar.title =
             bottomNavigationView.menu.findItem(bottomNavigationView.selectedItemId)?.title
-        }
         super.onResume()
     }
 

@@ -7,6 +7,7 @@ import de.tap.easy_xkcd.Activities.BaseActivity
 import de.tap.easy_xkcd.database.ProgressStatus
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
+import timber.log.Timber
 
 /**
  * For state flows we need some boilerplate for collecting it in a fragment
@@ -24,8 +25,8 @@ inline fun <T> StateFlow<T>.observe(viewLifecycleOwner: LifecycleOwner, crossinl
 }
 
 inline fun BaseActivity.collectProgress(progressId: Int, progressFlow: Flow<ProgressStatus>,
-                                        crossinline actionAfterCollect: suspend () -> Unit) {
-    val progress = ProgressDialog(this)
+                                        crossinline actionWhenFinished: suspend () -> Unit) {
+    val progress = ProgressDialog(this@collectProgress)
     progress.setTitle(resources?.getString(progressId))
     progress.setProgressStyle(ProgressDialog.STYLE_HORIZONTAL)
     progress.isIndeterminate = false
@@ -37,26 +38,19 @@ inline fun BaseActivity.collectProgress(progressId: Int, progressFlow: Flow<Prog
                 when (it) {
                     is ProgressStatus.Finished -> {
                         progress.dismiss()
-                        unlockRotation()
-                    }
-                    is ProgressStatus.Max -> {
-                        lockRotation()
-                        progress.max = it.max
-                        progress.show()
-                    }
-                    is ProgressStatus.IncrementProgress -> {
-                        progress.progress++
+
+                        actionWhenFinished()
                     }
                     is ProgressStatus.SetProgress -> {
+                        progress.max = it.max
                         progress.progress = it.value
+                        progress.show()
                     }
                     is ProgressStatus.ResetProgress -> {
                         progress.progress = 0
                     }
                 }
             }
-
-            actionAfterCollect()
         }
     }
 }

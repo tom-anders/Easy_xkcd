@@ -42,13 +42,14 @@ class SearchActivity: BaseActivity() {
 
         setupToolbar(binding.toolbar.root)
 
-        if (savedInstanceState == null) {
-            collectProgress(R.string.update_database, model.progress) {
-                val query = intent.getStringExtra(SearchManager.QUERY).toString()
-                supportActionBar?.title = "${resources.getString(R.string.title_activity_search_results)} \"$query\""
-
-                model.setQuery(query)
+        collectProgress(R.string.update_database, model.progress) {
+            if (model.query.value.isEmpty()) {
+                model.setQuery(intent.getStringExtra(SearchManager.QUERY).toString())
             }
+        }
+
+        model.query.observe(this) {
+            supportActionBar?.title = "${resources.getString(R.string.title_activity_search_results)} \"$it\""
         }
 
         binding.rv.setHasFixedSize(true)

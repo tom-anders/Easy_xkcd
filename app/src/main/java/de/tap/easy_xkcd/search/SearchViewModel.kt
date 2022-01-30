@@ -20,11 +20,13 @@ class SearchViewModel @Inject constructor(
     private val repository: ComicRepository,
     @ApplicationContext context: Context
 ) : ViewModelWithFlowHelper() {
-    var progress = repository.cacheAllComics
-
-    private var query = MutableStateFlow("")
+    var progress = repository.cacheAllComics.asLazyStateFlow(ProgressStatus.ResetProgress)
 
     private var searchJob: Job? = null
+
+    private var _query = MutableStateFlow("")
+    var query: StateFlow<String> = _query
+
     fun setQuery(newQuery: String) {
         searchJob?.cancel()
         searchJob = viewModelScope.launch {
@@ -35,6 +37,7 @@ class SearchViewModel @Inject constructor(
                 delay(1)
 
                 _results.value = comics
+                _query.value = newQuery
             }
         }
     }

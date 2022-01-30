@@ -56,9 +56,7 @@ fun Map<Int, Comic>.mapToComicContainer(size: Int) =
     }
 
 sealed class ProgressStatus {
-    data class Max(val max: Int) : ProgressStatus()
-    object IncrementProgress : ProgressStatus()
-    data class SetProgress(val value: Int) : ProgressStatus()
+    data class SetProgress(val value: Int, val max: Int) : ProgressStatus()
     object ResetProgress : ProgressStatus()
     object Finished : ProgressStatus()
 }
@@ -291,11 +289,13 @@ class ComicRepositoryImpl @Inject constructor(
 
     @ExperimentalCoroutinesApi
     override suspend fun saveOfflineBitmaps(): Flow<ProgressStatus> = channelFlow {
+        var progress = 0
+        val max = prefHelper.newest
         (1..prefHelper.newest).map {
             saveOfflineBitmap(it).onCompletion {
-                send(ProgressStatus.IncrementProgress)
+                send(ProgressStatus.SetProgress(progress++, max))
             }
-        }.also { send(ProgressStatus.Max(it.size)) }
+        }
             .merge()
             .collect {}
         send(ProgressStatus.Finished)
@@ -316,12 +316,11 @@ class ComicRepositoryImpl @Inject constructor(
 
     @ExperimentalCoroutinesApi
     override val cacheAllComics = flow {
-        emit(ProgressStatus.ResetProgress)
-
-        var allComics = comicDao.getComicsSuspend()
+        val allComics = comicDao.getComicsSuspend().toMutableMap()
+        var max: Int
         (1..prefHelper.newest)
             .filter { number -> !allComics.containsKey(number) }
-            .also { emit(ProgressStatus.Max(it.size)) }
+            .also { max = it.size }
             .map { number ->
                 flow {
                     downloadComic(number)?.let { emit(it) }
@@ -330,20 +329,23 @@ class ComicRepositoryImpl @Inject constructor(
             .merge()
             .collectIndexed { index, comic ->
                 comicDao.insert(comic)
-                emit(ProgressStatus.SetProgress(index))
+                allComics[comic.number] = comic
+                emit(ProgressStatus.SetProgress(index + 1, max))
             }
 
         // TODO This should probably be optional. Prompt the user the first time and save it in the settings!
         emit(ProgressStatus.ResetProgress)
-        allComics = comicDao.getComicsSuspend()
         (1..prefHelper.newest)
             .mapNotNull { allComics[it] }
             .filter { comic -> comic.transcript == "" }
-            .also { emit(ProgressStatus.Max(it.size)) }
+            .also {
+                max = it.size
+                emit(ProgressStatus.SetProgress(0, max))
+            }
             .map { flow { emit(getOrCacheTranscript(it)) } }
             .merge()
             .collectIndexed { index, _ ->
-                emit(ProgressStatus.SetProgress(index))
+                emit(ProgressStatus.SetProgress(index + 1, max))
             }
 
         emit(ProgressStatus.Finished)
@@ -441,8 +443,10 @@ class ComicRepositoryImpl @Inject constructor(
             """[This was an interactive and dynamic comic during April 1st from its release until its completion. But the final and current image, will be the official image to transcribe. But the dynamic part of the comic as well as the "error image" displayed to services that could not render the dynamic comic is also transcribed here below.]\n\n[The final picture shows the winner of the gold medal in the Emojidome bracket tournament, as well as the runner up with the silver medal. There is no text. The winner is the "Space", "Stars" or "Milky Way" emoji, which is shown with a blue band on top of a dark blue band on top of an almost black background, indicating the light band of the Milky Way in the night sky. Stars (in both five point star shape and as dots) in light blue are spread out in all three bands of color. The large gold medal with its red neck string, is floating close to the middle of the picture, lacking any kind of neck in space to tie it around. To the left of the gold medal is the runner up, the brown Hedgehog, with light-brown face. It clutches the smaller silver medal, also with red neck string, which floats out there in space. The hedgehog with medal is depicted small enough to fit inside the neck string on the gold medal.]"""
         } else {
             try {
-                explainXkcdApi.getSections(number).findPageIdOfTranscript()?.let {
-                    explainXkcdApi.getSection(number, it).text.asCleanedTranscript()
+                withContext(Dispatchers.IO) {
+                    explainXkcdApi.getSections(number).execute().body()?.findPageIdOfTranscript()?.let {
+                        explainXkcdApi.getSection(number, it).text.asCleanedTranscript()
+                    }
                 }
             } catch (e: Exception) {
                 Timber.e(e, "While getting transcript for $number from explainxkcd.com")
@@ -455,13 +459,11 @@ class ComicRepositoryImpl @Inject constructor(
             comic.transcript
         } else {
             try {
-                withContext(Dispatchers.IO) {
-                    getTranscriptFromApi(comic.number)?.let { transcript ->
-                        comic.transcript = transcript
-                        comicDao.insert(comic)
+                getTranscriptFromApi(comic.number)?.let { transcript ->
+                    comic.transcript = transcript
+                    comicDao.insert(comic)
 
-                        transcript
-                    }
+                    transcript
                 }
             } catch (e: Exception) {
                 Timber.e(e, "While getting transcript for comic $comic")
