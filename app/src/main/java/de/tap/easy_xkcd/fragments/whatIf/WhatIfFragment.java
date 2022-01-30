@@ -93,8 +93,8 @@ public class WhatIfFragment extends Fragment {
         View v = inflater.inflate(R.layout.recycler_layout, container, false);
         ButterKnife.bind(this, v);
         setHasOptionsMenu(true);
-        prefHelper = ((MainActivity) getActivity()).getPrefHelper();
-        themePrefs = ((MainActivity) getActivity()).getThemePrefs();
+        prefHelper = new PrefHelper(getContext());
+        themePrefs = new ThemePrefs(getContext());
         databaseManager = ((MainActivity) getActivity()).getDatabaseManager();
 
         LinearLayoutManager llm = new LinearLayoutManager(getActivity());

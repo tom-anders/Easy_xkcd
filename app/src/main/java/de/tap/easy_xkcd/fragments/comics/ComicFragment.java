@@ -123,8 +123,8 @@ public abstract class ComicFragment extends Fragment {
         pager = (HackyViewPager) view.findViewById(R.id.pager);
         pager.setOffscreenPageLimit(2);
 
-        prefHelper = getMainActivity().getPrefHelper();
-        themePrefs = getMainActivity().getThemePrefs();
+        prefHelper = new PrefHelper(getContext());
+        themePrefs = new ThemePrefs(getContext());
         databaseManager = getMainActivity().getDatabaseManager();
 
         if (!(this instanceof FavoritesFragment)) {

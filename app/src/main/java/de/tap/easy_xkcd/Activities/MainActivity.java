@@ -1272,14 +1272,6 @@ public class MainActivity extends BaseActivity {
         return progress;
     }
 
-    public PrefHelper getPrefHelper() {
-        return prefHelper;
-    }
-
-    public ThemePrefs getThemePrefs() {
-        return themePrefs;
-    }
-
     public DatabaseManager getDatabaseManager() {
         return databaseManager;
     }

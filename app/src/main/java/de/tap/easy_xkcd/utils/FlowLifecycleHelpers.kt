@@ -24,37 +24,6 @@ inline fun <T> StateFlow<T>.observe(viewLifecycleOwner: LifecycleOwner, crossinl
     }
 }
 
-inline fun BaseActivity.collectProgress(progressId: Int, progressFlow: Flow<ProgressStatus>,
-                                        crossinline actionWhenFinished: suspend () -> Unit) {
-    val progress = ProgressDialog(this@collectProgress)
-    progress.setTitle(resources?.getString(progressId))
-    progress.setProgressStyle(ProgressDialog.STYLE_HORIZONTAL)
-    progress.isIndeterminate = false
-    progress.setCancelable(false)
-
-    lifecycleScope.launch {
-        repeatOnLifecycle(Lifecycle.State.STARTED) {
-            progressFlow.collect {
-                when (it) {
-                    is ProgressStatus.Finished -> {
-                        progress.dismiss()
-
-                        actionWhenFinished()
-                    }
-                    is ProgressStatus.SetProgress -> {
-                        progress.max = it.max
-                        progress.progress = it.value
-                        progress.show()
-                    }
-                    is ProgressStatus.ResetProgress -> {
-                        progress.progress = 0
-                    }
-                }
-            }
-        }
-    }
-}
-
 inline fun <T> Flow<T>.observe(viewLifecycleOwner: LifecycleOwner, crossinline action: suspend (value: T) -> Unit) {
     viewLifecycleOwner.lifecycleScope.launch {
         viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {

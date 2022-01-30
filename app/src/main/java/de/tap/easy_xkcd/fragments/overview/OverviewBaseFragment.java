@@ -101,8 +101,8 @@ public abstract class OverviewBaseFragment extends Fragment {
     }
 
     protected void setupVariables() {
-        prefHelper = ((MainActivity) getActivity()).getPrefHelper();
-        themePrefs = ((MainActivity) getActivity()).getThemePrefs();
+        prefHelper = new PrefHelper(getContext());
+        themePrefs = new ThemePrefs(getContext());
         databaseManager = ((MainActivity) getActivity()).getDatabaseManager();
         bookmark = prefHelper.getBookmark();
         setHasOptionsMenu(true);

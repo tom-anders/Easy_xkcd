@@ -22,7 +22,6 @@ import de.tap.easy_xkcd.ComicBaseAdapter
 import de.tap.easy_xkcd.ComicListViewHolder
 import de.tap.easy_xkcd.database.Comic
 import de.tap.easy_xkcd.database.ComicContainer
-import de.tap.easy_xkcd.utils.collectProgress
 import de.tap.easy_xkcd.utils.observe
 import kotlinx.coroutines.launch
 
