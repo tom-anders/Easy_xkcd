@@ -1,13 +1,10 @@
 package de.tap.easy_xkcd.comicOverview
 
-import android.animation.LayoutTransition
-import android.content.Context
 import android.graphics.Bitmap
 import android.graphics.Color
 import android.os.Bundle
 import android.transition.Transition
 import android.transition.TransitionInflater
-import android.util.TypedValue
 import android.view.*
 import android.widget.ImageView
 import android.widget.TextView
@@ -17,26 +14,22 @@ import androidx.cardview.widget.CardView
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
-import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
-import androidx.lifecycle.repeatOnLifecycle
 import androidx.recyclerview.widget.*
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.tap.xkcd_reader.R
 import com.tap.xkcd_reader.databinding.RecyclerLayoutBinding
 import dagger.hilt.android.AndroidEntryPoint
 import de.tap.easy_xkcd.ComicBaseAdapter
+import de.tap.easy_xkcd.ComicListViewHolder
 import de.tap.easy_xkcd.ComicViewHolder
 import de.tap.easy_xkcd.database.Comic
-import de.tap.easy_xkcd.database.toContainer
+import de.tap.easy_xkcd.database.ComicContainer
 import de.tap.easy_xkcd.mainActivity.MainActivity
 import de.tap.easy_xkcd.utils.PrefHelper
 import de.tap.easy_xkcd.utils.ThemePrefs
 import de.tap.easy_xkcd.utils.observe
-import kotlinx.coroutines.delay
-import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
-import timber.log.Timber
 import java.util.concurrent.TimeUnit
 import kotlin.random.Random
 
@@ -284,8 +277,7 @@ class ComicOverviewFragment : Fragment() {
 
     inner class OverviewAdapter(
         private val style: Int
-    ) : ComicBaseAdapter<OverviewViewHolder>(
-        this,
+    ) : ComicBaseAdapter<ComicListViewHolder>(
         requireActivity(),
         comicNumberOfSharedElementTransition,
     ) {
@@ -305,7 +297,7 @@ class ComicOverviewFragment : Fragment() {
 
         override fun onImageLoaded(image: ImageView, bitmap: Bitmap, comic: Comic) {}
 
-        override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): OverviewViewHolder {
+        override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ComicListViewHolder {
             val view = when (style) {
                 2 -> LayoutInflater.from(parent.context)
                     .inflate(R.layout.grid_item, parent, false)
@@ -341,17 +333,17 @@ class ComicOverviewFragment : Fragment() {
                 true
             }
 
-            return OverviewViewHolder(view)
+            return ComicListViewHolder(view, themePrefs)
         }
 
-        override fun onBindViewHolder(holder: OverviewViewHolder, position: Int) {
-            holder.number?.text = comics[position].number.toString()
+        override fun onBindViewHolder(holder: ComicListViewHolder, position: Int) {
+            holder.info?.text = comics[position].number.toString()
             super.onBindViewHolder(holder, position)
         }
 
-        override fun onDisplayingComic(comic: Comic, holder: OverviewViewHolder) {
+        override fun onDisplayingComic(comic: ComicContainer, holder: ComicListViewHolder) {
             holder.title.apply {
-                val markAsRead = (comic.read && !prefHelper.overviewFav())
+                val markAsRead = (comic.comic?.read == true && !prefHelper.overviewFav())
                 setTextColor(
                     when {
                         comic.number == model.bookmark.value -> themePrefs.accentColor
@@ -361,158 +353,6 @@ class ComicOverviewFragment : Fragment() {
                         )
                         else -> ContextCompat.getColor(context, android.R.color.tertiary_text_light)
                     }
-                )
-            }
-        }
-    }
-
-    /*inner class OverviewAdapter constructor(
-        private var comics: List<RealmComic>,
-        private val style: Int
-    ) : RecyclerView.Adapter<OverviewAdapter.ComicViewHolder>(),
-        FastScrollRecyclerView.SectionedAdapter {
-
-        fun setComics(comics: List<RealmComic>) {
-            this.comics = comics
-            notifyDataSetChanged()
-        }
-
-        override fun getSectionName(pos: Int) = ""
-
-        override fun getItemCount() = comics.size
-
-        override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ComicViewHolder {
-            val view = when (style) {
-                2 -> LayoutInflater.from(parent.context)
-                    .inflate(R.layout.grid_item, parent, false)
-
-                else -> LayoutInflater.from(parent.context)
-                    .inflate(R.layout.search_result, parent, false)
-            }
-
-            view.setOnClickListener {
-                (activity as MainActivity?)?.showComicFromOverview(
-                    prefHelper.overviewFav(), listOf(
-                        view.findViewById(R.id.comic_title),
-                        view.findViewById(R.id.thumbnail)
-                    ), comics[recyclerView.getChildAdapterPosition(it)].comicNumber)
-            }
-
-            return ComicViewHolder(view)
-        }
-
-        override fun onBindViewHolder(holder: ComicViewHolder, position: Int) {
-            val comic = comics[position]
-
-            holder.comicTitle?.apply {
-                text = comic.title
-                transitionName = comic.comicNumber.toString()
-
-                val markAsRead = (comic.isRead && !prefHelper.overviewFav())
-                setTextColor(ContextCompat.getColor(context,
-                    when {
-                        comic.comicNumber == model.bookmark.value -> {
-                            val typedValue = TypedValue()
-                            activity?.theme?.resolveAttribute(R.attr.colorAccent, typedValue, true)
-                            typedValue.data
-                        }
-                        markAsRead xor themePrefs.nightThemeEnabled() -> {
-                            R.color.Read
-                        }
-                        else -> {
-                            android.R.color.tertiary_text_light
-                        }
-                    }
-                ))
-            }
-
-            holder.comicInfo?.text = comic.comicNumber.toString()
-
-            holder.thumbnail?.let { thumbnail ->
-                thumbnail.transitionName = "im" + comic.comicNumber.toString()
-
-                if (themePrefs.invertColors(false))
-                    thumbnail.colorFilter = themePrefs.negativeColorFilter
-
-                // TODO add listener to handle postponed enter transition
-                GlideApp.with(this@ComicOverviewFragment)
-                    .asBitmap()
-                    .apply(RequestOptions().placeholder(CircularProgressDrawable(requireContext()).apply {
-                        centerRadius = 60.0f
-                        strokeWidth = 5.0f
-                        setColorSchemeColors(if (themePrefs.nightThemeEnabled()) themePrefs.accentColorNight else themePrefs.accentColor)
-                        start()
-                    }))
-                    .apply {
-                        if (comic.isOffline || comic.isFavorite) load(
-                            RealmComic.getOfflineBitmap(
-                                comic.comicNumber,
-                                context,
-                                prefHelper
-                            )
-                        ) else load(comic.url)
-                    }
-                    .listener(object : RequestListener<Bitmap?> {
-                        override fun onLoadFailed(
-                            e: GlideException?,
-                            model: Any?,
-                            target: Target<Bitmap?>?,
-                            isFirstResource: Boolean
-                        ): Boolean {
-                            postImageLoaded(comic.comicNumber)
-                            return false
-                        }
-
-                        override fun onResourceReady(
-                            resource: Bitmap?,
-                            model: Any,
-                            target: Target<Bitmap?>,
-                            dataSource: DataSource,
-                            isFirstResource: Boolean
-                        ): Boolean {
-                            postImageLoaded(comic.comicNumber)
-                            resource?.let {
-                                if (themePrefs.invertColors(false)
-                                    && themePrefs.bitmapContainsColor(resource, comic.comicNumber)
-                                ) {
-                                    thumbnail.clearColorFilter()
-                                }
-                            }
-                            return false
-                        }
-                    }).into(thumbnail)
-            }
-        }
-
-        fun postImageLoaded(comicNumber: Int) {
-            comicNumberOfSharedElementTransition?.let {
-                if (comicNumber == it) {
-                    startPostponedEnterTransition()
-                    comicNumberOfSharedElementTransition = null
-                }
-            }
-        }
-
-    }*/
-
-    inner class OverviewViewHolder constructor(view: View) : ComicViewHolder(view) {
-        var cv: CardView = itemView as CardView
-
-        override val title: TextView = cv.findViewById(R.id.comic_title)
-        override val number: TextView? = cv.findViewById(R.id.comic_info)
-        override val image: ImageView = cv.findViewById(R.id.thumbnail)
-        override val altText: TextView? = null
-
-
-        init {
-            if (themePrefs.amoledThemeEnabled()) {
-                cv.setCardBackgroundColor(Color.BLACK)
-            } else if (themePrefs.nightThemeEnabled()) {
-                cv.setCardBackgroundColor(
-                    ContextCompat.getColor(
-                        view.context,
-                        R.color.background_material_dark
-                    )
                 )
             }
         }

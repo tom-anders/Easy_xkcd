@@ -9,6 +9,10 @@ interface ComicDao {
     @Query("SELECT * FROM Comic")
     fun getComics() : Flow<Map<Int, Comic>>
 
+    @MapInfo(keyColumn = "number")
+    @Query("SELECT * FROM Comic")
+    suspend fun getComicsSuspend(): Map<Int, Comic>
+
     @Query("SELECT * FROM Comic WHERE number=:number")
     suspend fun getComic(number: Int): Comic?
 
@@ -36,4 +40,9 @@ interface ComicDao {
 
     @Query("SELECT * FROM COMIC WHERE NOT read LIMIT 1")
     suspend fun oldestUnreadComic() : Comic
+
+    @Query("SELECT * FROM COMIC WHERE title LIKE '%' || :query || '%' " +
+                                   "OR transcript LIKE '%' || :query || '%' " +
+                                   "OR altText LIKE '%' || :query || '%'")
+    suspend fun searchComics(query: String): List<Comic>
 }

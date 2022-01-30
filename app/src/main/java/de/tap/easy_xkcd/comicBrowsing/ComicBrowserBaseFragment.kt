@@ -116,7 +116,6 @@ abstract class ComicBrowserBaseFragment : Fragment() {
     }
 
     open inner class ComicBrowserBaseAdapter : ComicBaseAdapter<ComicBrowserBaseAdapter.ComicBrowserViewHolder>(
-        this,
         requireActivity(),
         comicNumberOfSharedElementTransition
     ) {
@@ -216,7 +215,7 @@ abstract class ComicBrowserBaseFragment : Fragment() {
         inner class ComicBrowserViewHolder(view: View) : ComicViewHolder(view) {
             override val title: TextView = itemView.findViewById(R.id.tvTitle)
             override val altText: TextView = itemView.findViewById(R.id.tvAlt)
-            override val number: TextView? = null
+            override val info: TextView? = null
             override val image: PhotoView = itemView.findViewById(R.id.ivComic)
 
             init {
@@ -231,194 +230,6 @@ abstract class ComicBrowserBaseFragment : Fragment() {
             }
         }
     }
-
-    /*inner class ComicPagerAdapter constructor(
-        private val comics: List<Comic>,
-    ) : PagerAdapter() {
-
-        override fun getCount(): Int = comics.size
-        override fun isViewFromObject(view: View, obj: Any): Boolean = view == obj
-
-        override fun destroyItem(container: ViewGroup, position: Int, obj: Any) {
-            container.removeView(obj as RelativeLayout)
-        }
-
-        inner class LongAndDoubleTapListener(
-            private val pvComic: PhotoView,
-            private val comic: Comic
-        ) : GestureDetector.OnDoubleTapListener, View.OnLongClickListener {
-            private var fingerLifted = true
-
-            override fun onDoubleTapEvent(e: MotionEvent?): Boolean {
-                if (e?.action == MotionEvent.ACTION_UP) fingerLifted = true
-                if (e?.action == MotionEvent.ACTION_DOWN) fingerLifted = false
-                return false
-            }
-
-            override fun onDoubleTap(e: MotionEvent?): Boolean {
-                if (prefHelper.doubleTapToFavorite()) {
-                    toggleFavorite()
-                    (activity?.getSystemService(Context.VIBRATOR_SERVICE) as? Vibrator?)?.vibrate(100)
-                } else {
-                    when {
-                        pvComic.scale < 0.5f * pvComic.maximumScale -> {
-                            pvComic.setScale(0.5f * pvComic.maximumScale, true)
-                        }
-                        pvComic.scale < pvComic.maximumScale -> {
-                            pvComic.setScale(pvComic.maximumScale, true)
-                        }
-                        else -> {
-                            pvComic.setScale(1.0f, true)
-                        }
-                    }
-                }
-                return true
-            }
-
-            override fun onSingleTapConfirmed(e: MotionEvent?): Boolean {
-                if (RealmComic.isInteractiveComic(comic.comicNumber, activity)) {
-                    openInBrowser(comic)
-                } else if (prefHelper.fullscreenModeEnabled()) {
-                    (activity as? MainActivity?)?.toggleFullscreen()
-                }
-                return false
-            }
-
-            override fun onLongClick(p0: View?): Boolean {
-                if (fingerLifted) {
-                    if (prefHelper.altVibration()) {
-                        (activity?.getSystemService(Context.VIBRATOR_SERVICE) as? Vibrator?)?.vibrate(10)
-                    }
-
-                    showAltText()
-                }
-                return true
-            }
-        }
-
-        @SuppressLint("SetTextI18n")
-        override fun instantiateItem(container: ViewGroup, position: Int): Any {
-            val view = LayoutInflater.from(activity).inflate(R.layout.pager_item, container, false)
-            view.tag = position
-
-            val comic = comics[position]
-
-            val tvTitle: TextView = view.findViewById(R.id.tvTitle)
-            val pvComic: PhotoView = view.findViewById(R.id.ivComic)
-
-            tvTitle.text = (if (prefHelper.subtitleEnabled()) "" else comic.comicNumber
-                .toString() + ": ") + Html.fromHtml(
-                RealmComic.getInteractiveTitle(comic, activity)
-            )
-
-            // Transition names used for shared element transitions to the Overview Fragment
-            tvTitle.transitionName = comic.number.toString()
-            pvComic.transitionName = "im" + comic.number
-
-            activity?.let {
-                if (Arrays.binarySearch(
-                        it.resources.getIntArray(R.array.large_comics),
-                        position + 1
-                    ) >= 0
-                ) {
-                    pvComic.maximumScale = 15.0f
-                }
-            }
-
-            if (themePrefs.nightThemeEnabled()) {
-                tvTitle.setTextColor(Color.WHITE)
-            }
-
-            if (!prefHelper.defaultZoom()) {
-                pvComic.scaleType = ImageView.ScaleType.CENTER_INSIDE
-                pvComic.maximumScale = 10f
-            }
-
-            if (themePrefs.invertColors(false)) {
-                pvComic.colorFilter = themePrefs.negativeColorFilter
-            }
-
-            if (prefHelper.scrollDisabledWhileZoom() && prefHelper.defaultZoom()) {
-                pvComic.setOnMatrixChangeListener {
-                    pager.setLocked(pvComic.scale > 1.4)
-                }
-            }
-
-            LongAndDoubleTapListener(pvComic, comic).let {
-                pvComic.setOnDoubleTapListener(it)
-                pvComic.setOnLongClickListener(it)
-            }
-
-            GlideApp.with(this@ComicBrowserBaseFragment)
-                .asBitmap()
-                .apply(RequestOptions().placeholder(makeProgressDrawable()))
-                .apply {
-                    if (comic.isOffline || comic.isFavorite) load(
-                        RealmComic.getOfflineBitmap(
-                            comic.comicNumber,
-                            context,
-                            prefHelper
-                        )
-                    ) else load(comic.url)
-                }
-                .listener(object : RequestListener<Bitmap?> {
-                    override fun onLoadFailed(
-                        e: GlideException?,
-                        model: Any?,
-                        target: Target<Bitmap?>?,
-                        isFirstResource: Boolean
-                    ): Boolean {
-                        postImageLoaded(comic.comicNumber)
-                        return false
-                    }
-
-                    override fun onResourceReady(
-                        resource: Bitmap?,
-                        model: Any,
-                        target: Target<Bitmap?>,
-                        dataSource: DataSource,
-                        isFirstResource: Boolean
-                    ): Boolean {
-                        resource?.let {
-                            setupPhotoViewWhenImageLoaded(pvComic, resource, comic)
-                            postImageLoaded(comic.comicNumber)
-                        }
-                        return false
-                    }
-                }).into(pvComic)
-
-            container.addView(view)
-            return view
-        }
-
-        private fun makeProgressDrawable() = CircularProgressDrawable(requireActivity()).apply {
-            strokeWidth = 5.0f
-            centerRadius = 100.0f
-            setColorSchemeColors(if (themePrefs.nightThemeEnabled()) themePrefs.accentColorNight else themePrefs.accentColor)
-            start()
-        }
-
-        fun postImageLoaded(comicNumber: Int) {
-            if (transitionPending && comicNumber == model.selectedComic.value?.number) {
-                startPostponedEnterTransition()
-                activity?.startPostponedEnterTransition()
-                transitionPending = false
-            }
-        }
-
-        fun setupPhotoViewWhenImageLoaded(photoView: PhotoView, bitmap: Bitmap, comic: RealmComic) {
-            if (themePrefs.invertColors(false) && themePrefs.bitmapContainsColor(
-                    bitmap,
-                    comic.comicNumber
-                )
-            ) photoView.clearColorFilter()
-
-            if (!transitionPending) {
-                photoView.alpha = 0f
-                photoView.animate().alpha(1f).duration = 300
-            }
-        }
-    }*/
 
     fun getDisplayedComic(): Comic? = model.selectedComic.value
 

@@ -29,7 +29,8 @@ import timber.log.Timber
 import java.io.File
 import java.io.FileOutputStream
 import java.io.IOException
-import java.lang.Exception
+import java.util.*
+import java.util.regex.PatternSyntaxException
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -38,6 +39,7 @@ import javax.inject.Singleton
 data class ComicContainer(
     val number: Int,
     val comic: Comic?,
+    val searchPreview: String = "",
 ) {
     fun hasComic() = (comic != null)
 }
@@ -74,7 +76,7 @@ interface ComicRepository {
 
     suspend fun cacheComic(number: Int)
 
-    suspend fun cacheAllComics(): Flow<ProgressStatus>
+    val cacheAllComics: Flow<ProgressStatus>
 
     suspend fun getUriForSharing(number: Int): Uri?
 
@@ -98,6 +100,8 @@ interface ComicRepository {
     suspend fun oldestUnreadComic(): Comic?
 
     fun getOfflineUri(number: Int): Uri?
+
+    suspend fun searchComics(query: String) : List<ComicContainer>
 }
 
 @Singleton
@@ -327,15 +331,16 @@ class ComicRepositoryImpl @Inject constructor(
     }
 
     @ExperimentalCoroutinesApi
-    override suspend fun cacheAllComics() = flow {
+    override val cacheAllComics = flow {
         emit(ProgressStatus.ResetProgress)
 
+        val allComics = comicDao.getComicsSuspend()
         (1..prefHelper.newest)
-            .filter { number -> comicDao.getComic(number) == null }
+            .filter { number -> !allComics.containsKey(number) }
+            .also { emit(ProgressStatus.Max(it.size)) }
             .map {
                 downloadComic(it)
             }
-            .also { emit(ProgressStatus.Max(it.size)) }
             .merge()
             .collect {
                 comicDao.insert(it)
@@ -359,6 +364,66 @@ class ComicRepositoryImpl @Inject constructor(
             // inserted into the new database
             _comicCached.emit(comicInDatabase)
         }
+    }
+
+    /**
+     * Creates a preview for the transcript of comics that contain the query
+     * @param query the users's query
+     * @param transcript the comic's transcript
+     * @return a short preview of the transcript with the query highlighted
+     * @note Copied over from the old SearchResultsActivity.java, can probably be
+     * optimized/refactored/simplified
+     */
+    private fun getPreview(query: String, transcript: String): String {
+        var transcript = transcript
+        return try {
+            val firstWord = query.split(" ".toRegex()).toTypedArray()[0].toLowerCase()
+            transcript = transcript.replace(".", ". ").replace("?", "? ").replace("]]", " ")
+                .replace("[[", " ").replace("{{", " ").replace("}}", " ")
+            val words = ArrayList(
+                Arrays.asList(
+                    *transcript.toLowerCase().split(" ".toRegex()).toTypedArray()
+                )
+            )
+            var i = 0
+            var found = false
+            while (!found && i < words.size) {
+                found =
+                    if (query.length < 5) words[i].matches(Regex(".*\\b$firstWord\\b.*")) else words[i].contains(
+                        firstWord
+                    )
+                if (!found) i++
+            }
+            var start = i - 6
+            var end = i + 6
+            if (i < 6) start = 0
+            if (words.size - i < 6) end = words.size
+            val sb = StringBuilder()
+            for (s in words.subList(start, end)) {
+                sb.append(s)
+                sb.append(" ")
+            }
+            val s = sb.toString()
+            "..." + s.replace(query, "<b>$query</b>") + "..."
+        } catch (e: PatternSyntaxException) {
+            e.printStackTrace()
+            " "
+        }
+    }
+
+    override suspend fun searchComics(query: String) = comicDao.searchComics(query).map { comic ->
+        val preview = when {
+            comic.title.contains(query) -> {
+                comic.number.toString()
+            }
+            comic.altText.contains(query) -> {
+                getPreview(query, comic.altText)
+            }
+            else -> {
+                getPreview(query, comic.transcript)
+            }
+        }
+        ComicContainer(comic.number, comic, preview)
     }
 }
 

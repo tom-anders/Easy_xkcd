@@ -106,7 +106,6 @@ class MainActivity : BaseActivity() {
                 is ProgressStatus.Max -> {
                     lockRotation()
                     progress.max = it.max
-                    Timber.d("Max: ${it.max}")
                     progress.show()
                 }
                 is ProgressStatus.IncrementProgress -> {

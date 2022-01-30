@@ -1,6 +1,10 @@
 package de.tap.easy_xkcd.utils
 
+import android.app.ProgressDialog
 import androidx.lifecycle.*
+import com.tap.xkcd_reader.R
+import de.tap.easy_xkcd.Activities.BaseActivity
+import de.tap.easy_xkcd.database.ProgressStatus
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 
@@ -15,6 +19,43 @@ inline fun <T> StateFlow<T>.observe(viewLifecycleOwner: LifecycleOwner, crossinl
             collect {
                 action(it)
             }
+        }
+    }
+}
+
+inline fun BaseActivity.collectProgress(progressId: Int, progressFlow: Flow<ProgressStatus>,
+                                        crossinline actionAfterCollect: suspend () -> Unit) {
+    val progress = ProgressDialog(this)
+    progress.setTitle(resources?.getString(progressId))
+    progress.setProgressStyle(ProgressDialog.STYLE_HORIZONTAL)
+    progress.isIndeterminate = false
+
+    lifecycleScope.launch {
+        repeatOnLifecycle(Lifecycle.State.STARTED) {
+            progressFlow.collect {
+                when (it) {
+                    is ProgressStatus.Finished -> {
+                        progress.dismiss()
+                        unlockRotation()
+                    }
+                    is ProgressStatus.Max -> {
+                        lockRotation()
+                        progress.max = it.max
+                        progress.show()
+                    }
+                    is ProgressStatus.IncrementProgress -> {
+                        progress.progress++
+                    }
+                    is ProgressStatus.SetProgress -> {
+                        progress.progress = it.value
+                    }
+                    is ProgressStatus.ResetProgress -> {
+                        progress.progress = 0
+                    }
+                }
+            }
+
+            actionAfterCollect()
         }
     }
 }

@@ -103,7 +103,7 @@
 
             <meta-data
                 android:name="android.app.default_searchable"
-                android:value=".Activities.SearchResultsActivity" />
+                android:value=".search.SearchActivity" />
         </activity>
         <activity
             android:name="de.tap.easy_xkcd.Activities.SettingsActivity"
@@ -132,11 +132,11 @@
                 android:value="de.tap.easy_xkcd.Activities.MainActivity" />
         </activity>
         <activity
-            android:name="de.tap.easy_xkcd.Activities.SearchResultsActivity"
+            android:name="de.tap.easy_xkcd.search.SearchActivity"
             android:label="@string/title_activity_search_results"
             android:launchMode="singleTop"
             android:exported="false"
-            android:parentActivityName="de.tap.easy_xkcd.Activities.MainActivity">
+            android:parentActivityName="de.tap.easy_xkcd.mainActivity.MainActivity">
             <intent-filter>
                 <action android:name="android.intent.action.SEARCH" />
             </intent-filter>

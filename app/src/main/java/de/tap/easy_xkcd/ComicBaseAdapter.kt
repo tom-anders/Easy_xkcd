@@ -2,13 +2,16 @@ package de.tap.easy_xkcd
 
 import android.content.Context
 import android.graphics.Bitmap
+import android.graphics.Color
 import android.net.Uri
 import android.text.Html
 import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageView
 import android.widget.TextView
+import androidx.cardview.widget.CardView
 import androidx.core.app.ActivityCompat.startPostponedEnterTransition
+import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.RecyclerView
 import androidx.swiperefreshlayout.widget.CircularProgressDrawable
@@ -17,6 +20,7 @@ import com.bumptech.glide.load.engine.GlideException
 import com.bumptech.glide.request.RequestListener
 import com.bumptech.glide.request.RequestOptions
 import com.bumptech.glide.request.target.Target
+import com.tap.xkcd_reader.R
 import de.tap.easy_xkcd.database.Comic
 import de.tap.easy_xkcd.database.ComicContainer
 import de.tap.easy_xkcd.database.toContainer
@@ -29,12 +33,33 @@ import java.util.*
 abstract class ComicViewHolder(view: View): RecyclerView.ViewHolder(view) {
     abstract val title: TextView
     abstract val altText: TextView?
-    abstract val number: TextView?
+    abstract val info: TextView?
     abstract val image: ImageView
 }
 
+class ComicListViewHolder(view: View, themePrefs: ThemePrefs) : ComicViewHolder(view) {
+    var cv: CardView = itemView as CardView
+
+    override val title: TextView = cv.findViewById(R.id.comic_title)
+    override val info: TextView? = cv.findViewById(R.id.comic_info)
+    override val image: ImageView = cv.findViewById(R.id.thumbnail)
+    override val altText: TextView? = null
+
+    init {
+        if (themePrefs.amoledThemeEnabled()) {
+            cv.setCardBackgroundColor(Color.BLACK)
+        } else if (themePrefs.nightThemeEnabled()) {
+            cv.setCardBackgroundColor(
+                ContextCompat.getColor(
+                    view.context,
+                    R.color.background_material_dark
+                )
+            )
+        }
+    }
+}
+
 abstract class ComicBaseAdapter<ViewHolder: ComicViewHolder>(
-    private val fragment: Fragment,
     private val context: Context,
     private var comicNumberOfSharedElementTransition : Int?
 ) : RecyclerView.Adapter<ViewHolder>() {
@@ -46,7 +71,7 @@ abstract class ComicBaseAdapter<ViewHolder: ComicViewHolder>(
 
     open fun onComicNull(number: Int) {}
 
-    open fun onDisplayingComic(comic: Comic, holder: ViewHolder) {}
+    open fun onDisplayingComic(comic: ComicContainer, holder: ViewHolder) {}
 
     abstract fun getOfflineUri(number: Int): Uri?
 
@@ -64,7 +89,8 @@ abstract class ComicBaseAdapter<ViewHolder: ComicViewHolder>(
     }
 
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
-        val comic = comics[position].comic
+        val comicContainer = comics[position]
+        val comic = comicContainer.comic
 
         // Transition names used for shared element transitions to the Overview Fragment
         holder.title.transitionName = comic?.number.toString()
@@ -87,7 +113,7 @@ abstract class ComicBaseAdapter<ViewHolder: ComicViewHolder>(
             holder.image.colorFilter = themePrefs.negativeColorFilter
         }
 
-        GlideApp.with(fragment)
+        GlideApp.with(context)
             .asBitmap()
             .apply(RequestOptions().placeholder(makeProgressDrawable()))
             .apply {
@@ -123,7 +149,7 @@ abstract class ComicBaseAdapter<ViewHolder: ComicViewHolder>(
                 }
             }).into(holder.image)
 
-        onDisplayingComic(comic, holder)
+        onDisplayingComic(comicContainer, holder)
     }
 
     fun startPostponedTransitions(comicNumber: Int) {

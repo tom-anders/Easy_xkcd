@@ -21,7 +21,6 @@
     <item android:id="@+id/action_search"
         android:title="@string/search_title"
         android:icon="@drawable/ic_outline_search_24dp"
-        android:visible="false"
         app:actionViewClass="android.widget.SearchView"
         app:showAsAction="always|collapseActionView" />
 
