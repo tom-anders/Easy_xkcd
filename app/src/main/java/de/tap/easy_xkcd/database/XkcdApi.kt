@@ -29,10 +29,10 @@ data class XkcdApiComic(
 
 interface XkcdApi {
     @GET("{number}/info.0.json")
-    fun getComic(@Path("number") number: Int): Call<XkcdApiComic>
+    suspend fun getComic(@Path("number") number: Int): XkcdApiComic
 
     @GET("info.0.json")
-    fun getNewestComic(): Call<XkcdApiComic>
+    suspend fun getNewestComic(): XkcdApiComic
 }
 
 @Module

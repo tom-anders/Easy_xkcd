@@ -4,6 +4,7 @@ import android.content.Context
 import android.graphics.Bitmap
 import android.graphics.drawable.Drawable
 import android.net.Uri
+import androidx.annotation.WorkerThread
 import androidx.core.content.FileProvider
 import androidx.core.text.HtmlCompat
 import com.bumptech.glide.request.target.CustomTarget
@@ -29,6 +30,7 @@ import timber.log.Timber
 import java.io.File
 import java.io.FileOutputStream
 import java.io.IOException
+import java.lang.NullPointerException
 import java.util.*
 import java.util.regex.PatternSyntaxException
 import javax.inject.Inject
@@ -125,15 +127,15 @@ class ComicRepositoryImpl @Inject constructor(
 
     @ExperimentalCoroutinesApi
     override val newestComicNumber = flow {
-        xkcdApi.getNewestComic().execute().body()?.let {
-            val newestComic = Comic(it, context)
+        try {
+            val newestComic = Comic(xkcdApi.getNewestComic(), context)
             if (newestComic.number != prefHelper.newest) {
                 // In offline mode, we need to cache all the new comics here
                 if (prefHelper.fullOfflineEnabled()) {
                     val firstComicToCache = prefHelper.newest + 1
                     coroutineScope.launch {
-                        (firstComicToCache .. newestComic.number).map { number ->
-                            downloadComic(number).collect { comic ->
+                        (firstComicToCache..newestComic.number).map { number ->
+                            downloadComic(number)?.let { comic ->
                                 saveOfflineBitmap(number).onCompletion {
                                     comicDao.insert(comic)
                                     _comicCached.emit(comic)
@@ -150,6 +152,8 @@ class ComicRepositoryImpl @Inject constructor(
                 prefHelper.setNewestComic(newestComic.number)
                 emit(newestComic.number)
             }
+        } catch (e: Exception) {
+            Timber.e(e, "While downloading newest comic")
         }
     }.flowOn(Dispatchers.IO).stateIn(coroutineScope, SharingStarted.Lazily, prefHelper.newest)
 
@@ -297,32 +301,17 @@ class ComicRepositoryImpl @Inject constructor(
         send(ProgressStatus.Finished)
     }
 
-    @ExperimentalCoroutinesApi
-    private fun downloadComic(number: Int): Flow<Comic> = callbackFlow {
-        if (number == 404) {
-            trySend(Comic.makeComic404())
-            channel.close()
+    private suspend fun downloadComic(number: Int): Comic? {
+        return if (number == 404) {
+            Comic.makeComic404()
         } else {
-            xkcdApi.getComic(number)
-                .enqueue(object: retrofit2.Callback<XkcdApiComic> {
-
-                    override fun onFailure(call: retrofit2.Call<XkcdApiComic>, e: Throwable) {
-                        Timber.d("qrc autsch")
-                        Timber.e(e)
-                        channel.close()
-                    }
-
-                    override fun onResponse(call: retrofit2.Call<XkcdApiComic>, response: retrofit2.Response<XkcdApiComic>) {
-                        response.body()?.let {
-                            trySend(Comic(it, context))
-                        } ?: run {
-                            Timber.wtf("Got unexpected empty body for comic $number")
-                        }
-                        channel.close()
-                    }
-                })
+            try {
+                Comic(xkcdApi.getComic(number), context)
+            } catch (e: Exception) {
+                Timber.e(e, "Failed to download comic $number")
+                null
+            }
         }
-        awaitClose()
     }
 
     @ExperimentalCoroutinesApi
@@ -333,8 +322,10 @@ class ComicRepositoryImpl @Inject constructor(
         (1..prefHelper.newest)
             .filter { number -> !allComics.containsKey(number) }
             .also { emit(ProgressStatus.Max(it.size)) }
-            .map {
-                downloadComic(it)
+            .map { number ->
+                flow {
+                    downloadComic(number)?.let { emit(it) }
+                }
             }
             .merge()
             .collectIndexed { index, comic ->
@@ -349,11 +340,7 @@ class ComicRepositoryImpl @Inject constructor(
             .mapNotNull { allComics[it] }
             .filter { comic -> comic.transcript == "" }
             .also { emit(ProgressStatus.Max(it.size)) }
-            .map {
-                flow {
-                    emit(getOrCacheTranscript(it))
-                }
-            }
+            .map { flow { emit(getOrCacheTranscript(it)) } }
             .merge()
             .collectIndexed { index, _ ->
                 emit(ProgressStatus.SetProgress(index))
@@ -366,7 +353,7 @@ class ComicRepositoryImpl @Inject constructor(
     override suspend fun cacheComic(number: Int) {
         val comicInDatabase = comicDao.getComic(number)
         if (comicInDatabase == null) {
-            downloadComic(number).collect { comic ->
+            downloadComic(number)?.let { comic ->
                 comicDao.insert(comic)
                 _comicCached.emit(comic)
             }
@@ -447,35 +434,40 @@ class ComicRepositoryImpl @Inject constructor(
             .replace(Regex("""^\s*Transcript\[edit]"""), "")
             .trim()
 
-    private fun getTranscriptFromApi(number: Int) =
+    private suspend fun getTranscriptFromApi(number: Int) =
         // On Explainxkcd, this includes the dynamic transcript, which is HUGE!
         // So hardcode the short version here.
         if (number == 2131) {
             """[This was an interactive and dynamic comic during April 1st from its release until its completion. But the final and current image, will be the official image to transcribe. But the dynamic part of the comic as well as the "error image" displayed to services that could not render the dynamic comic is also transcribed here below.]\n\n[The final picture shows the winner of the gold medal in the Emojidome bracket tournament, as well as the runner up with the silver medal. There is no text. The winner is the "Space", "Stars" or "Milky Way" emoji, which is shown with a blue band on top of a dark blue band on top of an almost black background, indicating the light band of the Milky Way in the night sky. Stars (in both five point star shape and as dots) in light blue are spread out in all three bands of color. The large gold medal with its red neck string, is floating close to the middle of the picture, lacking any kind of neck in space to tie it around. To the left of the gold medal is the runner up, the brown Hedgehog, with light-brown face. It clutches the smaller silver medal, also with red neck string, which floats out there in space. The hedgehog with medal is depicted small enough to fit inside the neck string on the gold medal.]"""
         } else {
-            explainXkcdApi.getSections(number).execute().body()?.findPageIdOfTranscript()?.let {
-                explainXkcdApi.getSection(number, it).execute().body()?.text?.asCleanedTranscript()
+            try {
+                explainXkcdApi.getSections(number).findPageIdOfTranscript()?.let {
+                    explainXkcdApi.getSection(number, it).text.asCleanedTranscript()
+                }
+            } catch (e: Exception) {
+                Timber.e(e, "While getting transcript for $number from explainxkcd.com")
+                null
             }
         }
 
     override suspend fun getOrCacheTranscript(comic: Comic): String? {
-            return if (comic.transcript != "") {
-                comic.transcript
-            } else {
-                try {
-                    withContext(Dispatchers.IO) {
-                        getTranscriptFromApi(comic.number)?.let { transcript ->
-                            comic.transcript = transcript
-                            comicDao.insert(comic)
+        return if (comic.transcript != "") {
+            comic.transcript
+        } else {
+            try {
+                withContext(Dispatchers.IO) {
+                    getTranscriptFromApi(comic.number)?.let { transcript ->
+                        comic.transcript = transcript
+                        comicDao.insert(comic)
 
-                            transcript
-                        }
+                        transcript
                     }
-                } catch (e: IOException) {
-                    Timber.e(e, "While getting transcript for comic $comic")
-                    null
                 }
+            } catch (e: Exception) {
+                Timber.e(e, "While getting transcript for comic $comic")
+                null
             }
+        }
     }
 }
 
