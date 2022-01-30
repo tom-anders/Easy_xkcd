@@ -123,7 +123,6 @@ class ComicRepositoryImpl @Inject constructor(
 
     override val foundNewComic = Channel<Unit>()
 
-    @ExperimentalCoroutinesApi
     override val newestComicNumber = flow {
         try {
             val newestComic = Comic(xkcdApi.getNewestComic(), context)
@@ -314,7 +313,6 @@ class ComicRepositoryImpl @Inject constructor(
         }
     }
 
-    @ExperimentalCoroutinesApi
     override val cacheAllComics = flow {
         val allComics = comicDao.getComicsSuspend().toMutableMap()
         var max: Int
@@ -351,7 +349,6 @@ class ComicRepositoryImpl @Inject constructor(
         emit(ProgressStatus.Finished)
     }
 
-    @ExperimentalCoroutinesApi
     override suspend fun cacheComic(number: Int) {
         val comicInDatabase = comicDao.getComic(number)
         if (comicInDatabase == null) {

@@ -6,6 +6,7 @@ import androidx.room.Room
 import androidx.test.core.app.ApplicationProvider
 import app.cash.turbine.test
 import com.google.common.truth.Truth.assertThat
+import de.tap.easy_xkcd.explainXkcd.ExplainXkcdApi
 import de.tap.easy_xkcd.utils.PrefHelper
 import io.kotest.matchers.collections.shouldBeEmpty
 import io.kotest.matchers.nulls.shouldBeNull
@@ -49,6 +50,12 @@ class TestComicRepository() {
 
     @Mock
     private lateinit var httpClientMock: OkHttpClient
+
+    @Mock
+    private lateinit var explainXkcdApiMock: ExplainXkcdApi
+
+    @Mock
+    private lateinit var xkcdApiMock: XkcdApi
 
     @Before
     fun init() {
@@ -97,7 +104,7 @@ class TestComicRepository() {
         val newComic = Comic(456)
         returnComicFromNextResponse(newComic)
 
-        val repository = ComicRepositoryImpl(contextMock, prefHelperMock, comicDaoMock, httpClientMock, this)
+        val repository = ComicRepositoryImpl(contextMock, prefHelperMock, comicDaoMock, httpClientMock, this, explainXkcdApiMock, xkcdApiMock)
 
         repository.newestComicNumber.test {
             awaitItem() shouldBe initialNewest

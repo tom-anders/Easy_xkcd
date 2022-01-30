@@ -44,18 +44,13 @@ android {
             url "https://dl.bintray.com/dasar/maven"
         }
     }
-    lintOptions {
-        disable 'InvalidPackage'
-        checkReleaseBuilds false
-        abortOnError false
-    }
     packagingOptions {
-        exclude 'META-INF/services/javax.annotation.processing.Processor' // for realm
-
-        // https://github.com/Kotlin/kotlinx.coroutines/issues/2023
-        exclude "META-INF/licenses/**"
-        exclude "META-INF/AL2.0"
-        exclude "META-INF/LGPL2.1"
+        jniLibs {
+            excludes += ['META-INF/licenses/**']
+        }
+        resources {
+            excludes += ['META-INF/services/javax.annotation.processing.Processor', 'META-INF/licenses/**', 'META-INF/AL2.0', 'META-INF/LGPL2.1']
+        }
     }
     compileOptions {
         sourceCompatibility JavaVersion.VERSION_1_8
@@ -67,6 +62,11 @@ android {
         unitTests {
             includeAndroidResources = true
         }
+    }
+    lint {
+        abortOnError true
+        checkReleaseBuilds false
+        disable 'InvalidPackage'
     }
 }
 
