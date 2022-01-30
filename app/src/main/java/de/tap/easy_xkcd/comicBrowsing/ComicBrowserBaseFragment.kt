@@ -1,6 +1,5 @@
 package de.tap.easy_xkcd.comicBrowsing
 
-import android.app.AlertDialog
 import android.content.Context
 import android.content.Intent
 import android.graphics.Bitmap
@@ -11,9 +10,8 @@ import android.os.Vibrator
 import android.text.Html
 import android.transition.TransitionInflater
 import android.view.*
-import android.widget.ImageView
-import android.widget.TextView
-import android.widget.Toast
+import android.widget.*
+import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.browser.customtabs.CustomTabsIntent
 import androidx.core.view.MenuCompat
@@ -271,7 +269,7 @@ abstract class ComicBrowserBaseFragment : Fragment() {
     override fun onOptionsItemSelected(item: MenuItem) =
         when (item.itemId) {
             R.id.action_share -> {
-                AlertDialog.Builder(activity).setItems(R.array.share_dialog) { _, which ->
+                AlertDialog.Builder(requireContext()).setItems(R.array.share_dialog) { _, which ->
                     getDisplayedComic()?.let {
                         when (which) {
                             0 -> lifecycleScope.launch { shareComicImage(it) }
@@ -444,9 +442,11 @@ abstract class ComicBrowserBaseFragment : Fragment() {
     }
 
     protected fun showTranscript(comic: Comic) {
-        activity?.let {
-            androidx.appcompat.app.AlertDialog.Builder(it)
-                .setMessage(if (comic.number >= 1675) resources.getString(R.string.no_transcript) else comic.transcript)
+        lifecycleScope.launch {
+            //TODO Show a progress bar while transcript is being downloaded
+            AlertDialog.Builder(requireContext())
+                .setTitle(resources.getString(R.string.transcript))
+                .setMessage(model.getTranscript(comic))
                 .show()
         }
     }

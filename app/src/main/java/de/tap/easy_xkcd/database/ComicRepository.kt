@@ -5,6 +5,7 @@ import android.graphics.Bitmap
 import android.graphics.drawable.Drawable
 import android.net.Uri
 import androidx.core.content.FileProvider
+import androidx.core.text.HtmlCompat
 import com.bumptech.glide.request.target.CustomTarget
 import com.bumptech.glide.request.transition.Transition
 import com.tap.xkcd_reader.BuildConfig
@@ -15,6 +16,7 @@ import dagger.hilt.InstallIn
 import dagger.hilt.android.components.ViewModelComponent
 import dagger.hilt.android.qualifiers.ApplicationContext
 import de.tap.easy_xkcd.GlideApp
+import de.tap.easy_xkcd.explainXkcd.ExplainXkcdApi
 import de.tap.easy_xkcd.utils.*
 import kotlinx.coroutines.*
 import kotlinx.coroutines.channels.*
@@ -102,6 +104,8 @@ interface ComicRepository {
     fun getOfflineUri(number: Int): Uri?
 
     suspend fun searchComics(query: String) : List<ComicContainer>
+
+    suspend fun getOrCacheTranscript(comic: Comic): String?
 }
 
 @Singleton
@@ -111,6 +115,7 @@ class ComicRepositoryImpl @Inject constructor(
     private val comicDao: ComicDao,
     private val client: OkHttpClient,
     val coroutineScope: CoroutineScope,
+    private val explainXkcdApi: ExplainXkcdApi,
 ) : ComicRepository {
 
 //    override val comicCached = Channel<Comic>()
@@ -334,7 +339,7 @@ class ComicRepositoryImpl @Inject constructor(
     override val cacheAllComics = flow {
         emit(ProgressStatus.ResetProgress)
 
-        val allComics = comicDao.getComicsSuspend()
+        var allComics = comicDao.getComicsSuspend()
         (1..prefHelper.newest)
             .filter { number -> !allComics.containsKey(number) }
             .also { emit(ProgressStatus.Max(it.size)) }
@@ -342,9 +347,26 @@ class ComicRepositoryImpl @Inject constructor(
                 downloadComic(it)
             }
             .merge()
-            .collect {
-                comicDao.insert(it)
-                emit(ProgressStatus.IncrementProgress)
+            .collectIndexed { index, comic ->
+                comicDao.insert(comic)
+                emit(ProgressStatus.SetProgress(index))
+            }
+
+        // TODO This should probably be optional. Prompt the user the first time and save it in the settings!
+        emit(ProgressStatus.ResetProgress)
+        allComics = comicDao.getComicsSuspend()
+        (1..prefHelper.newest)
+            .mapNotNull { allComics[it] }
+            .filter { comic -> comic.transcript == "" }
+            .also { emit(ProgressStatus.Max(it.size)) }
+            .map {
+                flow {
+                    emit(getOrCacheTranscript(it))
+                }
+            }
+            .merge()
+            .collectIndexed { index, _ ->
+                emit(ProgressStatus.SetProgress(index))
             }
 
         emit(ProgressStatus.Finished)
@@ -425,6 +447,46 @@ class ComicRepositoryImpl @Inject constructor(
         }
         ComicContainer(comic.number, comic, preview)
     }
+
+    private fun String.asCleanedTranscript() =
+        HtmlCompat.fromHtml(
+            this.replace("\n", "<br />")
+                .split("<span id=\"Discussion\"")[0],
+            HtmlCompat.FROM_HTML_MODE_LEGACY
+        ).toString()
+            .replace(Regex("""^\s*Transcript\[edit]"""), "")
+            .trim()
+
+    private fun getTranscriptFromApi(number: Int) =
+        // On Explainxkcd, this includes the dynamic transcript, which is HUGE!
+        // So hardcode the short version here.
+        if (number == 2131) {
+            """[This was an interactive and dynamic comic during April 1st from its release until its completion. But the final and current image, will be the official image to transcribe. But the dynamic part of the comic as well as the "error image" displayed to services that could not render the dynamic comic is also transcribed here below.]\n\n[The final picture shows the winner of the gold medal in the Emojidome bracket tournament, as well as the runner up with the silver medal. There is no text. The winner is the "Space", "Stars" or "Milky Way" emoji, which is shown with a blue band on top of a dark blue band on top of an almost black background, indicating the light band of the Milky Way in the night sky. Stars (in both five point star shape and as dots) in light blue are spread out in all three bands of color. The large gold medal with its red neck string, is floating close to the middle of the picture, lacking any kind of neck in space to tie it around. To the left of the gold medal is the runner up, the brown Hedgehog, with light-brown face. It clutches the smaller silver medal, also with red neck string, which floats out there in space. The hedgehog with medal is depicted small enough to fit inside the neck string on the gold medal.]"""
+        } else {
+            explainXkcdApi.getSections(number).execute().body()?.findPageIdOfTranscript()?.let {
+                explainXkcdApi.getSection(number, it).execute().body()?.text?.asCleanedTranscript()
+            }
+        }
+
+    override suspend fun getOrCacheTranscript(comic: Comic): String? {
+            return if (comic.transcript != "") {
+                comic.transcript
+            } else {
+                try {
+                    withContext(Dispatchers.IO) {
+                        getTranscriptFromApi(comic.number)?.let { transcript ->
+                            comic.transcript = transcript
+                            comicDao.insert(comic)
+
+                            transcript
+                        }
+                    }
+                } catch (e: IOException) {
+                    Timber.e(e, "While getting transcript for comic $comic")
+                    null
+                }
+            }
+    }
 }
 
 @Module
@@ -436,5 +498,6 @@ class ComicRepositoryModule {
         prefHelper: PrefHelper,
         comicDao: ComicDao,
         client: OkHttpClient,
-    ): ComicRepository = ComicRepositoryImpl(context, prefHelper, comicDao, client, CoroutineScope(Dispatchers.Main))
+        explainXkcdApi: ExplainXkcdApi,
+    ): ComicRepository = ComicRepositoryImpl(context, prefHelper, comicDao, client, CoroutineScope(Dispatchers.Main), explainXkcdApi)
 }

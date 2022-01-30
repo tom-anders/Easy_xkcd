@@ -29,6 +29,7 @@ inline fun BaseActivity.collectProgress(progressId: Int, progressFlow: Flow<Prog
     progress.setTitle(resources?.getString(progressId))
     progress.setProgressStyle(ProgressDialog.STYLE_HORIZONTAL)
     progress.isIndeterminate = false
+    progress.setCancelable(false)
 
     lifecycleScope.launch {
         repeatOnLifecycle(Lifecycle.State.STARTED) {

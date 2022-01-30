@@ -103,6 +103,8 @@ dependencies {
 
     implementation 'com.squareup.okhttp3:okhttp:4.8.0'
     implementation "ru.gildor.coroutines:kotlin-coroutines-okhttp:1.0"
+    implementation 'com.squareup.retrofit2:retrofit:2.9.0'
+    implementation 'com.squareup.retrofit2:converter-gson:2.9.0'
 
     //TODO this lib seems broken (https://github.com/DASAR-zz/ShiftColorPicker/issues/13)
     // had to manually copy it to app/libs for now

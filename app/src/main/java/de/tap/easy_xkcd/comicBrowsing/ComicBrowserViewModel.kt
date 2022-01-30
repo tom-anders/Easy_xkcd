@@ -59,6 +59,8 @@ abstract class ComicBrowserBaseViewModel constructor(
 
     suspend fun getRedditThread() = selectedComic.value?.let { repository.getRedditThread(it) }
 
+    suspend fun getTranscript(comic: Comic) = repository.getOrCacheTranscript(comic)
+
     protected val _selectedComicNumber = MutableStateFlow<Int?>(null)
     val selectedComicNumber: StateFlow<Int?> = _selectedComicNumber
 
