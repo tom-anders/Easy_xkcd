@@ -1,4 +1,4 @@
-# Easy xkcd
+# Easy xkcd [![GitHub CI](https://github.com/tom-anders/Easy_xkcd/workflows/CI/badge.svg)](https://github.com/tom-anders/Easy_xkcd/actions/workflows/main.yml)
 
 [<img src="https://fdroid.gitlab.io/artwork/badge/get-it-on.png"
     alt="Get it on F-Droid"
@@ -23,11 +23,6 @@ A beautiful, fast, and easy to use [xkcd](http://xkcd.com/) reader for Android.
 * Integration of [explain xkcd](http://www.explainxkcd.com) 
 * Night mode
 * Multiple colour themes (blue, green, black...)
-
-### Downloads
-Easy xkcd is available to download from either
-* [Google Play](https://play.google.com/store/apps/details?id=de.tap.easy_xkcd)
-* [F-Droid](https://f-droid.org/repository/browse/?fdid=de.tap.easy_xkcd).
 
 ### Licenses
 - Easy xkcd is licensed under the [Apache License v2](https://github.com/Foggalong/Easy_xkcd/blob/master/LICENSE). 
