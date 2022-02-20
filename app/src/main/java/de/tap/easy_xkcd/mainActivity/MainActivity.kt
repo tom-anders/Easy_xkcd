@@ -26,10 +26,7 @@ import com.google.android.material.snackbar.Snackbar
 import com.tap.xkcd_reader.R
 import com.tap.xkcd_reader.databinding.ActivityMainBinding
 import dagger.hilt.android.AndroidEntryPoint
-import de.tap.easy_xkcd.Activities.BaseActivity
-import de.tap.easy_xkcd.Activities.NestedSettingsActivity
-import de.tap.easy_xkcd.Activities.SearchResultsActivity
-import de.tap.easy_xkcd.Activities.SettingsActivity
+import de.tap.easy_xkcd.Activities.*
 import de.tap.easy_xkcd.CustomTabHelpers.CustomTabActivityHelper
 import de.tap.easy_xkcd.comicBrowsing.ComicBrowserBaseFragment
 import de.tap.easy_xkcd.comicBrowsing.ComicBrowserFragment
@@ -314,6 +311,10 @@ class MainActivity : BaseActivity() {
         }
         R.id.action_night_mode -> {
             toggleNightMode(item)
+        }
+        R.id.action_donate -> {
+            startActivity(Intent (this, DonateActivity::class.java))
+            true
         }
         else -> super.onOptionsItemSelected(item)
     }

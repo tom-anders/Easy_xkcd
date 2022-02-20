@@ -385,6 +385,8 @@
     <string name="pref_doubletap_sum">Instead of controlling the zoom level, double tapping a comic will add it to your favorites</string>
 
     <string name="dialog_donate">How much would you like to donate?</string>
+    <string name="iap_failed">Purchase failed!</string>
+    <string name="iap_thanks">Thanks :)</string>
     <string name="update_database">Updating database&#8230;</string>
     <string name="update_database_message">Caching comic data</string>
     <string name="update_database_message_offline">Downloading offline comics…</string>
