@@ -37,6 +37,9 @@ import androidx.fragment.app.FragmentTransaction;
 import androidx.core.content.ContextCompat;
 import androidx.appcompat.app.AlertDialog;
 import androidx.cardview.widget.CardView;
+import androidx.work.ExistingWorkPolicy;
+import androidx.work.OneTimeWorkRequest;
+import androidx.work.WorkManager;
 
 import android.preference.SwitchPreference;
 import android.view.LayoutInflater;
@@ -59,6 +62,7 @@ import java.io.OutputStream;
 import de.tap.easy_xkcd.Activities.MainActivity;
 import de.tap.easy_xkcd.Activities.NestedSettingsActivity;
 import de.tap.easy_xkcd.database.DatabaseManager;
+import de.tap.easy_xkcd.database.OfflineModeDownloadWorker;
 import de.tap.easy_xkcd.utils.Article;
 import de.tap.easy_xkcd.utils.PrefHelper;
 import de.tap.easy_xkcd.utils.ThemePrefs;
@@ -271,6 +275,39 @@ public class NestedPreferenceFragment extends PreferenceFragment {
                     public boolean onPreferenceChange(final Preference preference, Object o) {
                         getActivity().setResult(NestedSettingsActivity.RESULT_RESTART_MAIN);
                         return true;
+                    }
+                });
+                findPreference(FULL_OFFLINE).setOnPreferenceChangeListener(new Preference.OnPreferenceChangeListener() {
+                    @Override
+                    public boolean onPreferenceChange(Preference preference, Object newValue) {
+                        boolean checked = Boolean.valueOf(newValue.toString());
+                        if (checked) {
+                            if (prefHelper.isOnline(getActivity())) {
+                                WorkManager.getInstance(getActivity())
+                                        .enqueueUniqueWork("offlineDownload", ExistingWorkPolicy.REPLACE,
+                                                new OneTimeWorkRequest.Builder(OfflineModeDownloadWorker.class).build());
+                            } else {
+                                Toast.makeText(getActivity(), R.string.no_connection, Toast.LENGTH_SHORT).show();
+                            }
+                            return false;
+                        } else {
+                            androidx.appcompat.app.AlertDialog.Builder mDialog = new androidx.appcompat.app.AlertDialog.Builder(getActivity());
+                            mDialog.setMessage(R.string.delete_offline_dialog)
+                                    .setNegativeButton(R.string.dialog_cancel, new DialogInterface.OnClickListener() {
+                                        public void onClick(DialogInterface dialog, int which) {
+                                            getActivity().finish();
+                                            prefHelper.setFullOffline(true);
+                                        }
+                                    })
+                                    .setPositiveButton(R.string.dialog_yes, new DialogInterface.OnClickListener() {
+                                        public void onClick(DialogInterface dialog, int which) {
+                                            //TODO Delete comics via repository here
+                                        }
+                                    })
+                                    .setCancelable(false);
+                            mDialog.show();
+                            return true;
+                        }
                     }
                 });
                 /*findPreference(FULL_OFFLINE).setOnPreferenceChangeListener(new Preference.OnPreferenceChangeListener() {

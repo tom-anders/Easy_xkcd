@@ -20,7 +20,7 @@ class SearchViewModel @Inject constructor(
     private val repository: ComicRepository,
     @ApplicationContext context: Context
 ) : ViewModelWithFlowHelper() {
-    var progress = repository.cacheAllComics.asLazyStateFlow(ProgressStatus.ResetProgress)
+    var progress = repository.cacheAllComics(cacheMissingTranscripts = true).asLazyStateFlow(ProgressStatus.ResetProgress)
 
     private var searchJob: Job? = null
 

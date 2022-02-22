@@ -16,6 +16,7 @@ import dagger.Provides
 import dagger.hilt.InstallIn
 import dagger.hilt.android.components.ViewModelComponent
 import dagger.hilt.android.qualifiers.ApplicationContext
+import dagger.hilt.components.SingletonComponent
 import de.tap.easy_xkcd.GlideApp
 import de.tap.easy_xkcd.explainXkcd.ExplainXkcdApi
 import de.tap.easy_xkcd.utils.*
@@ -76,7 +77,7 @@ interface ComicRepository {
 
     suspend fun cacheComic(number: Int)
 
-    val cacheAllComics: Flow<ProgressStatus>
+    fun cacheAllComics(cacheMissingTranscripts: Boolean): Flow<ProgressStatus>
 
     suspend fun getUriForSharing(number: Int): Uri?
 
@@ -84,8 +85,7 @@ interface ComicRepository {
 
     suspend fun isFavorite(number: Int): Boolean
 
-    @ExperimentalCoroutinesApi
-    suspend fun saveOfflineBitmaps(): Flow<ProgressStatus>
+    val saveOfflineBitmaps: Flow<ProgressStatus>
 
     suspend fun removeAllFavorites()
 
@@ -133,10 +133,9 @@ class ComicRepositoryImpl @Inject constructor(
                     coroutineScope.launch {
                         (firstComicToCache..newestComic.number).map { number ->
                             downloadComic(number)?.let { comic ->
-                                saveOfflineBitmap(number).onCompletion {
+                                saveOfflineBitmap(number)
                                     comicDao.insert(comic)
                                     _comicCached.emit(comic)
-                                }.collect()
                             }
                         }
                     }
@@ -173,7 +172,7 @@ class ComicRepositoryImpl @Inject constructor(
     }
 
     override suspend fun setFavorite(number: Int, favorite: Boolean) {
-        if (favorite) saveOfflineBitmap(number).collect {}
+        if (favorite) saveOfflineBitmap(number)
 
         comicDao.setFavorite(number, favorite)
     }
@@ -194,6 +193,8 @@ class ComicRepositoryImpl @Inject constructor(
             val migratedComics = copyResultsFromRealm { realm ->
                 realm.where(RealmComic::class.java).findAll()
             }.map { realmComic ->
+                //TODO Should construct from XkcdApiComic here first, so that new url fixes are applied
+                // for missing/broken images on imgs.xkcd.com
                 Comic(realmComic.comicNumber).apply {
                     favorite = realmComic.isFavorite
                     read = realmComic.isRead
@@ -229,7 +230,7 @@ class ComicRepositoryImpl @Inject constructor(
     }
 
     override suspend fun getUriForSharing(number: Int): Uri? {
-        saveOfflineBitmap(number).collect {}
+        saveOfflineBitmap(number)
         return getOfflineUri(number)
     }
 
@@ -252,52 +253,40 @@ class ComicRepositoryImpl @Inject constructor(
 
     private fun hasDownloadedComicImage(number: Int) = getComicImageFile(number).exists()
 
-    @ExperimentalCoroutinesApi
-    fun saveOfflineBitmap(number: Int): Flow<Unit> = callbackFlow {
+    private suspend fun saveOfflineBitmap(number: Int) = withContext(Dispatchers.IO) {
         val comic = comicDao.getComic(number)
         if (!hasDownloadedComicImage(number) && comic != null) {
-            GlideApp.with(context)
-                .asBitmap()
-                .load(comic.url)
-                .into(object: CustomTarget<Bitmap>() {
-                    override fun onResourceReady(
-                        resource: Bitmap,
-                        transition: Transition<in Bitmap>?
-                    ) {
-                        try {
-                            val fos = FileOutputStream(getComicImageFile(number))
-                            resource.compress(Bitmap.CompressFormat.PNG, 100, fos)
-                            fos.flush()
-                            fos.close()
-                            channel.close()
-                        } catch (e: Exception) {
-                            Timber.e(e, "While downloading comic $number")
-                            channel.close(e)
-                        }
+            try {
+                GlideApp.with(context)
+                    .asBitmap()
+                    .load(comic.url)
+                    .submit()
+                    .get()?.let { bitmap ->
+                        val fos = FileOutputStream(getComicImageFile(number))
+                        bitmap.compress(Bitmap.CompressFormat.PNG, 100, fos)
+                        fos.flush()
+                        fos.close()
                     }
-
-                    override fun onLoadFailed(errorDrawable: Drawable?) { channel.close() }
-
-                    override fun onLoadCleared(placeholder: Drawable?) {}
-                })
-        } else {
-            channel.close()
-        }
-        awaitClose()
-    }
-
-    @ExperimentalCoroutinesApi
-    override suspend fun saveOfflineBitmaps(): Flow<ProgressStatus> = channelFlow {
-        var progress = 0
-        val max = prefHelper.newest
-        (1..prefHelper.newest).map {
-            saveOfflineBitmap(it).onCompletion {
-                send(ProgressStatus.SetProgress(progress++, max))
+            } catch (e: Exception) {
+                Timber.e(e, "While downloading comic $number")
             }
         }
-            .merge()
-            .collect {}
-        send(ProgressStatus.Finished)
+    }
+
+    override val saveOfflineBitmaps: Flow<ProgressStatus> = flow {
+        var max: Int
+        (1..prefHelper.newest)
+            .filter { !hasDownloadedComicImage(it) }
+            .also { max = it.size }
+            .map {
+            flow {
+                emit(saveOfflineBitmap(it))
+            }
+        }.merge()
+            .collectIndexed { index, _ ->
+                emit(ProgressStatus.SetProgress(index + 1, max))
+            }
+        emit(ProgressStatus.Finished)
     }
 
     private suspend fun downloadComic(number: Int): Comic? {
@@ -313,7 +302,7 @@ class ComicRepositoryImpl @Inject constructor(
         }
     }
 
-    override val cacheAllComics = flow {
+    override fun cacheAllComics(cacheMissingTranscripts: Boolean) = flow {
         val allComics = comicDao.getComicsSuspend().toMutableMap()
         var max: Int
         (1..prefHelper.newest)
@@ -331,20 +320,21 @@ class ComicRepositoryImpl @Inject constructor(
                 emit(ProgressStatus.SetProgress(index + 1, max))
             }
 
-        // TODO This should probably be optional. Prompt the user the first time and save it in the settings!
-        emit(ProgressStatus.ResetProgress)
-        (1..prefHelper.newest)
-            .mapNotNull { allComics[it] }
-            .filter { comic -> comic.transcript == "" }
-            .also {
-                max = it.size
-                emit(ProgressStatus.SetProgress(0, max))
-            }
-            .map { flow { emit(getOrCacheTranscript(it)) } }
-            .merge()
-            .collectIndexed { index, _ ->
-                emit(ProgressStatus.SetProgress(index + 1, max))
-            }
+        if (cacheMissingTranscripts) {
+            emit(ProgressStatus.ResetProgress)
+            (1..prefHelper.newest)
+                .mapNotNull { allComics[it] }
+                .filter { comic -> comic.transcript == "" }
+                .also {
+                    max = it.size
+                    emit(ProgressStatus.SetProgress(0, max))
+                }
+                .map { flow { emit(getOrCacheTranscript(it)) } }
+                .merge()
+                .collectIndexed { index, _ ->
+                    emit(ProgressStatus.SetProgress(index + 1, max))
+                }
+        }
 
         emit(ProgressStatus.Finished)
     }
@@ -471,7 +461,7 @@ class ComicRepositoryImpl @Inject constructor(
 }
 
 @Module
-@InstallIn(ViewModelComponent::class)
+@InstallIn(ViewModelComponent::class, SingletonComponent::class)
 class ComicRepositoryModule {
     @Provides
     fun provideComicRepository(
