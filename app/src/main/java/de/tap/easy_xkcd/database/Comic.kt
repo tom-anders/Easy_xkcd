@@ -90,14 +90,16 @@ data class Comic(
         day = xkcdApiComic.day
 
         when (number) {
-            76 -> url = "https://i.imgur.com/h3fi2RV.jpg"
-            80 -> url = "https://i.imgur.com/lWmI1lB.jpg"
-            104 -> url = "https://i.imgur.com/dnCNfPo.jpg"
+            76 -> url = "https://explainxkcd.com/wiki/images/1/16/familiar.jpg"
+            80 -> url = "https://explainxkcd.com/wiki/images/2/20/other_car.jpg"
+            104 -> url = "https://explainxkcd.com/wiki/images/a/a6/find_you.jpg"
             1037 -> url =
                 "https://www.explainxkcd.com/wiki/images/f/ff/umwelt_the_void.jpg"
             1054 -> title = "The Bacon"
             1137 -> title = "RTL"
             1190 -> {
+                //TODO Pressing this comic should link to http://geekwagon.net/projects/xkcd1190/
+                url = "https://upload.wikimedia.org/wikipedia/en/0/07/Xkcd_time_frame_0001.png"
             }
             1193 -> url =
                 "https://www.explainxkcd.com/wiki/images/0/0b/externalities.png"

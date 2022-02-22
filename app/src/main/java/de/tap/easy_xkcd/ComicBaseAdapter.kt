@@ -113,6 +113,7 @@ abstract class ComicBaseAdapter<ViewHolder: ComicViewHolder>(
             961 -> R.raw.eternal_flame
             1116 -> R.raw.traffic_lights
             1264 -> R.raw.slideshow
+            1335 -> R.raw.now
             2293 -> R.raw.rip_john_conway
             else -> null
         }
