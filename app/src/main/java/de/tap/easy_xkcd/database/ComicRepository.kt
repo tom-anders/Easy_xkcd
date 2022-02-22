@@ -193,16 +193,16 @@ class ComicRepositoryImpl @Inject constructor(
             val migratedComics = copyResultsFromRealm { realm ->
                 realm.where(RealmComic::class.java).findAll()
             }.map { realmComic ->
-                //TODO Should construct from XkcdApiComic here first, so that new url fixes are applied
-                // for missing/broken images on imgs.xkcd.com
-                Comic(realmComic.comicNumber).apply {
-                    favorite = realmComic.isFavorite
-                    read = realmComic.isRead
-                    title = realmComic.title
-                    transcript = realmComic.transcript
-                    url = realmComic.url
-                    altText = realmComic.altText
-                }
+                Comic(
+                    XkcdApiComic(
+                        num = realmComic.comicNumber,
+                        transcript = realmComic.transcript,
+                        alt = realmComic.altText,
+                        title = realmComic.title,
+                        url = realmComic.url,
+                        day = "", month = "", year = "",
+                    ), context
+                )
             }
             Timber.d("Migrating ${migratedComics.size} comics")
             comicDao.insert(migratedComics)
