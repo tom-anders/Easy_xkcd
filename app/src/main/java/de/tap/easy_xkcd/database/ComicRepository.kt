@@ -101,7 +101,7 @@ interface ComicRepository {
 
     fun getOfflineUri(number: Int): Uri?
 
-    suspend fun searchComics(query: String) : List<ComicContainer>
+    suspend fun searchComics(query: String) : Flow<List<ComicContainer>>
 
     suspend fun getOrCacheTranscript(comic: Comic): String?
 }
@@ -402,19 +402,16 @@ class ComicRepositoryImpl @Inject constructor(
         }
     }
 
-    override suspend fun searchComics(query: String) = comicDao.searchComics(query).map { comic ->
-        val preview = when {
-            comic.title.contains(query) -> {
-                comic.number.toString()
-            }
-            comic.altText.contains(query) -> {
-                getPreview(query, comic.altText)
-            }
-            else -> {
-                getPreview(query, comic.transcript)
-            }
-        }
-        ComicContainer(comic.number, comic, preview)
+    override suspend fun searchComics(query: String) = flow {
+        emit(comicDao.searchComicsByTitle(query).map { comic ->
+            ComicContainer(comic.number, comic, comic.number.toString())
+        })
+        emit(comicDao.searchComicsByAltText(query).map { comic ->
+            ComicContainer(comic.number, comic, getPreview(query, comic.altText))
+        })
+        emit(comicDao.searchComicsByTranscript(query).map { comic ->
+            ComicContainer(comic.number, comic, getPreview(query, comic.transcript))
+        })
     }
 
     private fun String.asCleanedTranscript() =

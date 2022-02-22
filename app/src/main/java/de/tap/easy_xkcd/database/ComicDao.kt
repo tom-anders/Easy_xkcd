@@ -41,8 +41,11 @@ interface ComicDao {
     @Query("SELECT * FROM COMIC WHERE NOT read LIMIT 1")
     suspend fun oldestUnreadComic() : Comic
 
-    @Query("SELECT * FROM COMIC WHERE title LIKE '%' || :query || '%' " +
-                                   "OR transcript LIKE '%' || :query || '%' " +
-                                   "OR altText LIKE '%' || :query || '%'")
-    suspend fun searchComics(query: String): List<Comic>
+    //TODO Split these up so that we can have the correct order
+    @Query("SELECT * FROM COMIC WHERE title LIKE '%' || :query || '%'")
+    suspend fun searchComicsByTitle(query: String): List<Comic>
+    @Query("SELECT * FROM COMIC WHERE altText LIKE '%' || :query || '%'")
+    suspend fun searchComicsByAltText(query: String): List<Comic>
+    @Query("SELECT * FROM COMIC WHERE transcript LIKE '%' || :query || '%'")
+    suspend fun searchComicsByTranscript(query: String): List<Comic>
 }

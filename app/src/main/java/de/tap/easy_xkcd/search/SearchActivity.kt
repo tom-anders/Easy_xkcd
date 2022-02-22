@@ -24,6 +24,7 @@ import de.tap.easy_xkcd.database.Comic
 import de.tap.easy_xkcd.database.ComicContainer
 import de.tap.easy_xkcd.utils.observe
 import kotlinx.coroutines.launch
+import timber.log.Timber
 
 @AndroidEntryPoint
 class SearchActivity: BaseActivity() {

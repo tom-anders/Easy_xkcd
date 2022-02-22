@@ -31,13 +31,15 @@ class SearchViewModel @Inject constructor(
         searchJob?.cancel()
         searchJob = viewModelScope.launch {
             withContext(Dispatchers.IO) {
-                val comics = repository.searchComics(newQuery)
-
-                // Needed to allow the coroutine being canceled if there's a new query in the meantime
-                delay(1)
-
-                _results.value = comics
+                var results = emptyList<ComicContainer>()
                 _query.value = newQuery
+                repository.searchComics(newQuery).collect { newResults ->
+                    results = (results + newResults).distinctBy { it.number }
+                    // Needed to allow the coroutine being canceled if there's a new query in the meantime
+                    delay(1)
+
+                    _results.value = results
+                }
             }
         }
     }
