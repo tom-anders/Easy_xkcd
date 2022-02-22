@@ -55,10 +55,10 @@ class OfflineModeDownloadWorker @AssistedInject constructor (
             .setOngoing(true)
             .addAction(android.R.drawable.ic_delete, context.getString(R.string.dialog_cancel),
                 WorkManager.getInstance(context).createCancelPendingIntent(id))
-            .setSilent(true)
         setForeground(ForegroundInfo(notificationId, notification.build()))
         notificationManager.notify(notificationId, notification.build())
 
+        notification.setSilent(true)
         val collector = { status: ProgressStatus ->
             if (status is ProgressStatus.SetProgress) {
                 notification.setProgress(status.max, status.value, false)

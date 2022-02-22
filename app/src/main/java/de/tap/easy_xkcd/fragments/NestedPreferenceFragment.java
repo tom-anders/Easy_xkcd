@@ -301,7 +301,7 @@ public class NestedPreferenceFragment extends PreferenceFragment {
                                     })
                                     .setPositiveButton(R.string.dialog_yes, new DialogInterface.OnClickListener() {
                                         public void onClick(DialogInterface dialog, int which) {
-                                            //TODO Delete comics via repository here
+                                            new deleteComicsTask().execute();
                                         }
                                     })
                                     .setCancelable(false);
@@ -310,49 +310,6 @@ public class NestedPreferenceFragment extends PreferenceFragment {
                         }
                     }
                 });
-                /*findPreference(FULL_OFFLINE).setOnPreferenceChangeListener(new Preference.OnPreferenceChangeListener() {
-                    @Override
-                    public boolean onPreferenceChange(Preference preference, Object newValue) {
-                        boolean checked = Boolean.valueOf(newValue.toString());
-                        if (checked) {
-                            if (prefHelper.isOnline(getActivity())) {
-                                if (ContextCompat.checkSelfPermission(getActivity(), Manifest.permission.WRITE_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED) {
-                                    Toast.makeText(getActivity(), getResources().getString(R.string.loading_comics), Toast.LENGTH_SHORT).show();
-                                    new DatabaseManager(getActivity()).setHighestInDatabase(1);
-                                    prefHelper.setFullOffline(true);
-                                    getActivity().setResult(NestedSettingsActivity.RESULT_RESTART_MAIN);
-                                    getActivity().finish();
-                                } else {
-                                    ActivityCompat.requestPermissions(getActivity(), new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE}, 1);
-                                }
-                            } else {
-                                Toast.makeText(getActivity(), R.string.no_connection, Toast.LENGTH_SHORT).show();
-                            }
-                            return false;
-                        } else {
-                            androidx.appcompat.app.AlertDialog.Builder mDialog = new androidx.appcompat.app.AlertDialog.Builder(getActivity());
-                            mDialog.setMessage(R.string.delete_offline_dialog)
-                                    .setNegativeButton(R.string.dialog_cancel, new DialogInterface.OnClickListener() {
-                                        public void onClick(DialogInterface dialog, int which) {
-                                            getActivity().finish();
-                                            prefHelper.setFullOffline(true);
-                                        }
-                                    })
-                                    .setPositiveButton(R.string.dialog_yes, new DialogInterface.OnClickListener() {
-                                        public void onClick(DialogInterface dialog, int which) {
-                                            if (ContextCompat.checkSelfPermission(getActivity(), Manifest.permission.WRITE_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED) {
-                                                new deleteComicsTask().execute();
-                                            } else {
-                                                ActivityCompat.requestPermissions(getActivity(), new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE}, 2);
-                                            }
-                                        }
-                                    })
-                                    .setCancelable(false);
-                            mDialog.show();
-                            return true;
-                        }
-                    }
-                });*/
                 findPreference(WHATIF_OFFLINE).setOnPreferenceChangeListener(new Preference.OnPreferenceChangeListener() {
                     @Override
                     public boolean onPreferenceChange(Preference preference, Object newValue) {
