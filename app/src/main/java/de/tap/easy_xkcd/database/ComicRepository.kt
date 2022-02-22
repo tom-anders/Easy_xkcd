@@ -202,7 +202,10 @@ class ComicRepositoryImpl @Inject constructor(
                         url = realmComic.url,
                         day = "", month = "", year = "",
                     ), context
-                )
+                ).apply {
+                    read = realmComic.isRead
+                    favorite = realmComic.isFavorite
+                }
             }
             Timber.d("Migrating ${migratedComics.size} comics")
             comicDao.insert(migratedComics)

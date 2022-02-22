@@ -41,34 +41,6 @@ data class Comic(
             ) >= 0
         }
 
-        fun getOfflineBitmap(comicNumber: Int, context: Context, prefHelper: PrefHelper): Bitmap? {
-            //Fix for offline users who downloaded the HUGE version of #1826 or #2185
-            if (comicNumber == 1826) {
-                return BitmapFactory.decodeResource(
-                    context.resources,
-                    R.mipmap.birdwatching,
-                    BitmapFactory.Options().apply { inScaled = false }
-                )
-            } else if (comicNumber == 2185) {
-                return BitmapFactory.decodeResource(
-                    context.resources,
-                    R.mipmap.cumulonimbus_2x,
-                    BitmapFactory.Options().apply { inScaled = false }
-                )
-            }
-            val comicFileName = "$comicNumber.png"
-            return try {
-                val file = File(prefHelper.getOfflinePath(context), "${comicNumber}.png")
-                val fis = FileInputStream(file)
-                val bitmap = BitmapFactory.decodeStream(fis)
-                fis.close()
-                bitmap
-            } catch (e: IOException) {
-                Timber.e(e, "While loading offline comic #$comicNumber")
-                null
-            }
-        }
-
         fun getInteractiveTitle(comic: Comic, context: Context): String {
             //In older versions of the database getTitle() may return a string that already contains
             // the (interactive) string, so we need to check for this here
