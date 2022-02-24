@@ -128,7 +128,7 @@ class ComicRepositoryImpl @Inject constructor(
             val newestComic = Comic(xkcdApi.getNewestComic(), context)
             if (newestComic.number != prefHelper.newest) {
                 // In offline mode, we need to cache all the new comics here
-                if (prefHelper.fullOfflineEnabled()) {
+                if (prefHelper.fullOfflineEnabled() && prefHelper.mayDownloadDataForOfflineMode(context)) {
                     val firstComicToCache = prefHelper.newest + 1
                     coroutineScope.launch {
                         (firstComicToCache..newestComic.number).map { number ->
