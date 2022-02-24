@@ -23,23 +23,8 @@
         android:summary="@string/pref_subtitle_sum"
         android:title="@string/pref_subtitle" />
 
-    <MultiSelectListPreference
-        android:dialogTitle="@string/pref_random_title"
-        android:title="@string/pref_random"
-        android:hint="@string/pref_random_sum"
-        android:key="pref_random"
-        android:entries="@array/random_entries"
-        android:entryValues="@array/random_values"
-        android:defaultValue="@array/random_default" />
-
     <SwitchPreference
         android:defaultValue="false"
         android:key="pref_hide_donate"
         android:title="@string/pref_hide_donate" />
-
-    <SwitchPreference
-        android:defaultValue="false"
-        android:key="pref_fab_left"
-        android:summary="@string/pref_fab_left_hint"
-        android:title="@string/pref_fab_left" />
 </PreferenceScreen>

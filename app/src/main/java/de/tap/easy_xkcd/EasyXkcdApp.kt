@@ -2,6 +2,7 @@ package de.tap.easy_xkcd
 
 import android.app.Application
 import android.content.Context
+import android.os.Build
 import android.util.Log
 import androidx.hilt.work.HiltWorkerFactory
 import androidx.work.Configuration
@@ -29,7 +30,10 @@ import javax.inject.Inject
 class EasyXkcdApp : Application(), Configuration.Provider {
     override fun attachBaseContext(base: Context) {
         super.attachBaseContext(base)
-        ACRA.init(this)
+
+        if (!BuildConfig.DEBUG) {
+            ACRA.init(this)
+        }
     }
 
     @Inject

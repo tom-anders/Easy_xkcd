@@ -87,6 +87,8 @@ interface ComicRepository {
 
     val saveOfflineBitmaps: Flow<ProgressStatus>
 
+    suspend fun removeOfflineBitmaps()
+
     suspend fun removeAllFavorites()
 
     suspend fun setRead(number: Int, read: Boolean)
@@ -243,11 +245,16 @@ class ComicRepositoryImpl @Inject constructor(
             1826 -> Uri.parse("android.resource://${context.packageName}/${R.mipmap.birdwatching}")
             2185 -> Uri.parse("android.resource://${context.packageName}/${R.mipmap.cumulonimbus_2x}")
 
-            else -> FileProvider.getUriForFile(
+            else -> try {
+                FileProvider.getUriForFile(
                     context,
                     "de.tap.easy_xkcd.fileProvider",
                     getComicImageFile(number)
                 )
+            } catch (e: Exception) {
+                Timber.e(e, "When getting offline URI for $number")
+                null
+            }
         }
     }
 
@@ -290,6 +297,14 @@ class ComicRepositoryImpl @Inject constructor(
                 emit(ProgressStatus.SetProgress(index + 1, max))
             }
         emit(ProgressStatus.Finished)
+    }
+
+    override suspend fun removeOfflineBitmaps() {
+        withContext(Dispatchers.IO) {
+            (1..prefHelper.newest).map {
+                getComicImageFile(it).delete()
+            }
+        }
     }
 
     private suspend fun downloadComic(number: Int): Comic? {

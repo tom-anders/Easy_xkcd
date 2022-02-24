@@ -1,6 +1,7 @@
 package de.tap.easy_xkcd.utils
 
 import android.app.ProgressDialog
+import android.content.Context
 import androidx.lifecycle.*
 import com.tap.xkcd_reader.R
 import de.tap.easy_xkcd.Activities.BaseActivity

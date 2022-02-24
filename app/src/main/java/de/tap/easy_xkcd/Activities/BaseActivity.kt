@@ -74,6 +74,7 @@ abstract class BaseActivity : AppCompatActivity() {
         requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_FULL_USER
     }
 
+    @Deprecated("Use collectAsProgressDialog extension function")
     protected inline fun collectProgress(progressId: Int, progressFlow: Flow<ProgressStatus>,
                                          crossinline actionWhenFinished: suspend () -> Unit) {
         val progress = ProgressDialog(this)

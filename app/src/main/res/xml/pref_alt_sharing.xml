@@ -10,15 +10,6 @@
             android:defaultValue="@array/alt_options_default" />
 
         <ListPreference
-            android:dialogTitle="@string/pref_alt_style_title"
-            android:title="@string/pref_alt_style"
-            android:summary="@string/pref_alt_style_sum"
-            android:key="pref_alt_style_new"
-            android:entries="@array/alt_style_entries"
-            android:entryValues="@array/alt_style_values"
-            android:defaultValue="1" />
-
-        <ListPreference
             android:title="@string/pref_alt_activation"
             android:summary="@string/pref_alt_activation_sum"
             android:key="pref_alt_activation"

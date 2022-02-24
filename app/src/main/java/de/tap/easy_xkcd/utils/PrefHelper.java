@@ -58,6 +58,7 @@ public class PrefHelper {
     private static final String COMIC_TRANS = "comic_trans";
     private static final String COMIC_URLS = "comic_urls";
     private static final String SUBTITLE_ENABLED = "pref_subtitle";
+    @Deprecated
     private static final String FAB_LEFT = "pref_fab_left";
     private static final String CUSTOM_TABS = "pref_custom_tabs";
     private static final String HIGHEST_COMIC_URL = "highest_comic_url";
@@ -97,6 +98,7 @@ public class PrefHelper {
     private static final String PREF_ZOOM = "pref_zoom";
     private static final String PREF_DONATE = "pref_hide_donate";
     private static final String DATABASE_LOADED = "database_loaded";
+    @Deprecated
     private static final String ALT_STYLE = "pref_alt_style_new";
     private static final String ALT_OPTIONS = "pref_alt_options";
     private static final String ALT_ACTIVATION = "pref_alt_activation";
@@ -122,7 +124,9 @@ public class PrefHelper {
     private static final String MIGRATED_TO_SCOPED_STORAGE = "pref_migrated_to_scoped_storage";
     private static final String MIGRATED_REALM_DATABASE = "pref_migrated_realm_database";
 
+    @Deprecated
     private static final String FAB_DISABLED_COMICBROWSER = "pref_random_comics";
+    @Deprecated
     private static final String FAB_DISABLED_FAVORITES = "pref_random_favorites";
 
     private static final String TRANSCRIPTS_FIXED = "transcripts_fixed";
@@ -187,14 +191,17 @@ public class PrefHelper {
         prefs.edit().putBoolean(NAV_DRAWER_SWIPE, value).apply();
     }
 
+    @Deprecated
     public boolean fabDisabled(String prefTag) { //TODO make this private
         return prefs.getStringSet("pref_random", new HashSet<String>()).contains(prefTag);
     }
 
+    @Deprecated
     public boolean fabDisabledComicBrowser() {
         return fabDisabled(FAB_DISABLED_COMICBROWSER);
     }
 
+    @Deprecated
     public boolean fabDisabledFavorites() {
         return fabDisabled(FAB_DISABLED_FAVORITES);
     }
@@ -203,6 +210,7 @@ public class PrefHelper {
         return prefs.getBoolean(SUBTITLE_ENABLED, true);
     }
 
+    @Deprecated
     public boolean fabLeft() {
         return prefs.getBoolean(FAB_LEFT, false);
     }
@@ -215,6 +223,7 @@ public class PrefHelper {
         return prefs.getBoolean(CUSTOM_TABS, true);
     }
 
+    @Deprecated
     public boolean classicAltStyle() {
         return Integer.parseInt(prefs.getString(ALT_STYLE, "1")) == 0;
     }

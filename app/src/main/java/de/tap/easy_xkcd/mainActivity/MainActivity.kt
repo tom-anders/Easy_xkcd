@@ -26,7 +26,10 @@ import com.google.android.material.snackbar.Snackbar
 import com.tap.xkcd_reader.R
 import com.tap.xkcd_reader.databinding.ActivityMainBinding
 import dagger.hilt.android.AndroidEntryPoint
-import de.tap.easy_xkcd.Activities.*
+import de.tap.easy_xkcd.Activities.BaseActivity
+import de.tap.easy_xkcd.Activities.DonateActivity
+import de.tap.easy_xkcd.Activities.NestedSettingsActivity
+import de.tap.easy_xkcd.Activities.SearchResultsActivity
 import de.tap.easy_xkcd.CustomTabHelpers.CustomTabActivityHelper
 import de.tap.easy_xkcd.comicBrowsing.ComicBrowserBaseFragment
 import de.tap.easy_xkcd.comicBrowsing.ComicBrowserFragment
@@ -34,6 +37,7 @@ import de.tap.easy_xkcd.comicBrowsing.ComicBrowserViewModel
 import de.tap.easy_xkcd.comicBrowsing.FavoritesFragment
 import de.tap.easy_xkcd.comicOverview.ComicOverviewFragment
 import de.tap.easy_xkcd.database.ProgressStatus
+import de.tap.easy_xkcd.settings.SettingsActivity
 import de.tap.easy_xkcd.utils.observe
 import de.tap.easy_xkcd.whatIfOverview.WhatIfOverviewFragment
 import timber.log.Timber

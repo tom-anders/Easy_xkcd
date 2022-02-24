@@ -106,22 +106,67 @@
                 android:value=".search.SearchActivity" />
         </activity>
         <activity
-            android:name="de.tap.easy_xkcd.Activities.SettingsActivity"
+            android:name="de.tap.easy_xkcd.settings.SettingsActivity"
             android:label="@string/pref_title"
             android:launchMode="singleTop"
-            android:parentActivityName="de.tap.easy_xkcd.Activities.MainActivity">
+            android:parentActivityName="de.tap.easy_xkcd.mainActivity.MainActivity">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
-                android:value="de.tap.easy_xkcd.Activities.MainActivity" />
+                android:value="de.tap.easy_xkcd.mainActivity.MainActivity" />
         </activity>
         <activity
-            android:name="de.tap.easy_xkcd.Activities.NestedSettingsActivity"
-            android:label="@string/pref_title"
+            android:name="de.tap.easy_xkcd.settings.BehaviorActivity"
+            android:label="@string/pref_behavior"
             android:launchMode="singleTop"
-            android:parentActivityName="de.tap.easy_xkcd.Activities.SettingsActivity">
+            android:parentActivityName="de.tap.easy_xkcd.settings.SettingsActivity">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
-                android:value="de.tap.easy_xkcd.Activities.SettingsActivity" />
+                android:value="de.tap.easy_xkcd.settings.SettingsActivity" />
+        </activity>
+        <activity
+            android:name="de.tap.easy_xkcd.settings.OfflineAndNotificationsActivity"
+            android:label="@string/pref_offline_notifications"
+            android:launchMode="singleTop"
+            android:parentActivityName="de.tap.easy_xkcd.settings.SettingsActivity">
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value="de.tap.easy_xkcd.settings.SettingsActivity" />
+        </activity>
+        <activity
+            android:name="de.tap.easy_xkcd.settings.AppearanceActivity"
+            android:label="@string/pref_offline_notifications"
+            android:launchMode="singleTop"
+            android:parentActivityName="de.tap.easy_xkcd.settings.SettingsActivity">
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value="de.tap.easy_xkcd.settings.SettingsActivity" />
+        </activity>
+        <activity
+            android:name="de.tap.easy_xkcd.settings.NightActivity"
+            android:label="@string/pref_offline_notifications"
+            android:launchMode="singleTop"
+            android:parentActivityName="de.tap.easy_xkcd.settings.SettingsActivity">
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value="de.tap.easy_xkcd.settings.SettingsActivity" />
+        </activity>
+        <activity
+            android:name="de.tap.easy_xkcd.settings.AdvancedActivity"
+            android:label="@string/pref_offline_notifications"
+            android:launchMode="singleTop"
+            android:parentActivityName="de.tap.easy_xkcd.settings.SettingsActivity">
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value="de.tap.easy_xkcd.settings.SettingsActivity" />
+        </activity>
+        <activity
+            android:name="de.tap.easy_xkcd.settings.WidgetActivity"
+            android:label="@string/pref_offline_notifications"
+            android:launchMode="singleTop"
+            android:parentActivityName="de.tap.easy_xkcd.settings.SettingsActivity">
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value="de.tap.easy_xkcd.settings.SettingsActivity" />
         </activity>
         <activity
             android:name="de.tap.easy_xkcd.Activities.AboutActivity"

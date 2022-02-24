@@ -22,7 +22,6 @@ import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.withContext
 import timber.log.Timber
 
-//TODO Probably this doesn't even need to be a worker...
 @HiltWorker
 class OfflineModeDownloadWorker @AssistedInject constructor (
     @Assisted private val context: Context,
