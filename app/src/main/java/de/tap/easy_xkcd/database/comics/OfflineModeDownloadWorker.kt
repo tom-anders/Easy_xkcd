@@ -1,6 +1,5 @@
-package de.tap.easy_xkcd.database
+package de.tap.easy_xkcd.database.comics
 
-import android.app.Notification
 import android.app.NotificationChannel
 import android.app.NotificationManager
 import android.content.Context
@@ -15,12 +14,7 @@ import androidx.work.WorkerParameters
 import com.tap.xkcd_reader.R
 import dagger.assisted.Assisted
 import dagger.assisted.AssistedInject
-import dagger.hilt.android.qualifiers.ApplicationContext
 import de.tap.easy_xkcd.utils.PrefHelper
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.flow.collect
-import kotlinx.coroutines.withContext
-import timber.log.Timber
 
 @HiltWorker
 class OfflineModeDownloadWorker @AssistedInject constructor (

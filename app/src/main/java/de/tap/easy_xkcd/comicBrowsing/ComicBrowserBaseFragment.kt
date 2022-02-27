@@ -28,7 +28,7 @@ import de.tap.easy_xkcd.ComicBaseAdapter
 import de.tap.easy_xkcd.ComicViewHolder
 import de.tap.easy_xkcd.CustomTabHelpers.BrowserFallback
 import de.tap.easy_xkcd.CustomTabHelpers.CustomTabActivityHelper
-import de.tap.easy_xkcd.database.Comic
+import de.tap.easy_xkcd.database.comics.Comic
 import de.tap.easy_xkcd.database.RealmComic
 import de.tap.easy_xkcd.fragments.ImmersiveDialogFragment
 import de.tap.easy_xkcd.mainActivity.MainActivity

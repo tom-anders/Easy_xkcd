@@ -1,4 +1,4 @@
-package de.tap.easy_xkcd.database
+package de.tap.easy_xkcd.database.comics
 
 import androidx.room.*
 import kotlinx.coroutines.flow.Flow
@@ -41,7 +41,6 @@ interface ComicDao {
     @Query("SELECT * FROM COMIC WHERE NOT read LIMIT 1")
     suspend fun oldestUnreadComic() : Comic
 
-    //TODO Split these up so that we can have the correct order
     @Query("SELECT * FROM COMIC WHERE title LIKE '%' || :query || '%'")
     suspend fun searchComicsByTitle(query: String): List<Comic>
     @Query("SELECT * FROM COMIC WHERE altText LIKE '%' || :query || '%'")

@@ -5,41 +5,43 @@ import android.net.Uri
 import androidx.lifecycle.*
 import com.tap.xkcd_reader.R
 import dagger.hilt.android.lifecycle.HiltViewModel
+import de.tap.easy_xkcd.database.whatif.Article
+import de.tap.easy_xkcd.database.whatif.ArticleRepository
+import de.tap.easy_xkcd.database.whatif.LoadedArticle
 import de.tap.easy_xkcd.utils.SingleLiveEvent
+import de.tap.easy_xkcd.utils.ViewModelWithFlowHelper
 import kotlinx.coroutines.*
+import kotlinx.coroutines.channels.Channel
+import kotlinx.coroutines.flow.*
 import timber.log.Timber
 import javax.inject.Inject
+import kotlin.random.Random
 
 @HiltViewModel
 class WhatIfArticleViewModel @Inject constructor(
-    private val model: ArticleModel,
+    private val repository: ArticleRepository,
     savedStateHandle: SavedStateHandle
-) : ViewModel() {
+) : ViewModelWithFlowHelper() {
 
-    private val title: MutableLiveData<String> = MutableLiveData()
-    fun getTitle(): LiveData<String> = title
+    private val _loadedArticle = MutableStateFlow(LoadedArticle.none())
+    val loadedArticle: StateFlow<LoadedArticle> = _loadedArticle
 
-    private val articleHtml: MutableLiveData<String> = MutableLiveData()
-    fun getArticleHtml(): LiveData<String> = articleHtml
+    private val _loadingArticle = MutableStateFlow(false)
+    val loadingArticle: StateFlow<Boolean> = _loadingArticle
 
-    //TODO Maybe the model should have a livedata instead as well?
-    private val hasNextArticle: MutableLiveData<Boolean> = MutableLiveData()
-    fun hasNextArticle(): LiveData<Boolean> {
-        return hasNextArticle
-    }
+    private val articles = repository.articles.asEagerStateFlow(emptyList())
 
-    private val hasPreviousArticle: MutableLiveData<Boolean> = MutableLiveData()
-    fun hasPreviousArticle(): LiveData<Boolean> {
-        return hasPreviousArticle
-    }
+    val hasNextArticle = combine(_loadedArticle, repository.articles) {
+        loadedArticle, articles ->
+        loadedArticle.number < articles.size
+    }.asEagerStateFlow(false)
 
-    private val isFavorite: MutableLiveData<Boolean> = MutableLiveData()
-    fun isFavorite(): LiveData<Boolean> = isFavorite
+    val hasPreviousArticle = _loadedArticle.map {
+        it.number > 1
+    }.asEagerStateFlow(false)
 
-    // If null, means that there's no progress to be shown.
-    // If non-null, corresponds to the resource id of the progress to show
-    private val progressTextId: MutableLiveData<Int> = MutableLiveData()
-    fun progressTextId(): LiveData<Int> = progressTextId
+    private val _isFavorite = MutableStateFlow(false)
+    val isFavorite: StateFlow<Boolean> = _isFavorite
 
     init {
         try {
@@ -53,57 +55,49 @@ class WhatIfArticleViewModel @Inject constructor(
     }
 
     private fun loadArticle(number: Int) {
+        _loadingArticle.value = true
+
         viewModelScope.launch {
-            progressTextId.value = R.string.loading_article
-
-            val article = model.loadArticle(number)
-
-            articleHtml.value = article
-            title.value = model.getTitle()
-
-            hasPreviousArticle.value = model.hasPreviousArticle()
-            hasNextArticle.value = model.hasNextArticle()
-            isFavorite.value = model.isArticleFavorite()
-
-            progressTextId.value = null
+            repository.loadArticle(number) ?.let {
+                _loadedArticle.value = it
+                _isFavorite.value = _loadedArticle.value.favorite
+            }
+            _loadingArticle.value = false
         }
     }
 
     fun showNextArticle() {
-        loadArticle(model.getNumber() + 1)
+        loadArticle(loadedArticle.value.number + 1)
     }
 
     fun showPreviousArticle() {
-        loadArticle(model.getNumber() - 1)
-    }
-
-
-    fun getRef(index: String): String {
-        //TODO Handle the image ref no.2 for number 141...
-
-        return model.getRef(index)
+        loadArticle(loadedArticle.value.number - 1)
     }
 
     fun shareArticle(): Intent {
-        val share = Intent(Intent.ACTION_SEND)
-        share.type = "text/plain"
-        share.putExtra(Intent.EXTRA_SUBJECT, "What if: " + model.getTitle())
-        share.putExtra(Intent.EXTRA_TEXT, "https://what-if.xkcd.com/" + model.getNumber())
-        return share
+        return Intent(Intent.ACTION_SEND).apply {
+            type = "text/plain"
+            putExtra(Intent.EXTRA_SUBJECT, "What if: " + loadedArticle.value.title)
+            putExtra(Intent.EXTRA_TEXT, "https://what-if.xkcd.com/" + loadedArticle.value.number)
+        }
     }
 
-    fun openArticleInBrowser(): Intent
-            = Intent(Intent.ACTION_VIEW, Uri.parse("https://what-if.xkcd.com/" + model.getNumber()))
+    fun openArticleInBrowser(): Intent {
+        return Intent(Intent.ACTION_VIEW, Uri.parse("https://what-if.xkcd.com/${loadedArticle.value.number}"))
+    }
 
-    suspend fun getRedditThread() = model.getRedditThread()
+    suspend fun getRedditThread() = loadedArticle.value.article.let { repository.getRedditThread(it) }
 
     fun toggleArticleFavorite() {
-        model.toggleArticleFavorite()
-        isFavorite.value = model.isArticleFavorite()
+        viewModelScope.launch {
+            val wasFavorite = loadedArticle.value.favorite
+            _isFavorite.value = !wasFavorite
+            repository.setFavorite(loadedArticle.value.number, !wasFavorite)
+        }
     }
 
     fun showRandomArticle() {
-        loadArticle(model.getRandomArticleNumber())
+        loadArticle(Random.nextInt(1, articles.value.size))
     }
 }
 

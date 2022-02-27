@@ -6,8 +6,6 @@ import androidx.work.CoroutineWorker
 import androidx.work.WorkerParameters
 import dagger.assisted.Assisted
 import dagger.assisted.AssistedInject
-import de.tap.easy_xkcd.database.ComicRepository
-import de.tap.easy_xkcd.utils.PrefHelper
 import timber.log.Timber
 import java.io.File
 

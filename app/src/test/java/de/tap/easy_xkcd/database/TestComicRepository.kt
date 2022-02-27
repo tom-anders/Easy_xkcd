@@ -2,36 +2,27 @@ package de.tap.easy_xkcd.database
 
 import android.content.Context
 import android.content.res.Resources
-import androidx.room.Room
-import androidx.test.core.app.ApplicationProvider
 import app.cash.turbine.test
-import com.google.common.truth.Truth.assertThat
+import de.tap.easy_xkcd.database.comics.Comic
+import de.tap.easy_xkcd.database.comics.ComicDao
+import de.tap.easy_xkcd.database.comics.ComicRepositoryImpl
 import de.tap.easy_xkcd.explainXkcd.ExplainXkcdApi
 import de.tap.easy_xkcd.utils.PrefHelper
-import io.kotest.matchers.collections.shouldBeEmpty
-import io.kotest.matchers.nulls.shouldBeNull
 import io.kotest.matchers.shouldBe
 import kotlinx.coroutines.*
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.test.*
 import okhttp3.*
-import okhttp3.ResponseBody.Companion.toResponseBody
-import okhttp3.internal.wait
-import okio.Timeout
 import org.json.JSONObject
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.mockito.Mock
-import org.mockito.Mockito
 import org.mockito.junit.MockitoJUnit
 import org.mockito.junit.MockitoRule
 import org.mockito.kotlin.*
 import org.robolectric.RobolectricTestRunner
-import java.io.IOException
-import java.lang.Exception
-import java.lang.RuntimeException
 
 @RunWith(RobolectricTestRunner::class)
 @ExperimentalCoroutinesApi

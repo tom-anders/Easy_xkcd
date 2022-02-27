@@ -1,14 +1,8 @@
 package de.tap.easy_xkcd.utils
 
-import android.app.ProgressDialog
-import android.content.Context
 import androidx.lifecycle.*
-import com.tap.xkcd_reader.R
-import de.tap.easy_xkcd.Activities.BaseActivity
-import de.tap.easy_xkcd.database.ProgressStatus
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
-import timber.log.Timber
 
 /**
  * For state flows we need some boilerplate for collecting it in a fragment

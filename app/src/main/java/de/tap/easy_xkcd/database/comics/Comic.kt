@@ -1,18 +1,11 @@
-package de.tap.easy_xkcd.database
+package de.tap.easy_xkcd.database.comics
 
 import android.content.Context
-import android.graphics.Bitmap
-import android.graphics.BitmapFactory
 import androidx.room.Entity
 import androidx.room.PrimaryKey
 import com.tap.xkcd_reader.R
-import de.tap.easy_xkcd.utils.PrefHelper
-import org.json.JSONException
-import org.json.JSONObject
-import timber.log.Timber
-import java.io.File
-import java.io.FileInputStream
-import java.io.IOException
+import de.tap.easy_xkcd.database.RealmComic
+import de.tap.easy_xkcd.database.comics.XkcdApiComic
 import java.nio.charset.StandardCharsets
 import java.util.*
 

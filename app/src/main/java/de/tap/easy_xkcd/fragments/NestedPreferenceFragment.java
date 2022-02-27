@@ -19,7 +19,6 @@
 package de.tap.easy_xkcd.fragments;
 
 import android.Manifest;
-import android.app.Activity;
 import android.app.ProgressDialog;
 import android.app.TimePickerDialog;
 import android.content.DialogInterface;
@@ -32,8 +31,6 @@ import android.os.Handler;
 import android.preference.Preference;
 import android.preference.PreferenceFragment;
 import androidx.core.app.ActivityCompat;
-import androidx.fragment.app.DialogFragment;
-import androidx.fragment.app.FragmentTransaction;
 import androidx.core.content.ContextCompat;
 import androidx.appcompat.app.AlertDialog;
 import androidx.cardview.widget.CardView;
@@ -62,12 +59,11 @@ import java.io.OutputStream;
 import de.tap.easy_xkcd.Activities.MainActivity;
 import de.tap.easy_xkcd.Activities.NestedSettingsActivity;
 import de.tap.easy_xkcd.database.DatabaseManager;
-import de.tap.easy_xkcd.database.OfflineModeDownloadWorker;
+import de.tap.easy_xkcd.database.comics.OfflineModeDownloadWorker;
 import de.tap.easy_xkcd.utils.Article;
 import de.tap.easy_xkcd.utils.PrefHelper;
 import de.tap.easy_xkcd.utils.ThemePrefs;
 import io.realm.Realm;
-import io.realm.RealmResults;
 import timber.log.Timber;
 import uz.shift.colorpicker.LineColorPicker;
 

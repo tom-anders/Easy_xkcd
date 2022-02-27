@@ -1,16 +1,13 @@
 package de.tap.easy_xkcd.comicOverview
 
 import android.graphics.Bitmap
-import android.graphics.Color
 import android.os.Bundle
 import android.transition.Transition
 import android.transition.TransitionInflater
 import android.view.*
 import android.widget.ImageView
-import android.widget.TextView
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
-import androidx.cardview.widget.CardView
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
@@ -22,9 +19,8 @@ import com.tap.xkcd_reader.databinding.RecyclerLayoutBinding
 import dagger.hilt.android.AndroidEntryPoint
 import de.tap.easy_xkcd.ComicBaseAdapter
 import de.tap.easy_xkcd.ComicListViewHolder
-import de.tap.easy_xkcd.ComicViewHolder
-import de.tap.easy_xkcd.database.Comic
-import de.tap.easy_xkcd.database.ComicContainer
+import de.tap.easy_xkcd.database.comics.Comic
+import de.tap.easy_xkcd.database.comics.ComicContainer
 import de.tap.easy_xkcd.mainActivity.MainActivity
 import de.tap.easy_xkcd.utils.PrefHelper
 import de.tap.easy_xkcd.utils.ThemePrefs

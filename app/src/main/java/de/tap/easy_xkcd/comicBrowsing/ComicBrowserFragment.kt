@@ -1,42 +1,15 @@
 package de.tap.easy_xkcd.comicBrowsing
 
-import android.annotation.SuppressLint
-import android.graphics.Bitmap
-import android.graphics.Color
 import android.os.Bundle
 import android.view.*
-import android.widget.ImageView
-import android.widget.RelativeLayout
-import android.widget.TextView
 import androidx.core.view.MenuCompat
 import androidx.fragment.app.activityViewModels
-import androidx.lifecycle.Lifecycle
-import androidx.lifecycle.lifecycleScope
-import androidx.lifecycle.repeatOnLifecycle
-import androidx.recyclerview.widget.DiffUtil
-import androidx.recyclerview.widget.ListUpdateCallback
-import androidx.swiperefreshlayout.widget.CircularProgressDrawable
-import androidx.viewpager.widget.PagerAdapter
-import androidx.viewpager2.widget.ViewPager2
-import androidx.viewpager2.widget.ViewPager2.SCROLL_STATE_IDLE
-import com.bumptech.glide.Glide
-import com.bumptech.glide.request.RequestOptions
-import com.github.chrisbanes.photoview.PhotoView
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.google.android.material.snackbar.Snackbar
 import com.tap.xkcd_reader.R
 import dagger.hilt.android.AndroidEntryPoint
-import de.tap.easy_xkcd.ComicBaseAdapter
-import de.tap.easy_xkcd.ComicViewHolder
-import de.tap.easy_xkcd.GlideApp
-import de.tap.easy_xkcd.database.Comic
-import de.tap.easy_xkcd.database.toContainer
 import de.tap.easy_xkcd.mainActivity.MainActivity
 import de.tap.easy_xkcd.utils.observe
-import kotlinx.coroutines.flow.collect
-import kotlinx.coroutines.launch
-import timber.log.Timber
-import java.util.*
 
 @AndroidEntryPoint
 class ComicBrowserFragment : ComicBrowserBaseFragment() {

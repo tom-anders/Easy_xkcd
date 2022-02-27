@@ -1,4 +1,4 @@
-package de.tap.easy_xkcd.database
+package de.tap.easy_xkcd.database.comics
 
 import com.google.gson.annotations.SerializedName
 import dagger.Module

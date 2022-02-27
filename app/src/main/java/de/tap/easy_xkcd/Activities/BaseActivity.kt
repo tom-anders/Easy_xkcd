@@ -10,16 +10,12 @@ import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.Toolbar
 import androidx.core.content.ContextCompat
-import androidx.lifecycle.Lifecycle
-import androidx.lifecycle.lifecycleScope
-import androidx.lifecycle.repeatOnLifecycle
 import com.tap.xkcd_reader.R
-import de.tap.easy_xkcd.database.ProgressStatus
+import de.tap.easy_xkcd.database.comics.ProgressStatus
 import de.tap.easy_xkcd.utils.PrefHelper
 import de.tap.easy_xkcd.utils.ThemePrefs
 import de.tap.easy_xkcd.utils.observe
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.launch
 
 abstract class BaseActivity : AppCompatActivity() {
     protected lateinit var prefHelper: PrefHelper

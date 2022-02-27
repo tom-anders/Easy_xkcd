@@ -2,29 +2,21 @@ package de.tap.easy_xkcd.comicBrowsing
 
 import android.content.Context
 import android.net.Uri
-import android.widget.Toast
 import androidx.lifecycle.*
-import com.nbsp.materialfilepicker.ui.FilePickerActivity
 import dagger.hilt.android.lifecycle.HiltViewModel
 import dagger.hilt.android.qualifiers.ApplicationContext
-import de.tap.easy_xkcd.database.Comic
-import de.tap.easy_xkcd.database.ComicContainer
-import de.tap.easy_xkcd.database.ComicRepository
-import de.tap.easy_xkcd.database.RealmComic
-import de.tap.easy_xkcd.notifications.ComicNotifierJob
+import de.tap.easy_xkcd.database.comics.Comic
+import de.tap.easy_xkcd.database.comics.ComicRepository
 import de.tap.easy_xkcd.utils.PrefHelper
 import de.tap.easy_xkcd.utils.SingleLiveEvent
 import de.tap.easy_xkcd.utils.ViewModelWithFlowHelper
-import hilt_aggregated_deps._de_tap_easy_xkcd_comicBrowsing_ComicBrowserBaseFragment_GeneratedInjector
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import timber.log.Timber
 import java.io.*
-import java.util.*
 import javax.inject.Inject
-import kotlin.math.min
 import kotlin.random.Random
 
 abstract class ComicBrowserBaseViewModel constructor(

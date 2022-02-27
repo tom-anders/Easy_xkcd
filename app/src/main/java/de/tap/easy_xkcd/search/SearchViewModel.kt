@@ -1,18 +1,15 @@
 package de.tap.easy_xkcd.search
 
 import android.content.Context
-import androidx.lifecycle.LiveData
-import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
 import dagger.hilt.android.qualifiers.ApplicationContext
-import de.tap.easy_xkcd.database.ComicContainer
-import de.tap.easy_xkcd.database.ComicRepository
-import de.tap.easy_xkcd.database.ProgressStatus
+import de.tap.easy_xkcd.database.comics.ComicContainer
+import de.tap.easy_xkcd.database.comics.ComicRepository
+import de.tap.easy_xkcd.database.comics.ProgressStatus
 import de.tap.easy_xkcd.utils.ViewModelWithFlowHelper
 import kotlinx.coroutines.*
 import kotlinx.coroutines.flow.*
-import timber.log.Timber
 import javax.inject.Inject
 
 @HiltViewModel
@@ -20,7 +17,8 @@ class SearchViewModel @Inject constructor(
     private val repository: ComicRepository,
     @ApplicationContext context: Context
 ) : ViewModelWithFlowHelper() {
-    var progress = repository.cacheAllComics(cacheMissingTranscripts = true).asLazyStateFlow(ProgressStatus.ResetProgress)
+    var progress = repository.cacheAllComics(cacheMissingTranscripts = true).asLazyStateFlow(
+        ProgressStatus.ResetProgress)
 
     private var searchJob: Job? = null
 

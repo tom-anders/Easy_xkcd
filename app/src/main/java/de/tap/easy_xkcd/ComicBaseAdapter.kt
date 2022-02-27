@@ -19,9 +19,9 @@ import com.bumptech.glide.request.RequestListener
 import com.bumptech.glide.request.RequestOptions
 import com.bumptech.glide.request.target.Target
 import com.tap.xkcd_reader.R
-import de.tap.easy_xkcd.database.Comic
-import de.tap.easy_xkcd.database.ComicContainer
-import de.tap.easy_xkcd.database.toContainer
+import de.tap.easy_xkcd.database.comics.Comic
+import de.tap.easy_xkcd.database.comics.ComicContainer
+import de.tap.easy_xkcd.database.comics.toContainer
 import de.tap.easy_xkcd.utils.PrefHelper
 import de.tap.easy_xkcd.utils.ThemePrefs
 import timber.log.Timber

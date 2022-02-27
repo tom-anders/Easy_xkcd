@@ -1,4 +1,4 @@
-package de.tap.easy_xkcd.comicBrowsing
+package de.tap.easy_xkcd.database.comics
 
 import android.content.Context
 import android.net.Uri
@@ -9,7 +9,6 @@ import dagger.hilt.InstallIn
 import dagger.hilt.android.components.ViewModelComponent
 import dagger.hilt.android.qualifiers.ApplicationContext
 import de.tap.easy_xkcd.GlideApp
-import de.tap.easy_xkcd.database.Comic
 import de.tap.easy_xkcd.database.DatabaseManager
 import de.tap.easy_xkcd.database.RealmComic
 import de.tap.easy_xkcd.utils.*

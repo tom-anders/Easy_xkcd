@@ -18,7 +18,7 @@ import com.tap.xkcd_reader.R
 import de.tap.easy_xkcd.GlideApp
 import de.tap.easy_xkcd.GlideRequest
 import de.tap.easy_xkcd.fragments.whatIf.WhatIfFragment
-import de.tap.easy_xkcd.utils.Article
+import de.tap.easy_xkcd.database.whatif.Article
 import de.tap.easy_xkcd.utils.PrefHelper
 import de.tap.easy_xkcd.utils.ThemePrefs
 import java.io.File
@@ -27,7 +27,7 @@ class OverviewAdapter constructor(
     private val themePrefs: ThemePrefs,
     private val prefHelper: PrefHelper,
     private val context: Context,
-    private var articles: List<Article>,
+    var articles: List<Article>,
     private var itemClickedCallback: (article: Article) -> Unit,
     private var itemLongClickedCallback: (article: Article) -> Boolean,
 ) : RecyclerView.Adapter<OverviewAdapter.ViewHolder>(),
@@ -38,11 +38,6 @@ class OverviewAdapter constructor(
     override fun getSectionName(pos: Int) = ""
 
     override fun getItemCount() = articles.size
-
-    fun setArticles(articles: List<Article>) {
-        this.articles = articles
-        notifyDataSetChanged()
-    }
 
     override fun onCreateViewHolder(
         viewGroup: ViewGroup,
@@ -88,7 +83,7 @@ class OverviewAdapter constructor(
                 .into(holder.thumbnail)
         }
 
-        if (article.isRead xor (themePrefs.nightThemeEnabled()))
+        if (article.read xor (themePrefs.nightThemeEnabled()))
             holder.articleTitle.setTextColor(ContextCompat.getColor(context, R.color.Read))
         else
             holder.articleTitle.setTextColor(

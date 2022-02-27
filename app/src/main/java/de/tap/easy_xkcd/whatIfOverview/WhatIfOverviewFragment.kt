@@ -15,14 +15,16 @@ import androidx.core.view.MenuCompat
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.fragment.app.viewModels
+import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.tap.xkcd_reader.R
 import com.tap.xkcd_reader.databinding.RecyclerLayoutBinding
 import dagger.hilt.android.AndroidEntryPoint
-import de.tap.easy_xkcd.utils.Article
+import de.tap.easy_xkcd.database.whatif.Article
 import de.tap.easy_xkcd.utils.PrefHelper
 import de.tap.easy_xkcd.utils.ThemePrefs
+import de.tap.easy_xkcd.utils.observe
 import de.tap.easy_xkcd.whatIfArticleViewer.WhatIfActivity
 import io.realm.Case
 import io.realm.Realm
@@ -31,17 +33,20 @@ import jp.wasabeef.recyclerview.adapters.SlideInBottomAnimationAdapter
 import kotlinx.coroutines.processNextEventInCurrentThread
 import timber.log.Timber
 import java.util.*
+import javax.inject.Inject
 
 @AndroidEntryPoint
 class WhatIfOverviewFragment : Fragment() {
     private var _binding: RecyclerLayoutBinding? = null
     private val binding get() = _binding!!
 
-    private lateinit var progress: ProgressDialog
-
     private lateinit var adapter: OverviewAdapter
 
-    private lateinit var prefHelper: PrefHelper
+    @Inject
+    lateinit var prefHelper: PrefHelper
+
+    @Inject
+    lateinit var themePrefs: ThemePrefs
 
     private lateinit var searchMenuItem: MenuItem
 
@@ -58,34 +63,8 @@ class WhatIfOverviewFragment : Fragment() {
 
         setHasOptionsMenu(true)
 
-        prefHelper = PrefHelper(activity)
-
-        progress = ProgressDialog(activity)
-        progress.setCancelable(false)
-
-        model.progress.observe(viewLifecycleOwner) {
-            if (it == 0) {
-                progress.dismiss()
-                progress = ProgressDialog(activity)
-                model.progressTextId.value ?. let { progress.setTitle(activity?.resources?.getString(it)) }
-                progress.max = model.progressMax
-                progress.setProgressStyle(ProgressDialog.STYLE_HORIZONTAL)
-                progress.show()
-            } else {
-                progress.progress = it ?: 0
-            }
-        }
-        model.progressTextId.observe(viewLifecycleOwner) {
-            if (it != null) {
-                progress.setTitle(activity?.resources?.getString(it))
-                progress.show()
-            } else {
-                progress.dismiss()
-            }
-        }
-
         adapter = OverviewAdapter(
-            ThemePrefs(activity), PrefHelper(activity), requireActivity(),
+            themePrefs, prefHelper, requireActivity(),
             emptyList(), this::onArticleClicked, this::onArticleLongClicked
         )
         binding.rv.adapter =
@@ -95,11 +74,25 @@ class WhatIfOverviewFragment : Fragment() {
         binding.rv.setHasFixedSize(false)
         binding.rv.isVerticalScrollBarEnabled = false
 
-        model.articles.observe(viewLifecycleOwner) {
-            adapter.apply {
-                setArticles(it)
-                notifyDataSetChanged()
-            }
+        model.articles.observe(viewLifecycleOwner) { newList ->
+            val diffResult = DiffUtil.calculateDiff(object : DiffUtil.Callback() {
+                override fun getOldListSize() = adapter.articles.size
+
+                override fun getNewListSize() = newList.size
+
+                override fun areItemsTheSame(
+                    oldItemPosition: Int,
+                    newItemPosition: Int
+                ) = adapter.articles[oldItemPosition].number == newList[newItemPosition].number
+
+                override fun areContentsTheSame(
+                    oldItemPosition: Int,
+                    newItemPosition: Int
+                ) = adapter.articles[oldItemPosition] == newList[newItemPosition]
+            })
+
+            adapter.articles = newList
+            diffResult.dispatchUpdatesTo(adapter)
         }
 
         activity?.findViewById<FloatingActionButton>(R.id.fab)?.setOnClickListener {
@@ -109,7 +102,6 @@ class WhatIfOverviewFragment : Fragment() {
        activityResultLauncher =
             registerForActivityResult(ActivityResultContracts.StartActivityForResult()) {
                 searchMenuItem.collapseActionView()
-                model.updateArticleData()
             }
 
         return binding.root
@@ -132,7 +124,7 @@ class WhatIfOverviewFragment : Fragment() {
     private fun onArticleLongClicked(article: Article): Boolean {
 
         val array =
-            if (article.isFavorite) R.array.whatif_card_long_click_remove else R.array.whatif_card_long_click
+            if (article.favorite) R.array.whatif_card_long_click_remove else R.array.whatif_card_long_click
 
         AlertDialog.Builder(activity).setItems(array) { _, which ->
             when (which) {
@@ -190,7 +182,7 @@ class WhatIfOverviewFragment : Fragment() {
                     }
 
                     override fun onQueryTextChange(newText: String): Boolean {
-                        model.updateArticleData(newText)
+                        //TODO set query to model
                         return false
                     }
                 })
@@ -201,8 +193,6 @@ class WhatIfOverviewFragment : Fragment() {
             menu.findItem(R.id.action_favorite)
                 .setIcon(if (it) R.drawable.ic_favorite_on_24dp else R.drawable.ic_favorite_off_24dp)
         }
-
-        //TODO Implement search
 
         super.onCreateOptionsMenu(menu, inflater)
     }

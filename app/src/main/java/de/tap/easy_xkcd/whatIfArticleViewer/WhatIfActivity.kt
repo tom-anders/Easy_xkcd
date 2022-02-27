@@ -31,6 +31,7 @@ import com.tap.xkcd_reader.databinding.ActivityWhatIfBinding
 import dagger.hilt.android.AndroidEntryPoint
 import de.tap.easy_xkcd.Activities.BaseActivity
 import de.tap.easy_xkcd.misc.OnSwipeTouchListener
+import de.tap.easy_xkcd.utils.observe
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -60,30 +61,34 @@ class WhatIfActivity : BaseActivity() {
 
         setupToolbar(findViewById(R.id.toolbar))
 
-        model.getTitle().observe(this, { supportActionBar?.subtitle = it })
-
         progress = ProgressDialog(this)
-        progress.setTitle(resources.getString(R.string.loading_article))
-        progress.setProgressStyle(ProgressDialog.STYLE_SPINNER)
-        progress.setCancelable(false)
-        model.progressTextId().observe(this, {
-            Timber.d("value: %d", it)
-            if (it != null) {
-                progress.setTitle(resources.getString(it))
+        model.loadingArticle.observe(this) {
+            if (it) {
+                progress.setTitle(resources.getString(R.string.loading_article))
+                progress.setProgressStyle(ProgressDialog.STYLE_SPINNER)
+                progress.setCancelable(false)
                 progress.show()
             } else {
                 progress.dismiss()
             }
-        })
+        }
 
-        model.getArticleHtml().observe(this, {
-            binding.web.loadDataWithBaseURL("file:///android_asset/.", it, "text/html", "UTF-8", null)
+        model.loadedArticle.observe(this) { article ->
+            supportActionBar?.subtitle = article.article.title
+
+            binding.web.loadDataWithBaseURL(
+                "file:///android_asset/.",
+                article.html,
+                "text/html",
+                "UTF-8",
+                null
+            )
 
             pendingAnimation?.let {
                 binding.web.startAnimation(pendingAnimation)
                 binding.web.visibility = View.VISIBLE
             }
-        })
+        }
 
         binding.web.addJavascriptInterface(object : Any() {
             @JavascriptInterface
@@ -96,9 +101,10 @@ class WhatIfActivity : BaseActivity() {
             @JavascriptInterface
             fun performClick(n: String) {
                 AlertDialog.Builder(this@WhatIfActivity)
-                        .setMessage(Html.fromHtml(model.getRef(n)))
-                        .show()
-                        .findViewById<TextView>(android.R.id.message)?.movementMethod = LinkMovementMethod.getInstance() //enable hyperlinks
+                    .setMessage(model.loadedArticle.value?.refs?.getOrNull(n.toInt()) ?: "")
+                    .show()
+                    .findViewById<TextView>(android.R.id.message)?.movementMethod =
+                    LinkMovementMethod.getInstance() //enable hyperlinks
             }
         }, "ref")
 
@@ -123,9 +129,13 @@ class WhatIfActivity : BaseActivity() {
                 }
 
                 if (prefHelper.showWhatIfTip()) {
-                    Snackbar.make(findViewById(android.R.id.content), R.string.what_if_tip, BaseTransientBottomBar.LENGTH_LONG)
-                            .setAction(R.string.got_it) { prefHelper.setShowWhatIfTip(false) }
-                            .show()
+                    Snackbar.make(
+                        findViewById(android.R.id.content),
+                        R.string.what_if_tip,
+                        BaseTransientBottomBar.LENGTH_LONG
+                    )
+                        .setAction(R.string.got_it) { prefHelper.setShowWhatIfTip(false) }
+                        .show()
                 }
             }
         }
@@ -139,13 +149,13 @@ class WhatIfActivity : BaseActivity() {
 
         binding.web.setOnTouchListener(object : OnSwipeTouchListener(this@WhatIfActivity) {
             override fun onSwipeRight() {
-                if (prefHelper.swipeEnabled() && model.hasNextArticle().value == true) {
+                if (prefHelper.swipeEnabled() && model.hasNextArticle.value) {
                     showPreviousArticle()
                 }
             }
 
             override fun onSwipeLeft() {
-                if (prefHelper.swipeEnabled() && model.hasPreviousArticle().value == true) {
+                if (prefHelper.swipeEnabled() && model.hasPreviousArticle.value) {
                     showNextArticle()
                 }
             }
@@ -162,26 +172,26 @@ class WhatIfActivity : BaseActivity() {
 
     override fun onPrepareOptionsMenu(menu: Menu): Boolean {
         //TODO Only grey out and disable the button instead of hiding it completely?
-        model.hasPreviousArticle().observe(this, {
+        model.hasPreviousArticle.observe(this) {
             menu.findItem(R.id.action_back).isVisible = it
-        })
-        model.hasNextArticle().observe(this, {
+        }
+        model.hasNextArticle.observe(this) {
             menu.findItem(R.id.action_next).isVisible = it
-        })
+        }
 
         if (menu.findItem(R.id.action_swipe).isChecked) {
             menu.findItem(R.id.action_back).isVisible = false
             menu.findItem(R.id.action_next).isVisible = false
         }
 
-        model.isFavorite().observe(this, {
+        model.isFavorite.observe(this) {
             if (it)
                 menu.findItem(R.id.action_favorite).setIcon(
                     ContextCompat.getDrawable(
                         this, R.drawable.ic_favorite_on_24dp
                     )
                 ).setTitle(R.string.action_favorite_remove)
-        })
+        }
 
         return super.onPrepareOptionsMenu(menu)
     }
@@ -254,17 +264,15 @@ class WhatIfActivity : BaseActivity() {
 
                     val url = model.getRedditThread()
 
-                    withContext(Dispatchers.Main) {
-                        progress.dismiss()
-                        if (url == "") {
-                            Toast.makeText(
-                                this@WhatIfActivity,
-                                resources.getString(R.string.thread_not_found),
-                                Toast.LENGTH_SHORT
-                            ).show()
-                        } else {
-                            startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(url)))
-                        }
+                    progress.dismiss()
+                    if (url == null) {
+                        Toast.makeText(
+                            this@WhatIfActivity,
+                            resources.getString(R.string.thread_not_found),
+                            Toast.LENGTH_SHORT
+                        ).show()
+                    } else {
+                        startActivity(Intent(Intent.ACTION_VIEW, url))
                     }
                 }
                 return true

@@ -19,4 +19,12 @@ class DatabaseModule {
 
     @Provides
     fun provideComicDao(database: ComicRoomDatabase) = database.comicDao()
+
+    @Singleton
+    @Provides
+    fun provideArticleRoomDatabase(@ApplicationContext context: Context)
+            = Room.databaseBuilder(context, ArticleRoomDatabase::class.java, "article_database").build()
+
+    @Provides
+    fun provideArticleDao(database: ArticleRoomDatabase) = database.articleDao()
 }

@@ -1,4 +1,4 @@
-package de.tap.easy_xkcd.database;
+package de.tap.easy_xkcd.database.comics;
 
 import android.app.ProgressDialog;
 import android.content.Context;
@@ -14,6 +14,8 @@ import java.io.IOException;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CountDownLatch;
 
+import de.tap.easy_xkcd.database.DatabaseManager;
+import de.tap.easy_xkcd.database.RealmComic;
 import de.tap.easy_xkcd.fragments.comics.ComicFragment;
 import de.tap.easy_xkcd.utils.PrefHelper;
 import io.realm.Realm;

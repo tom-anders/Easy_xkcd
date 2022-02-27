@@ -203,19 +203,19 @@
             android:name="de.tap.easy_xkcd.whatIfArticleViewer.WhatIfActivity"
             android:label="@string/title_activity_what_if"
             android:launchMode="singleTop"
-            android:parentActivityName="de.tap.easy_xkcd.Activities.MainActivity">
+            android:parentActivityName="de.tap.easy_xkcd.mainActivity.MainActivity">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
-                android:value="de.tap.easy_xkcd.Activities.MainActivity" />
+                android:value="de.tap.easy_xkcd.mainActivity.MainActivity" />
         </activity>
         <activity
             android:name="de.tap.easy_xkcd.Activities.DonateActivity"
             android:label="@string/title_activity_donate"
             android:launchMode="singleInstance"
-            android:parentActivityName="de.tap.easy_xkcd.Activities.MainActivity">
+            android:parentActivityName="de.tap.easy_xkcd.mainActivity.MainActivity">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
-                android:value="de.tap.easy_xkcd.Activities.MainActivity" />
+                android:value="de.tap.easy_xkcd.mainActivity.MainActivity" />
         </activity>
         <activity android:name="de.tap.easy_xkcd.Activities.CustomFilePickerActivity" />
 

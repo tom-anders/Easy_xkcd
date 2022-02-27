@@ -4,18 +4,13 @@ import android.content.Context
 import androidx.lifecycle.*
 import dagger.hilt.android.lifecycle.HiltViewModel
 import dagger.hilt.android.qualifiers.ApplicationContext
-import de.tap.easy_xkcd.comicBrowsing.ComicDatabaseModel
-import de.tap.easy_xkcd.database.Comic
-import de.tap.easy_xkcd.database.ComicContainer
-import de.tap.easy_xkcd.database.ComicRepository
-import de.tap.easy_xkcd.database.RealmComic
+import de.tap.easy_xkcd.database.comics.ComicRepository
 import de.tap.easy_xkcd.utils.PrefHelper
 import de.tap.easy_xkcd.utils.ViewModelWithFlowHelper
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
-import timber.log.Timber
 import javax.inject.Inject
 
 @HiltViewModel

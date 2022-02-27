@@ -1,6 +1,5 @@
 package de.tap.easy_xkcd.mainActivity
 
-import android.app.ProgressDialog
 import android.app.SearchManager
 import android.content.Context
 import android.content.Intent
@@ -22,7 +21,6 @@ import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentTransaction
 import com.google.android.material.bottomappbar.BottomAppBar
 import com.google.android.material.bottomnavigation.BottomNavigationView
-import com.google.android.material.snackbar.Snackbar
 import com.tap.xkcd_reader.R
 import com.tap.xkcd_reader.databinding.ActivityMainBinding
 import dagger.hilt.android.AndroidEntryPoint
@@ -36,11 +34,8 @@ import de.tap.easy_xkcd.comicBrowsing.ComicBrowserFragment
 import de.tap.easy_xkcd.comicBrowsing.ComicBrowserViewModel
 import de.tap.easy_xkcd.comicBrowsing.FavoritesFragment
 import de.tap.easy_xkcd.comicOverview.ComicOverviewFragment
-import de.tap.easy_xkcd.database.ProgressStatus
 import de.tap.easy_xkcd.settings.SettingsActivity
-import de.tap.easy_xkcd.utils.observe
 import de.tap.easy_xkcd.whatIfOverview.WhatIfOverviewFragment
-import timber.log.Timber
 
 @AndroidEntryPoint
 class MainActivity : BaseActivity() {

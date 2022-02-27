@@ -51,7 +51,6 @@ import android.view.View;
 import android.view.animation.AccelerateInterpolator;
 import android.view.animation.OvershootInterpolator;
 import android.view.inputmethod.InputMethodManager;
-import android.widget.ProgressBar;
 import android.widget.SearchView;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -63,7 +62,6 @@ import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.navigation.NavigationView;
 import com.google.android.material.snackbar.BaseTransientBottomBar;
 import com.google.android.material.snackbar.Snackbar;
-import com.google.android.material.transition.MaterialFadeThrough;
 import com.nbsp.materialfilepicker.ui.FilePickerActivity;
 import com.tap.xkcd_reader.R;
 
@@ -75,19 +73,13 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.Objects;
 
-import androidx.annotation.NonNull;
-import androidx.appcompat.app.ActionBarDrawerToggle;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.widget.Toolbar;
 import androidx.coordinatorlayout.widget.CoordinatorLayout;
 import androidx.core.content.ContextCompat;
-import androidx.core.view.GravityCompat;
-import androidx.drawerlayout.widget.DrawerLayout;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentTransaction;
-
-import org.jetbrains.annotations.NotNull;
 
 import butterknife.Bind;
 import butterknife.ButterKnife;
@@ -96,7 +88,7 @@ import butterknife.OnLongClick;
 import dagger.hilt.android.AndroidEntryPoint;
 import de.tap.easy_xkcd.CustomTabHelpers.CustomTabActivityHelper;
 import de.tap.easy_xkcd.database.DatabaseManager;
-import de.tap.easy_xkcd.database.updateComicDatabase;
+import de.tap.easy_xkcd.database.comics.updateComicDatabase;
 import de.tap.easy_xkcd.fragments.comics.ComicBrowserFragment;
 import de.tap.easy_xkcd.fragments.comics.ComicFragment;
 import de.tap.easy_xkcd.fragments.comics.FavoritesFragment;
@@ -105,10 +97,7 @@ import de.tap.easy_xkcd.fragments.overview.OverviewBaseFragment;
 import de.tap.easy_xkcd.fragments.whatIf.WhatIfFragment;
 import de.tap.easy_xkcd.notifications.ComicNotifierJob;
 import de.tap.easy_xkcd.utils.PrefHelper;
-import de.tap.easy_xkcd.utils.ThemePrefs;
 import de.tap.easy_xkcd.whatIfOverview.WhatIfOverviewFragment;
-import io.realm.Realm;
-import kotlin.io.FilesKt;
 import timber.log.Timber;
 
 

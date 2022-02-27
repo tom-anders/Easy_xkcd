@@ -11,7 +11,6 @@ import android.widget.SearchView
 import androidx.activity.viewModels
 import androidx.core.text.HtmlCompat
 import androidx.core.view.MenuItemCompat
-import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.tap.xkcd_reader.R
 import com.tap.xkcd_reader.databinding.ActivitySearchResultsBinding
@@ -20,11 +19,9 @@ import de.tap.easy_xkcd.Activities.BaseActivity
 import de.tap.easy_xkcd.Activities.SearchResultsActivity
 import de.tap.easy_xkcd.ComicBaseAdapter
 import de.tap.easy_xkcd.ComicListViewHolder
-import de.tap.easy_xkcd.database.Comic
-import de.tap.easy_xkcd.database.ComicContainer
+import de.tap.easy_xkcd.database.comics.Comic
+import de.tap.easy_xkcd.database.comics.ComicContainer
 import de.tap.easy_xkcd.utils.observe
-import kotlinx.coroutines.launch
-import timber.log.Timber
 
 @AndroidEntryPoint
 class SearchActivity: BaseActivity() {
