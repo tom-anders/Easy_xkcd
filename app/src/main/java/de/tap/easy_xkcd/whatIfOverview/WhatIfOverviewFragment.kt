@@ -48,7 +48,7 @@ class WhatIfOverviewFragment : Fragment() {
     @Inject
     lateinit var themePrefs: ThemePrefs
 
-    private lateinit var searchMenuItem: MenuItem
+    private var searchMenuItem: MenuItem? = null
 
     private lateinit var activityResultLauncher: ActivityResultLauncher<Intent>
 
@@ -101,7 +101,7 @@ class WhatIfOverviewFragment : Fragment() {
 
        activityResultLauncher =
             registerForActivityResult(ActivityResultContracts.StartActivityForResult()) {
-                searchMenuItem.collapseActionView()
+                searchMenuItem?.collapseActionView()
             }
 
         return binding.root
@@ -170,10 +170,10 @@ class WhatIfOverviewFragment : Fragment() {
         }
 
         searchMenuItem = menu.findItem(R.id.action_search)
-        searchMenuItem.apply {
+        searchMenuItem?.apply {
             isVisible = true
             (actionView as SearchView).apply {
-                setIconifiedByDefault(false)
+                isIconifiedByDefault = false
                 queryHint = resources.getString(R.string.search_hint_whatif)
 
                 setOnQueryTextListener(object : SearchView.OnQueryTextListener {

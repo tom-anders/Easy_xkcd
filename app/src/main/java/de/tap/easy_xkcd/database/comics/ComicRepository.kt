@@ -211,6 +211,7 @@ class ComicRepositoryImpl @Inject constructor(
         }
     }
 
+    //TODO Use RedditSearchApi via Retrofit
     override suspend fun getRedditThread(comic: Comic) = withContext(Dispatchers.IO) {
         try {
             return@withContext "https://www.reddit.com" + client.newCall(

@@ -8,6 +8,7 @@ import dagger.hilt.InstallIn
 import dagger.hilt.android.components.ViewModelComponent
 import dagger.hilt.android.qualifiers.ApplicationContext
 import dagger.hilt.components.SingletonComponent
+import de.tap.easy_xkcd.reddit.RedditSearchApi
 import de.tap.easy_xkcd.utils.JsonParser
 import de.tap.easy_xkcd.utils.PrefHelper
 import de.tap.easy_xkcd.utils.ThemePrefs
@@ -66,7 +67,8 @@ class ArticleRepositoryImpl @Inject constructor(
     private val prefHelper: PrefHelper,
     private val themePrefs: ThemePrefs,
     private val articleDao: ArticleDao,
-    val okHttpClient: OkHttpClient,
+    private val okHttpClient: OkHttpClient,
+    private val redditSearchApi: RedditSearchApi,
 ) : ArticleRepository {
     companion object {
         const val OFFLINE_WHATIF_PATH = "/what if/"
@@ -116,15 +118,8 @@ class ArticleRepositoryImpl @Inject constructor(
         }
     }
 
-    //TODO Use retrofit for API
-    override suspend fun getRedditThread(article: Article): Uri? = withContext(Dispatchers.IO) {
-        Uri.parse("https://www.reddit.com" + JsonParser.getJSONFromUrl(
-            "https://www.reddit.com/r/xkcd/search.json?q=${article.title}&restrict_sr=on"
-        )
-            .getJSONObject("data")
-            .getJSONArray("children").getJSONObject(0).getJSONObject("data")
-            .getString("permalink"))
-    }
+    override suspend fun getRedditThread(article: Article) =
+        redditSearchApi.search(article.title)?.url?.let { Uri.parse(it) }
 
     override suspend fun setFavorite(number: Int, favorite: Boolean) {
         articleDao.setFavorite(number, favorite)
@@ -239,5 +234,6 @@ class ArticleRepositoryModule {
         themePrefs: ThemePrefs,
         articleDao: ArticleDao,
         okHttpClient: OkHttpClient,
-    ): ArticleRepository = ArticleRepositoryImpl(context, prefHelper, themePrefs, articleDao, okHttpClient)
+        redditSearchApi: RedditSearchApi,
+    ): ArticleRepository = ArticleRepositoryImpl(context, prefHelper, themePrefs, articleDao, okHttpClient, redditSearchApi)
 }
