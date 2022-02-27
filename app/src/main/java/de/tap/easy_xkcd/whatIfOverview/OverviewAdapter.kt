@@ -70,6 +70,7 @@ class OverviewAdapter constructor(
             holder.thumbnail.setImageDrawable(ContextCompat.getDrawable(context, it))
         } ?: run {
             if (prefHelper.fullOfflineWhatIf()) {
+                //TODO This logic should be moved to the viewmodel
                 val offlinePath: File = prefHelper.getOfflinePath(context)
                 val dir =
                     File(offlinePath.absolutePath + OFFLINE_WHATIF_OVERVIEW_PATH)

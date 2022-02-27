@@ -25,12 +25,6 @@ class OfflineNotificationsFragment : PreferenceFragmentCompat() {
     @Inject
     lateinit var prefHelper: PrefHelper
 
-    private fun syncOfflinePref(offlinePref: SwitchPreference) {
-        if (prefHelper.fullOfflineEnabled() != offlinePref.isChecked) {
-            offlinePref.isChecked = prefHelper.fullOfflineEnabled()
-        }
-    }
-
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
@@ -60,7 +54,9 @@ class OfflineNotificationsFragment : PreferenceFragmentCompat() {
             }
 
             viewModel.disableOfflineModeButton.observe(viewLifecycleOwner) {
-                syncOfflinePref(offlinePref)
+                if (prefHelper.fullOfflineEnabled() != offlinePref.isChecked) {
+                    offlinePref.isChecked = prefHelper.fullOfflineEnabled()
+                }
 
                 offlinePref.isEnabled = !it
             }
@@ -77,8 +73,38 @@ class OfflineNotificationsFragment : PreferenceFragmentCompat() {
             }
         }
 
-        //TODO Migrate whatif offline mode to workmanager
-        // (and first migrate whatif offline to room)
+        findPreference<SwitchPreference>("pref_offline_whatif")?.let { whatIfOfflinePref ->
+            whatIfOfflinePref.setOnPreferenceChangeListener { _, newValue ->
+                if (newValue as Boolean) {
+                    viewModel.onWhatIfOfflineModeEnabled()
+                    false // Preference will only be set after all images have been downloaded
+                } else {
+                    AlertDialog.Builder(requireActivity())
+                        .setMessage(R.string.delete_offline_whatif_dialog)
+                        .setNegativeButton(
+                            R.string.dialog_cancel
+                        ) { _, _ -> }
+                        .setPositiveButton(
+                            R.string.dialog_yes
+                        ) { _, _ ->
+                            prefHelper.setFullOfflineWhatIf(false)
+                            viewModel.onWhatIfOfflineModeDisabled()
+                            whatIfOfflinePref.isChecked = false
+                        }
+                        .setCancelable(false)
+                        .show()
+                    false
+                }
+            }
+
+            viewModel.disableWhatifOfflineModeButton.observe(viewLifecycleOwner) {
+                if (prefHelper.fullOfflineWhatIf() != whatIfOfflinePref.isChecked) {
+                    whatIfOfflinePref.isChecked = prefHelper.fullOfflineWhatIf()
+                }
+
+                whatIfOfflinePref.isEnabled = !it
+            }
+        }
 
         return super.onCreateView(inflater, container, savedInstanceState)
     }

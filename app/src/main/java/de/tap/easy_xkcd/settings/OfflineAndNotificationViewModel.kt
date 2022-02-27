@@ -7,6 +7,8 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import dagger.hilt.android.qualifiers.ApplicationContext
 import de.tap.easy_xkcd.database.comics.ComicRepository
 import de.tap.easy_xkcd.database.comics.OfflineModeDownloadWorker
+import de.tap.easy_xkcd.database.whatif.ArticleRepository
+import de.tap.easy_xkcd.database.whatif.WhatIfOfflineModeDownloadWorker
 import de.tap.easy_xkcd.utils.PrefHelper
 import de.tap.easy_xkcd.utils.ViewModelWithFlowHelper
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -18,13 +20,15 @@ import javax.inject.Inject
 
 @HiltViewModel
 class OfflineAndNotificationViewModel @Inject constructor(
-    private val repository: ComicRepository,
+    private val comicRepository: ComicRepository,
+    private val articleRepository: ArticleRepository,
     @ApplicationContext private val context: Context,
     private val prefHelper: PrefHelper
 ) : ViewModelWithFlowHelper() {
 
     companion object {
         const val offlineDownloadTag = "offlineDownload"
+        const val whatifOfflineDownloadTag = "whatifOfflineDownload"
         const val moveOfflineDataTag = "moveOfflineData"
     }
 
@@ -39,7 +43,20 @@ class OfflineAndNotificationViewModel @Inject constructor(
             }
             .asLazyStateFlow(initialValue = false)
 
+    private val whatifOfflineDownloadActive =
+        WorkManager.getInstance(context).getWorkInfosByTagLiveData(whatifOfflineDownloadTag)
+            .asFlow()
+            .map { workInfos ->
+                workInfos.any { workInfo ->
+                    workInfo.state == WorkInfo.State.ENQUEUED ||
+                            workInfo.state == WorkInfo.State.RUNNING
+                }
+            }
+            .asLazyStateFlow(initialValue = false)
+
     private val offlineRemovalActive = MutableStateFlow(false)
+
+    private val whatifOfflineRemovalActive = MutableStateFlow(false)
 
     val disableOfflineModeButton = combine(offlineDownloadActive, offlineRemovalActive) {
         downloadActive, removalActive -> downloadActive || removalActive }
@@ -56,9 +73,31 @@ class OfflineAndNotificationViewModel @Inject constructor(
     fun onOfflineModeDisabled() {
         viewModelScope.launch {
             offlineRemovalActive.value = true
-            repository.removeOfflineBitmaps()
+            comicRepository.removeOfflineBitmaps()
             offlineRemovalActive.value = false
             Timber.i("Removed offline bitmaps!")
+        }
+    }
+
+    val disableWhatifOfflineModeButton = combine(whatifOfflineDownloadActive, whatifOfflineRemovalActive) {
+            downloadActive, removalActive -> downloadActive || removalActive }
+
+    fun onWhatIfOfflineModeEnabled() {
+        WorkManager.getInstance(context).enqueueUniqueWork(
+            whatifOfflineDownloadTag, ExistingWorkPolicy.REPLACE,
+            OneTimeWorkRequest.Builder(WhatIfOfflineModeDownloadWorker::class.java)
+                .addTag(whatifOfflineDownloadTag)
+                .setConstraints(Constraints.Builder().setRequiredNetworkType(NetworkType.CONNECTED).build())
+                .build()
+        )
+    }
+
+    fun onWhatIfOfflineModeDisabled() {
+        viewModelScope.launch {
+            whatifOfflineRemovalActive.value = true
+            articleRepository.deleteAllOfflineArticles()
+            whatifOfflineRemovalActive.value = false
+            Timber.i("Removed offline articles!")
         }
     }
 

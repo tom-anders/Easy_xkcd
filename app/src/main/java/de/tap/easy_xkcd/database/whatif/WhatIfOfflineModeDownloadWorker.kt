@@ -1,8 +1,6 @@
-package de.tap.easy_xkcd.database.comics
+package de.tap.easy_xkcd.database.whatif
 
-import android.app.NotificationManager
 import android.content.Context
-import android.os.Build
 import androidx.core.app.NotificationCompat
 import androidx.hilt.work.HiltWorker
 import androidx.work.CoroutineWorker
@@ -15,29 +13,29 @@ import dagger.assisted.AssistedInject
 import de.tap.easy_xkcd.database.BaseDownloadWorker
 import de.tap.easy_xkcd.database.ProgressStatus
 import de.tap.easy_xkcd.utils.PrefHelper
+import kotlinx.coroutines.flow.collect
 
 @HiltWorker
-class OfflineModeDownloadWorker @AssistedInject constructor (
+class WhatIfOfflineModeDownloadWorker @AssistedInject constructor(
     @Assisted private val context: Context,
     @Assisted parameters: WorkerParameters,
-    private val repository: ComicRepository,
+    private val repository: ArticleRepository,
     private val prefHelper: PrefHelper,
-) : BaseDownloadWorker(context, parameters, OfflineModeDownloadWorker::class.hashCode()) {
+) : BaseDownloadWorker(context, parameters, WhatIfOfflineModeDownloadWorker::class.hashCode()) {
 
     override suspend fun onDoWork(): Result {
-        notification.setContentTitle(context.resources.getString(R.string.loading_offline))
+        notification.setContentTitle(context.resources.getString(R.string.loading_offline_whatif))
 
         setForeground(ForegroundInfo(notificationId, notification.build()))
         notificationManager.notify(notificationId, notification.build())
 
         notification.setSilent(true)
 
-        repository.cacheAllComics(cacheMissingTranscripts = false).collect(progressCollector)
-
-        repository.saveOfflineBitmaps.collect(progressCollector)
+        repository.downloadAllArticles.collect(progressCollector)
+        repository.downloadArchiveImages.collect(progressCollector)
 
         notificationManager.cancel(notificationId)
-        prefHelper.setFullOffline(true)
+        prefHelper.setFullOfflineWhatIf(true)
 
         return Result.success()
     }

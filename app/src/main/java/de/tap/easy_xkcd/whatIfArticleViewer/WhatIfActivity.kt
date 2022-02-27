@@ -146,6 +146,7 @@ class WhatIfActivity : BaseActivity() {
         binding.web.settings.displayZoomControls = false
         binding.web.settings.loadWithOverviewMode = true
         binding.web.settings.textZoom = prefHelper.getZoom(binding.web.settings.textZoom)
+        binding.web.settings.allowFileAccess = true
 
         binding.web.setOnTouchListener(object : OnSwipeTouchListener(this@WhatIfActivity) {
             override fun onSwipeRight() {

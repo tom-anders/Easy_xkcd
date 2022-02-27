@@ -11,7 +11,7 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.Toolbar
 import androidx.core.content.ContextCompat
 import com.tap.xkcd_reader.R
-import de.tap.easy_xkcd.database.comics.ProgressStatus
+import de.tap.easy_xkcd.database.ProgressStatus
 import de.tap.easy_xkcd.utils.PrefHelper
 import de.tap.easy_xkcd.utils.ThemePrefs
 import de.tap.easy_xkcd.utils.observe

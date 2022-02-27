@@ -15,6 +15,7 @@ import dagger.hilt.android.qualifiers.ApplicationContext
 import dagger.hilt.components.SingletonComponent
 import de.tap.easy_xkcd.GlideApp
 import de.tap.easy_xkcd.database.DatabaseManager
+import de.tap.easy_xkcd.database.ProgressStatus
 import de.tap.easy_xkcd.database.RealmComic
 import de.tap.easy_xkcd.database.comics.XkcdApi
 import de.tap.easy_xkcd.database.comics.XkcdApiComic
@@ -51,12 +52,6 @@ fun Map<Int, Comic>.mapToComicContainer(size: Int) =
     MutableList(size) { index ->
         ComicContainer(index + 1, this[index + 1])
     }
-
-sealed class ProgressStatus {
-    data class SetProgress(val value: Int, val max: Int) : ProgressStatus()
-    object ResetProgress : ProgressStatus()
-    object Finished : ProgressStatus()
-}
 
 interface ComicRepository {
     val comics: Flow<List<ComicContainer>>
@@ -286,9 +281,9 @@ class ComicRepositoryImpl @Inject constructor(
             .filter { !hasDownloadedComicImage(it) }
             .also { max = it.size }
             .map {
-            flow {
-                emit(saveOfflineBitmap(it))
-            }
+                flow {
+                    emit(saveOfflineBitmap(it))
+                }
         }.merge()
             .collectIndexed { index, _ ->
                 emit(ProgressStatus.SetProgress(index + 1, max))
@@ -298,7 +293,9 @@ class ComicRepositoryImpl @Inject constructor(
 
     override suspend fun removeOfflineBitmaps() {
         withContext(Dispatchers.IO) {
-            (1..prefHelper.newest).map {
+            (1..prefHelper.newest).filter {
+                !comicDao.isFavorite(it)
+            }.map {
                 getComicImageFile(it).delete()
             }
         }

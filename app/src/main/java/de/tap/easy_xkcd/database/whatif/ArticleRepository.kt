@@ -1,29 +1,36 @@
 package de.tap.easy_xkcd.database.whatif
 
 import android.content.Context
+import android.graphics.Bitmap
 import android.net.Uri
+import androidx.core.app.NotificationCompat
+import com.bumptech.glide.Glide
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
 import dagger.hilt.android.components.ViewModelComponent
 import dagger.hilt.android.qualifiers.ApplicationContext
 import dagger.hilt.components.SingletonComponent
+import de.tap.easy_xkcd.GlideApp
+import de.tap.easy_xkcd.database.ProgressStatus
 import de.tap.easy_xkcd.reddit.RedditSearchApi
 import de.tap.easy_xkcd.utils.JsonParser
 import de.tap.easy_xkcd.utils.PrefHelper
 import de.tap.easy_xkcd.utils.ThemePrefs
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.withContext
 import okhttp3.OkHttpClient
 import okhttp3.Request
+import okio.BufferedSink
 import org.jsoup.Jsoup
+import org.jsoup.nodes.Element
 import ru.gildor.coroutines.okhttp.await
 import timber.log.Timber
-import java.io.File
-import java.io.IOException
+import java.io.*
 import javax.inject.Inject
 import javax.inject.Singleton
+
 
 data class LoadedArticle(
     val article: Article,
@@ -59,6 +66,14 @@ interface ArticleRepository {
     suspend fun setAllUnread()
 
     suspend fun loadArticle(number: Int): LoadedArticle?
+
+    suspend fun downloadArticle(number: Int)
+
+    val downloadAllArticles: Flow<ProgressStatus>
+
+    val downloadArchiveImages: Flow<ProgressStatus>
+
+    suspend fun deleteAllOfflineArticles()
 }
 
 @Singleton
@@ -72,6 +87,7 @@ class ArticleRepositoryImpl @Inject constructor(
 ) : ArticleRepository {
     companion object {
         const val OFFLINE_WHATIF_PATH = "/what if/"
+        const val OFFLINE_WHATIF_OVERVIEW_PATH = "/what if/overview"
     }
 
     override val articles: Flow<List<Article>> = articleDao.getArticles()
@@ -105,9 +121,7 @@ class ArticleRepositoryImpl @Inject constructor(
                         }
 
                         if (prefHelper.fullOfflineWhatIf() && prefHelper.mayDownloadDataForOfflineMode(context)) {
-                            if (number > previousNumberOfArticles) {
-                                //TODO download new article here for offline mode
-                            }
+                            downloadArticle(number)
                         }
                     }
                 }
@@ -115,6 +129,93 @@ class ArticleRepositoryImpl @Inject constructor(
             }
         } catch (e: IOException) {
             Timber.e(e)
+        }
+    }
+
+    private fun getImageUrlFromElement(e: Element) =
+        // Usually it's only the path, but sometimes it's also the full url or http instead of https,
+        // so extract the path here first just in case
+        "https://what-if.xkcd.com${Uri.parse(e.attr("src")).path}"
+
+    override suspend fun downloadArticle(number: Int) {
+        withContext(Dispatchers.IO) {
+            try {
+                val dir = File(prefHelper.getOfflinePath(context).absolutePath + OFFLINE_WHATIF_PATH + number.toString())
+                dir.mkdirs()
+                val doc = Jsoup.connect("https://what-if.xkcd.com/$number").get()
+                val writer = BufferedWriter(FileWriter(File(dir,  "$number.html")))
+                writer.write(doc.outerHtml())
+                writer.close()
+
+                //download images
+                doc.select(".illustration").mapIndexed { index, e ->
+                    try {
+                        GlideApp.with(context)
+                            .asBitmap()
+                            .load(getImageUrlFromElement(e))
+                            .submit()
+                            .get()?.let { bitmap ->
+                                val fos = FileOutputStream(File(dir, "${index + 1}.png"))
+                                bitmap.compress(Bitmap.CompressFormat.PNG, 100, fos)
+                                fos.flush()
+                                fos.close()
+                            }
+                    } catch (e2: Exception) {
+                        Timber.e(e2, "While downloading image #${index} for article $number element ${e}")
+                    }
+                }
+            } catch (e: Exception) {
+                Timber.e(e, "At article $number")
+            }
+        }
+    }
+
+    override val downloadAllArticles: Flow<ProgressStatus> = flow {
+        // In theory offline mode could be enabled before the whatif fragment has ever been shown
+        updateDatabase()
+
+        var max: Int
+        articleDao.getArticlesSuspend()
+            .also { max = it.size }
+            .map {
+                flow {
+                    emit(downloadArticle(it.number))
+                }
+            }.merge()
+            .collectIndexed { index, _ ->
+                emit(ProgressStatus.SetProgress(index + 1, max))
+            }
+    }
+
+    override val downloadArchiveImages: Flow<ProgressStatus> = flow {
+        try {
+            var max: Int
+            val dir = File(prefHelper.getOfflinePath(context).absolutePath + OFFLINE_WHATIF_OVERVIEW_PATH)
+            dir.mkdirs()
+            val doc = Jsoup.connect("https://what-if.xkcd.com/archive/")
+                .userAgent("Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/32.0.1700.19 Safari/537.36")
+                .get()
+            doc.select("img.archive-image")
+                .also { max = it.size }
+                .mapIndexed { index, element ->
+                    flow {
+                        emit(GlideApp.with(context)
+                            .asBitmap()
+                            .load(getImageUrlFromElement(element))
+                            .submit()
+                            .get()?.let { bitmap ->
+                                val fos = FileOutputStream(File(dir, "${index + 1}.png"))
+                                bitmap.compress(Bitmap.CompressFormat.PNG, 100, fos)
+                                fos.flush()
+                                fos.close()
+                            })
+                    }.catch { Timber.e(it, "At archive image ${index+1}") }
+                }.merge()
+                .collectIndexed { index, _ ->
+                    emit(ProgressStatus.SetProgress(index + 1, max))
+                }
+        } catch (e: Exception) {
+            Timber.e(e, "While downloading archive images")
         }
     }
 
@@ -186,8 +287,7 @@ class ArticleRepositoryImpl @Inject constructor(
         val base = prefHelper.getOfflinePath(context).absolutePath
         for (e in doc.select(".illustration")) {
             if (!prefHelper.fullOfflineWhatIf()) {
-                val src = e.attr("src")
-                e.attr("src", "https://what-if.xkcd.com$src")
+                e.attr("src", getImageUrlFromElement(e))
             } else {
                 val path = "file://$base/what if/$number/$count.png"
                 e.attr("src", path)
@@ -221,6 +321,10 @@ class ArticleRepositoryImpl @Inject constructor(
         }
 
         return LoadedArticle(article, doc.html(), refs)
+    }
+
+    override suspend fun deleteAllOfflineArticles() {
+        File(prefHelper.getOfflinePath(context).absolutePath + OFFLINE_WHATIF_PATH).deleteRecursively()
     }
 }
 
