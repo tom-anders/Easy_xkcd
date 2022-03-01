@@ -43,9 +43,21 @@ class WhatIfOverviewViewModel @Inject constructor(
         return true
     }
 
-    val articles = combine(repository.articles, _hideRead, _onlyFavorites) {
-        articles, hideRead, onlyFavorites ->
+    private val _searchResults = MutableStateFlow(emptyList<Article>())
+    fun setSearchQuery(newQuery: String) {
+        if (newQuery.isEmpty()) {
+            _searchResults.value = emptyList()
+        } else {
+            viewModelScope.launch {
+                _searchResults.value = repository.searchArticles(newQuery)
+            }
+        }
+    }
+
+    val articles = combine(repository.articles, _hideRead, _onlyFavorites, _searchResults) {
+        articles, hideRead, onlyFavorites, searchResults ->
         when {
+            searchResults.isNotEmpty() -> searchResults
             onlyFavorites -> articles.filter { it.favorite }
             hideRead -> articles.filter { !it.read }
             else -> articles

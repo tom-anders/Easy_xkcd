@@ -191,7 +191,7 @@ class WhatIfActivity : BaseActivity() {
             isEnabled = enabled
             icon.alpha = if (enabled) 250 else 130
         }
-        
+
         model.hasPreviousArticle.observe(this) {
             menu.findItem(R.id.action_back).enableOrGrayOut(it)
         }

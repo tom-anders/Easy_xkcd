@@ -1,19 +1,20 @@
 package de.tap.easy_xkcd.whatIfOverview
 
 import android.app.AlertDialog
-import android.app.ProgressDialog
+import android.content.Context
 import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
 import android.view.*
 import android.view.animation.DecelerateInterpolator
+import android.view.inputmethod.InputMethodManager
 import android.widget.SearchView
 import android.widget.Toast
 import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.MenuCompat
 import androidx.fragment.app.Fragment
-import androidx.fragment.app.activityViewModels
 import androidx.fragment.app.viewModels
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -26,12 +27,7 @@ import de.tap.easy_xkcd.utils.PrefHelper
 import de.tap.easy_xkcd.utils.ThemePrefs
 import de.tap.easy_xkcd.utils.observe
 import de.tap.easy_xkcd.whatIfArticleViewer.WhatIfActivity
-import io.realm.Case
-import io.realm.Realm
-import io.realm.Sort
 import jp.wasabeef.recyclerview.adapters.SlideInBottomAnimationAdapter
-import kotlinx.coroutines.processNextEventInCurrentThread
-import timber.log.Timber
 import java.util.*
 import javax.inject.Inject
 
@@ -176,13 +172,28 @@ class WhatIfOverviewFragment : Fragment() {
                 isIconifiedByDefault = false
                 queryHint = resources.getString(R.string.search_hint_whatif)
 
+                setOnActionExpandListener(object: MenuItem.OnActionExpandListener {
+                    override fun onMenuItemActionExpand(p0: MenuItem?): Boolean {
+                        (requireActivity().getSystemService(AppCompatActivity.INPUT_METHOD_SERVICE) as InputMethodManager?)
+                            ?.toggleSoftInput(InputMethodManager.SHOW_IMPLICIT, 0)
+                        actionView.requestFocus()
+                        return true
+                    }
+
+                    override fun onMenuItemActionCollapse(p0: MenuItem?): Boolean {
+                        setQuery("", false)
+
+                        (requireActivity().getSystemService(AppCompatActivity.INPUT_METHOD_SERVICE) as InputMethodManager?)?.toggleSoftInput(InputMethodManager.HIDE_IMPLICIT_ONLY, 0)
+                        return true
+                    }
+                })
                 setOnQueryTextListener(object : SearchView.OnQueryTextListener {
                     override fun onQueryTextSubmit(query: String): Boolean {
                         return true
                     }
 
                     override fun onQueryTextChange(newText: String): Boolean {
-                        //TODO set query to model
+                        model.setSearchQuery(newText)
                         return false
                     }
                 })
