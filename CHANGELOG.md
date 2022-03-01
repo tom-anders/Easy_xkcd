@@ -1,21 +1,21 @@
-## 8.0-alpha1
+## 8.0-beta
 
 - Use BottomAppBar instead of NavigationDrawer
 - "Explain Comic" button is now displayed as an icon if there's enough room in the toolbar
+
+- Near complete rewrite in Kotlin, lots performance/stability improvements and bug fixes
+
+- Comic database is now built dynamically, no more "loading database" dialogs!
 
 - Near complete rewrite of WhatIf database and article viewer logic to be more stable
 - WhatIf Overview now allows direct toggling between showing all articles or only favorites
 - Scroll position in WhatIf articles is not persisted on rotation
 - Remove "Open Forum Thread" option until the xkcd forum is back online (if ever?)
 
-- Comic database is now built dynamically, no more "loading database" dialogs!
-
 - Add animation when removing a favorite
 - Add animation in overview when toggling "hide read" or "favorites"
 
 - Known issues / missing features:
-    - Search is disabled (will be added back soon)
-    - Offline mode should work, but you currently can't enable/disable it from the settings
     - Notifications for new comics don't work yet
 
 ## 7.3.11
