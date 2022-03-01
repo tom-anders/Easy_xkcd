@@ -7,7 +7,6 @@ import android.net.Uri
 import android.os.Build
 import android.os.Bundle
 import android.os.FileUriExposedException
-import android.text.Html
 import android.text.method.LinkMovementMethod
 import android.view.Menu
 import android.view.MenuItem
@@ -17,11 +16,13 @@ import android.view.animation.AnimationUtils
 import android.webkit.JavascriptInterface
 import android.webkit.WebView
 import android.webkit.WebViewClient
+import android.widget.ImageView
 import android.widget.TextView
 import android.widget.Toast
 import androidx.activity.viewModels
 import androidx.appcompat.app.AlertDialog
 import androidx.core.content.ContextCompat
+import androidx.core.text.HtmlCompat
 import androidx.core.view.MenuCompat
 import androidx.lifecycle.lifecycleScope
 import com.google.android.material.snackbar.BaseTransientBottomBar
@@ -32,9 +33,7 @@ import dagger.hilt.android.AndroidEntryPoint
 import de.tap.easy_xkcd.Activities.BaseActivity
 import de.tap.easy_xkcd.misc.OnSwipeTouchListener
 import de.tap.easy_xkcd.utils.observe
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
 import timber.log.Timber
 
 @AndroidEntryPoint
@@ -100,11 +99,27 @@ class WhatIfActivity : BaseActivity() {
         binding.web.addJavascriptInterface(object : Any() {
             @JavascriptInterface
             fun performClick(n: String) {
-                AlertDialog.Builder(this@WhatIfActivity)
-                    .setMessage(model.loadedArticle.value?.refs?.getOrNull(n.toInt()) ?: "")
-                    .show()
-                    .findViewById<TextView>(android.R.id.message)?.movementMethod =
-                    LinkMovementMethod.getInstance() //enable hyperlinks
+                if (model.loadedArticle.value.number == 141 && n == "2") { //This footnote contains an image
+                    AlertDialog.Builder(this@WhatIfActivity)
+                        .setMessage("Here's an image which is great for annoying a few specific groups of people:")
+                        .setView(ImageView(this@WhatIfActivity).apply {
+                            setImageResource(R.mipmap.brda)
+                            scaleType = ImageView.ScaleType.CENTER_INSIDE
+                            adjustViewBounds = true
+                            maxHeight = 250
+                        })
+                        .show()
+                } else {
+                    Timber.d("Refs: ${model.loadedArticle.value.refs}")
+                    AlertDialog.Builder(this@WhatIfActivity)
+                        .setMessage(HtmlCompat.fromHtml(
+                            model.loadedArticle.value.refs.getOrNull(n.toInt()) ?: "",
+                            HtmlCompat.FROM_HTML_MODE_COMPACT
+                        ))
+                        .show()
+                        .findViewById<TextView>(android.R.id.message)?.movementMethod =
+                        LinkMovementMethod.getInstance() //enable hyperlinks
+                }
             }
         }, "ref")
 

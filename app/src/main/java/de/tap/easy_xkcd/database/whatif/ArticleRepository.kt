@@ -36,7 +36,6 @@ data class LoadedArticle(
     val article: Article,
     val html: String,
 
-    //TODO Handle the image ref no.2 for number 141...
     val refs: List<String>
 ) {
     val number: Int get() = article.number
@@ -312,12 +311,12 @@ class ArticleRepositoryImpl @Inject constructor(
         //remove title
         doc.select("h1").remove()
 
-        val refs = doc.select(".ref").mapIndexed { n, element ->
+        val refs = doc.select(".ref").map { it.select(".refbody").html() }
+
+        doc.select(".ref").mapIndexed { n, element ->
             element.select(".refnum")
                 .attr("onclick", "ref.performClick(\"${n}\")")
             element.select(".refbody").remove()
-
-            element.select(".refbody").html()
         }
 
         return LoadedArticle(article, doc.html(), refs)
