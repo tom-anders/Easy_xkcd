@@ -187,12 +187,16 @@ class WhatIfActivity : BaseActivity() {
     }
 
     override fun onPrepareOptionsMenu(menu: Menu): Boolean {
-        //TODO Only grey out and disable the button instead of hiding it completely?
+        fun MenuItem.enableOrGrayOut(enabled: Boolean) {
+            isEnabled = enabled
+            icon.alpha = if (enabled) 250 else 130
+        }
+        
         model.hasPreviousArticle.observe(this) {
-            menu.findItem(R.id.action_back).isVisible = it
+            menu.findItem(R.id.action_back).enableOrGrayOut(it)
         }
         model.hasNextArticle.observe(this) {
-            menu.findItem(R.id.action_next).isVisible = it
+            menu.findItem(R.id.action_next).enableOrGrayOut(it)
         }
 
         if (menu.findItem(R.id.action_swipe).isChecked) {
@@ -200,13 +204,13 @@ class WhatIfActivity : BaseActivity() {
             menu.findItem(R.id.action_next).isVisible = false
         }
 
-        model.isFavorite.observe(this) {
-            if (it)
-                menu.findItem(R.id.action_favorite).setIcon(
-                    ContextCompat.getDrawable(
-                        this, R.drawable.ic_favorite_on_24dp
-                    )
-                ).setTitle(R.string.action_favorite_remove)
+        model.isFavorite.observe(this) { isFavorite ->
+            menu.findItem(R.id.action_favorite).setIcon(
+                ContextCompat.getDrawable(
+                    this,
+                    if (isFavorite) R.drawable.ic_favorite_on_24dp else R.drawable.ic_favorite_off_24dp
+                )
+            ).setTitle(if (isFavorite) R.string.action_favorite else R.string.action_favorite_remove)
         }
 
         return super.onPrepareOptionsMenu(menu)
