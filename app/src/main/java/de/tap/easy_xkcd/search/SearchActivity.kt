@@ -21,6 +21,7 @@ import de.tap.easy_xkcd.ComicBaseAdapter
 import de.tap.easy_xkcd.ComicListViewHolder
 import de.tap.easy_xkcd.database.comics.Comic
 import de.tap.easy_xkcd.database.comics.ComicContainer
+import de.tap.easy_xkcd.mainActivity.MainActivity
 import de.tap.easy_xkcd.utils.observe
 
 @AndroidEntryPoint
@@ -78,7 +79,7 @@ class SearchActivity: BaseActivity() {
             view.setOnClickListener {
                 val comic = comics[binding.rv.getChildAdapterPosition(it)]
 
-                val intent = Intent("de.tap.easy_xkcd.ACTION_COMIC").apply {
+                val intent = Intent(MainActivity.COMIC_INTENT).apply {
                     putExtra("number", comic.number)
 
                     //TODO SharedElementTransition does not work yet

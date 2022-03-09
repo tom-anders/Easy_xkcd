@@ -37,6 +37,7 @@ abstract class ComicBrowserBaseViewModel constructor(
         }
     }
 
+    //TODO Doesn't seem to update icon now!
     fun toggleFavorite() {
         viewModelScope.launch {
             _selectedComicNumber.value?.let {
@@ -78,7 +79,7 @@ class ComicBrowserViewModel @Inject constructor(
             cacheComic(it)
         }
 
-    private val _selectedComic = combine(selectedComicNumber, repository.comics) { selectedNumber, comics ->
+    private val _selectedComic = combine(selectedComicNumber, comics) { selectedNumber, comics ->
         selectedNumber?.let {
             comics.getOrNull(selectedNumber - 1)?.comic
         } ?: run { null }
@@ -96,15 +97,15 @@ class ComicBrowserViewModel @Inject constructor(
         }
 
         viewModelScope.launch {
-            repository.newestComicNumber.collect { newest ->
+            comics.collect { newList ->
                 // This will only be true when the app is launched the very first time and the
                 // newest comic is downloaded the first time. In this case, jump to the newest
                 // comic by default.
-                if (_selectedComicNumber.value == null && newest != 0) {
-                    _selectedComicNumber.value = newest
+                if (_selectedComicNumber.value == null && newList.isNotEmpty()) {
+                    _selectedComicNumber.value = newList.size
                 }
 
-                if (newest != 0) nextRandom = genNextRandom()
+                if (newList.isNotEmpty()) nextRandom = genNextRandom()
             }
         }
     }

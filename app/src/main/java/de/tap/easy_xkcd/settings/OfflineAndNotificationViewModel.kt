@@ -5,6 +5,7 @@ import androidx.lifecycle.*
 import androidx.work.*
 import dagger.hilt.android.lifecycle.HiltViewModel
 import dagger.hilt.android.qualifiers.ApplicationContext
+import de.tap.easy_xkcd.database.NewComicNotificationHandler
 import de.tap.easy_xkcd.database.comics.ComicRepository
 import de.tap.easy_xkcd.database.comics.OfflineModeDownloadWorker
 import de.tap.easy_xkcd.database.whatif.ArticleRepository
@@ -23,7 +24,8 @@ class OfflineAndNotificationViewModel @Inject constructor(
     private val comicRepository: ComicRepository,
     private val articleRepository: ArticleRepository,
     @ApplicationContext private val context: Context,
-    private val prefHelper: PrefHelper
+    private val prefHelper: PrefHelper,
+    private val newComicNotificationHandler: NewComicNotificationHandler,
 ) : ViewModelWithFlowHelper() {
 
     companion object {
@@ -31,6 +33,9 @@ class OfflineAndNotificationViewModel @Inject constructor(
         const val whatifOfflineDownloadTag = "whatifOfflineDownload"
         const val moveOfflineDataTag = "moveOfflineData"
     }
+
+    fun onNotificationIntervalChanged(newValue: String) =
+        newComicNotificationHandler.changeNotificationIntervalTo(newValue.toLong())
 
     private val offlineDownloadActive =
         WorkManager.getInstance(context).getWorkInfosByTagLiveData(offlineDownloadTag)

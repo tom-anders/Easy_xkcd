@@ -297,15 +297,12 @@ public class PrefHelper {
         return prefs.getBoolean(SHARE_MOBILE, false);
     }
 
-    public int getNotificationInterval() {
-        String hours = prefs.getString(NOTIFICATIONS_INTERVAL, "0");
-        switch (hours) {
-            case "12":
-            case "6":
-                hours = "5";
-                break;
-        }
-        return Integer.parseInt(hours) * 60 * 60 * 1000;
+    public void setNotificationIntervalHours(String newValue) {
+        prefs.edit().putString(NOTIFICATIONS_INTERVAL, newValue).apply();
+    }
+
+    public long getNotificationIntervalHours() {
+        return Integer.parseInt(prefs.getString(NOTIFICATIONS_INTERVAL, "0"));
     }
 
     public boolean checkComicUpdated(int day) {

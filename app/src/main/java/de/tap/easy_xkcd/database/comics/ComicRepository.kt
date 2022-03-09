@@ -58,9 +58,7 @@ interface ComicRepository {
 
     val favorites: Flow<List<ComicContainer>>
 
-    val unreadComics: Flow<List<ComicContainer>>
-
-    val newestComicNumber: Flow<Int>
+    suspend fun updateNewestComic(postToChannel: Boolean): Comic?
 
     val comicCached: SharedFlow<Comic>
 
@@ -110,13 +108,22 @@ class ComicRepositoryImpl @Inject constructor(
     private val xkcdApi: XkcdApi,
 ) : ComicRepository {
 
-//    override val comicCached = Channel<Comic>()
     val _comicCached = MutableSharedFlow<Comic>()
     override val comicCached = _comicCached
 
+    //TODO Could also be a SharedFlow?
     override val foundNewComic = Channel<Unit>()
 
-    override val newestComicNumber = flow {
+    private val newestComicNumber = flow {
+        val previousNewest = prefHelper.newest
+        emit(previousNewest)
+
+        updateNewestComic(postToChannel = true)?.let {
+            emit(it.number)
+        }
+    }
+
+    override suspend fun updateNewestComic(postToChannel: Boolean): Comic? {
         try {
             val newestComic = Comic(xkcdApi.getNewestComic(), context)
             if (newestComic.number != prefHelper.newest) {
@@ -127,34 +134,36 @@ class ComicRepositoryImpl @Inject constructor(
                         (firstComicToCache..newestComic.number).map { number ->
                             downloadComic(number)?.let { comic ->
                                 saveOfflineBitmap(number)
-                                    comicDao.insert(comic)
-                                    _comicCached.emit(comic)
+                                comicDao.insert(comic)
+                                _comicCached.emit(comic)
+
+                                Timber.i("Downloaded offline comic ${comic.number}")
                             }
                         }
                     }
                 }
 
-                if (prefHelper.newest != 0) {
+                if (prefHelper.newest != 0 && postToChannel) {
                     foundNewComic.send(Unit)
                 }
 
+                Timber.i("Found new comic: ${newestComic.number}")
+
                 prefHelper.setNewestComic(newestComic.number)
-                emit(newestComic.number)
+
+                return newestComic
             }
         } catch (e: Exception) {
             Timber.e(e, "While downloading newest comic")
         }
-    }.flowOn(Dispatchers.IO).stateIn(coroutineScope, SharingStarted.Lazily, prefHelper.newest)
+        return null
+    }
 
     override val comics = combine(comicDao.getComics(), newestComicNumber) { comics, newest ->
         comics.mapToComicContainer(newest)
     }
 
     override val favorites = comicDao.getFavorites().mapToComicContainer()
-
-    override val unreadComics = comics.map {
-        it.filter { container -> container.comic == null || !container.comic.read }
-    }
 
     override suspend fun isFavorite(number: Int): Boolean = comicDao.isFavorite(number)
 

@@ -106,6 +106,11 @@ class OfflineNotificationsFragment : PreferenceFragmentCompat() {
             }
         }
 
+        findPreference<ListPreference>("pref_notifications")?.setOnPreferenceChangeListener { _, newValue ->
+            viewModel.onNotificationIntervalChanged(newValue.toString())
+            true
+        }
+
         return super.onCreateView(inflater, container, savedInstanceState)
     }
 

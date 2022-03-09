@@ -15,9 +15,6 @@
 - Add animation when removing a favorite
 - Add animation in overview when toggling "hide read" or "favorites"
 
-- Known issues / missing features:
-    - Notifications for new comics don't work yet
-
 ## 7.3.11
 
 - Fix crashes when a new comics comes out caused by Randall accidentally uploading a huge image

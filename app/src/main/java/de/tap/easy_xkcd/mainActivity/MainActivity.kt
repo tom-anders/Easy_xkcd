@@ -19,6 +19,8 @@ import androidx.appcompat.widget.Toolbar
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentTransaction
+import androidx.fragment.app.viewModels
+import androidx.lifecycle.ViewModelProvider
 import com.google.android.material.bottomappbar.BottomAppBar
 import com.google.android.material.bottomnavigation.BottomNavigationView
 import com.tap.xkcd_reader.R
@@ -34,8 +36,10 @@ import de.tap.easy_xkcd.comicBrowsing.ComicBrowserFragment
 import de.tap.easy_xkcd.comicBrowsing.ComicBrowserViewModel
 import de.tap.easy_xkcd.comicBrowsing.FavoritesFragment
 import de.tap.easy_xkcd.comicOverview.ComicOverviewFragment
+import de.tap.easy_xkcd.comicOverview.ComicOverviewViewModel
 import de.tap.easy_xkcd.settings.SettingsActivity
 import de.tap.easy_xkcd.whatIfOverview.WhatIfOverviewFragment
+import timber.log.Timber
 
 @AndroidEntryPoint
 class MainActivity : BaseActivity() {
@@ -52,18 +56,20 @@ class MainActivity : BaseActivity() {
     private var customTabActivityHelper = CustomTabActivityHelper()
     private lateinit var activityResultLauncher: ActivityResultLauncher<Intent>
 
-    private val COMIC_NOTIFICATION_INTENT = "de.tap.easy_xkcd.ACTION_COMIC_NOTIFICATION"
-    private val COMIC_INTENT = "de.tap.easy_xkcd.ACTION_COMIC"
+    //TODO Add onNewIntent so that we can process notification intents when the app is running in the background
 
     companion object {
         const val ARG_TRANSITION_PENDING = "transition_pending"
         const val ARG_COMIC_TO_SHOW = "comic_to_show"
         const val ARG_FROM_FAVORITES = "from_favorites"
+
+        const val COMIC_INTENT = "de.tap.easy_xkcd.ACTION_COMIC"
     }
 
     val comicBrowserViewModel: ComicBrowserViewModel by viewModels()
+    val comicOverviewViewModel: ComicOverviewViewModel by viewModels()
 
-    val dataBaseViewModel: MainActivityViewModel by viewModels()
+    val viewModel: MainActivityViewModel by viewModels()
 
     private lateinit var bottomNavigationListener: BottomNavigationListener
 
@@ -90,6 +96,8 @@ class MainActivity : BaseActivity() {
         if (savedInstanceState == null) {
             bottomNavigationView.selectedItemId =
                 if (prefHelper.launchToOverview()) R.id.nav_overview else R.id.nav_browser
+
+            viewModel.onCreateWithNullSavedInstanceState()
         }
 
         activityResultLauncher = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) {

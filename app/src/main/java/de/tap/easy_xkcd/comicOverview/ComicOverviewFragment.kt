@@ -10,6 +10,7 @@ import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
+import androidx.fragment.app.activityViewModels
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.*
@@ -31,7 +32,7 @@ import kotlin.random.Random
 
 @AndroidEntryPoint
 class ComicOverviewFragment : Fragment() {
-    val model: ComicOverviewViewModel by viewModels()
+    val model: ComicOverviewViewModel by activityViewModels()
 
     private val mainActivity get() = activity as? MainActivity?
 
