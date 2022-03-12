@@ -34,108 +34,108 @@ import org.robolectric.annotation.Config
 @RunWith(RobolectricTestRunner::class)
 @Config(application = HiltTestApplication::class)
 class TestWhatIfActivity {
-    @get:Rule
-    var hiltRule = HiltAndroidRule(this)
-
-    private val articleModel: ArticleModelImpl = mock()
-
-    // Need to use a spy() instead of mock() here,
-    // otherwise we run into https://stackoverflow.com/questions/54012481/crash-after-updating-to-fragment-testing-library-v1-1-0-alpha03
-    @BindValue
-    val viewModelSpy = spy(WhatIfArticleViewModel(articleModel, SavedStateHandle()))
-
-    private lateinit var activityController: ActivityController<WhatIfActivity>
-
-    @Before
-    fun init() {
-        activityController = Robolectric.buildActivity(WhatIfActivity::class.java)
-
-        hiltRule.inject()
-    }
-
-    @Test
-    fun actionBarTitle() {
-        whenever(viewModelSpy.getTitle()).thenReturn(MutableLiveData("Test"))
-
-        activityController.create().resume()
-
-        assertThat(activityController.get().findViewById<Toolbar>(R.id.toolbar).subtitle).isEqualTo("Test")
-    }
-
-    @Test
-    fun backAndForwardMenuButtons() {
-        //TODO Use values via data driven tests
-        whenever(viewModelSpy.hasNextArticle()).thenReturn(MutableLiveData(false))
-        whenever(viewModelSpy.hasPreviousArticle()).thenReturn(MutableLiveData(false))
-
-        activityController.create().resume()
-
-        val toolbar = activityController.get().findViewById<Toolbar>(R.id.toolbar)
-        activityController.get().onCreateOptionsMenu(toolbar.menu)
-        activityController.get().onPrepareOptionsMenu(toolbar.menu)
-
-        assertThat(toolbar.menu.findItem(R.id.action_back).isVisible).isEqualTo(false)
-        assertThat(toolbar.menu.findItem(R.id.action_next).isVisible).isEqualTo(false)
-
-        whenever(viewModelSpy.hasNextArticle()).thenReturn(MutableLiveData(true))
-        whenever(viewModelSpy.hasPreviousArticle()).thenReturn(MutableLiveData(true))
-
-        activityController.get().onPrepareOptionsMenu(toolbar.menu)
-
-        assertThat(toolbar.menu.findItem(R.id.action_back).isVisible).isEqualTo(true)
-        assertThat(toolbar.menu.findItem(R.id.action_next).isVisible).isEqualTo(true)
-    }
-
-    fun swipeHidesForwardAndBackIfEnabled() {
-        activityController.create().resume()
-
-        val toolbar = activityController.get().findViewById<Toolbar>(R.id.toolbar)
-        activityController.get().onCreateOptionsMenu(toolbar.menu)
-        activityController.get().onPrepareOptionsMenu(toolbar.menu)
-
-        shadowOf(activityController.get()).clickMenuItem(R.id.action_swipe)
-        assertThat(toolbar.menu.findItem(R.id.action_swipe).isChecked).isEqualTo(true)
-
-        assertThat(toolbar.menu.findItem(R.id.action_back).isVisible).isEqualTo(false)
-        assertThat(toolbar.menu.findItem(R.id.action_next).isVisible).isEqualTo(false)
-
-        shadowOf(activityController.get()).clickMenuItem(R.id.action_swipe)
-        assertThat(toolbar.menu.findItem(R.id.action_swipe).isChecked).isEqualTo(false)
-
-        assertThat(toolbar.menu.findItem(R.id.action_back).isVisible).isEqualTo(true)
-        assertThat(toolbar.menu.findItem(R.id.action_next).isVisible).isEqualTo(true)
-    }
-
-    fun menuItemsThatUseTheViewModel() {
-        activityController.create().resume()
-
-        val toolbar = activityController.get().findViewById<Toolbar>(R.id.toolbar)
-        activityController.get().onCreateOptionsMenu(toolbar.menu)
-        activityController.get().onPrepareOptionsMenu(toolbar.menu)
-
-        shadowOf(activityController.get()).clickMenuItem(R.id.action_next)
-        verify(viewModelSpy, times(1)).showNextArticle()
-
-        shadowOf(activityController.get()).clickMenuItem(R.id.action_back)
-        verify(viewModelSpy, times(1)).showPreviousArticle()
-
-        val testIntent = Intent(Intent.ACTION_VIEW, Uri.parse("test"))
-        whenever(viewModelSpy.openArticleInBrowser()).thenReturn(testIntent)
-        shadowOf(activityController.get()).clickMenuItem(R.id.action_browser)
-        assertThat(shadowOf(activityController.get()).peekNextStartedActivity()).isEqualTo(testIntent)
-
-        testIntent.action = Intent.ACTION_SEND
-        testIntent.data = Uri.parse("Another test")
-        shadowOf(activityController.get()).clickMenuItem(R.id.action_share)
-        assertThat(shadowOf(activityController.get()).peekNextStartedActivity()).isEqualTo(testIntent)
-
-        shadowOf(activityController.get()).clickMenuItem(R.id.action_random)
-        verify(viewModelSpy, times(1)).showRandomArticle()
-
-        shadowOf(activityController.get()).clickMenuItem(R.id.action_favorite)
-        verify(viewModelSpy, times(1)).toggleArticleFavorite()
-
-        shadowOf(activityController.get()).clickMenuItem(R.id.action_thread)
-        runBlocking { verify(viewModelSpy, times(1)).getRedditThread() }
-    }
+//    @get:Rule
+//    var hiltRule = HiltAndroidRule(this)
+//
+//    private val articleModel: ArticleModelImpl = mock()
+//
+//    // Need to use a spy() instead of mock() here,
+//    // otherwise we run into https://stackoverflow.com/questions/54012481/crash-after-updating-to-fragment-testing-library-v1-1-0-alpha03
+//    @BindValue
+//    val viewModelSpy = spy(WhatIfArticleViewModel(articleModel, SavedStateHandle()))
+//
+//    private lateinit var activityController: ActivityController<WhatIfActivity>
+//
+//    @Before
+//    fun init() {
+//        activityController = Robolectric.buildActivity(WhatIfActivity::class.java)
+//
+//        hiltRule.inject()
+//    }
+//
+//    @Test
+//    fun actionBarTitle() {
+//        whenever(viewModelSpy.getTitle()).thenReturn(MutableLiveData("Test"))
+//
+//        activityController.create().resume()
+//
+//        assertThat(activityController.get().findViewById<Toolbar>(R.id.toolbar).subtitle).isEqualTo("Test")
+//    }
+//
+//    @Test
+//    fun backAndForwardMenuButtons() {
+//        //TODO Use values via data driven tests
+//        whenever(viewModelSpy.hasNextArticle()).thenReturn(MutableLiveData(false))
+//        whenever(viewModelSpy.hasPreviousArticle()).thenReturn(MutableLiveData(false))
+//
+//        activityController.create().resume()
+//
+//        val toolbar = activityController.get().findViewById<Toolbar>(R.id.toolbar)
+//        activityController.get().onCreateOptionsMenu(toolbar.menu)
+//        activityController.get().onPrepareOptionsMenu(toolbar.menu)
+//
+//        assertThat(toolbar.menu.findItem(R.id.action_back).isVisible).isEqualTo(false)
+//        assertThat(toolbar.menu.findItem(R.id.action_next).isVisible).isEqualTo(false)
+//
+//        whenever(viewModelSpy.hasNextArticle()).thenReturn(MutableLiveData(true))
+//        whenever(viewModelSpy.hasPreviousArticle()).thenReturn(MutableLiveData(true))
+//
+//        activityController.get().onPrepareOptionsMenu(toolbar.menu)
+//
+//        assertThat(toolbar.menu.findItem(R.id.action_back).isVisible).isEqualTo(true)
+//        assertThat(toolbar.menu.findItem(R.id.action_next).isVisible).isEqualTo(true)
+//    }
+//
+//    fun swipeHidesForwardAndBackIfEnabled() {
+//        activityController.create().resume()
+//
+//        val toolbar = activityController.get().findViewById<Toolbar>(R.id.toolbar)
+//        activityController.get().onCreateOptionsMenu(toolbar.menu)
+//        activityController.get().onPrepareOptionsMenu(toolbar.menu)
+//
+//        shadowOf(activityController.get()).clickMenuItem(R.id.action_swipe)
+//        assertThat(toolbar.menu.findItem(R.id.action_swipe).isChecked).isEqualTo(true)
+//
+//        assertThat(toolbar.menu.findItem(R.id.action_back).isVisible).isEqualTo(false)
+//        assertThat(toolbar.menu.findItem(R.id.action_next).isVisible).isEqualTo(false)
+//
+//        shadowOf(activityController.get()).clickMenuItem(R.id.action_swipe)
+//        assertThat(toolbar.menu.findItem(R.id.action_swipe).isChecked).isEqualTo(false)
+//
+//        assertThat(toolbar.menu.findItem(R.id.action_back).isVisible).isEqualTo(true)
+//        assertThat(toolbar.menu.findItem(R.id.action_next).isVisible).isEqualTo(true)
+//    }
+//
+//    fun menuItemsThatUseTheViewModel() {
+//        activityController.create().resume()
+//
+//        val toolbar = activityController.get().findViewById<Toolbar>(R.id.toolbar)
+//        activityController.get().onCreateOptionsMenu(toolbar.menu)
+//        activityController.get().onPrepareOptionsMenu(toolbar.menu)
+//
+//        shadowOf(activityController.get()).clickMenuItem(R.id.action_next)
+//        verify(viewModelSpy, times(1)).showNextArticle()
+//
+//        shadowOf(activityController.get()).clickMenuItem(R.id.action_back)
+//        verify(viewModelSpy, times(1)).showPreviousArticle()
+//
+//        val testIntent = Intent(Intent.ACTION_VIEW, Uri.parse("test"))
+//        whenever(viewModelSpy.openArticleInBrowser()).thenReturn(testIntent)
+//        shadowOf(activityController.get()).clickMenuItem(R.id.action_browser)
+//        assertThat(shadowOf(activityController.get()).peekNextStartedActivity()).isEqualTo(testIntent)
+//
+//        testIntent.action = Intent.ACTION_SEND
+//        testIntent.data = Uri.parse("Another test")
+//        shadowOf(activityController.get()).clickMenuItem(R.id.action_share)
+//        assertThat(shadowOf(activityController.get()).peekNextStartedActivity()).isEqualTo(testIntent)
+//
+//        shadowOf(activityController.get()).clickMenuItem(R.id.action_random)
+//        verify(viewModelSpy, times(1)).showRandomArticle()
+//
+//        shadowOf(activityController.get()).clickMenuItem(R.id.action_favorite)
+//        verify(viewModelSpy, times(1)).toggleArticleFavorite()
+//
+//        shadowOf(activityController.get()).clickMenuItem(R.id.action_thread)
+//        runBlocking { verify(viewModelSpy, times(1)).getRedditThread() }
+//    }
 }
