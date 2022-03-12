@@ -42,4 +42,9 @@
         android:menuCategory="secondary"
         app:showAsAction="never" />
 
+    <item android:id="@+id/action_feedback"
+        android:title="@string/nv_feedback"
+        android:menuCategory="secondary"
+        app:showAsAction="never" />
+
 </menu>

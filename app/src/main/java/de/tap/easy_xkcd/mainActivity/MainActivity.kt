@@ -5,18 +5,25 @@ import android.content.Context
 import android.content.Intent
 import android.content.res.ColorStateList
 import android.graphics.Color
+import android.net.Uri
 import android.os.Bundle
+import android.text.SpannableString
+import android.text.method.LinkMovementMethod
+import android.text.util.Linkify
 import android.view.Menu
 import android.view.MenuItem
 import android.view.View
 import android.view.inputmethod.InputMethodManager
 import android.widget.RelativeLayout
 import android.widget.SearchView
+import android.widget.TextView
 import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.viewModels
+import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.widget.Toolbar
 import androidx.core.content.ContextCompat
+import androidx.core.text.HtmlCompat
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentTransaction
 import androidx.fragment.app.viewModels
@@ -98,6 +105,17 @@ class MainActivity : BaseActivity() {
                 if (prefHelper.launchToOverview()) R.id.nav_overview else R.id.nav_browser
 
             viewModel.onCreateWithNullSavedInstanceState()
+        }
+
+        if (prefHelper.showBetaDialog()) {
+            val message = SpannableString(resources.getString(R.string.beta_message))
+            Linkify.addLinks(message, Linkify.ALL)
+            AlertDialog.Builder(this)
+                .setMessage(message)
+                .setPositiveButton(R.string.got_it) {_,_-> prefHelper.setBetaDialogShown()}
+                .setCancelable(false)
+                .show()
+                .findViewById<TextView>(android.R.id.message)?.movementMethod = LinkMovementMethod.getInstance() //enable hyperlinks
         }
 
         activityResultLauncher = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) {
@@ -321,6 +339,26 @@ class MainActivity : BaseActivity() {
         }
         R.id.action_donate -> {
             startActivity(Intent (this, DonateActivity::class.java))
+            true
+        }
+        R.id.action_feedback -> {
+            AlertDialog.Builder(this)
+                .setItems(arrayOf("Email", "GitHub")) { _, i ->
+                    when (i) {
+                        0 -> {
+                            startActivity(
+                                Intent(
+                                    Intent.ACTION_SENDTO,
+                                    Uri.fromParts("mailto", "easyxkcd@gmail.com", null)
+                                )
+                            )
+                        }
+                        1 -> {
+                            startActivity(Intent(Intent.ACTION_VIEW, Uri.parse("https://github.com/tom-anders/Easy_xkcd/issues/new")))
+                        }
+                    }
+                }
+                .show()
             true
         }
         else -> super.onOptionsItemSelected(item)

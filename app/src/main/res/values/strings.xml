@@ -504,6 +504,13 @@
     Thanks for using the app!
     </string>
 
+    <string name="beta_message" translatable="false">
+    Hey there!
+        \n\nThanks for testing out the Beta! If you notice any bugs or have a feature request,
+    please send me an email or open an issue on GitHub (you can use the feedback button in the menu for that)
+        \n\nThanks for using the app!
+    </string>
+
     <string name="scoped_storage_message">
     Hey there!\n\n
     Up to now, Easy Xkcd used a custom folder to store offline data (both comics and What-if articles).

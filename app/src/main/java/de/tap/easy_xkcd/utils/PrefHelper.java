@@ -133,6 +133,15 @@ public class PrefHelper {
     private static final String CACHE_FIXED = "cache_fixed_7.3.6";
     private static final String FULLSCREEN_ENABLED = "pref_fullscreen_enabled";
 
+    private static final String SHOW_BETA_DIALOG = "show_beta_dialog_8.0beta-1";
+
+    public boolean showBetaDialog() {
+        return sharedPrefs.getBoolean(SHOW_BETA_DIALOG, true);
+    }
+    public void setBetaDialogShown() {
+        sharedPrefs.edit().putBoolean(SHOW_BETA_DIALOG, false).apply();
+    }
+
     public PrefHelper(Context context) {
         sharedPrefs = context.getSharedPreferences("MainActivity", Activity.MODE_PRIVATE);
         prefs = PreferenceManager.getDefaultSharedPreferences(context);
