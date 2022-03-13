@@ -21,9 +21,8 @@ import kotlin.random.Random
 
 abstract class ComicBrowserBaseViewModel constructor(
     private val repository: ComicRepository,
-    @ApplicationContext context: Context
+    protected val prefHelper: PrefHelper,
 ) : ViewModelWithFlowHelper() {
-    protected val prefHelper = PrefHelper(context)
 
     abstract fun comicSelected(index: Int)
 
@@ -63,8 +62,8 @@ abstract class ComicBrowserBaseViewModel constructor(
 @HiltViewModel
 class ComicBrowserViewModel @Inject constructor(
     private val repository: ComicRepository,
-    @ApplicationContext context: Context
-) : ComicBrowserBaseViewModel(repository, context) {
+    prefHelper: PrefHelper,
+) : ComicBrowserBaseViewModel(repository, prefHelper) {
 
     val comics = repository.comics.asLazyStateFlow(emptyList())
 
@@ -150,8 +149,10 @@ class ComicBrowserViewModel @Inject constructor(
 @HiltViewModel
 class FavoriteComicsViewModel @Inject constructor(
     private val repository: ComicRepository,
-    @ApplicationContext private val context: Context
-) : ComicBrowserBaseViewModel(repository, context) {
+    //TODO rather pass in context as parameter
+    @ApplicationContext private val context: Context,
+    prefHelper: PrefHelper,
+) : ComicBrowserBaseViewModel(repository, prefHelper) {
 
     private val _importingFavorites = MutableLiveData(false)
     val importingFavorites: LiveData<Boolean> = _importingFavorites

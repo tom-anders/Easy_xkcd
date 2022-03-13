@@ -44,6 +44,7 @@ class WhatIfArticleViewModel @Inject constructor(
     val isFavorite: StateFlow<Boolean> = _isFavorite
 
     init {
+        //TODO Don't do this in the init block, makes testing more difficult
         try {
             savedStateHandle.get<Int>(WhatIfActivity.INTENT_NUMBER)?.let {
                 Timber.d("Loading article %d", it)
