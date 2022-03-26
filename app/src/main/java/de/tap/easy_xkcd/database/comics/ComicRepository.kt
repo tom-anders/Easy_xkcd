@@ -64,7 +64,7 @@ interface ComicRepository {
 
     val foundNewComic: Channel<Unit>
 
-    suspend fun cacheComic(number: Int)
+    suspend fun cacheComic(number: Int): Comic?
 
     fun cacheAllComics(cacheMissingTranscripts: Boolean): Flow<ProgressStatus>
 
@@ -360,12 +360,13 @@ class ComicRepositoryImpl @Inject constructor(
         emit(ProgressStatus.Finished)
     }
 
-    override suspend fun cacheComic(number: Int) {
+    override suspend fun cacheComic(number: Int): Comic? {
         val comicInDatabase = comicDao.getComic(number)
         if (comicInDatabase == null) {
             downloadComic(number)?.let { comic ->
                 comicDao.insert(comic)
                 _comicCached.emit(comic)
+                return comic
             }
         } else {
             // This should only happen when migrating the old realm database, where there might
@@ -373,6 +374,7 @@ class ComicRepositoryImpl @Inject constructor(
             // inserted into the new database
             _comicCached.emit(comicInDatabase)
         }
+        return null
     }
 
     /**

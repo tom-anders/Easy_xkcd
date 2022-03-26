@@ -1,6 +1,7 @@
 ## 8.0-beta2
 
 - Fix favorite button in toolbar not being updated when tapped
+- Fixed widgets 
 
 ## 8.0-beta
 
