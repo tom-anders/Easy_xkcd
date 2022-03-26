@@ -6,14 +6,17 @@ import android.transition.Transition
 import android.transition.TransitionInflater
 import android.view.*
 import android.widget.ImageView
+import androidx.annotation.MainThread
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
-import androidx.fragment.app.viewModels
 import androidx.lifecycle.lifecycleScope
-import androidx.recyclerview.widget.*
+import androidx.recyclerview.widget.DiffUtil
+import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
+import androidx.recyclerview.widget.StaggeredGridLayoutManager
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.tap.xkcd_reader.R
 import com.tap.xkcd_reader.databinding.RecyclerLayoutBinding
@@ -27,6 +30,7 @@ import de.tap.easy_xkcd.utils.PrefHelper
 import de.tap.easy_xkcd.utils.ThemePrefs
 import de.tap.easy_xkcd.utils.observe
 import kotlinx.coroutines.launch
+import timber.log.Timber
 import java.util.concurrent.TimeUnit
 import kotlin.random.Random
 
@@ -85,10 +89,14 @@ class ComicOverviewFragment : Fragment() {
             adapter = OverviewAdapter(style)
             adapter.comics = model.comics.value.toMutableList()
             recyclerView.adapter = adapter
+
+            if (savedInstanceState != null) {
+                scrollRecyclerViewToPosition(savedInstanceState.getInt(SAVED_INSTANCE_ADAPTER_POSITION, 0))
+            }
         }
 
         model.comics.observe(viewLifecycleOwner) { newList ->
-            // This will be the case either when the overview is intialized the first time,
+            // This will be the case either when the overview is initialized the first time,
             // or when "only favorites" or "hide read" is toggled.
             // Otherwise, a comic will have been cached in which case it would hurt performance
             // to calculate the diff of the whole list. We'll notice that via model.comicCached
@@ -110,32 +118,11 @@ class ComicOverviewFragment : Fragment() {
                     }
                 })
 
-                if (adapter.comics.isEmpty()) {
-                    val position = comicNumberOfSharedElementTransition?.let {
-                        // If we're showing all comics, the position is simply the comic number - 1
-                        // Otherwise, we have to search for the number in the list
-                        it - 1
-                    } ?: run {
-                        // This is the case when we have "hide read" enabled, or are showing only favorites,
-                        // so the comic we came from might not be in the list here. So scroll to the
-                        // nearest comic instead
-                        newList.indexOfFirst { comicContainer -> comicContainer.number >= prefHelper.lastComic }
-                    }
-
-                    // Calculate offset such that the item will be centered in the middle
-                    val offset =
-                        (recyclerView.width - (recyclerView.findViewHolderForAdapterPosition(
-                            position
-                        )?.itemView?.width ?: 0)) / 2
-
-                    (recyclerView.layoutManager as? LinearLayoutManager)?.scrollToPositionWithOffset(
-                        position - 1,
-                        offset
-                    )
-                    (recyclerView.layoutManager as? StaggeredGridLayoutManager)?.scrollToPositionWithOffset(
-                        position - 1,
-                        offset
-                    )
+                if (comicNumberOfSharedElementTransition == null) {
+                    // This is the case when we have "hide read" enabled, or are showing only favorites,
+                    // so the comic we came from might not be in the list here. So scroll to the
+                    // nearest comic instead
+                    scrollRecyclerViewToPosition(newList.indexOfFirst { comicContainer -> comicContainer.number >= prefHelper.lastComic })
                 }
 
                 adapter.comics = newList.toMutableList()
@@ -143,6 +130,10 @@ class ComicOverviewFragment : Fragment() {
                 diffResult.dispatchUpdatesTo(adapter)
 
                 (activity as AppCompatActivity).supportActionBar?.subtitle = ""
+            }
+
+            comicNumberOfSharedElementTransition?.let {
+                scrollRecyclerViewToPosition(it)
             }
         }
 
@@ -211,6 +202,23 @@ class ComicOverviewFragment : Fragment() {
         return binding.root
     }
 
+    private fun scrollRecyclerViewToPosition(position: Int) {
+        // Calculate offset such that the item will be centered in the middle
+        val offset =
+            (recyclerView.width - (recyclerView.findViewHolderForAdapterPosition(
+                position
+            )?.itemView?.width ?: 0)) / 2
+
+        (recyclerView.layoutManager as? LinearLayoutManager)?.scrollToPositionWithOffset(
+            position - 1,
+            offset
+        )
+        (recyclerView.layoutManager as? StaggeredGridLayoutManager)?.scrollToPositionWithOffset(
+            position - 1,
+            offset
+        )
+    }
+
     override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
         inflater.inflate(R.menu.menu_overview_fragment, menu)
 
@@ -270,6 +278,17 @@ class ComicOverviewFragment : Fragment() {
         }
 
         else -> super.onOptionsItemSelected(item)
+    }
+
+    override fun onSaveInstanceState(outState: Bundle) {
+        val layoutManager = recyclerView.layoutManager
+        if (layoutManager is LinearLayoutManager) {
+            outState.putInt(SAVED_INSTANCE_ADAPTER_POSITION, layoutManager.findFirstVisibleItemPosition())
+        } else if (layoutManager is StaggeredGridLayoutManager) {
+            IntArray(0).let {
+                outState.putInt(SAVED_INSTANCE_ADAPTER_POSITION, layoutManager.findFirstVisibleItemPositions(null).first())
+            }
+        }
     }
 
     inner class OverviewAdapter(

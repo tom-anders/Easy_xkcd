@@ -2,6 +2,7 @@
 
 - Fix favorite button in toolbar not being updated when tapped
 - Fixed widgets 
+- Fix scroll position of overview after rotation or if coming from browser
 
 ## 8.0-beta
 
