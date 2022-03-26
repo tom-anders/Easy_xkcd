@@ -1,3 +1,7 @@
+## 8.0-beta2
+
+- Fix favorite button in toolbar not being updated when tapped
+
 ## 8.0-beta
 
 - Use BottomAppBar instead of NavigationDrawer

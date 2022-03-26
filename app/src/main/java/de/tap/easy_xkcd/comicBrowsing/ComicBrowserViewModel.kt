@@ -36,14 +36,7 @@ abstract class ComicBrowserBaseViewModel constructor(
         }
     }
 
-    //TODO Doesn't seem to update icon now!
-    fun toggleFavorite() {
-        viewModelScope.launch {
-            _selectedComicNumber.value?.let {
-                repository.setFavorite(it, !repository.isFavorite(it))
-            }
-        }
-    }
+    abstract fun toggleFavorite()
 
     fun getOfflineUri(number: Int) = repository.getOfflineUri(number)
 
@@ -85,9 +78,8 @@ class ComicBrowserViewModel @Inject constructor(
     }
     override val selectedComic = _selectedComic.asEagerStateFlow(null)
 
-    val isFavorite = _selectedComic.map { comic ->
-        comic?.favorite ?: false
-    }.asEagerStateFlow(false)
+    private val _isFavorite = MutableStateFlow(false)
+    val isFavorite: StateFlow<Boolean> = _isFavorite
 
     init {
         // Jump to the comic we displayed the last time the app was opened
@@ -104,7 +96,15 @@ class ComicBrowserViewModel @Inject constructor(
                     _selectedComicNumber.value = newList.size
                 }
 
-                if (newList.isNotEmpty()) nextRandom = genNextRandom()
+                if (newList.isNotEmpty() && nextRandom == null) nextRandom = genNextRandom()
+            }
+        }
+
+        viewModelScope.launch {
+            _selectedComicNumber.collect {
+                if (it != null) {
+                    _isFavorite.value = repository.isFavorite(it)
+                }
             }
         }
     }
@@ -112,6 +112,16 @@ class ComicBrowserViewModel @Inject constructor(
     fun cacheComic(number: Int) {
         viewModelScope.launch {
             repository.cacheComic(number)
+        }
+    }
+
+    override fun toggleFavorite() {
+        viewModelScope.launch {
+            _selectedComicNumber.value?.let {
+                val wasFavorite = repository.isFavorite(it)
+                repository.setFavorite(it, !wasFavorite)
+                _isFavorite.value = !wasFavorite
+            }
         }
     }
 
@@ -225,6 +235,15 @@ class FavoriteComicsViewModel @Inject constructor(
         }
         return true
     }
+
+    override fun toggleFavorite() {
+        viewModelScope.launch {
+            _selectedComicNumber.value?.let {
+                repository.setFavorite(it, !repository.isFavorite(it))
+            }
+        }
+    }
+
 
     fun getRandomFavoriteIndex() = Random.nextInt(favorites.value.size)
 }
