@@ -58,6 +58,7 @@ public class PrefHelper {
     private static final String COMIC_TRANS = "comic_trans";
     private static final String COMIC_URLS = "comic_urls";
     private static final String SUBTITLE_ENABLED = "pref_subtitle";
+    @Deprecated
     private static final String FAB_LEFT = "pref_fab_left";
     private static final String CUSTOM_TABS = "pref_custom_tabs";
     private static final String HIGHEST_COMIC_URL = "highest_comic_url";
@@ -97,11 +98,13 @@ public class PrefHelper {
     private static final String PREF_ZOOM = "pref_zoom";
     private static final String PREF_DONATE = "pref_hide_donate";
     private static final String DATABASE_LOADED = "database_loaded";
+    @Deprecated
     private static final String ALT_STYLE = "pref_alt_style_new";
     private static final String ALT_OPTIONS = "pref_alt_options";
     private static final String ALT_ACTIVATION = "pref_alt_activation";
     private static final String SURVEY_SNACKBAR = "survey_snackbar";
     private static final String CUSTOM_THEMES_SNACKBAR = "custom_themes_snackbar";
+    private static final String COLORED_NAVBAR = "pref_navbar";
     private static final String MOBILE_ENABLED = "pref_update_mobile";
     private static final String LEGACY_OFFLINE_PATH = "pref_offline_path";
     private static final String OFFLINE_INTERNAL_EXTERNAL = "pref_offline_internal_external";
@@ -119,13 +122,25 @@ public class PrefHelper {
     private static final String NAV_DRAWER_SWIPE = "disable_nav_drawer_swipe";
     private static final String SHOW_UPDATE_MESSAGE = "show_update_message_5_2019";
     private static final String MIGRATED_TO_SCOPED_STORAGE = "pref_migrated_to_scoped_storage";
+    private static final String MIGRATED_REALM_DATABASE = "pref_migrated_realm_database";
 
+    @Deprecated
     private static final String FAB_DISABLED_COMICBROWSER = "pref_random_comics";
+    @Deprecated
     private static final String FAB_DISABLED_FAVORITES = "pref_random_favorites";
 
     private static final String TRANSCRIPTS_FIXED = "transcripts_fixed";
     private static final String CACHE_FIXED = "cache_fixed_7.3.6";
     private static final String FULLSCREEN_ENABLED = "pref_fullscreen_enabled";
+
+    private static final String SHOW_BETA_DIALOG = "show_beta_dialog_8.0beta-1";
+
+    public boolean showBetaDialog() {
+        return sharedPrefs.getBoolean(SHOW_BETA_DIALOG, true);
+    }
+    public void setBetaDialogShown() {
+        sharedPrefs.edit().putBoolean(SHOW_BETA_DIALOG, false).apply();
+    }
 
     public PrefHelper(Context context) {
         sharedPrefs = context.getSharedPreferences("MainActivity", Activity.MODE_PRIVATE);
@@ -140,8 +155,21 @@ public class PrefHelper {
         sharedPrefs.edit().putBoolean(MIGRATED_TO_SCOPED_STORAGE, true).apply();
     }
 
+    public boolean hasMigratedRealmDatabase() {
+        return sharedPrefs.getBoolean(MIGRATED_REALM_DATABASE, false);
+    }
+
+    public void setHasMigratedRealmDatabase() {
+        sharedPrefs.edit().putBoolean(MIGRATED_REALM_DATABASE, true).apply();
+    }
+
+
     public boolean fullOfflineEnabled() {
         return prefs.getBoolean(FULL_OFFLINE, false);
+    }
+
+    public boolean mayDownloadDataForOfflineMode(Context context) {
+        return (isWifi(context) || mobileEnabled());
     }
 
     public void setFullOffline(boolean value) {
@@ -172,14 +200,17 @@ public class PrefHelper {
         prefs.edit().putBoolean(NAV_DRAWER_SWIPE, value).apply();
     }
 
+    @Deprecated
     public boolean fabDisabled(String prefTag) { //TODO make this private
         return prefs.getStringSet("pref_random", new HashSet<String>()).contains(prefTag);
     }
 
+    @Deprecated
     public boolean fabDisabledComicBrowser() {
         return fabDisabled(FAB_DISABLED_COMICBROWSER);
     }
 
+    @Deprecated
     public boolean fabDisabledFavorites() {
         return fabDisabled(FAB_DISABLED_FAVORITES);
     }
@@ -188,6 +219,7 @@ public class PrefHelper {
         return prefs.getBoolean(SUBTITLE_ENABLED, true);
     }
 
+    @Deprecated
     public boolean fabLeft() {
         return prefs.getBoolean(FAB_LEFT, false);
     }
@@ -200,6 +232,7 @@ public class PrefHelper {
         return prefs.getBoolean(CUSTOM_TABS, true);
     }
 
+    @Deprecated
     public boolean classicAltStyle() {
         return Integer.parseInt(prefs.getString(ALT_STYLE, "1")) == 0;
     }
@@ -273,15 +306,12 @@ public class PrefHelper {
         return prefs.getBoolean(SHARE_MOBILE, false);
     }
 
-    public int getNotificationInterval() {
-        String hours = prefs.getString(NOTIFICATIONS_INTERVAL, "0");
-        switch (hours) {
-            case "12":
-            case "6":
-                hours = "5";
-                break;
-        }
-        return Integer.parseInt(hours) * 60 * 60 * 1000;
+    public void setNotificationIntervalHours(String newValue) {
+        prefs.edit().putString(NOTIFICATIONS_INTERVAL, newValue).apply();
+    }
+
+    public long getNotificationIntervalHours() {
+        return Integer.parseInt(prefs.getString(NOTIFICATIONS_INTERVAL, "0"));
     }
 
     public boolean checkComicUpdated(int day) {
@@ -378,6 +408,7 @@ public class PrefHelper {
         sharedPrefs.edit().putBoolean(WHATIF_NIGHT_MODE, value).apply();
     }*/
 
+    @Deprecated
     public void setWhatifRead(String added) {
         String read = sharedPrefs.getString(WHATIF_READ, "");
         if (!read.equals("")) {
@@ -388,15 +419,18 @@ public class PrefHelper {
         sharedPrefs.edit().putString(WHATIF_READ, read).apply();
     }
 
+    @Deprecated
     public void setAllUnread() {
         sharedPrefs.edit().putString(WHATIF_READ, "").apply();
     }
 
+    @Deprecated
     public void setAllWhatIfRead() {
         for (int i = 1; i <= getNewestWhatIf(); i++)
             setWhatifRead(String.valueOf(i));
     }
 
+    @Deprecated
     public boolean checkRead(int number) {
         String read = sharedPrefs.getString(WHATIF_READ, "");
         if (read.equals("")) {
@@ -437,6 +471,7 @@ public class PrefHelper {
         return null;
     } */
 
+    @Deprecated
     public void setWhatIfFavorite(String added) {
         String fav = sharedPrefs.getString(WHATIF_FAV, "");
         if (!fav.equals("")) {
@@ -447,6 +482,7 @@ public class PrefHelper {
         sharedPrefs.edit().putString(WHATIF_FAV, fav).apply();
     }
 
+    @Deprecated
     public boolean checkWhatIfFav(int number) {
         String fav = sharedPrefs.getString(WHATIF_FAV, "");
         if (fav.equals("")) {
@@ -462,6 +498,7 @@ public class PrefHelper {
         return (a >= 0);
     }
 
+    @Deprecated
     public void removeWhatifFav(int number) {
         String[] old = sharedPrefs.getString(WHATIF_FAV, "").split(",");
         int[] oldInt = new int[old.length];
@@ -561,10 +598,12 @@ public class PrefHelper {
         }
     }
 
+    @Deprecated
     public int getNewestWhatIf() {
         return sharedPrefs.getInt(NEWEST_WHATIF, 1);
     }
 
+    @Deprecated
     public void setNewestWhatif(int number) {
         sharedPrefs.edit().putInt(NEWEST_WHATIF, number).apply();
     }
@@ -694,6 +733,10 @@ public class PrefHelper {
             return result;
         }
         return i;
+    }
+
+    public boolean colorNavbar() {
+        return prefs.getBoolean(COLORED_NAVBAR, true);
     }
 
     public boolean mobileEnabled() {

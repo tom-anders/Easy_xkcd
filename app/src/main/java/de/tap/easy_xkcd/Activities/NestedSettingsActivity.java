@@ -20,7 +20,6 @@ package de.tap.easy_xkcd.Activities;
 
 import android.app.Activity;
 import android.app.ProgressDialog;
-import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -42,7 +41,6 @@ import java.util.TimerTask;
 
 import de.tap.easy_xkcd.database.DatabaseManager;
 import de.tap.easy_xkcd.fragments.NestedPreferenceFragment;
-import de.tap.easy_xkcd.services.ArticleDownloadService;
 import timber.log.Timber;
 
 public class NestedSettingsActivity extends BaseActivity {
@@ -53,6 +51,9 @@ public class NestedSettingsActivity extends BaseActivity {
     private static final String ADVANCED = "advanced";
     private static final String NIGHT = "night";
     private static final String WIDGET = "widget";
+
+    // Whenever something major (e.g. theme) was changed and the other activities need to be restarted
+    public static final int RESULT_RESTART_MAIN = 10;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -103,7 +104,7 @@ public class NestedSettingsActivity extends BaseActivity {
                     Toast.makeText(getApplicationContext(), getResources().getString(R.string.loading_comics), Toast.LENGTH_SHORT).show();
                     new DatabaseManager(NestedSettingsActivity.this).setHighestInDatabase(1);
                     prefHelper.setFullOffline(true);
-                    setResult(Activity.RESULT_OK);
+                    setResult(RESULT_RESTART_MAIN);
                     finish();
                 }
                 break;
@@ -115,9 +116,9 @@ public class NestedSettingsActivity extends BaseActivity {
                 break;
             case 3:
                 if (grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                    Toast.makeText(this, getResources().getString(R.string.loading_articles), Toast.LENGTH_SHORT).show();
-                    startService(new Intent(this, ArticleDownloadService.class));
                     prefHelper.setFullOfflineWhatIf(true);
+                    setResult(RESULT_RESTART_MAIN);
+                    finish();
                 }
                 break;
             case 4:

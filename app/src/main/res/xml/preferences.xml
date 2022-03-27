@@ -4,47 +4,59 @@
     <Preference
         android:key="behavior"
         android:persistent="false"
-        android:title="@string/pref_behavior" />
+        android:icon="@drawable/ic_outline_gear_24"
+        android:title="@string/pref_behavior" >
+    </Preference>
 
     <Preference
         android:key="offline_notifications"
+        android:icon="@drawable/ic_outline_cloud_download_24"
         android:persistent="false"
-        android:title="@string/pref_offline_notifications" />
+        android:title="@string/pref_offline_notifications">
+    </Preference>
 
     <Preference
         android:key="appearance"
         android:persistent="false"
+        android:icon="@drawable/ic_outline_palette_24"
         android:title="@string/pref_appearance"
-        android:summary="@string/pref_appearance_sum" />
+        android:summary="@string/pref_appearance_sum" >
+    </Preference>
 
 
     <Preference
         android:key="night"
         android:persistent="false"
+        android:icon="@drawable/ic_outline_nights_stay_24"
         android:title="@string/pref_night_options"
         android:summary="@string/pref_night_options_sum"/>
 
     <Preference
         android:key="altSharing"
         android:persistent="false"
+        android:icon="@drawable/ic_outline_share_24"
         android:summary="@string/pref_alt_sharing_sum"
         android:title="@string/pref_alt_sharing" />
 
-    <Preference
-        android:key="pref_repair"
-        android:title="@string/pref_repair"
-        android:summary="@string/pref_repair_sum"
-        />
+    <!-- TODO Decide if we need this anymore -->
+<!--    <Preference-->
+<!--        android:key="pref_repair"-->
+<!--        android:title="@string/pref_repair"-->
+<!--        android:icon="@drawable/ic_outline_refresh_24"-->
+<!--        android:summary="@string/pref_repair_sum"-->
+<!--        />-->
 
 
     <Preference
         android:key="widget"
         android:summary="@string/pref_widget_sum"
+        android:icon="@drawable/ic_outline_widgets_24"
         android:persistent="false"
         android:title="@string/pref_widget" />
 
     <Preference
         android:key="advanced"
+        android:icon="@drawable/ic_outline_electric_bolt_24"
         android:persistent="false"
         android:title="@string/pref_advanced" />
 

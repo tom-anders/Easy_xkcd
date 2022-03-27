@@ -54,6 +54,7 @@ public class ThemePrefs {
     private static final String NIGHT_SYSTEM = "pref_night_system";
     private static final String AMOLED_NIGHT = "pref_amoled";
     private static final String DETECT_COLOR = "pref_detect_color";
+    @Deprecated
     private static final String AUTO_NIGHT = "pref_auto_night";
     private static final String AUTO_NIGHT_START_MIN = "pref_auto_night_start_min";
     private static final String AUTO_NIGHT_START_HOUR = "pref_auto_night_start_hour";
@@ -117,6 +118,7 @@ public class ThemePrefs {
         return end[0] + ":" + minute + suffix;
     }
 
+    @Deprecated
     public boolean autoNightEnabled() {
         return getPrefs().getBoolean(AUTO_NIGHT, false);
     }
@@ -140,25 +142,6 @@ public class ThemePrefs {
                 final int systemNightMode = context.getResources().getConfiguration().uiMode & Configuration.UI_MODE_NIGHT_MASK;
                 final boolean nightThemeEnabled = (systemNightMode == Configuration.UI_MODE_NIGHT_YES);
                 return nightThemeEnabled;
-            } else if (getPrefs().getBoolean(NIGHT_THEME, false) && autoNightEnabled()) {
-                int hour = Calendar.getInstance().get(Calendar.HOUR_OF_DAY);
-                int minute = Calendar.getInstance().get(Calendar.MINUTE);
-                int[] start = getAutoNightStart();
-                int[] end = getAutoNightEnd();
-                if (hour == start[0]) {
-                    return minute >= start[1];
-                }
-                if (hour == end[0]) {
-                    return minute < end[1];
-                }
-                if (hour > start[0] && hour > end[0] && end[0] >= start[0]) {
-                    return false;
-                }
-                if (hour > start[0]) {
-                    return end[0] <= start[0] || hour < end[0];
-                } else {
-                    return hour < end[0];
-                }
             } else {
                 return getPrefs().getBoolean(NIGHT_THEME, false);
             }
@@ -344,7 +327,7 @@ public class ThemePrefs {
     }
 
     public boolean dontDetectColors() {
-        return getPrefs().getBoolean(DETECT_COLOR, true);
+        return !getPrefs().getBoolean(DETECT_COLOR, true);
     }
 
     public boolean invertColors(boolean fromWhatIf) { //TODO remove the parameter
@@ -429,8 +412,10 @@ public class ThemePrefs {
     }
 
     public boolean bitmapContainsColor(Bitmap bitmap, int comicNumber) {
+        //TODO Add more special cases here
         if(comicNumber == 1913) //https://github.com/tom-anders/Easy_xkcd/issues/116
             return true;
+        if (comicNumber == 1551) return true;
         if (comicNumber == 2018) //This one doesn't work w/o the yellow color
             return true;
         if (dontDetectColors())

@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+    <!-- TODO once we got rid of the items in the nav drawer, remove the "bottom_" prefix -->
+    <item
+        android:id="@+id/nav_overview"
+        android:checked="true"
+        android:title="@string/nv_overview"
+        android:icon="@drawable/ic_outline_view_quilt_24dp"/>
+
+    <item
+        android:id="@+id/nav_browser"
+        android:checked="true"
+        android:title="@string/nv_comicbrowser"
+        android:icon="@drawable/ic_outline_view_carousel_24dp"/>
+
+    <item
+        android:id="@+id/placeholder"
+        android:enabled="false"
+        android:title="" />
+
+    <item
+        android:id="@+id/nav_favorites"
+        android:title="@string/nv_favorites"
+        android:icon="@drawable/ic_favorite_off_24dp"
+        />
+
+    <!-- TODO find a better icon for this? -->
+    <item
+        android:id="@+id/nav_whatif"
+        android:title="@string/nv_whatif"
+        android:icon="@drawable/ic_outline_article_24"
+        android:visible="true"
+        />
+
+</menu>

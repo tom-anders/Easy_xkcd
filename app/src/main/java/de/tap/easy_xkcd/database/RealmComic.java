@@ -50,6 +50,7 @@ public class RealmComic extends RealmObject {
 
     private boolean isRead;
     private boolean isFavorite;
+    private boolean isOffline;
 
     private String title;
     private String transcript;
@@ -71,6 +72,14 @@ public class RealmComic extends RealmObject {
 
     public void setRead(boolean read) {
         isRead = read;
+    }
+
+    public boolean isOffline() {
+        return isOffline;
+    }
+
+    public void setOffline(boolean offline) {
+        isOffline = offline;
     }
 
     public String getTitle() {
@@ -131,7 +140,7 @@ public class RealmComic extends RealmObject {
     }
 
     public static boolean isInteractiveComic(int number, Context context) {
-        return Arrays.binarySearch(context.getResources().getIntArray(R.array.interactive_comics), number) >= 0;
+        return context != null && Arrays.binarySearch(context.getResources().getIntArray(R.array.interactive_comics), number) >= 0;
     }
 
     public static boolean isLargeComic(int number, Context context) {
@@ -140,7 +149,7 @@ public class RealmComic extends RealmObject {
 
     //Thanks to /u/doncajon https://www.reddit.com/r/xkcd/comments/667yaf/xkcd_1826_birdwatching/
     public static String getDoubleResolutionUrl(String url, int number) {
-        int no2xVersion[] = {1097, 1103, 1127, 1151, 1182, 1193, 1229, 1253, 1335, 1349, 1350, 1446, 1452, 1506, 1608, 1663, 1667, 1735, 1739, 1744, 1778, 2202, 2281};
+        int no2xVersion[] = {1097, 1103, 1127, 1151, 1182, 1193, 1229, 1253, 1335, 1349, 1350, 1446, 1452, 1506, 1551, 1608, 1663, 1667, 1735, 1739, 1744, 1778, 2202, 2281, 2293};
 
         if(number >= 1084 && Arrays.binarySearch(no2xVersion, number) < 0 &&  !url.contains("_2x.png"))
             return url.substring(0, url.lastIndexOf('.')) + "_2x.png";
@@ -160,7 +169,7 @@ public class RealmComic extends RealmObject {
         return getJSONFromUrl(getJsonUrl(0)).getInt("num");
     }
 
-    public static RealmComic buildFromJson(Realm realm, int comicNumber, JSONObject json, Context context) {
+    public static RealmComic buildFromJson(int comicNumber, JSONObject json, Context context) {
         RealmComic realmComic = new RealmComic();
 
         String title = "", altText = "", url = "", transcript = "";
@@ -186,6 +195,53 @@ public class RealmComic extends RealmObject {
 
                 // some image and title fixes
                 switch (comicNumber) {
+                    case 76:
+                        url = "https://i.imgur.com/h3fi2RV.jpg";
+                        break;
+                    case 80:
+                        url = "https://i.imgur.com/lWmI1lB.jpg";
+                        break;
+                    case 104:
+                        url = "https://i.imgur.com/dnCNfPo.jpg";
+                        break;
+                    case 1037:
+                        url = "https://www.explainxkcd.com/wiki/images/f/ff/umwelt_the_void.jpg";
+                        break;
+                    case 1054:
+                        title = "The Bacon";
+                        break;
+                    case 1137:
+                        title = "RTL";
+                        break;
+                    case 1190:
+                        //TODO Insert URL from explainxkcd here due to http link
+                        break;
+                    case 1193:
+                        url = "https://www.explainxkcd.com/wiki/images/0/0b/externalities.png";
+                        break;
+                    case 1335:
+                        //TODO Insert URL from explainxkcd here due to http link
+                        break;
+                    case 1350:
+                        url = "https://www.explainxkcd.com/wiki/images/3/3d/lorenz.png";
+                        break;
+                    case 1608:
+                        url = "https://www.explainxkcd.com/wiki/images/4/41/hoverboard.png";
+                        break;
+                    case 1663:
+                        url = "https://explainxkcd.com/wiki/images/c/ce/garden.png";
+                        break;
+                    case 2175:
+                        altText = new String("When Salvador Dalí died, it took months to get all the flagpoles sufficiently melted.".getBytes(UTF_8));
+                        break;
+                    case 2185:
+                        title = "Cumulonimbus";
+                        altText = "The rarest of all clouds is the altocumulenticulostratonimbulocirruslenticulomammanoctilucent cloud, caused by an interaction between warm moist air, cool dry air, cold slippery air, cursed air, and a cloud of nanobots.";
+                        url = "https://imgs.xkcd.com/comics/cumulonimbus_2x.png";
+                        break;
+                    case 2202:
+                        url = "https://imgs.xkcd.com/comics/earth_like_exoplanet.png";
+                        break;
                 }
             } catch (JSONException e) {
                 Timber.wtf(e);
@@ -197,7 +253,8 @@ public class RealmComic extends RealmObject {
         realmComic.setComicNumber(comicNumber);
         realmComic.setTitle(title);
         realmComic.setAltText(altText);
-        realmComic.setUrl(url);
+        // The API sometimes gives http URLs, but these load to an exception on Android
+        realmComic.setUrl(url.replace("http://", "https://"));
         realmComic.setTranscript(transcript);
 
         return realmComic;
@@ -220,6 +277,10 @@ public class RealmComic extends RealmObject {
                 Timber.e("Error at comic %d: Saving to external storage failed: %s", number, e2.getMessage());
             }
         }
+    }
+
+    public static boolean isOfflineComicAlreadyDownloaded(int comicNumber, PrefHelper prefHelper, Context context) {
+        return new File(prefHelper.getOfflinePath(context), comicNumber + ".png").exists();
     }
 
     public static void saveOfflineBitmap(Response response, PrefHelper prefHelper, int comicNumber, Context context) {

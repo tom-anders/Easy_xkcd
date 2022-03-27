@@ -12,11 +12,6 @@
             android:icon="@drawable/ic_outline_share_24dp"
             app:showAsAction="ifRoom" />
 
-        <item android:id="@+id/action_random"
-            android:title="@string/action_random"
-            app:showAsAction="ifRoom"
-            android:icon="@drawable/ic_outline_shuffle_24dp"/>
-
         <item android:id="@+id/action_trans"
             android:title="@string/action_trans"
             app:showAsAction="never" />

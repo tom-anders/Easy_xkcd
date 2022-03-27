@@ -276,7 +276,8 @@
     <string name="title_interactive">(interactive)</string>
 
     <!-- navigation drawer -->
-    <string name="nv_comicbrowser">Comic Browser</string>
+    <string name="nv_comicbrowser">Browser</string>
+    <string name="nv_overview">Overview</string>
     <string name="comicbrowser_title">Comics</string>
     <string name="nv_favorites">Favorites</string>
     <string name="nv_style">Style</string>
@@ -343,7 +344,9 @@
     <string name="pref_repair_sum">If you see some blank comics or encounter crashes, this might be the solution</string>
     <string name="pref_export_import">Export/Import Favorites</string>
     <string name="pref_export">Export your Favorites</string>
+    <string name="pref_export_success">Favorites exported!</string>
     <string name="pref_import_success">Favorites imported!</string>
+    <string name="pref_import_progress">Importing favorites…</string>
     <string name="pref_hide_donate">Hide donation button</string>
     <string name="title_activity_what_if" translatable="false">What if?</string>
     <string name="title_activity_donate">Donate</string>
@@ -351,6 +354,7 @@
     <string name="pref_alt_style">Style</string>
     <string name="snackbar_survey">Got a few minutes and want to help improve this app?</string>
     <string name="snackbar_survey_oc">Take survey</string>
+    <string name="pref_navbar">Colored Navigation Bar</string>
     <string name="pref_update_mobile">Update on mobile data</string>
     <string name="pref_update_mobile_sum">When disabled, offline comics and what-if articles are only updated on Wi-Fi</string>
     <string name="pref_alt_sharing">Alt text &#38; sharing</string>
@@ -399,7 +403,7 @@
     <string name="pref_theme_ok">OK</string>
 
     <string name="action_earliest_unread">Earliest unread</string>
-    <string name="action_thread">Open Reddit/Forum Thread</string>
+    <string name="action_thread">Open Reddit Thread</string>
     <string name="thread_not_found">Thread not found!</string>
     <string name="loading_thread">Loading thread&#8230;</string>
 
@@ -481,6 +485,7 @@
 
     <string name="got_it">GOT IT!</string>
     <string name="no_transcript">Sorry, comics newer than #1674 don\'t have a transcript :(</string>
+    <string name="transcript">Transcript</string>
 
     <string name="pref_fullscreen_enabled">Enable fullscreen mode</string>
     <string name="pref_fullscreen_enabled_sum">Tap a comic to enter fullscreen mode</string>
@@ -497,6 +502,13 @@
     This update finally fixes the bug where offline comics have black bars on the bottom (thanks to Mason Cooper on Github!).
     For the changes to take effect, you will have to manually disable offline mode in the settings and then enable it again. \n\n
     Thanks for using the app!
+    </string>
+
+    <string name="beta_message" translatable="false">
+    Hey there!
+        \n\nThanks for testing out the Beta! If you notice any bugs or have a feature request,
+    please send me an email or open an issue on GitHub (you can use the feedback button in the menu for that)
+        \n\nThanks for using the app!
     </string>
 
     <string name="scoped_storage_message">

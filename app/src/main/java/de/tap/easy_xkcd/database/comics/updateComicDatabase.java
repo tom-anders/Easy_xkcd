@@ -1,4 +1,4 @@
-package de.tap.easy_xkcd.database;
+package de.tap.easy_xkcd.database.comics;
 
 import android.app.ProgressDialog;
 import android.content.Context;
@@ -14,6 +14,8 @@ import java.io.IOException;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CountDownLatch;
 
+import de.tap.easy_xkcd.database.DatabaseManager;
+import de.tap.easy_xkcd.database.RealmComic;
 import de.tap.easy_xkcd.fragments.comics.ComicFragment;
 import de.tap.easy_xkcd.utils.PrefHelper;
 import io.realm.Realm;
@@ -113,7 +115,7 @@ public class updateComicDatabase extends AsyncTask<Void, String, Void> {
     void saveComicInDatabase(JSONObject json, Realm realm, int num, final CountDownLatch latch) {
         RealmComic oldRealmComic = realm.where(RealmComic.class).equalTo("comicNumber", num).findFirst();
 
-        final RealmComic comic = RealmComic.buildFromJson(realm, num, json, context);
+        final RealmComic comic = RealmComic.buildFromJson(num, json, context);
 
         //Import read and favorite comics from the old database
         if (oldRealmComic != null && oldRealmComic.isFavorite()) {
@@ -244,13 +246,6 @@ public class updateComicDatabase extends AsyncTask<Void, String, Void> {
 
     @Override
     protected void onPostExecute(Void dummy) {
-        if (!prefHelper.cacheFixed()) {
-            new DatabaseManager(context).fixCache();
-            prefHelper.setCacheFixed();
-            Timber.d("Fixed cache!");
-        }
-
-
         if (showProgress) {
             try {
                 progress.dismiss();

@@ -170,7 +170,7 @@
     <string name="title_interactive">(interaktivní)</string>
 
     <!-- navigation drawer -->
-    <string name="nv_comicbrowser">Prohlížeč komixu</string>
+    <string name="nv_comicbrowser">Prohlížet</string>
     <string name="nv_favorites">Oblíbené</string>
     <string name="nv_about">O aplikaci</string>
     <string name="nv_feedback">Zpětná vazba</string>
@@ -270,7 +270,7 @@
     <string name="pref_theme_ok">OK</string>
 
     <string name="action_earliest_unread">Nejnovější nepřečtené</string>
-    <string name="action_thread">Otevřít Reddit/vlákno fóra</string>
+    <string name="action_thread">Otevřít Reddit fóra</string>
     <string name="thread_not_found">Vlákno nenalezeno!</string>
     <string name="loading_thread">Načítání vlákna…</string>
 

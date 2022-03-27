@@ -13,14 +13,15 @@
   ~ See the License for the specific language governing permissions and
   ~ limitations under the License.
   -->
-<de.tap.easy_xkcd.misc.HackyDrawerLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
-    android:id="@+id/drawer_layout"
-    android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:fitsSystemWindows="true">
 
-    <RelativeLayout
+<androidx.coordinatorlayout.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/main_content"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+        xmlns:app="http://schemas.android.com/apk/res-auto"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:animateLayoutChanges="true"
@@ -34,42 +35,50 @@
             android:id="@+id/flContent"
             android:layout_width="fill_parent"
             android:layout_height="fill_parent"
-            android:layout_below="@id/toolbar" />
-        <!-- above tvalt -->
-
-        <androidx.coordinatorlayout.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
-            xmlns:app="http://schemas.android.com/apk/res-auto"
-            android:id="@+id/main_content"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent">
-
-
-            <com.google.android.material.floatingactionbutton.FloatingActionButton
-                android:id="@+id/fab"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_alignParentBottom="true"
-                android:layout_alignParentRight="true"
-                android:layout_gravity="bottom|right|end"
-                android:layout_margin="16dp"
-                app:elevation="4dp"
-                app:borderWidth="0dp"
-                android:src="@drawable/ic_outline_shuffle_24dp"
-                app:fabSize="normal" />
-        </androidx.coordinatorlayout.widget.CoordinatorLayout>
+            android:layout_below="@id/toolbar"
+            android:layout_marginBottom="?actionBarSize" />
 
     </RelativeLayout>
 
-    <!-- The navigation drawer -->
-    <com.google.android.material.navigation.NavigationView
-        android:id="@+id/nvView"
+
+    <!-- TODO add this attribute to the bottom app bar to hide it on scroll? -->
+    <!--            app:hideOnScroll="true"-->
+
+    <com.google.android.material.bottomappbar.BottomAppBar
+        android:id="@+id/bottomAppBar"
+        style="@style/Widget.MaterialComponents.BottomAppBar"
+        android:layout_width="match_parent"
+
+        android:layout_height="wrap_content"
+        android:layout_gravity="bottom"
+        app:contentInsetEnd="0dp"
+        app:contentInsetLeft="0dp"
+
+        app:contentInsetRight="0dp"
+        app:contentInsetStart="0dp"
+        app:elevation="4dp">
+
+        <com.google.android.material.bottomnavigation.BottomNavigationView
+            android:id="@+id/bottomNavigationView"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+
+            android:layout_marginStart="0dp"
+            android:layout_marginEnd="0dp"
+            android:background="@android:color/transparent"
+            app:elevation="0dp"
+            app:labelVisibilityMode="labeled"
+            app:menu="@menu/menu_bottom_navigation" />
+    </com.google.android.material.bottomappbar.BottomAppBar>
+
+    <com.google.android.material.floatingactionbutton.FloatingActionButton
+        android:id="@+id/fab"
         android:layout_width="wrap_content"
-        android:layout_height="match_parent"
-        android:layout_gravity="start"
-        android:background="@android:color/white"
-        app:headerLayout="@layout/nav_header"
-        app:menu="@menu/drawer_view" />
+        android:layout_height="wrap_content"
+        android:src="@drawable/ic_outline_shuffle_24dp"
+        app:elevation="4dp"
+        app:fabSize="normal"
+        app:layout_anchor="@id/bottomAppBar" />
+</androidx.coordinatorlayout.widget.CoordinatorLayout>
 
-
-</de.tap.easy_xkcd.misc.HackyDrawerLayout>
 

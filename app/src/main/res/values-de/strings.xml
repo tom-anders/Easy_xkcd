@@ -170,7 +170,7 @@
     <string name="title_interactive">(interaktiv)</string>
 
     <!-- navigation drawer -->
-    <string name="nv_comicbrowser">Comic Browser</string>
+    <string name="nv_comicbrowser">Browser</string>
     <string name="nv_favorites">Favoriten</string>
     <string name="nv_about">Über</string>
     <string name="nv_feedback">Feedback</string>
@@ -297,7 +297,7 @@
     <string name="action_hide_read_comics">Verstecke gelesene</string>
     <string name="thread_not_found">Thread nicht gefunden!</string>
     <string name="loading_thread">Lade Thread…</string>
-    <string name="action_thread">Öffne Reddit/Forum Thread</string>
+    <string name="action_thread">Öffne Reddit Thread</string>
     <string name="what_if_tip">Schon gewusst? Tippe ein Bild an, um den mouseover Text anzuzeigen!</string>
     <string name="action_all_read">Alle gelesen</string>
     <string name="widget_latest">Neuester Comic</string>
