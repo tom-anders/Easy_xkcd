@@ -23,11 +23,8 @@ import androidx.activity.viewModels
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.widget.Toolbar
 import androidx.core.content.ContextCompat
-import androidx.core.text.HtmlCompat
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentTransaction
-import androidx.fragment.app.viewModels
-import androidx.lifecycle.ViewModelProvider
 import com.google.android.material.bottomappbar.BottomAppBar
 import com.google.android.material.bottomnavigation.BottomNavigationView
 import com.tap.xkcd_reader.R
@@ -35,8 +32,7 @@ import com.tap.xkcd_reader.databinding.ActivityMainBinding
 import dagger.hilt.android.AndroidEntryPoint
 import de.tap.easy_xkcd.Activities.BaseActivity
 import de.tap.easy_xkcd.Activities.DonateActivity
-import de.tap.easy_xkcd.Activities.NestedSettingsActivity
-import de.tap.easy_xkcd.Activities.SearchResultsActivity
+import de.tap.easy_xkcd.search.SearchActivity
 import de.tap.easy_xkcd.CustomTabHelpers.CustomTabActivityHelper
 import de.tap.easy_xkcd.comicBrowsing.ComicBrowserBaseFragment
 import de.tap.easy_xkcd.comicBrowsing.ComicBrowserFragment
@@ -44,9 +40,9 @@ import de.tap.easy_xkcd.comicBrowsing.ComicBrowserViewModel
 import de.tap.easy_xkcd.comicBrowsing.FavoritesFragment
 import de.tap.easy_xkcd.comicOverview.ComicOverviewFragment
 import de.tap.easy_xkcd.comicOverview.ComicOverviewViewModel
+import de.tap.easy_xkcd.settings.BaseSettingsActivity
 import de.tap.easy_xkcd.settings.SettingsActivity
 import de.tap.easy_xkcd.whatIfOverview.WhatIfOverviewFragment
-import timber.log.Timber
 
 @AndroidEntryPoint
 class MainActivity : BaseActivity() {
@@ -120,7 +116,7 @@ class MainActivity : BaseActivity() {
 
         activityResultLauncher = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) {
             when (it.resultCode) {
-               NestedSettingsActivity.RESULT_RESTART_MAIN -> {
+               BaseSettingsActivity.RESULT_RESTART_MAIN -> {
                    overridePendingTransition(0, 0)
                    finish()
                    overridePendingTransition(0, 0)
@@ -154,7 +150,7 @@ class MainActivity : BaseActivity() {
             if (savedInstanceState == null && intent != null) {
                 when (intent.action) {
                     COMIC_INTENT -> {
-                        if (intent.hasExtra(SearchResultsActivity.FROM_SEARCH)) {
+                        if (intent.hasExtra(SearchActivity.FROM_SEARCH)) {
                             // Needed for the shared element transition, will be resumed once the fragment
                             // has finished loading the comic image
                             postponeEnterTransition()

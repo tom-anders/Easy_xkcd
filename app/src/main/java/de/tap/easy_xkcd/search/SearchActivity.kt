@@ -16,7 +16,6 @@ import com.tap.xkcd_reader.R
 import com.tap.xkcd_reader.databinding.ActivitySearchResultsBinding
 import dagger.hilt.android.AndroidEntryPoint
 import de.tap.easy_xkcd.Activities.BaseActivity
-import de.tap.easy_xkcd.Activities.SearchResultsActivity
 import de.tap.easy_xkcd.ComicBaseAdapter
 import de.tap.easy_xkcd.ComicListViewHolder
 import de.tap.easy_xkcd.database.comics.Comic
@@ -31,6 +30,10 @@ class SearchActivity: BaseActivity() {
     private lateinit var adapter: SearchAdapter
 
     val model: SearchViewModel by viewModels()
+
+    companion object {
+        const val FROM_SEARCH = "from_search"
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -83,7 +86,7 @@ class SearchActivity: BaseActivity() {
                     putExtra("number", comic.number)
 
                     //TODO SharedElementTransition does not work yet
-                    putExtra(SearchResultsActivity.FROM_SEARCH, "")
+                    putExtra(FROM_SEARCH, "")
                 }
 
                 //TODO The shared element transition doesn't work quite yet, so comment

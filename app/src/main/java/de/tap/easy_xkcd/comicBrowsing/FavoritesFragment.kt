@@ -10,20 +10,12 @@ import android.widget.Toast
 import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.fragment.app.viewModels
-import androidx.lifecycle.LifecycleCoroutineScope
-import androidx.lifecycle.lifecycleScope
-import androidx.lifecycle.repeatOnLifecycle
 import androidx.recyclerview.widget.DiffUtil
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.tap.xkcd_reader.R
 import dagger.hilt.android.AndroidEntryPoint
-import de.tap.easy_xkcd.Activities.CustomFilePickerActivity
 import de.tap.easy_xkcd.utils.observe
-import kotlinx.coroutines.flow.collect
-import kotlinx.coroutines.launch
 import timber.log.Timber
-import java.io.File
-import java.net.URI
 
 @AndroidEntryPoint
 class FavoritesFragment : ComicBrowserBaseFragment() {

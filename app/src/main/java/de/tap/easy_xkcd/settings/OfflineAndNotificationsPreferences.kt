@@ -11,7 +11,6 @@ import androidx.preference.PreferenceFragmentCompat
 import androidx.preference.SwitchPreference
 import com.tap.xkcd_reader.R
 import dagger.hilt.android.AndroidEntryPoint
-import de.tap.easy_xkcd.fragments.NestedPreferenceFragment.deleteComicsTask
 import de.tap.easy_xkcd.utils.PrefHelper
 import de.tap.easy_xkcd.utils.observe
 import javax.inject.Inject

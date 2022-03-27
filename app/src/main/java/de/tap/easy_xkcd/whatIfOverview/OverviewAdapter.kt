@@ -17,7 +17,6 @@ import com.simplecityapps.recyclerview_fastscroll.views.FastScrollRecyclerView
 import com.tap.xkcd_reader.R
 import de.tap.easy_xkcd.GlideApp
 import de.tap.easy_xkcd.GlideRequest
-import de.tap.easy_xkcd.fragments.whatIf.WhatIfFragment
 import de.tap.easy_xkcd.database.whatif.Article
 import de.tap.easy_xkcd.utils.PrefHelper
 import de.tap.easy_xkcd.utils.ThemePrefs

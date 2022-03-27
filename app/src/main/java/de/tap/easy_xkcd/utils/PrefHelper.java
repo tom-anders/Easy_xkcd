@@ -32,8 +32,6 @@ import com.google.android.material.snackbar.Snackbar;
 import android.util.Log;
 import android.view.View;
 
-import androidx.core.content.ContextCompat;
-
 import com.tap.xkcd_reader.R;
 
 import java.io.File;
@@ -44,8 +42,6 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Random;
-
-import de.tap.easy_xkcd.Activities.NestedSettingsActivity;
 
 public class PrefHelper {
     private SharedPreferences sharedPrefs;
@@ -669,25 +665,6 @@ public class PrefHelper {
                     .show();
         } else if (n < 15) {
             sharedPrefs.edit().putInt("survey count", n + 1).apply();
-        }
-    }
-
-    public void showFeatureSnackbar(final Activity activity, FloatingActionButton fab) {
-        if (!sharedPrefs.getBoolean(CUSTOM_THEMES_SNACKBAR, false)) {
-            View.OnClickListener oc = new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    Intent intent = new Intent(activity, NestedSettingsActivity.class);
-                    intent.putExtra("key", "appearance");
-                    activity.startActivityForResult(intent, 1);
-                }
-            };
-            SharedPreferences.Editor editor = sharedPrefs.edit();
-            editor.putBoolean(CUSTOM_THEMES_SNACKBAR, true);
-            editor.apply();
-            Snackbar.make(fab, R.string.snackbar_feature, Snackbar.LENGTH_LONG)
-                    .setAction(R.string.snackbar_feature_oc, oc)
-                    .show();
         }
     }
 
