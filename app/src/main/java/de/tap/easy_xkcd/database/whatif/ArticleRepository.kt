@@ -14,7 +14,6 @@ import dagger.hilt.components.SingletonComponent
 import de.tap.easy_xkcd.GlideApp
 import de.tap.easy_xkcd.database.ProgressStatus
 import de.tap.easy_xkcd.reddit.RedditSearchApi
-import de.tap.easy_xkcd.utils.JsonParser
 import de.tap.easy_xkcd.utils.PrefHelper
 import de.tap.easy_xkcd.utils.ThemePrefs
 import kotlinx.coroutines.Dispatchers
@@ -95,7 +94,7 @@ class ArticleRepositoryImpl @Inject constructor(
         try {
             val document =
                 Jsoup.parse(
-                    JsonParser.getNewHttpClient().newCall(
+                    okHttpClient.newCall(
                         Request.Builder()
                             .url("https://what-if.xkcd.com/archive/")
                             .build()

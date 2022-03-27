@@ -18,6 +18,8 @@
 
 package de.tap.easy_xkcd.database;
 
+import static java.nio.charset.StandardCharsets.UTF_8;
+
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
@@ -34,14 +36,10 @@ import java.io.IOException;
 import java.util.Arrays;
 
 import de.tap.easy_xkcd.utils.PrefHelper;
-import io.realm.Realm;
 import io.realm.RealmObject;
 import io.realm.annotations.PrimaryKey;
 import okhttp3.Response;
 import timber.log.Timber;
-
-import static de.tap.easy_xkcd.utils.JsonParser.getJSONFromUrl;
-import static java.nio.charset.StandardCharsets.UTF_8;
 
 public class RealmComic extends RealmObject {
 
@@ -163,10 +161,6 @@ public class RealmComic extends RealmObject {
         } else {
             return "https://xkcd.com/info.0.json";
         }
-    }
-
-    public static int findNewestComicNumber() throws IOException, JSONException {
-        return getJSONFromUrl(getJsonUrl(0)).getInt("num");
     }
 
     public static RealmComic buildFromJson(int comicNumber, JSONObject json, Context context) {

@@ -397,7 +397,7 @@ class MainActivity : BaseActivity() {
     }
 
 
-override fun onStart() {
+    override fun onStart() {
         super.onStart()
         customTabActivityHelper.bindCustomTabsService(this)
     }

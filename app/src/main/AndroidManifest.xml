@@ -194,11 +194,6 @@
                 android:resource="@xml/searchable" />
         </activity>
 
-        <service
-            android:name="de.tap.easy_xkcd.notifications.ComicNotifierJob"
-            android:exported="true"
-            android:permission="android.permission.BIND_JOB_SERVICE" />
-
         <activity
             android:name="de.tap.easy_xkcd.whatIfArticleViewer.WhatIfActivity"
             android:label="@string/title_activity_what_if"
