@@ -1,31 +1,29 @@
 package de.tap.easy_xkcd
 
-import android.view.View
-import androidx.annotation.DrawableRes
-import androidx.appcompat.view.menu.ActionMenuItemView
+import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.RecyclerView
+import androidx.room.Room
 import androidx.test.espresso.Espresso.onView
-import androidx.test.espresso.NoMatchingViewException
-import androidx.test.espresso.ViewAssertion
 import androidx.test.espresso.action.ViewActions.click
 import androidx.test.espresso.assertion.ViewAssertions.matches
-import androidx.test.espresso.matcher.BoundedMatcher
-import androidx.test.espresso.matcher.ViewMatchers.*
+import androidx.test.espresso.matcher.ViewMatchers.withId
 import androidx.test.ext.junit.rules.ActivityScenarioRule
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.LargeTest
+import androidx.test.platform.app.InstrumentationRegistry
 import com.tap.xkcd_reader.R
+import de.tap.easy_xkcd.database.ComicRoomDatabase
 import de.tap.easy_xkcd.mainActivity.MainActivity
 import io.kotest.matchers.shouldBe
-import io.kotest.matchers.shouldNotBe
+import org.junit.Before
+import org.junit.BeforeClass
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 
-
 @RunWith(AndroidJUnit4::class)
 @LargeTest
-class HelloWorldEspressoTest {
+class TestFavorites {
 
     @get:Rule
     val activityRule = ActivityScenarioRule(MainActivity::class.java)

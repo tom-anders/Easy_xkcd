@@ -103,17 +103,6 @@ class MainActivity : BaseActivity() {
             viewModel.onCreateWithNullSavedInstanceState()
         }
 
-        if (prefHelper.showBetaDialog()) {
-            val message = SpannableString(resources.getString(R.string.beta_message))
-            Linkify.addLinks(message, Linkify.ALL)
-            AlertDialog.Builder(this)
-                .setMessage(message)
-                .setPositiveButton(R.string.got_it) {_,_-> prefHelper.setBetaDialogShown()}
-                .setCancelable(false)
-                .show()
-                .findViewById<TextView>(android.R.id.message)?.movementMethod = LinkMovementMethod.getInstance() //enable hyperlinks
-        }
-
         activityResultLauncher = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) {
             when (it.resultCode) {
                BaseSettingsActivity.RESULT_RESTART_MAIN -> {
