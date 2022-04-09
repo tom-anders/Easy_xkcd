@@ -141,6 +141,15 @@
                 android:value="de.tap.easy_xkcd.settings.SettingsActivity" />
         </activity>
         <activity
+            android:name="de.tap.easy_xkcd.settings.AltAndSharingActivity"
+            android:label="@string/pref_alt_sharing"
+            android:launchMode="singleTop"
+            android:parentActivityName="de.tap.easy_xkcd.settings.SettingsActivity">
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value="de.tap.easy_xkcd.settings.SettingsActivity" />
+        </activity>
+        <activity
             android:name="de.tap.easy_xkcd.settings.AppearanceActivity"
             android:label="@string/pref_offline_notifications"
             android:launchMode="singleTop"

@@ -160,22 +160,29 @@ abstract class ComicBrowserBaseFragment : Fragment() {
                 return true
             }
 
+            fun altOrFullscreen(singleTap: Boolean) {
+                if (singleTap xor prefHelper.altLongTap()) {
+                    if (prefHelper.altVibration()) {
+                        (activity?.getSystemService(Context.VIBRATOR_SERVICE) as? Vibrator?)?.vibrate(10)
+                    }
+                    showAltText()
+                } else {
+                    (activity as? MainActivity?)?.toggleFullscreen()
+                }
+            }
+
             override fun onSingleTapConfirmed(e: MotionEvent?): Boolean {
                 if (RealmComic.isInteractiveComic(comic.number, activity)) {
                     openInBrowser(comic)
-                } else if (prefHelper.fullscreenModeEnabled()) {
-                    (activity as? MainActivity?)?.toggleFullscreen()
+                } else {
+                    altOrFullscreen(singleTap = true)
                 }
                 return false
             }
 
             override fun onLongClick(p0: View?): Boolean {
                 if (fingerLifted) {
-                    if (prefHelper.altVibration()) {
-                        (activity?.getSystemService(Context.VIBRATOR_SERVICE) as? Vibrator?)?.vibrate(10)
-                    }
-
-                    showAltText()
+                    altOrFullscreen(singleTap = false)
                 }
                 return true
             }

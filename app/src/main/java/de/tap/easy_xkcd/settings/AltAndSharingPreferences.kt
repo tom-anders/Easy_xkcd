@@ -3,7 +3,7 @@ package de.tap.easy_xkcd.settings
 import android.os.Bundle
 import com.tap.xkcd_reader.R
 
-class AltAndSharingActivity: BaseSettingsActivity(WidgetFragment())
+class AltAndSharingActivity: BaseSettingsActivity(AltAndSharingFragment())
 
 class AltAndSharingFragment: BasePreferenceFragment() {
     override fun onCreatePreferences(savedInstanceState: Bundle?, rootKey: String?) {

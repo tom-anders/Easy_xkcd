@@ -157,6 +157,7 @@ class PreferenceFragment : PreferenceFragmentCompat(), Preference.OnPreferenceCl
             OFFLINE_NOTIFICATIONS -> OfflineAndNotificationsActivity::class.java
             NIGHT -> NightActivity::class.java
             WIDGET -> WidgetActivity::class.java
+            ALT_SHARING -> AltAndSharingActivity::class.java
             ADVANCED -> AdvancedActivity::class.java
             else -> null
         }?.let {
