@@ -9,11 +9,11 @@
 
 A beautiful, fast, and easy to use [xkcd](http://xkcd.com/) reader for Android.
 
-A fast and beautiful way to view your favorite xkcd comics.
+<img src='https://user-images.githubusercontent.com/13141438/162584950-2ae70333-b062-4822-89be-d20938f4b3b5.png' width='200'>       <img src='https://user-images.githubusercontent.com/13141438/162585043-2f2f94c1-a3ae-4f37-ab7f-49b160d88c1f.png' width='200'>       <img src='https://user-images.githubusercontent.com/13141438/162585049-2a4ea123-8b99-490d-86db-8218b186e16d.png' width='200'>      <img src='https://user-images.githubusercontent.com/13141438/162585071-79ac6a15-f384-4f27-8069-3b3043929b78.png' width='200'>
 
-# Features:
+# Features
 
-## Comic Browser:
+## Comic Browser
 
 - Offline Mode
 - Favorites
@@ -27,7 +27,7 @@ A fast and beautiful way to view your favorite xkcd comics.
 - Support for large images (e.g comic 657)
 - Option to display alt text by default
 
-## What If?:
+## What If?
 
 - Full support for footnotes, formulas and alt text
 - Offline mode and notifications
@@ -36,15 +36,10 @@ A fast and beautiful way to view your favorite xkcd comics.
 - Quick search for article titles
 - Random articles
 
-## General:
+## General
 
 - Custom themes
 - (Auto) Night mode (with option to invert comic colors)
-
-### Screenshots
-
-<img src='https://user-images.githubusercontent.com/13141438/162584950-2ae70333-b062-4822-89be-d20938f4b3b5.png' width='300'>       <img src='https://user-images.githubusercontent.com/13141438/162585043-2f2f94c1-a3ae-4f37-ab7f-49b160d88c1f.png' width='300'>       <img src='https://user-images.githubusercontent.com/13141438/162585049-2a4ea123-8b99-490d-86db-8218b186e16d.png' width='300'>       <img src='https://user-images.githubusercontent.com/13141438/162585052-456c8bca-f0f6-483a-ac1e-74b0f5e17acc.png' width='300'>       <img src='https://user-images.githubusercontent.com/13141438/162585071-79ac6a15-f384-4f27-8069-3b3043929b78.png' width='300'>
-
 
 # Licenses
 - Easy xkcd is licensed under the [Apache License v2](https://github.com/Foggalong/Easy_xkcd/blob/master/LICENSE). 
