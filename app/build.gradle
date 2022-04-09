@@ -99,7 +99,7 @@ dependencies {
     annotationProcessor 'androidx.annotation:annotation:1.2.0'
     kapt 'com.github.bumptech.glide:compiler:4.9.0'
 
-    implementation 'com.github.chrisbanes:PhotoView:2.2.0'
+    implementation 'com.github.chrisbanes:PhotoView:2.3.0'
     implementation 'org.jsoup:jsoup:1.13.1'
     implementation 'jp.wasabeef:recyclerview-animators:3.0.0'
 //    implementation 'com.anjlab.android.iab.v3:library:1.1.0'
