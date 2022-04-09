@@ -372,7 +372,6 @@ abstract class ComicBrowserBaseFragment : Fragment() {
             val defaultResolveInfo = packageManager.resolveActivity(intent, 0)
 
             if (defaultResolveInfo == null || possiblePackageNames.isEmpty()) {
-                Timber.e("No browser found!")
                 return
             }
 
