@@ -39,7 +39,6 @@
         android:label="@string/app_name"
         android:roundIcon="@mipmap/ic_launcher_round"
         android:theme="@style/LimeTheme"
-        android:requestLegacyExternalStorage="true"
         tools:replace="android:theme, android:label">
         <activity
             android:name="de.tap.easy_xkcd.mainActivity.MainActivity"
