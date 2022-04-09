@@ -40,7 +40,6 @@ import timber.log.Timber
 class WhatIfActivity : BaseActivity() {
     companion object {
         const val INTENT_NUMBER = "number"
-        private const val KEY_SCROLL_POSITION = "key_scroll_position"
     }
 
     val model: WhatIfArticleViewModel by viewModels()
@@ -139,10 +138,6 @@ class WhatIfActivity : BaseActivity() {
             }
 
             override fun onPageFinished(view: WebView, url: String) {
-                savedInstanceState?.getInt(KEY_SCROLL_POSITION, 0)?.let {
-                    binding.web.scrollY = it
-                }
-
                 if (prefHelper.showWhatIfTip()) {
                     Snackbar.make(
                         findViewById(android.R.id.content),
@@ -176,6 +171,11 @@ class WhatIfActivity : BaseActivity() {
                 }
             }
         })
+    }
+
+    override fun onRestoreInstanceState(savedInstanceState: Bundle) {
+        binding.web.restoreState(savedInstanceState)
+        super.onRestoreInstanceState(savedInstanceState)
     }
 
     override fun onCreateOptionsMenu(menu: Menu): Boolean {
@@ -302,7 +302,7 @@ class WhatIfActivity : BaseActivity() {
     }
 
     override fun onSaveInstanceState(savedInstanceState: Bundle) {
-        savedInstanceState.putInt(KEY_SCROLL_POSITION, binding.web.scrollY)
+        binding.web.saveState(savedInstanceState)
         super.onSaveInstanceState(savedInstanceState)
     }
 }

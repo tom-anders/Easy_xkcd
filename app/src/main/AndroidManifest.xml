@@ -215,6 +215,7 @@
             android:name="de.tap.easy_xkcd.whatIfArticleViewer.WhatIfActivity"
             android:label="@string/title_activity_what_if"
             android:launchMode="singleTop"
+            android:configChanges="keyboard|keyboardHidden|orientation|screenSize"
             android:parentActivityName="de.tap.easy_xkcd.mainActivity.MainActivity">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
