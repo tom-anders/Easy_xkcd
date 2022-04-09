@@ -124,10 +124,10 @@ abstract class ComicBrowserBaseFragment : Fragment() {
 
         override fun getOfflineUri(number: Int) = model.getOfflineUri(number)
 
-        override fun onImageLoaded(image: ImageView, bitmap: Bitmap, comic: Comic) {
+        override fun onImageLoaded(image: ImageView?, bitmap: Bitmap, comic: Comic) {
             if (comicNumberOfSharedElementTransition == null) {
-                image.alpha = 0f
-                image.animate().alpha(1f).duration = 300
+                image?.alpha = 0f
+                image?.animate()?.alpha(1f)?.duration = 300
             }
         }
 

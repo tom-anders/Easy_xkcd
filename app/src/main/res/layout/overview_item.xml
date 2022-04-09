@@ -1,12 +1,45 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:orientation="vertical" android:layout_width="match_parent"
-    android:layout_height="match_parent">
+<androidx.cardview.widget.CardView
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:card_view="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/cv"
+    android:layout_height="wrap_content"
+    android:layout_width="match_parent"
+    android:animateLayoutChanges="true"
+    card_view:cardBackgroundColor="@android:color/white"
+    card_view:cardElevation="1dp"
+    card_view:cardUseCompatPadding="true">
 
-    <TextView
-        android:id="@+id/tv"
-        android:layout_width="wrap_content"
+    <LinearLayout
+        android:background="?android:attr/selectableItemBackground"
         android:layout_height="wrap_content"
-        android:textSize="25sp"/>
+        android:layout_width="match_parent">
 
-</LinearLayout>
+        <TextView
+            android:id="@+id/comic_info"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textSize="25sp"
+            />
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text=": "
+            android:textSize="25sp"
+            />
+
+        <TextView
+            android:id="@+id/comic_title"
+            android:text=""
+            android:layout_height="wrap_content"
+            android:layout_width="wrap_content"
+            android:singleLine="true"
+            android:textSize="25sp"
+            android:paddingLeft="2dp"
+            android:paddingRight="2dp"
+            />
+
+    </LinearLayout>
+
+
+</androidx.cardview.widget.CardView>

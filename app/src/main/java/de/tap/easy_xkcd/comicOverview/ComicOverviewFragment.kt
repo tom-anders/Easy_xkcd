@@ -161,31 +161,34 @@ class ComicOverviewFragment : Fragment() {
                 args.getInt(MainActivity.ARG_COMIC_TO_SHOW, -1).let { number ->
                     if (number > 0 && number <= prefHelper.newest) {
                         comicNumberOfSharedElementTransition = number
-                        postponeEnterTransition(400, TimeUnit.MILLISECONDS)
+                        if (model.overviewStyle.value != 0) {
+                            postponeEnterTransition(400, TimeUnit.MILLISECONDS)
 
-                        val transition = TransitionInflater.from(context)
-                            .inflateTransition(R.transition.image_shared_element_transition)
+                            val transition = TransitionInflater.from(context)
+                                .inflateTransition(R.transition.image_shared_element_transition)
 
-                        // If we're hiding read comics, we still want the transition, so first show
-                        // read comics again, and then when the enter transition is finished,
-                        // hide them again
-                        if (model.hideRead.value) {
-                            model.toggleHideRead()
-                            transition.addListener(
-                                object: Transition.TransitionListener {
-                                    override fun onTransitionEnd(transition: Transition)
-                                            = model.toggleHideRead()
-                                    override fun onTransitionCancel(transition: Transition)
-                                            = model.toggleHideRead()
+                            // If we're hiding read comics, we still want the transition, so first show
+                            // read comics again, and then when the enter transition is finished,
+                            // hide them again
+                            if (model.hideRead.value) {
+                                model.toggleHideRead()
+                                transition.addListener(
+                                    object : Transition.TransitionListener {
+                                        override fun onTransitionEnd(transition: Transition) =
+                                            model.toggleHideRead()
 
-                                    override fun onTransitionStart(transition: Transition) {}
-                                    override fun onTransitionPause(transition: Transition) {}
-                                    override fun onTransitionResume(transition: Transition) {}
-                                }
-                            )
+                                        override fun onTransitionCancel(transition: Transition) =
+                                            model.toggleHideRead()
+
+                                        override fun onTransitionStart(transition: Transition) {}
+                                        override fun onTransitionPause(transition: Transition) {}
+                                        override fun onTransitionResume(transition: Transition) {}
+                                    }
+                                )
+                            }
+
+                            sharedElementEnterTransition = transition
                         }
-
-                        sharedElementEnterTransition = transition
                     }
                 }
             }
@@ -311,23 +314,31 @@ class ComicOverviewFragment : Fragment() {
             comicNumberOfSharedElementTransition = null
         }
 
-        override fun onImageLoaded(image: ImageView, bitmap: Bitmap, comic: Comic) {}
+        override fun onImageLoaded(image: ImageView?, bitmap: Bitmap, comic: Comic) {}
 
         override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ComicListViewHolder {
             val view = when (style) {
                 2 -> LayoutInflater.from(parent.context)
                     .inflate(R.layout.grid_item, parent, false)
 
-                else -> LayoutInflater.from(parent.context)
+                1 -> LayoutInflater.from(parent.context)
                     .inflate(R.layout.search_result, parent, false)
+
+                else -> LayoutInflater.from(parent.context)
+                    .inflate(R.layout.overview_item, parent, false)
             }
 
             view.setOnClickListener {
                 (activity as MainActivity?)?.showComicFromOverview(
-                    prefHelper.overviewFav(), listOf(
-                        view.findViewById(R.id.comic_title),
-                        view.findViewById(R.id.thumbnail)
-                    ), comics[recyclerView.getChildAdapterPosition(it)].number
+                    prefHelper.overviewFav(),
+                    if (style != 0) {
+                        listOf(
+                            view.findViewById(R.id.comic_title),
+                            view.findViewById(R.id.thumbnail)
+                        )
+                    } else {
+                        emptyList()
+                    }, comics[recyclerView.getChildAdapterPosition(it)].number
                 )
             }
 

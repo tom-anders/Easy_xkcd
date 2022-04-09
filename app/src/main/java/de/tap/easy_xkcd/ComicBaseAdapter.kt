@@ -30,7 +30,7 @@ abstract class ComicViewHolder(view: View): RecyclerView.ViewHolder(view) {
     abstract val title: TextView
     abstract val altText: TextView?
     abstract val info: TextView?
-    abstract val image: ImageView
+    abstract val image: ImageView?
 }
 
 class ComicListViewHolder(view: View, themePrefs: ThemePrefs) : ComicViewHolder(view) {
@@ -38,7 +38,7 @@ class ComicListViewHolder(view: View, themePrefs: ThemePrefs) : ComicViewHolder(
 
     override val title: TextView = cv.findViewById(R.id.comic_title)
     override val info: TextView? = cv.findViewById(R.id.comic_info)
-    override val image: ImageView = cv.findViewById(R.id.thumbnail)
+    override val image: ImageView? = cv.findViewById(R.id.thumbnail)
     override val altText: TextView? = null
 
     init {
@@ -79,7 +79,7 @@ abstract class ComicBaseAdapter<ViewHolder: ComicViewHolder>(
     }
 
     override fun onViewRecycled(holder: ViewHolder) {
-        holder.image.setImageBitmap(null)
+        holder.image?.setImageBitmap(null)
         holder.title.text = ""
         super.onViewRecycled(holder)
     }
@@ -90,13 +90,13 @@ abstract class ComicBaseAdapter<ViewHolder: ComicViewHolder>(
 
         // Transition names used for shared element transitions to the Overview Fragment
         holder.title.transitionName = comic?.number.toString()
-        holder.image.transitionName = "im" + comic?.number
+        holder.image?.transitionName = "im" + comic?.number
 
 
         if (comic == null) {
             onComicNull(comics[position].number)
 
-            holder.image.setImageDrawable(makeProgressDrawable())
+            holder.image?.setImageDrawable(makeProgressDrawable())
             startPostponedTransitions(comics[position].number)
 
             return
@@ -106,7 +106,7 @@ abstract class ComicBaseAdapter<ViewHolder: ComicViewHolder>(
         holder.title.text = prefix + Html.fromHtml(Comic.getInteractiveTitle(comic, context))
 
         if (themePrefs.invertColors(false)) {
-            holder.image.colorFilter = themePrefs.negativeColorFilter
+            holder.image?.colorFilter = themePrefs.negativeColorFilter
         }
 
         val gifId = when (comic.number) {
@@ -118,19 +118,21 @@ abstract class ComicBaseAdapter<ViewHolder: ComicViewHolder>(
             else -> null
         }
 
-        if (gifId != null) {
-            GlideApp.with(context)
-                .asGif()
-                .load(gifId)
-                .listener(ComicRequestListener<GifDrawable>(comic, holder))
-                .into(holder.image)
-        } else {
-            GlideApp.with(context)
-                .asBitmap()
-                .load(if (prefHelper.fullOfflineEnabled()) getOfflineUri(comic.number) else comic.url)
-                .apply(RequestOptions().placeholder(makeProgressDrawable()))
-                .listener(ComicRequestListener<Bitmap>(comic, holder))
-                .into(holder.image)
+        holder.image?.let { image ->
+            if (gifId != null) {
+                GlideApp.with(context)
+                    .asGif()
+                    .load(gifId)
+                    .listener(ComicRequestListener<GifDrawable>(comic, holder))
+                    .into(image)
+            } else {
+                GlideApp.with(context)
+                    .asBitmap()
+                    .load(if (prefHelper.fullOfflineEnabled()) getOfflineUri(comic.number) else comic.url)
+                    .apply(RequestOptions().placeholder(makeProgressDrawable()))
+                    .listener(ComicRequestListener<Bitmap>(comic, holder))
+                    .into(image)
+            }
         }
 
         onDisplayingComic(comicContainer, holder)
@@ -181,16 +183,16 @@ abstract class ComicBaseAdapter<ViewHolder: ComicViewHolder>(
         return comics[position].number.toLong()
     }
 
-    fun imageLoaded(image: ImageView, bitmap: Bitmap, comic: Comic) {
+    fun imageLoaded(image: ImageView?, bitmap: Bitmap, comic: Comic) {
         if (themePrefs.invertColors(false) && themePrefs.bitmapContainsColor(
                 bitmap,
                 comic.number
             )
-        ) image.clearColorFilter()
+        ) image?.clearColorFilter()
 
         onImageLoaded(image, bitmap, comic)
     }
-    abstract fun onImageLoaded(image: ImageView, bitmap: Bitmap, comic: Comic)
+    abstract fun onImageLoaded(image: ImageView?, bitmap: Bitmap, comic: Comic)
 
     private fun makeProgressDrawable() = CircularProgressDrawable(context).apply {
         strokeWidth = 5.0f

@@ -70,7 +70,7 @@ class SearchActivity: BaseActivity() {
 
         override fun startPostponedTransitions() {}
 
-        override fun onImageLoaded(image: ImageView, bitmap: Bitmap, comic: Comic) {}
+        override fun onImageLoaded(image: ImageView?, bitmap: Bitmap, comic: Comic) {}
 
         override fun onCreateViewHolder(
             parent: ViewGroup,

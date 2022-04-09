@@ -27,6 +27,7 @@ class ComicOverviewViewModel @Inject constructor(
     val bookmark: StateFlow<Int?> = _bookmark
 
     //TODO can we also get a flow from preferences? https://github.com/tfcporciuncula/flow-preferences
+    //TODO Should be an enum so that we can get rid of the magic numbers
     private val _overviewStyle = MutableStateFlow(prefHelper.overviewStyle)
     val overviewStyle: StateFlow<Int> = _overviewStyle
 
