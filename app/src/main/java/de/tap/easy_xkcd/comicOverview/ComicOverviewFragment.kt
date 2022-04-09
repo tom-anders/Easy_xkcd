@@ -13,10 +13,7 @@ import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.lifecycleScope
-import androidx.recyclerview.widget.DiffUtil
-import androidx.recyclerview.widget.LinearLayoutManager
-import androidx.recyclerview.widget.RecyclerView
-import androidx.recyclerview.widget.StaggeredGridLayoutManager
+import androidx.recyclerview.widget.*
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.tap.xkcd_reader.R
 import com.tap.xkcd_reader.databinding.RecyclerLayoutBinding
@@ -70,6 +67,9 @@ class ComicOverviewFragment : Fragment() {
 
         recyclerView = binding.rv
         recyclerView.setHasFixedSize(true)
+
+        // Change animation looks weird when scrolling to the list while new comics are cached
+        (recyclerView.itemAnimator as? SimpleItemAnimator)?.supportsChangeAnimations = false
 
         model.overviewStyle.observe(viewLifecycleOwner) { style ->
             binding.rv.layoutManager =
