@@ -133,6 +133,9 @@ abstract class ComicBaseAdapter<ViewHolder: ComicViewHolder>(
                     .listener(ComicRequestListener<Bitmap>(comic, holder))
                     .into(image)
             }
+        } ?: run {
+            // If the holder does not display the image, we can start the postponed transition right away
+            startPostponedTransitions(comic.number)
         }
 
         onDisplayingComic(comicContainer, holder)
