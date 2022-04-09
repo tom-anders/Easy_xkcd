@@ -86,9 +86,8 @@ class MainActivity : BaseActivity() {
         setupToolbar(toolbar)
         supportActionBar?.setDisplayHomeAsUpEnabled(false)
 
-        setupBottomAppBar()
-
         bottomNavigationView = binding.bottomNavigationView
+        setupBottomAppBar()
 
         bottomNavigationListener = BottomNavigationListener(savedInstanceState)
         bottomNavigationView.setOnNavigationItemSelectedListener(bottomNavigationListener)
@@ -257,6 +256,13 @@ class MainActivity : BaseActivity() {
             }
         }
 
+        ColorStateList(
+            arrayOf(intArrayOf(android.R.attr.state_checked), intArrayOf(-android.R.attr.state_checked)),
+            intArrayOf(themePrefs.accentColorNight, Color.WHITE)
+        ).let {
+            bottomNavigationView.itemIconTintList = it
+            bottomNavigationView.itemTextColor = it
+        }
     }
 
     override fun onCreateOptionsMenu(menu: Menu): Boolean {
