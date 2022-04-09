@@ -76,7 +76,10 @@ data class Comic(
                 )]
         }
         altText = xkcdApiComic.alt
-        transcript = xkcdApiComic.transcript
+
+        if (number <= 1608) {
+            transcript = xkcdApiComic.transcript
+        }
 
         year = xkcdApiComic.year
         month = xkcdApiComic.month
