@@ -117,7 +117,6 @@ class FavoritesFragment : ComicBrowserBaseFragment() {
 
     override fun onPrepareOptionsMenu(menu: Menu) {
         menu.findItem(R.id.action_favorite)?.setIcon(R.drawable.ic_favorite_on_24dp)
-        menu.findItem(R.id.action_alt)?.isVisible = prefHelper.showAltTip()
         super.onPrepareOptionsMenu(menu)
     }
 

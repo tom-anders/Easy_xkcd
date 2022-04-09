@@ -37,7 +37,8 @@
         android:layout_alignParentBottom="true"
         android:layout_height="wrap_content"
         android:layout_marginLeft="@dimen/activity_horizontal_margin"
-        android:layout_marginRight="@dimen/text_alt_margin_right"
+        android:layout_marginRight="@dimen/activity_horizontal_margin"
+        android:layout_marginBottom="30dp"
         android:layout_width="match_parent"
         android:textSize="@dimen/text_body1"
         android:visibility="gone" >

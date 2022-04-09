@@ -65,6 +65,7 @@ public class PrefHelper {
     private static final String LAST_COMIC = "Last Comic";
     private static final String ALT_VIBRATION = "pref_alt";
     private static final String ALT_BACK = "pref_alt_back";
+    private static final String ALT_ALWAYS_SHOW = "pref_show_alt";
     private static final String ALT_TIP = "alt_tip";
     private static final String WHAT_IF_TIP = "whatif_tip";
     private static final String RANDOM_TIP = "random_tip";
@@ -259,6 +260,10 @@ public class PrefHelper {
 
     public boolean altBackButton() {
         return prefs.getStringSet(ALT_OPTIONS, new HashSet<String>()).contains(ALT_BACK);
+    }
+
+    public boolean alwaysShowAltText() {
+        return prefs.getStringSet(ALT_OPTIONS, new HashSet<String>()).contains(ALT_ALWAYS_SHOW);
     }
 
     public boolean showAltTip() {

@@ -11,6 +11,7 @@ import android.text.Html
 import android.transition.TransitionInflater
 import android.view.*
 import android.widget.*
+import androidx.activity.addCallback
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.browser.customtabs.CustomTabsIntent
@@ -100,6 +101,18 @@ abstract class ComicBrowserBaseFragment : Fragment() {
 
         }
 
+        activity?.onBackPressedDispatcher
+            ?.addCallback {
+                if (prefHelper.altBackButton()) {
+                    showAltText()
+                } else {
+                    if (isEnabled) {
+                        isEnabled = false
+                        activity?.onBackPressed()
+                    }
+                }
+            }
+
         return binding.root
     }
 
@@ -161,7 +174,7 @@ abstract class ComicBrowserBaseFragment : Fragment() {
             }
 
             fun altOrFullscreen(singleTap: Boolean) {
-                if (singleTap xor prefHelper.altLongTap()) {
+                if ((singleTap xor prefHelper.altLongTap()) && !prefHelper.alwaysShowAltText()) {
                     if (prefHelper.altVibration()) {
                         (activity?.getSystemService(Context.VIBRATOR_SERVICE) as? Vibrator?)?.vibrate(10)
                     }
@@ -208,6 +221,11 @@ abstract class ComicBrowserBaseFragment : Fragment() {
                     holder.image.setOnDoubleTapListener(it)
                     holder.image.setOnLongClickListener(it)
                 }
+
+                if (prefHelper.alwaysShowAltText()) {
+                    holder.altText.text = comic.altText
+                    holder.altText.visibility = View.VISIBLE
+                }
             }
 
             super.onBindViewHolder(holder, position)
@@ -240,6 +258,9 @@ abstract class ComicBrowserBaseFragment : Fragment() {
 
     override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
         MenuCompat.setGroupDividerEnabled(menu, true)
+
+        menu.findItem(R.id.action_alt)?.isVisible = prefHelper.showAltTip() && !prefHelper.alwaysShowAltText()
+
         super.onCreateOptionsMenu(menu, inflater)
     }
 
