@@ -1,3 +1,7 @@
+## 8.0.1
+
+- Fix some crashes during database migration
+
 ## 8.0
 
 - Use BottomAppBar instead of NavigationDrawer
