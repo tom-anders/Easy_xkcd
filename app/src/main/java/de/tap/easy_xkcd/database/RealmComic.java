@@ -149,7 +149,7 @@ public class RealmComic extends RealmObject {
     public static String getDoubleResolutionUrl(String url, int number) {
         int no2xVersion[] = {1097, 1103, 1127, 1151, 1182, 1193, 1229, 1253, 1335, 1349, 1350, 1446, 1452, 1506, 1551, 1608, 1663, 1667, 1735, 1739, 1744, 1778, 2202, 2281, 2293};
 
-        if(number >= 1084 && Arrays.binarySearch(no2xVersion, number) < 0 &&  !url.contains("_2x.png"))
+        if(number >= 1084 && Arrays.binarySearch(no2xVersion, number) < 0 &&  !url.contains("_2x.png") && url.lastIndexOf('.') != -1)
             return url.substring(0, url.lastIndexOf('.')) + "_2x.png";
 
         return url;

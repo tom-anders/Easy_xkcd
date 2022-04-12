@@ -49,7 +49,14 @@ class ComicBrowserFragment : ComicBrowserBaseFragment() {
         }
 
         model.comicCached.observe(viewLifecycleOwner) { comic ->
-            adapter.updateComic(comic.number - 1, comic)
+            pager.post {
+                // When migrating the old Realm database, this would lead to crashes when onComicNull()
+                // would be called in onBindViewHolder, but when repository.cacheComic() would be called,
+                // the comic was already in the database, so comicCached would be emitted while
+                // the recyclerview is still computing its layout, leading to IllegalStateException.
+                // So use post() to make sure the RV is ready
+                adapter.updateComic(comic.number - 1, comic)
+            }
         }
 
         model.foundNewComic.observe(this) {
