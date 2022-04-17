@@ -1,3 +1,8 @@
+## 8.0.2
+
+- Fix another crash during database migration
+- Fix crash when pressing FloatingActionButton when there are no favorites
+
 ## 8.0.1
 
 - Fix some crashes during database migration
