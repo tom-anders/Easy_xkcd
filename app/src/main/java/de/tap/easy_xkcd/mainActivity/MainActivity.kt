@@ -1,6 +1,7 @@
 package de.tap.easy_xkcd.mainActivity
 
 import android.app.SearchManager
+import android.content.ComponentName
 import android.content.Context
 import android.content.Intent
 import android.content.res.ColorStateList
@@ -27,11 +28,11 @@ import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentTransaction
 import com.google.android.material.bottomappbar.BottomAppBar
 import com.google.android.material.bottomnavigation.BottomNavigationView
+import com.tap.xkcd_reader.BuildConfig
 import com.tap.xkcd_reader.R
 import com.tap.xkcd_reader.databinding.ActivityMainBinding
 import dagger.hilt.android.AndroidEntryPoint
 import de.tap.easy_xkcd.Activities.BaseActivity
-import de.tap.easy_xkcd.Activities.DonateActivity
 import de.tap.easy_xkcd.search.SearchActivity
 import de.tap.easy_xkcd.CustomTabHelpers.CustomTabActivityHelper
 import de.tap.easy_xkcd.comicBrowsing.ComicBrowserBaseFragment
@@ -329,7 +330,10 @@ class MainActivity : BaseActivity() {
             toggleNightMode(item)
         }
         R.id.action_donate -> {
-            startActivity(Intent (this, DonateActivity::class.java))
+            when (BuildConfig.FLAVOR) {
+                "googleplay" -> startActivity(Intent().setComponent(ComponentName(packageName, "$packageName.Activities.DonateActivity")))
+                "fdroid" -> startActivity(Intent(Intent.ACTION_VIEW, Uri.parse("https://www.paypal.com/donate/?hosted_button_id=9P95ACMNTXPM6")))
+            }
             true
         }
         R.id.action_feedback -> {

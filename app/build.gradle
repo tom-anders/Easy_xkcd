@@ -31,6 +31,16 @@ android {
         execution 'ANDROIDX_TEST_ORCHESTRATOR'
     }
 
+    flavorDimensions += "version"
+    productFlavors {
+        create("fdroid") {
+            dimension = "version"
+        }
+        create("googleplay") {
+            dimension = "version"
+        }
+    }
+
     /*buildTypes {
         release {
             minifyEnabled false
@@ -92,7 +102,7 @@ dependencies {
 
     implementation "androidx.preference:preference-ktx:1.2.0"
 
-    implementation "com.android.billingclient:billing-ktx:4.0.0"
+    googleplayImplementation "com.android.billingclient:billing-ktx:4.0.0"
 
     implementation 'com.github.bumptech.glide:glide:4.9.0'
     testImplementation 'junit:junit:4.13.2'
