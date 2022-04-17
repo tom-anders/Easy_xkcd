@@ -189,28 +189,37 @@ class ComicRepositoryImpl @Inject constructor(
 
     override suspend fun migrateRealmDatabase() {
         if (!prefHelper.hasMigratedRealmDatabase() || BuildConfig.DEBUG ) {
-            // Needed for fresh install, will initialize the (empty) realm database
-            val databaseManager = DatabaseManager(context)
+            try {
+                // Needed for fresh install, will initialize the (empty) realm database
+                val databaseManager = DatabaseManager(context)
 
-            val migratedComics = copyResultsFromRealm { realm ->
-                realm.where(RealmComic::class.java).findAll()
-            }.map { realmComic ->
-                Comic(
-                    XkcdApiComic(
-                        num = realmComic.comicNumber,
-                        transcript = realmComic.transcript,
-                        alt = realmComic.altText,
-                        title = realmComic.title,
-                        url = realmComic.url,
-                        day = "", month = "", year = "",
-                    ), context
-                ).apply {
-                    read = realmComic.isRead
-                    favorite = realmComic.isFavorite
+                val migratedComics = copyResultsFromRealm { realm ->
+                    realm.where(RealmComic::class.java).findAll()
+                }.mapIndexedNotNull { index, realmComic ->
+                    try {
+                        Comic(
+                            XkcdApiComic(
+                                num = realmComic.comicNumber,
+                                transcript = realmComic.transcript,
+                                alt = realmComic.altText,
+                                title = realmComic.title,
+                                url = realmComic.url,
+                                day = "", month = "", year = "",
+                            ), context
+                        ).apply {
+                            read = realmComic.isRead
+                            favorite = realmComic.isFavorite
+                        }
+                    } catch (e: Exception) {
+                        Timber.e(e, "Occured at comic index $index")
+                        null
+                    }
                 }
+                Timber.d("Migrating ${migratedComics.size} comics")
+                comicDao.insert(migratedComics)
+            } catch (e: Exception) {
+                Timber.e(e, "During migration of Realm Database!")
             }
-            Timber.d("Migrating ${migratedComics.size} comics")
-            comicDao.insert(migratedComics)
             prefHelper.setHasMigratedRealmDatabase()
         }
     }
