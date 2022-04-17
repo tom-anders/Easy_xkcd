@@ -80,8 +80,8 @@ class FavoritesFragment : ComicBrowserBaseFragment() {
             }
         }
 
-        activity?.findViewById<FloatingActionButton>(R.id.fab)?.apply {
-            setOnClickListener { pager.setCurrentItem(model.getRandomFavoriteIndex(), false) }
+        activity?.findViewById<FloatingActionButton>(R.id.fab)?.setOnClickListener {
+            if (model.favorites.value.isNotEmpty()) pager.setCurrentItem(model.getRandomFavoriteIndex(), false)
         }
 
         exportFavoritesResult = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->

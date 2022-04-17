@@ -92,7 +92,7 @@ class WhatIfOverviewFragment : Fragment() {
         }
 
         activity?.findViewById<FloatingActionButton>(R.id.fab)?.setOnClickListener {
-            displayWhatIf(Random().nextInt(adapter.itemCount))
+            if (adapter.itemCount > 0) displayWhatIf(Random().nextInt(adapter.itemCount))
         }
 
        activityResultLauncher =

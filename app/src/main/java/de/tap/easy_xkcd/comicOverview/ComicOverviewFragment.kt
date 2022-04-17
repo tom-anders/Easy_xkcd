@@ -195,11 +195,13 @@ class ComicOverviewFragment : Fragment() {
         }
 
         activity?.findViewById<FloatingActionButton>(R.id.fab)?.setOnClickListener {
-            val randIndex = Random.nextInt(adapter.comics.size)
+            if (adapter.comics.isNotEmpty()) {
+                val randIndex = Random.nextInt(adapter.comics.size)
 
-            mainActivity?.showComicFromOverview(
-                prefHelper.overviewFav(), emptyList(), adapter.comics[randIndex].number
-            )
+                mainActivity?.showComicFromOverview(
+                    prefHelper.overviewFav(), emptyList(), adapter.comics[randIndex].number
+                )
+            }
         }
 
         return binding.root
