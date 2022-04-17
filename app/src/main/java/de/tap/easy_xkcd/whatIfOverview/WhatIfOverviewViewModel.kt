@@ -26,10 +26,10 @@ class WhatIfOverviewViewModel @Inject constructor(
     private val repository: ArticleRepository,
     private val prefHelper: PrefHelper
 ) : ViewModelWithFlowHelper() {
-    private val _hideRead = MutableStateFlow(prefHelper.hideRead())
+    private val _hideRead = MutableStateFlow(prefHelper.hideReadWhatIf())
     val hideRead: StateFlow<Boolean> = _hideRead
 
-    private val _onlyFavorites = MutableStateFlow(prefHelper.overviewFav())
+    private val _onlyFavorites = MutableStateFlow(false)
     val onlyFavorites: StateFlow<Boolean> = _onlyFavorites
 
     fun toggleOnlyFavorites(): Boolean {

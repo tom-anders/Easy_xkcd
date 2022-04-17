@@ -84,7 +84,7 @@ public class PrefHelper {
     private static final String WHATIF_READ = "whatif_read";
     private static final String WHATIF_FAV = "whatif_fav";
     private static final String NEWEST_WHATIF = "whatif_newest";
-    private static final String HIDE_READ_WHATIF = "hide_read";
+    private static final String HIDE_READ_WHATIF = "hide_read_whatif";
     private static final String HIDE_READ_OVERVIEW = "hide_read_overview";
     private static final String SWIPE_ENABLED = "whatif_swipe";
     private static final String RATE_SNACKBAR = "rate_snackbar";
