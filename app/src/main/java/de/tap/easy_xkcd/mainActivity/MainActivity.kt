@@ -378,14 +378,16 @@ class MainActivity : BaseActivity() {
     }
 
     fun toggleFullscreen() {
-        fullscreenEnabled = !fullscreenEnabled
+        if (prefHelper.fullscreenModeEnabled()) {
+            fullscreenEnabled = !fullscreenEnabled
 
-        animateViewForFullscreenToggle(toolbar, true)
-        animateViewForFullscreenToggle(bottomAppBar, false)
+            animateViewForFullscreenToggle(toolbar, true)
+            animateViewForFullscreenToggle(bottomAppBar, false)
 
-        val newMargin = (if (fullscreenEnabled) 0 else bottomAppBar.height)
-        (binding.flContent.layoutParams as RelativeLayout.LayoutParams?)?.bottomMargin = newMargin
-
+            val newMargin = (if (fullscreenEnabled) 0 else bottomAppBar.height)
+            (binding.flContent.layoutParams as RelativeLayout.LayoutParams?)?.bottomMargin =
+                newMargin
+        }
     }
 
     private fun animateViewForFullscreenToggle(view: View, up: Boolean) {
