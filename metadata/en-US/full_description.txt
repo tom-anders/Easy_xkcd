@@ -1,0 +1,32 @@
+A fast and beautiful way to view your favorite xkcd comics.
+
+Features:
+
+Comic Browser:
+
+- Offline Mode
+- Favorites
+- Notifications
+- Explain xkcd integration 
+- Long press to view alt text
+- Overview Mode
+- Open Reddit Thread
+- Search for title, transcript or number
+- Share comic url or image
+- Support for large images (e.g comic 657)
+- Option to display alt text by default
+
+What If?:
+
+- Full support for footnotes, formulas and alt text
+- Offline mode and notifications
+- Mark articles as read and hide them
+- Swipe between articles (disabled by default)
+- Quick search for article titles
+- Random articles
+
+General:
+
+- Custom themes
+- Material design elements like Snackbars, Floating Action Button, tinted Status Bar, animations....
+- (Auto) Night mode (with option to invert comic colors)
