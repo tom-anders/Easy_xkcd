@@ -488,6 +488,7 @@
     <string name="transcript">Transcript</string>
 
     <string name="pref_fullscreen_enabled">Enable fullscreen mode</string>
+    <string name="pref_fullscreen_hide_fab">Hide Floating Action Button in fullscreen</string>
     <string name="pref_fullscreen_enabled_sum">Tap a comic to enter fullscreen mode</string>
 
     <string name="notification_channel_comic">Comic notifications</string>

@@ -432,6 +432,8 @@ class MainActivity : BaseActivity() {
             animateViewForFullscreenToggle(toolbar, true)
             animateViewForFullscreenToggle(bottomAppBar, false)
 
+            if (prefHelper.hideFabInFullscreen()) animateViewForFullscreenToggle(binding.fab, false)
+
             val newMargin = (if (fullscreenEnabled) 0 else bottomAppBar.height)
             (binding.flContent.layoutParams as RelativeLayout.LayoutParams?)?.bottomMargin =
                 newMargin

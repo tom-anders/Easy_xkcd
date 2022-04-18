@@ -129,6 +129,7 @@ public class PrefHelper {
     private static final String TRANSCRIPTS_FIXED = "transcripts_fixed";
     private static final String CACHE_FIXED = "cache_fixed_7.3.6";
     private static final String FULLSCREEN_ENABLED = "pref_fullscreen_enabled";
+    private static final String FULLSCREEN_HIDE_FAB = "pref_fullscreen_hide_fab";
 
     private static final String SHOW_BETA_DIALOG = "show_beta_dialog_8.0beta-1";
 
@@ -916,6 +917,10 @@ public class PrefHelper {
 
     public boolean fullscreenModeEnabled() {
         return prefs.getBoolean(FULLSCREEN_ENABLED, true);
+    }
+
+    public boolean hideFabInFullscreen() {
+        return prefs.getBoolean(FULLSCREEN_HIDE_FAB, false);
     }
 }
 

@@ -8,6 +8,11 @@
 
     <SwitchPreference
         android:defaultValue="false"
+        android:key="pref_fullscreen_hide_fab"
+        android:title="@string/pref_fullscreen_hide_fab" />
+
+    <SwitchPreference
+        android:defaultValue="false"
         android:key="pref_doubletap"
         android:summary="@string/pref_doubletap_sum"
         android:title="@string/pref_doubletap" />

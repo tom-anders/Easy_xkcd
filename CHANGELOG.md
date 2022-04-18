@@ -1,6 +1,7 @@
 ## 8.0.3
 
 - Fix opening of xkcd.com and what-if.xkcd.com links
+- Add option to hide FAB in fullscreen
 
 ## 8.0.2
 
