@@ -1,3 +1,7 @@
+## 8.0.3
+
+- Fix opening of xkcd.com and what-if.xkcd.com links
+
 ## 8.0.2
 
 - Fix another crash during database migration

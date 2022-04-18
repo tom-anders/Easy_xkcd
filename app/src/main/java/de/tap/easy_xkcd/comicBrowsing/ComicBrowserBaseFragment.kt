@@ -39,7 +39,6 @@ import de.tap.easy_xkcd.utils.observe
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
-import timber.log.Timber
 import java.util.*
 
 @AndroidEntryPoint
@@ -83,8 +82,8 @@ abstract class ComicBrowserBaseFragment : Fragment() {
         }
 
         arguments?.let { args ->
-            if (args.containsKey(MainActivity.ARG_COMIC_TO_SHOW)) {
-                model.selectComic(args.getInt(MainActivity.ARG_COMIC_TO_SHOW))
+            if (args.containsKey(MainActivity.ARG_COMIC_OR_ARTICLE_TO_SHOW)) {
+                model.selectComic(args.getInt(MainActivity.ARG_COMIC_OR_ARTICLE_TO_SHOW))
             }
 
             // Prepare for shared element transition

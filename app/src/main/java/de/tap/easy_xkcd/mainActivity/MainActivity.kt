@@ -8,16 +8,12 @@ import android.content.res.ColorStateList
 import android.graphics.Color
 import android.net.Uri
 import android.os.Bundle
-import android.text.SpannableString
-import android.text.method.LinkMovementMethod
-import android.text.util.Linkify
 import android.view.Menu
 import android.view.MenuItem
 import android.view.View
 import android.view.inputmethod.InputMethodManager
 import android.widget.RelativeLayout
 import android.widget.SearchView
-import android.widget.TextView
 import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.viewModels
@@ -44,6 +40,7 @@ import de.tap.easy_xkcd.comicOverview.ComicOverviewViewModel
 import de.tap.easy_xkcd.settings.BaseSettingsActivity
 import de.tap.easy_xkcd.settings.SettingsActivity
 import de.tap.easy_xkcd.whatIfOverview.WhatIfOverviewFragment
+import timber.log.Timber
 
 @AndroidEntryPoint
 class MainActivity : BaseActivity() {
@@ -60,11 +57,9 @@ class MainActivity : BaseActivity() {
     private var customTabActivityHelper = CustomTabActivityHelper()
     private lateinit var activityResultLauncher: ActivityResultLauncher<Intent>
 
-    //TODO Add onNewIntent so that we can process notification intents when the app is running in the background
-
     companion object {
         const val ARG_TRANSITION_PENDING = "transition_pending"
-        const val ARG_COMIC_TO_SHOW = "comic_to_show"
+        const val ARG_COMIC_OR_ARTICLE_TO_SHOW = "comic_or_article_to_show"
         const val ARG_FROM_FAVORITES = "from_favorites"
 
         const val COMIC_INTENT = "de.tap.easy_xkcd.ACTION_COMIC"
@@ -97,8 +92,12 @@ class MainActivity : BaseActivity() {
         bottomNavigationView.setOnNavigationItemReselectedListener {}
 
         if (savedInstanceState == null) {
-            bottomNavigationView.selectedItemId =
-                if (prefHelper.launchToOverview()) R.id.nav_overview else R.id.nav_browser
+            if (bottomNavigationListener.comicOrArticleToShow is ComicOrArticleToShow.ShowArticle) {
+                bottomNavigationView.selectedItemId = R.id.nav_whatif
+            } else {
+                bottomNavigationView.selectedItemId =
+                    if (prefHelper.launchToOverview()) R.id.nav_overview else R.id.nav_browser
+            }
 
             viewModel.onCreateWithNullSavedInstanceState()
         }
@@ -117,8 +116,19 @@ class MainActivity : BaseActivity() {
 
     fun showComicFromOverview(toFavorites: Boolean, sharedElements: List<View?>, comicNumber: Int) {
         bottomNavigationListener.setTransitionPendingWithSharedElements(sharedElements)
-        bottomNavigationListener.comicToShow = comicNumber
+        bottomNavigationListener.comicOrArticleToShow = ComicOrArticleToShow.ShowComic(comicNumber)
         bottomNavigationView.selectedItemId = if (toFavorites) R.id.nav_favorites else R.id.nav_browser
+    }
+
+    override fun onNewIntent(intent: Intent?) {
+        super.onNewIntent(intent)
+
+        bottomNavigationListener.handleNewIntent(intent)
+    }
+
+    sealed class ComicOrArticleToShow(val number: Int) {
+        data class ShowComic(val n: Int) : ComicOrArticleToShow(n)
+        data class ShowArticle(val n: Int) : ComicOrArticleToShow(n)
     }
 
     inner class BottomNavigationListener(
@@ -126,7 +136,7 @@ class MainActivity : BaseActivity() {
     ) : BottomNavigationView.OnNavigationItemSelectedListener {
 
         private var transitionPending: Boolean = false
-        var comicToShow: Int? = null
+        var comicOrArticleToShow: ComicOrArticleToShow? = null
 
         private var pendingSharedElements: List<View?> = emptyList()
 
@@ -146,13 +156,51 @@ class MainActivity : BaseActivity() {
 
                             transitionPending = true
                         }
-                        comicToShow = intent.getIntExtra("number", -1).let {
-                            if (it == -1) null else it
+                        comicOrArticleToShow = intent.getIntExtra("number", -1).let {
+                            if (it == -1) null else ComicOrArticleToShow.ShowComic(it)
+                        }
+                    }
+                    Intent.ACTION_VIEW -> {
+                        intent.dataString?.let { url ->
+                            val number = getNumberFromUrl(url)
+                            if (!url.contains("what-if")) {
+                                comicOrArticleToShow = ComicOrArticleToShow.ShowComic(number ?: prefHelper.newest)
+                            } else if (number != null) {
+                                comicOrArticleToShow = ComicOrArticleToShow.ShowArticle(number)
+                            }
                         }
                     }
                 }
             }
         }
+
+        fun handleNewIntent(intent: Intent?) {
+            when (intent?.action) {
+                Intent.ACTION_VIEW -> {
+                    intent.dataString?.let { url ->
+                        getNumberFromUrl(url)?.let { number ->
+                            if (url.contains("what-if")) {
+                                comicOrArticleToShow = ComicOrArticleToShow.ShowArticle(number)
+                                if (bottomNavigationView.selectedItemId == R.id.nav_whatif) {
+                                    showWhatIfFragment()
+                                } else {
+                                    bottomNavigationView.selectedItemId = R.id.nav_whatif
+                                }
+                            } else {
+                                comicOrArticleToShow = ComicOrArticleToShow.ShowComic(number)
+                                if (bottomNavigationView.selectedItemId == R.id.nav_browser) {
+                                    showComicBrowserFragment()
+                                } else {
+                                    bottomNavigationView.selectedItemId = R.id.nav_browser
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+        private fun getNumberFromUrl(uri: String) = Uri.parse(uri).path?.replace("/", "")?.toIntOrNull()
 
         override fun onNavigationItemSelected(item: MenuItem): Boolean {
             toolbar.title = item.title
@@ -180,9 +228,9 @@ class MainActivity : BaseActivity() {
                     transitionPending = false
                     putBoolean(ARG_TRANSITION_PENDING, true)
                 }
-                comicToShow?.let {
-                    putInt(ARG_COMIC_TO_SHOW, it)
-                    comicToShow = null
+                comicOrArticleToShow?.let {
+                    putInt(ARG_COMIC_OR_ARTICLE_TO_SHOW, it.number)
+                    comicOrArticleToShow = null
                 }
 
                 putBoolean(ARG_FROM_FAVORITES, supportFragmentManager.findFragmentByTag(FRAGMENT_TAG) is FavoritesFragment)
@@ -206,7 +254,7 @@ class MainActivity : BaseActivity() {
         fun showComicOverviewFragment(): Boolean {
             val fragment =
                 supportFragmentManager.findFragmentByTag(FRAGMENT_TAG) as? ComicBrowserBaseFragment
-            comicToShow = fragment?.getDisplayedComic()?.number
+            comicOrArticleToShow = fragment?.getDisplayedComic()?.number?.let { ComicOrArticleToShow.ShowComic(it) }
 
             makeFragmentTransaction(
                 ComicOverviewFragment()

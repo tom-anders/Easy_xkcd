@@ -23,6 +23,7 @@ import com.tap.xkcd_reader.R
 import com.tap.xkcd_reader.databinding.RecyclerLayoutBinding
 import dagger.hilt.android.AndroidEntryPoint
 import de.tap.easy_xkcd.database.whatif.Article
+import de.tap.easy_xkcd.mainActivity.MainActivity
 import de.tap.easy_xkcd.utils.PrefHelper
 import de.tap.easy_xkcd.utils.ThemePrefs
 import de.tap.easy_xkcd.utils.observe
@@ -95,10 +96,16 @@ class WhatIfOverviewFragment : Fragment() {
             if (adapter.itemCount > 0) displayWhatIf(Random().nextInt(adapter.itemCount))
         }
 
-       activityResultLauncher =
+        activityResultLauncher =
             registerForActivityResult(ActivityResultContracts.StartActivityForResult()) {
                 searchMenuItem?.collapseActionView()
             }
+
+        arguments?.let { args ->
+            if (args.containsKey(MainActivity.ARG_COMIC_OR_ARTICLE_TO_SHOW)) {
+                displayWhatIf(args.getInt(MainActivity.ARG_COMIC_OR_ARTICLE_TO_SHOW))
+            }
+        }
 
         return binding.root
     }

@@ -6,7 +6,6 @@ import android.transition.Transition
 import android.transition.TransitionInflater
 import android.view.*
 import android.widget.ImageView
-import androidx.annotation.MainThread
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
@@ -27,7 +26,6 @@ import de.tap.easy_xkcd.utils.PrefHelper
 import de.tap.easy_xkcd.utils.ThemePrefs
 import de.tap.easy_xkcd.utils.observe
 import kotlinx.coroutines.launch
-import timber.log.Timber
 import java.util.concurrent.TimeUnit
 import kotlin.random.Random
 
@@ -158,7 +156,7 @@ class ComicOverviewFragment : Fragment() {
                         && model.onlyFavorites.value
 
             if (savedInstanceState == null && !onlyShowFavoritesAndNotComingFromFavorites) {
-                args.getInt(MainActivity.ARG_COMIC_TO_SHOW, -1).let { number ->
+                args.getInt(MainActivity.ARG_COMIC_OR_ARTICLE_TO_SHOW, -1).let { number ->
                     if (number > 0 && number <= prefHelper.newest) {
                         comicNumberOfSharedElementTransition = number
                         if (model.overviewStyle.value != 0) {
