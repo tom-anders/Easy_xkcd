@@ -25,6 +25,8 @@ import de.tap.easy_xkcd.database.comics.toContainer
 import de.tap.easy_xkcd.utils.PrefHelper
 import de.tap.easy_xkcd.utils.ThemePrefs
 import timber.log.Timber
+import java.io.File
+import java.io.FileNotFoundException
 
 abstract class ComicViewHolder(view: View): RecyclerView.ViewHolder(view) {
     abstract val title: TextView
@@ -66,6 +68,8 @@ abstract class ComicBaseAdapter<ViewHolder: ComicViewHolder>(
     override fun getItemCount() = comics.size
 
     open fun onComicNull(number: Int) {}
+
+    open fun onOfflineImageMissing(number: Int) {}
 
     open fun onDisplayingComic(comic: ComicContainer, holder: ViewHolder) {}
 
@@ -151,6 +155,10 @@ abstract class ComicBaseAdapter<ViewHolder: ComicViewHolder>(
             target: Target<T>?,
             isFirstResource: Boolean
         ): Boolean {
+            Timber.i("URI ${e?.rootCauses?.any { it is FileNotFoundException }}")
+            if (prefHelper.fullOfflineEnabled() && e?.rootCauses?.any { it is FileNotFoundException } == true) {
+                onOfflineImageMissing(comic.number)
+            }
             startPostponedTransitions(comic.number)
             Timber.e(e, "At comic $comic")
             return false

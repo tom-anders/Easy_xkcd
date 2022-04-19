@@ -76,6 +76,8 @@ interface ComicRepository {
 
     val saveOfflineBitmaps: Flow<ProgressStatus>
 
+    suspend fun downloadMissingOfflineBitmap(number: Int)
+
     suspend fun removeOfflineBitmaps()
 
     suspend fun removeAllFavorites()
@@ -128,7 +130,7 @@ class ComicRepositoryImpl @Inject constructor(
             val newestComic = Comic(xkcdApi.getNewestComic(), context)
             if (newestComic.number != prefHelper.newest) {
                 // In offline mode, we need to cache all the new comics here
-                if (prefHelper.fullOfflineEnabled() && prefHelper.mayDownloadDataForOfflineMode(context)) {
+                if (prefHelper.fullOfflineEnabled()) {
                     val firstComicToCache = prefHelper.newest + 1
                     coroutineScope.launch {
                         (firstComicToCache..newestComic.number).map { number ->
@@ -272,6 +274,13 @@ class ComicRepositoryImpl @Inject constructor(
         File(prefHelper.getOfflinePath(context), "${number}.png")
 
     private fun hasDownloadedComicImage(number: Int) = getComicImageFile(number).exists()
+
+    override suspend fun downloadMissingOfflineBitmap(number: Int) {
+        saveOfflineBitmap(number)
+        comicDao.getComic(number)?.let { comic ->
+            _comicCached.emit(comic)
+        }
+    }
 
     private suspend fun saveOfflineBitmap(number: Int) = withContext(Dispatchers.IO) {
         val comic = comicDao.getComic(number)

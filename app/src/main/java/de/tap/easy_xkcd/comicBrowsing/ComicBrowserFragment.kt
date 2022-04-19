@@ -27,6 +27,10 @@ class ComicBrowserFragment : ComicBrowserBaseFragment() {
             override fun onComicNull(number: Int) {
                 model.cacheComic(number)
             }
+
+            override fun onOfflineImageMissing(number: Int) {
+                model.downloadMissingOfflineBitmap(number)
+            }
         }.also { pager.adapter = it }
 
         model.comics.observe(viewLifecycleOwner) { newList ->

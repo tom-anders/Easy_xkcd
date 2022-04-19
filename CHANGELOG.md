@@ -1,3 +1,7 @@
+## 8.0.4
+
+- Fix for missing comic images in offline mode
+
 ## 8.0.3
 
 - Fix opening of xkcd.com and what-if.xkcd.com links

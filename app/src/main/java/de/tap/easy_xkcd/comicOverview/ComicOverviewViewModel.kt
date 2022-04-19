@@ -37,6 +37,12 @@ class ComicOverviewViewModel @Inject constructor(
     private val _onlyFavorites = MutableStateFlow(prefHelper.overviewFav())
     val onlyFavorites: StateFlow<Boolean> = _onlyFavorites
 
+    fun downloadMissingOfflineBitmap(number: Int) {
+        viewModelScope.launch {
+            repository.downloadMissingOfflineBitmap(number)
+        }
+    }
+
     val comics = combine(repository.comics, _hideRead, _onlyFavorites) { newComics, hideRead, onlyFavs ->
         when {
             onlyFavs -> newComics.filter { it.comic?.favorite == true }

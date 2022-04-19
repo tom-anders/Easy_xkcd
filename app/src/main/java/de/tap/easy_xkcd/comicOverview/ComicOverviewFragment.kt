@@ -309,6 +309,10 @@ class ComicOverviewFragment : Fragment() {
             model.cacheComic(number)
         }
 
+        override fun onOfflineImageMissing(number: Int) {
+            model.downloadMissingOfflineBitmap(number)
+        }
+
         override fun startPostponedTransitions() {
             startPostponedEnterTransition()
             comicNumberOfSharedElementTransition = null

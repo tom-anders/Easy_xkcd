@@ -115,6 +115,12 @@ class ComicBrowserViewModel @Inject constructor(
         }
     }
 
+    fun downloadMissingOfflineBitmap(number: Int) {
+        viewModelScope.launch {
+            repository.downloadMissingOfflineBitmap(number)
+        }
+    }
+
     override fun toggleFavorite() {
         viewModelScope.launch {
             _selectedComicNumber.value?.let {
