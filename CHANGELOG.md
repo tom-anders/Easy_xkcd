@@ -1,3 +1,7 @@
+## 8.1
+
+- Adapt to redesign of what-if.xkcd.com
+
 ## 8.0.4
 
 - Fix for missing comic images in offline mode

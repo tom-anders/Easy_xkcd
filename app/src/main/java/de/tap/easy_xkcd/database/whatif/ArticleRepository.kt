@@ -91,6 +91,16 @@ class ArticleRepositoryImpl @Inject constructor(
     override val articles: Flow<List<Article>> = articleDao.getArticles()
 
     override suspend fun updateDatabase() = withContext(Dispatchers.IO) {
+        if (!prefHelper.hasAlreadyResetWhatifDatabase()) {
+            Timber.i("Resetting what-if database")
+
+            articleDao.deleteAllArticles()
+            prefHelper.setFullOfflineWhatIf(false)
+            deleteAllOfflineArticles()
+
+            prefHelper.setHasResetWhatIfDatabase()
+        }
+
         try {
             val document =
                 Jsoup.parse(
@@ -101,24 +111,17 @@ class ArticleRepositoryImpl @Inject constructor(
                     ).await().body?.string()
                 )
             if (document != null) {
-                val titles = document.select("h1")
-                val thumbnails = document.select("img.archive-image")
+                val entries = document.select(".archive-entry")
 
                 val previousNumberOfArticles = articleDao.getArticlesSuspend().size
-                val migrateLegacyDatabase = (previousNumberOfArticles == 0)
 
-                val articles = (previousNumberOfArticles + 1..titles.size).map { number ->
+                val articles = (previousNumberOfArticles + 1..entries.size).map { number ->
                     Article(
                         number = number,
-                        title = titles[number - 1].text(),
-                        thumbnail = "https://what-if.xkcd.com/" + thumbnails[number - 1].attr("src"), // -1 cause articles a 1-based indexed
-                    ).also { article ->
-                        if (migrateLegacyDatabase) {
-                            article.read = prefHelper.checkRead(number)
-                            article.favorite = prefHelper.checkWhatIfFav(number)
-                        }
-
-                        if (prefHelper.fullOfflineWhatIf() && prefHelper.mayDownloadDataForOfflineMode(context)) {
+                        title = entries[number - 1].selectFirst(".archive-title")?.text() ?: "",
+                        thumbnail = entries[number - 1].selectFirst(".archive-image")?.attr("src") ?: "",
+                    ).also {
+                        if (prefHelper.fullOfflineWhatIf()) {
                             downloadArticle(number)
                         }
                     }
@@ -260,13 +263,8 @@ class ArticleRepositoryImpl @Inject constructor(
         //append custom css
         doc.head().getElementsByTag("link").remove()
         if (themePrefs.amoledThemeEnabled()) {
-            if (themePrefs.invertColors(false)) {
-                doc.head().appendElement("link").attr("rel", "stylesheet").attr("type", "text/css")
-                    .attr("href", "amoled_invert.css")
-            } else {
-                doc.head().appendElement("link").attr("rel", "stylesheet").attr("type", "text/css")
-                    .attr("href", "amoled.css")
-            }
+            doc.head().appendElement("link").attr("rel", "stylesheet").attr("type", "text/css")
+                .attr("href", "amoled.css")
         } else if (themePrefs.nightThemeEnabled()) {
             if (themePrefs.invertColors(false)) {
                 doc.head().appendElement("link").attr("rel", "stylesheet").attr("type", "text/css")
@@ -295,20 +293,17 @@ class ArticleRepositoryImpl @Inject constructor(
         }
 
         //fix footnotes and math scripts
-        if (!prefHelper.fullOfflineWhatIf()) {
-            doc.select("script[src]").first()
-                .attr("src", "https://cdn.mathjax.org/mathjax/latest/MathJax.js")
-        } else {
+        if (prefHelper.fullOfflineWhatIf()) {
             doc.select("script[src]").first().attr("src", "MathJax.js")
         }
 
         //remove header, footer, nav buttons
-        doc.getElementById("header-wrapper").remove()
-        doc.select("nav").remove()
-        doc.getElementById("footer-wrapper").remove()
+        doc.body().children().filter {
+            it.id() != "entry-wrapper" && it.tagName() != "script"
+        }.map { it.remove() }
 
-        //remove title
-        doc.select("h1").remove()
+        doc.body().getElementById("entry-wrapper")?.children()?.filter { it.id() != "entry" }
+            ?.map { it.remove() }
 
         val refs = doc.select(".ref").map { it.select(".refbody").html() }
 

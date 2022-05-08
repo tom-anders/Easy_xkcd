@@ -133,6 +133,15 @@ public class PrefHelper {
 
     private static final String SHOW_BETA_DIALOG = "show_beta_dialog_8.0beta-1";
 
+    private static final String RESET_WHATIF_DATABASE = "reset_whatif_database";
+
+    public boolean hasAlreadyResetWhatifDatabase() {
+        return sharedPrefs.getBoolean(RESET_WHATIF_DATABASE, false);
+    }
+    public void setHasResetWhatIfDatabase() {
+        sharedPrefs.edit().putBoolean(RESET_WHATIF_DATABASE, true).apply();
+    }
+
     public boolean showBetaDialog() {
         return sharedPrefs.getBoolean(SHOW_BETA_DIALOG, true);
     }

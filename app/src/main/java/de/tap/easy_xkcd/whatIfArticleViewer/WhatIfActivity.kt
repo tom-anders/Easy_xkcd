@@ -158,6 +158,10 @@ class WhatIfActivity : BaseActivity() {
         binding.web.settings.textZoom = prefHelper.getZoom(binding.web.settings.textZoom)
         binding.web.settings.allowFileAccess = true
 
+        // These are needed for MathJax
+        binding.web.settings.domStorageEnabled = true
+        binding.web.settings.allowUniversalAccessFromFileURLs = true
+
         binding.web.setOnTouchListener(object : OnSwipeTouchListener(this@WhatIfActivity) {
             override fun onSwipeRight() {
                 if (prefHelper.swipeEnabled() && model.hasNextArticle.value) {
