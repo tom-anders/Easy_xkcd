@@ -1,3 +1,7 @@
+## 8.1.1
+
+- Fix titles of settings screens
+
 ## 8.1
 
 - Adapt to redesign of what-if.xkcd.com

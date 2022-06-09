@@ -150,7 +150,7 @@
         </activity>
         <activity
             android:name="de.tap.easy_xkcd.settings.AppearanceActivity"
-            android:label="@string/pref_offline_notifications"
+            android:label="@string/pref_appearance"
             android:launchMode="singleTop"
             android:parentActivityName="de.tap.easy_xkcd.settings.SettingsActivity">
             <meta-data
@@ -159,7 +159,7 @@
         </activity>
         <activity
             android:name="de.tap.easy_xkcd.settings.NightActivity"
-            android:label="@string/pref_offline_notifications"
+            android:label="@string/pref_night_options"
             android:launchMode="singleTop"
             android:parentActivityName="de.tap.easy_xkcd.settings.SettingsActivity">
             <meta-data
@@ -168,7 +168,7 @@
         </activity>
         <activity
             android:name="de.tap.easy_xkcd.settings.AdvancedActivity"
-            android:label="@string/pref_offline_notifications"
+            android:label="@string/pref_advanced"
             android:launchMode="singleTop"
             android:parentActivityName="de.tap.easy_xkcd.settings.SettingsActivity">
             <meta-data
@@ -177,7 +177,7 @@
         </activity>
         <activity
             android:name="de.tap.easy_xkcd.settings.WidgetActivity"
-            android:label="@string/pref_offline_notifications"
+            android:label="@string/pref_widget"
             android:launchMode="singleTop"
             android:parentActivityName="de.tap.easy_xkcd.settings.SettingsActivity">
             <meta-data
