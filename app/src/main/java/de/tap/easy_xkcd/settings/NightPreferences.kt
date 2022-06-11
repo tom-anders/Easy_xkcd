@@ -5,15 +5,10 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.Switch
 import androidx.preference.Preference
-import androidx.preference.PreferenceFragmentCompat
 import androidx.preference.SwitchPreference
 import com.tap.xkcd_reader.R
 import dagger.hilt.android.AndroidEntryPoint
-import de.tap.easy_xkcd.utils.ThemePrefs
-import timber.log.Timber
-import javax.inject.Inject
 
 class NightActivity: BaseSettingsActivity(NightFragment())
 
@@ -43,7 +38,7 @@ class NightFragment: BasePreferenceFragment() {
             if (pref is SwitchPreference) {
                 nightPreference?.isEnabled = !(pref.isChecked)
                 if (pref.isChecked) {
-                    nightPreference?.isChecked = themePrefs.nightThemeEnabled()
+                    nightPreference?.isChecked = appTheme.nightThemeEnabled
                 }
             }
             true
@@ -61,8 +56,8 @@ class NightFragment: BasePreferenceFragment() {
 
         findPreference<Preference>("pref_color_accent")?.setOnPreferenceClickListener {
             showColorPickerDialog(R.string.theme_accent_color_dialog,
-                themePrefs.accentColors, themePrefs.accentColorNight) {
-                themePrefs.accentColorNight = it
+                appTheme.accentColors.toIntArray(), appTheme.accentColorNight) {
+                appTheme.accentColorNight = it
             }
             true
         }

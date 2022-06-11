@@ -290,10 +290,10 @@ class MainActivity : BaseActivity() {
     fun setupBottomAppBar() {
         bottomAppBar = binding.bottomAppBar
         when {
-            themePrefs.amoledThemeEnabled() -> {
+            appTheme.amoledThemeEnabled() -> {
                 bottomAppBar.backgroundTint = ColorStateList.valueOf(Color.BLACK)
             }
-            themePrefs.nightThemeEnabled() -> {
+            appTheme.nightThemeEnabled -> {
                 bottomAppBar.backgroundTint = ColorStateList.valueOf(
                     ContextCompat.getColor(this, R.color.background_material_dark)
                 )
@@ -301,13 +301,13 @@ class MainActivity : BaseActivity() {
             }
             else -> {
                 bottomAppBar.backgroundTint =
-                    ColorStateList.valueOf(themePrefs.getPrimaryColor(false))
+                    ColorStateList.valueOf(appTheme.getPrimaryColor(false))
             }
         }
 
         ColorStateList(
             arrayOf(intArrayOf(android.R.attr.state_checked), intArrayOf(-android.R.attr.state_checked)),
-            intArrayOf(themePrefs.accentColorNight, Color.WHITE)
+            intArrayOf(appTheme.accentColorNight, Color.WHITE)
         ).let {
             bottomNavigationView.itemIconTintList = it
             bottomNavigationView.itemTextColor = it
@@ -318,8 +318,8 @@ class MainActivity : BaseActivity() {
         menuInflater.inflate(R.menu.menu_main, menu)
 
         menu.findItem(R.id.action_donate)?.isVisible = !settings.hideDonate
-        menu.findItem(R.id.action_night_mode)?.isChecked = themePrefs.nightEnabledThemeIgnoreAutoNight()
-        menu.findItem(R.id.action_night_mode)?.isVisible = !themePrefs.autoNightEnabled() && !themePrefs.useSystemNightTheme()
+        menu.findItem(R.id.action_night_mode)?.isChecked = appTheme.nightThemeEnabledIgnoreAutoNight()
+        menu.findItem(R.id.action_night_mode)?.isVisible = !appTheme.useSystemNightTheme()
 
         val searchMenuItem = menu.findItem(R.id.action_search)
         val searchView = searchMenuItem?.actionView as SearchView?
@@ -409,7 +409,7 @@ class MainActivity : BaseActivity() {
 
     private fun toggleNightMode(item: MenuItem): Boolean {
         item.isChecked = !item.isChecked
-        themePrefs.setNightThemeEnabled(item.isChecked)
+        appTheme.nightThemeEnabled = item.isChecked
 
         val intent = intent
         intent.addFlags(

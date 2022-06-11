@@ -184,7 +184,7 @@ class WhatIfActivity : BaseActivity() {
 
     override fun onCreateOptionsMenu(menu: Menu): Boolean {
         menuInflater.inflate(R.menu.menu_what_if, menu)
-        menu.findItem(R.id.action_night_mode).isChecked = themePrefs.nightThemeEnabled()
+        menu.findItem(R.id.action_night_mode).isChecked = appTheme.nightThemeEnabled
         menu.findItem(R.id.action_swipe).isChecked = sharedPrefs.swipeEnabled
         MenuCompat.setGroupDividerEnabled(menu, true)
         return true
@@ -246,7 +246,7 @@ class WhatIfActivity : BaseActivity() {
             }
             R.id.action_night_mode -> {
                 item.isChecked = !item.isChecked
-                themePrefs.setNightThemeEnabled(item.isChecked)
+                appTheme.nightThemeEnabled = item.isChecked
                 setResult(RESULT_OK)
                 finish()
                 startActivity(intent)

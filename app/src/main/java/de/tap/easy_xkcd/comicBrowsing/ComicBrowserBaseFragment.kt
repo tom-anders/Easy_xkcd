@@ -54,7 +54,7 @@ abstract class ComicBrowserBaseFragment : Fragment() {
     // TODO Inject these
     protected lateinit var settings: AppSettings
     protected lateinit var sharedPrefs: SharedPrefManager
-    protected lateinit var themePrefs: ThemePrefs
+    protected lateinit var appTheme: AppTheme
 
     protected abstract val model: ComicBrowserBaseViewModel
 
@@ -71,7 +71,7 @@ abstract class ComicBrowserBaseFragment : Fragment() {
 
         settings = AppSettings(requireActivity())
         sharedPrefs = SharedPrefManager(requireActivity())
-        themePrefs = ThemePrefs(activity)
+        appTheme = AppTheme(requireActivity())
 
         pager = binding.pager
         pager.offscreenPageLimit = 2
@@ -246,7 +246,7 @@ abstract class ComicBrowserBaseFragment : Fragment() {
             override val image: PhotoView = itemView.findViewById(R.id.ivComic)
 
             init {
-                if (themePrefs.nightThemeEnabled()) {
+                if (appTheme.nightThemeEnabled) {
                     title.setTextColor(Color.WHITE)
                 }
 
@@ -430,7 +430,7 @@ abstract class ComicBrowserBaseFragment : Fragment() {
             CustomTabActivityHelper.openCustomTab(
                 activity,
                 CustomTabsIntent.Builder()
-                    .setToolbarColor(themePrefs.getPrimaryColor(false))
+                    .setToolbarColor(appTheme.getPrimaryColor(false))
                     .build(),
                 Uri.parse(url),
                 BrowserFallback()

@@ -23,7 +23,7 @@ class UtilsModule {
 
     @Singleton
     @Provides
-    fun provideThemePrefs(@ApplicationContext context: Context) = ThemePrefs(context)
+    fun provideAppTheme(@ApplicationContext context: Context) = AppTheme(context)
 
     @Singleton
     @Provides

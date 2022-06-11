@@ -9,7 +9,8 @@ import com.tap.xkcd_reader.R;
 import org.acra.dialog.BaseCrashReportDialog;
 
 import androidx.appcompat.app.AlertDialog;
-import de.tap.easy_xkcd.utils.ThemePrefs;
+
+import de.tap.easy_xkcd.utils.AppTheme;
 
 public class CrashReportActivity extends BaseCrashReportDialog
         implements DialogInterface.OnDismissListener, DialogInterface.OnClickListener {
@@ -21,9 +22,7 @@ public class CrashReportActivity extends BaseCrashReportDialog
     protected void init(Bundle savedInstanceState) {
         super.init(savedInstanceState);
 
-        ThemePrefs themePrefs = new ThemePrefs(this);
-
-        setTheme(themePrefs.getNewTheme());
+        setTheme(new AppTheme(this).getTheme());
 
         final AlertDialog dialog = new AlertDialog.Builder(this)
                 .setTitle(R.string.crash_dialog_title)

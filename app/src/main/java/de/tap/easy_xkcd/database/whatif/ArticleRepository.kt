@@ -3,8 +3,6 @@ package de.tap.easy_xkcd.database.whatif
 import android.content.Context
 import android.graphics.Bitmap
 import android.net.Uri
-import androidx.core.app.NotificationCompat
-import com.bumptech.glide.Glide
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -15,14 +13,13 @@ import de.tap.easy_xkcd.GlideApp
 import de.tap.easy_xkcd.database.ProgressStatus
 import de.tap.easy_xkcd.reddit.RedditSearchApi
 import de.tap.easy_xkcd.utils.AppSettings
+import de.tap.easy_xkcd.utils.AppTheme
 import de.tap.easy_xkcd.utils.SharedPrefManager
-import de.tap.easy_xkcd.utils.ThemePrefs
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.withContext
 import okhttp3.OkHttpClient
 import okhttp3.Request
-import okio.BufferedSink
 import org.jsoup.Jsoup
 import org.jsoup.nodes.Element
 import ru.gildor.coroutines.okhttp.await
@@ -80,7 +77,7 @@ class ArticleRepositoryImpl @Inject constructor(
     @ApplicationContext private val context: Context,
     private val sharedPrefs: SharedPrefManager,
     private val settings: AppSettings,
-    private val themePrefs: ThemePrefs,
+    private val appTheme: AppTheme,
     private val articleDao: ArticleDao,
     private val okHttpClient: OkHttpClient,
     private val redditSearchApi: RedditSearchApi,
@@ -264,11 +261,11 @@ class ArticleRepositoryImpl @Inject constructor(
 
         //append custom css
         doc.head().getElementsByTag("link").remove()
-        if (themePrefs.amoledThemeEnabled()) {
+        if (appTheme.amoledThemeEnabled()) {
             doc.head().appendElement("link").attr("rel", "stylesheet").attr("type", "text/css")
                 .attr("href", "amoled.css")
-        } else if (themePrefs.nightThemeEnabled()) {
-            if (themePrefs.invertColors(false)) {
+        } else if (appTheme.nightThemeEnabled) {
+            if (appTheme.invertColors) {
                 doc.head().appendElement("link").attr("rel", "stylesheet").attr("type", "text/css")
                     .attr("href", "night_invert.css")
             } else {
@@ -331,9 +328,9 @@ class ArticleRepositoryModule {
         @ApplicationContext context: Context,
         sharedPrefs: SharedPrefManager,
         settings: AppSettings,
-        themePrefs: ThemePrefs,
+        appTheme: AppTheme,
         articleDao: ArticleDao,
         okHttpClient: OkHttpClient,
         redditSearchApi: RedditSearchApi,
-    ): ArticleRepository = ArticleRepositoryImpl(context, sharedPrefs, settings, themePrefs, articleDao, okHttpClient, redditSearchApi)
+    ): ArticleRepository = ArticleRepositoryImpl(context, sharedPrefs, settings, appTheme, articleDao, okHttpClient, redditSearchApi)
 }

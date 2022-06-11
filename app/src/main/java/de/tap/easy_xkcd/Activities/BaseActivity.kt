@@ -19,18 +19,18 @@ abstract class BaseActivity : AppCompatActivity() {
     // TODO Inject these
     protected lateinit var sharedPrefs: SharedPrefManager
     protected lateinit var settings: AppSettings
-    protected lateinit var themePrefs: ThemePrefs
+    protected lateinit var appTheme: AppTheme
     @JvmField @Deprecated("Remove when MainActivity.java is fully removed")
     var defaultVisibility = 0
     override fun onCreate(savedInstanceState: Bundle?) {
         sharedPrefs = SharedPrefManager(this)
-        themePrefs = ThemePrefs(this)
+        appTheme = AppTheme(this)
         settings = AppSettings(this)
         defaultVisibility = window.decorView.systemUiVisibility
-        setTheme(themePrefs.newTheme)
-        if (themePrefs.amoledThemeEnabled()) {
+        setTheme(appTheme.theme)
+        if (appTheme.amoledThemeEnabled()) {
             window.decorView.setBackgroundColor(Color.BLACK)
-        } else if (themePrefs.nightThemeEnabled()) {
+        } else if (appTheme.nightThemeEnabled) {
             window.decorView.setBackgroundColor(
                 ContextCompat.getColor(
                     this,
@@ -47,17 +47,17 @@ abstract class BaseActivity : AppCompatActivity() {
     protected fun setupToolbar(toolbar: Toolbar) {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
             val ic = BitmapFactory.decodeResource(resources, R.mipmap.ic_easy_xkcd_recents)
-            val color = themePrefs.getPrimaryColor(false)
+            val color = appTheme.getPrimaryColor(false)
             val description = TaskDescription("Easy xkcd", ic, color)
             setTaskDescription(description)
             if (settings.colorNavbar) window.navigationBarColor =
-                themePrefs.primaryDarkColor
+                appTheme.primaryColorDark
         }
-        window.statusBarColor = themePrefs.primaryDarkColor
+        window.statusBarColor = appTheme.primaryColorDark
         setSupportActionBar(toolbar)
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
-        toolbar.setBackgroundColor(themePrefs.getPrimaryColor(false))
-        if (themePrefs.amoledThemeEnabled()) {
+        toolbar.setBackgroundColor(appTheme.getPrimaryColor(false))
+        if (appTheme.amoledThemeEnabled()) {
             toolbar.popupTheme = R.style.ThemeOverlay_AmoledBackground
         }
     }

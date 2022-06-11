@@ -7,33 +7,39 @@ import androidx.preference.PreferenceManager
 import java.io.File
 import kotlin.reflect.KProperty
 
+open class ReadOnlyPref<T>(protected val prefs: SharedPreferences, protected val key: String, private val default: T) {
+    operator fun getValue(thisRef: Any?, property: KProperty<*>): T {
+        @Suppress("UNCHECKED_CAST")
+        return when (default) {
+            is String -> prefs.getString(key, default) ?: default
+            is Int -> prefs.getInt(key, default)
+            is Boolean -> prefs.getBoolean(key, default)
+            else -> throw IllegalArgumentException("Unknown Settings Type!")
+        } as? T? ?: default
+    }
+}
+
+open class Pref<T>(prefs: SharedPreferences, key: String, default: T) : ReadOnlyPref<T>(prefs, key, default) {
+    operator fun setValue(thisRef: Any?, property: KProperty<*>, value: T) {
+        prefs.edit().apply {
+            when (value) {
+                is String -> putString(key, value)
+                is Int -> putInt(key, value)
+                is Boolean -> putBoolean(key, value)
+                else -> throw IllegalArgumentException("Unknown Settings Type!")
+            }
+        }.apply()
+    }
+}
+
 abstract class PrefManagerBase(
     protected val prefs: SharedPreferences,
 ) {
-    open inner class ReadOnlyPref<T>(protected val key: String, private val default: T) {
-        operator fun getValue(thisRef: Any?, property: KProperty<*>): T {
-            @Suppress("UNCHECKED_CAST")
-            return when (default) {
-                is String -> prefs.getString(key, default) ?: default
-                is Int -> prefs.getInt(key, default)
-                is Boolean -> prefs.getBoolean(key, default)
-                else -> throw IllegalArgumentException("Unknown Settings Type!")
-            } as? T? ?: default
-        }
-    }
+    open inner class ReadOnlyPref<T>(key: String, default: T)
+        : de.tap.easy_xkcd.utils.ReadOnlyPref<T>(prefs, key, default)
 
-    inner class Pref<T>(key: String, default: T) : ReadOnlyPref<T>(key, default) {
-        operator fun setValue(thisRef: Any?, property: KProperty<*>, value: T) {
-            prefs.edit().apply {
-                when (value) {
-                    is String -> putString(key, value)
-                    is Int -> putInt(key, value)
-                    is Boolean -> putBoolean(key, value)
-                    else -> throw IllegalArgumentException("Unknown Settings Type!")
-                }
-            }.apply()
-        }
-    }
+    open inner class Pref<T>(key: String, default: T)
+        : de.tap.easy_xkcd.utils.Pref<T>(prefs, key, default)
 }
 
 class SharedPrefManager(

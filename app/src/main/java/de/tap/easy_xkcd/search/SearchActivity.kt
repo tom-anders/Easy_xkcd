@@ -103,7 +103,7 @@ class SearchActivity: BaseActivity() {
                 startActivity(intent)
             }
 
-            return ComicListViewHolder(view, themePrefs)
+            return ComicListViewHolder(view, appTheme)
         }
 
         override fun onDisplayingComic(

@@ -14,7 +14,7 @@ import com.tap.xkcd_reader.R
 import com.tap.xkcd_reader.databinding.ActivitySettingsBinding
 import dagger.hilt.android.AndroidEntryPoint
 import de.tap.easy_xkcd.Activities.BaseActivity
-import de.tap.easy_xkcd.utils.ThemePrefs
+import de.tap.easy_xkcd.utils.AppTheme
 import uz.shift.colorpicker.LineColorPicker
 import javax.inject.Inject
 
@@ -45,7 +45,7 @@ open class BaseSettingsActivity constructor(
 @AndroidEntryPoint
 abstract class BasePreferenceFragment : PreferenceFragmentCompat() {
     @Inject
-    lateinit var themePrefs: ThemePrefs
+    lateinit var appTheme: AppTheme
 
     protected fun restartParentActivityWithoutAnimation() {
         activity?.setResult(BaseSettingsActivity.RESULT_RESTART_MAIN)
@@ -70,12 +70,12 @@ abstract class BasePreferenceFragment : PreferenceFragmentCompat() {
         val dialog = activity?.layoutInflater?.inflate(R.layout.color_chooser, null)?.apply {
             findViewById<TextView>(R.id.title)?.apply {
                 text = resources.getString(titleId)
-                setBackgroundColor(themePrefs.getPrimaryColor(false))
+                setBackgroundColor(appTheme.getPrimaryColor(false))
             }
 
 
             findViewById<CardView>(R.id.dialog_card_view)?.apply {
-                if (themePrefs.nightThemeEnabled()) {
+                if (appTheme.nightThemeEnabled) {
                     setCardBackgroundColor(
                         ContextCompat.getColor(
                             requireContext(),

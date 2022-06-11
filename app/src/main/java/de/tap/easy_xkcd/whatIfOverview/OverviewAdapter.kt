@@ -2,7 +2,6 @@ package de.tap.easy_xkcd.whatIfOverview
 
 import android.content.Context
 import android.graphics.Color
-import android.graphics.drawable.Drawable
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -16,14 +15,13 @@ import com.bumptech.glide.request.RequestOptions
 import com.simplecityapps.recyclerview_fastscroll.views.FastScrollRecyclerView
 import com.tap.xkcd_reader.R
 import de.tap.easy_xkcd.GlideApp
-import de.tap.easy_xkcd.GlideRequest
 import de.tap.easy_xkcd.database.whatif.Article
 import de.tap.easy_xkcd.utils.AppSettings
-import de.tap.easy_xkcd.utils.ThemePrefs
+import de.tap.easy_xkcd.utils.AppTheme
 import java.io.File
 
 class OverviewAdapter constructor(
-    private val themePrefs: ThemePrefs,
+    private val appTheme: AppTheme,
     private val appSettings: AppSettings,
     private val context: Context,
     var articles: List<Article>,
@@ -61,7 +59,7 @@ class OverviewAdapter constructor(
         val circularProgress = CircularProgressDrawable(context).apply {
             centerRadius = 60.0f
             strokeWidth = 5.0f
-            setColorSchemeColors(themePrefs.accentColor)
+            setColorSchemeColors(appTheme.accentColor)
             start()
         }
 
@@ -83,7 +81,7 @@ class OverviewAdapter constructor(
                 .into(holder.thumbnail)
         }
 
-        if (article.read xor (themePrefs.nightThemeEnabled()))
+        if (article.read xor (appTheme.nightThemeEnabled))
             holder.articleTitle.setTextColor(ContextCompat.getColor(context, R.color.Read))
         else
             holder.articleTitle.setTextColor(
@@ -100,15 +98,15 @@ class OverviewAdapter constructor(
         var thumbnail: ImageView = itemView.findViewById(R.id.thumbnail)
 
         init {
-            if (themePrefs.amoledThemeEnabled()) {
+            if (appTheme.amoledThemeEnabled()) {
                 cv.setCardBackgroundColor(Color.BLACK)
-            } else if (themePrefs.nightThemeEnabled()) {
+            } else if (appTheme.nightThemeEnabled) {
                 cv.setCardBackgroundColor(
                     ContextCompat.getColor(context, R.color.background_material_dark)
                 )
             }
-            if (themePrefs.invertColors(false) || themePrefs.amoledThemeEnabled())
-                thumbnail.colorFilter = themePrefs.negativeColorFilter
+            if (appTheme.invertColors || appTheme.amoledThemeEnabled())
+                thumbnail.colorFilter = AppTheme.negativeColorFilter
 
             itemView.setOnClickListener { itemClickedCallback(articles[adapterPosition]) }
             itemView.setOnLongClickListener { itemLongClickedCallback(articles[adapterPosition]) }

@@ -1,7 +1,6 @@
 package de.tap.easy_xkcd.whatIfOverview
 
 import android.app.AlertDialog
-import android.content.Context
 import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
@@ -47,7 +46,7 @@ class WhatIfOverviewFragment : Fragment() {
     lateinit var onlineChecker: OnlineChecker
 
     @Inject
-    lateinit var themePrefs: ThemePrefs
+    lateinit var appTheme: AppTheme
 
     private var searchMenuItem: MenuItem? = null
 
@@ -65,7 +64,7 @@ class WhatIfOverviewFragment : Fragment() {
         setHasOptionsMenu(true)
 
         adapter = OverviewAdapter(
-            themePrefs, settings, requireActivity(),
+            appTheme, settings, requireActivity(),
             emptyList(), this::onArticleClicked, this::onArticleLongClicked
         )
         binding.rv.adapter =

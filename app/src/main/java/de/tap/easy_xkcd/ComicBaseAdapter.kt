@@ -23,9 +23,8 @@ import de.tap.easy_xkcd.database.comics.Comic
 import de.tap.easy_xkcd.database.comics.ComicContainer
 import de.tap.easy_xkcd.database.comics.toContainer
 import de.tap.easy_xkcd.utils.AppSettings
-import de.tap.easy_xkcd.utils.ThemePrefs
+import de.tap.easy_xkcd.utils.AppTheme
 import timber.log.Timber
-import java.io.File
 import java.io.FileNotFoundException
 
 abstract class ComicViewHolder(view: View): RecyclerView.ViewHolder(view) {
@@ -35,7 +34,7 @@ abstract class ComicViewHolder(view: View): RecyclerView.ViewHolder(view) {
     abstract val image: ImageView?
 }
 
-class ComicListViewHolder(view: View, themePrefs: ThemePrefs) : ComicViewHolder(view) {
+class ComicListViewHolder(view: View, appTheme: AppTheme) : ComicViewHolder(view) {
     var cv: CardView = itemView as CardView
 
     override val title: TextView = cv.findViewById(R.id.comic_title)
@@ -44,9 +43,9 @@ class ComicListViewHolder(view: View, themePrefs: ThemePrefs) : ComicViewHolder(
     override val altText: TextView? = null
 
     init {
-        if (themePrefs.amoledThemeEnabled()) {
+        if (appTheme.amoledThemeEnabled()) {
             cv.setCardBackgroundColor(Color.BLACK)
-        } else if (themePrefs.nightThemeEnabled()) {
+        } else if (appTheme.nightThemeEnabled) {
             cv.setCardBackgroundColor(
                 ContextCompat.getColor(
                     view.context,
@@ -62,7 +61,7 @@ abstract class ComicBaseAdapter<ViewHolder: ComicViewHolder>(
     private var comicNumberOfSharedElementTransition : Int?
 ) : RecyclerView.Adapter<ViewHolder>() {
     private val appSettings = AppSettings(context)
-    private val themePrefs = ThemePrefs(context)
+    private val appTheme = AppTheme(context)
 
     var comics = mutableListOf<ComicContainer>()
     override fun getItemCount() = comics.size
@@ -109,8 +108,8 @@ abstract class ComicBaseAdapter<ViewHolder: ComicViewHolder>(
         val prefix = if (appSettings.subtitleEnabled) "" else "$comic.number: "
         holder.title.text = prefix + Html.fromHtml(Comic.getInteractiveTitle(comic, context))
 
-        if (themePrefs.invertColors(false)) {
-            holder.image?.colorFilter = themePrefs.negativeColorFilter
+        if (appTheme.invertColors) {
+            holder.image?.colorFilter = AppTheme.negativeColorFilter
         }
 
         val gifId = when (comic.number) {
@@ -195,7 +194,7 @@ abstract class ComicBaseAdapter<ViewHolder: ComicViewHolder>(
     }
 
     fun imageLoaded(image: ImageView?, bitmap: Bitmap, comic: Comic) {
-        if (themePrefs.invertColors(false) && themePrefs.bitmapContainsColor(
+        if (appTheme.invertColors && appTheme.bitmapContainsColor(
                 bitmap,
                 comic.number
             )
@@ -208,7 +207,7 @@ abstract class ComicBaseAdapter<ViewHolder: ComicViewHolder>(
     private fun makeProgressDrawable() = CircularProgressDrawable(context).apply {
         strokeWidth = 5.0f
         centerRadius = 100.0f
-        setColorSchemeColors(if (themePrefs.nightThemeEnabled()) themePrefs.accentColorNight else themePrefs.accentColor)
+        setColorSchemeColors(if (appTheme.nightThemeEnabled) appTheme.accentColorNight else appTheme.accentColor)
         start()
     }
 }

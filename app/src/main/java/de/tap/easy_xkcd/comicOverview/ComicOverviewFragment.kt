@@ -22,8 +22,8 @@ import de.tap.easy_xkcd.ComicListViewHolder
 import de.tap.easy_xkcd.database.comics.Comic
 import de.tap.easy_xkcd.database.comics.ComicContainer
 import de.tap.easy_xkcd.mainActivity.MainActivity
+import de.tap.easy_xkcd.utils.AppTheme
 import de.tap.easy_xkcd.utils.SharedPrefManager
-import de.tap.easy_xkcd.utils.ThemePrefs
 import de.tap.easy_xkcd.utils.observe
 import kotlinx.coroutines.launch
 import java.util.concurrent.TimeUnit
@@ -38,7 +38,7 @@ class ComicOverviewFragment : Fragment() {
     private var _binding: RecyclerLayoutBinding? = null
     private val binding get() = _binding!!
 
-    private lateinit var themePrefs: ThemePrefs
+    private lateinit var appTheme: AppTheme
     private lateinit var sharedPrefs: SharedPrefManager
 
     private lateinit var adapter: OverviewAdapter
@@ -60,7 +60,7 @@ class ComicOverviewFragment : Fragment() {
 
         setHasOptionsMenu(true)
 
-        themePrefs = ThemePrefs(activity)
+        appTheme = AppTheme(requireActivity())
         sharedPrefs = SharedPrefManager(requireActivity())
 
         recyclerView = binding.rv
@@ -364,7 +364,7 @@ class ComicOverviewFragment : Fragment() {
                 true
             }
 
-            return ComicListViewHolder(view, themePrefs)
+            return ComicListViewHolder(view, appTheme)
         }
 
         override fun onBindViewHolder(holder: ComicListViewHolder, position: Int) {
@@ -377,8 +377,8 @@ class ComicOverviewFragment : Fragment() {
                 val markAsRead = (comic.comic?.read == true && !sharedPrefs.showOnlyFavsInOverview)
                 setTextColor(
                     when {
-                        comic.number == model.bookmark.value -> themePrefs.accentColor
-                        markAsRead xor themePrefs.nightThemeEnabled() -> ContextCompat.getColor(
+                        comic.number == model.bookmark.value -> appTheme.accentColor
+                        markAsRead xor appTheme.nightThemeEnabled -> ContextCompat.getColor(
                             context,
                             R.color.Read
                         )
