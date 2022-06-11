@@ -33,13 +33,12 @@ import de.tap.easy_xkcd.database.comics.Comic
 import de.tap.easy_xkcd.database.RealmComic
 import de.tap.easy_xkcd.fragments.ImmersiveDialogFragment
 import de.tap.easy_xkcd.mainActivity.MainActivity
-import de.tap.easy_xkcd.utils.PrefHelper
-import de.tap.easy_xkcd.utils.ThemePrefs
-import de.tap.easy_xkcd.utils.observe
+import de.tap.easy_xkcd.utils.*
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import java.util.*
+import javax.inject.Inject
 
 @AndroidEntryPoint
 abstract class ComicBrowserBaseFragment : Fragment() {
@@ -49,7 +48,12 @@ abstract class ComicBrowserBaseFragment : Fragment() {
     protected lateinit var pager: ViewPager2
     protected lateinit var adapter: ComicBrowserBaseAdapter
 
-    protected lateinit var prefHelper: PrefHelper
+    @Inject
+    lateinit var onlineChecker: OnlineChecker
+
+    // TODO Inject these
+    protected lateinit var settings: AppSettings
+    protected lateinit var sharedPrefs: SharedPrefManager
     protected lateinit var themePrefs: ThemePrefs
 
     protected abstract val model: ComicBrowserBaseViewModel
@@ -65,7 +69,8 @@ abstract class ComicBrowserBaseFragment : Fragment() {
 
         setHasOptionsMenu(true)
 
-        prefHelper = PrefHelper(activity)
+        settings = AppSettings(requireActivity())
+        sharedPrefs = SharedPrefManager(requireActivity())
         themePrefs = ThemePrefs(activity)
 
         pager = binding.pager
@@ -102,7 +107,7 @@ abstract class ComicBrowserBaseFragment : Fragment() {
 
         activity?.onBackPressedDispatcher
             ?.addCallback {
-                if (prefHelper.altBackButton()) {
+                if (settings.altBackButton) {
                     showAltText()
                 } else {
                     if (isEnabled) {
@@ -156,7 +161,7 @@ abstract class ComicBrowserBaseFragment : Fragment() {
             }
 
             override fun onDoubleTap(e: MotionEvent?): Boolean {
-                if (prefHelper.doubleTapToFavorite()) {
+                if (settings.doubleTapToFavorite) {
                     toggleFavorite()
                     (activity?.getSystemService(Context.VIBRATOR_SERVICE) as? Vibrator?)?.vibrate(100)
                 } else {
@@ -173,8 +178,8 @@ abstract class ComicBrowserBaseFragment : Fragment() {
             }
 
             fun altOrFullscreen(singleTap: Boolean) {
-                if ((singleTap xor prefHelper.altLongTap()) && !prefHelper.alwaysShowAltText()) {
-                    if (prefHelper.altVibration()) {
+                if ((singleTap xor settings.altLongTap) && !settings.alwaysShowAltText) {
+                    if (settings.altVibration) {
                         (activity?.getSystemService(Context.VIBRATOR_SERVICE) as? Vibrator?)?.vibrate(10)
                     }
                     showAltText()
@@ -209,7 +214,7 @@ abstract class ComicBrowserBaseFragment : Fragment() {
                 holder.image.maximumScale = 15.0f
             }
 
-            if (prefHelper.scrollDisabledWhileZoom() && prefHelper.defaultZoom()) {
+            if (settings.scrollDisabledWhileZoom && settings.defaultZoom) {
                 holder.image.setOnMatrixChangeListener {
                     pager.isUserInputEnabled = holder.image.scale <= 1.4
                 }
@@ -221,7 +226,7 @@ abstract class ComicBrowserBaseFragment : Fragment() {
                     holder.image.setOnLongClickListener(it)
                 }
 
-                if (prefHelper.alwaysShowAltText()) {
+                if (settings.alwaysShowAltText) {
                     holder.altText.text = comic.altText
                     holder.altText.visibility = View.VISIBLE
                 }
@@ -245,7 +250,7 @@ abstract class ComicBrowserBaseFragment : Fragment() {
                     title.setTextColor(Color.WHITE)
                 }
 
-                if (!prefHelper.defaultZoom()) {
+                if (!settings.defaultZoom) {
                     image.scaleType = ImageView.ScaleType.CENTER_INSIDE
                     image.maximumScale = 10f
                 }
@@ -258,13 +263,13 @@ abstract class ComicBrowserBaseFragment : Fragment() {
     override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
         MenuCompat.setGroupDividerEnabled(menu, true)
 
-        menu.findItem(R.id.action_alt)?.isVisible = prefHelper.showAltTip() && !prefHelper.alwaysShowAltText()
+        menu.findItem(R.id.action_alt)?.isVisible = sharedPrefs.showAltTip && !settings.alwaysShowAltText
 
         super.onCreateOptionsMenu(menu, inflater)
     }
 
     fun toggleFavorite() {
-        if (prefHelper.isOnline(activity) || prefHelper.fullOfflineEnabled()) {
+        if (onlineChecker.isOnline() || settings.fullOfflineEnabled) {
             model.toggleFavorite()
         } else {
             Toast.makeText(activity, R.string.no_connection, Toast.LENGTH_SHORT).show()
@@ -278,12 +283,12 @@ abstract class ComicBrowserBaseFragment : Fragment() {
                 if (fromMenu) {
                     dismissListener = ImmersiveDialogFragment.DismissListener {
                         //If the user selected the menu item for the first time, show the toast
-                        if (prefHelper.showAltTip()) {
+                        if (sharedPrefs.showAltTip) {
                             Snackbar.make(
                                 requireActivity().findViewById(android.R.id.content),
                                 R.string.action_alt_tip,
                                 Snackbar.LENGTH_LONG
-                            ).setAction(R.string.got_it) { prefHelper.setShowAltTip(false) }
+                            ).setAction(R.string.got_it) { sharedPrefs.showAltTip = false }
                                 .show()
                         }
                     }
@@ -336,7 +341,7 @@ abstract class ComicBrowserBaseFragment : Fragment() {
 
                     Toast.makeText(
                         activity,
-                        if (prefHelper.bookmark == 0) R.string.bookmark_toast else R.string.bookmark_toast_2,
+                        if (sharedPrefs.bookmark == 0) R.string.bookmark_toast else R.string.bookmark_toast_2,
                         Toast.LENGTH_LONG
                     ).show()
                 }
@@ -421,7 +426,7 @@ abstract class ComicBrowserBaseFragment : Fragment() {
 
     private fun explainComic(comic: Comic) {
         val url = "https://explainxkcd.com/${comic.number}"
-        if (prefHelper.useCustomTabs()) {
+        if (settings.useCustomTabs) {
             CustomTabActivityHelper.openCustomTab(
                 activity,
                 CustomTabsIntent.Builder()
@@ -444,11 +449,11 @@ abstract class ComicBrowserBaseFragment : Fragment() {
             }
 
             var extraText = comic.title
-            if (prefHelper.shareAlt()) {
+            if (settings.shareAlt) {
                 extraText += "\n" + comic.altText
             }
-            if (prefHelper.includeLink()) {
-                extraText += "https://${if (prefHelper.shareMobile()) "m." else ""}xkcd.com/${comic.number}/"
+            if (settings.includeLinkWhenSharing) {
+                extraText += "https://${if (settings.shareMobile) "m." else ""}xkcd.com/${comic.number}/"
             }
             share.putExtra(Intent.EXTRA_TEXT, extraText)
 
@@ -462,7 +467,7 @@ abstract class ComicBrowserBaseFragment : Fragment() {
             putExtra(Intent.EXTRA_SUBJECT, comic.title)
             putExtra(
                 Intent.EXTRA_TEXT,
-                " https://" + (if (prefHelper.shareMobile()) "m." else "") + "xkcd.com/" + comic.number + "/"
+                " https://" + (if (settings.shareMobile) "m." else "") + "xkcd.com/" + comic.number + "/"
             )
         }, resources.getString(R.string.share_url)))
     }

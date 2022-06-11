@@ -8,7 +8,7 @@ import dagger.hilt.android.qualifiers.ApplicationContext
 import de.tap.easy_xkcd.database.ArticleRoomDatabase
 import de.tap.easy_xkcd.database.whatif.ArticleRepository
 import de.tap.easy_xkcd.database.whatif.Article
-import de.tap.easy_xkcd.utils.PrefHelper
+import de.tap.easy_xkcd.utils.SharedPrefManager
 import de.tap.easy_xkcd.utils.ViewModelWithFlowHelper
 import io.realm.RealmResults
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -24,9 +24,9 @@ import javax.inject.Inject
 class WhatIfOverviewViewModel @Inject constructor(
     @ApplicationContext context: Context,
     private val repository: ArticleRepository,
-    private val prefHelper: PrefHelper
+    private val sharedPrefs: SharedPrefManager,
 ) : ViewModelWithFlowHelper() {
-    private val _hideRead = MutableStateFlow(prefHelper.hideReadWhatIf())
+    private val _hideRead = MutableStateFlow(sharedPrefs.hideReadWhatif)
     val hideRead: StateFlow<Boolean> = _hideRead
 
     private val _onlyFavorites = MutableStateFlow(false)
@@ -39,7 +39,7 @@ class WhatIfOverviewViewModel @Inject constructor(
 
     fun toggleHideRead(): Boolean {
         _hideRead.value = !_hideRead.value
-        prefHelper.setHideReadWhatIf(_hideRead.value)
+        sharedPrefs.hideReadWhatif = _hideRead.value
         return true
     }
 

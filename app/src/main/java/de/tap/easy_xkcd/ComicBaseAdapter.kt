@@ -22,7 +22,7 @@ import com.tap.xkcd_reader.R
 import de.tap.easy_xkcd.database.comics.Comic
 import de.tap.easy_xkcd.database.comics.ComicContainer
 import de.tap.easy_xkcd.database.comics.toContainer
-import de.tap.easy_xkcd.utils.PrefHelper
+import de.tap.easy_xkcd.utils.AppSettings
 import de.tap.easy_xkcd.utils.ThemePrefs
 import timber.log.Timber
 import java.io.File
@@ -61,7 +61,7 @@ abstract class ComicBaseAdapter<ViewHolder: ComicViewHolder>(
     private val context: Context,
     private var comicNumberOfSharedElementTransition : Int?
 ) : RecyclerView.Adapter<ViewHolder>() {
-    private val prefHelper = PrefHelper(context)
+    private val appSettings = AppSettings(context)
     private val themePrefs = ThemePrefs(context)
 
     var comics = mutableListOf<ComicContainer>()
@@ -106,7 +106,7 @@ abstract class ComicBaseAdapter<ViewHolder: ComicViewHolder>(
             return
         }
 
-        val prefix = if (prefHelper.subtitleEnabled()) "" else "$comic.number: "
+        val prefix = if (appSettings.subtitleEnabled) "" else "$comic.number: "
         holder.title.text = prefix + Html.fromHtml(Comic.getInteractiveTitle(comic, context))
 
         if (themePrefs.invertColors(false)) {
@@ -132,7 +132,7 @@ abstract class ComicBaseAdapter<ViewHolder: ComicViewHolder>(
             } else {
                 GlideApp.with(context)
                     .asBitmap()
-                    .load(if (prefHelper.fullOfflineEnabled()) getOfflineUri(comic.number) else comic.url)
+                    .load(if (appSettings.fullOfflineEnabled) getOfflineUri(comic.number) else comic.url)
                     .apply(RequestOptions().placeholder(makeProgressDrawable()))
                     .listener(ComicRequestListener<Bitmap>(comic, holder))
                     .into(image)
@@ -156,7 +156,7 @@ abstract class ComicBaseAdapter<ViewHolder: ComicViewHolder>(
             isFirstResource: Boolean
         ): Boolean {
             Timber.i("URI ${e?.rootCauses?.any { it is FileNotFoundException }}")
-            if (prefHelper.fullOfflineEnabled() && e?.rootCauses?.any { it is FileNotFoundException } == true) {
+            if (appSettings.fullOfflineEnabled && e?.rootCauses?.any { it is FileNotFoundException } == true) {
                 onOfflineImageMissing(comic.number)
             }
             startPostponedTransitions(comic.number)

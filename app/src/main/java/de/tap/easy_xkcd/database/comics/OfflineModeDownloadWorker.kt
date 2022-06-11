@@ -14,14 +14,14 @@ import dagger.assisted.Assisted
 import dagger.assisted.AssistedInject
 import de.tap.easy_xkcd.database.BaseDownloadWorker
 import de.tap.easy_xkcd.database.ProgressStatus
-import de.tap.easy_xkcd.utils.PrefHelper
+import de.tap.easy_xkcd.utils.AppSettings
 
 @HiltWorker
 class OfflineModeDownloadWorker @AssistedInject constructor (
     @Assisted private val context: Context,
     @Assisted parameters: WorkerParameters,
     private val repository: ComicRepository,
-    private val prefHelper: PrefHelper,
+    private val settings: AppSettings,
 ) : BaseDownloadWorker(context, parameters, OfflineModeDownloadWorker::class.hashCode()) {
 
     override suspend fun onDoWork(): Result {
@@ -37,7 +37,7 @@ class OfflineModeDownloadWorker @AssistedInject constructor (
         repository.saveOfflineBitmaps.collect(progressCollector)
 
         notificationManager.cancel(notificationId)
-        prefHelper.setFullOffline(true)
+        settings.fullOfflineEnabled = true
 
         return Result.success()
     }

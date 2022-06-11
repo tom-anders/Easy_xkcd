@@ -138,13 +138,13 @@ class WhatIfActivity : BaseActivity() {
             }
 
             override fun onPageFinished(view: WebView, url: String) {
-                if (prefHelper.showWhatIfTip()) {
+                if (sharedPrefs.showWhatifTip) {
                     Snackbar.make(
                         findViewById(android.R.id.content),
                         R.string.what_if_tip,
                         BaseTransientBottomBar.LENGTH_LONG
                     )
-                        .setAction(R.string.got_it) { prefHelper.setShowWhatIfTip(false) }
+                        .setAction(R.string.got_it) { sharedPrefs.showWhatifTip = false }
                         .show()
                 }
             }
@@ -155,7 +155,7 @@ class WhatIfActivity : BaseActivity() {
         binding.web.settings.javaScriptEnabled = true
         binding.web.settings.displayZoomControls = false
         binding.web.settings.loadWithOverviewMode = true
-        binding.web.settings.textZoom = prefHelper.getZoom(binding.web.settings.textZoom)
+        binding.web.settings.textZoom = settings.getZoom(binding.web.settings.textZoom)
         binding.web.settings.allowFileAccess = true
 
         // These are needed for MathJax
@@ -164,13 +164,13 @@ class WhatIfActivity : BaseActivity() {
 
         binding.web.setOnTouchListener(object : OnSwipeTouchListener(this@WhatIfActivity) {
             override fun onSwipeRight() {
-                if (prefHelper.swipeEnabled() && model.hasNextArticle.value) {
+                if (sharedPrefs.swipeEnabled && model.hasNextArticle.value) {
                     showPreviousArticle()
                 }
             }
 
             override fun onSwipeLeft() {
-                if (prefHelper.swipeEnabled() && model.hasPreviousArticle.value) {
+                if (sharedPrefs.swipeEnabled && model.hasPreviousArticle.value) {
                     showNextArticle()
                 }
             }
@@ -185,7 +185,7 @@ class WhatIfActivity : BaseActivity() {
     override fun onCreateOptionsMenu(menu: Menu): Boolean {
         menuInflater.inflate(R.menu.menu_what_if, menu)
         menu.findItem(R.id.action_night_mode).isChecked = themePrefs.nightThemeEnabled()
-        menu.findItem(R.id.action_swipe).isChecked = prefHelper.swipeEnabled()
+        menu.findItem(R.id.action_swipe).isChecked = sharedPrefs.swipeEnabled
         MenuCompat.setGroupDividerEnabled(menu, true)
         return true
     }
@@ -254,7 +254,7 @@ class WhatIfActivity : BaseActivity() {
             }
             R.id.action_swipe -> {
                 item.isChecked = !item.isChecked
-                prefHelper.setSwipeEnabled(!prefHelper.swipeEnabled())
+                sharedPrefs.swipeEnabled = !sharedPrefs.swipeEnabled
 
                 // Next/Prev buttons are only visible if swipe is disabled, so reload the menu
                 invalidateOptionsMenu()

@@ -71,7 +71,7 @@ class ComicBrowserFragment : ComicBrowserBaseFragment() {
                     4000
                 )
                     .setAction(resources.getString(R.string.new_comic_view)) {
-                        pager.setCurrentItem(prefHelper.newest - 1, false)
+                        pager.setCurrentItem(sharedPrefs.newestComic - 1, false)
                     }.show()
             }
         }
@@ -98,7 +98,7 @@ class ComicBrowserFragment : ComicBrowserBaseFragment() {
     override fun onOptionsItemSelected(item: MenuItem): Boolean =
         when (item.itemId) {
             R.id.action_latest -> {
-                pager.setCurrentItem(prefHelper.newest - 1, false)
+                pager.setCurrentItem(sharedPrefs.newestComic - 1, false)
                 true
             }
             else -> {

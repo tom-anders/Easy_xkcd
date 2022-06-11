@@ -15,7 +15,11 @@ import javax.inject.Singleton
 class UtilsModule {
     @Singleton
     @Provides
-    fun providePrefHelper(@ApplicationContext context: Context) = PrefHelper(context)
+    fun provideAppSettings(@ApplicationContext context: Context) = AppSettings(context)
+
+    @Singleton
+    @Provides
+    fun provideSharedPrefManager(@ApplicationContext context: Context) = SharedPrefManager(context)
 
     @Singleton
     @Provides
@@ -24,6 +28,10 @@ class UtilsModule {
     @Singleton
     @Provides
     fun provideDatabaseManager(@ApplicationContext context: Context) = DatabaseManager(context)
+
+    @Singleton
+    @Provides
+    fun provideOnlineChecker(@ApplicationContext context: Context) = OnlineChecker(context)
 
     @Provides
     fun provideOkHttpClient() = OkHttpClient()

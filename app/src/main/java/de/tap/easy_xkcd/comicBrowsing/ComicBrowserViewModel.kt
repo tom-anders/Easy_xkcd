@@ -7,7 +7,7 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import dagger.hilt.android.qualifiers.ApplicationContext
 import de.tap.easy_xkcd.database.comics.Comic
 import de.tap.easy_xkcd.database.comics.ComicRepository
-import de.tap.easy_xkcd.utils.PrefHelper
+import de.tap.easy_xkcd.utils.SharedPrefManager
 import de.tap.easy_xkcd.utils.SingleLiveEvent
 import de.tap.easy_xkcd.utils.ViewModelWithFlowHelper
 import kotlinx.coroutines.Dispatchers
@@ -21,7 +21,7 @@ import kotlin.random.Random
 
 abstract class ComicBrowserBaseViewModel constructor(
     private val repository: ComicRepository,
-    protected val prefHelper: PrefHelper,
+    protected val sharedPrefs: SharedPrefManager
 ) : ViewModelWithFlowHelper() {
 
     abstract fun comicSelected(index: Int)
@@ -55,8 +55,8 @@ abstract class ComicBrowserBaseViewModel constructor(
 @HiltViewModel
 class ComicBrowserViewModel @Inject constructor(
     private val repository: ComicRepository,
-    prefHelper: PrefHelper,
-) : ComicBrowserBaseViewModel(repository, prefHelper) {
+    sharedPrefs: SharedPrefManager
+) : ComicBrowserBaseViewModel(repository, sharedPrefs) {
 
     val comics = repository.comics.asLazyStateFlow(emptyList())
 
@@ -67,7 +67,7 @@ class ComicBrowserViewModel @Inject constructor(
     private var nextRandom: Int? = null
 
     private fun genNextRandom() =
-        Random.nextInt(if (prefHelper.newest != 0) prefHelper.newest else 1 ).also {
+        Random.nextInt(if (sharedPrefs.newestComic != 0) sharedPrefs.newestComic else 1 ).also {
             cacheComic(it)
         }
 
@@ -83,8 +83,8 @@ class ComicBrowserViewModel @Inject constructor(
 
     init {
         // Jump to the comic we displayed the last time the app was opened
-        if (prefHelper.lastComic != 0) {
-            _selectedComicNumber.value = prefHelper.lastComic
+        if (sharedPrefs.lastComic != 0) {
+            _selectedComicNumber.value = sharedPrefs.lastComic
         }
 
         viewModelScope.launch {
@@ -134,7 +134,7 @@ class ComicBrowserViewModel @Inject constructor(
     override fun comicSelected(index: Int) {
         val number = index + 1
         _selectedComicNumber.value = number
-        prefHelper.lastComic = number
+        sharedPrefs.lastComic = number
 
         viewModelScope.launch {
             repository.setRead(number, true)
@@ -167,8 +167,8 @@ class FavoriteComicsViewModel @Inject constructor(
     private val repository: ComicRepository,
     //TODO rather pass in context as parameter
     @ApplicationContext private val context: Context,
-    prefHelper: PrefHelper,
-) : ComicBrowserBaseViewModel(repository, prefHelper) {
+    sharedPrefs: SharedPrefManager,
+) : ComicBrowserBaseViewModel(repository, sharedPrefs) {
 
     private val _importingFavorites = MutableLiveData(false)
     val importingFavorites: LiveData<Boolean> = _importingFavorites

@@ -31,7 +31,6 @@ import androidx.lifecycle.lifecycleScope
 import com.android.billingclient.api.*
 import com.tap.xkcd_reader.R
 import dagger.hilt.android.AndroidEntryPoint
-import de.tap.easy_xkcd.utils.PrefHelper
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -63,7 +62,7 @@ class DonateActivity : BaseActivity() {
                 if (   billingResult.responseCode == BillingClient.BillingResponseCode.OK
                     && purchases != null) {
                         if (purchases.firstOrNull()?.purchaseState == Purchase.PurchaseState.PURCHASED) {
-                            prefHelper.setHideDonate(true)
+                            settings.hideDonate = true
                             finish()
                             Toast.makeText(this@DonateActivity, R.string.iap_thanks, Toast.LENGTH_SHORT).show()
                         }

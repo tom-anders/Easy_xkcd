@@ -10,7 +10,7 @@ import de.tap.easy_xkcd.database.comics.ComicRepository
 import de.tap.easy_xkcd.database.comics.OfflineModeDownloadWorker
 import de.tap.easy_xkcd.database.whatif.ArticleRepository
 import de.tap.easy_xkcd.database.whatif.WhatIfOfflineModeDownloadWorker
-import de.tap.easy_xkcd.utils.PrefHelper
+import de.tap.easy_xkcd.utils.AppSettings
 import de.tap.easy_xkcd.utils.ViewModelWithFlowHelper
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.combine
@@ -24,7 +24,7 @@ class OfflineAndNotificationViewModel @Inject constructor(
     private val comicRepository: ComicRepository,
     private val articleRepository: ArticleRepository,
     @ApplicationContext private val context: Context,
-    private val prefHelper: PrefHelper,
+    private val settings: AppSettings,
     private val newComicNotificationHandler: NewComicNotificationHandler,
 ) : ViewModelWithFlowHelper() {
 
@@ -118,8 +118,8 @@ class OfflineAndNotificationViewModel @Inject constructor(
             .asLazyStateFlow(initialValue = false)
 
     fun onOfflinePathSelected(newValue: String) {
-        val oldPath = prefHelper.getOfflinePath(context)
-        val newPath = prefHelper.getOfflinePathForValue(context, newValue)
+        val oldPath = settings.getOfflinePath(context)
+        val newPath = settings.getOfflinePathForValue(context, newValue)
 
         WorkManager.getInstance(context).enqueueUniqueWork(
             moveOfflineDataTag, ExistingWorkPolicy.KEEP,

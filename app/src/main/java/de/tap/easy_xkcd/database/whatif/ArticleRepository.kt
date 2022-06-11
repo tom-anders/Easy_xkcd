@@ -14,7 +14,8 @@ import dagger.hilt.components.SingletonComponent
 import de.tap.easy_xkcd.GlideApp
 import de.tap.easy_xkcd.database.ProgressStatus
 import de.tap.easy_xkcd.reddit.RedditSearchApi
-import de.tap.easy_xkcd.utils.PrefHelper
+import de.tap.easy_xkcd.utils.AppSettings
+import de.tap.easy_xkcd.utils.SharedPrefManager
 import de.tap.easy_xkcd.utils.ThemePrefs
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.*
@@ -77,7 +78,8 @@ interface ArticleRepository {
 @Singleton
 class ArticleRepositoryImpl @Inject constructor(
     @ApplicationContext private val context: Context,
-    private val prefHelper: PrefHelper,
+    private val sharedPrefs: SharedPrefManager,
+    private val settings: AppSettings,
     private val themePrefs: ThemePrefs,
     private val articleDao: ArticleDao,
     private val okHttpClient: OkHttpClient,
@@ -91,14 +93,14 @@ class ArticleRepositoryImpl @Inject constructor(
     override val articles: Flow<List<Article>> = articleDao.getArticles()
 
     override suspend fun updateDatabase() = withContext(Dispatchers.IO) {
-        if (!prefHelper.hasAlreadyResetWhatifDatabase()) {
+        if (!sharedPrefs.hasAlreadyResetWhatifDatabase) {
             Timber.i("Resetting what-if database")
 
             articleDao.deleteAllArticles()
-            prefHelper.setFullOfflineWhatIf(false)
+            settings.fullOfflineWhatIf = false
             deleteAllOfflineArticles()
 
-            prefHelper.setHasResetWhatIfDatabase()
+            sharedPrefs.hasAlreadyResetWhatifDatabase = true
         }
 
         try {
@@ -121,7 +123,7 @@ class ArticleRepositoryImpl @Inject constructor(
                         title = entries[number - 1].selectFirst(".archive-title")?.text() ?: "",
                         thumbnail = entries[number - 1].selectFirst(".archive-image")?.attr("src") ?: "",
                     ).also {
-                        if (prefHelper.fullOfflineWhatIf()) {
+                        if (settings.fullOfflineWhatIf) {
                             downloadArticle(number)
                         }
                     }
@@ -141,7 +143,7 @@ class ArticleRepositoryImpl @Inject constructor(
     override suspend fun downloadArticle(number: Int) {
         withContext(Dispatchers.IO) {
             try {
-                val dir = File(prefHelper.getOfflinePath(context).absolutePath + OFFLINE_WHATIF_PATH + number.toString())
+                val dir = File(settings.getOfflinePath(context).absolutePath + OFFLINE_WHATIF_PATH + number.toString())
                 dir.mkdirs()
                 val doc = Jsoup.connect("https://what-if.xkcd.com/$number").get()
                 val writer = BufferedWriter(FileWriter(File(dir,  "$number.html")))
@@ -191,7 +193,7 @@ class ArticleRepositoryImpl @Inject constructor(
     override val downloadArchiveImages: Flow<ProgressStatus> = flow {
         try {
             var max: Int
-            val dir = File(prefHelper.getOfflinePath(context).absolutePath + OFFLINE_WHATIF_OVERVIEW_PATH)
+            val dir = File(settings.getOfflinePath(context).absolutePath + OFFLINE_WHATIF_OVERVIEW_PATH)
             dir.mkdirs()
             val doc = Jsoup.connect("https://what-if.xkcd.com/archive/")
                 .userAgent("Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/32.0.1700.19 Safari/537.36")
@@ -246,14 +248,14 @@ class ArticleRepositoryImpl @Inject constructor(
         articleDao.setRead(number, true)
 
         val doc = withContext(Dispatchers.IO) {
-            if (!prefHelper.fullOfflineWhatIf()) {
+            if (!settings.fullOfflineWhatIf) {
                 Jsoup.parse(okHttpClient.newCall(
                     Request.Builder()
                     .url("https://what-if.xkcd.com/$number")
                     .build()
                 ).await().body?.string())
             } else {
-                val dir = File(prefHelper.getOfflinePath(context).absolutePath
+                val dir = File(settings.getOfflinePath(context).absolutePath
                         + OFFLINE_WHATIF_PATH + number)
                 val file = File(dir, "$number.html")
                 Jsoup.parse(file, "UTF-8")
@@ -280,9 +282,9 @@ class ArticleRepositoryImpl @Inject constructor(
 
         //fix the image links
         var count = 1
-        val base = prefHelper.getOfflinePath(context).absolutePath
+        val base = settings.getOfflinePath(context).absolutePath
         for (e in doc.select(".illustration")) {
-            if (!prefHelper.fullOfflineWhatIf()) {
+            if (!settings.fullOfflineWhatIf) {
                 e.attr("src", getImageUrlFromElement(e))
             } else {
                 val path = "file://$base/what if/$number/$count.png"
@@ -293,7 +295,7 @@ class ArticleRepositoryImpl @Inject constructor(
         }
 
         //fix footnotes and math scripts
-        if (prefHelper.fullOfflineWhatIf()) {
+        if (settings.fullOfflineWhatIf) {
             doc.select("script[src]").first().attr("src", "MathJax.js")
         }
 
@@ -317,7 +319,7 @@ class ArticleRepositoryImpl @Inject constructor(
     }
 
     override suspend fun deleteAllOfflineArticles() {
-        File(prefHelper.getOfflinePath(context).absolutePath + OFFLINE_WHATIF_PATH).deleteRecursively()
+        File(settings.getOfflinePath(context).absolutePath + OFFLINE_WHATIF_PATH).deleteRecursively()
     }
 }
 
@@ -327,10 +329,11 @@ class ArticleRepositoryModule {
     @Provides
     fun provideArticleRepository(
         @ApplicationContext context: Context,
-        prefHelper: PrefHelper,
+        sharedPrefs: SharedPrefManager,
+        settings: AppSettings,
         themePrefs: ThemePrefs,
         articleDao: ArticleDao,
         okHttpClient: OkHttpClient,
         redditSearchApi: RedditSearchApi,
-    ): ArticleRepository = ArticleRepositoryImpl(context, prefHelper, themePrefs, articleDao, okHttpClient, redditSearchApi)
+    ): ArticleRepository = ArticleRepositoryImpl(context, sharedPrefs, settings, themePrefs, articleDao, okHttpClient, redditSearchApi)
 }

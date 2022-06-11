@@ -12,19 +12,20 @@ import androidx.appcompat.widget.Toolbar
 import androidx.core.content.ContextCompat
 import com.tap.xkcd_reader.R
 import de.tap.easy_xkcd.database.ProgressStatus
-import de.tap.easy_xkcd.utils.PrefHelper
-import de.tap.easy_xkcd.utils.ThemePrefs
-import de.tap.easy_xkcd.utils.observe
+import de.tap.easy_xkcd.utils.*
 import kotlinx.coroutines.flow.Flow
 
 abstract class BaseActivity : AppCompatActivity() {
-    protected lateinit var prefHelper: PrefHelper
+    // TODO Inject these
+    protected lateinit var sharedPrefs: SharedPrefManager
+    protected lateinit var settings: AppSettings
     protected lateinit var themePrefs: ThemePrefs
     @JvmField @Deprecated("Remove when MainActivity.java is fully removed")
     var defaultVisibility = 0
     override fun onCreate(savedInstanceState: Bundle?) {
-        prefHelper = PrefHelper(this)
+        sharedPrefs = SharedPrefManager(this)
         themePrefs = ThemePrefs(this)
+        settings = AppSettings(this)
         defaultVisibility = window.decorView.systemUiVisibility
         setTheme(themePrefs.newTheme)
         if (themePrefs.amoledThemeEnabled()) {
@@ -49,7 +50,7 @@ abstract class BaseActivity : AppCompatActivity() {
             val color = themePrefs.getPrimaryColor(false)
             val description = TaskDescription("Easy xkcd", ic, color)
             setTaskDescription(description)
-            if (prefHelper.colorNavbar()) window.navigationBarColor =
+            if (settings.colorNavbar) window.navigationBarColor =
                 themePrefs.primaryDarkColor
         }
         window.statusBarColor = themePrefs.primaryDarkColor

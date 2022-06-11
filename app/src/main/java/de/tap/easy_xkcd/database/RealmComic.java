@@ -35,7 +35,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.Arrays;
 
-import de.tap.easy_xkcd.utils.PrefHelper;
+import de.tap.easy_xkcd.utils.AppSettings;
 import io.realm.RealmObject;
 import io.realm.annotations.PrimaryKey;
 import okhttp3.Response;
@@ -254,9 +254,9 @@ public class RealmComic extends RealmObject {
         return realmComic;
     }
 
-    public static void saveOfflineBitmap(Bitmap bitmap, PrefHelper prefHelper, int number, Context context) {
+    public static void saveOfflineBitmap(Bitmap bitmap, AppSettings appSettings, int number, Context context) {
         try {
-            File file = new File(prefHelper.getOfflinePath(context), String.valueOf(number) + ".png");
+            File file = new File(appSettings.getOfflinePath(context), String.valueOf(number) + ".png");
             FileOutputStream fos = new FileOutputStream(file);
             bitmap.compress(Bitmap.CompressFormat.PNG, 100, fos);
             fos.flush();
@@ -273,14 +273,14 @@ public class RealmComic extends RealmObject {
         }
     }
 
-    public static boolean isOfflineComicAlreadyDownloaded(int comicNumber, PrefHelper prefHelper, Context context) {
-        return new File(prefHelper.getOfflinePath(context), comicNumber + ".png").exists();
+    public static boolean isOfflineComicAlreadyDownloaded(int comicNumber, AppSettings appSettings, Context context) {
+        return new File(appSettings.getOfflinePath(context), comicNumber + ".png").exists();
     }
 
-    public static void saveOfflineBitmap(Response response, PrefHelper prefHelper, int comicNumber, Context context) {
+    public static void saveOfflineBitmap(Response response, AppSettings appSettings, int comicNumber, Context context) {
         String comicFileName = comicNumber + ".png"; // TODO: Some early comics are .jpg
         try {
-            try (FileOutputStream fos = new FileOutputStream(prefHelper.getOfflinePath(context).getAbsolutePath() + "/" + comicFileName)) {
+            try (FileOutputStream fos = new FileOutputStream(appSettings.getOfflinePath(context).getAbsolutePath() + "/" + comicFileName)) {
                 fos.write(response.body().bytes());
             }
         } catch (Exception e) {
@@ -295,7 +295,7 @@ public class RealmComic extends RealmObject {
         }
     }
 
-    public static Bitmap getOfflineBitmap(int comicNumber, Context context, PrefHelper prefHelper) {
+    public static Bitmap getOfflineBitmap(int comicNumber, Context context, AppSettings appSettings) {
         //Fix for offline users who downloaded the HUGE version of #1826
         if (comicNumber == 1826) {
             BitmapFactory.Options options = new BitmapFactory.Options();
@@ -310,7 +310,7 @@ public class RealmComic extends RealmObject {
         Bitmap mBitmap = null;
         String comicFileName = comicNumber + ".png";
         try {
-            File file = new File(prefHelper.getOfflinePath(context), comicFileName);
+            File file = new File(appSettings.getOfflinePath(context), comicFileName);
             FileInputStream fis = new FileInputStream(file);
             mBitmap = BitmapFactory.decodeStream(fis);
             fis.close();

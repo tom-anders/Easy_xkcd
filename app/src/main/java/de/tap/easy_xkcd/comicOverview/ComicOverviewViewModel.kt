@@ -5,7 +5,7 @@ import androidx.lifecycle.*
 import dagger.hilt.android.lifecycle.HiltViewModel
 import dagger.hilt.android.qualifiers.ApplicationContext
 import de.tap.easy_xkcd.database.comics.ComicRepository
-import de.tap.easy_xkcd.utils.PrefHelper
+import de.tap.easy_xkcd.utils.SharedPrefManager
 import de.tap.easy_xkcd.utils.ViewModelWithFlowHelper
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.*
@@ -19,22 +19,22 @@ class ComicOverviewViewModel @Inject constructor(
     @ApplicationContext context: Context,
 ) : ViewModelWithFlowHelper() {
 
-    val prefHelper = PrefHelper(context)
+    val sharedPrefs = SharedPrefManager(context)
 
     private val _bookmark = MutableStateFlow(
-        if (prefHelper.bookmark != 0) prefHelper.bookmark else null
+        if (sharedPrefs.bookmark != 0) sharedPrefs.bookmark else null
     )
     val bookmark: StateFlow<Int?> = _bookmark
 
     //TODO can we also get a flow from preferences? https://github.com/tfcporciuncula/flow-preferences
     //TODO Should be an enum so that we can get rid of the magic numbers
-    private val _overviewStyle = MutableStateFlow(prefHelper.overviewStyle)
+    private val _overviewStyle = MutableStateFlow(sharedPrefs.overviewStyle)
     val overviewStyle: StateFlow<Int> = _overviewStyle
 
-    private val _hideRead = MutableStateFlow(prefHelper.hideRead())
+    private val _hideRead = MutableStateFlow(sharedPrefs.hideReadComics)
     val hideRead: StateFlow<Boolean> = _hideRead
 
-    private val _onlyFavorites = MutableStateFlow(prefHelper.overviewFav())
+    private val _onlyFavorites = MutableStateFlow(sharedPrefs.showOnlyFavsInOverview)
     val onlyFavorites: StateFlow<Boolean> = _onlyFavorites
 
     fun downloadMissingOfflineBitmap(number: Int) {
@@ -58,18 +58,18 @@ class ComicOverviewViewModel @Inject constructor(
     fun cacheComic(number: Int) = viewModelScope.launch { repository.cacheComic(number) }
 
     fun overviewStyleSelected(style: Int) {
-        prefHelper.overviewStyle = style
+        sharedPrefs.overviewStyle = style
         _overviewStyle.value = style
     }
 
     fun setBookmark(number: Int) {
-        prefHelper.bookmark = number
+        sharedPrefs.bookmark = number
         _bookmark.value = number
     }
 
     fun toggleHideRead() {
-        prefHelper.setHideRead(!prefHelper.hideRead())
-        _hideRead.value = prefHelper.hideRead()
+        sharedPrefs.hideReadComics = !sharedPrefs.hideReadComics
+        _hideRead.value = sharedPrefs.hideReadComics
     }
 
     suspend fun getOldestUnread() = withContext(Dispatchers.IO) {
@@ -82,7 +82,7 @@ class ComicOverviewViewModel @Inject constructor(
     }
 
     fun toggleOnlyFavorites() {
-        prefHelper.setOverviewFav(!prefHelper.overviewFav())
-        _onlyFavorites.value = prefHelper.overviewFav()
+        sharedPrefs.showOnlyFavsInOverview = !sharedPrefs.showOnlyFavsInOverview
+        _onlyFavorites.value = sharedPrefs.showOnlyFavsInOverview
     }
 }

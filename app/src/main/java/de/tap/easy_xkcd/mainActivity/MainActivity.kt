@@ -96,7 +96,7 @@ class MainActivity : BaseActivity() {
                 bottomNavigationView.selectedItemId = R.id.nav_whatif
             } else {
                 bottomNavigationView.selectedItemId =
-                    if (prefHelper.launchToOverview()) R.id.nav_overview else R.id.nav_browser
+                    if (settings.launchToOverview) R.id.nav_overview else R.id.nav_browser
             }
 
             viewModel.onCreateWithNullSavedInstanceState()
@@ -164,7 +164,7 @@ class MainActivity : BaseActivity() {
                         intent.dataString?.let { url ->
                             val number = getNumberFromUrl(url)
                             if (!url.contains("what-if")) {
-                                comicOrArticleToShow = ComicOrArticleToShow.ShowComic(number ?: prefHelper.newest)
+                                comicOrArticleToShow = ComicOrArticleToShow.ShowComic(number ?: sharedPrefs.newestComic)
                             } else if (number != null) {
                                 comicOrArticleToShow = ComicOrArticleToShow.ShowArticle(number)
                             }
@@ -317,7 +317,7 @@ class MainActivity : BaseActivity() {
     override fun onCreateOptionsMenu(menu: Menu): Boolean {
         menuInflater.inflate(R.menu.menu_main, menu)
 
-        menu.findItem(R.id.action_donate)?.isVisible = !prefHelper.hideDonate()
+        menu.findItem(R.id.action_donate)?.isVisible = !settings.hideDonate
         menu.findItem(R.id.action_night_mode)?.isChecked = themePrefs.nightEnabledThemeIgnoreAutoNight()
         menu.findItem(R.id.action_night_mode)?.isVisible = !themePrefs.autoNightEnabled() && !themePrefs.useSystemNightTheme()
 
@@ -426,13 +426,13 @@ class MainActivity : BaseActivity() {
     }
 
     fun toggleFullscreen() {
-        if (prefHelper.fullscreenModeEnabled()) {
+        if (settings.fullscreenModeAllowed) {
             fullscreenEnabled = !fullscreenEnabled
 
             animateViewForFullscreenToggle(toolbar, true)
             animateViewForFullscreenToggle(bottomAppBar, false)
 
-            if (prefHelper.hideFabInFullscreen()) animateViewForFullscreenToggle(binding.fab, false)
+            if (settings.hideFabInFullscreen) animateViewForFullscreenToggle(binding.fab, false)
 
             val newMargin = (if (fullscreenEnabled) 0 else bottomAppBar.height)
             (binding.flContent.layoutParams as RelativeLayout.LayoutParams?)?.bottomMargin =

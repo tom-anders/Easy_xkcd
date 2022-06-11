@@ -12,7 +12,7 @@ import dagger.assisted.Assisted
 import dagger.assisted.AssistedInject
 import de.tap.easy_xkcd.database.BaseDownloadWorker
 import de.tap.easy_xkcd.database.ProgressStatus
-import de.tap.easy_xkcd.utils.PrefHelper
+import de.tap.easy_xkcd.utils.AppSettings
 import kotlinx.coroutines.flow.collect
 
 @HiltWorker
@@ -20,7 +20,7 @@ class WhatIfOfflineModeDownloadWorker @AssistedInject constructor(
     @Assisted private val context: Context,
     @Assisted parameters: WorkerParameters,
     private val repository: ArticleRepository,
-    private val prefHelper: PrefHelper,
+    private val settings: AppSettings,
 ) : BaseDownloadWorker(context, parameters, WhatIfOfflineModeDownloadWorker::class.hashCode()) {
 
     override suspend fun onDoWork(): Result {
@@ -35,7 +35,7 @@ class WhatIfOfflineModeDownloadWorker @AssistedInject constructor(
         repository.downloadArchiveImages.collect(progressCollector)
 
         notificationManager.cancel(notificationId)
-        prefHelper.setFullOfflineWhatIf(true)
+        settings.fullOfflineWhatIf = true
 
         return Result.success()
     }

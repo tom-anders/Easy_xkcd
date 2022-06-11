@@ -1,7 +1,6 @@
 package de.tap.easy_xkcd.widget
 
 import android.appwidget.AppWidgetProvider
-import de.tap.easy_xkcd.utils.PrefHelper
 import android.appwidget.AppWidgetManager
 import android.widget.RemoteViews
 import com.tap.xkcd_reader.R
@@ -25,6 +24,8 @@ import de.tap.easy_xkcd.database.comics.Comic
 import de.tap.easy_xkcd.database.comics.ComicDao
 import de.tap.easy_xkcd.database.comics.ComicRepository
 import de.tap.easy_xkcd.database.comics.XkcdApi
+import de.tap.easy_xkcd.utils.AppSettings
+import de.tap.easy_xkcd.utils.SharedPrefManager
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -41,7 +42,9 @@ class WidgetLatestProvider : AppWidgetProvider() {
     @Inject
     lateinit var comicDao: ComicDao
     @Inject
-    lateinit var prefHelper: PrefHelper
+    lateinit var sharedPrefManager: SharedPrefManager
+    @Inject
+    lateinit var settings: AppSettings
 
     override fun onUpdate(
         context: Context,
@@ -53,7 +56,7 @@ class WidgetLatestProvider : AppWidgetProvider() {
                 Comic(xkcdApi.getNewestComic(), context)
             } catch (e: Exception) {
                 Timber.e(e)
-                comicDao.getComic(prefHelper.newest)
+                comicDao.getComic(sharedPrefManager.newestComic)
             }?.let { newestComic ->
                 val remoteViews = RemoteViews(context.packageName, R.layout.widget_latest_layout)
                 GlideApp.with(context)
@@ -76,10 +79,10 @@ class WidgetLatestProvider : AppWidgetProvider() {
                     )
 
                 val titlePrefix =
-                    if (prefHelper.widgetShowComicNumber()) "${newestComic.number}: " else ""
+                    if (settings.widgetShowComicNumber) "${newestComic.number}: " else ""
                 remoteViews.setTextViewText(R.id.tvTitle, "${titlePrefix}${newestComic.title}")
 
-                if (prefHelper.widgetShowAlt()) {
+                if (settings.widgetShowAlt) {
                     remoteViews.setViewVisibility(
                         R.id.tvAlt,
                         View.VISIBLE

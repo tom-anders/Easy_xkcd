@@ -1,7 +1,6 @@
 package de.tap.easy_xkcd.widget
 
 import android.appwidget.AppWidgetProvider
-import de.tap.easy_xkcd.utils.PrefHelper
 import android.appwidget.AppWidgetManager
 import android.widget.RemoteViews
 import com.tap.xkcd_reader.R
@@ -20,6 +19,8 @@ import timber.log.Timber
 import de.tap.easy_xkcd.GlideApp
 import de.tap.easy_xkcd.database.comics.ComicDao
 import de.tap.easy_xkcd.database.comics.ComicRepository
+import de.tap.easy_xkcd.utils.AppSettings
+import de.tap.easy_xkcd.utils.SharedPrefManager
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -30,7 +31,9 @@ import kotlin.random.Random
 @AndroidEntryPoint
 class WidgetRandomProvider : AppWidgetProvider() {
     @Inject
-    lateinit var prefHelper: PrefHelper
+    lateinit var sharedPrefManager: SharedPrefManager
+    @Inject
+    lateinit var settings: AppSettings
 
     @Inject
     lateinit var repository: ComicRepository
@@ -44,11 +47,11 @@ class WidgetRandomProvider : AppWidgetProvider() {
         remoteViews.setImageViewBitmap(R.id.ivComic, null)
 
         CoroutineScope(Dispatchers.Main).launch {
-            repository.cacheComic(Random.nextInt(1, prefHelper.newest))?.let { randomComic ->
+            repository.cacheComic(Random.nextInt(1, sharedPrefManager.newestComic))?.let { randomComic ->
 
                 GlideApp.with(context)
                     .asBitmap()
-                    .load(if (prefHelper.fullOfflineEnabled()) repository.getOfflineUri(randomComic.number) else randomComic.url)
+                    .load(if (settings.fullOfflineEnabled) repository.getOfflineUri(randomComic.number) else randomComic.url)
                     .into(
                         object :
                             AppWidgetTarget(context, R.id.ivComic, remoteViews, *appWidgetIds) {
@@ -91,10 +94,10 @@ class WidgetRandomProvider : AppWidgetProvider() {
                 )
 
                 val titlePrefix =
-                    if (prefHelper.widgetShowComicNumber()) "${randomComic.number}: " else ""
+                    if (settings.widgetShowComicNumber) "${randomComic.number}: " else ""
                 remoteViews.setTextViewText(R.id.tvTitle, "${titlePrefix}${randomComic.title}")
 
-                if (prefHelper.widgetShowAlt()) {
+                if (settings.widgetShowAlt) {
                     remoteViews.setViewVisibility(
                         R.id.tvAlt,
                         View.VISIBLE

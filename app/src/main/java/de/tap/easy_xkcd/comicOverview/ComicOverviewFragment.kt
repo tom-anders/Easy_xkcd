@@ -22,7 +22,7 @@ import de.tap.easy_xkcd.ComicListViewHolder
 import de.tap.easy_xkcd.database.comics.Comic
 import de.tap.easy_xkcd.database.comics.ComicContainer
 import de.tap.easy_xkcd.mainActivity.MainActivity
-import de.tap.easy_xkcd.utils.PrefHelper
+import de.tap.easy_xkcd.utils.SharedPrefManager
 import de.tap.easy_xkcd.utils.ThemePrefs
 import de.tap.easy_xkcd.utils.observe
 import kotlinx.coroutines.launch
@@ -39,7 +39,7 @@ class ComicOverviewFragment : Fragment() {
     private val binding get() = _binding!!
 
     private lateinit var themePrefs: ThemePrefs
-    private lateinit var prefHelper: PrefHelper
+    private lateinit var sharedPrefs: SharedPrefManager
 
     private lateinit var adapter: OverviewAdapter
 
@@ -61,7 +61,7 @@ class ComicOverviewFragment : Fragment() {
         setHasOptionsMenu(true)
 
         themePrefs = ThemePrefs(activity)
-        prefHelper = PrefHelper(activity)
+        sharedPrefs = SharedPrefManager(requireActivity())
 
         recyclerView = binding.rv
         recyclerView.setHasFixedSize(true)
@@ -120,7 +120,7 @@ class ComicOverviewFragment : Fragment() {
                     // This is the case when we have "hide read" enabled, or are showing only favorites,
                     // so the comic we came from might not be in the list here. So scroll to the
                     // nearest comic instead
-                    scrollRecyclerViewToPosition(newList.indexOfFirst { comicContainer -> comicContainer.number >= prefHelper.lastComic })
+                    scrollRecyclerViewToPosition(newList.indexOfFirst { comicContainer -> comicContainer.number >= sharedPrefs.lastComic })
                 }
 
                 adapter.comics = newList.toMutableList()
@@ -157,7 +157,7 @@ class ComicOverviewFragment : Fragment() {
 
             if (savedInstanceState == null && !onlyShowFavoritesAndNotComingFromFavorites) {
                 args.getInt(MainActivity.ARG_COMIC_OR_ARTICLE_TO_SHOW, -1).let { number ->
-                    if (number > 0 && number <= prefHelper.newest) {
+                    if (number > 0 && number <= sharedPrefs.newestComic) {
                         comicNumberOfSharedElementTransition = number
                         if (model.overviewStyle.value != 0) {
                             postponeEnterTransition(400, TimeUnit.MILLISECONDS)
@@ -197,7 +197,7 @@ class ComicOverviewFragment : Fragment() {
                 val randIndex = Random.nextInt(adapter.comics.size)
 
                 mainActivity?.showComicFromOverview(
-                    prefHelper.overviewFav(), emptyList(), adapter.comics[randIndex].number
+                    sharedPrefs.showOnlyFavsInOverview, emptyList(), adapter.comics[randIndex].number
                 )
             }
         }
@@ -243,14 +243,14 @@ class ComicOverviewFragment : Fragment() {
             menu.findItem(R.id.action_hide_read).isChecked = it
         }
 
-        menu.findItem(R.id.action_hide_read)?.apply { isChecked = prefHelper.hideRead() }
+        menu.findItem(R.id.action_hide_read)?.apply { isChecked = sharedPrefs.hideReadComics }
     }
 
     override fun onOptionsItemSelected(item: MenuItem) = when (item.itemId) {
         R.id.action_overview_style -> {
             AlertDialog.Builder(requireContext()).setTitle(R.string.overview_style_title)
                 .setSingleChoiceItems(
-                    R.array.overview_style, prefHelper.overviewStyle
+                    R.array.overview_style, sharedPrefs.overviewStyle
                 ) { dialogInterface, i ->
                     model.overviewStyleSelected(i)
                     dialogInterface.dismiss()
@@ -334,7 +334,7 @@ class ComicOverviewFragment : Fragment() {
 
             view.setOnClickListener {
                 (activity as MainActivity?)?.showComicFromOverview(
-                    prefHelper.overviewFav(),
+                    sharedPrefs.showOnlyFavsInOverview,
                     if (style != 0) {
                         listOf(
                             view.findViewById(R.id.comic_title),
@@ -374,7 +374,7 @@ class ComicOverviewFragment : Fragment() {
 
         override fun onDisplayingComic(comic: ComicContainer, holder: ComicListViewHolder) {
             holder.title.apply {
-                val markAsRead = (comic.comic?.read == true && !prefHelper.overviewFav())
+                val markAsRead = (comic.comic?.read == true && !sharedPrefs.showOnlyFavsInOverview)
                 setTextColor(
                     when {
                         comic.number == model.bookmark.value -> themePrefs.accentColor

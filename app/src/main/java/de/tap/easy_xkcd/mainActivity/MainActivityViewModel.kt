@@ -7,7 +7,6 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import de.tap.easy_xkcd.database.NewComicNotificationHandler
 import de.tap.easy_xkcd.database.NewComicNotificationWorker
 import de.tap.easy_xkcd.database.comics.ComicRepository
-import de.tap.easy_xkcd.utils.PrefHelper
 import kotlinx.coroutines.launch
 import timber.log.Timber
 import java.lang.RuntimeException

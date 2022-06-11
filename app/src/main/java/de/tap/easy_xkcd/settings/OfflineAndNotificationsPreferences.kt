@@ -11,7 +11,7 @@ import androidx.preference.PreferenceFragmentCompat
 import androidx.preference.SwitchPreference
 import com.tap.xkcd_reader.R
 import dagger.hilt.android.AndroidEntryPoint
-import de.tap.easy_xkcd.utils.PrefHelper
+import de.tap.easy_xkcd.utils.AppSettings
 import de.tap.easy_xkcd.utils.observe
 import javax.inject.Inject
 
@@ -22,7 +22,7 @@ class OfflineNotificationsFragment : PreferenceFragmentCompat() {
     private val viewModel: OfflineAndNotificationViewModel by viewModels()
 
     @Inject
-    lateinit var prefHelper: PrefHelper
+    lateinit var settings: AppSettings
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -43,7 +43,7 @@ class OfflineNotificationsFragment : PreferenceFragmentCompat() {
                         .setPositiveButton(
                             R.string.dialog_yes
                         ) { _, _ ->
-                            prefHelper.setFullOffline(false)
+                            settings.fullOfflineEnabled = false
                             viewModel.onOfflineModeDisabled()
                         }
                         .setCancelable(false)
@@ -53,8 +53,8 @@ class OfflineNotificationsFragment : PreferenceFragmentCompat() {
             }
 
             viewModel.disableOfflineModeButton.observe(viewLifecycleOwner) {
-                if (prefHelper.fullOfflineEnabled() != offlinePref.isChecked) {
-                    offlinePref.isChecked = prefHelper.fullOfflineEnabled()
+                if (settings.fullOfflineEnabled != offlinePref.isChecked) {
+                    offlinePref.isChecked = settings.fullOfflineEnabled
                 }
 
                 offlinePref.isEnabled = !it
@@ -86,7 +86,7 @@ class OfflineNotificationsFragment : PreferenceFragmentCompat() {
                         .setPositiveButton(
                             R.string.dialog_yes
                         ) { _, _ ->
-                            prefHelper.setFullOfflineWhatIf(false)
+                            settings.fullOfflineWhatIf = false
                             viewModel.onWhatIfOfflineModeDisabled()
                             whatIfOfflinePref.isChecked = false
                         }
@@ -97,8 +97,8 @@ class OfflineNotificationsFragment : PreferenceFragmentCompat() {
             }
 
             viewModel.disableWhatifOfflineModeButton.observe(viewLifecycleOwner) {
-                if (prefHelper.fullOfflineWhatIf() != whatIfOfflinePref.isChecked) {
-                    whatIfOfflinePref.isChecked = prefHelper.fullOfflineWhatIf()
+                if (settings.fullOfflineWhatIf != whatIfOfflinePref.isChecked) {
+                    whatIfOfflinePref.isChecked = settings.fullOfflineWhatIf
                 }
 
                 whatIfOfflinePref.isEnabled = !it

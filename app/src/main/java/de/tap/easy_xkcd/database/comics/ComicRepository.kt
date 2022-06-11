@@ -102,7 +102,8 @@ interface ComicRepository {
 @Singleton
 class ComicRepositoryImpl @Inject constructor(
     @ApplicationContext private val context: Context,
-    private val prefHelper: PrefHelper,
+    private val sharedPrefs: SharedPrefManager,
+    private val settings: AppSettings,
     private val comicDao: ComicDao,
     private val client: OkHttpClient,
     val coroutineScope: CoroutineScope,
@@ -117,7 +118,7 @@ class ComicRepositoryImpl @Inject constructor(
     override val foundNewComic = Channel<Unit>()
 
     private val newestComicNumber = flow {
-        val previousNewest = prefHelper.newest
+        val previousNewest = sharedPrefs.newestComic
         emit(previousNewest)
 
         updateNewestComic(postToChannel = true)?.let {
@@ -128,10 +129,10 @@ class ComicRepositoryImpl @Inject constructor(
     override suspend fun updateNewestComic(postToChannel: Boolean): Comic? {
         try {
             val newestComic = Comic(xkcdApi.getNewestComic(), context)
-            if (newestComic.number != prefHelper.newest) {
+            if (newestComic.number != sharedPrefs.newestComic) {
                 // In offline mode, we need to cache all the new comics here
-                if (prefHelper.fullOfflineEnabled()) {
-                    val firstComicToCache = prefHelper.newest + 1
+                if (settings.fullOfflineEnabled) {
+                    val firstComicToCache = sharedPrefs.newestComic + 1
                     coroutineScope.launch {
                         (firstComicToCache..newestComic.number).map { number ->
                             downloadComic(number)?.let { comic ->
@@ -145,13 +146,13 @@ class ComicRepositoryImpl @Inject constructor(
                     }
                 }
 
-                if (prefHelper.newest != 0 && postToChannel) {
+                if (sharedPrefs.newestComic != 0 && postToChannel) {
                     foundNewComic.send(Unit)
                 }
 
                 Timber.i("Found new comic: ${newestComic.number}")
 
-                prefHelper.setNewestComic(newestComic.number)
+                sharedPrefs.newestComic = newestComic.number
 
                 return newestComic
             }
@@ -184,13 +185,13 @@ class ComicRepositoryImpl @Inject constructor(
     override suspend fun removeAllFavorites() = comicDao.removeAllFavorites()
 
     override suspend fun setBookmark(number: Int) {
-        prefHelper.bookmark = number
+        sharedPrefs.bookmark = number
     }
 
     override suspend fun oldestUnreadComic() = comicDao.oldestUnreadComic()
 
     override suspend fun migrateRealmDatabase() {
-        if (!prefHelper.hasMigratedRealmDatabase() || BuildConfig.DEBUG ) {
+        if (!sharedPrefs.hasMigratedRealmDatabase || BuildConfig.DEBUG ) {
             try {
                 // Needed for fresh install, will initialize the (empty) realm database
                 val databaseManager = DatabaseManager(context)
@@ -222,7 +223,7 @@ class ComicRepositoryImpl @Inject constructor(
             } catch (e: Exception) {
                 Timber.e(e, "During migration of Realm Database!")
             }
-            prefHelper.setHasMigratedRealmDatabase()
+            sharedPrefs.hasMigratedRealmDatabase = true
         }
     }
 
@@ -271,7 +272,7 @@ class ComicRepositoryImpl @Inject constructor(
     }
 
     private fun getComicImageFile(number: Int) =
-        File(prefHelper.getOfflinePath(context), "${number}.png")
+        File(settings.getOfflinePath(context), "${number}.png")
 
     private fun hasDownloadedComicImage(number: Int) = getComicImageFile(number).exists()
 
@@ -304,7 +305,7 @@ class ComicRepositoryImpl @Inject constructor(
 
     override val saveOfflineBitmaps: Flow<ProgressStatus> = flow {
         var max: Int
-        (1..prefHelper.newest)
+        (1..sharedPrefs.newestComic)
             .filter { !hasDownloadedComicImage(it) }
             .also { max = it.size }
             .map {
@@ -320,7 +321,7 @@ class ComicRepositoryImpl @Inject constructor(
 
     override suspend fun removeOfflineBitmaps() {
         withContext(Dispatchers.IO) {
-            (1..prefHelper.newest).filter {
+            (1..sharedPrefs.newestComic).filter {
                 !comicDao.isFavorite(it)
             }.map {
                 getComicImageFile(it).delete()
@@ -344,7 +345,7 @@ class ComicRepositoryImpl @Inject constructor(
     override fun cacheAllComics(cacheMissingTranscripts: Boolean) = flow {
         val allComics = comicDao.getComicsSuspend().toMutableMap()
         var max: Int
-        (1..prefHelper.newest)
+        (1..sharedPrefs.newestComic)
             .filter { number -> !allComics.containsKey(number) }
             .also { max = it.size }
             .map { number ->
@@ -361,7 +362,7 @@ class ComicRepositoryImpl @Inject constructor(
 
         if (cacheMissingTranscripts) {
             emit(ProgressStatus.ResetProgress)
-            (1..prefHelper.newest)
+            (1..sharedPrefs.newestComic)
                 .mapNotNull { allComics[it] }
                 .filter { comic -> comic.transcript == "" }
                 .also {
@@ -504,10 +505,11 @@ class ComicRepositoryModule {
     @Provides
     fun provideComicRepository(
         @ApplicationContext context: Context,
-        prefHelper: PrefHelper,
+        sharedPrefs: SharedPrefManager,
+        settings: AppSettings,
         comicDao: ComicDao,
         client: OkHttpClient,
         explainXkcdApi: ExplainXkcdApi,
         xkcdApi: XkcdApi
-    ): ComicRepository = ComicRepositoryImpl(context, prefHelper, comicDao, client, CoroutineScope(Dispatchers.Main), explainXkcdApi, xkcdApi)
+    ): ComicRepository = ComicRepositoryImpl(context, sharedPrefs, settings, comicDao, client, CoroutineScope(Dispatchers.Main), explainXkcdApi, xkcdApi)
 }

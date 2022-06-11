@@ -10,17 +10,13 @@ import androidx.annotation.RequiresApi
 import androidx.core.app.NotificationCompat
 import androidx.hilt.work.HiltWorker
 import androidx.work.*
-import com.tap.xkcd_reader.BuildConfig
 import com.tap.xkcd_reader.R
 import dagger.assisted.Assisted
 import dagger.assisted.AssistedInject
 import dagger.hilt.android.qualifiers.ApplicationContext
 import de.tap.easy_xkcd.database.comics.ComicRepository
-import de.tap.easy_xkcd.database.comics.XkcdApi
-import de.tap.easy_xkcd.explainXkcd.ExplainXkcdApi
-import de.tap.easy_xkcd.utils.PrefHelper
+import de.tap.easy_xkcd.utils.AppSettings
 import timber.log.Timber
-import java.lang.Exception
 import java.util.concurrent.TimeUnit
 import javax.inject.Inject
 import javax.inject.Singleton
@@ -28,7 +24,7 @@ import javax.inject.Singleton
 @Singleton
 class NewComicNotificationHandler @Inject constructor(
     @ApplicationContext private val context: Context,
-    private val prefHelper: PrefHelper,
+    private val settings: AppSettings
 ) {
     private companion object {
         const val TAG = "newComicNotification"
@@ -36,7 +32,7 @@ class NewComicNotificationHandler @Inject constructor(
 
     fun initNotifications() =
         updateNotificationInterval(
-            prefHelper.notificationIntervalHours,
+            settings.notificationIntervalHours.toLong(),
             ExistingPeriodicWorkPolicy.KEEP
         )
 

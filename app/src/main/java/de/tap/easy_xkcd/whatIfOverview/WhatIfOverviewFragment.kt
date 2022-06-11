@@ -24,9 +24,7 @@ import com.tap.xkcd_reader.databinding.RecyclerLayoutBinding
 import dagger.hilt.android.AndroidEntryPoint
 import de.tap.easy_xkcd.database.whatif.Article
 import de.tap.easy_xkcd.mainActivity.MainActivity
-import de.tap.easy_xkcd.utils.PrefHelper
-import de.tap.easy_xkcd.utils.ThemePrefs
-import de.tap.easy_xkcd.utils.observe
+import de.tap.easy_xkcd.utils.*
 import de.tap.easy_xkcd.whatIfArticleViewer.WhatIfActivity
 import jp.wasabeef.recyclerview.adapters.SlideInBottomAnimationAdapter
 import java.util.*
@@ -40,7 +38,13 @@ class WhatIfOverviewFragment : Fragment() {
     private lateinit var adapter: OverviewAdapter
 
     @Inject
-    lateinit var prefHelper: PrefHelper
+    lateinit var sharedPrefs: SharedPrefManager
+
+    @Inject
+    lateinit var settings: AppSettings
+
+    @Inject
+    lateinit var onlineChecker: OnlineChecker
 
     @Inject
     lateinit var themePrefs: ThemePrefs
@@ -61,7 +65,7 @@ class WhatIfOverviewFragment : Fragment() {
         setHasOptionsMenu(true)
 
         adapter = OverviewAdapter(
-            themePrefs, prefHelper, requireActivity(),
+            themePrefs, settings, requireActivity(),
             emptyList(), this::onArticleClicked, this::onArticleLongClicked
         )
         binding.rv.adapter =
@@ -111,7 +115,7 @@ class WhatIfOverviewFragment : Fragment() {
     }
 
     private fun onArticleClicked(article: Article) {
-        if (!prefHelper.isOnline(activity) && !prefHelper.fullOfflineWhatIf()) {
+        if (!onlineChecker.isOnline() && !settings.fullOfflineWhatIf) {
             Toast.makeText(activity, R.string.no_connection, Toast.LENGTH_SHORT).show()
             return
         }

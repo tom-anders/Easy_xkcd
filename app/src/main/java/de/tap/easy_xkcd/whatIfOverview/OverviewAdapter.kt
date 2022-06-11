@@ -18,13 +18,13 @@ import com.tap.xkcd_reader.R
 import de.tap.easy_xkcd.GlideApp
 import de.tap.easy_xkcd.GlideRequest
 import de.tap.easy_xkcd.database.whatif.Article
-import de.tap.easy_xkcd.utils.PrefHelper
+import de.tap.easy_xkcd.utils.AppSettings
 import de.tap.easy_xkcd.utils.ThemePrefs
 import java.io.File
 
 class OverviewAdapter constructor(
     private val themePrefs: ThemePrefs,
-    private val prefHelper: PrefHelper,
+    private val appSettings: AppSettings,
     private val context: Context,
     var articles: List<Article>,
     private var itemClickedCallback: (article: Article) -> Unit,
@@ -68,9 +68,9 @@ class OverviewAdapter constructor(
         getWhatIfMissingThumbnailId(article.number)?.let {
             holder.thumbnail.setImageDrawable(ContextCompat.getDrawable(context, it))
         } ?: run {
-            if (prefHelper.fullOfflineWhatIf()) {
+            if (appSettings.fullOfflineWhatIf) {
                 //TODO This logic should be moved to the viewmodel
-                val offlinePath: File = prefHelper.getOfflinePath(context)
+                val offlinePath: File = appSettings.getOfflinePath(context)
                 val dir =
                     File(offlinePath.absolutePath + OFFLINE_WHATIF_OVERVIEW_PATH)
                 val file = File(dir, article.number.toString() + ".png")
