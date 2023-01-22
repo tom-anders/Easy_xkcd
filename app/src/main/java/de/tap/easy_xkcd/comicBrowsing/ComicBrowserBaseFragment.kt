@@ -30,7 +30,6 @@ import de.tap.easy_xkcd.ComicViewHolder
 import de.tap.easy_xkcd.CustomTabHelpers.BrowserFallback
 import de.tap.easy_xkcd.CustomTabHelpers.CustomTabActivityHelper
 import de.tap.easy_xkcd.database.comics.Comic
-import de.tap.easy_xkcd.database.RealmComic
 import de.tap.easy_xkcd.fragments.ImmersiveDialogFragment
 import de.tap.easy_xkcd.mainActivity.MainActivity
 import de.tap.easy_xkcd.utils.*
@@ -189,7 +188,7 @@ abstract class ComicBrowserBaseFragment : Fragment() {
             }
 
             override fun onSingleTapConfirmed(e: MotionEvent?): Boolean {
-                if (RealmComic.isInteractiveComic(comic.number, activity)) {
+                if (Comic.isInteractiveComic(comic.number)) {
                     openInBrowser(comic)
                 } else {
                     altOrFullscreen(singleTap = true)
@@ -206,11 +205,7 @@ abstract class ComicBrowserBaseFragment : Fragment() {
         }
 
         override fun onBindViewHolder(holder: ComicBrowserViewHolder, position: Int) {
-            if (Arrays.binarySearch(
-                    requireActivity().resources.getIntArray(R.array.large_comics),
-                    position + 1
-                ) >= 0
-            ) {
+            if (Comic.isLargeComic(position + 1)) {
                 holder.image.maximumScale = 15.0f
             }
 
@@ -376,9 +371,8 @@ abstract class ComicBrowserBaseFragment : Fragment() {
             val intent = Intent(
                 Intent.ACTION_VIEW, Uri.parse(
                     "https://"
-                            + (if (RealmComic.isInteractiveComic(
+                            + (if (Comic.isInteractiveComic(
                             comic.number,
-                            activity
                         )
                     ) "" else "m.")
                             + "xkcd.com/" + comic.number

@@ -1,23 +1,17 @@
 package de.tap.easy_xkcd.whatIfOverview
 
 import android.content.Context
-import androidx.lifecycle.*
-import com.tap.xkcd_reader.R
+import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
 import dagger.hilt.android.qualifiers.ApplicationContext
-import de.tap.easy_xkcd.database.ArticleRoomDatabase
-import de.tap.easy_xkcd.database.whatif.ArticleRepository
 import de.tap.easy_xkcd.database.whatif.Article
+import de.tap.easy_xkcd.database.whatif.ArticleRepository
 import de.tap.easy_xkcd.utils.SharedPrefManager
 import de.tap.easy_xkcd.utils.ViewModelWithFlowHelper
-import io.realm.RealmResults
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.runBlocking
-import okhttp3.internal.wait
-import timber.log.Timber
 import javax.inject.Inject
 
 @HiltViewModel

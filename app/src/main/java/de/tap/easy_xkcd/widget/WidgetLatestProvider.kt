@@ -1,38 +1,27 @@
 package de.tap.easy_xkcd.widget
 
-import android.appwidget.AppWidgetProvider
-import android.appwidget.AppWidgetManager
-import android.widget.RemoteViews
-import com.tap.xkcd_reader.R
-import android.content.Intent
 import android.app.PendingIntent
-import de.tap.easy_xkcd.database.RealmComic
-import de.tap.easy_xkcd.database.DatabaseManager
-import timber.log.Timber
-import android.content.ComponentName
+import android.appwidget.AppWidgetManager
+import android.appwidget.AppWidgetProvider
 import android.content.Context
-import de.tap.easy_xkcd.widget.WidgetLatestProvider
-import com.bumptech.glide.request.target.AppWidgetTarget
+import android.content.Intent
 import android.graphics.Bitmap
 import android.view.View
+import android.widget.RemoteViews
+import com.bumptech.glide.request.target.AppWidgetTarget
 import com.bumptech.glide.request.transition.Transition
-import dagger.assisted.Assisted
-import dagger.assisted.AssistedInject
+import com.tap.xkcd_reader.R
 import dagger.hilt.android.AndroidEntryPoint
 import de.tap.easy_xkcd.GlideApp
 import de.tap.easy_xkcd.database.comics.Comic
 import de.tap.easy_xkcd.database.comics.ComicDao
-import de.tap.easy_xkcd.database.comics.ComicRepository
 import de.tap.easy_xkcd.database.comics.XkcdApi
 import de.tap.easy_xkcd.utils.AppSettings
 import de.tap.easy_xkcd.utils.SharedPrefManager
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
-import org.json.JSONException
-import java.io.IOException
-import java.lang.Exception
-import java.lang.IllegalArgumentException
+import timber.log.Timber
 import javax.inject.Inject
 
 @AndroidEntryPoint
@@ -53,7 +42,7 @@ class WidgetLatestProvider : AppWidgetProvider() {
     ) {
         CoroutineScope(Dispatchers.IO).launch {
             try {
-                Comic(xkcdApi.getNewestComic(), context)
+                Comic(xkcdApi.getNewestComic())
             } catch (e: Exception) {
                 Timber.e(e)
                 comicDao.getComic(sharedPrefManager.newestComic)

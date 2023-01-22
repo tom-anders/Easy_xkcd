@@ -202,32 +202,6 @@
         <item>3</item>
     </string-array>
 
-    <integer-array name="large_comics" translatable="false">
-        <item>256</item>
-        <item>482</item>
-        <item>657</item>
-        <item>681</item>
-        <item>802</item>
-        <item>832</item>
-        <item>930</item>
-        <item>1000</item>
-        <item>1040</item>
-        <item>1071</item>
-        <item>1079</item>
-        <item>1080</item>
-        <item>1196</item>
-        <item>1256</item>
-        <item>1298</item>
-        <item>1389</item>
-        <item>1392</item>
-        <item>1461</item>
-        <item>1491</item>
-        <item>1509</item>
-        <item>1688</item>
-        <item>1732</item>
-    </integer-array>
-
-
     <string-array name="large_comics_urls" translatable="false">
         <item>https://imgs.xkcd.com/comics/online_communities.png</item>
         <item>https://imgs.xkcd.com/comics/height.png</item>

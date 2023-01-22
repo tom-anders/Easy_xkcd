@@ -135,9 +135,6 @@ dependencies {
 //    implementation 'uz.shift:colorpicker:0.5@aar'
     implementation fileTree(dir: 'libs', include: ['*.aar'])
 
-    implementation 'io.realm:realm-android:0.87.5'
-    annotationProcessor 'io.realm:realm-android:0.87.5'
-
     implementation 'com.simplecityapps:recyclerview-fastscroll:2.0.1'
 
     implementation 'com.jakewharton.timber:timber:4.7.1'

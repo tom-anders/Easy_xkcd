@@ -21,10 +21,6 @@ class MainActivityViewModel @Inject constructor(
 ) : AndroidViewModel(app) {
 
     fun onCreateWithNullSavedInstanceState() {
-        viewModelScope.launch {
-            repository.migrateRealmDatabase()
-        }
-
         newComicNotificationHandler.initNotifications()
     }
 }

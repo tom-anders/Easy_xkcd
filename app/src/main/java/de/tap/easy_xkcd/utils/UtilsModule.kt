@@ -6,7 +6,6 @@ import dagger.Provides
 import dagger.hilt.InstallIn
 import dagger.hilt.android.qualifiers.ApplicationContext
 import dagger.hilt.components.SingletonComponent
-import de.tap.easy_xkcd.database.DatabaseManager
 import okhttp3.OkHttpClient
 import javax.inject.Singleton
 
@@ -24,10 +23,6 @@ class UtilsModule {
     @Singleton
     @Provides
     fun provideAppTheme(@ApplicationContext context: Context) = AppTheme(context)
-
-    @Singleton
-    @Provides
-    fun provideDatabaseManager(@ApplicationContext context: Context) = DatabaseManager(context)
 
     @Singleton
     @Provides

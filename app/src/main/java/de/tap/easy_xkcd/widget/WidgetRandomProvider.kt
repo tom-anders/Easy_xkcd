@@ -1,30 +1,25 @@
 package de.tap.easy_xkcd.widget
 
-import android.appwidget.AppWidgetProvider
-import android.appwidget.AppWidgetManager
-import android.widget.RemoteViews
-import com.tap.xkcd_reader.R
-import android.content.Intent
-import de.tap.easy_xkcd.widget.WidgetRandomProvider
 import android.app.PendingIntent
+import android.appwidget.AppWidgetManager
+import android.appwidget.AppWidgetProvider
 import android.content.Context
-import de.tap.easy_xkcd.database.RealmComic
-import de.tap.easy_xkcd.database.DatabaseManager
-import com.bumptech.glide.request.target.AppWidgetTarget
+import android.content.Intent
 import android.graphics.Bitmap
 import android.view.View
+import android.widget.RemoteViews
+import com.bumptech.glide.request.target.AppWidgetTarget
 import com.bumptech.glide.request.transition.Transition
+import com.tap.xkcd_reader.R
 import dagger.hilt.android.AndroidEntryPoint
-import timber.log.Timber
 import de.tap.easy_xkcd.GlideApp
-import de.tap.easy_xkcd.database.comics.ComicDao
 import de.tap.easy_xkcd.database.comics.ComicRepository
 import de.tap.easy_xkcd.utils.AppSettings
 import de.tap.easy_xkcd.utils.SharedPrefManager
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
-import java.lang.IllegalArgumentException
+import timber.log.Timber
 import javax.inject.Inject
 import kotlin.random.Random
 

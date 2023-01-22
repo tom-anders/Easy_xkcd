@@ -5,7 +5,6 @@ import android.graphics.Bitmap
 import android.net.Uri
 import androidx.core.content.FileProvider
 import androidx.core.text.HtmlCompat
-import com.tap.xkcd_reader.BuildConfig
 import com.tap.xkcd_reader.R
 import dagger.Module
 import dagger.Provides
@@ -14,17 +13,18 @@ import dagger.hilt.android.components.ViewModelComponent
 import dagger.hilt.android.qualifiers.ApplicationContext
 import dagger.hilt.components.SingletonComponent
 import de.tap.easy_xkcd.GlideApp
-import de.tap.easy_xkcd.database.DatabaseManager
 import de.tap.easy_xkcd.database.ProgressStatus
-import de.tap.easy_xkcd.database.RealmComic
-import de.tap.easy_xkcd.database.comics.XkcdApi
-import de.tap.easy_xkcd.database.comics.XkcdApiComic
 import de.tap.easy_xkcd.explainXkcd.ExplainXkcdApi
-import de.tap.easy_xkcd.utils.*
-import kotlinx.coroutines.*
-import kotlinx.coroutines.channels.*
+import de.tap.easy_xkcd.utils.AppSettings
+import de.tap.easy_xkcd.utils.SharedPrefManager
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.*
-import okhttp3.*
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
+import okhttp3.OkHttpClient
+import okhttp3.Request
 import org.json.JSONObject
 import timber.log.Timber
 import java.io.File
@@ -88,8 +88,6 @@ interface ComicRepository {
 
     suspend fun setBookmark(number: Int)
 
-    suspend fun migrateRealmDatabase()
-
     suspend fun oldestUnreadComic(): Comic?
 
     fun getOfflineUri(number: Int): Uri?
@@ -128,7 +126,7 @@ class ComicRepositoryImpl @Inject constructor(
 
     override suspend fun updateNewestComic(postToChannel: Boolean): Comic? {
         try {
-            val newestComic = Comic(xkcdApi.getNewestComic(), context)
+            val newestComic = Comic(xkcdApi.getNewestComic())
             if (newestComic.number != sharedPrefs.newestComic) {
                 // In offline mode, we need to cache all the new comics here
                 if (settings.fullOfflineEnabled) {
@@ -189,43 +187,6 @@ class ComicRepositoryImpl @Inject constructor(
     }
 
     override suspend fun oldestUnreadComic() = comicDao.oldestUnreadComic()
-
-    override suspend fun migrateRealmDatabase() {
-        if (!sharedPrefs.hasMigratedRealmDatabase || BuildConfig.DEBUG ) {
-            try {
-                // Needed for fresh install, will initialize the (empty) realm database
-                val databaseManager = DatabaseManager(context)
-
-                val migratedComics = copyResultsFromRealm { realm ->
-                    realm.where(RealmComic::class.java).findAll()
-                }.mapIndexedNotNull { index, realmComic ->
-                    try {
-                        Comic(
-                            XkcdApiComic(
-                                num = realmComic.comicNumber,
-                                transcript = realmComic.transcript,
-                                alt = realmComic.altText,
-                                title = realmComic.title,
-                                url = realmComic.url,
-                                day = "", month = "", year = "",
-                            ), context
-                        ).apply {
-                            read = realmComic.isRead
-                            favorite = realmComic.isFavorite
-                        }
-                    } catch (e: Exception) {
-                        Timber.e(e, "Occured at comic index $index")
-                        null
-                    }
-                }
-                Timber.d("Migrating ${migratedComics.size} comics")
-                comicDao.insert(migratedComics)
-            } catch (e: Exception) {
-                Timber.e(e, "During migration of Realm Database!")
-            }
-            sharedPrefs.hasMigratedRealmDatabase = true
-        }
-    }
 
     //TODO Use RedditSearchApi via Retrofit
     override suspend fun getRedditThread(comic: Comic) = withContext(Dispatchers.IO) {
@@ -334,7 +295,7 @@ class ComicRepositoryImpl @Inject constructor(
             Comic.makeComic404()
         } else {
             try {
-                Comic(xkcdApi.getComic(number), context)
+                Comic(xkcdApi.getComic(number))
             } catch (e: Exception) {
                 Timber.e(e, "Failed to download comic $number")
                 null

@@ -56,14 +56,12 @@ class SharedPrefManager(
         const val OVERVIEW_FAV = "overview_fav"
         const val OVERVIEW_STYLE = "overview_style"
         const val BOOKMARK = "bookmark"
-        const val MIGRATED_REALM_DATABASE = "pref_migrated_realm_database_8.0.1"
         const val SHOW_BETA_DIALOG = "show_beta_dialog_8.0beta-1"
         const val RESET_WHATIF_DATABASE = "reset_whatif_database"
     }
 
     var hasAlreadyResetWhatifDatabase by Pref(RESET_WHATIF_DATABASE, false)
     var showBetaDialog by Pref(SHOW_BETA_DIALOG, true)
-    var hasMigratedRealmDatabase by Pref(MIGRATED_REALM_DATABASE, false)
 
     var newestComic by Pref(NEWEST_COMIC, 0)
     var lastComic by Pref(LAST_COMIC, 0)
