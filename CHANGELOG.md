@@ -3,6 +3,7 @@
 - Add support for themed icons (thanks to @thgoebel)
 - Fix comics not being marked as read in overview
 - Pressing back button in comic browser now takes you to comic overview again
+- Random button won't overlap comic image when not zoomed
 - Remove legacy database support, decreasing app size by ~4MB
 
 ## 8.1.1
