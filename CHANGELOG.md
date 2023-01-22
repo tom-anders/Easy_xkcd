@@ -1,3 +1,7 @@
+## 8.2
+
+- Add support for themed icons (thanks to @thgoebel)
+
 ## 8.1.1
 
 - Fix titles of settings screens
