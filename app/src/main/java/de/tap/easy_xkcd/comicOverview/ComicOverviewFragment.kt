@@ -52,9 +52,7 @@ class ComicOverviewFragment : Fragment() {
     }
 
     override fun onCreateView(
-        inflater: LayoutInflater,
-        container: ViewGroup?,
-        savedInstanceState: Bundle?
+        inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?
     ): View {
         _binding = RecyclerLayoutBinding.inflate(inflater, container, false)
 
@@ -70,15 +68,12 @@ class ComicOverviewFragment : Fragment() {
         (recyclerView.itemAnimator as? SimpleItemAnimator)?.supportsChangeAnimations = false
 
         model.overviewStyle.observe(viewLifecycleOwner) { style ->
-            binding.rv.layoutManager =
-                when (style) {
-                    2 ->
-                        StaggeredGridLayoutManager(
-                            2,
-                            StaggeredGridLayoutManager.VERTICAL
-                        ).apply { reverseLayout = true }
-                    else -> LinearLayoutManager(activity).apply { reverseLayout = true }
-                }
+            binding.rv.layoutManager = when (style) {
+                2 -> StaggeredGridLayoutManager(
+                    2, StaggeredGridLayoutManager.VERTICAL
+                ).apply { reverseLayout = true }
+                else -> LinearLayoutManager(activity).apply { reverseLayout = true }
+            }
 
             recyclerView.isVerticalScrollBarEnabled =
                 recyclerView.layoutManager !is LinearLayoutManager
@@ -89,7 +84,12 @@ class ComicOverviewFragment : Fragment() {
             recyclerView.adapter = adapter
 
             if (savedInstanceState != null) {
-                scrollRecyclerViewToPosition(savedInstanceState.getInt(SAVED_INSTANCE_ADAPTER_POSITION, 0))
+                scrollRecyclerViewToPosition(
+                    savedInstanceState.getInt(
+                        SAVED_INSTANCE_ADAPTER_POSITION,
+                        0
+                    )
+                )
             }
         }
 
@@ -109,8 +109,7 @@ class ComicOverviewFragment : Fragment() {
                         adapter.comics[oldItemPosition].number == newList[newItemPosition].number
 
                     override fun areContentsTheSame(
-                        oldItemPosition: Int,
-                        newItemPosition: Int
+                        oldItemPosition: Int, newItemPosition: Int
                     ): Boolean {
                         return adapter.comics[oldItemPosition] == newList[newItemPosition]
                     }
@@ -128,6 +127,15 @@ class ComicOverviewFragment : Fragment() {
                 diffResult.dispatchUpdatesTo(adapter)
 
                 (activity as AppCompatActivity).supportActionBar?.subtitle = ""
+            } else {
+                // Figure out which comics have been marked as read since the last time we opened the overview
+                newList.mapIndexed { pos, comic ->
+                    if (comic.comic?.read != adapter.comics[pos].comic?.read) {
+                        comic.comic?.let { Pair(pos, it) }
+                    } else {
+                        null
+                    }
+                }.filterNotNull().forEach { (pos, comic) -> adapter.updateComic(pos, comic) }
             }
 
             comicNumberOfSharedElementTransition?.let {
@@ -151,9 +159,10 @@ class ComicOverviewFragment : Fragment() {
             // If the overview is in "favorites only" mode and we're coming from the normal browser
             // (not from the favorites browser), then we'll probably not have the comic in the list,
             // so don't bother doing the enter transition in that case.
-            val onlyShowFavoritesAndNotComingFromFavorites
-                    = !args.getBoolean(MainActivity.ARG_FROM_FAVORITES, false)
-                        && model.onlyFavorites.value
+            val onlyShowFavoritesAndNotComingFromFavorites = !args.getBoolean(
+                MainActivity.ARG_FROM_FAVORITES,
+                false
+            ) && model.onlyFavorites.value
 
             if (savedInstanceState == null && !onlyShowFavoritesAndNotComingFromFavorites) {
                 args.getInt(MainActivity.ARG_COMIC_OR_ARTICLE_TO_SHOW, -1).let { number ->
@@ -170,19 +179,17 @@ class ComicOverviewFragment : Fragment() {
                             // hide them again
                             if (model.hideRead.value) {
                                 model.toggleHideRead()
-                                transition.addListener(
-                                    object : Transition.TransitionListener {
-                                        override fun onTransitionEnd(transition: Transition) =
-                                            model.toggleHideRead()
+                                transition.addListener(object : Transition.TransitionListener {
+                                    override fun onTransitionEnd(transition: Transition) =
+                                        model.toggleHideRead()
 
-                                        override fun onTransitionCancel(transition: Transition) =
-                                            model.toggleHideRead()
+                                    override fun onTransitionCancel(transition: Transition) =
+                                        model.toggleHideRead()
 
-                                        override fun onTransitionStart(transition: Transition) {}
-                                        override fun onTransitionPause(transition: Transition) {}
-                                        override fun onTransitionResume(transition: Transition) {}
-                                    }
-                                )
+                                    override fun onTransitionStart(transition: Transition) {}
+                                    override fun onTransitionPause(transition: Transition) {}
+                                    override fun onTransitionResume(transition: Transition) {}
+                                })
                             }
 
                             sharedElementEnterTransition = transition
@@ -197,7 +204,9 @@ class ComicOverviewFragment : Fragment() {
                 val randIndex = Random.nextInt(adapter.comics.size)
 
                 mainActivity?.showComicFromOverview(
-                    sharedPrefs.showOnlyFavsInOverview, emptyList(), adapter.comics[randIndex].number
+                    sharedPrefs.showOnlyFavsInOverview,
+                    emptyList(),
+                    adapter.comics[randIndex].number
                 )
             }
         }
@@ -207,18 +216,15 @@ class ComicOverviewFragment : Fragment() {
 
     private fun scrollRecyclerViewToPosition(position: Int) {
         // Calculate offset such that the item will be centered in the middle
-        val offset =
-            (recyclerView.width - (recyclerView.findViewHolderForAdapterPosition(
-                position
-            )?.itemView?.width ?: 0)) / 2
+        val offset = (recyclerView.width - (recyclerView.findViewHolderForAdapterPosition(
+            position
+        )?.itemView?.width ?: 0)) / 2
 
         (recyclerView.layoutManager as? LinearLayoutManager)?.scrollToPositionWithOffset(
-            position - 1,
-            offset
+            position - 1, offset
         )
         (recyclerView.layoutManager as? StaggeredGridLayoutManager)?.scrollToPositionWithOffset(
-            position - 1,
-            offset
+            position - 1, offset
         )
     }
 
@@ -286,10 +292,16 @@ class ComicOverviewFragment : Fragment() {
     override fun onSaveInstanceState(outState: Bundle) {
         val layoutManager = recyclerView.layoutManager
         if (layoutManager is LinearLayoutManager) {
-            outState.putInt(SAVED_INSTANCE_ADAPTER_POSITION, layoutManager.findFirstVisibleItemPosition())
+            outState.putInt(
+                SAVED_INSTANCE_ADAPTER_POSITION,
+                layoutManager.findFirstVisibleItemPosition()
+            )
         } else if (layoutManager is StaggeredGridLayoutManager) {
             IntArray(0).let {
-                outState.putInt(SAVED_INSTANCE_ADAPTER_POSITION, layoutManager.findFirstVisibleItemPositions(null).first())
+                outState.putInt(
+                    SAVED_INSTANCE_ADAPTER_POSITION,
+                    layoutManager.findFirstVisibleItemPositions(null).first()
+                )
             }
         }
     }
@@ -322,8 +334,7 @@ class ComicOverviewFragment : Fragment() {
 
         override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ComicListViewHolder {
             val view = when (style) {
-                2 -> LayoutInflater.from(parent.context)
-                    .inflate(R.layout.grid_item, parent, false)
+                2 -> LayoutInflater.from(parent.context).inflate(R.layout.grid_item, parent, false)
 
                 1 -> LayoutInflater.from(parent.context)
                     .inflate(R.layout.search_result, parent, false)
@@ -334,11 +345,9 @@ class ComicOverviewFragment : Fragment() {
 
             view.setOnClickListener {
                 (activity as MainActivity?)?.showComicFromOverview(
-                    sharedPrefs.showOnlyFavsInOverview,
-                    if (style != 0) {
+                    sharedPrefs.showOnlyFavsInOverview, if (style != 0) {
                         listOf(
-                            view.findViewById(R.id.comic_title),
-                            view.findViewById(R.id.thumbnail)
+                            view.findViewById(R.id.comic_title), view.findViewById(R.id.thumbnail)
                         )
                     } else {
                         emptyList()
@@ -346,10 +355,12 @@ class ComicOverviewFragment : Fragment() {
                 )
             }
 
-            view.setOnLongClickListener { view
+            view.setOnLongClickListener {
+                view
                 comics[recyclerView.getChildAdapterPosition(view)].comic?.let { comic ->
                     AlertDialog.Builder(requireActivity()).setItems(
-                        if (comic.read) R.array.card_long_click_remove else R.array.card_long_click) { dialog, i ->
+                        if (comic.read) R.array.card_long_click_remove else R.array.card_long_click
+                    ) { dialog, i ->
                         when (i) {
                             0 -> {
                                 model.setBookmark(comic.number)
@@ -379,8 +390,7 @@ class ComicOverviewFragment : Fragment() {
                     when {
                         comic.number == model.bookmark.value -> appTheme.accentColor
                         markAsRead xor appTheme.nightThemeEnabled -> ContextCompat.getColor(
-                            context,
-                            R.color.Read
+                            context, R.color.Read
                         )
                         else -> ContextCompat.getColor(context, android.R.color.tertiary_text_light)
                     }

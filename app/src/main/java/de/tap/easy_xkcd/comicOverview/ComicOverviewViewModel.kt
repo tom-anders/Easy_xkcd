@@ -76,7 +76,6 @@ class ComicOverviewViewModel @Inject constructor(
         repository.oldestUnreadComic()
     }
 
-    // BUG: Entry won't be updated in overview because of some flow weirdness
     fun setRead(number: Int, read: Boolean) = viewModelScope.launch {
         repository.setRead(number, read)
     }
