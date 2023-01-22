@@ -174,5 +174,10 @@ class AppTheme(
             }
         }
 
-    val invertColors by Pref(prefs, INVERT_COLORS, true)
+    private var invertColorsPref by Pref(prefs, INVERT_COLORS, true)
+    var invertColors: Boolean
+        set(value) {
+            invertColorsPref = value
+        }
+        get() = invertColorsPref && nightThemeEnabled
 }
