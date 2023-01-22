@@ -458,4 +458,14 @@ class MainActivity : BaseActivity() {
         customTabActivityHelper.unbindCustomTabsService(this)
     }
 
+    override fun onBackPressed() {
+        if (bottomNavigationView.selectedItemId == R.id.nav_favorites ||
+            bottomNavigationView.selectedItemId == R.id.nav_browser
+        ) {
+            bottomNavigationView.selectedItemId = R.id.nav_overview
+        } else {
+            super.onBackPressed()
+        }
+    }
+
 }

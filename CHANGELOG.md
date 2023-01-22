@@ -1,6 +1,7 @@
 ## 8.2
 
 - Add support for themed icons (thanks to @thgoebel)
+- Pressing back button in comic browser now takes you to comic overview again
 - Remove legacy database support, decreasing app size by ~4MB
 
 ## 8.1.1
