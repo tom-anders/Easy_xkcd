@@ -175,7 +175,10 @@ class ComicRepositoryImpl @Inject constructor(
     }
 
     override suspend fun setFavorite(number: Int, favorite: Boolean) {
-        if (favorite) saveOfflineBitmap(number)
+        if (favorite) {
+            cacheComic(number)
+            saveOfflineBitmap(number)
+        }
 
         comicDao.setFavorite(number, favorite)
     }
