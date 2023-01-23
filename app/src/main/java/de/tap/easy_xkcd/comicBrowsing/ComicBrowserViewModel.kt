@@ -200,20 +200,22 @@ class FavoriteComicsViewModel @Inject constructor(
         viewModelScope.launch {
             _importingFavorites.value = true
             withContext(Dispatchers.IO) {
+                val newFavourites = mutableListOf<Int>()
                 try {
                     context.contentResolver.openInputStream(uri)?.use { inputStream ->
                         BufferedReader(InputStreamReader(inputStream)).use { bufferedReader ->
-                            var line: String
-                            while (bufferedReader.readLine().also { line = it } != null) {
+                            bufferedReader.forEachLine { line ->
                                 val numberTitle = line.split(" - ".toRegex()).toTypedArray()
                                 val number = numberTitle[0].toInt()
-
-                                repository.setFavorite(number, true)
+                                newFavourites.add(number)
                             }
                         }
                     }
                 } catch (e: Exception) {
                     Timber.e(e)
+                }
+                newFavourites.map { number ->
+                    repository.setFavorite(number, true)
                 }
             }
             _importingFavorites.value = false
