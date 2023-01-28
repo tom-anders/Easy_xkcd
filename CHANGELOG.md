@@ -1,6 +1,8 @@
-## 8.2.1
+## 8.2.2
 
 - Sharing: Fix missing new line between title and URL (thanks to @FineFindus)
+- Fix "mark as as read/unread" action not working in overview (tanks to @FineFindus)
+- Fix import of favorites (thanks to @thgoebel)
 
 ## 8.2
 
