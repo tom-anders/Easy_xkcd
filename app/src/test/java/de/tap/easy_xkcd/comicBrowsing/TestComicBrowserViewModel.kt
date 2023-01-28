@@ -4,7 +4,7 @@ import app.cash.turbine.test
 import de.tap.easy_xkcd.database.comics.Comic
 import de.tap.easy_xkcd.database.comics.ComicContainer
 import de.tap.easy_xkcd.database.comics.ComicRepository
-import de.tap.easy_xkcd.utils.PrefHelper
+import de.tap.easy_xkcd.utils.SharedPrefManager
 import io.kotest.assertions.any
 import io.kotest.matchers.shouldBe
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -35,14 +35,14 @@ class TestComicBrowserViewModel {
     private lateinit var repository: ComicRepository
 
     @Mock
-    private lateinit var prefHelper: PrefHelper
+    private lateinit var sharedPrefs: SharedPrefManager
 
     @Test
     fun `Jumps to last comic when initialized`() = runTest {
-        whenever(prefHelper.lastComic).thenReturn(123)
+        whenever(sharedPrefs.lastComic).thenReturn(123)
         whenever(repository.comics).thenReturn(flowOf(emptyList()))
 
-        val model = ComicBrowserViewModel(repository, prefHelper)
+        val model = ComicBrowserViewModel(repository, sharedPrefs)
 
         model.selectedComicNumber.value shouldBe 123
     }
@@ -52,7 +52,7 @@ class TestComicBrowserViewModel {
         val comics = listOf(Comic(1), Comic(2), Comic(3)).map { ComicContainer(it.number, it) }
         whenever(repository.comics).thenReturn(flowOf(comics))
 
-        val model = ComicBrowserViewModel(repository, prefHelper)
+        val model = ComicBrowserViewModel(repository, sharedPrefs)
 
         model.selectedComicNumber.value shouldBe comics.size
     }
