@@ -1,3 +1,7 @@
+## 8.2.1
+
+- Fix import of favorites (thanks to @thgoebel)
+
 ## 8.2
 
 - Add support for themed icons (thanks to @thgoebel)
