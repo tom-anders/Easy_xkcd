@@ -267,6 +267,10 @@ class ComicOverviewFragment : Fragment() {
             model.toggleOnlyFavorites()
             true
         }
+        R.id.action_all_read -> {
+            model.setAllRead(true)
+            true
+        }
         R.id.action_hide_read -> {
             model.toggleHideRead()
             true

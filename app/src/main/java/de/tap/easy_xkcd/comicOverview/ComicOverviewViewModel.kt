@@ -80,6 +80,11 @@ class ComicOverviewViewModel @Inject constructor(
         repository.setRead(number, read)
     }
 
+    fun setAllRead(read: Boolean) = viewModelScope.launch {
+            repository.setAllRead(read)
+    }
+
+
     fun toggleOnlyFavorites() {
         sharedPrefs.showOnlyFavsInOverview = !sharedPrefs.showOnlyFavsInOverview
         _onlyFavorites.value = sharedPrefs.showOnlyFavsInOverview

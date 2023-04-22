@@ -83,6 +83,7 @@ interface ComicRepository {
     suspend fun removeAllFavorites()
 
     suspend fun setRead(number: Int, read: Boolean)
+    suspend fun setAllRead(read: Boolean)
 
     suspend fun setFavorite(number: Int, favorite: Boolean)
 
@@ -173,6 +174,11 @@ class ComicRepositoryImpl @Inject constructor(
             comicDao.setRead(number, read)
         }
     }
+
+    override suspend fun setAllRead(read: Boolean) {
+        comicDao.setAllRead(read)
+    }
+
 
     override suspend fun setFavorite(number: Int, favorite: Boolean) {
         if (favorite) {
