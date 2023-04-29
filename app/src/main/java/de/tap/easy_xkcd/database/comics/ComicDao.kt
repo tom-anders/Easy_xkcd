@@ -29,6 +29,9 @@ interface ComicDao {
     @Query("UPDATE Comic SET read=:read WHERE number=:number")
     suspend fun setRead(number: Int, read: Boolean)
 
+    @Query("UPDATE Comic SET read=:read")
+    suspend fun setAllRead(read: Boolean)
+
     @Query("SELECT * FROM Comic WHERE favorite")
     fun getFavorites() : Flow<List<Comic>>
 
