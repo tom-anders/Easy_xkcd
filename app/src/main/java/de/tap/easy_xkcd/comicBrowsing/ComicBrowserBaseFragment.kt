@@ -153,13 +153,13 @@ abstract class ComicBrowserBaseFragment : Fragment() {
         ) : GestureDetector.OnDoubleTapListener, View.OnLongClickListener {
             private var fingerLifted = true
 
-            override fun onDoubleTapEvent(e: MotionEvent?): Boolean {
-                if (e?.action == MotionEvent.ACTION_UP) fingerLifted = true
-                if (e?.action == MotionEvent.ACTION_DOWN) fingerLifted = false
+            override fun onDoubleTapEvent(e: MotionEvent): Boolean {
+                if (e.action == MotionEvent.ACTION_UP) fingerLifted = true
+                if (e.action == MotionEvent.ACTION_DOWN) fingerLifted = false
                 return false
             }
 
-            override fun onDoubleTap(e: MotionEvent?): Boolean {
+            override fun onDoubleTap(e: MotionEvent): Boolean {
                 if (settings.doubleTapToFavorite) {
                     toggleFavorite()
                     (activity?.getSystemService(Context.VIBRATOR_SERVICE) as? Vibrator?)?.vibrate(100)
@@ -187,7 +187,7 @@ abstract class ComicBrowserBaseFragment : Fragment() {
                 }
             }
 
-            override fun onSingleTapConfirmed(e: MotionEvent?): Boolean {
+            override fun onSingleTapConfirmed(e: MotionEvent): Boolean {
                 if (Comic.isInteractiveComic(comic.number)) {
                     openInBrowser(comic)
                 } else {

@@ -9,7 +9,7 @@ android {
         viewBinding true
     }
 
-    compileSdkVersion 31
+    compileSdkVersion 33
     defaultConfig {
         applicationId "de.tap.easy_xkcd"
         minSdkVersion 21
@@ -71,8 +71,11 @@ android {
         }
     }
     compileOptions {
-        sourceCompatibility JavaVersion.VERSION_1_8
-        targetCompatibility JavaVersion.VERSION_1_8
+        sourceCompatibility JavaVersion.VERSION_17
+        targetCompatibility JavaVersion.VERSION_17
+    }
+    kotlinOptions {
+        jvmTarget = 17
     }
 
     // Needed for Robolectric such that stuff like ContextCompat.getColor() works
@@ -106,7 +109,7 @@ dependencies {
 
     implementation 'com.github.bumptech.glide:glide:4.9.0'
     testImplementation 'junit:junit:4.13.2'
-    annotationProcessor 'androidx.annotation:annotation:1.2.0'
+    annotationProcessor 'androidx.annotation:annotation:1.6.0'
     kapt 'com.github.bumptech.glide:compiler:4.9.0'
 
     implementation 'com.github.chrisbanes:PhotoView:2.3.0'
@@ -161,13 +164,13 @@ dependencies {
     androidTestImplementation "androidx.room:room-testing:2.4.0"
 
     //Jetpack
-    implementation 'androidx.lifecycle:lifecycle-runtime-ktx:2.4.0'
-    implementation 'androidx.lifecycle:lifecycle-viewmodel-ktx:2.4.0'
-    implementation 'androidx.lifecycle:lifecycle-livedata-ktx:2.4.0'
-    implementation 'androidx.core:core-ktx:1.7.0'
-    implementation 'androidx.activity:activity-ktx:1.4.0'
-    implementation 'androidx.fragment:fragment-ktx:1.4.0'
-    kapt 'androidx.lifecycle:lifecycle-compiler:2.4.0'
+    implementation 'androidx.lifecycle:lifecycle-runtime-ktx:2.6.1'
+    implementation 'androidx.lifecycle:lifecycle-viewmodel-ktx:2.6.1'
+    implementation 'androidx.lifecycle:lifecycle-livedata-ktx:2.6.1'
+    implementation 'androidx.core:core-ktx:1.10.0'
+    implementation 'androidx.activity:activity-ktx:1.7.1'
+    implementation 'androidx.fragment:fragment-ktx:1.5.7'
+    kapt 'androidx.lifecycle:lifecycle-compiler:2.6.1'
 
     testImplementation "org.robolectric:robolectric:4.5.1"
     testImplementation "com.google.dagger:hilt-android-testing:$hilt_version"

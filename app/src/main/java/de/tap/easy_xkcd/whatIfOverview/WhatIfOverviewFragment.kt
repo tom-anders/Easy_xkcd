@@ -183,14 +183,14 @@ class WhatIfOverviewFragment : Fragment() {
                 queryHint = resources.getString(R.string.search_hint_whatif)
 
                 setOnActionExpandListener(object: MenuItem.OnActionExpandListener {
-                    override fun onMenuItemActionExpand(p0: MenuItem?): Boolean {
+                    override fun onMenuItemActionExpand(p0: MenuItem): Boolean {
                         (requireActivity().getSystemService(AppCompatActivity.INPUT_METHOD_SERVICE) as InputMethodManager?)
                             ?.toggleSoftInput(InputMethodManager.SHOW_IMPLICIT, 0)
-                        actionView.requestFocus()
+                        (actionView as? SearchView?)?.requestFocus()
                         return true
                     }
 
-                    override fun onMenuItemActionCollapse(p0: MenuItem?): Boolean {
+                    override fun onMenuItemActionCollapse(p0: MenuItem): Boolean {
                         setQuery("", false)
 
                         (requireActivity().getSystemService(AppCompatActivity.INPUT_METHOD_SERVICE) as InputMethodManager?)?.toggleSoftInput(InputMethodManager.HIDE_IMPLICIT_ONLY, 0)

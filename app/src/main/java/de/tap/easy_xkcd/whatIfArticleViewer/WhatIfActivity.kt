@@ -193,7 +193,7 @@ class WhatIfActivity : BaseActivity() {
     override fun onPrepareOptionsMenu(menu: Menu): Boolean {
         fun MenuItem.enableOrGrayOut(enabled: Boolean) {
             isEnabled = enabled
-            icon.alpha = if (enabled) 250 else 130
+            icon?.alpha = if (enabled) 250 else 130
         }
 
         model.hasPreviousArticle.observe(this) {
