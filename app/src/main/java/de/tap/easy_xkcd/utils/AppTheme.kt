@@ -48,11 +48,12 @@ class AppTheme(
     private val detectColors by ReadOnlyPref(prefs, DETECT_COLOR, true)
     fun bitmapContainsColor(bitmap: Bitmap, comicNumber: Int): Boolean {
         //TODO Add more special cases here
-        if (comicNumber == 1913) //https://github.com/tom-anders/Easy_xkcd/issues/116
+        //these are special case, which contains color and should not be recolored
+        // see https://github.com/tom-anders/Easy_xkcd/issues/116 for an example
+        val specialCases = arrayOf(1551, 1913, 2018, 2622)
+        if (specialCases.contains(comicNumber))
             return true
-        if (comicNumber == 1551) return true
-        if (comicNumber == 2018) //This one doesn't work w/o the yellow color
-            return true
+
         return if (detectColors) try {
             Palette.from(bitmap).generate().vibrantSwatch != null
         } catch (e: Exception) {
