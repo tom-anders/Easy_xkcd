@@ -106,7 +106,7 @@ class OverviewAdapter constructor(
                 )
             }
             if (appTheme.invertColors || appTheme.amoledThemeEnabled())
-                thumbnail.colorFilter = AppTheme.negativeColorFilter
+                thumbnail.colorFilter = appTheme.colorFilter()
 
             itemView.setOnClickListener { itemClickedCallback(articles[adapterPosition]) }
             itemView.setOnLongClickListener { itemLongClickedCallback(articles[adapterPosition]) }
