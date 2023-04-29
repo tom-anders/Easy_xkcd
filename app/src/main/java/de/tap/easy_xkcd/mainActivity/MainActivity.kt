@@ -348,11 +348,21 @@ class MainActivity : BaseActivity() {
             setSearchableInfo((getSystemService(Context.SEARCH_SERVICE) as SearchManager?)?.getSearchableInfo(componentName))
             isIconifiedByDefault = false
             setOnQueryTextListener(object: SearchView.OnQueryTextListener {
-                override fun onQueryTextSubmit(p0: String?): Boolean {
+                override fun onQueryTextSubmit(text: String?): Boolean {
                     searchMenuItem?.collapseActionView()
                     setQuery("", false)
 
                     hideKeyboard()
+
+                    // When user has entered a number, jump right to the comic
+                    text?.toIntOrNull()?.let { number ->
+                        if (number > 0 && number <= sharedPrefs.newestComic) {
+                            bottomNavigationListener.comicOrArticleToShow =
+                                ComicOrArticleToShow.ShowComic(number)
+                            bottomNavigationListener.showComicBrowserFragment()
+                            return true
+                        }
+                    }
 
                     return false
                 }

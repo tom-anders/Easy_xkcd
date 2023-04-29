@@ -1,5 +1,7 @@
-## 8.2.2
+## 8.3
 
+- Entering a number in search now takes you right to that comic again (sorry for accidentally removing that)
+- Fix random button not being random
 - Sharing: Fix missing new line between title and URL (thanks to @FineFindus)
 - Fix "mark as as read/unread" action not working in overview (tanks to @FineFindus)
 - Fix import of favorites (thanks to @thgoebel)

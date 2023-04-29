@@ -15,7 +15,7 @@ android {
         minSdkVersion 21
         targetSdkVersion 31
         versionCode 191
-        versionName "8.2.2"
+        versionName "8.3"
 
         javaCompileOptions {
             annotationProcessorOptions {
