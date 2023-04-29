@@ -1,3 +1,7 @@
+## 8.2.1
+
+- Sharing: Fix missing new line between title and URL (thanks to @FineFindus)
+
 ## 8.2
 
 - Add support for themed icons (thanks to @thgoebel)
