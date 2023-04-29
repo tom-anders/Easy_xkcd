@@ -37,13 +37,25 @@ class AppTheme(
         private const val AUTO_NIGHT_END_HOUR = "pref_auto_night_end_hour"
         private const val INVERT_COLORS = "pref_invert"
 
-        val negativeColorFilter = ColorMatrixColorFilter(floatArrayOf(
-            -1.0f, 0f, 0f, 0f, 255f, //red
-            0f, -1.0f, 0f, 0f, 255f, //green
-            0f, 0f, -1.0f, 0f, 255f, //blue
-            0f, 0f, 0f, 1.0f, 0f //alpha
-        ))
     }
+
+    fun colorFilter(): ColorMatrixColorFilter = if (amoledThemeEnabled())
+        ColorMatrixColorFilter(
+            floatArrayOf(
+                -1.0f, 0f, 0f, 0f, 255f, //red
+                0f, -1.0f, 0f, 0f, 255f, //green
+                0f, 0f, -1.0f, 0f, 255f, //blue
+                0f, 0f, 0f, 1.0f, 0f //alpha
+            )
+        ) else
+        ColorMatrixColorFilter(
+            floatArrayOf(
+                -0.82f, 0f, 0f, 0f, 255f,  //red
+                0f, -0.82f, 0f, 0f, 255f,  //green
+                0f, 0f, -0.82f, 0f, 255f,  //blue
+                0f, 0f, 0f, 1.0f, 0f //alpha
+            )
+        )
 
     private val detectColors by ReadOnlyPref(prefs, DETECT_COLOR, true)
     fun bitmapContainsColor(bitmap: Bitmap, comicNumber: Int): Boolean {

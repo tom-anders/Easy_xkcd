@@ -109,7 +109,7 @@ abstract class ComicBaseAdapter<ViewHolder: ComicViewHolder>(
         holder.title.text = prefix + Html.fromHtml(Comic.getInteractiveTitle(comic, context))
 
         if (appTheme.invertColors) {
-            holder.image?.colorFilter = AppTheme.negativeColorFilter
+            holder.image?.colorFilter = appTheme.colorFilter()
         }
 
         val gifId = when (comic.number) {
