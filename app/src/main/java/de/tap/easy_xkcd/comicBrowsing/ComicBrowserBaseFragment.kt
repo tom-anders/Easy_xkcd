@@ -447,7 +447,7 @@ abstract class ComicBrowserBaseFragment : Fragment() {
                 extraText += "\n" + comic.altText
             }
             if (settings.includeLinkWhenSharing) {
-                extraText += "https://${if (settings.shareMobile) "m." else ""}xkcd.com/${comic.number}/"
+                extraText += "\n" + "https://${if (settings.shareMobile) "m." else ""}xkcd.com/${comic.number}/"
             }
             share.putExtra(Intent.EXTRA_TEXT, extraText)
 
