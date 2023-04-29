@@ -50,7 +50,7 @@ class AppTheme(
         //TODO Add more special cases here
         //these are special case, which contains color and should not be recolored
         // see https://github.com/tom-anders/Easy_xkcd/issues/116 for an example
-        val specialCases = arrayOf(1913, 1551, 2018)
+        val specialCases = arrayOf(1551, 1913, 2018, 2622)
         if (specialCases.contains(comicNumber))
             return true
 
