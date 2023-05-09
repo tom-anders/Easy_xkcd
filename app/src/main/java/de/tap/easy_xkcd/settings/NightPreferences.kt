@@ -44,7 +44,7 @@ class NightFragment: BasePreferenceFragment() {
             true
         }
 
-        findPreference<Preference>("pref_detect_color")?.setOnPreferenceClickListener {
+        findPreference<Preference>("pref_invert_color")?.setOnPreferenceClickListener {
             activity?.setResult(BaseSettingsActivity.RESULT_RESTART_MAIN)
             true
         }

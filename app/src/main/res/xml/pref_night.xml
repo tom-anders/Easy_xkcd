@@ -27,7 +27,7 @@
         android:defaultValue="true" />
 
     <SwitchPreference
-        android:key="pref_detect_color"
+        android:key="pref_invert_color"
         android:title="@string/pref_detect_color"
         android:defaultValue="true"
         android:dependency="pref_invert" />

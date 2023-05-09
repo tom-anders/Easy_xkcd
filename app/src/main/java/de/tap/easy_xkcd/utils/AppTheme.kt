@@ -29,13 +29,13 @@ class AppTheme(
         private const val NIGHT_THEME = "pref_night"
         private const val NIGHT_SYSTEM = "pref_night_system"
         private const val AMOLED_NIGHT = "pref_amoled"
-        private const val DETECT_COLOR = "pref_detect_color"
-
         private const val AUTO_NIGHT_START_MIN = "pref_auto_night_start_min"
+
         private const val AUTO_NIGHT_START_HOUR = "pref_auto_night_start_hour"
         private const val AUTO_NIGHT_END_MIN = "pref_auto_night_end_min"
         private const val AUTO_NIGHT_END_HOUR = "pref_auto_night_end_hour"
         private const val INVERT_COLORS = "pref_invert"
+        private const val INVERT_COLOR_IMG = "pref_invert_color"
 
     }
 
@@ -57,7 +57,7 @@ class AppTheme(
             )
         )
 
-    private val detectColors by ReadOnlyPref(prefs, DETECT_COLOR, true)
+    private val invertColorImg by ReadOnlyPref(prefs, INVERT_COLOR_IMG, true)
     fun bitmapContainsColor(bitmap: Bitmap, comicNumber: Int): Boolean {
         //TODO Add more special cases here
         //these are special case, which contains color and should not be recolored
@@ -66,10 +66,12 @@ class AppTheme(
         if (specialCases.contains(comicNumber))
             return true
 
-        return if (detectColors) try {
-            Palette.from(bitmap).generate().vibrantSwatch != null
-        } catch (e: Exception) {
-            false
+        return if (!invertColorImg) {
+            try {
+                Palette.from(bitmap).generate().vibrantSwatch != null
+            } catch (e: Exception) {
+                false
+            }
         } else false
     }
 
