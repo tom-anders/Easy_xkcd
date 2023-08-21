@@ -13,9 +13,9 @@ android {
     defaultConfig {
         applicationId "de.tap.easy_xkcd"
         minSdkVersion 21
-        targetSdkVersion 31
-        versionCode 191
-        versionName "8.3"
+        targetSdkVersion 33
+        versionCode 192
+        versionName "8.3.1"
 
         javaCompileOptions {
             annotationProcessorOptions {

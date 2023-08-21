@@ -1,3 +1,8 @@
+## 8.3.1
+
+- Fix color inversion for comic 2622 (thanks @FineFindus)
+- Fix "detect color" toggle effect bein inverted (thanks @FineFindus)
+
 ## 8.3
 
 - Entering a number in search now takes you right to that comic again (sorry for accidentally removing that)
