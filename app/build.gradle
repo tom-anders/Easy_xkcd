@@ -89,6 +89,7 @@ android {
         checkReleaseBuilds false
         disable 'InvalidPackage'
     }
+    namespace 'com.tap.xkcd_reader'
 }
 
 dependencies {
