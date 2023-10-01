@@ -332,7 +332,7 @@
     <string name="no_transcript">Sorry, Comics nach #1674 haben kein Transcript mehr :(</string>
     <string name="pref_fullscreen_enabled">Vollbildmodus aktivieren</string>
     <string name="pref_fullscreen_enabled_sum">Tippe ein Comic an, um den Vollbildmodus zu aktivieren</string>
-    <string name="notification_channel_comic">Comic Benachtichtigungen</string>
+    <string name="notification_channel_comic">Comic Benachrichtigungen</string>
     <string name="notification_channel_download">Downloads Benachtichtigungen</string>
     <string name="offline_image_missing">Dieses Bild fehlt anscheinend!</string>
     <string name="offline_image_missing_redownload">Runterladen</string>
