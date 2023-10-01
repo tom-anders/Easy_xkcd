@@ -23,4 +23,6 @@ class MainActivityViewModel @Inject constructor(
     fun onCreateWithNullSavedInstanceState() {
         newComicNotificationHandler.initNotifications()
     }
+
+    fun newComicNotificationsEnabled() = newComicNotificationHandler.newComicNotificationsEnabled()
 }

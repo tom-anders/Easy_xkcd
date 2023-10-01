@@ -8,6 +8,7 @@ import android.content.Intent
 import android.os.Build
 import androidx.annotation.RequiresApi
 import androidx.core.app.NotificationCompat
+import androidx.core.content.ContextCompat
 import androidx.hilt.work.HiltWorker
 import androidx.work.*
 import com.tap.xkcd_reader.R
@@ -29,6 +30,8 @@ class NewComicNotificationHandler @Inject constructor(
     private companion object {
         const val TAG = "newComicNotification"
     }
+
+    fun newComicNotificationsEnabled() = settings.notificationIntervalHours > 0
 
     fun initNotifications() =
         updateNotificationInterval(

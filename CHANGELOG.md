@@ -1,3 +1,7 @@
+## 8.4
+
+- Fix notifications on Android 13
+
 ## 8.3.1
 
 - Fix color inversion for comic 2622 (thanks @FineFindus)

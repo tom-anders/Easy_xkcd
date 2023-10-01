@@ -1,12 +1,15 @@
 package de.tap.easy_xkcd.mainActivity
 
+import android.Manifest
 import android.app.SearchManager
 import android.content.ComponentName
 import android.content.Context
 import android.content.Intent
+import android.content.pm.PackageManager
 import android.content.res.ColorStateList
 import android.graphics.Color
 import android.net.Uri
+import android.os.Build
 import android.os.Bundle
 import android.view.Menu
 import android.view.MenuItem
@@ -100,6 +103,16 @@ class MainActivity : BaseActivity() {
             }
 
             viewModel.onCreateWithNullSavedInstanceState()
+
+            // Bumping the target SDK to Android 13 has resulted in the notification permission
+            // being revoked, even though the user has enabled new comic notifications in the settings
+            // Detect this and try to request the permission
+            if (viewModel.newComicNotificationsEnabled()
+                && Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU && ContextCompat.checkSelfPermission(this, Manifest.permission.POST_NOTIFICATIONS) != PackageManager.PERMISSION_GRANTED) {
+                registerForActivityResult(ActivityResultContracts.RequestPermission()) {
+                    isGranted: Boolean -> if (isGranted) viewModel.onCreateWithNullSavedInstanceState()
+                }.launch(Manifest.permission.POST_NOTIFICATIONS)
+            }
         }
 
         activityResultLauncher = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) {
