@@ -164,13 +164,14 @@ abstract class ComicBrowserBaseFragment : Fragment() {
                     toggleFavorite()
                     (activity?.getSystemService(Context.VIBRATOR_SERVICE) as? Vibrator?)?.vibrate(100)
                 } else {
-                    when {
-                        image.scale < 0.7f * image.maximumScale -> {
-                            image.setScale(0.7f * image.maximumScale, true)
-                        }
-                        else -> {
-                            image.setScale(1.0f, true)
-                        }
+                    // Implementation adapted from the PhotoView's default double tap listener
+                    try {
+                        image.setScale(when {
+                            image.scale < image.mediumScale -> image.mediumScale
+                            else -> image.minimumScale
+                        }, e.x, e.y, true)
+                    } catch (e: ArrayIndexOutOfBoundsException) {
+                        // Can sometimes happen when getX() and getY() is called
                     }
                 }
                 return true
@@ -205,6 +206,7 @@ abstract class ComicBrowserBaseFragment : Fragment() {
         }
 
         override fun onBindViewHolder(holder: ComicBrowserViewHolder, position: Int) {
+            holder.image.mediumScale = 0.7f * holder.image.maximumScale
             if (Comic.isLargeComic(position + 1)) {
                 holder.image.maximumScale = 15.0f
             }

@@ -1,3 +1,7 @@
+## 8.5
+
+- Double tapping a comic zooms to where you tapped (instead of simply to the image center)
+
 ## 8.4
 
 - Fix notifications on Android 13
