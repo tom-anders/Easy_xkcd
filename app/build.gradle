@@ -172,11 +172,11 @@ dependencies {
     implementation 'androidx.fragment:fragment-ktx:1.5.7'
     kapt 'androidx.lifecycle:lifecycle-compiler:2.6.1'
 
-    testImplementation "org.robolectric:robolectric:4.5.1"
+    testImplementation "org.robolectric:robolectric:4.10.3"
     testImplementation "com.google.dagger:hilt-android-testing:$hilt_version"
     kaptTest "com.google.dagger:hilt-android-compiler:$hilt_version"
 
-    testImplementation "androidx.arch.core:core-testing:2.1.0"
+    testImplementation "androidx.arch.core:core-testing:2.2.0"
 
     androidTestImplementation 'io.kotest:kotest-assertions-core:5.1.0'
     testImplementation 'io.kotest:kotest-assertions-core:5.1.0'
