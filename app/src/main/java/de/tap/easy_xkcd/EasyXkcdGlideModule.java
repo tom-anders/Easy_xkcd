@@ -23,7 +23,7 @@ import timber.log.Timber;
 public class EasyXkcdGlideModule extends AppGlideModule {
     @Override
     public void applyOptions(@NonNull Context context, @NonNull GlideBuilder builder) {
-        // Sometimes, Randall accidentally post an insanely high resolution version of the latest comic.
+        // Sometimes, Randall accidentally posts an insanely high resolution version of the latest comic.
         // This can lead to crashes since by default where not scaling down the image at all. For
         // "normal" images this is fine and looks great, but for those huge images it will lead to a
         // crash. So limit the size to at most 4000 pixels width and height.
