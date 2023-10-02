@@ -5,6 +5,7 @@ out/
 build/
 app/release
 app/googleplay
+app/fdroid
 
 # Local configuration file (sdk path, etc)
 local.properties
