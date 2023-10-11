@@ -23,12 +23,12 @@
     </group>
     <group android:id="@+id/groupWhatifNavigation">
         <item android:id="@+id/action_back"
-            android:title="@string/action_share_article"
+            android:title="@string/action_previous_article"
             android:icon="@drawable/ic_outline_navigate_before_24dp"
             app:showAsAction="always" />
 
         <item android:id="@+id/action_next"
-            android:title="@string/action_favorite"
+            android:title="@string/action_next_article"
             app:showAsAction="always"
             android:icon="@drawable/ic_outline_navigate_next_24dp"/>
 
