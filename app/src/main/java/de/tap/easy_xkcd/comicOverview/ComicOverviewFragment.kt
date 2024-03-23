@@ -268,11 +268,28 @@ class ComicOverviewFragment : Fragment() {
             true
         }
         R.id.action_unread -> {
-            model.setAllRead(false)
+            AlertDialog.Builder(requireContext()).setTitle(R.string.action_unread)
+                .setMessage(R.string.clear_all_read_confirm)
+                .setPositiveButton(R.string.clear_confirm) { dialogInterface, _ ->
+                    model.setAllRead(false)
+                    dialogInterface.dismiss()
+                }
+                .setNegativeButton(R.string.dialog_cancel) { dialogInterface, _ ->
+                    dialogInterface.dismiss()
+                }.show()
             true
         }
         R.id.action_all_read -> {
-            model.setAllRead(true)
+            AlertDialog.Builder(requireContext()).setTitle(R.string.action_all_read)
+                .setMessage(R.string.clear_all_read_confirm)
+                .setPositiveButton(R.string.clear_confirm) { dialogInterface, _ ->
+                    model.setAllRead(true)
+                    dialogInterface.dismiss()
+                }
+                .setNegativeButton(R.string.dialog_cancel) { dialogInterface, _ ->
+                    dialogInterface.dismiss()
+                }
+                .show()
             true
         }
         R.id.action_hide_read -> {
