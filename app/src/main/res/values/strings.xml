@@ -25,6 +25,8 @@
     <string name="favorites_cleared">Favorites cleared</string>
     <string name="delete_offline_dialog">Are you sure you want to disable Offline Mode? This will delete all saved images(except favorites)</string>
     <string name="delete_offline_whatif_dialog">Are you sure you want to disable Offline Mode? This will delete all saved articles</string>
+    <string name="clear_all_read_confirm">All read progress will be lost.</string>
+    <string name="clear_confirm">Clear</string>
 
     <string name="share_url">Share url with&#8230;</string>
     <string name="share_image">Share image with&#8230;</string>

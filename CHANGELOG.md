@@ -1,3 +1,7 @@
+## Unreleased
+
+- Add confirmation to mark all as unread or read
+
 ## 8.5
 
 - Double tapping a comic zooms to where you tapped (instead of simply to the image center)
